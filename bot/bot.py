@@ -35,8 +35,8 @@ TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 bot = telebot.TeleBot(TOKEN)
 
 # URLs
-GAME_URL = 'https://tr1h.github.io/solana-tamagotchi/'  # Coming Soon Page
-MINT_URL = 'https://tr1h.github.io/solana-tamagotchi/'  # Coming Soon Page
+GAME_URL = 'https://tr1h.github.io/solana-tamagotchi/'  # Game URL
+MINT_URL = 'https://tr1h.github.io/solana-tamagotchi/'  # Mint URL
 CHANNEL_USERNAME = '@GotchiGame'  # Channel username for posting
 
 # Group settings
@@ -590,7 +590,7 @@ def send_welcome(message):
     
     # Row 5: Play Tamagotchi Game & Leaderboard 🎮
     keyboard.row(
-        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url="https://tr1h.github.io/crypto-pet-game/tamagotchi-game.html")),
+        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url="https://tr1h.github.io/solana-tamagotchi/tamagotchi-game.html")),
         types.InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")
     )
     
