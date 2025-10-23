@@ -588,17 +588,11 @@ def send_welcome(message):
         types.InlineKeyboardButton("⭐ My Rank", callback_data="view_rank")
     )
     
-    # Row 5: Mini Game (DEV ONLY) & Leaderboard
-    # Only show game button for developers/admins
-    if telegram_id in ["7401131043", "745884561"]:  # Admin Telegram IDs
-        keyboard.row(
-            types.InlineKeyboardButton("🎮 DEV: Play Game", web_app=types.WebAppInfo(url="https://tr1h.github.io/solana-tamagotchi/tamagotchi-game.html")),
-            types.InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")
-        )
-    else:
-        keyboard.row(
-            types.InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")
-        )
+    # Row 5: Play Tamagotchi Game & Leaderboard 🎮
+    keyboard.row(
+        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url="https://tr1h.github.io/crypto-pet-game/tamagotchi-game.html")),
+        types.InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")
+    )
     
     # Row 6: Community
     keyboard.row(
