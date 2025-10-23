@@ -1,0 +1,26 @@
+# ============================================
+# СОЗДАЙ ФАЙЛ .env В КОРНЕ ПРОЕКТА
+# Скопируй этот текст и сохрани как .env
+# ============================================
+
+# Telegram Bot Configuration
+TELEGRAM_BOT_TOKEN=получи_у_@BotFather
+
+# Supabase Configuration
+SUPABASE_URL=https://zfrazyupameidxpjihrh.supabase.co
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU
+
+# Game URLs
+GAME_URL=https://tr1h.github.io/solana-tamagotchi/
+MINT_URL=https://tr1h.github.io/solana-tamagotchi/
+
+# Admin Configuration (твой Telegram ID)
+ADMIN_IDS=7401131043
+
+# ============================================
+# ИНСТРУКЦИЯ:
+# 1. Создай бота через @BotFather
+# 2. Замени "получи_у_@BotFather" на токен бота
+# 3. Сохрани файл как ".env" (БЕЗ расширения .txt!)
+# 4. Запусти: cd bot && python bot.py
+# ============================================

@@ -306,9 +306,9 @@ const TAMAShop = {
     async loadShopBalance() {
         try {
             if (!window.WalletManager || !window.WalletManager.publicKey) {
-                return;
-            }
-            
+            return;
+        }
+        
             let balance = 0;
             
             // Получаем баланс из TAMA Module или Database

@@ -37,7 +37,7 @@ bot = telebot.TeleBot(TOKEN)
 # URLs
 GAME_URL = 'https://tr1h.github.io/solana-tamagotchi/'  # Coming Soon Page
 MINT_URL = 'https://tr1h.github.io/solana-tamagotchi/'  # Coming Soon Page
-CHANNEL_ID = 'solana_tamagotchi_v3_bot'
+CHANNEL_USERNAME = '@GotchiGame'  # Channel username for posting
 
 # Group settings
 GROUP_ID = -1002938566588  # @gotchigamechat group ID
@@ -1470,6 +1470,206 @@ def broadcast_message(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
+@bot.message_handler(commands=['tournament'])
+def start_tournament(message):
+    """Start weekly tournament - Admin only"""
+    if not is_admin(message.from_user.id):
+        bot.reply_to(message, "❌ Admin only")
+        return
+    
+    try:
+        tournament_text = """🏆 WEEKLY TOURNAMENT: Top 10 Tamagotchi Masters!
+
+🎮 Tournament Rules:
+• Compete for the highest TAMA score
+• Tournament runs for 7 days
+• Top 10 players win prizes!
+
+🏆 PRIZES:
+🥇 1st place: 10,000 TAMA + Legendary Pet
+🥈 2nd place: 5,000 TAMA + Epic Pet  
+🥉 3rd place: 3,000 TAMA + Rare Pet
+4-10 places: 1,000 TAMA each
+
+⏰ Tournament ends in 7 days!
+🎯 Start playing now: @solana_tamagotchi_v3_bot
+
+#Tournament #GameFi #Solana"""
+        
+        # Send to group and channel
+        try:
+            bot.send_message(GROUP_ID, tournament_text)
+            bot.send_message(message.chat.id, "✅ Tournament announced in group!")
+        except Exception as group_error:
+            bot.send_message(message.chat.id, f"❌ Group error: {str(group_error)}")
+        
+        try:
+            bot.send_message(CHANNEL_USERNAME, tournament_text)
+            bot.send_message(message.chat.id, "✅ Tournament announced in channel!")
+        except Exception as channel_error:
+            bot.send_message(message.chat.id, f"❌ Channel error: {str(channel_error)}")
+            
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error: {str(e)}")
+
+@bot.message_handler(commands=['testpost'])
+def test_promo_post(message):
+    """Test the daily promo post - Admin only"""
+    if not is_admin(message.from_user.id):
+        bot.reply_to(message, "❌ Admin only")
+        return
+    
+    try:
+        # Get the promo post
+        promo_posts = [
+            # Post 1: General intro (Day 1, 5, 9...)
+            """🐾 SOLANA TAMAGOTCHI - YOUR VIRTUAL PET! 🐾
+
+🎮 What is it?
+• Virtual pet in Telegram
+• Earn TAMA tokens
+• Mini-games and adventures
+• Evolution and customization
+
+💰 Earning:
+• Clicks = TAMA tokens
+• Mini-games = bonuses
+• Referrals = 10% of income
+• Daily rewards
+
+🏆 Features:
+• 5 pet types
+• 5 mini-games
+• Achievement system
+• Leaderboard
+
+🚀 START PLAYING RIGHT NOW!
+🤖 Bot: @solana_tamagotchi_v3_bot
+📢 Channel: @GotchiGame
+💬 Chat: @gotchigamechat
+
+#Solana #GameFi #Tamagotchi #Crypto #PlayToEarn""",
+
+            # Post 2: Focus on earning (Day 2, 6, 10...)
+            """💰 EARN TAMA TOKENS WHILE PLAYING! 💰
+
+🎯 How to Earn:
+• Click your pet = Instant TAMA!
+• Play mini-games = Up to 500 TAMA!
+• Daily rewards = Streak bonuses!
+• Refer friends = 1,000 TAMA per friend!
+• Complete quests = Extra bonuses!
+
+📊 Referral Program:
+• Level 1: 1,000 TAMA per friend
+• Level 2: 500 TAMA per sub-referral
+• Milestone bonuses up to 100,000 TAMA!
+
+🎮 5 Mini-Games Available:
+• Guess Number • Trivia Quiz
+• Fortune Wheel • And more!
+
+💎 Start earning NOW - no wallet needed!
+🤖 Bot: @solana_tamagotchi_v3_bot
+📢 Channel: @GotchiGame
+💬 Chat: @gotchigamechat
+
+#PlayToEarn #CryptoGame #TAMA #Solana""",
+
+            # Post 3: Focus on referrals (Day 3, 7, 11...)
+            """🔗 INVITE FRIENDS = EARN BIG! 🔗
+
+🎁 Referral Rewards:
+• 1,000 TAMA for each friend
+• 500 TAMA for Level 2 referrals
+• Unlimited earning potential!
+
+🏆 Milestone Bonuses:
+• 5 refs = +1,000 TAMA bonus
+• 10 refs = +3,000 TAMA bonus
+• 25 refs = +10,000 TAMA bonus
+• 50 refs = +30,000 TAMA bonus
+• 100 refs = +100,000 TAMA + Badge!
+
+💡 Why Friends Love It:
+✅ Free to start - no investment
+✅ Fun pet game in Telegram
+✅ Real earning opportunities
+✅ Daily rewards & mini-games
+
+📈 Top referrers earning 100,000+ TAMA!
+
+🚀 Get your referral link now:
+🤖 Bot: @solana_tamagotchi_v3_bot
+📢 Channel: @GotchiGame
+💬 Chat: @gotchigamechat
+
+#Referral #Crypto #PassiveIncome #Solana""",
+
+            # Post 4: Focus on gameplay (Day 4, 8, 12...)
+            """🎮 CHILDHOOD MEMORIES + CRYPTO = FUN! 🎮
+
+🐾 Remember Tamagotchi? Now with earnings!
+
+✨ Game Features:
+• 5 Unique Pets - Cat, Dog, Dragon, Phoenix, Unicorn
+• Pet Evolution - 10 stages from Baby to Legendary
+• Vector Graphics - Beautiful animations
+• Combo System - Click fast for bonuses!
+• Emotions - Happy, Sad, Hungry, Angry, Surprised
+
+🎯 Mini-Games:
+• 🎲 Guess Number
+• ❓ Solana Quiz
+• 🎰 Fortune Wheel
+• 🏁 Pet Race
+• 🎯 Darts
+
+🏆 Progression:
+• Level up your pet
+• Unlock achievements
+• Climb the leaderboard
+• Earn badges & ranks
+
+💰 Everything earns you TAMA tokens!
+🤖 Bot: @solana_tamagotchi_v3_bot
+📢 Channel: @GotchiGame
+💬 Chat: @gotchigamechat
+
+#Gaming #NFT #Tamagotchi #Blockchain #Fun"""
+        ]
+        
+        day_of_year = datetime.now().timetuple().tm_yday
+        post_index = day_of_year % len(promo_posts)
+        promo_text = promo_posts[post_index]
+        
+        # Send to YOU first to preview (without Markdown to avoid parsing errors)
+        bot.send_message(message.chat.id, promo_text)
+        bot.reply_to(message, f"📝 This is promo post #{post_index + 1} (today's post)\n\n✅ Copy and paste it to your group manually!")
+        
+        # Also try to send to group and channel
+        results = []
+        
+        # Send to group
+        try:
+            bot.send_message(GROUP_ID, promo_text)
+            results.append("✅ Sent to group @gotchigamechat")
+        except Exception as group_error:
+            results.append(f"❌ Group error: {str(group_error)}")
+        
+        # Send to channel
+        try:
+            bot.send_message(CHANNEL_USERNAME, promo_text)
+            results.append("✅ Sent to channel @GotchiGame")
+        except Exception as channel_error:
+            results.append(f"❌ Channel error: {str(channel_error)}")
+        
+        # Show results
+        bot.send_message(message.chat.id, "\n".join(results))
+            
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error: {str(e)}")
+
 @bot.message_handler(commands=['monitor'], func=lambda message: message.chat.type == 'private')
 def show_monitoring_stats(message):
     """Show monitoring statistics for admin"""
@@ -1792,9 +1992,154 @@ def post_daily_stats():
     except Exception as e:
         print(f"Error posting daily stats: {e}")
 
+# Daily promo post with rotation
+def post_daily_promo():
+    try:
+        # Different promo posts
+        promo_posts = [
+            # Post 1: General intro (Day 1, 5, 9...)
+            """🐾 SOLANA TAMAGOTCHI - YOUR VIRTUAL PET! 🐾
+
+🎮 What is it?
+• Virtual pet in Telegram
+• Earn TAMA tokens
+• Mini-games and adventures
+• Evolution and customization
+
+💰 Earning:
+• Clicks = TAMA tokens
+• Mini-games = bonuses
+• Referrals = 10% of income
+• Daily rewards
+
+🏆 Features:
+• 5 pet types
+• 5 mini-games
+• Achievement system
+• Leaderboard
+
+🚀 START PLAYING RIGHT NOW!
+🤖 Bot: @solana_tamagotchi_v3_bot
+📢 Channel: @GotchiGame
+💬 Chat: @gotchigamechat
+
+#Solana #GameFi #Tamagotchi #Crypto #PlayToEarn""",
+
+            # Post 2: Focus on earning (Day 2, 6, 10...)
+            """💰 EARN TAMA TOKENS WHILE PLAYING! 💰
+
+🎯 How to Earn:
+• Click your pet = Instant TAMA!
+• Play mini-games = Up to 500 TAMA!
+• Daily rewards = Streak bonuses!
+• Refer friends = 1,000 TAMA per friend!
+• Complete quests = Extra bonuses!
+
+📊 Referral Program:
+• Level 1: 1,000 TAMA per friend
+• Level 2: 500 TAMA per sub-referral
+• Milestone bonuses up to 100,000 TAMA!
+
+🎮 5 Mini-Games Available:
+• Guess Number • Trivia Quiz
+• Fortune Wheel • And more!
+
+💎 Start earning NOW - no wallet needed!
+🤖 Bot: @solana_tamagotchi_v3_bot
+📢 Channel: @GotchiGame
+💬 Chat: @gotchigamechat
+
+#PlayToEarn #CryptoGame #TAMA #Solana""",
+
+            # Post 3: Focus on referrals (Day 3, 7, 11...)
+            """🔗 INVITE FRIENDS = EARN BIG! 🔗
+
+🎁 Referral Rewards:
+• 1,000 TAMA for each friend
+• 500 TAMA for Level 2 referrals
+• Unlimited earning potential!
+
+🏆 Milestone Bonuses:
+• 5 refs = +1,000 TAMA bonus
+• 10 refs = +3,000 TAMA bonus
+• 25 refs = +10,000 TAMA bonus
+• 50 refs = +30,000 TAMA bonus
+• 100 refs = +100,000 TAMA + Badge!
+
+💡 Why Friends Love It:
+✅ Free to start - no investment
+✅ Fun pet game in Telegram
+✅ Real earning opportunities
+✅ Daily rewards & mini-games
+
+📈 Top referrers earning 100,000+ TAMA!
+
+🚀 Get your referral link now:
+🤖 Bot: @solana_tamagotchi_v3_bot
+📢 Channel: @GotchiGame
+💬 Chat: @gotchigamechat
+
+#Referral #Crypto #PassiveIncome #Solana""",
+
+            # Post 4: Focus on gameplay (Day 4, 8, 12...)
+            """🎮 CHILDHOOD MEMORIES + CRYPTO = FUN! 🎮
+
+🐾 Remember Tamagotchi? Now with earnings!
+
+✨ Game Features:
+• 5 Unique Pets - Cat, Dog, Dragon, Phoenix, Unicorn
+• Pet Evolution - 10 stages from Baby to Legendary
+• Vector Graphics - Beautiful animations
+• Combo System - Click fast for bonuses!
+• Emotions - Happy, Sad, Hungry, Angry, Surprised
+
+🎯 Mini-Games:
+• 🎲 Guess Number
+• ❓ Solana Quiz
+• 🎰 Fortune Wheel
+• 🏁 Pet Race
+• 🎯 Darts
+
+🏆 Progression:
+• Level up your pet
+• Unlock achievements
+• Climb the leaderboard
+• Earn badges & ranks
+
+💰 Everything earns you TAMA tokens!
+🤖 Bot: @solana_tamagotchi_v3_bot
+📢 Channel: @GotchiGame
+💬 Chat: @gotchigamechat
+
+#Gaming #NFT #Tamagotchi #Blockchain #Fun"""
+        ]
+        
+        # Rotate posts based on day of year
+        day_of_year = datetime.now().timetuple().tm_yday
+        post_index = day_of_year % len(promo_posts)
+        promo_text = promo_posts[post_index]
+        
+        # Post to group (without Markdown to avoid parsing errors)
+        try:
+            bot.send_message(GROUP_ID, promo_text)
+            print(f"✅ Daily promo post #{post_index + 1} sent to group @gotchigamechat")
+        except Exception as group_error:
+            print(f"❌ Error posting to group: {group_error}")
+        
+        # Also post to channel
+        try:
+            bot.send_message(CHANNEL_USERNAME, promo_text)
+            print(f"✅ Daily promo post #{post_index + 1} sent to channel @GotchiGame")
+        except Exception as channel_error:
+            print(f"❌ Error posting to channel: {channel_error}")
+            
+    except Exception as e:
+        print(f"Error in daily promo: {e}")
+
 # Schedule daily posts
 def run_schedule():
     schedule.every().day.at("12:00").do(post_daily_stats)
+    schedule.every().day.at("14:00").do(post_daily_promo)  # Promo post at 2 PM
     
     while True:
         schedule.run_pending()
@@ -2631,6 +2976,67 @@ def process_guess_number(message):
         bot.reply_to(message, "❌ Enter number from 1 to 100!")
 
 # Start bot
+# Handler for WebApp data (game autosave)
+@bot.message_handler(content_types=['web_app_data'])
+def handle_web_app_data(message):
+    """Handle data sent from Telegram WebApp (game autosave)"""
+    try:
+        telegram_id = str(message.from_user.id)
+        data = json.loads(message.web_app_data.data)
+        
+        logging.info(f"📥 Received WebApp data from user {telegram_id}: {data.get('action')}")
+        
+        if data.get('action') == 'auto_save':
+            game_data = data.get('data', {})
+            
+            # Extract game state
+            level = game_data.get('level', 1)
+            tama = game_data.get('tama', 0)
+            hp = game_data.get('hp', 100)
+            food = game_data.get('food', 100)
+            happy = game_data.get('happy', 100)
+            total_clicks = game_data.get('totalClicks', 0)
+            max_combo = game_data.get('maxCombo', 0)
+            
+            # Prepare pet_data JSON
+            pet_data = {
+                'hp': hp,
+                'food': food,
+                'happy': happy,
+                'totalClicks': total_clicks,
+                'maxCombo': max_combo,
+                'xp': game_data.get('xp', 0),
+                'achievements': game_data.get('achievements', [])
+            }
+            
+            # Update in Supabase
+            response = supabase.table('leaderboard').update({
+                'tama': tama,
+                'level': level,
+                'pet_data': json.dumps(pet_data),
+                'last_active': datetime.now().isoformat()
+            }).eq('telegram_id', telegram_id).execute()
+            
+            logging.info(f"✅ Saved game data for user {telegram_id}: Level={level}, TAMA={tama}")
+            
+        elif data.get('action') == 'level_up':
+            game_data = data.get('data', {})
+            level = game_data.get('level', 1)
+            
+            logging.info(f"🎉 Level up for user {telegram_id}: Level {level}")
+            
+            # Send congratulations message
+            bot.send_message(
+                message.chat.id,
+                f"🎉 Congratulations! Your pet reached Level {level}!\n\n"
+                f"Keep playing to unlock more rewards! 🚀",
+                parse_mode='Markdown'
+            )
+            
+    except Exception as e:
+        logging.error(f"❌ Error handling WebApp data: {e}")
+        logging.error(f"Data: {message.web_app_data.data if message.web_app_data else 'None'}")
+
 if __name__ == '__main__':
     print("Bot started!")
     
