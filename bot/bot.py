@@ -35,7 +35,7 @@ TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 bot = telebot.TeleBot(TOKEN)
 
 # URLs
-GAME_URL = 'https://tr1h.github.io/solana-tamagotchi-public/tamagotchi-game.html'  # Game URL
+GAME_URL = 'https://tr1h.github.io/solana-tamagotchi/tamagotchi-game.html'  # Game URL
 MINT_URL = 'https://tr1h.github.io/solana-tamagotchi/'  # Mint URL
 CHANNEL_USERNAME = '@GotchiGame'  # Channel username for posting
 
@@ -586,12 +586,7 @@ Take care of your digital pet, earn TAMA tokens, compete with friends!
         types.InlineKeyboardButton(f"{daily_emoji} Daily Reward", callback_data="daily_reward")
     )
     
-    # Row 2: MAIN GAME BUTTON - MOVED UP! 🎮
-    keyboard.row(
-        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url=GAME_URL))
-    )
-    
-    # Row 3: Games & Referral
+    # Row 2: Games & Referral
     keyboard.row(
         types.InlineKeyboardButton("🎮 Mini-Games", callback_data="mini_games"),
         types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
@@ -609,8 +604,9 @@ Take care of your digital pet, earn TAMA tokens, compete with friends!
         types.InlineKeyboardButton("⭐ My Rank", callback_data="view_rank")
     )
     
-    # Row 5: Leaderboard only (game button moved to Row 2)
+    # Row 5: Play Tamagotchi & Leaderboard
     keyboard.row(
+        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url=GAME_URL)),
         types.InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")
     )
     
