@@ -570,7 +570,12 @@ def send_welcome(message):
         types.InlineKeyboardButton(f"{daily_emoji} Daily Reward", callback_data="daily_reward")
     )
     
-    # Row 2: Games & Referral
+    # Row 2: MAIN GAME BUTTON - MOVED UP! 🎮
+    keyboard.row(
+        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url="https://tr1h.github.io/solana-tamagotchi/tamagotchi-game.html"))
+    )
+    
+    # Row 3: Games & Referral
     keyboard.row(
         types.InlineKeyboardButton("🎮 Mini-Games", callback_data="mini_games"),
         types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
@@ -588,9 +593,8 @@ def send_welcome(message):
         types.InlineKeyboardButton("⭐ My Rank", callback_data="view_rank")
     )
     
-    # Row 5: Play Tamagotchi Game & Leaderboard 🎮
+    # Row 5: Leaderboard only (game button moved to Row 2)
     keyboard.row(
-        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url="https://tr1h.github.io/solana-tamagotchi/tamagotchi-game.html")),
         types.InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")
     )
     
