@@ -588,7 +588,7 @@ Take care of your digital pet, earn TAMA tokens, compete with friends!
     
     # Row 2: MAIN GAME BUTTON - MOVED UP! 🎮
     keyboard.row(
-        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url="https://tr1h.github.io/solana-tamagotchi-public/tamagotchi-game.html"))
+        types.InlineKeyboardButton("🎮 Play Tamagotchi", web_app=types.WebAppInfo(url=GAME_URL))
     )
     
     # Row 3: Games & Referral
