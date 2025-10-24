@@ -35,7 +35,7 @@ TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 bot = telebot.TeleBot(TOKEN)
 
 # URLs
-GAME_URL = 'https://tr1h.github.io/solana-tamagotchi/tamagotchi-game.html'  # Game URL
+GAME_URL = 'https://tr1h.github.io/solana-tamagotchi/telegram-game.html'  # Game URL
 MINT_URL = 'https://tr1h.github.io/solana-tamagotchi/'  # Mint URL
 CHANNEL_USERNAME = '@GotchiGame'  # Channel username for posting
 
