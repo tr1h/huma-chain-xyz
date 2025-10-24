@@ -485,21 +485,27 @@ def handle_start(message):
                 
                 # Send welcome with referral info
                 welcome_text = f"""
-🎉 *Welcome to Solana Tamagotchi!*
+🎮 *SOLANA TAMAGOTCHI - GAMEFI REVOLUTION!* 🎮
+
+🔥 *THE WORLD'S FIRST BLOCKCHAIN TAMAGOTCHI!*
+Remember your childhood Tamagotchi? Now it's on Solana! 
+Take care of your digital pet, earn TAMA tokens, compete with friends!
+
+🎯 *FEATURES:*
+• 🐾 3 adorable pet types (Kawai, Retro, Cyber)
+• 💰 Earn TAMA tokens by clicking and playing mini-games
+• 🎮 5+ exciting mini-games: Dice, Slots, Lucky Wheel, Battle Arena, Pet Racing
+• 🍄 Super Mario Platformer - the ultimate retro experience!
+• 🏆 Climb the leaderboard and unlock achievements
+• 🛒 Shop for useful items to boost your pet
+• 📱 Fully optimized for mobile devices
 
 You were invited by a friend! 🎁
-
 🔗 *Start earning TAMA:*
 • Get your referral link below
 • Share with friends = 1,000 TAMA each!
 • Level 2 referrals = 500 TAMA each!
 • Milestone bonuses up to 100,000 TAMA!
-
-🎮 *Game Features:*
-• 🐾 Adopt & nurture NFT pets
-• 🏆 Climb leaderboards
-• 🎨 Mint unique pet NFTs
-• 💎 Daily rewards & achievements
 
 🚀 *Ready to start earning?*
                 """
@@ -532,10 +538,20 @@ def send_welcome(message):
     can_claim, _ = daily_rewards.can_claim(telegram_id)
     
     welcome_text = f"""
-🎮 *Welcome to Solana Tamagotchi!*
+🎮 *SOLANA TAMAGOTCHI - GAMEFI REVOLUTION!* 🎮
 
-*The ultimate Play-to-Earn NFT pet game on Solana!*
-🚀 *Currently in pre-launch phase - building our community!*
+🔥 *THE WORLD'S FIRST BLOCKCHAIN TAMAGOTCHI!*
+Remember your childhood Tamagotchi? Now it's on Solana! 
+Take care of your digital pet, earn TAMA tokens, compete with friends!
+
+🎯 *FEATURES:*
+• 🐾 3 adorable pet types (Kawai, Retro, Cyber)
+• 💰 Earn TAMA tokens by clicking and playing mini-games
+• 🎮 5+ exciting mini-games: Dice, Slots, Lucky Wheel, Battle Arena, Pet Racing
+• 🍄 Super Mario Platformer - the ultimate retro experience!
+• 🏆 Climb the leaderboard and unlock achievements
+• 🛒 Shop for useful items to boost your pet
+• 📱 Fully optimized for mobile devices
 
 ✨ *What you can do RIGHT NOW:*
 • 🎁 **Daily Rewards** - Claim your daily TAMA! (Streak: {streak_days} days)
