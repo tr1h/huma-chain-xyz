@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add TAMA</title>
+</head>
+<body>
+    <h1>Add TAMA</h1>
+    <button onclick="addTAMA()">Add 5000 TAMA</button>
+    <div id="result"></div>
+    
+    <script>
+        async function addTAMA() {
+            const response = await fetch('http://localhost:8002/api/tama/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: 'test_user_123',
+                    user_type: 'wallet',
+                    amount: 5000,
+                    source: 'test'
+                })
+            });
+            
+            const result = await response.json();
+            document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+        }
+    </script>
+</body>
+</html>
+
+

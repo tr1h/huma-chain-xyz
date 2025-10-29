@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAMA Blockchain Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+        .section h3 {
+            margin-top: 0;
+            color: #1D3557;
+        }
+        button {
+            background: linear-gradient(135deg, #1D3557, #457B9D);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 53, 87, 0.3);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 TAMA Blockchain Integration Test</h1>
+        
+        <div class="section">
+            <h3>1. Connect to Phantom Wallet</h3>
+            <button onclick="connectWallet()">Connect Phantom</button>
+            <div id="wallet-status" class="status info">Not connected</div>
+        </div>
+        
+        <div class="section">
+            <h3>2. Check TAMA Balance</h3>
+            <button onclick="checkDatabaseBalance()">Check Database Balance</button>
+            <button onclick="checkBlockchainBalance()">Check Blockchain Balance</button>
+            <div id="balance-status" class="status info">Click buttons to check balances</div>
+        </div>
+        
+        <div class="section">
+            <h3>3. Sync Balances</h3>
+            <button onclick="syncBalances()">Sync Database ↔ Blockchain</button>
+            <div id="sync-status" class="status info">Click to sync balances</div>
+        </div>
+        
+        <div class="section">
+            <h3>4. Transfer TAMA</h3>
+            <input type="text" id="recipient-address" placeholder="Recipient wallet address">
+            <input type="number" id="transfer-amount" placeholder="Amount to transfer" min="1">
+            <button onclick="transferTAMA()">Transfer TAMA</button>
+            <div id="transfer-status" class="status info">Enter details and click transfer</div>
+        </div>
+        
+        <div class="section">
+            <h3>5. Withdraw TAMA</h3>
+            <input type="text" id="withdraw-address" placeholder="Withdrawal wallet address">
+            <input type="number" id="withdraw-amount" placeholder="Amount to withdraw" min="1">
+            <button onclick="withdrawTAMA()">Withdraw TAMA</button>
+            <div id="withdraw-status" class="status info">Enter details and click withdraw</div>
+        </div>
+    </div>
+
+    <!-- Solana Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    
+    <script>
+        let walletAddress = null;
+        let blockchain = null;
+
+        // Initialize blockchain
+        async function initBlockchain() {
+            if (window.TAMABlockchain) {
+                blockchain = window.TAMABlockchain;
+                return true;
+            }
+            return false;
+        }
+
+        // Connect wallet
+        async function connectWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    throw new Error('Phantom wallet not found!');
+                }
+
+                const response = await window.solana.connect();
+                walletAddress = response.publicKey.toString();
+                
+                document.getElementById('wallet-status').innerHTML = 
+                    `<span class="success">✅ Connected: ${walletAddress}</span>`;
+                
+                // Initialize blockchain
+                await initBlockchain();
+                
+            } catch (error) {
+                document.getElementById('wallet-status').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Check database balance
+        async function checkDatabaseBalance() {
+            try {
+                if (!walletAddress) {
+                    throw new Error('Wallet not connected');
+                }
+
+                const response = await fetch(`http://localhost:8002/api/tama/balance?user_id=${walletAddress}&user_type=wallet`);
+                const result = await response.json();
+                
+                document.getElementById('balance-status').innerHTML = 
+                    `<span class="success">✅ Database Balance: ${result.total_tama || 0} TAMA</span>`;
+                
+            } catch (error) {
+                document.getElementById('balance-status').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Check blockchain balance
+        async function checkBlockchainBalance() {
+            try {
+                if (!blockchain) {
+                    await initBlockchain();
+                }
+
+                const balance = await blockchain.getBalance();
+                
+                document.getElementById('balance-status').innerHTML = 
+                    `<span class="success">✅ Blockchain Balance: ${balance} TAMA</span>`;
+                
+            } catch (error) {
+                document.getElementById('balance-status').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Sync balances
+        async function syncBalances() {
+            try {
+                if (!walletAddress) {
+                    throw new Error('Wallet not connected');
+                }
+
+                if (!blockchain) {
+                    await initBlockchain();
+                }
+
+                const blockchainBalance = await blockchain.getBalance();
+                
+                const response = await fetch('http://localhost:8002/api/tama/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        wallet_address: walletAddress,
+                        blockchain_balance: blockchainBalance
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('sync-status').innerHTML = 
+                        `<span class="success">✅ Sync successful! Difference: ${result.difference || 0} TAMA</span>`;
+                } else {
+                    document.getElementById('sync-status').innerHTML = 
+                        `<span class="error">❌ Sync failed: ${result.error}</span>`;
+                }
+                
+            } catch (error) {
+                document.getElementById('sync-status').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Transfer TAMA
+        async function transferTAMA() {
+            try {
+                const recipient = document.getElementById('recipient-address').value.trim();
+                const amount = parseFloat(document.getElementById('transfer-amount').value);
+
+                if (!recipient || !amount) {
+                    throw new Error('Please enter recipient and amount');
+                }
+
+                if (!blockchain) {
+                    await initBlockchain();
+                }
+
+                const result = await blockchain.transfer(recipient, amount);
+                
+                if (result.success) {
+                    document.getElementById('transfer-status').innerHTML = 
+                        `<span class="success">✅ Transfer successful! Signature: ${result.signature}</span>`;
+                } else {
+                    document.getElementById('transfer-status').innerHTML = 
+                        `<span class="error">❌ Transfer failed: ${result.error}</span>`;
+                }
+                
+            } catch (error) {
+                document.getElementById('transfer-status').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Withdraw TAMA
+        async function withdrawTAMA() {
+            try {
+                const recipient = document.getElementById('withdraw-address').value.trim();
+                const amount = parseFloat(document.getElementById('withdraw-amount').value);
+
+                if (!recipient || !amount) {
+                    throw new Error('Please enter recipient and amount');
+                }
+
+                if (!blockchain) {
+                    await initBlockchain();
+                }
+
+                const result = await blockchain.withdraw(recipient, amount);
+                
+                if (result.success) {
+                    document.getElementById('withdraw-status').innerHTML = 
+                        `<span class="success">✅ Withdrawal successful! Signature: ${result.signature}</span>`;
+                } else {
+                    document.getElementById('withdraw-status').innerHTML = 
+                        `<span class="error">❌ Withdrawal failed: ${result.error}</span>`;
+                }
+                
+            } catch (error) {
+                document.getElementById('withdraw-status').innerHTML = 
+                    `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Load blockchain module
+        async function loadBlockchain() {
+            try {
+                const script = document.createElement('script');
+                script.src = 'solana-tamagotchi/js/tama-blockchain.js';
+                script.onload = () => {
+                    console.log('✅ TAMA Blockchain module loaded');
+                };
+                document.head.appendChild(script);
+            } catch (error) {
+                console.error('❌ Failed to load blockchain module:', error);
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            loadBlockchain();
+        });
+    </script>
+</body>
+</html>
+
+

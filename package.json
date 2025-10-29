@@ -1,0 +1,21 @@
+{
+  "name": "tama-api-server",
+  "version": "1.0.0",
+  "description": "TAMA Token API Server for Solana Tamagotchi",
+  "main": "api/tama_supabase_api.js",
+  "scripts": {
+    "start": "node api/tama_supabase_api.js",
+    "dev": "nodemon api/tama_supabase_api.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["solana", "tama", "tamagotchi", "api", "supabase"],
+  "author": "Solana Tamagotchi Team",
+  "license": "MIT"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Solana Tamagotchi",
+  "symbol": "TAMA",
+  "decimals": 9,
+  "initialSupply": 1000000000,
+  "description": "Play-to-Earn token for Solana Tamagotchi game",
+  "mint": "Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY",
+  "tokenAccount": "BbtQkgWLFwXK1Js21RW5thLofJ8Tm9Q3XYER1LchzYVM",
+  "mintAuthority": "8s88JVHG8Cb6HGKi25rjnMA19MuW723M6pJRDW3maDVi",
+  "freezeAuthority": "8s88JVHG8Cb6HGKi25rjnMA19MuW723M6pJRDW3maDVi",
+  "network": "devnet",
+  "created_at": "2025-10-28T21:13:29.726Z",
+  "explorer_url": "https://explorer.solana.com/address/Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY?cluster=devnet"
+}
