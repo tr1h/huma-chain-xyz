@@ -8256,13 +8256,56 @@
             console.log('BroadcastChannel not supported, using localStorage only');
         }
 
+        // 🎨 Load NFT boost for user
+        async function loadUserNFTBoost() {
+            const userId = window.TELEGRAM_USER_ID;
+            if (!userId) {
+                console.warn('⚠️ No user ID, cannot load NFT boost.');
+                window.userNFTBoost = 0;
+                return;
+            }
+            try {
+                const { data, error } = await Database.supabase
+                    .from('user_nfts')
+                    .select('rarity')
+                    .eq('telegram_id', userId);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    let maxBoost = 0;
+                    data.forEach(nft => {
+                        let boost = 0;
+                        switch (nft.rarity) {
+                            case 'common': boost = 0.25; break; // +25%
+                            case 'rare': boost = 0.50; break;   // +50%
+                            case 'epic': boost = 0.75; break;   // +75%
+                            case 'legendary': boost = 1.00; break; // +100%
+                        }
+                        if (boost > maxBoost) maxBoost = boost;
+                    });
+                    window.userNFTBoost = maxBoost;
+                    console.log(`✅ Loaded NFT Boost for user ${userId}: +${(maxBoost * 100).toFixed(0)}%`);
+                    if (maxBoost > 0) {
+                        showMessage(`🖼️ NFT Boost Active: +${(maxBoost * 100).toFixed(0)}% TAMA earnings!`);
+                    }
+                } else {
+                    window.userNFTBoost = 0;
+                    console.log('ℹ️ No NFTs found for user, no boost applied.');
+                }
+            } catch (e) {
+                console.error('❌ Error loading user NFT boost:', e);
+                window.userNFTBoost = 0;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('%c🎮 GAME VERSION: 1.9.0 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
-            console.log('%c📅 BUILD: 2025-10-30 | FIX: API-based saves + Railway integration + NFT Boost', 'font-size: 14px; color: #ffff00;');
+            console.log('%c🎮 GAME VERSION: 1.9.1 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
+            console.log('%c📅 BUILD: 2025-10-30 | FIX: NFT Boost function + User ID detection', 'font-size: 14px; color: #ffff00;');
             console.log('DOM loaded, initializing game...');
             
-            // 🎨 Load NFT boost for user
-            await loadUserNFTBoost();
+            // 🎨 Load NFT boost for user (after user ID is set)
+            setTimeout(() => loadUserNFTBoost(), 500);
             
             // Wait for Telegram WebApp to initialize
             if (window.Telegram && window.Telegram.WebApp) {
