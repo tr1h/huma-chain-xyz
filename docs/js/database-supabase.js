@@ -18,7 +18,7 @@ const Database = {
             }
             
             // Use environment variables for Supabase configuration
-            const supabaseUrl = window.SUPABASE_URL || 'https://your-project.supabase.co';
+            const supabaseUrl = window.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
             const supabaseKey = window.SUPABASE_KEY || 'your-anon-key-here';
             this.supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             

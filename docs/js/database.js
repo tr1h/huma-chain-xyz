@@ -6,7 +6,7 @@ const Database = {
     db: null,
     initialized: false,
     useSupabase: true, // Use Supabase instead of MySQL/Firebase
-    supabaseUrl: window.SUPABASE_URL || 'https://your-project.supabase.co',
+    supabaseUrl: window.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co',
     supabaseKey: window.SUPABASE_KEY || 'your-anon-key-here',
     apiURL: 'https://nitric-ara-unsuperlative.ngrok-free.dev/solana-tamagotchi/api',
     
