@@ -1702,6 +1702,9 @@
 
         .nav-btn.referral-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .nav-btn.nft-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border: 2px solid rgba(255,255,255,0.2);
         }
 
@@ -2589,6 +2592,7 @@
             <button class="nav-btn minigames-btn" id="minigames-btn">🎮 Games</button>
             <button class="nav-btn leaderboard-btn" id="leaderboard-btn">🏆 Top</button>
             <button class="nav-btn referral-btn" id="referral-btn">🔗 My Link</button>
+            <button class="nav-btn nft-btn" id="nft-btn">🖼️ NFT</button>
         </div>
 
         <!-- Pet Area -->
@@ -3918,6 +3922,31 @@
                 </div>
                 <div class="referral-actions">
                     <button class="share-btn" id="share-referral-btn">📤 Share Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NFT Modal -->
+    <div class="referral-modal" id="nft-modal" style="display: none;">
+        <div class="referral-content">
+            <div class="referral-header">
+                <h2>🖼️ NFT Collection</h2>
+                <button class="close-btn" id="close-nft">✕</button>
+            </div>
+            <div class="referral-body">
+                <div class="wallet-connect" id="wallet-connect-section">
+                    <p style="text-align: center; margin: 20px 0;">Connect Phantom to view and mint NFTs</p>
+                    <button class="share-btn" id="connect-wallet-btn">👛 Connect Wallet</button>
+                </div>
+                <div class="nft-collection" id="nft-collection" style="display: none;">
+                    <div class="referral-progress">
+                        <h4>📊 Wallet Info</h4>
+                        <div class="referral-status" id="wallet-address-display">Not connected</div>
+                        <div class="referral-status" id="wallet-balance-display">0 SOL</div>
+                    </div>
+                    <div id="nft-grid" class="nft-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin: 20px 0;"></div>
+                    <button class="share-btn" id="mint-nft-btn" style="width: 100%;">✨ Mint NFT Pet (1000 TAMA)</button>
                 </div>
             </div>
         </div>
@@ -8258,6 +8287,9 @@
             
             // Initialize pet selector system
             initPetSelector();
+            
+            // Initialize NFT modal
+            initNFTModal();
         });
 
         // Theme System 🎨
@@ -8798,7 +8830,200 @@
         const style = document.createElement('style');
         style.textContent = catchEffectCSS;
         document.head.appendChild(style);
+        // NFT Modal & Wallet Integration 🖼️
+        let walletConnected = false;
+        let walletAddress = null;
+        let solanaConnection = null;
+
+        function initNFTModal() {
+            const nftBtn = document.getElementById('nft-btn');
+            const nftModal = document.getElementById('nft-modal');
+            const closeNft = document.getElementById('close-nft');
+            const connectWalletBtn = document.getElementById('connect-wallet-btn');
+            const mintNftBtn = document.getElementById('mint-nft-btn');
+
+            if (nftBtn) {
+                nftBtn.addEventListener('click', () => {
+                    nftModal.style.display = 'flex';
+                    if (walletConnected) {
+                        loadNFTCollection();
+                    }
+                });
+            }
+
+            if (closeNft) {
+                closeNft.addEventListener('click', () => {
+                    nftModal.style.display = 'none';
+                });
+            }
+
+            if (connectWalletBtn) {
+                connectWalletBtn.addEventListener('click', connectPhantomWallet);
+            }
+
+            if (mintNftBtn) {
+                mintNftBtn.addEventListener('click', mintNewNFT);
+            }
+        }
+
+        async function connectPhantomWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('❌ Phantom wallet not found! Install from phantom.app');
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+
+                const resp = await window.solana.connect();
+                walletAddress = resp.publicKey.toString();
+                walletConnected = true;
+
+                console.log('✅ Wallet connected:', walletAddress);
+
+                document.getElementById('wallet-connect-section').style.display = 'none';
+                document.getElementById('nft-collection').style.display = 'block';
+                document.getElementById('wallet-address-display').textContent = walletAddress.slice(0, 8) + '...' + walletAddress.slice(-4);
+
+                await loadWalletBalance();
+                await loadNFTCollection();
+            } catch (err) {
+                console.error('❌ Wallet connection error:', err);
+                alert('Failed to connect wallet: ' + err.message);
+            }
+        }
+
+        async function loadWalletBalance() {
+            try {
+                const connection = new window.solanaWeb3.Connection('https://api.devnet.solana.com');
+                const publicKey = new window.solanaWeb3.PublicKey(walletAddress);
+                const balance = await connection.getBalance(publicKey);
+                const solBalance = (balance / 1000000000).toFixed(4);
+                document.getElementById('wallet-balance-display').textContent = solBalance + ' SOL';
+            } catch (err) {
+                console.error('❌ Balance load error:', err);
+            }
+        }
+
+        async function loadNFTCollection() {
+            try {
+                const userId = window.TELEGRAM_USER_ID;
+                if (!userId) return;
+
+                // Load NFTs from Supabase
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                const nfts = await response.json();
+                const nftGrid = document.getElementById('nft-grid');
+                const nftCount = document.getElementById('nft-count');
+
+                if (nfts && nfts.length > 0) {
+                    nftCount.textContent = nfts.length;
+                    nftGrid.innerHTML = nfts.map(nft => `
+                        <div class="nft-card" style="border: 2px solid #8AC926; border-radius: 10px; padding: 10px; text-align: center;">
+                            <div style="font-size: 40px;">${getNFTEmoji(nft.pet_type)}</div>
+                            <div style="font-size: 12px; font-weight: bold;">${nft.pet_type}</div>
+                            <div style="font-size: 10px; color: #666;">${nft.rarity}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    nftCount.textContent = '0';
+                    nftGrid.innerHTML = '<p style="text-align: center; color: #666;">No NFTs yet. Mint your first one!</p>';
+                }
+            } catch (err) {
+                console.error('❌ NFT load error:', err);
+            }
+        }
+
+        function getNFTEmoji(petType) {
+            const emojiMap = {
+                'cat': '🐱',
+                'dog': '🐶',
+                'dragon': '🐉',
+                'fox': '🦊',
+                'bear': '🐻',
+                'rabbit': '🐰',
+                'panda': '🐼',
+                'lion': '🦁',
+                'unicorn': '🦄',
+                'wolf': '🐺'
+            };
+            return emojiMap[petType] || '🐾';
+        }
+
+        async function mintNewNFT() {
+            try {
+                const userId = window.TELEGRAM_USER_ID;
+                if (!userId) {
+                    alert('❌ User ID not found');
+                    return;
+                }
+
+                if (!walletConnected) {
+                    alert('❌ Connect wallet first!');
+                    return;
+                }
+
+                if (gameState.tama < 1000) {
+                    alert('❌ Need 1000 TAMA to mint! You have: ' + gameState.tama);
+                    return;
+                }
+
+                // Deduct TAMA
+                gameState.tama -= 1000;
+                updateTamaDisplay();
+                triggerAutoSave();
+
+                // Random NFT attributes
+                const petTypes = ['cat', 'dog', 'dragon', 'fox', 'bear', 'rabbit', 'panda', 'lion', 'unicorn', 'wolf'];
+                const rarities = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+                const randomPet = petTypes[Math.floor(Math.random() * petTypes.length)];
+                const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
+
+                // Save to Supabase
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        telegram_id: userId,
+                        wallet_address: walletAddress,
+                        pet_type: randomPet,
+                        rarity: randomRarity,
+                        mint_address: 'MOCK_' + Date.now(),
+                        cost_tama: 1000,
+                        cost_sol: 0
+                    })
+                });
+
+                if (response.ok) {
+                    alert(`🎉 NFT Minted! ${getNFTEmoji(randomPet)} ${randomPet.toUpperCase()} - ${randomRarity}`);
+                    await loadNFTCollection();
+                } else {
+                    alert('❌ Mint failed. Try again.');
+                    gameState.tama += 1000; // Refund
+                    updateTamaDisplay();
+                }
+            } catch (err) {
+                console.error('❌ Mint error:', err);
+                alert('❌ Mint error: ' + err.message);
+                gameState.tama += 1000; // Refund
+                updateTamaDisplay();
+            }
+        }
+
     </script>
+    
+    <!-- Solana Web3.js for Phantom -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 </body>
 </html>
 
