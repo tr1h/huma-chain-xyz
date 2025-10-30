@@ -105,16 +105,34 @@
 
                 <!-- Right: Mint Info -->
                 <div class="mint-info">
-                    <div class="phase-banner" id="phase-banner">
-                        🔥 EARLY BIRD PHASE - LIMITED TIME!
-                    </div>
+                    <!-- Mint Button First -->
+                    <button class="mint-btn" id="mint-btn" disabled>
+                        🔒 CONNECT WALLET TO MINT
+                    </button>
 
-                    <div class="price-card">
-                        <div class="price-main">
-                            <span class="price-label">MINT PRICE</span>
-                            <span class="price-value" id="mint-price">Loading...</span>
+                    <!-- Pricing Phases (Compact) -->
+                    <div class="pricing-compact" style="margin: 20px 0;">
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 18px;">💰 PRICING PHASES</h3>
+                        <div style="display: flex; gap: 10px; justify-content: space-around;">
+                            <div style="text-align: center; padding: 10px; background: rgba(138, 201, 38, 0.1); border-radius: 10px; flex: 1;">
+                                <div style="font-size: 12px; color: #8AC926;">Phase 1</div>
+                                <div style="font-weight: bold;">0.1 SOL</div>
+                                <div style="font-size: 11px; color: #666;">Early Bird</div>
+                                <div style="font-size: 10px; color: #8AC926;">+ 500 TAMA bonus</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255, 159, 64, 0.1); border-radius: 10px; flex: 1;">
+                                <div style="font-size: 12px; color: #FF9F40;">Phase 2</div>
+                                <div style="font-weight: bold;">0.2 SOL</div>
+                                <div style="font-size: 11px; color: #666;">Public</div>
+                                <div style="font-size: 10px; color: #FF9F40;">+ 250 TAMA bonus</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255, 99, 132, 0.1); border-radius: 10px; flex: 1;">
+                                <div style="font-size: 12px; color: #FF6384;">Phase 3</div>
+                                <div style="font-weight: bold;">0.3 SOL</div>
+                                <div style="font-size: 11px; color: #666;">Final Sale</div>
+                                <div style="font-size: 10px; color: #FF6384;">+ 100 TAMA bonus</div>
+                            </div>
                         </div>
-                        <div class="price-usd" id="price-usd">≈ Loading USD</div>
                     </div>
 
                     <div class="mint-stats">
@@ -125,7 +143,7 @@
                         <div class="stat-divider">/</div>
                         <div class="stat-item">
                             <span class="stat-value">100</span>
-                            <span class="stat-label">Early Bird</span>
+                            <span class="stat-label">Total Supply</span>
                         </div>
                     </div>
 
@@ -137,14 +155,12 @@
                         <h3>🎁 WHAT YOU GET:</h3>
                         <ul class="benefits-list">
                             <li>✅ Unique NFT Pet (tradeable)</li>
-                            <li>✅ <strong>500 TAMA</strong> tokens bonus</li>
+                            <li>✅ <strong>TAMA tokens bonus</strong></li>
                             <li>✅ 10 pet types + random traits</li>
-                            <li>✅ Background, accessories & effects</li>
-                            <li>✅ Evolution system (5 forms)</li>
+                            <li>✅ 5 rarity tiers (Common → Legendary)</li>
                             <li>✅ Play-to-Earn access</li>
-                            <li>✅ Referral rewards (passive income)</li>
-                            <li>✅ Random rarity (Common → Legendary)</li>
-                            <li>✅ Future airdrops & seasonal pets</li>
+                            <li>✅ Referral rewards</li>
+                            <li>✅ Future airdrops & events</li>
                         </ul>
                     </div>
 
@@ -195,8 +211,8 @@
             </div>
         </section>
 
-        <!-- Pricing Phases -->
-        <section class="phases-section">
+        <!-- Pricing Phases (hidden - now shown compact above) -->
+        <section class="phases-section" style="display: none;">
             <h2>📈 PRICING PHASES</h2>
             <div class="phases-grid">
                 <div class="phase-card active">
