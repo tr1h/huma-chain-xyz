@@ -148,14 +148,21 @@ const MintPage = {
         }
         
         // Update UI
-        const btn = document.getElementById('connect-wallet');
-        btn.textContent = `${this.publicKey.toString().slice(0, 4)}...${this.publicKey.toString().slice(-4)}`;
-        btn.style.background = 'linear-gradient(135deg, #8AC926, #6A994E)';
+        const connectBtn = document.getElementById('connect-wallet');
+        const disconnectBtn = document.getElementById('disconnect-wallet');
+        const copyBtn = document.getElementById('copy-address');
+        
+        // Hide connect, show disconnect
+        if (connectBtn) connectBtn.style.display = 'none';
+        if (disconnectBtn) {
+            disconnectBtn.style.display = 'inline-block';
+            disconnectBtn.onclick = () => this.handleDisconnect();
+        }
         
         // Show copy address button
-        const copyBtn = document.getElementById('copy-address');
         if (copyBtn) {
             copyBtn.style.display = 'inline-block';
+            copyBtn.textContent = `📋 ${this.publicKey.toString().slice(0, 4)}...${this.publicKey.toString().slice(-4)}`;
             copyBtn.onclick = () => this.copyAddress();
         }
         
@@ -174,6 +181,41 @@ const MintPage = {
         const petNameInput = document.getElementById('pet-name-input');
         if (petNameInput) {
             petNameInput.style.display = 'block';
+        }
+    },
+    
+    async handleDisconnect() {
+        try {
+            if (this.wallet && this.wallet.disconnect) {
+                await this.wallet.disconnect();
+            }
+            
+            // Reset state
+            this.publicKey = null;
+            
+            // Update UI
+            const connectBtn = document.getElementById('connect-wallet');
+            const disconnectBtn = document.getElementById('disconnect-wallet');
+            const copyBtn = document.getElementById('copy-address');
+            const mintBtn = document.getElementById('mint-btn');
+            
+            if (connectBtn) {
+                connectBtn.style.display = 'inline-block';
+                connectBtn.textContent = '🔗 Connect Wallet';
+                connectBtn.style.background = '';
+            }
+            if (disconnectBtn) disconnectBtn.style.display = 'none';
+            if (copyBtn) copyBtn.style.display = 'none';
+            if (mintBtn) {
+                mintBtn.disabled = true;
+                const btnText = mintBtn.querySelector('.btn-text');
+                if (btnText) btnText.textContent = 'CONNECT WALLET TO MINT';
+                else mintBtn.textContent = '🔒 CONNECT WALLET TO MINT';
+            }
+            
+            console.log('👋 Wallet disconnected');
+        } catch (error) {
+            console.error('❌ Error disconnecting wallet:', error);
         }
     },
     

@@ -185,10 +185,13 @@
             <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="window.location.href='index.html'">
                 <img src="assets/logo.png" alt="Solana Tamagotchi" style="height: 50px; width: auto; image-rendering: pixelated;">
             </div>
-            <button id="connect-wallet" class="btn-wallet">Connect Wallet</button>
-            <button id="copy-address" class="btn-wallet" style="display: none; margin-left: 10px;">
-                📋 Copy Address
-            </button>
+            <div style="display: flex; gap: 10px;">
+                <button id="connect-wallet" class="btn-wallet">🔗 Connect Wallet</button>
+                <button id="disconnect-wallet" class="btn-wallet" style="display: none; background: #E63946;">🔓 Disconnect</button>
+                <button id="copy-address" class="btn-wallet" style="display: none;">
+                    📋 Copy Address
+                </button>
+            </div>
         </header>
 
         <!-- Main Mint Section -->
@@ -300,9 +303,7 @@
                         <small>Optional - leave empty for auto-generated name</small>
                     </div>
 
-                    <button id="mint-btn" class="btn-mint" disabled>
-                        <span class="btn-text">CONNECT WALLET TO MINT</span>
-                    </button>
+                    <!-- REMOVED DUPLICATE BUTTON -->
 
                     <a id="faucet-link" 
                        href="https://faucet.solana.com/" 
