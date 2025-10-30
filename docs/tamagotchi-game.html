@@ -8847,11 +8847,11 @@
                     // Open NFT Mint page in new window
                     const userId = window.TELEGRAM_USER_ID || 'guest';
                     const tamaBalance = gameState.tama || 0;
-                    const nftUrl = `nft-mint.html?user_id=${userId}&tama=${tamaBalance}`;
+                    const nftUrl = `https://tr1h.github.io/huma-chain-xyz/nft-mint.html?user_id=${userId}&tama=${tamaBalance}`;
                     
                     if (window.Telegram && window.Telegram.WebApp) {
-                        // In Telegram, try to open in same window
-                        window.Telegram.WebApp.openLink(window.location.origin + '/' + nftUrl);
+                        // In Telegram, open external link
+                        window.Telegram.WebApp.openLink(nftUrl);
                     } else {
                         // In browser, open in new tab
                         window.open(nftUrl, '_blank');
