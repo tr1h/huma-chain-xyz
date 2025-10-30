@@ -59,3 +59,5 @@ COMMENT ON COLUMN user_nfts.updated_at IS 'Дата последнего обн�
 SELECT 'user_nfts table created successfully' as status;
 
 
+
+

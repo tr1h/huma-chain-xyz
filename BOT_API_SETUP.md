@@ -40,3 +40,5 @@ TAMA_API_BASE = "http://localhost:8002/api/tama"
 ## ✅ Теперь бот будет работать даже если API недоступен!
 
 
+
+

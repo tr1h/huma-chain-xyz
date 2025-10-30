@@ -76,3 +76,5 @@ python solana-tamagotchi/bot/bot.py
 Бот исправлен и готов к работе. Нужно только настроить API ключи.
 
 
+
+

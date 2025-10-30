@@ -6,4 +6,3 @@ Final 2 seconds endslate, centered, exact text:
 📞 Россия: +7 (968) 940-10-20
 📞 Беларусь: +375 (29) 717-50-11
 
---duration 15 --fps 30 --aspect 9:16 --mood energetic, cinematic --lighting golden hour --colors green #2EA44F, white, dark gray

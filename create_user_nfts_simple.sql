@@ -33,3 +33,5 @@ ALTER TABLE user_nfts DISABLE ROW LEVEL SECURITY;
 SELECT 'user_nfts table created successfully' as status;
 
 
+
+

@@ -73,3 +73,5 @@ python solana-tamagotchi/bot/bot.py
 **Нужен только Telegram Bot Token для полного запуска!**
 
 
+
+
