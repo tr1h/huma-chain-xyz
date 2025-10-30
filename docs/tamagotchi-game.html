@@ -4705,7 +4705,14 @@
             const comboBonus = Math.floor(gameState.combo / COMBO_BONUS_DIVIDER);
             const cappedComboBonus = Math.min(comboBonus, MAX_COMBO_BONUS);
             
-            const earnedTama = Math.max(MIN_REWARD, (clickPower * BASE_CLICK_REWARD) + cappedComboBonus);
+            let earnedTama = Math.max(MIN_REWARD, (clickPower * BASE_CLICK_REWARD) + cappedComboBonus);
+            
+            // 🎨 NFT BOOST: Apply rarity bonus if user has NFTs
+            if (window.userNFTBoost && window.userNFTBoost > 0) {
+                earnedTama *= (1 + window.userNFTBoost);
+                console.log(`🖼️ NFT Boost applied: +${(window.userNFTBoost * 100).toFixed(0)}%`);
+            }
+            
             const earnedXP = Math.max(1, 3 + Math.floor(cappedComboBonus / 2));
             
             // Log transaction BEFORE updating balance
@@ -8250,9 +8257,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
-        console.log('%c🎮 GAME VERSION: 1.9.0 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
-        console.log('%c📅 BUILD: 2025-10-30 | FIX: API-based saves + Railway integration', 'font-size: 14px; color: #ffff00;');
+            console.log('%c🎮 GAME VERSION: 1.9.0 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
+            console.log('%c📅 BUILD: 2025-10-30 | FIX: API-based saves + Railway integration + NFT Boost', 'font-size: 14px; color: #ffff00;');
             console.log('DOM loaded, initializing game...');
+            
+            // 🎨 Load NFT boost for user
+            await loadUserNFTBoost();
             
             // Wait for Telegram WebApp to initialize
             if (window.Telegram && window.Telegram.WebApp) {
