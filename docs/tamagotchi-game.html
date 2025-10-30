@@ -5604,7 +5604,8 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        telegram_id: userId,
+                        user_id: userId,
+                        user_type: 'telegram',
                         tama: gameState.tama,
                         level: gameState.level,
                         xp: gameState.xp,
