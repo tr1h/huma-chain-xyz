@@ -121,6 +121,10 @@ const TAMAMint = {
         try {
             // Show loading
             const tamaMintBtn = document.getElementById('tama-mint-btn');
+            if (!tamaMintBtn) {
+                alert('❌ Button not found!');
+                return;
+            }
             const originalHTML = tamaMintBtn.innerHTML;
             tamaMintBtn.innerHTML = '<div style="font-size: 16px;">⏳ Minting...</div>';
             tamaMintBtn.disabled = true;
