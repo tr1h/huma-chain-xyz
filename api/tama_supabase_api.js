@@ -635,7 +635,7 @@ app.post('/api/tama/referral/save', async (req, res) => {
 app.post('/api/tama/leaderboard/upsert', async (req, res) => {
     try {
         console.log('🏆 Upsert leaderboard request:', req.body);
-        const { user_id, user_type, wallet_address, pet_name, level, xp, tama, pet_type, theme, quests_completed, achievements, last_active } = req.body;
+        const { user_id, user_type, wallet_address, pet_name, level, xp, tama, pet_type, pet_data, theme, quests_completed, achievements, last_active } = req.body;
 
         if (!user_id || !user_type) {
             return res.status(400).json({ error: 'user_id and user_type are required' });
@@ -649,6 +649,7 @@ app.post('/api/tama/leaderboard/upsert', async (req, res) => {
             xp: parseInt(xp) || 0,
             tama: parseFloat(tama) || 0,
             pet_type: pet_type || null,
+            pet_data: pet_data ? (typeof pet_data === 'string' ? pet_data : JSON.stringify(pet_data)) : null,
             updated_at: new Date().toISOString()
         };
 
