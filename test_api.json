@@ -1,0 +1,7 @@
+{
+  "user_id": "test",
+  "user_type": "telegram",
+  "transaction_type": "earn_click",
+  "amount": 1.5,
+  "description": "Test transaction"
+}

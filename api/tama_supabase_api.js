@@ -550,6 +550,263 @@ app.get('/api/tama/nft-costs', async (req, res) => {
     }
 });
 
+// Log transaction
+app.post('/api/tama/transactions/log', async (req, res) => {
+    try {
+        console.log('📝 Log transaction request:', req.body);
+        const { user_id, user_type, transaction_type, amount, description, metadata } = req.body;
+
+        if (!user_id || !user_type || !transaction_type || amount === undefined) {
+            return res.status(400).json({ error: 'user_id, user_type, transaction_type, and amount are required' });
+        }
+
+        const transactionData = {
+            user_id: user_id,
+            username: user_id, // Use user_id as username for now
+            type: transaction_type,
+            amount: parseFloat(amount),
+            balance_before: 0, // Will be calculated by the game
+            balance_after: parseFloat(amount), // Will be calculated by the game
+            metadata: {
+                description: description || '',
+                user_type: user_type,
+                ...metadata
+            },
+            created_at: new Date().toISOString()
+        };
+
+        const result = await makeSupabaseRequest('transactions', 'POST', transactionData);
+
+        if (result.status === 201 || result.status === 200) {
+            console.log('✅ Transaction logged:', transactionData);
+            res.json({
+                success: true,
+                message: 'Transaction logged successfully',
+                transaction: transactionData
+            });
+        } else {
+            console.error('❌ Failed to log transaction:', result);
+            res.status(500).json({ error: 'Failed to log transaction', details: result.data });
+        }
+    } catch (error) {
+        console.error('❌ Log transaction error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Save referral
+app.post('/api/tama/referral/save', async (req, res) => {
+    try {
+        console.log('🔗 Save referral request:', req.body);
+        const { referrer_id, referee_id, referrer_type, referee_type } = req.body;
+
+        if (!referrer_id || !referee_id) {
+            return res.status(400).json({ error: 'referrer_id and referee_id are required' });
+        }
+
+        const referralData = {
+            referrer_id: referrer_id,
+            referee_id: referee_id,
+            referrer_type: referrer_type || 'telegram',
+            referee_type: referee_type || 'telegram',
+            created_at: new Date().toISOString()
+        };
+
+        const result = await makeSupabaseRequest('referrals', 'POST', referralData);
+
+        if (result.status === 201 || result.status === 200) {
+            console.log('✅ Referral saved:', referralData);
+            res.json({
+                success: true,
+                message: 'Referral saved successfully',
+                referral: referralData
+            });
+        } else {
+            console.error('❌ Failed to save referral:', result);
+            res.status(500).json({ error: 'Failed to save referral', details: result.data });
+        }
+    } catch (error) {
+        console.error('❌ Save referral error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Upsert leaderboard
+app.post('/api/tama/leaderboard/upsert', async (req, res) => {
+    try {
+        console.log('🏆 Upsert leaderboard request:', req.body);
+        const { user_id, user_type, wallet_address, pet_name, level, xp, tama, pet_type, theme, quests_completed, achievements, last_active } = req.body;
+
+        if (!user_id || !user_type) {
+            return res.status(400).json({ error: 'user_id and user_type are required' });
+        }
+
+        const leaderboardData = {
+            telegram_id: user_id,
+            wallet_address: wallet_address || `telegram_${user_id}`,
+            pet_name: pet_name || null,
+            level: parseInt(level) || 1,
+            xp: parseInt(xp) || 0,
+            tama: parseFloat(tama) || 0,
+            pet_type: pet_type || null,
+            updated_at: new Date().toISOString()
+        };
+
+        // Try to find existing user
+        const checkEndpoint = `leaderboard?telegram_id=eq.${user_id}`;
+        const checkResult = await makeSupabaseRequest(checkEndpoint);
+
+        let result;
+        if (checkResult.status === 200 && checkResult.data && checkResult.data.length > 0) {
+            // Update existing user
+            const existingUser = checkResult.data[0];
+            const updateEndpoint = `leaderboard?id=eq.${existingUser.id}`;
+            result = await makeSupabaseRequest(updateEndpoint, 'PATCH', leaderboardData);
+        } else {
+            // Create new user
+            leaderboardData.created_at = new Date().toISOString();
+            result = await makeSupabaseRequest('leaderboard', 'POST', leaderboardData);
+        }
+
+        if (result.status === 200 || result.status === 201 || result.status === 204) {
+            console.log('✅ Leaderboard upserted:', leaderboardData);
+            res.json({
+                success: true,
+                message: 'Leaderboard updated successfully',
+                user: leaderboardData
+            });
+        } else {
+            console.error('❌ Failed to upsert leaderboard:', result);
+            res.status(500).json({ error: 'Failed to upsert leaderboard', details: result.data });
+        }
+    } catch (error) {
+        console.error('❌ Upsert leaderboard error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// List transactions
+app.get('/api/tama/transactions/list', async (req, res) => {
+    try {
+        const { user_id, user_type, limit = 50, offset = 0 } = req.query;
+        
+        let endpoint = 'transactions?order=created_at.desc';
+        
+        if (user_id && user_type) {
+            endpoint += `&user_id=eq.${user_id}&user_type=eq.${user_type}`;
+        }
+        
+        endpoint += `&limit=${limit}&offset=${offset}`;
+        
+        const result = await makeSupabaseRequest(endpoint);
+        
+        if (result.status === 200) {
+            res.json({
+                success: true,
+                transactions: result.data || [],
+                count: result.data ? result.data.length : 0
+            });
+        } else {
+            res.status(500).json({ error: 'Failed to fetch transactions', details: result.data });
+        }
+    } catch (error) {
+        console.error('❌ List transactions error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// List leaderboard
+app.get('/api/tama/leaderboard/list', async (req, res) => {
+    try {
+        const { limit = 50, offset = 0 } = req.query;
+        
+        const endpoint = `leaderboard?order=tama.desc&limit=${limit}&offset=${offset}`;
+        const result = await makeSupabaseRequest(endpoint);
+        
+        if (result.status === 200) {
+            res.json({
+                success: true,
+                leaderboard: result.data || [],
+                count: result.data ? result.data.length : 0
+            });
+        } else {
+            res.status(500).json({ error: 'Failed to fetch leaderboard', details: result.data });
+        }
+    } catch (error) {
+        console.error('❌ List leaderboard error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get economy config
+app.get('/api/tama/economy/active', async (req, res) => {
+    try {
+        const endpoint = 'economy_config?is_active=eq.true&order=created_at.desc&limit=1';
+        const result = await makeSupabaseRequest(endpoint);
+        
+        if (result.status === 200 && result.data && result.data.length > 0) {
+            res.json({
+                success: true,
+                config: result.data[0]
+            });
+        } else {
+            // Return default config if none found
+            const defaultConfig = {
+                earn_click: 0.7,
+                earn_combo_multiplier: 1.5,
+                earn_max_combo: 10,
+                level_up_bonus: 10,
+                quest_reward: 5,
+                referral_bonus: 50,
+                mint_nft_cost: 1000,
+                is_active: true
+            };
+            res.json({
+                success: true,
+                config: defaultConfig
+            });
+        }
+    } catch (error) {
+        console.error('❌ Get economy config error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Apply economy config
+app.post('/api/tama/economy/apply', async (req, res) => {
+    try {
+        console.log('⚙️ Apply economy config request:', req.body);
+        const configData = {
+            ...req.body,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+
+        // Deactivate all existing configs
+        const deactivateEndpoint = 'economy_config?is_active=eq.true';
+        await makeSupabaseRequest(deactivateEndpoint, 'PATCH', { is_active: false });
+
+        // Create new active config
+        const result = await makeSupabaseRequest('economy_config', 'POST', configData);
+
+        if (result.status === 201 || result.status === 200) {
+            console.log('✅ Economy config applied:', configData);
+            res.json({
+                success: true,
+                message: 'Economy config applied successfully',
+                config: configData
+            });
+        } else {
+            console.error('❌ Failed to apply economy config:', result);
+            res.status(500).json({ error: 'Failed to apply economy config', details: result.data });
+        }
+    } catch (error) {
+        console.error('❌ Apply economy config error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Sync blockchain balance with database
 app.post('/api/tama/sync', async (req, res) => {
     try {
