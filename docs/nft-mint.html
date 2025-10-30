@@ -14,6 +14,125 @@
         const TAMA_COST = 1000; // Cost in TAMA to mint NFT
     </script>
     <style>
+        /* Better Layout - 2 Columns */
+        .mint-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .mint-preview {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .mint-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* Big Mint Button */
+        .mint-btn-large {
+            width: 100%;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #8AC926 0%, #1D3557 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 5px 20px rgba(138, 201, 38, 0.4);
+        }
+        
+        .mint-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(138, 201, 38, 0.6);
+        }
+        
+        .mint-btn-large:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* Compact Pricing */
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .pricing-card {
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(29, 53, 87, 0.1));
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .pricing-card.active {
+            border-color: #8AC926;
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(29, 53, 87, 0.2));
+            box-shadow: 0 0 20px rgba(138, 201, 38, 0.3);
+        }
+        
+        .phase-label {
+            font-size: 12px;
+            color: #8AC926;
+            font-weight: bold;
+        }
+        
+        .phase-price {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .phase-bonus {
+            font-size: 11px;
+            color: #8AC926;
+        }
+        
+        /* Benefits Grid */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(138, 201, 38, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .mint-grid {
+                grid-template-columns: 1fr;
+            }
+            .mint-preview {
+                position: static;
+            }
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
         /* Pet name input */
         .pet-name-section {
             margin: 20px 0;
@@ -105,32 +224,32 @@
 
                 <!-- Right: Mint Info -->
                 <div class="mint-info">
-                    <!-- Mint Button First -->
-                    <button class="mint-btn" id="mint-btn" disabled>
+                    <!-- Big Mint Button -->
+                    <button class="mint-btn-large" id="mint-btn" disabled>
                         🔒 CONNECT WALLET TO MINT
                     </button>
 
-                    <!-- Pricing Phases (Compact) -->
-                    <div class="pricing-compact" style="margin: 20px 0;">
-                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 18px;">💰 PRICING PHASES</h3>
-                        <div style="display: flex; gap: 10px; justify-content: space-around;">
-                            <div style="text-align: center; padding: 10px; background: rgba(138, 201, 38, 0.1); border-radius: 10px; flex: 1;">
-                                <div style="font-size: 12px; color: #8AC926;">Phase 1</div>
-                                <div style="font-weight: bold;">0.1 SOL</div>
-                                <div style="font-size: 11px; color: #666;">Early Bird</div>
-                                <div style="font-size: 10px; color: #8AC926;">+ 500 TAMA bonus</div>
+                    <!-- Pricing Phases (Better Design) -->
+                    <div>
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 20px; color: #8AC926;">💰 PRICING PHASES</h3>
+                        <div class="pricing-cards">
+                            <div class="pricing-card active">
+                                <div class="phase-label">PHASE 1</div>
+                                <div class="phase-price">0.1 SOL</div>
+                                <div style="font-size: 12px; color: #666; margin: 5px 0;">Early Bird</div>
+                                <div class="phase-bonus">+ 500 TAMA</div>
                             </div>
-                            <div style="text-align: center; padding: 10px; background: rgba(255, 159, 64, 0.1); border-radius: 10px; flex: 1;">
-                                <div style="font-size: 12px; color: #FF9F40;">Phase 2</div>
-                                <div style="font-weight: bold;">0.2 SOL</div>
-                                <div style="font-size: 11px; color: #666;">Public</div>
-                                <div style="font-size: 10px; color: #FF9F40;">+ 250 TAMA bonus</div>
+                            <div class="pricing-card">
+                                <div class="phase-label">PHASE 2</div>
+                                <div class="phase-price">0.2 SOL</div>
+                                <div style="font-size: 12px; color: #666; margin: 5px 0;">Public</div>
+                                <div class="phase-bonus">+ 250 TAMA</div>
                             </div>
-                            <div style="text-align: center; padding: 10px; background: rgba(255, 99, 132, 0.1); border-radius: 10px; flex: 1;">
-                                <div style="font-size: 12px; color: #FF6384;">Phase 3</div>
-                                <div style="font-weight: bold;">0.3 SOL</div>
-                                <div style="font-size: 11px; color: #666;">Final Sale</div>
-                                <div style="font-size: 10px; color: #FF6384;">+ 100 TAMA bonus</div>
+                            <div class="pricing-card">
+                                <div class="phase-label">PHASE 3</div>
+                                <div class="phase-price">0.3 SOL</div>
+                                <div style="font-size: 12px; color: #666; margin: 5px 0;">Final</div>
+                                <div class="phase-bonus">+ 100 TAMA</div>
                             </div>
                         </div>
                     </div>
@@ -151,17 +270,19 @@
                         <div class="progress-fill" id="mint-progress" style="width: 0%"></div>
                     </div>
 
-                    <div class="benefits-box">
-                        <h3>🎁 WHAT YOU GET:</h3>
-                        <ul class="benefits-list">
-                            <li>✅ Unique NFT Pet (tradeable)</li>
-                            <li>✅ <strong>TAMA tokens bonus</strong></li>
-                            <li>✅ 10 pet types + random traits</li>
-                            <li>✅ 5 rarity tiers (Common → Legendary)</li>
-                            <li>✅ Play-to-Earn access</li>
-                            <li>✅ Referral rewards</li>
-                            <li>✅ Future airdrops & events</li>
-                        </ul>
+                    <!-- Benefits (Compact Grid) -->
+                    <div>
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 20px; color: #8AC926;">🎁 WHAT YOU GET</h3>
+                        <div class="benefits-grid">
+                            <div class="benefit-item">✅ Unique NFT Pet</div>
+                            <div class="benefit-item">💰 TAMA Bonus</div>
+                            <div class="benefit-item">🎲 10 Pet Types</div>
+                            <div class="benefit-item">⭐ 5 Rarities</div>
+                            <div class="benefit-item">🎮 Play-to-Earn</div>
+                            <div class="benefit-item">👥 Referrals</div>
+                            <div class="benefit-item">🎁 Airdrops</div>
+                            <div class="benefit-item">📈 Tradeable</div>
+                        </div>
                     </div>
 
                     <div id="pet-name-input" class="pet-name-section" style="display: none;">
