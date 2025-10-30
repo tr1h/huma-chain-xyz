@@ -735,30 +735,35 @@ def send_welcome(message):
         types.InlineKeyboardButton("🛒 Mint NFT", callback_data="mint_nft")
     )
     
-    # Row 3: Games & Referral
+    # Row 3: Withdrawal Button (NEW!)
+    keyboard.row(
+        types.InlineKeyboardButton("💰 Withdraw TAMA", callback_data="withdraw_tama")
+    )
+    
+    # Row 4: Games & Referral
     keyboard.row(
         types.InlineKeyboardButton("🎮 Mini-Games", callback_data="mini_games"),
         types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
     )
     
-    # Row 4: Stats & Quests
+    # Row 5: Stats & Quests
     keyboard.row(
         types.InlineKeyboardButton("📊 My Stats", callback_data="my_stats_detailed"),
         types.InlineKeyboardButton("🎯 Quests", callback_data="view_quests")
     )
     
-    # Row 5: Badges & Rank
+    # Row 6: Badges & Rank
     keyboard.row(
         types.InlineKeyboardButton("🏅 Badges", callback_data="view_badges"),
         types.InlineKeyboardButton("⭐ My Rank", callback_data="view_rank")
     )
     
-    # Row 6: Leaderboard only (Play Game moved to bottom menu)
+    # Row 7: Leaderboard only (Play Game moved to bottom menu)
     keyboard.row(
         types.InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")
     )
     
-    # Row 7: Community
+    # Row 8: Community
     keyboard.row(
         types.InlineKeyboardButton("👥 Community", url="https://t.me/gotchigamechat")
     )
@@ -974,6 +979,134 @@ To link your wallet to this Telegram account:
         text = "❌ Error. Please try again later."
     
     bot.reply_to(message, text, parse_mode='Markdown')
+
+# ==================== WITHDRAWAL MESSAGE HANDLERS ====================
+
+# Temporary storage for withdrawal flow
+withdrawal_sessions = {}
+
+def process_wallet_address(message):
+    """Process wallet address input for withdrawal"""
+    telegram_id = str(message.from_user.id)
+    wallet_address = message.text.strip()
+    
+    # Validate Solana address (basic validation: 32-44 chars, base58)
+    import re
+    if not re.match(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$', wallet_address):
+        text = """
+❌ **Invalid wallet address!**
+
+Please send a valid Solana wallet address.
+
+**Format:** 32-44 characters, base58
+**Example:** `7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU`
+
+Try again or /cancel to abort.
+        """
+        bot.send_message(message.chat.id, text, parse_mode='Markdown')
+        bot.register_next_step_handler(message, process_wallet_address)
+        return
+    
+    # Store wallet address in session
+    withdrawal_sessions[telegram_id] = {'wallet_address': wallet_address}
+    
+    # Ask for amount
+    try:
+        leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+        tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
+        
+        text = f"""
+✅ **Wallet Address Confirmed!**
+`{wallet_address}`
+
+**Your Balance:** {tama_balance:,} TAMA
+
+**How much TAMA do you want to withdraw?**
+
+Enter amount (minimum 1,000 TAMA):
+        """
+        
+        msg = bot.send_message(message.chat.id, text, parse_mode='Markdown')
+        bot.register_next_step_handler(msg, process_withdrawal_amount)
+    except Exception as e:
+        print(f"Error in process_wallet_address: {e}")
+        bot.send_message(message.chat.id, "❌ Error processing. Please try /withdraw again.")
+
+def process_withdrawal_amount(message):
+    """Process withdrawal amount input"""
+    telegram_id = str(message.from_user.id)
+    
+    # Get amount
+    try:
+        amount = int(message.text.strip().replace(',', '').replace(' ', ''))
+    except ValueError:
+        bot.send_message(message.chat.id, "❌ Invalid amount! Please enter a number.", parse_mode='Markdown')
+        bot.register_next_step_handler(message, process_withdrawal_amount)
+        return
+    
+    if amount < 1000:
+        bot.send_message(message.chat.id, "❌ Minimum withdrawal is 1,000 TAMA!", parse_mode='Markdown')
+        bot.register_next_step_handler(message, process_withdrawal_amount)
+        return
+    
+    # Get user balance
+    try:
+        leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+        tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
+        
+        if amount > tama_balance:
+            shortage = amount - tama_balance
+            text = f"""
+❌ **Insufficient Balance!**
+
+You have: **{tama_balance:,} TAMA**
+You want: **{amount:,} TAMA**
+Missing: **{shortage:,} TAMA**
+
+Please enter a lower amount:
+            """
+            msg = bot.send_message(message.chat.id, text, parse_mode='Markdown')
+            bot.register_next_step_handler(msg, process_withdrawal_amount)
+            return
+        
+        # Calculate fee
+        fee = int(amount * 0.05)
+        amount_received = amount - fee
+        
+        # Store in session
+        wallet_address = withdrawal_sessions.get(telegram_id, {}).get('wallet_address')
+        withdrawal_sessions[telegram_id] = {
+            'wallet_address': wallet_address,
+            'amount': amount
+        }
+        
+        # Confirm withdrawal
+        text = f"""
+📋 **WITHDRAWAL CONFIRMATION**
+
+**From:** Your game balance
+**To:** `{wallet_address[:8]}...{wallet_address[-8:]}`
+
+**Amount:** {amount:,} TAMA
+**Fee (5%):** -{fee:,} TAMA
+**You receive:** **{amount_received:,} TAMA**
+
+⚠️ **This action cannot be undone!**
+
+Confirm withdrawal?
+        """
+        
+        keyboard = types.InlineKeyboardMarkup()
+        keyboard.row(
+            types.InlineKeyboardButton("✅ Confirm", callback_data="confirm_withdrawal"),
+            types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_withdrawal")
+        )
+        
+        bot.send_message(message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+        
+    except Exception as e:
+        print(f"Error in process_withdrawal_amount: {e}")
+        bot.send_message(message.chat.id, "❌ Error processing. Please try /withdraw again.")
 
 # Handle wallet address linking
 @bot.message_handler(func=lambda message: message.chat.type == 'private' and message.text and message.text.startswith('/link ') and len(message.text.split()) == 2)
@@ -2953,6 +3086,168 @@ def handle_callback(call):
             print(f"Error showing NFTs: {e}")
             bot.answer_callback_query(call.id, "❌ Error loading NFTs")
     
+    elif call.data == "withdraw_tama":
+        # Show withdrawal options
+        telegram_id = str(call.from_user.id)
+        
+        try:
+            # Get user's TAMA balance
+            leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+            tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
+            
+            min_withdrawal = 1000
+            fee_percent = 5
+            can_withdraw = tama_balance >= min_withdrawal
+            
+            if can_withdraw:
+                example_amount = 10000
+                example_fee = int(example_amount * 0.05)
+                example_received = example_amount - example_fee
+                
+                text = f"""
+💰 **WITHDRAW TAMA TO WALLET** 💰
+
+**Your Balance:** {tama_balance:,} TAMA
+
+**Withdrawal Info:**
+• Minimum: {min_withdrawal:,} TAMA
+• Fee: {fee_percent}%
+• Network: Solana (Devnet)
+
+**Example:**
+Withdraw: {example_amount:,} TAMA
+Fee: -{example_fee:,} TAMA ({fee_percent}%)
+You receive: **{example_received:,} TAMA**
+
+**⚠️ Important:**
+1. You need a Solana wallet (Phantom recommended)
+2. Withdrawal is instant on devnet
+3. Transaction fee paid from P2E Pool
+
+**Ready to withdraw?**
+                """
+            else:
+                shortage = min_withdrawal - tama_balance
+                text = f"""
+💰 **WITHDRAW TAMA TO WALLET** 💰
+
+**Your Balance:** {tama_balance:,} TAMA
+
+❌ **Insufficient Balance**
+
+You need at least **{min_withdrawal:,} TAMA** to withdraw.
+You need **{shortage:,} more TAMA**.
+
+**How to earn more TAMA:**
+🎮 Play the game (click pet)
+🎯 Complete quests
+🎁 Claim daily rewards
+🔗 Refer friends (+1,000 TAMA each)
+                """
+            
+            keyboard = types.InlineKeyboardMarkup()
+            if can_withdraw:
+                # Add "Enter Wallet Address" button (will prompt user to send wallet)
+                keyboard.row(
+                    types.InlineKeyboardButton("💳 Enter Wallet Address", callback_data="enter_wallet")
+                )
+            keyboard.row(
+                types.InlineKeyboardButton("📜 Withdrawal History", callback_data="withdrawal_history")
+            )
+            keyboard.row(
+                types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
+            )
+            
+            try:
+                bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                    parse_mode='Markdown', reply_markup=keyboard)
+            except:
+                bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+        except Exception as e:
+            print(f"Error showing withdrawal options: {e}")
+            bot.answer_callback_query(call.id, "❌ Error loading withdrawal page")
+    
+    elif call.data == "enter_wallet":
+        # Prompt user to enter wallet address
+        text = """
+💳 **ENTER YOUR SOLANA WALLET ADDRESS**
+
+Please send your Solana wallet address (e.g., from Phantom).
+
+**Format:** 44 characters, base58
+**Example:** `7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU`
+
+⚠️ **Double-check your address!**
+Wrong address = lost TAMA!
+
+After sending your address, I'll ask for the amount.
+        """
+        
+        keyboard = types.InlineKeyboardMarkup()
+        keyboard.row(
+            types.InlineKeyboardButton("🔙 Cancel", callback_data="withdraw_tama")
+        )
+        
+        try:
+            bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                parse_mode='Markdown', reply_markup=keyboard)
+            # Set user state to expect wallet address
+            bot.register_next_step_handler(call.message, process_wallet_address)
+        except:
+            msg = bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+            bot.register_next_step_handler(msg, process_wallet_address)
+    
+    elif call.data == "withdrawal_history":
+        # Show withdrawal history
+        telegram_id = str(call.from_user.id)
+        
+        try:
+            # Fetch from API
+            response = requests.get(f"{TAMA_API_BASE}/withdrawal/history?telegram_id={telegram_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                withdrawals = data.get('withdrawals', [])
+                
+                if not withdrawals:
+                    text = """
+📜 **WITHDRAWAL HISTORY** 📜
+
+No withdrawals yet.
+
+Make your first withdrawal to see history here!
+                    """
+                else:
+                    text = "📜 **WITHDRAWAL HISTORY** 📜\n\n"
+                    
+                    for i, w in enumerate(withdrawals[:10], 1):
+                        amount = w.get('amount_sent', 0)
+                        fee = w.get('fee', 0)
+                        status_emoji = "✅" if w.get('status') == 'completed' else "⏳"
+                        created_at = w.get('created_at', '')[:10]
+                        
+                        text += f"{i}. {status_emoji} **{amount:,} TAMA**\n"
+                        text += f"   Fee: {fee:,} TAMA | {created_at}\n\n"
+                    
+                    if len(withdrawals) > 10:
+                        text += f"... and {len(withdrawals) - 10} more"
+            else:
+                text = "❌ Error loading withdrawal history"
+            
+            keyboard = types.InlineKeyboardMarkup()
+            keyboard.row(
+                types.InlineKeyboardButton("🔙 Back", callback_data="withdraw_tama")
+            )
+            
+            try:
+                bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                    parse_mode='Markdown', reply_markup=keyboard)
+            except:
+                bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+        except Exception as e:
+            print(f"Error showing withdrawal history: {e}")
+            bot.answer_callback_query(call.id, "❌ Error loading history")
+    
     elif call.data == "mint_nft":
         # Show mint options
         telegram_id = str(call.from_user.id)
@@ -3010,6 +3305,127 @@ All NFTs give you earning bonuses when playing!
         except Exception as e:
             print(f"Error showing mint options: {e}")
             bot.answer_callback_query(call.id, "❌ Error loading mint page")
+    
+    elif call.data == "confirm_withdrawal":
+        # Execute withdrawal via API
+        telegram_id = str(call.from_user.id)
+        
+        # Get withdrawal data from session
+        withdrawal_data = withdrawal_sessions.get(telegram_id)
+        if not withdrawal_data:
+            bot.answer_callback_query(call.id, "❌ Session expired. Please start again.")
+            return
+        
+        wallet_address = withdrawal_data.get('wallet_address')
+        amount = withdrawal_data.get('amount')
+        
+        try:
+            # Call withdrawal API
+            response = requests.post(f"{TAMA_API_BASE}/withdrawal/request", json={
+                'telegram_id': telegram_id,
+                'wallet_address': wallet_address,
+                'amount': amount
+            })
+            
+            if response.status_code == 200:
+                data = response.json()
+                withdrawal = data.get('withdrawal', {})
+                
+                amount_sent = withdrawal.get('amount_sent', 0)
+                fee = withdrawal.get('fee', 0)
+                tx_signature = withdrawal.get('transaction_signature')
+                explorer_url = withdrawal.get('explorer_url')
+                new_balance = withdrawal.get('new_balance', 0)
+                
+                text = f"""
+✅ **WITHDRAWAL SUCCESSFUL!** ✅
+
+💸 **Sent:** {amount_sent:,} TAMA
+💰 **Fee:** {fee:,} TAMA
+📊 **New Balance:** {new_balance:,} TAMA
+
+🔗 **Transaction:**
+[View on Explorer]({explorer_url})
+
+⏱️ **Status:** Completed
+✨ **TAMA is now in your wallet!**
+
+Thank you for playing! 🎮
+                """
+                
+                keyboard = types.InlineKeyboardMarkup()
+                if explorer_url:
+                    keyboard.row(
+                        types.InlineKeyboardButton("🔍 View Transaction", url=explorer_url)
+                    )
+                keyboard.row(
+                    types.InlineKeyboardButton("💰 Withdraw More", callback_data="withdraw_tama"),
+                    types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
+                )
+                
+                # Clear session
+                del withdrawal_sessions[telegram_id]
+                
+                try:
+                    bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                        parse_mode='Markdown', reply_markup=keyboard)
+                except:
+                    bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+            else:
+                error_data = response.json()
+                error_msg = error_data.get('error', 'Unknown error')
+                
+                text = f"""
+❌ **WITHDRAWAL FAILED**
+
+**Error:** {error_msg}
+
+Please try again or contact support.
+                """
+                
+                keyboard = types.InlineKeyboardMarkup()
+                keyboard.row(
+                    types.InlineKeyboardButton("🔄 Try Again", callback_data="withdraw_tama"),
+                    types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
+                )
+                
+                try:
+                    bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                        parse_mode='Markdown', reply_markup=keyboard)
+                except:
+                    bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+                
+        except Exception as e:
+            print(f"Error processing withdrawal: {e}")
+            bot.answer_callback_query(call.id, "❌ Error processing withdrawal")
+    
+    elif call.data == "cancel_withdrawal":
+        # Cancel withdrawal
+        telegram_id = str(call.from_user.id)
+        
+        # Clear session
+        if telegram_id in withdrawal_sessions:
+            del withdrawal_sessions[telegram_id]
+        
+        text = """
+❌ **Withdrawal Cancelled**
+
+No TAMA was deducted from your balance.
+
+You can try again anytime!
+        """
+        
+        keyboard = types.InlineKeyboardMarkup()
+        keyboard.row(
+            types.InlineKeyboardButton("💰 Withdraw", callback_data="withdraw_tama"),
+            types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
+        )
+        
+        try:
+            bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                parse_mode='Markdown', reply_markup=keyboard)
+        except:
+            bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data == "my_stats":
         # Create stats with back button for callback

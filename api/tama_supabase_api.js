@@ -866,6 +866,10 @@ app.post('/api/tama/sync', async (req, res) => {
     }
 });
 
+// ==================== WITHDRAWAL API ====================
+const withdrawalRouter = require('./withdrawal-api');
+app.use('/api/tama', withdrawalRouter);
+
 // Запуск сервера
 app.listen(PORT, () => {
     console.log(`🚀 TAMA API Server running on http://localhost:${PORT}`);
@@ -881,6 +885,9 @@ app.listen(PORT, () => {
     console.log(`  POST http://localhost:${PORT}/api/tama/mint-nft`);
     console.log(`  GET  http://localhost:${PORT}/api/tama/nfts?user_id=test&user_type=wallet`);
     console.log(`  GET  http://localhost:${PORT}/api/tama/nft-costs`);
+    console.log(`  POST http://localhost:${PORT}/api/tama/withdrawal/request 💰`);
+    console.log(`  GET  http://localhost:${PORT}/api/tama/withdrawal/history 💰`);
+    console.log(`  GET  http://localhost:${PORT}/api/tama/withdrawal/limits 💰`);
     console.log('');
     console.log('⚠️  Don\'t forget to replace YOUR_SUPABASE_ANON_KEY_HERE with your actual anon key!');
 });
