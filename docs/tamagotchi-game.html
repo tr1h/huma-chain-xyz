@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- VERSION: 1.8.5 | BUILD: 2025-10-26 22:15 | FIX: Really equal button sizes -->
+<!-- VERSION: 1.9.0 | BUILD: 2025-10-30 | FIX: API-based saves + GitHub Pages path fix -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Solana Tamagotchi v1.8.5</title>
+    <title>Solana Tamagotchi v1.9.0</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Transaction Logger -->
     <script src="js/transaction-logger.js?v=1.6.2"></script>
@@ -5580,7 +5580,7 @@
 
         // Enhanced auto-save system with local backup
 
-        // Direct save to Supabase function
+        // Save via API function (безопасный метод через бэкенд)
         async function saveDirectToSupabase(userId) {
             try {
                 // Prepare pet_data JSON
@@ -5598,7 +5598,42 @@
                     hasAutoFeeder: gameState.hasAutoFeeder
                 };
                 
-                // Direct save to Supabase
+                // Используем API для безопасного сохранения
+                const apiUrl = `${TAMA_API_BASE}/leaderboard/upsert`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        telegram_id: userId,
+                        tama: gameState.tama,
+                        level: gameState.level,
+                        xp: gameState.xp,
+                        pet_data: pet_data,
+                        pet_name: gameState.petType || 'Gotchi',
+                        pet_type: gameState.petType || 'kawai'
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Saved via API:', { level: gameState.level, tama: gameState.tama });
+                    return true;
+                } else {
+                    console.error('❌ API save failed:', response.status);
+                    // Fallback: прямое сохранение в Supabase
+                    return await saveDirectToSupabaseFallback(userId, pet_data);
+                }
+            } catch (error) {
+                console.error('❌ Error saving via API:', error);
+                // Fallback: прямое сохранение в Supabase
+                return await saveDirectToSupabaseFallback(userId, pet_data);
+            }
+        }
+        
+        // Fallback: прямое сохранение в Supabase (если API недоступен)
+        async function saveDirectToSupabaseFallback(userId, pet_data) {
+            try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${userId}`, {
                     method: 'PATCH',
                     headers: {
@@ -5616,7 +5651,7 @@
                 });
                 
                 if (response.ok) {
-                    console.log('✅ Saved to Supabase:', { level: gameState.level, tama: gameState.tama });
+                    console.log('✅ Saved to Supabase (fallback):', { level: gameState.level, tama: gameState.tama });
                     return true;
                 } else {
                     console.error('❌ Supabase save failed:', response.status);
@@ -8101,6 +8136,9 @@
         // Supabase Configuration
         const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        
+        // TAMA API Configuration
+        const TAMA_API_BASE = window.localStorage.getItem('TAMA_API_BASE') || window.TAMA_API_BASE || 'https://tr1h.github.io/huma-chain-xyz/api/tama';
 
         // Load leaderboard from Supabase
         async function loadLeaderboard() {
@@ -8218,8 +8256,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('%c🎮 GAME VERSION: 1.8.5 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
-            console.log('%c📅 BUILD: 2025-10-26 22:15 | FIX: Really equal button sizes', 'font-size: 14px; color: #ffff00;');
+            console.log('%c🎮 GAME VERSION: 1.9.0 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
+            console.log('%c📅 BUILD: 2025-10-30 | FIX: API-based saves + GitHub Pages path', 'font-size: 14px; color: #ffff00;');
             console.log('DOM loaded, initializing game...');
             
             // Wait for Telegram WebApp to initialize
