@@ -90,10 +90,86 @@ const TAMAMint = {
         } else {
             solMintBtn.style.border = '3px solid #8AC926';
             tamaMintBtn.style.border = 'none';
-            // Let regular SOL mint flow handle this
-            if (window.MintController) {
-                window.MintController.handleConnect();
+            // Use Real SOL Mint
+            this.handleSOLMint();
+        }
+    },
+    
+    async handleSOLMint() {
+        try {
+            console.log('💎 Starting Real SOL Mint flow...');
+            
+            // Check if Phantom wallet is installed
+            if (!window.solana || !window.solana.isPhantom) {
+                alert('❌ Phantom wallet not found!\n\nPlease install Phantom wallet:\nhttps://phantom.app/');
+                return;
             }
+            
+            // Connect wallet
+            const resp = await window.solana.connect();
+            const wallet = window.solana;
+            
+            console.log('✅ Wallet connected:', resp.publicKey.toString());
+            
+            // Initialize Real SOL Mint
+            if (!window.RealSOLMint) {
+                alert('❌ Real SOL Mint module not loaded!');
+                return;
+            }
+            
+            await window.RealSOLMint.init(wallet);
+            
+            // Confirm mint
+            const confirmed = confirm(
+                `💎 PREMIUM SOL MINT\n\n` +
+                `Cost: 0.1 SOL (~$15-20)\n` +
+                `Wallet: ${resp.publicKey.toString().slice(0,4)}...${resp.publicKey.toString().slice(-4)}\n\n` +
+                `You will receive:\n` +
+                `• Random NFT Pet (Epic 60% / Legendary 40%)\n` +
+                `• +10,000 TAMA bonus\n` +
+                `• +75% to +100% earning boost\n\n` +
+                `⚠️ This will send 0.1 SOL to treasury.\n\n` +
+                `Proceed with SOL mint?`
+            );
+            
+            if (!confirmed) {
+                console.log('❌ User cancelled SOL mint');
+                return;
+            }
+            
+            // Execute mint
+            console.log('🚀 Executing real SOL mint...');
+            const result = await window.RealSOLMint.mintNFT(this.userId, '');
+            
+            if (result.success) {
+                console.log('🎉 SOL mint successful!', result);
+                
+                // Show success modal
+                this.showSuccessModal(
+                    result.nftData.emoji,
+                    result.nftData.pet_type,
+                    result.nftData.rarity.toUpperCase(),
+                    result.nftData.rarity === 'legendary' ? '🧡' : '💜'
+                );
+                
+                // Show explorer link
+                alert(
+                    `🎉 NFT MINTED!\n\n` +
+                    `${result.nftData.emoji} ${result.nftData.name}\n` +
+                    `Rarity: ${result.nftData.rarity.toUpperCase()}\n` +
+                    `Boost: +${result.nftData.attributes.boost}% TAMA\n\n` +
+                    `✅ Transaction confirmed!\n` +
+                    `View on Explorer:\n` +
+                    `${result.solTransfer.explorer}\n\n` +
+                    `💰 Received: +${result.tamaBonus} TAMA bonus!`
+                );
+            } else {
+                throw new Error('Mint failed');
+            }
+            
+        } catch (error) {
+            console.error('❌ SOL mint failed:', error);
+            alert(`❌ Mint failed!\n\n${error.message}\n\nPlease try again or contact support.`);
         }
     },
     
