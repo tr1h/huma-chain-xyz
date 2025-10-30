@@ -43,7 +43,7 @@ BOT_USERNAME = os.getenv('BOT_USERNAME', 'GotchiGameBot')
 bot = telebot.TeleBot(TOKEN)
 
 # URLs
-GAME_URL = os.getenv('GAME_URL', 'https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html?v=20251030-fix')  # Telegram Mini App URL
+GAME_URL = os.getenv('GAME_URL', 'https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html?v=20251030-final')  # Telegram Mini App URL
 MINT_URL = os.getenv('MINT_URL', 'https://tr1h.github.io/huma-chain-xyz/')  # Mint URL
 CHANNEL_USERNAME = os.getenv('CHANNEL_USERNAME', '@GotchiGame')  # Channel username for posting
 
