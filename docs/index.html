@@ -1,26 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1D3557">
-    <meta name="description" content="Solana Tamagotchi - Play-to-Earn NFT pet game on Solana blockchain. Earn 1,000 TAMA per friend referral! Multi-level rewards system. Coming Soon.">
+    <meta name="description" content="Solana Tamagotchi - Блокчейн игра на Solana с NFT питомцами и Play-to-Earn механикой">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tr1h.github.io/solana-tamagotchi/?v=7">
-    <meta property="og:title" content="Solana Tamagotchi - Coming Soon">
-    <meta property="og:description" content="Solana Tamagotchi - Play-to-Earn NFT pet game on Solana blockchain. Earn 1,000 TAMA per friend referral! Multi-level rewards system. Coming Soon.">
-    <meta property="og:image" content="https://tr1h.github.io/solana-tamagotchi/assets/og-image.png">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://tr1h.github.io/solana-tamagotchi/?v=7">
-    <meta property="twitter:title" content="Solana Tamagotchi - Coming Soon">
-    <meta property="twitter:description" content="Solana Tamagotchi - Play-to-Earn NFT pet game on Solana blockchain. Earn 1,000 TAMA per friend referral! Multi-level rewards system. Coming Soon.">
-    <meta property="twitter:image" content="https://tr1h.github.io/solana-tamagotchi/assets/og-image.png">
-    
-    <title>Solana Tamagotchi - Coming Soon</title>
+    <title>Solana Tamagotchi - Play & Earn</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
@@ -28,1213 +14,1151 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <!-- Styles -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/landing.css">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Solana Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Metaplex Umi для NFT проверки -->
+    <script src="https://unpkg.com/@metaplex-foundation/umi/dist/index.umd.js?v=2"></script>
+    <script src="https://unpkg.com/@metaplex-foundation/umi-bundle-defaults/dist/index.umd.js?v=2"></script>
+    <script src="https://unpkg.com/@metaplex-foundation/mpl-candy-machine/dist/index.umd.js?v=2"></script>
+    
+    <!-- TAMA Blockchain Integration -->
+    <script src="js/tama-blockchain.js"></script>
+    <script src="js/tama-withdraw-ui.js"></script>
+    
+    <!-- TAMA Withdraw Modal Styles -->
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            background: linear-gradient(135deg, #1D3557 0%, #457B9D 50%, #A8DADC 100%);
-            min-height: 100vh;
-        }
-        
-        .coming-soon-overlay {
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            color: white;
-            text-align: center;
-            padding: 40px 20px;
-        }
-        
-        .coming-soon-content {
-            max-width: 1200px;
-            width: 100%;
-            animation: fadeInUp 1s ease-out;
-        }
-        
-        .coming-soon-logo {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .coming-soon-title {
-            font-size: 2.5rem;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .coming-soon-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 40px;
-            opacity: 0.9;
-            line-height: 1.6;
-        }
-        
-        .coming-soon-features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .feature-card {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255,255,255,0.15);
-        }
-        
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        
-        .feature-title {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        
-        .feature-desc {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .coming-soon-date {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            color: #F1FAEE;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-        
-        .email-signup {
-            background: rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin: 40px 0;
-        }
-        
-        .email-signup h3 {
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-        }
-        
-        .email-form {
-            display: flex;
-            gap: 10px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .email-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: none;
-            border-radius: 25px;
-            background: rgba(255,255,255,0.9);
-            color: #1D3557;
-            font-size: 1rem;
-        }
-        
-        .email-input::placeholder {
-            color: #666;
-        }
-        
-        .email-submit {
-            padding: 12px 25px;
-            background: #E63946;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .email-submit:hover {
-            background: #D62828;
-            transform: translateY(-2px);
-        }
-        
-        .subscribe-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
-            margin: 20px 0;
-        }
-        
-        .subscribe-button:hover {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
-        }
-        
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .social-link {
-            display: inline-block;
-            padding: 15px 25px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .social-link:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .coming-soon-logo {
-            animation: pulse 2s infinite;
-        }
-        
-        .referral-section {
-            background: rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin: 30px 0;
-        }
-        
-        .referral-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            align-items: start;
-        }
-        
-        .referral-info h4,
-        .referral-bot h4 {
-            color: #4ade80;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .reward-levels {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .reward-level {
-            background: rgba(74, 222, 128, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            text-align: center;
-            flex: 1;
-        }
-        
-        .level-badge {
-            display: block;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .reward-amount {
-            display: block;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #4ade80;
-            margin-bottom: 5px;
-        }
-        
-        .reward-desc {
-            display: block;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .milestone-bonuses h5 {
-            color: #4ade80;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        
-        .milestone-bonuses ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .milestone-bonuses li {
-            background: rgba(255,255,255,0.05);
-            padding: 8px 12px;
-            margin-bottom: 5px;
-            border-radius: 8px;
-            border-left: 3px solid #4ade80;
-            font-size: 0.9rem;
-        }
-        
-        .bot-button {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 15px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            margin: 15px 0;
-        }
-        
-        .bot-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
-        }
-        
-        .bot-icon {
-            font-size: 1.5rem;
-        }
-        
-        .bot-text {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .bot-text strong {
-            font-size: 1.1rem;
-        }
-        
-        .bot-text small {
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-        
-        .referral-stats {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .stat {
-            text-align: center;
-            flex: 1;
-        }
-        
-        .stat-number {
-            display: block;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #4ade80;
-        }
-        
-        .stat-label {
-            display: block;
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        
-        /* Personal Referral Styles */
-        .referral-state {
-            margin-bottom: 20px;
-        }
-        
-        .instant-steps {
-            background: rgba(74, 222, 128, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            margin: 15px 0;
-        }
-        
-        .instant-steps .step {
-            padding: 8px 0;
-            font-size: 0.95rem;
-            text-align: left;
-        }
-        
-        .personal-ref-link {
-            margin-bottom: 20px;
-        }
-        
-        .personal-ref-link label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .ref-link-container {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .ref-link-input {
-            flex: 1;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(74, 222, 128, 0.5);
-            border-radius: 10px;
-            padding: 12px 15px;
-            color: white;
-            font-size: 0.9rem;
-            font-family: monospace;
-        }
-        
-        .copy-ref-btn,
-        .share-ref-btn {
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-        
-        .copy-ref-btn:hover,
-        .share-ref-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.4);
-        }
-        
-        .copy-ref-btn:active,
-        .share-ref-btn:active {
-            transform: translateY(0);
-        }
-        
-        .copy-ref-btn.copied {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-        }
-        
-        .personal-ref-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .personal-stat {
-            background: rgba(74, 222, 128, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            text-align: center;
-        }
-        
-        .personal-stat-label {
-            display: block;
-            font-size: 0.85rem;
-            opacity: 0.8;
-            margin-bottom: 8px;
-        }
-        
-        .personal-stat-number {
-            display: block;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #4ade80;
-            text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
-            margin-bottom: 5px;
-        }
-        
-        .personal-stat-detail {
-            display: block;
-            font-size: 0.75rem;
-            opacity: 0.7;
-        }
-        
-        .next-milestone {
-            background: rgba(255, 215, 0, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            margin-bottom: 20px;
-        }
-        
-        .next-milestone p {
-            margin: 0 0 10px 0;
-            font-size: 0.9rem;
-        }
-        
-        .next-milestone strong {
-            color: #FFD700;
-        }
-        
-        .milestone-progress {
-            height: 20px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-        
-        .milestone-progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #FFD700, #FFA500);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-        
-        .milestone-progress-text {
-            display: block;
-            text-align: center;
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-        
-        .mini-game {
-            background: rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin: 40px 0;
-            text-align: center;
-        }
-        
-        .mini-game h3 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        
-        .game-arena {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        
-        .game-pet-runner {
-            position: absolute;
-            font-size: 4rem;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
-        }
-        
-        .game-pet-runner:hover {
-            transform: scale(1.2);
-            filter: drop-shadow(0 0 20px rgba(255,215,0,0.8));
-        }
-        
-        .game-pet-runner:active {
-            transform: scale(0.9);
-        }
-        
-        .game-pet-runner.caught {
-            animation: catchAnimation 0.5s ease-out;
-        }
-        
-        @keyframes catchAnimation {
-            0% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.5) rotate(180deg); }
-            100% { transform: scale(0) rotate(360deg); }
-        }
-        
-        .game-stats {
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            align-items: center;
+            z-index: 10000;
         }
         
-        .game-stat {
-            background: rgba(255,255,255,0.1);
-            padding: 15px 25px;
-            border-radius: 15px;
-            min-width: 120px;
-        }
-        
-        .game-stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #FFD700;
-            text-shadow: 0 0 10px rgba(255,215,0,0.5);
-        }
-        
-        .game-stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        
-        .game-message {
-            margin-top: 15px;
-            font-size: 1rem;
-            opacity: 0.9;
-            min-height: 30px;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        @keyframes coin {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
-        }
-        
-        .coin-popup {
-            position: absolute;
-            font-size: 1.5rem;
-            pointer-events: none;
-            animation: coin 1s ease-out forwards;
-        }
-        
-        .roadmap {
-            background: rgba(255,255,255,0.1);
-            padding: 30px;
+        .modal-content {
+            background: white;
             border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin: 40px 0;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
         
-        .roadmap h3 {
-            margin-bottom: 30px;
-            font-size: 1.5rem;
-        }
-        
-        .roadmap-items {
+        .modal-header {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
         }
         
-        .roadmap-item {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 4px solid #FFD700;
-            text-align: left;
+        .modal-header h2 {
+            margin: 0;
+            color: #1D3557;
+            font-size: 24px;
         }
         
-        .roadmap-item.completed {
-            border-left-color: #4CAF50;
-            opacity: 0.8;
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
         }
         
-        .roadmap-item.current {
-            border-left-color: #FF6B6B;
-            box-shadow: 0 0 20px rgba(255,107,107,0.3);
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
         }
         
-        .roadmap-title {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
+        .balance-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .balance-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        
+        .withdraw-form {
+            margin-bottom: 20px;
+        }
+        
+        .withdraw-form label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: bold;
+            color: #333;
         }
         
-        .roadmap-desc {
-            font-size: 0.9rem;
-            opacity: 0.8;
+        .withdraw-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
         }
         
-        @media (max-width: 1024px) {
-            .coming-soon-content {
-                max-width: 900px;
-            }
-            
-            .coming-soon-features {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .withdraw-form input:focus {
+            outline: none;
+            border-color: #1D3557;
         }
         
-        @media (max-width: 768px) {
-            .coming-soon-overlay {
-                padding: 20px 15px;
-            }
-            
-            .coming-soon-title {
-                font-size: 1.8rem;
-            }
-            
-            .coming-soon-logo {
-                font-size: 2.5rem;
-            }
-            
-            .coming-soon-subtitle {
-                font-size: 1rem;
-            }
-            
-            .coming-soon-features {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .feature-card {
-                padding: 15px;
-            }
-            
-            .mini-game,
-            .roadmap,
-            .email-signup {
-                padding: 20px;
-            }
-            
-            .game-arena {
-                height: 300px;
-            }
-            
-            .game-pet-runner {
-                font-size: 3rem;
-            }
-            
-            .game-stats {
-                gap: 10px;
-            }
-            
-            .game-stat {
-                min-width: 100px;
-                padding: 10px 15px;
-            }
-            
-            .social-links {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .email-form {
-                flex-direction: column;
-            }
-            
-            .referral-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .reward-levels {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .referral-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .ref-link-container {
-                flex-direction: column;
-            }
-            
-            .copy-ref-btn,
-            .share-ref-btn {
-                width: 100%;
-            }
-            
-            .personal-ref-stats {
-                grid-template-columns: 1fr;
-            }
+        .withdraw-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .withdraw-actions button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1D3557, #457B9D);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 53, 87, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6C757D, #8E9AAF);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
         }
     </style>
 </head>
 <body>
-    <!-- Coming Soon Overlay -->
-    <div class="coming-soon-overlay">
-        <div class="coming-soon-content">
-            <div class="coming-soon-logo">🐾</div>
-            <h1 class="coming-soon-title">Solana Tamagotchi</h1>
-            <p class="coming-soon-subtitle">
-                Innovative Play-to-Earn game with NFT pets!<br>
-                Grow, train and earn with your digital pets.
-            </p>
-            
-            <div class="coming-soon-date" style="margin: 30px 0; font-size: 1.8rem; font-weight: bold;">
-                🚀 Launch: <strong>Coming Soon!</strong>
-            </div>
-            
-            
-            <div class="coming-soon-features">
-                <div class="feature-card">
-                    <div class="feature-icon">🎮</div>
-                    <div class="feature-title">Play-to-Earn</div>
-                    <div class="feature-desc">Earn tokens by playing with pets</div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🖼️</div>
-                    <div class="feature-title">NFT Pets</div>
-                    <div class="feature-desc">Unique NFT pets with different characteristics</div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🏆</div>
-                    <div class="feature-title">Leaderboard</div>
-                    <div class="feature-desc">Compete with other players</div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🎁</div>
-                    <div class="feature-title">Referral System</div>
-                    <div class="feature-desc">Invite friends and get bonuses</div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <div class="feature-title">Fast Transactions</div>
-                    <div class="feature-desc">Lightning-fast blockchain technology</div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <div class="feature-title">Secure & Safe</div>
-                    <div class="feature-desc">Your pets and tokens are protected</div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
-                    <div class="feature-title">Unique Designs</div>
-                    <div class="feature-desc">Each pet has unique visual traits</div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">⭐</div>
-                    <div class="feature-title">Evolution System</div>
-                    <div class="feature-desc">Watch your pets grow and evolve</div>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">💎</div>
-                    <div class="feature-title">Rare Collectibles</div>
-                    <div class="feature-desc">Find legendary and mythic pets</div>
-                </div>
-            </div>
-            
-            <!-- Referral Section -->
-            <div class="referral-section">
-                <h3>🔗 Earn with Referrals!</h3>
-                <div class="referral-content">
-                    <div class="referral-info">
-                        <h4>💰 Multi-Level Rewards</h4>
-                        <div class="reward-levels">
-                            <div class="reward-level">
-                                <span class="level-badge">Level 1</span>
-                                <span class="reward-amount">1,000 TAMA</span>
-                                <span class="reward-desc">Direct referrals</span>
-                            </div>
-                            <div class="reward-level">
-                                <span class="level-badge">Level 2</span>
-                                <span class="reward-amount">50 TAMA</span>
-                                <span class="reward-desc">Indirect referrals</span>
-                            </div>
-                        </div>
-                        <div class="milestone-bonuses">
-                            <h5>🎁 Milestone Bonuses:</h5>
-                            <ul>
-                                <li>5 referrals → +1,000 TAMA</li>
-                                <li>10 referrals → +3,000 TAMA</li>
-                                <li>25 referrals → +10,000 TAMA</li>
-                                <li>50 referrals → +30,000 TAMA</li>
-                                <li>100 referrals → +100,000 TAMA + Legendary Badge!</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="referral-bot">
-                        <h4>🤖 Get Your Referral Link!</h4>
-                        <p>🎁 No wallet needed! Get your referral link instantly and start earning TAMA tokens!</p>
-                        
-                        <div class="instant-steps">
-                            <div class="step">1️⃣ Open bot → Get link</div>
-                            <div class="step">2️⃣ Share with friends</div>
-                            <div class="step">3️⃣ Earn 1,000 TAMA instantly!</div>
-                        </div>
-                        
-                        <a href="https://t.me/gotchigamebot?start=start" class="bot-button" target="_blank">
-                            <span class="bot-icon">🤖</span>
-                            <span class="bot-text">
-                                <strong>Get Referral Link</strong>
-                                <small>Start in 10 seconds!</small>
-                            </span>
-                        </a>
-                        
-                        <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
-                            💡 <strong>Track your referrals:</strong> Use <code>/stats</code> command in the bot
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Mini Game -->
-            <div class="mini-game">
-                <h3>🎮 Catch the Pet!</h3>
-                <p style="margin-bottom: 20px; opacity: 0.9;">Catch the running pet and unlock new ones!</p>
-                <div id="game-arena" class="game-arena">
-                    <div id="game-pet" class="game-pet-runner">🐾</div>
-                </div>
-                <div class="game-stats">
-                    <div class="game-stat">
-                        <div class="game-stat-value" id="caught">0</div>
-                        <div class="game-stat-label">🏆 Caught</div>
-                    </div>
-                    <div class="game-stat">
-                        <div class="game-stat-value" id="score">0</div>
-                        <div class="game-stat-label">💯 Score</div>
-                    </div>
-                    <div class="game-stat">
-                        <div class="game-stat-value" id="speed">1.0x</div>
-                        <div class="game-stat-label">⚡ Speed</div>
-                    </div>
-                </div>
-                <button id="share-results" class="share-button" style="display: none; margin-top: 15px; padding: 10px 20px; background: linear-gradient(135deg, #4ade80, #22c55e); color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
-                    📤 Share My Score!
-                </button>
-                <div class="game-message" id="game-message">Catch the pet!</div>
-            </div>
-            
-            <!-- Roadmap -->
-            <div class="roadmap">
-                <h3>🗺️ LAUNCH ROADMAP</h3>
-                <div class="roadmap-items">
-                    <div class="roadmap-item completed">
-                        <div class="roadmap-title">✅ Phase 1: Foundation</div>
-                        <div class="roadmap-desc">Website Launch • Community Building • Social Media Setup</div>
-                    </div>
-                    <div class="roadmap-item current">
-                        <div class="roadmap-title">🔄 Phase 2: Pre-Launch (Now!)</div>
-                        <div class="roadmap-desc">Early Bird Registration • NFT Preview • Partnerships</div>
-                    </div>
-                    <div class="roadmap-item">
-                        <div class="roadmap-title">🚀 Phase 3: Beta Launch (Soon!)</div>
-                        <div class="roadmap-desc">Limited Beta Access • First NFT Drop • Reward System Active</div>
-                    </div>
-                    <div class="roadmap-item">
-                        <div class="roadmap-title">🎮 Phase 4: Full Launch (Very Soon!)</div>
-                        <div class="roadmap-desc">Public Access • All Features Live • First Tournament</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="email-signup">
-                <h3>📧 Get Launch Notifications</h3>
-                <a href="https://forms.gle/1B9uHZn6Zyqfoany9" target="_blank" class="subscribe-button">
-                    🚀 Subscribe for Updates
-                </a>
-                <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">
-                    Click to subscribe and get launch notifications<br>
-                    📧 Contact: gotchigame@proton.me
-                </p>
-                
-            </div>
-            
-            <div class="social-links">
-                <a href="https://t.me/GotchiGame" class="social-link" target="_blank">
-                    📢 Telegram Channel
-                </a>
-                <a href="https://t.me/gotchigamechat" class="social-link" target="_blank">
-                    💬 Telegram Group
-                </a>
-                <a href="https://x.com/GotchiGame" class="social-link" target="_blank">
-                    🐦 Twitter
-                </a>
-                <a href="https://t.me/gotchigamebot" class="social-link" target="_blank">
-                    🤖 Telegram Bot
-                </a>
-            </div>
-            
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="pixel-loader"></div>
+            <p class="loading-text">Loading Tamagotchi...</p>
+        </div>
+    </div>
 
-            <div class="qr-section" style="margin-top: 30px; text-align: center;">
-                <h4 style="margin-bottom: 15px; color: #4ade80;">📱 Quick Access</h4>
-                <div class="qr-code" style="display: inline-block; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://tr1h.github.io/solana-tamagotchi/" alt="QR Code" style="width: 120px; height: 120px;">
+    <!-- Landing Page -->
+    <div id="landing-page" class="landing-page">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-logo">🐾</div>
+                <h1 class="hero-title">SOLANA TAMAGOTCHI</h1>
+                <p class="hero-subtitle">The Ultimate Blockchain Pet Game on Solana! Play, Earn & Collect NFT Pets 🚀</p>
+                <div class="hero-buttons">
+                    <button id="landing-connect-btn" class="btn-connect">CONNECT WALLET</button>
+                    <button onclick="document.getElementById('features-section').scrollIntoView({behavior:'smooth'})" class="btn-secondary">Learn More</button>
                 </div>
-                <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">Scan to open on mobile</p>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features-section" class="features-section">
+            <h2 class="section-title">🎮 GAME FEATURES</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🐾</span>
+                    <h3 class="feature-title">10 Pet Types</h3>
+                    <p class="feature-desc">Cat, Dog, Dragon, Fox, Bear, Rabbit, Panda, Lion, Unicorn, Wolf + Traits!</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⭐</span>
+                    <h3 class="feature-title">Evolution System</h3>
+                    <p class="feature-desc">Level up and evolve your pet through 5 epic stages</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">💰</span>
+                    <h3 class="feature-title">Play & Earn</h3>
+                    <p class="feature-desc">Earn TAMA tokens by playing and caring for your pet</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🏆</span>
+                    <h3 class="feature-title">Achievements</h3>
+                    <p class="feature-desc">Unlock 15+ achievements and earn rewards</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🖱️</span>
+                    <h3 class="feature-title">Click to Earn</h3>
+                    <p class="feature-desc">Click your pet to gain XP and unlock bonuses</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">👥</span>
+                    <h3 class="feature-title">Leaderboard</h3>
+                    <p class="feature-desc">Compete globally and climb the ranks</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pet Showcase -->
+        <section class="pets-section">
+            <h2 class="section-title">🎨 CHOOSE YOUR PET</h2>
+            <div class="pets-grid">
+                <div class="pet-preview">😺</div>
+                <div class="pet-preview">🐶</div>
+                <div class="pet-preview">🐉</div>
+                <div class="pet-preview">🦊</div>
+                <div class="pet-preview">🐻</div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <h2 class="section-title">📊 LIVE STATS</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="landing-players">0</div>
+                    <div class="stat-label">Players Online</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Pet Types</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">15+</div>
+                    <div class="stat-label">Achievements</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">0.1</div>
+                    <div class="stat-label">SOL to Start</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <div class="footer-content">
+                <div class="social-links">
+                    <a href="https://x.com/GotchiGame" target="_blank" class="social-link" data-tooltip-disabled="Follow us on Twitter for updates!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="fadeIn">🐦</a>
+                    <a href="#" class="social-link" data-tooltip-disabled="Join our Discord community!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="slideUp">💬</a>
+                    <a href="https://t.me/solana_tamagotchi" target="_blank" class="social-link" data-tooltip-disabled="Join our Telegram channel!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="bounce">📱</a>
+                </div>
+                <p class="footer-text">Made with ❤️ on Solana | Powered by Phantom Wallet</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app" class="app-container hidden">
+        
+        <!-- Header -->
+        <header class="game-header">
+            <div class="header-content">
+                <h1 class="game-title" style="cursor: pointer;" onclick="window.location.href='index.html'">🐾 SOLANA TAMAGOTCHI</h1>
+                <div class="wallet-info">
+                    <button id="wallet-btn" class="wallet-button">
+                        <span class="wallet-icon">👛</span>
+                        <span class="wallet-text">Connect Wallet</span>
+                    </button>
+                    <div id="balance-display" class="balance-display hidden">
+                        <span class="balance-sol" data-tooltip-disabled="Your Solana wallet balance" data-tooltip-disabled-position="bottom" data-tooltip-disabled-animation="fadeIn">0 SOL</span>
+                        <span class="balance-tama" style="cursor: pointer; position: relative; display: inline-block;" onclick="showTAMADetails()" data-tooltip-disabled="Click to view TAMA details!" data-tooltip-disabled-position="bottom" data-tooltip-disabled-animation="slideUp" data-tooltip-disabled-type="info">0 TAMA
+                            <!-- TAMA Hover Dropdown -->
+                            <div class="tama-header-dropdown" style="position: absolute; top: 100%; right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 20px; margin-top: 15px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; color: #333; min-width: 300px;">
+                                <div style="font-size: 12px; margin-bottom: 15px;">
+                                    <div style="font-weight: bold; margin-bottom: 10px; color: #2ecc71;">💰 Earn TAMA:</div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>🌅 Daily Login:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+25 TAMA</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>🍔 Feed Pet:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+5 TAMA</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>🎮 Play:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+10 TAMA</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>💪 Train:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+15 TAMA</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                        <span>🆙 Level Up:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+50 TAMA</span>
+                                    </div>
+                                    
+                                    <div style="border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px;">
+                                        <div style="font-weight: bold; margin-bottom: 10px; color: #e74c3c;">💸 Spend TAMA:</div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                            <span>🦋 Evolve Pet:</span>
+                                            <span style="color: #e74c3c; font-weight: bold;">-50 TAMA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button id="tama-history-btn" class="action-btn secondary" style="width: 100%; font-size: 12px; padding: 8px; margin-bottom: 8px;">
+                                    📜 View TAMA History
+                                </button>
+                                <button onclick="TAMAWithdrawUI.createWithdrawModal()" class="action-btn" style="width: 100%; font-size: 12px; padding: 8px; background: linear-gradient(135deg, #FF6B6B, #FF8E8E);">
+                                    💎 Withdraw to Blockchain
+                                </button>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="network-indicator">
+                <span id="network-status" class="network-status">Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="game-main">
+            
+            <!-- Left Panel - Tamagotchi Device -->
+            <section class="tamagotchi-device">
+                <div class="device-shell">
+                    <div class="device-screen">
+                        <!-- Pet Display -->
+                        <div id="pet-display" class="pet-display">
+                            <canvas id="pet-canvas" class="pet-canvas" data-tooltip-disabled="Click your pet to gain XP and make it happy! 🐾" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="pulse" data-tooltip-disabled-type="success"></canvas>
+                            <div id="pet-info" class="pet-info">
+                                <h2 id="pet-name" class="pet-name">No Pet</h2>
+                                <p id="pet-type" class="pet-type">Select or create a pet</p>
+                                <div id="pet-level" class="pet-level">Level 1</div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Display -->
+                        <div class="stats-display">
+                            <div class="stat-bar" data-tooltip-disabled="Hunger level - feed your pet when low!" data-tooltip-disabled-position="left" data-tooltip-disabled-animation="slideUp">
+                                <span class="stat-icon">🍔</span>
+                                <div class="stat-bar-bg">
+                                    <div id="hunger-bar" class="stat-bar-fill hunger" style="width: 100%"></div>
+                                </div>
+                                <span id="hunger-value" class="stat-value">100</span>
+                            </div>
+                            <div class="stat-bar" data-tooltip-disabled="Energy level - let your pet sleep when tired!" data-tooltip-disabled-position="left" data-tooltip-disabled-animation="fadeIn">
+                                <span class="stat-icon">⚡</span>
+                                <div class="stat-bar-bg">
+                                    <div id="energy-bar" class="stat-bar-fill energy" style="width: 100%"></div>
+                                </div>
+                                <span id="energy-value" class="stat-value">100</span>
+                            </div>
+                            <div class="stat-bar" data-tooltip-disabled="Happiness level - play with your pet to keep it happy!" data-tooltip-disabled-position="left" data-tooltip-disabled-animation="scaleIn">
+                                <span class="stat-icon">😊</span>
+                                <div class="stat-bar-bg">
+                                    <div id="happy-bar" class="stat-bar-fill happy" style="width: 100%"></div>
+                                </div>
+                                <span id="happy-value" class="stat-value">100</span>
+                            </div>
+                            <div class="stat-bar" data-tooltip-disabled="Health level - heal your pet when injured!" data-tooltip-disabled-position="left" data-tooltip-disabled-animation="pulse" data-tooltip-disabled-type="warning">
+                                <span class="stat-icon">❤️</span>
+                                <div class="stat-bar-bg">
+                                    <div id="health-bar" class="stat-bar-fill health" style="width: 100%"></div>
+                                </div>
+                                <span id="health-value" class="stat-value">100</span>
+                            </div>
+                        </div>
+
+                        <!-- XP Bar -->
+                        <div class="xp-display" data-tooltip-disabled="Experience points - click your pet to gain XP!" data-tooltip-disabled-position="bottom" data-tooltip-disabled-animation="bounce" data-tooltip-disabled-type="success">
+                            <div class="xp-bar-bg">
+                                <div id="xp-bar" class="xp-bar-fill" style="width: 0%"></div>
+                            </div>
+                            <span id="xp-text" class="xp-text">0 / 100 XP</span>
+                        </div>
+                    </div>
+
+                    <!-- Device Buttons -->
+                    <div class="device-buttons">
+                        <button id="feed-btn" class="device-btn">
+                            <span class="btn-icon">🍔</span>
+                        </button>
+                        <button id="play-btn" class="device-btn">
+                            <span class="btn-icon">🎮</span>
+                        </button>
+                        <button id="sleep-btn" class="device-btn">
+                            <span class="btn-icon">😴</span>
+                        </button>
+                        <button id="heal-btn" class="device-btn">
+                            <span class="btn-icon">💊</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel - Controls & Info -->
+            <section class="game-controls">
+                
+
+                <!-- Pet Management -->
+                <div class="control-panel">
+                    <h3 class="panel-title">🐾 Pet Management</h3>
+                    <div class="button-group">
+                        <button id="shop-btn" class="action-btn primary" data-tooltip-disabled="Buy food, toys, and items for your pet!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="scaleIn">
+                            <span>🛒 TAMA Shop</span>
+                            <small>Buy items with TAMA</small>
+                        </button>
+                        <button id="referral-btn" class="action-btn secondary" data-tooltip-disabled="Invite friends and earn TAMA rewards!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="slideUp">
+                            <span>🔗 Referrals</span>
+                            <small>Earn 100+50 TAMA per friend</small>
+                        </button>
+                        <button id="evolve-pet-btn" class="action-btn secondary" data-tooltip-disabled="Evolve your pet to unlock new abilities!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="pulse">
+                            <span>Evolve Pet</span>
+                            <small>50 TAMA (Level 10+)</small>
+                        </button>
+                        <button id="tama-history-btn-main" class="action-btn secondary" style="width: 100%; margin-top: 10px;">
+                            📜 View TAMA History
+                        </button>
+                        <button id="minigame-btn" class="action-btn primary" style="width: 100%; margin-top: 10px;" data-tooltip-disabled="Play the TAMA Catch minigame to earn unlimited TAMA!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="bounce" data-tooltip-disabled-type="success">
+                            🎮 TAMA CATCH
+                            <small>Unlimited TAMA earning! 🚀</small>
+                        </button>
+                        <button id="lottery-btn" class="action-btn secondary" style="width: 100%; margin-top: 10px;" data-tooltip-disabled="Buy lottery tickets and win big TAMA prizes!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="pulse" data-tooltip-disabled-type="warning">
+                            🎰 TAMA LOTTERY
+                            <small>Win up to 5000 TAMA! 💰</small>
+                        </button>
+                        <!-- Pet revival removed - pets don't die, they go into critical state -->
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="control-panel">
+                    <h3 class="panel-title">🏆 Achievements</h3>
+                    <div id="achievements-list" class="achievements-list">
+                        <div class="achievement locked">
+                            <span class="achievement-icon">🥇</span>
+                            <div class="achievement-info">
+                                <p class="achievement-name">First Pet</p>
+                                <p class="achievement-desc">Create your first pet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="control-panel">
+                    <h3 class="panel-title">👑 Leaderboard</h3>
+                    <div id="leaderboard-list" class="leaderboard-list">
+                        <p class="empty-state">Connect wallet to view leaderboard</p>
+                    </div>
+                </div>
+
+                <!-- Referral System -->
+                <div class="control-panel">
+                    <h3 class="panel-title">👥 Referral Program</h3>
+                    <div class="referral-info">
+                        <div class="referral-code">
+                            <input type="text" id="referral-input" class="referral-input" readonly placeholder="Connect wallet">
+                            <button id="copy-referral-btn" class="copy-btn" disabled>Copy</button>
+                        </div>
+                        <div class="referral-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Referrals:</span>
+                                <span id="referral-count" class="stat-value-text">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Earned:</span>
+                                <span id="referral-earned" class="stat-value-text">0 TAMA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Rewards -->
+                <div class="control-panel">
+                    <h3 class="panel-title">🎁 Daily Rewards</h3>
+                    <button id="claim-daily-btn" class="action-btn reward" disabled data-tooltip-disabled="Claim your daily TAMA reward - available every 24 hours!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="bounce" data-tooltip-disabled-type="success">
+                        <span>Claim Daily Reward</span>
+                        <small id="daily-timer">Connect wallet</small>
+                    </button>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="game-footer">
+            <div class="footer-content">
+                <div class="social-links">
+                    <a href="https://x.com/GotchiGame" target="_blank" class="social-link" data-tooltip-disabled="Follow us on Twitter for updates!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="fadeIn">🐦</a>
+                    <a href="#" class="social-link" data-tooltip-disabled="Join our Discord community!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="slideUp">💬</a>
+                    <a href="https://t.me/solana_tamagotchi" target="_blank" class="social-link" data-tooltip-disabled="Join our Telegram channel!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="bounce">📱</a>
+                </div>
+                <p class="footer-text">
+                    Made with ❤️ on Solana | 
+                    <span id="player-count">0 players</span> online
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal: Create Pet -->
+    <div id="create-pet-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🐾 Create Your Pet</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pet-types">
+                    <button class="pet-type-btn" data-type="cat">
+                        <span class="pet-emoji">🐱</span>
+                        <span>Cat</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="dog">
+                        <span class="pet-emoji">🐶</span>
+                        <span>Dog</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="dragon">
+                        <span class="pet-emoji">🐉</span>
+                        <span>Dragon</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="fox">
+                        <span class="pet-emoji">🦊</span>
+                        <span>Fox</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="bear">
+                        <span class="pet-emoji">🐻</span>
+                        <span>Bear</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="rabbit">
+                        <span class="pet-emoji">🐰</span>
+                        <span>Rabbit</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="panda">
+                        <span class="pet-emoji">🐼</span>
+                        <span>Panda</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="lion">
+                        <span class="pet-emoji">🦁</span>
+                        <span>Lion</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="unicorn">
+                        <span class="pet-emoji">🦄</span>
+                        <span>Unicorn</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="wolf">
+                        <span class="pet-emoji">🐺</span>
+                        <span>Wolf</span>
+                    </button>
+                </div>
+                <div class="pet-name-input">
+                    <input type="text" id="pet-name-input" placeholder="Enter pet name" maxlength="20">
+                </div>
+                <button id="confirm-create-pet" class="action-btn primary" disabled>
+                    Create Pet (0.1 SOL)
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- Modal: Evolution -->
+    <div id="evolution-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✨ Pet Evolution!</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body evolution-content">
+                <div class="evolution-animation">
+                    <div class="old-pet">
+                        <span id="old-pet-emoji" class="pet-emoji-large">🐱</span>
+                        <p>Level <span id="old-level">1</span></p>
+                    </div>
+                    <div class="evolution-arrow">→</div>
+                    <div class="new-pet">
+                        <span id="new-pet-emoji" class="pet-emoji-large">😺</span>
+                        <p>Level <span id="new-level">2</span></p>
+                    </div>
+                </div>
+                <p class="evolution-text">Your pet is ready to evolve!</p>
+                <button id="confirm-evolution" class="action-btn primary">
+                    Evolve (50 TAMA)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAMA Details Modal -->
+    <div id="tama-details-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💰 TAMA Token Details</h2>
+                <span class="modal-close" onclick="closeTAMADetails()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="tama-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Balance:</span>
+                        <span class="stat-value" id="tama-detail-balance">0 TAMA</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Daily Earned:</span>
+                        <span class="stat-value" id="tama-daily-earned">0 TAMA</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Daily Limit:</span>
+                        <span class="stat-value success">UNLIMITED! 🚀</span>
+                    </div>
+                </div>
+                
+                <div class="tama-section">
+                    <h3>💰 How to Earn TAMA:</h3>
+                    <ul class="tama-list">
+                        <li>Feed Pet: +5 TAMA</li>
+                        <li>Play with Pet: +10 TAMA</li>
+                        <li>Train Pet: +15 TAMA</li>
+                        <li>Level Up: +50 TAMA</li>
+                        <li>Daily Login: +25 TAMA</li>
+                    </ul>
+                </div>
+                
+                <div class="tama-section">
+                    <h3>💸 How to Spend TAMA:</h3>
+                    <ul class="tama-list">
+                        <li>Buy Food: -20 TAMA</li>
+                        <li>Buy Toy: -30 TAMA</li>
+                        <li>Heal Pet: -10 TAMA</li>
+                        <li>Evolve Pet: -50 TAMA</li>
+                    </ul>
+                </div>
+                
+                <div class="tama-section">
+                    <h3>🏦 Treasury Status:</h3>
+                    <div class="treasury-info" id="treasury-info">
+                        <div class="treasury-item">
+                            <span class="treasury-label">Treasury Balance:</span>
+                            <span class="treasury-value" id="treasury-balance">Loading...</span>
+                        </div>
+                        <div class="treasury-item">
+                            <span class="treasury-label">Total Distributed:</span>
+                            <span class="treasury-value" id="treasury-distributed">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeTAMADetails()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NFT Required Modal -->
+    <div id="nft-required-modal" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+        <div class="modal-content" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 20px; text-align: center; max-width: 500px; border: 3px solid #FFD700;">
+            <div style="font-size: 64px; margin-bottom: 1rem;">🔒</div>
+            <h2 style="font-size: 2rem; margin-bottom: 1rem; color: #FFD700;">NFT Required</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: white;">You need to mint an NFT to access the game!</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="https://tr1h.github.io/solana-tamagotchi-v3/mint.html" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem; background: #FFD700; color: #000; text-decoration: none; border-radius: 10px; font-weight: bold;">🚀 Mint NFT</a>
+                <button onclick="document.getElementById('nft-required-modal').classList.add('hidden')" class="btn btn-secondary" style="padding: 1rem 2rem; font-size: 1.1rem; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 10px; cursor: pointer;">🏠 Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="notification hidden">
+        <span id="notification-text"></span>
+    </div>
+
+    <!-- Particles Container -->
+    <div id="particles-container" class="particles-container">    </div>
+
+    <style>
+        /* TAMA History Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: white;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #ff6b6b;
+        }
+
+        .modal-body {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .tama-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .tama-history-table th,
+        .tama-history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tama-history-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .tama-history-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .tama-amount {
+            font-weight: bold;
+        }
+
+        .tama-earn {
+            color: #2ecc71;
+        }
+
+        .tama-spend {
+            color: #e74c3c;
+        }
+
+        .tama-type-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .tama-type-earn {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .tama-type-spend {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* TAMA Hover Dropdown Styles */
+        .tama-display-compact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.4);
+        }
+
+        .tama-display-compact:hover .tama-hover-info {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tama-hover-info::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        /* Header TAMA Hover Styles - handled by JavaScript */
+
+        .tama-header-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+    </style>
+
+    <!-- TAMA History Modal -->
+    <div id="tama-history-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>📜 Your TAMA History</h2>
+                <span class="close" onclick="closeTAMAHistory()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="tama-history-content">
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="spinner"></div>
+                        <p>Loading your TAMA history...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- 🛡️ Anti-Cheat должен быть первым! -->
+    <script src="js/anti-cheat.js?v=5"></script>
+    <script src="js/animated-tooltips.js?v=2"></script>
+    <script src="js/utils.js?v=2"></script>
+    <script src="js/telegram.js?v=2"></script>
+    <script src="js/umi-candy-machine.js?v=2"></script>
+    <script src="js/wallet.js?v=3"></script>
+    <script src="js/database-supabase.js?v=2"></script>
+    <script src="js/simple-tama-system.js?v=1001"></script>
+    <script src="js/treasury-system.js?v=1"></script>
+    <script src="js/ranking-system.js?v=2"></script>
+    <script src="js/pet-system.js?v=2"></script>
+    <script src="js/pet-ui.js?v=2"></script>
+    <!-- TAMA systems disabled - using simple-tama-system.js instead -->
+    <!-- <script src="js/tama-token.js?v=3"></script> -->
+    <!-- <script src="js/tama-module.js?v=4"></script> -->
+    <!-- <script src="js/tama-system.js?v=2"></script> -->
+    <script src="js/shop.js?v=3"></script>
+    <script src="js/referral-system.js?v=2"></script>
+    <script src="js/achievements.js?v=3"></script>
+    <script src="js/tama-catch-v2.js?v=1"></script>
+    <script src="js/simple-lottery.js?v=1"></script>
+    <script src="js/ui.js?v=2"></script>
+    
     <script>
-        // Google Forms submission tracking
-        var submitted = false;
-        
-        // Initialize Supabase (disabled - using Google Forms only)
-        let supabase = null;
-        // Supabase configuration disabled to avoid errors
-        // const SUPABASE_URL = window.SUPABASE_URL || 'https://your-project.supabase.co';
-        // const SUPABASE_KEY = window.SUPABASE_KEY || 'your-anon-key-here';
-        // try {
-        //     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        // } catch (error) {
-        //     console.log('Supabase not configured, using local storage');
-        // }
-        
-        // Mini Game Logic - Catch the Pet
-        let caughtCount = 0;
-        let gameScore = 0;
-        let gameSpeed = 1.0;
-        const pets = ['🐾', '🐶', '🐱', '🦊', '🐻', '🐼', '🦁', '🦄', '🐺', '🐲'];
-        let currentPetIndex = 0;
-        let petMoveInterval;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mini Game - Catch the Pet
-            const gamePet = document.getElementById('game-pet');
-            const gameArena = document.getElementById('game-arena');
-            const caughtEl = document.getElementById('caught');
-            const scoreEl = document.getElementById('score');
-            const speedEl = document.getElementById('speed');
-            const messageEl = document.getElementById('game-message');
+        // TAMA Details Modal Functions
+        async function showTAMADetails() {
+            const modal = document.getElementById('tama-details-modal');
+            if (!modal) return;
             
-            function movePet() {
-                const arenaRect = gameArena.getBoundingClientRect();
-                const maxX = arenaRect.width - 80;
-                const maxY = arenaRect.height - 80;
-                
-                const randomX = Math.random() * maxX;
-                const randomY = Math.random() * maxY;
-                
-                gamePet.style.left = randomX + 'px';
-                gamePet.style.top = randomY + 'px';
+            // Get current balance
+            let currentBalance = 0;
+            if (window.WalletManager && window.WalletManager.isConnected()) {
+                const walletAddress = window.WalletManager.getAddress();
+                if (window.SimpleTAMASystem) {
+                    currentBalance = await window.SimpleTAMASystem.getBalance(walletAddress);
+                }
             }
             
-            function startPetMovement() {
-                movePet();
-                if (petMoveInterval) clearInterval(petMoveInterval);
-                petMoveInterval = setInterval(movePet, 2000 / gameSpeed);
+            // Update modal content
+            document.getElementById('tama-detail-balance').textContent = `${currentBalance} TAMA`;
+            
+            // Load Treasury stats
+            if (window.TreasurySystem) {
+                const treasuryStats = await window.TreasurySystem.getTreasuryStats();
+                if (treasuryStats) {
+                    document.getElementById('treasury-balance').textContent = `${treasuryStats.treasuryBalance.toLocaleString()} TAMA`;
+                    document.getElementById('treasury-distributed').textContent = `${treasuryStats.distributed.toLocaleString()} TAMA (${treasuryStats.distributionPercent}%)`;
+                }
             }
             
-            gamePet.addEventListener('click', function(e) {
-                e.stopPropagation();
-                
-                // Add caught animation
-                gamePet.classList.add('caught');
-                
-                // Update stats
-                caughtCount++;
-                gameScore += Math.floor(10 * gameSpeed);
-                caughtEl.textContent = caughtCount;
-                scoreEl.textContent = gameScore;
-                
-                // Speed up every 5 catches
-                if (caughtCount % 5 === 0) {
-                    gameSpeed += 0.2;
-                    speedEl.textContent = gameSpeed.toFixed(1) + 'x';
-                    currentPetIndex = (currentPetIndex + 1) % pets.length;
-                    gamePet.textContent = pets[currentPetIndex];
-                    messageEl.textContent = `🎉 Speed Boost! New pet unlocked: ${pets[currentPetIndex]}`;
-                    startPetMovement();
-                } else {
-                    const messages = [
-                        '🏆 Great catch!',
-                        '⚡ Lightning fast!',
-                        '🔥 You\'re on fire!',
-                        '💎 Amazing reflexes!',
-                        '🚀 Incredible!',
-                        '✨ Perfect catch!',
-                        '🎯 Bullseye!',
-                        '💪 Pro hunter!'
-                    ];
-                    messageEl.textContent = messages[Math.floor(Math.random() * messages.length)];
-                }
-                
-                // Show share button after 3 catches
-                if (caughtCount >= 3) {
-                    document.getElementById('share-results').style.display = 'inline-block';
-                    setupShareButton(); // Setup the share button functionality
-                }
-                
-                // Score popup
-                const popup = document.createElement('div');
-                popup.className = 'coin-popup';
-                popup.textContent = `+${Math.floor(10 * gameSpeed)} 💯`;
-                popup.style.position = 'fixed';
-                popup.style.left = e.clientX + 'px';
-                popup.style.top = e.clientY + 'px';
-                document.body.appendChild(popup);
-                setTimeout(() => popup.remove(), 1000);
-                
-                // Remove animation and move pet
-                setTimeout(() => {
-                    gamePet.classList.remove('caught');
-                    movePet();
-                }, 500);
-            });
-            
-            // Start the game
-            startPetMovement();
-            
-            const featureCards = document.querySelectorAll('.feature-card');
-            featureCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px)';
-                    this.style.background = 'rgba(255,255,255,0.15)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                    this.style.background = 'rgba(255,255,255,0.1)';
-                });
-            });
-            
-            // Email form handling (now just saves to localStorage as backup)
-            const emailForm = document.getElementById('email-form');
-            emailForm.addEventListener('submit', function(e) {
-                const emailInput = this.querySelector('.email-input');
-                const email = emailInput.value;
-                
-                // Save to local storage as backup (don't prevent Google Forms submission)
-                try {
-                    saveToLocalStorage(email);
-                    console.log('Email saved to local storage as backup');
-                } catch (error) {
-                    console.log('Local storage failed, but Google Forms will work');
-                }
-                
-                // Let the form submit to Google Forms naturally
-            });
-        });
+            // Show modal
+            modal.classList.remove('hidden');
+        }
         
-        function saveToLocalStorage(email) {
-            try {
-                const emails = JSON.parse(localStorage.getItem('email_subscriptions') || '[]');
-                emails.push({
-                    email: email,
-                    timestamp: new Date().toISOString()
-                });
-                localStorage.setItem('email_subscriptions', JSON.stringify(emails));
-                console.log('Email saved to local storage');
-            } catch (error) {
-                console.error('Error saving to local storage:', error);
+        function closeTAMADetails() {
+            const modal = document.getElementById('tama-details-modal');
+            if (modal) {
+                modal.classList.add('hidden');
             }
         }
         
-        // Share results function with image generation
-        function setupShareButton() {
-            const shareButton = document.getElementById('share-results');
-            if (shareButton && !shareButton.hasAttribute('data-listener-added')) {
-                shareButton.setAttribute('data-listener-added', 'true');
-                shareButton.addEventListener('click', async function() {
-                    const caught = document.getElementById('caught').textContent;
-                    const score = document.getElementById('score').textContent;
-                    const speed = document.getElementById('speed').textContent;
-                    
-                    // Generate share image
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 800;
-                    canvas.height = 400;
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Background gradient
-                    const gradient = ctx.createLinearGradient(0, 0, 800, 400);
-                    gradient.addColorStop(0, '#1D3557');
-                    gradient.addColorStop(1, '#457B9D');
-                    ctx.fillStyle = gradient;
-                    ctx.fillRect(0, 0, 800, 400);
-                    
-                    // Title
-                    ctx.fillStyle = '#4ade80';
-                    ctx.font = 'bold 48px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('🎮 Solana Tamagotchi', 400, 80);
-                    
-                    // Score section
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 36px Arial';
-                    ctx.fillText(`🏆 Caught: ${caught} pets`, 400, 150);
-                    ctx.fillText(`💯 Score: ${score}`, 400, 200);
-                    ctx.fillText(`⚡ Speed: ${speed}`, 400, 250);
-                    
-                    // Footer
-                    ctx.fillStyle = '#4ade80';
-                    ctx.font = '24px Arial';
-                    ctx.fillText('🐾 Play the mini-game now!', 400, 320);
-                    ctx.fillText('tr1h.github.io/solana-tamagotchi', 400, 360);
-                    
-                    // Convert to blob and share
-                    canvas.toBlob(async function(blob) {
-                        const shareText = `🎮 I just caught ${caught} pets in Solana Tamagotchi! 
-🏆 Score: ${score} | ⚡ Speed: ${speed}
-🐾 Play the mini-game: https://tr1h.github.io/solana-tamagotchi/`;
-                        
-                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'score.png', { type: 'image/png' })] })) {
-                            try {
-                                await navigator.share({
-                                    title: 'Solana Tamagotchi - My Score!',
-                                    text: shareText,
-                                    files: [new File([blob], 'score.png', { type: 'image/png' })]
-                                });
-                            } catch (error) {
-                                // Fallback to URL sharing
-                                navigator.share({
-                                    title: 'Solana Tamagotchi - My Score!',
-                                    text: shareText,
-                                    url: 'https://tr1h.github.io/solana-tamagotchi/'
-                                });
-                            }
-                        } else {
-                            // Fallback: copy to clipboard
-                            navigator.clipboard.writeText(shareText).then(() => {
-                                alert('📤 Score copied to clipboard! Share it on social media!');
-                            });
-                        }
-                    }, 'image/png');
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('tama-details-modal');
+            if (e.target === modal) {
+                closeTAMADetails();
+            }
+        });
+
+        // TAMA History Functions
+        async function showTAMAHistory() {
+            if (!WalletManager.publicKey) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+            
+            const modal = document.getElementById('tama-history-modal');
+            modal.style.display = 'block';
+            
+            // Load history
+            await loadUserTAMAHistory();
+        }
+        
+        function closeTAMAHistory() {
+            const modal = document.getElementById('tama-history-modal');
+            modal.style.display = 'none';
+        }
+        
+        async function loadUserTAMAHistory() {
+            const content = document.getElementById('tama-history-content');
+            content.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="spinner"></div>
+                    <p>Loading your TAMA history...</p>
+                </div>
+            `;
+            
+            try {
+                const history = await window.Database.getTAMAHistory(WalletManager.publicKey.toString(), 50);
+                
+                if (!history || history.length === 0) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">📜</div>
+                            <h3>No TAMA History Yet</h3>
+                            <p style="color: #666;">Start playing to earn TAMA and see your transaction history here!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                content.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: #333;">Your TAMA Transactions</h3>
+                        <p style="margin: 5px 0 0 0; color: #666;">Showing last ${history.length} transactions</p>
+                    </div>
+                    <table class="tama-history-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Reason</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${history.map(transaction => `
+                                <tr>
+                                    <td>${new Date(transaction.created_at).toLocaleString()}</td>
+                                    <td class="tama-amount ${transaction.amount > 0 ? 'tama-earn' : 'tama-spend'}">
+                                        ${transaction.amount > 0 ? '+' : ''}${transaction.amount}
+                                    </td>
+                                    <td>
+                                        <span class="tama-type-badge tama-type-${transaction.type}">
+                                            ${transaction.type}
+                                        </span>
+                                    </td>
+                                    <td>${transaction.reason}</td>
+                                    <td style="font-weight: bold;">${transaction.balance_after.toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error loading TAMA history:', error);
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #e74c3c;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+                        <h3>Error Loading History</h3>
+                        <p>Failed to load your TAMA history. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('tama-history-modal');
+            if (event.target === modal) {
+                closeTAMAHistory();
+            }
+        }
+        
+        // Add event listener for TAMA history button and hover
+        document.addEventListener('DOMContentLoaded', function() {
+            // 🛡️ Initialize Anti-Cheat FIRST
+            if (window.AntiCheat) {
+                window.AntiCheat.init();
+                console.log('🛡️ Anti-Cheat System activated!');
+            }
+            
+            // Initialize TAMA Shop
+            if (window.TAMAShop) {
+                window.TAMAShop.init();
+            }
+            
+            // Initialize Referral System
+            if (window.ReferralSystem) {
+                window.ReferralSystem.init();
+            }
+            
+            const historyBtn = document.getElementById('tama-history-btn');
+            if (historyBtn) {
+                historyBtn.addEventListener('click', showTAMAHistory);
+            }
+            
+            const historyBtnMain = document.getElementById('tama-history-btn-main');
+            if (historyBtnMain) {
+                historyBtnMain.addEventListener('click', showTAMAHistory);
+            }
+            
+            // Mini-game button
+            const minigameBtn = document.getElementById('minigame-btn');
+            if (minigameBtn) {
+                minigameBtn.addEventListener('click', () => {
+                    if (window.TAMACatchGameV2) {
+                        const game = new window.TAMACatchGameV2();
+                        game.show();
+                    }
                 });
             }
+            
+            // Lottery button
+            const lotteryBtn = document.getElementById('lottery-btn');
+            if (lotteryBtn) {
+                lotteryBtn.addEventListener('click', () => {
+                    if (window.SimpleTAMALottery) {
+                        const lottery = new window.SimpleTAMALottery();
+                        lottery.show();
+                    }
+                });
+            }
+            
+            // TAMA hover functionality
+            const tamaBalance = document.querySelector('.balance-tama');
+            if (tamaBalance) {
+                tamaBalance.addEventListener('click', function() {
+                    showTAMADetails();
+                });
+            }
+            const balanceTama = document.querySelector('.balance-tama');
+            if (balanceTama) {
+                balanceTama.addEventListener('mouseenter', function() {
+                    const dropdown = this.querySelector('.tama-header-dropdown');
+                    if (dropdown) {
+                        dropdown.style.opacity = '1';
+                        dropdown.style.visibility = 'visible';
+                        dropdown.style.transform = 'translateY(0)';
+                    }
+                });
+                
+                balanceTama.addEventListener('mouseleave', function() {
+                    const dropdown = this.querySelector('.tama-header-dropdown');
+                    if (dropdown) {
+                        dropdown.style.opacity = '0';
+                        dropdown.style.visibility = 'hidden';
+                        dropdown.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="js/game.js?v=5"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed'));
+            });
         }
     </script>
 </body>
 </html>
+
