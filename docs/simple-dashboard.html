@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Solana Tamagotchi - Simple Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .stat-label {
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+        .table-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+        .error {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Solana Tamagotchi - Admin Dashboard</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-players">-</div>
+                <div class="stat-label">Total Players</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-tama">-</div>
+                <div class="stat-label">Total TAMA</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="active-today">-</div>
+                <div class="stat-label">Active Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="referrals">-</div>
+                <div class="stat-label">Total Referrals</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h2>🏆 Leaderboard</h2>
+            <div id="leaderboard-content" class="loading">
+                <span>⏳</span> Loading data...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+
+        async function loadData() {
+            try {
+                console.log('Loading data from Supabase...');
+                
+                // Load leaderboard data
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=tama.desc&limit=20`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Data loaded:', data);
+
+                // Update stats
+                document.getElementById('total-players').textContent = data.length;
+                
+                const totalTama = data.reduce((sum, player) => sum + (player.tama || 0), 0);
+                document.getElementById('total-tama').textContent = totalTama.toLocaleString();
+                
+                document.getElementById('active-today').textContent = data.filter(p => p.last_active).length;
+                
+                // Load referrals
+                const referralsResponse = await fetch(`${SUPABASE_URL}/rest/v1/referrals?select=*`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (referralsResponse.ok) {
+                    const referralsData = await referralsResponse.json();
+                    document.getElementById('referrals').textContent = referralsData.length;
+                }
+
+                // Update leaderboard
+                const leaderboardContent = document.getElementById('leaderboard-content');
+                if (data.length > 0) {
+                    let html = '<table><thead><tr><th>Rank</th><th>Name</th><th>TAMA</th><th>Level</th><th>Referrals</th></tr></thead><tbody>';
+                    
+                    data.forEach((player, index) => {
+                        const name = player.pet_name || player.telegram_username || 'Anonymous';
+                        const tama = player.tama || 0;
+                        const level = player.level || 1;
+                        const referrals = player.referral_count || 0;
+                        
+                        html += `<tr>
+                            <td>${index + 1}</td>
+                            <td>${name}</td>
+                            <td>${tama.toLocaleString()}</td>
+                            <td>${level}</td>
+                            <td>${referrals}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</tbody></table>';
+                    leaderboardContent.innerHTML = html;
+                } else {
+                    leaderboardContent.innerHTML = '<div class="error">No data found</div>';
+                }
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('leaderboard-content').innerHTML = 
+                    `<div class="error">❌ Error loading data: ${error.message}</div>`;
+            }
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadData);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>

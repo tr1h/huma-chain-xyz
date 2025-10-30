@@ -1,0 +1,4 @@
+{
+  "ai.experimental.stream": false,
+  "openai.stream": false
+}
