@@ -103,6 +103,17 @@ rank_system = RankSystem(supabase)
 badge_system = BadgeSystem(supabase)
 quest_system = QuestSystem(supabase)
 
+# Helper function for NFT rarity emojis
+def get_rarity_emoji(rarity):
+    """Return emoji for NFT rarity"""
+    emojis = {
+        'common': '💚',
+        'rare': '💙',
+        'epic': '💜',
+        'legendary': '🧡'
+    }
+    return emojis.get(rarity.lower(), '💚')
+
 # Anti-spam tracking
 user_messages = defaultdict(list)
 SPAM_LIMIT = 5  # messages
@@ -718,30 +729,36 @@ def send_welcome(message):
         types.InlineKeyboardButton(f"{daily_emoji} Daily Reward", callback_data="daily_reward")
     )
     
-    # Row 2: Games & Referral
+    # Row 2: NFT Menu (NEW!)
+    keyboard.row(
+        types.InlineKeyboardButton("🖼️ My NFTs", callback_data="my_nfts"),
+        types.InlineKeyboardButton("🛒 Mint NFT", callback_data="mint_nft")
+    )
+    
+    # Row 3: Games & Referral
     keyboard.row(
         types.InlineKeyboardButton("🎮 Mini-Games", callback_data="mini_games"),
         types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
     )
     
-    # Row 3: Stats & Quests
+    # Row 4: Stats & Quests
     keyboard.row(
         types.InlineKeyboardButton("📊 My Stats", callback_data="my_stats_detailed"),
         types.InlineKeyboardButton("🎯 Quests", callback_data="view_quests")
     )
     
-    # Row 4: Badges & Rank
+    # Row 5: Badges & Rank
     keyboard.row(
         types.InlineKeyboardButton("🏅 Badges", callback_data="view_badges"),
         types.InlineKeyboardButton("⭐ My Rank", callback_data="view_rank")
     )
     
-    # Row 5: Leaderboard only (Play Game moved to bottom menu)
+    # Row 6: Leaderboard only (Play Game moved to bottom menu)
     keyboard.row(
         types.InlineKeyboardButton("🏆 Leaderboard", callback_data="leaderboard")
     )
     
-    # Row 6: Community
+    # Row 7: Community
     keyboard.row(
         types.InlineKeyboardButton("👥 Community", url="https://t.me/gotchigamechat")
     )
@@ -2854,6 +2871,145 @@ def handle_callback(call):
             print(f"Error editing message: {e}")
             # Send new message if edit fails
             bot.send_message(call.message.chat.id, text, parse_mode='HTML', reply_markup=keyboard)
+    
+    elif call.data == "my_nfts":
+        # Show user's NFT collection
+        telegram_id = str(call.from_user.id)
+        
+        try:
+            # Get user's NFTs from database
+            response = supabase.table('user_nfts').select('*').eq('telegram_id', telegram_id).order('created_at', desc=True).execute()
+            
+            if response.data and len(response.data) > 0:
+                nfts = response.data
+                nft_list = "\n\n".join([
+                    f"{i+1}. **{nft['pet_type'].upper()}** {get_rarity_emoji(nft['rarity'])}\n"
+                    f"   • Rarity: {nft['rarity'].upper()}\n"
+                    f"   • Earned: {nft.get('cost_tama', 0):,} TAMA"
+                    for i, nft in enumerate(nfts[:10])  # Show max 10
+                ])
+                
+                # Get user's TAMA balance
+                leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+                tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
+                
+                text = f"""
+🖼️ **YOUR NFT COLLECTION** 🖼️
+
+📦 Total NFTs: **{len(nfts)}**
+💰 TAMA Balance: **{tama_balance:,}**
+
+{nft_list}
+
+🎮 *NFT Benefits:*
+• 💚 Common: +25% TAMA earning
+• 💙 Rare: +50% TAMA earning
+• 💜 Epic: +75% TAMA earning
+• 🧡 Legendary: +100% TAMA earning
+
+*Play the game to earn more with your NFTs!*
+                """
+            else:
+                # No NFTs yet
+                leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+                tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
+                
+                text = f"""
+🖼️ **YOUR NFT COLLECTION** 🖼️
+
+📦 You don't have any NFTs yet!
+
+💰 Your TAMA Balance: **{tama_balance:,}**
+
+💡 *How to get NFTs:*
+
+**Option 1: TAMA MINT** 💰
+• Cost: 5,000 TAMA
+• Get: Common (70%) or Rare (30%)
+• Bonus: +500 TAMA after mint
+
+**Option 2: PREMIUM MINT** ✨
+• Cost: 0.1 SOL
+• Get: Epic (60%) or Legendary (40%)
+• Bonus: +10,000 TAMA after mint
+
+🎮 *Play the game to earn TAMA and mint your first NFT!*
+                """
+            
+            keyboard = types.InlineKeyboardMarkup()
+            keyboard.row(
+                types.InlineKeyboardButton("🛒 Mint NFT", callback_data="mint_nft")
+            )
+            keyboard.row(
+                types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
+            )
+            
+            try:
+                bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                    parse_mode='Markdown', reply_markup=keyboard)
+            except:
+                bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+        except Exception as e:
+            print(f"Error showing NFTs: {e}")
+            bot.answer_callback_query(call.id, "❌ Error loading NFTs")
+    
+    elif call.data == "mint_nft":
+        # Show mint options
+        telegram_id = str(call.from_user.id)
+        username = call.from_user.username or call.from_user.first_name
+        
+        try:
+            # Get user's TAMA balance
+            leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+            tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
+            
+            tama_cost = 5000
+            can_afford_tama = tama_balance >= tama_cost
+            
+            text = f"""
+🛒 **MINT YOUR NFT PET** 🛒
+
+Choose your mint type:
+
+**💰 TAMA MINT**
+• Cost: **5,000 TAMA**
+• Your balance: **{tama_balance:,} TAMA**
+• Get: Common (70%) / Rare (30%)
+• Bonus: +500 TAMA after mint
+{'' if can_afford_tama else '❌ *Not enough TAMA!*'}
+
+**✨ PREMIUM SOL MINT**
+• Cost: **0.1 SOL** (~$15-20)
+• Get: Epic (60%) / Legendary (40%)  
+• Bonus: +10,000 TAMA after mint
+• VIP status: x2 TAMA earning
+
+🎮 *NFT Benefits:*
+All NFTs give you earning bonuses when playing!
+
+💡 *Click the button below to mint!*
+            """
+            
+            # Create mint URL with user data
+            mint_url = f"https://tr1h.github.io/huma-chain-xyz/nft-mint.html?user_id={telegram_id}&tama={tama_balance}"
+            
+            keyboard = types.InlineKeyboardMarkup()
+            keyboard.row(
+                types.InlineKeyboardButton("🎨 Open Mint Page", url=mint_url)
+            )
+            keyboard.row(
+                types.InlineKeyboardButton("🖼️ My NFTs", callback_data="my_nfts"),
+                types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
+            )
+            
+            try:
+                bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                    parse_mode='Markdown', reply_markup=keyboard)
+            except:
+                bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+        except Exception as e:
+            print(f"Error showing mint options: {e}")
+            bot.answer_callback_query(call.id, "❌ Error loading mint page")
     
     elif call.data == "my_stats":
         # Create stats with back button for callback

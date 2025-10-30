@@ -177,6 +177,9 @@
     <script src="js/metaplex-mint.js?v=6"></script>
     <!-- Simple Real Mint (Solana Web3.js only) -->
     <script src="js/simple-real-mint.js?v=6"></script>
+    
+    <!-- TAMA Mint Module -->
+    <script src="js/tama-mint.js?v=1"></script>
 </head>
 <body>
     <div class="mint-container">
@@ -229,9 +232,33 @@
 
                 <!-- Right: Mint Info -->
                 <div class="mint-info">
-                    <!-- Big Mint Button -->
-                    <button class="mint-btn-large" id="mint-btn" disabled>
-                        🔒 CONNECT WALLET TO MINT
+                    <!-- Mint Type Selection -->
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 20px; color: #8AC926;">🎯 CHOOSE MINT TYPE</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <!-- TAMA MINT -->
+                            <button class="mint-type-btn" id="tama-mint-btn" style="background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%); border: none; padding: 20px; border-radius: 15px; cursor: pointer; transition: transform 0.2s; box-shadow: 0 5px 20px rgba(251, 133, 0, 0.4);">
+                                <div style="font-size: 32px; margin-bottom: 10px;">💰</div>
+                                <div style="font-size: 16px; font-weight: bold; color: white;">TAMA MINT</div>
+                                <div style="font-size: 24px; font-weight: bold; color: white; margin: 10px 0;">5,000 TAMA</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.9);">Common/Rare</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.9);">+500 TAMA bonus</div>
+                            </button>
+                            
+                            <!-- SOL MINT -->
+                            <button class="mint-type-btn" id="sol-mint-btn" style="background: linear-gradient(135deg, #8AC926 0%, #6A994E 100%); border: none; padding: 20px; border-radius: 15px; cursor: pointer; transition: transform 0.2s; box-shadow: 0 5px 20px rgba(138, 201, 38, 0.4);">
+                                <div style="font-size: 32px; margin-bottom: 10px;">✨</div>
+                                <div style="font-size: 16px; font-weight: bold; color: white;">PREMIUM MINT</div>
+                                <div style="font-size: 24px; font-weight: bold; color: white; margin: 10px 0;">0.1 SOL</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.9);">Epic/Legendary</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.9);">+10,000 TAMA bonus</div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Big Mint Button (Hidden by default) -->
+                    <button class="mint-btn-large" id="mint-btn" style="display: none;" disabled>
+                        🔒 SELECT MINT TYPE
                     </button>
 
                     <!-- Pricing Phases (Better Design) -->
