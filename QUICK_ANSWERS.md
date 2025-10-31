@@ -75,7 +75,6 @@
 
 ---
 
-### ✅ КАК СДЕЛАТЬ РЕАЛЬНЫЙ ВЫВОД:
 
 #### Шаг 1: Пользователь должен подключить кошелёк
 ```javascript
@@ -107,7 +106,8 @@ async function sendTAMA(userWalletAddress, amount) {
     payerKeypair,
     TAMA_MINT_ADDRESS,
     userTokenAccount,
-    mintKeypair,
+    mintKeypair,### ✅ КАК СДЕЛАТЬ РЕАЛЬНЫЙ ВЫВОД:
+
     amount * 1_000_000_000 // 9 decimals
   );
   return signature; // Реальная транзакция!
