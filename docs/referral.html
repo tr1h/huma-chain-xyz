@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</title>
+    
+    <!-- Open Graph Meta Tags for Beautiful Sharing -->
+    <meta property="og:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
+    <meta property="og:description" content="🐾 Play-to-Earn NFT pet game on Solana! Grow unique pets, earn TAMA tokens, and compete on leaderboard. Get 1,000 TAMA bonus when you join!">
+    <meta property="og:image" content="https://tr1h.github.io/solana-tamagotchi/assets/referral-preview.png">
+    <meta property="og:url" content="https://tr1h.github.io/solana-tamagotchi/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Solana Tamagotchi">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
+    <meta name="twitter:description" content="🐾 Play-to-Earn NFT pet game on Solana! Grow unique pets, earn TAMA tokens, and compete on leaderboard. Get 1,000 TAMA bonus when you join!">
+    <meta name="twitter:image" content="https://tr1h.github.io/solana-tamagotchi/assets/referral-preview.png">
+    
+    <!-- Additional Meta Tags -->
+    <meta name="description" content="🐾 Play-to-Earn NFT pet game on Solana! Grow unique pets, earn TAMA tokens, and compete on leaderboard. Get 1,000 TAMA bonus when you join!">
+    <meta name="keywords" content="solana, tamagotchi, nft, play-to-earn, crypto, blockchain, pets, gaming">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .bonus-box {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 10px 20px rgba(74, 222, 128, 0.3);
+        }
+        
+        .bonus-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .bonus-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 30px 0;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.6);
+        }
+        
+        .steps {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 1.1rem;
+        }
+        
+        .step-number {
+            background: #4ade80;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .bonus-amount {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🐾</div>
+        <h1>Solana Tamagotchi</h1>
+        <p class="subtitle">
+            🎮 Innovative Play-to-Earn game with NFT pets!<br>
+            Grow, train and earn with your digital pets on Solana blockchain.
+        </p>
+        
+        <div class="bonus-box">
+            <div class="bonus-title">🎁 JOIN BONUS</div>
+            <div class="bonus-amount">1,000 TAMA</div>
+            <p>Get instant bonus when you join through referral link!</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎮</div>
+                <div class="feature-title">Play-to-Earn</div>
+                <div class="feature-desc">Earn tokens by playing with pets</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🖼️</div>
+                <div class="feature-title">NFT Pets</div>
+                <div class="feature-desc">Unique NFT pets with different characteristics</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🏆</div>
+                <div class="feature-title">Leaderboard</div>
+                <div class="feature-desc">Compete with other players</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎁</div>
+                <div class="feature-title">Referral System</div>
+                <div class="feature-desc">Invite friends and get bonuses</div>
+            </div>
+        </div>
+        
+        <div class="steps">
+            <h3 style="text-align: center; margin-bottom: 20px;">🚀 How to Start:</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div>Click the button below to open Telegram bot</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div>Get your referral link and share with friends</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div>Earn 1,000 TAMA for each friend who joins!</div>
+            </div>
+        </div>
+        
+        <a href="https://t.me/gotchigamebot?start=start" class="cta-button">
+            🤖 Start Playing Now
+        </a>
+        
+        <div class="footer">
+            <p>🔗 Powered by Solana Blockchain</p>
+            <p>⚡ Fast • 🔒 Secure • 💰 Profitable</p>
+        </div>
+    </div>
+    
+    <script>
+        // Get referral code from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        
+        if (refCode) {
+            // Update the CTA button to include referral code
+            const ctaButton = document.querySelector('.cta-button');
+            ctaButton.href = `https://t.me/gotchigamebot?start=ref${refCode}`;
+            
+            // Update page title and meta tags for this specific referral
+            document.title = `🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus! (Ref: ${refCode})`;
+            
+            // Update Open Graph title
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) {
+                ogTitle.content = `🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus! (Ref: ${refCode})`;
+            }
+        }
+        
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate features on scroll
+            const features = document.querySelectorAll('.feature');
+            features.forEach((feature, index) => {
+                feature.style.opacity = '0';
+                feature.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    feature.style.transition = 'all 0.6s ease';
+                    feature.style.opacity = '1';
+                    feature.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
+

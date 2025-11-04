@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint NFT Pet - Solana Tamagotchi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/mint.css">
+    
+    <!-- TAMA Token Integration -->
+    <script>
+        const TAMA_MINT_ADDRESS = 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY';
+        const TAMA_COST = 1000; // Cost in TAMA to mint NFT
+    </script>
+    <style>
+        /* Better Layout - 2 Columns */
+        .mint-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .mint-preview {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .mint-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* Big Mint Button */
+        .mint-btn-large {
+            width: 100%;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #8AC926 0%, #1D3557 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 5px 20px rgba(138, 201, 38, 0.4);
+        }
+        
+        .mint-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(138, 201, 38, 0.6);
+        }
+        
+        .mint-btn-large:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* Compact Pricing */
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .pricing-card {
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(29, 53, 87, 0.1));
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .pricing-card.active {
+            border-color: #8AC926;
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(29, 53, 87, 0.2));
+            box-shadow: 0 0 20px rgba(138, 201, 38, 0.3);
+        }
+        
+        .phase-label {
+            font-size: 12px;
+            color: #8AC926;
+            font-weight: bold;
+        }
+        
+        .phase-price {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .phase-bonus {
+            font-size: 11px;
+            color: #8AC926;
+        }
+        
+        /* Benefits Grid */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(138, 201, 38, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .mint-grid {
+                grid-template-columns: 1fr;
+            }
+            .mint-preview {
+                position: static;
+            }
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Pet name input */
+        .pet-name-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .pet-name-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        .pet-name-section input {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .pet-name-section input:focus {
+            border-color: #8AC926;
+            outline: none;
+        }
+        .pet-name-section small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Network Configuration -->
+    <script src="network-config.js"></script>
+    <!-- Umi SDK Loader -->
+    <script src="js/load-umi.js"></script>
+    <!-- Umi Candy Machine -->
+    <script src="js/umi-candy-machine.js"></script>
+    <!-- Metaplex JS SDK (Alternative) -->
+    <script src="js/metaplex-mint.js?v=6"></script>
+    <!-- Simple Real Mint (Solana Web3.js only) -->
+    <script src="js/simple-real-mint.js?v=6"></script>
+    
+    <!-- TAMA Mint Module -->
+    <script src="js/tama-mint.js?v=1"></script>
+    
+    <!-- Real SOL Mint Module -->
+    <script src="js/real-sol-mint.js?v=1"></script>
+</head>
+<body>
+    <div class="mint-container">
+        <!-- Header -->
+        <header class="mint-header">
+            <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="window.location.href='index.html'">
+                <img src="assets/logo.png" alt="Solana Tamagotchi" style="height: 50px; width: auto; image-rendering: pixelated;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="connect-wallet" class="btn-wallet">🔗 Connect Wallet</button>
+                <button id="disconnect-wallet" class="btn-wallet" style="display: none; background: #E63946;">🔓 Disconnect</button>
+                <button id="copy-address" class="btn-wallet" style="display: none;">
+                    📋 Copy Address
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Mint Section -->
+        <section class="mint-main">
+            <div class="mint-grid">
+                <!-- Left: Preview -->
+                <div class="mint-preview">
+                    <h2>YOUR NFT PET</h2>
+                    <div class="nft-showcase">
+                        <div class="nft-card">
+                            <div class="nft-image" id="pet-preview">
+                                <span class="pet-emoji">❓</span>
+                                <div class="rarity-badge" id="rarity-badge">MYSTERY</div>
+                            </div>
+                            <div class="nft-info">
+                                <h3 id="pet-name">Your Pet</h3>
+                                <p id="pet-type">10 Types + Traits!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pet types removed to avoid overlap -->
+                </div>
+
+                <!-- Right: Mint Info -->
+                <div class="mint-info">
+                    <!-- Mint Type Selection -->
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 20px; color: #8AC926;">🎯 CHOOSE MINT TYPE</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <!-- TAMA MINT -->
+                            <button class="mint-type-btn" id="tama-mint-btn" style="background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%); border: none; padding: 20px; border-radius: 15px; cursor: pointer; transition: transform 0.2s; box-shadow: 0 5px 20px rgba(251, 133, 0, 0.4);">
+                                <div style="font-size: 32px; margin-bottom: 10px;">💰</div>
+                                <div style="font-size: 16px; font-weight: bold; color: white;">TAMA MINT</div>
+                                <div style="font-size: 24px; font-weight: bold; color: white; margin: 10px 0;">5,000 TAMA</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.9);">Common/Rare</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.9);">+500 TAMA bonus</div>
+                            </button>
+                            
+                            <!-- SOL MINT -->
+                            <button class="mint-type-btn" id="sol-mint-btn" style="background: linear-gradient(135deg, #8AC926 0%, #6A994E 100%); border: none; padding: 20px; border-radius: 15px; cursor: pointer; transition: transform 0.2s; box-shadow: 0 5px 20px rgba(138, 201, 38, 0.4);">
+                                <div style="font-size: 32px; margin-bottom: 10px;">✨</div>
+                                <div style="font-size: 16px; font-weight: bold; color: white;">PREMIUM MINT</div>
+                                <div style="font-size: 24px; font-weight: bold; color: white; margin: 10px 0;">0.1 SOL</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.9);">Epic/Legendary</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.9);">+10,000 TAMA bonus</div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Big Mint Button (Hidden by default) -->
+                    <button class="mint-btn-large" id="mint-btn" style="display: none;" disabled>
+                        🔒 SELECT MINT TYPE
+                    </button>
+
+                    <!-- Pricing Phases (Better Design) -->
+                    <div>
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 20px; color: #8AC926;">💰 PRICING PHASES</h3>
+                        <div class="pricing-cards">
+                            <div class="pricing-card active">
+                                <div class="phase-label">PHASE 1</div>
+                                <div class="phase-price">0.1 SOL</div>
+                                <div style="font-size: 12px; color: #666; margin: 5px 0;">Early Bird</div>
+                                <div class="phase-bonus">+ 500 TAMA</div>
+                            </div>
+                            <div class="pricing-card">
+                                <div class="phase-label">PHASE 2</div>
+                                <div class="phase-price">0.2 SOL</div>
+                                <div style="font-size: 12px; color: #666; margin: 5px 0;">Public</div>
+                                <div class="phase-bonus">+ 250 TAMA</div>
+                            </div>
+                            <div class="pricing-card">
+                                <div class="phase-label">PHASE 3</div>
+                                <div class="phase-price">0.3 SOL</div>
+                                <div style="font-size: 12px; color: #666; margin: 5px 0;">Final</div>
+                                <div class="phase-bonus">+ 100 TAMA</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Price Display (for JS) -->
+                    <div style="text-align: center; margin: 15px 0; padding: 15px; background: rgba(138, 201, 38, 0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; color: #8AC926; margin-bottom: 5px;">Current Mint Price</div>
+                        <div style="font-size: 28px; font-weight: bold;" id="mint-price">0.1 SOL</div>
+                        <div style="font-size: 12px; color: #666;" id="price-usd">≈ $15 USD</div>
+                    </div>
+
+                    <div class="mint-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="minted-count">0</span>
+                            <span class="stat-label">Minted</span>
+                        </div>
+                        <div class="stat-divider">/</div>
+                        <div class="stat-item">
+                            <span class="stat-value">100</span>
+                            <span class="stat-label">Total Supply</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="mint-progress" style="width: 0%"></div>
+                    </div>
+
+                    <!-- Benefits (Compact Grid) -->
+                    <div>
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 20px; color: #8AC926;">🎁 WHAT YOU GET</h3>
+                        <div class="benefits-grid">
+                            <div class="benefit-item">✅ Unique NFT Pet</div>
+                            <div class="benefit-item">💰 TAMA Bonus</div>
+                            <div class="benefit-item">🎲 10 Pet Types</div>
+                            <div class="benefit-item">⭐ 5 Rarities</div>
+                            <div class="benefit-item">🎮 Play-to-Earn</div>
+                            <div class="benefit-item">👥 Referrals</div>
+                            <div class="benefit-item">🎁 Airdrops</div>
+                            <div class="benefit-item">📈 Tradeable</div>
+                        </div>
+                    </div>
+
+                    <div id="pet-name-input" class="pet-name-section" style="display: none;">
+                        <label for="pet-name">🐾 Give your pet a name:</label>
+                        <input type="text" id="pet-name-input-field" placeholder="Enter pet name..." maxlength="20">
+                        <small>Optional - leave empty for auto-generated name</small>
+                    </div>
+
+                    <!-- REMOVED DUPLICATE BUTTON -->
+
+                    <a id="faucet-link" 
+                       href="https://faucet.solana.com/" 
+                       target="_blank" 
+                       class="btn-airdrop hidden"
+                       style="display: inline-block; text-decoration: none; text-align: center;">
+                        💰 Get Free SOL (Devnet Faucet)
+                    </a>
+
+                    <div class="rarity-info">
+                        <h4>📊 RARITY DISTRIBUTION:</h4>
+                        <div class="rarity-bars">
+                            <div class="rarity-bar">
+                                <span class="rarity-name">💚 COMMON</span>
+                                <div class="bar"><div class="bar-fill common" style="width: 70%"></div></div>
+                                <span class="rarity-chance">70%</span>
+                            </div>
+                            <div class="rarity-bar">
+                                <span class="rarity-name">💙 RARE</span>
+                                <div class="bar"><div class="bar-fill rare" style="width: 20%"></div></div>
+                                <span class="rarity-chance">20%</span>
+                            </div>
+                            <div class="rarity-bar">
+                                <span class="rarity-name">💜 EPIC</span>
+                                <div class="bar"><div class="bar-fill epic" style="width: 8%"></div></div>
+                                <span class="rarity-chance">8%</span>
+                            </div>
+                            <div class="rarity-bar">
+                                <span class="rarity-name">🧡 LEGENDARY</span>
+                                <div class="bar"><div class="bar-fill legendary" style="width: 2%"></div></div>
+                                <span class="rarity-chance">2%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Phases (hidden - now shown compact above) -->
+        <section class="phases-section" style="display: none;">
+            <h2>📈 PRICING PHASES</h2>
+            <div class="phases-grid">
+                <div class="phase-card active">
+                    <div class="phase-badge">PHASE 1</div>
+                    <h3>Early Bird</h3>
+                    <p class="phase-price">0.3 SOL</p>
+                    <p class="phase-supply">0-100 NFTs</p>
+                    <p class="phase-bonus">🎁 +1000 TAMA Early Adopter Bonus! 🚀</p>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-badge">PHASE 2</div>
+                    <h3>Standard Mint</h3>
+                    <p class="phase-price">0.2 SOL</p>
+                    <p class="phase-supply">101-200 NFTs</p>
+                    <p class="phase-bonus">🎁 +750 TAMA Bonus</p>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-badge">PHASE 3</div>
+                    <h3>Final Phase</h3>
+                    <p class="phase-price">0.3 SOL</p>
+                    <p class="phase-supply">201-500 NFTs</p>
+                    <p class="phase-bonus">🎁 +500 TAMA Bonus</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="faq-section">
+            <h2>❓ FAQ</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h3>What's the total supply?</h3>
+                    <p>There's no hard cap, but price increases with each phase to create scarcity.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Can I sell my NFT?</h3>
+                    <p>Yes! NFTs are fully tradeable on any Solana marketplace. 5% royalty on secondary sales.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>What's TAMA token?</h3>
+                    <p>In-game currency for upgrades, evolution, and trading. Earnable through gameplay!</p>
+                </div>
+                <div class="faq-item">
+                    <h3>How do I earn more?</h3>
+                    <p>Play-to-Earn, referrals, achievements, daily rewards, and staking!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mint-footer">
+            <p>Built on Solana ⚡ | Powered by Metaplex 🎨</p>
+            <div class="footer-links">
+                <a href="index.html">Play Game</a>
+                <a href="#">Docs</a>
+                <a href="https://x.com/GotchiGame" target="_blank">Twitter</a>
+                <a href="https://t.me/solana_tamagotchi" target="_blank">Telegram</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal hidden">
+        <div class="modal-content success">
+            <h2>🎉 MINT SUCCESSFUL!</h2>
+            <div class="minted-nft">
+                <span class="minted-pet" id="minted-pet">🐱</span>
+                <p class="minted-rarity" id="minted-rarity">RARE</p>
+            </div>
+            <p>Your NFT has been minted!</p>
+            <div class="modal-buttons">
+                <button onclick="window.open('https://t.me/GotchiGameBot?start=nft_minted', '_blank')" class="btn-play">🎮 Play in Telegram</button>
+                <button onclick="window.location.href='tamagotchi-game.html'" class="btn-secondary">🌐 Play in Browser</button>
+                <button onclick="viewOnExplorer()" class="btn-close">🔍 View on Explorer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js?v=5"></script>
+    
+    <script>
+        // Function to view NFT on blockchain explorer
+        function viewOnExplorer() {
+            // Get the minted NFT data
+            const nftData = JSON.parse(localStorage.getItem('nftData') || '{}');
+            
+            if (nftData.mintAddress) {
+                // Open Solscan explorer for the mint address
+                const explorerUrl = `https://solscan.io/token/${nftData.mintAddress}?cluster=devnet`;
+                window.open(explorerUrl, '_blank');
+            } else {
+                // Fallback to general Solscan devnet
+                const explorerUrl = 'https://solscan.io/?cluster=devnet';
+                window.open(explorerUrl, '_blank');
+            }
+        }
+    </script>
+    <script src="js/database-supabase.js?v=5"></script>
+    <script src="js/simple-tama-system.js?v=1001"></script>
+    <script src="js/treasury-system.js?v=1"></script>
+    <script src="js/simple-nft-mint.js?v=5"></script>
+    <script src="js/mint.js?v=11"></script>
+    
+    <!-- Script loading diagnostics -->
+    <script>
+        console.log('🔍 Script Loading Diagnostics:');
+        console.log('Umi:', typeof window['@metaplex-foundation/umi']);
+        console.log('Umi Bundle Defaults:', typeof window['@metaplex-foundation/umi-bundle-defaults']);
+        console.log('Candy Machine:', typeof window['@metaplex-foundation/mpl-candy-machine']);
+        console.log('Solana Web3:', typeof window.solanaWeb3);
+        console.log('Supabase:', typeof window.supabase);
+        
+        // Get real-time SOL price in USD
+        async function getSOLPrice() {
+            try {
+                // Try CoinGecko API first
+                const response = await fetch('https://cors-anywhere.herokuapp.com/https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+                const data = await response.json();
+                
+                if (data.solana && data.solana.usd) {
+                    console.log('✅ SOL price from CoinGecko:', data.solana.usd, 'USD');
+                    return data.solana.usd;
+                }
+            } catch (error) {
+                console.warn('CoinGecko API failed, trying alternative...');
+            }
+            
+            try {
+                // Try alternative API
+                const response = await fetch('https://cors-anywhere.herokuapp.com/https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT');
+                const data = await response.json();
+                
+                if (data.price) {
+                    const price = parseFloat(data.price);
+                    console.log('✅ SOL price from Binance:', price, 'USD');
+                    return price;
+                }
+            } catch (error) {
+                console.warn('Binance API failed, using fallback...');
+            }
+            
+            // Fallback price
+            console.log('⚠️ Using fallback SOL price: 150 USD');
+            return 150;
+        }
+        
+        // Load current price from database with real USD conversion
+        async function loadCurrentPrice() {
+            try {
+                // Get real SOL price
+                const solPriceUSD = await getSOLPrice();
+                
+                if (window.Database && window.Database.supabase) {
+                    const { data } = await window.Database.supabase
+                        .from('game_settings')
+                        .select('value')
+                        .eq('key', 'nft_price')
+                        .single();
+                    
+                    if (data) {
+                        const price = parseFloat(data.value);
+                        const usdPrice = (price * solPriceUSD).toFixed(2);
+                        
+                        document.getElementById('mint-price').textContent = `${price} SOL`;
+                        document.getElementById('price-usd').textContent = `≈ $${usdPrice} USD`;
+                        
+                        // Update mint button
+                        const mintBtn = document.getElementById('mint-btn');
+                        if (mintBtn) {
+                            mintBtn.querySelector('.btn-text').textContent = `MINT NOW - ${price} SOL`;
+                        }
+                        
+                        console.log('✅ Price loaded from database:', price, 'SOL = $', usdPrice, 'USD');
+                        return price;
+                    }
+                }
+            } catch (error) {
+                console.warn('Could not load price from database, using fallback');
+            }
+            
+            // Fallback
+            const fallbackPrice = 0.1;
+            const solPriceUSD = await getSOLPrice();
+            const usdPrice = (fallbackPrice * solPriceUSD).toFixed(2);
+            
+            document.getElementById('mint-price').textContent = `${fallbackPrice} SOL`;
+            document.getElementById('price-usd').textContent = `≈ $${usdPrice} USD`;
+            
+            const mintBtn = document.getElementById('mint-btn');
+            if (mintBtn) {
+                mintBtn.querySelector('.btn-text').textContent = `MINT NOW - ${fallbackPrice} SOL`;
+            }
+            
+            return fallbackPrice;
+        }
+        
+        // Update mint button based on wallet connection
+        function updateMintButton() {
+            const connectBtn = document.getElementById('connect-wallet-btn');
+            const mintBtn = document.getElementById('mint-btn');
+            
+            if (window.WalletManager && window.WalletManager.isConnected()) {
+                connectBtn.textContent = 'Connected ✅';
+                connectBtn.disabled = true;
+                mintBtn.disabled = false;
+                mintBtn.textContent = 'MINT NFT';
+            } else {
+                connectBtn.textContent = 'Connect Wallet';
+                connectBtn.disabled = false;
+                mintBtn.disabled = true;
+                mintBtn.textContent = 'CONNECT WALLET TO MINT';
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🎨 Mint page loaded');
+            
+            // Check if wallet is already connected
+            if (window.WalletManager && window.WalletManager.isConnected()) {
+                console.log('🔗 Wallet already connected, updating UI...');
+                await window.WalletManager.updateBalanceDisplay();
+                updateMintButton();
+            }
+            
+            // Load current price
+            loadCurrentPrice();
+            
+            // Auto-refresh price every 30 seconds
+            setInterval(async () => {
+                console.log('🔄 Refreshing SOL price...');
+                await loadCurrentPrice();
+            }, 30000);
+            
+            // Initialize wallet connection
+            if (window.WalletManager) {
+                WalletManager.init();
+            }
+            
+            // Initialize mint page
+            if (window.MintPage) {
+                MintPage.init();
+            }
+        });
+        
+        // Check if all required objects are available
+        setTimeout(() => {
+            console.log('🔍 After 2 seconds:');
+            console.log('Umi:', typeof window['@metaplex-foundation/umi']);
+            console.log('Umi Bundle Defaults:', typeof window['@metaplex-foundation/umi-bundle-defaults']);
+            console.log('Candy Machine:', typeof window['@metaplex-foundation/mpl-candy-machine']);
+        }, 2000);
+    </script>
+</body>
+</html>
+
