@@ -1,89 +1,31 @@
-# Node modules
+# Dependencies
 node_modules/
-package-lock.json
+__pycache__/
 
-# Environment variables
+# Environment
 .env
-.env.local
-.env.*.local
-
-# Private keys (IMPORTANT!)
-*-keypair.json
-*.key
-*.pem
-p2e-pool-keypair.json
-team-wallet-keypair.json
-marketing-wallet-keypair.json
-liquidity-pool-keypair.json
-community-wallet-keypair.json
-reserve-wallet-keypair.json
-tama-mint-keypair.json
-payer-keypair.json
-
-# Logs
 *.log
-logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# OS files
-.DS_Store
-Thumbs.db
-desktop.ini
+# Keypairs (ВАЖНО!)
+*-keypair.json
+!tama-mint-keypair.json
+!payer-keypair.json
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+build/
 
-# Jupyter
-.ipynb_checkpoints
+# Docs (не публиковать на GitHub Pages)
+docs/
 
-# Pytest
-.pytest_cache/
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.bak
-*.swp
-
-# Test files
-test_*.html
-
+# Prompts (личное)
+sora2_*.md
+boomer_*.md
