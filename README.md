@@ -73,8 +73,11 @@
 1. Open Telegram
 2. Search for **[@GotchiGameBot](https://t.me/GotchiGameBot)**
 3. Click `/start`
-4. Press **🎮 Play Game**
-5. Start earning TAMA!
+4. Press **🎮 Play Game** (opens tamagotchi-game.html)
+5. Start earning TAMA tokens!
+
+**🌐 Or play directly in browser:**
+- https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html
 
 ### **For Developers:**
 
@@ -92,30 +95,32 @@
 git clone https://github.com/tr1h/huma-chain-xyz.git
 cd huma-chain-xyz
 
-# Install API dependencies
-cd api
-npm install
-
 # Install Bot dependencies
-cd ../bot
+cd bot
 pip install -r requirements.txt
 
 # Configure environment
-cp .env.example .env
-# Edit .env with your credentials
+# Create .env file in bot/ directory
+# See PHP_API_SETUP.md for PHP API configuration
 ```
 
 #### **Run Locally:**
 
 ```bash
-# Terminal 1: Start API
+# Terminal 1: Start PHP API (requires PHP server)
+# Option 1: Using PHP built-in server
 cd api
-node tama_supabase_api.js
+php -S localhost:8000 tama_supabase.php
+
+# Option 2: Using XAMPP/WAMP/MAMP
+# Place api/ folder in htdocs/ and access via http://localhost/api/tama_supabase.php
 
 # Terminal 2: Start Bot
 cd bot
 python bot.py
 ```
+
+**📖 See [PHP_API_SETUP.md](PHP_API_SETUP.md) for detailed PHP API setup instructions.**
 
 ---
 
@@ -124,28 +129,46 @@ python bot.py
 ### **Project Structure:**
 ```
 huma-chain-xyz/
-├── api/                      # Backend API (Node.js)
-│   ├── tama_supabase_api.js  # Main API server
+├── 🌐 FRONTEND (GitHub Pages - всё в корне!)
+│   ├── tamagotchi-game.html  # ⭐ Main game UI (403KB)
+│   ├── telegram-game.html    # Telegram Web App версия
+│   ├── mint.html             # NFT Mint страница
+│   ├── admin-tokenomics.html # Админка токеномики
+│   ├── super-admin.html      # Супер-админка
+│   ├── referral.html         # Реферальная система
+│   ├── s.html                # Короткая ссылка
+│   ├── index.html            # Landing page
+│   └── [еще 10+ HTML страниц]
+│
+├── 🛠️ BACKEND
+│   ├── api/
+│   │   └── tama_supabase.php # PHP API (7 endpoints)
+│   │
+│   ├── bot/                  # НЕ ПУБЛИКУЕТСЯ (только для сервера)
+│   │   ├── bot.py            # Telegram Bot (@GotchiGameBot)
+│   │   └── start_bot.ps1     # PowerShell скрипт запуска
+│   │
+│   └── sql/
+│       └── update_burn_stats_function.sql
+│
+├── 🔧 CONFIG
 │   ├── package.json
-│   └── README.md
-├── bot/                      # Telegram Bot (Python)
-│   ├── bot.py                # Main bot script
-│   ├── gamification.py       # Game logic
-│   └── requirements.txt
-├── docs/                     # Frontend (GitHub Pages)
-│   ├── tamagotchi-game.html  # Main game UI
-│   ├── css/                  # Stylesheets
-│   ├── js/                   # JavaScript modules
-│   └── assets/               # Images & resources
-├── tama-token-info.json      # TAMA token metadata
-└── README.md                 # This file
+│   ├── tokenomics.json       # Параметры токеномики
+│   └── *.json               # Keypairs (не публикуются!)
+│
+└── 📚 DOCUMENTATION
+    ├── README.md             # Этот файл
+    ├── PROJECT_STRUCTURE.md  # Детальная структура
+    ├── TOKENOMICS_FINAL.md   # Токеномика
+    └── [еще 20+ документов]
 ```
 
 ### **Key Files:**
-- **Game Logic:** `docs/tamagotchi-game.html`
+- **Game Logic:** `tamagotchi-game.html` (в корне!)
 - **Telegram Bot:** `bot/bot.py`
-- **API Server:** `api/tama_supabase_api.js`
+- **API Server:** `api/tama_supabase.php`
 - **Token Info:** `tama-token-info.json`
+- **Admin Panel:** `admin-tokenomics.html`
 
 ---
 
@@ -195,7 +218,13 @@ SUPABASE_KEY=your_supabase_anon_key
 ### **Frontend (GitHub Pages):**
 1. Push to `main` branch
 2. GitHub Actions auto-deploys
-3. Live at: `https://tr1h.github.io/huma-chain-xyz/`
+3. **Live URLs:**
+   - 🎮 **Game:** https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html
+   - 🎨 **Mint NFT:** https://tr1h.github.io/huma-chain-xyz/mint.html
+   - 📊 **Admin:** https://tr1h.github.io/huma-chain-xyz/admin-tokenomics.html
+   - 🏆 **Super Admin:** https://tr1h.github.io/huma-chain-xyz/super-admin.html
+   - 🔗 **Referral:** https://tr1h.github.io/huma-chain-xyz/referral.html
+   - 🏠 **Landing:** https://tr1h.github.io/huma-chain-xyz/
 
 ### **Backend (Railway):**
 1. Connect GitHub repo to Railway
