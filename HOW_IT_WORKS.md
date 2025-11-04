@@ -1218,7 +1218,7 @@ $$ LANGUAGE plpgsql;
 
 ```bash
 # Telegram Bot
-TELEGRAM_BOT_TOKEN="8445221254:AAHxX7NCDv3K14LTnAQkM69Lg4QCckFh-E8"
+TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"  # Получи в @BotFather
 BOT_USERNAME="GotchiGameBot"
 
 # Supabase (Database)

@@ -87,7 +87,7 @@
 
 ```powershell
 # Telegram Bot
-$env:TELEGRAM_BOT_TOKEN="8445221254:AAHxX7NCDv3K14LTnAQkM69Lg4QCckFh-E8"
+$env:TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"  # Получи в @BotFather
 $env:BOT_USERNAME="GotchiGameBot"
 
 # Supabase (ЗАМЕНИ НА СВОИ!)

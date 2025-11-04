@@ -27,10 +27,10 @@ C:\goooog\
 
 ### Обязательные для бота:
 ```powershell
-$env:TELEGRAM_BOT_TOKEN="8445221254:AAHxX7NCDv3K14LTnAQkM69Lg4QCckFh-E8"
+$env:TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"  # Получи в @BotFather
 $env:BOT_USERNAME="GotchiGameBot"
-$env:SUPABASE_URL="https://zfrazyupameidxpjihrh.supabase.co"
-$env:SUPABASE_KEY="eyJhbGc...7wU"
+$env:SUPABASE_URL="YOUR_SUPABASE_URL"  # Получи в Supabase Dashboard
+$env:SUPABASE_KEY="YOUR_SUPABASE_ANON_KEY"  # Получи в Supabase Dashboard
 ```
 
 ### Для блокчейна (опционально):

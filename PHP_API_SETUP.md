@@ -211,7 +211,7 @@ curl https://your-project.vercel.app/api/tama/test
 
 ### Локально (.env):
 ```bash
-SUPABASE_DB_HOST=db.zfrazyupameidxpjihrh.supabase.co
+SUPABASE_DB_HOST=db.YOUR_PROJECT_ID.supabase.co  # Получи в Supabase Dashboard
 SUPABASE_DB_PORT=5432
 SUPABASE_DB_NAME=postgres
 SUPABASE_DB_USER=postgres

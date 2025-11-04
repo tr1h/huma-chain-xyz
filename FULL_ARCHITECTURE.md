@@ -307,8 +307,8 @@ function handleAddTama($pdo) {
 // БЕЗ PHP API (текущая реализация):
 // SUPABASE_KEY виден в браузере (в JavaScript коде)
 const supabase = createClient(
-  'https://zfrazyupameidxpjihrh.supabase.co',  // ← Виден всем
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'    // ← Виден всем
+  'https://YOUR_PROJECT_ID.supabase.co',  // ← Получи в Supabase Dashboard
+  'YOUR_SUPABASE_ANON_KEY'                 // ← Получи в Supabase Dashboard
 );
 
 // С PHP API:
