@@ -157,10 +157,17 @@
         async function loadStats() {
             try {
                 // Get total withdrawn (circulating supply)
-                const { data: withdrawals } = await supabase
+                const { data: withdrawals, error } = await supabase
                     .from('tama_transactions')
                     .select('amount')
                     .eq('type', 'withdrawal');
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    document.getElementById('circulating').textContent = '0';
+                    document.getElementById('burned').textContent = '0';
+                    return;
+                }
                 
                 const circulating = Math.abs(withdrawals?.reduce((sum, tx) => sum + Math.abs(tx.amount), 0) || 0);
                 document.getElementById('circulating').textContent = circulating.toLocaleString();
@@ -171,13 +178,15 @@
                 
             } catch (error) {
                 console.error('Error loading stats:', error);
+                document.getElementById('circulating').textContent = '0';
+                document.getElementById('burned').textContent = '0';
             }
         }
 
         // Load withdrawals
         async function loadWithdrawals() {
             try {
-                const { data } = await supabase
+                const { data, error } = await supabase
                     .from('tama_transactions')
                     .select('*')
                     .eq('type', 'withdrawal')
@@ -185,6 +194,13 @@
                     .limit(50);
                 
                 const tbody = document.getElementById('withdrawals-list');
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">Error loading withdrawals. Check console.</td></tr>';
+                    return;
+                }
+                
                 if (!data || data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No withdrawals yet</td></tr>';
                     return;
@@ -200,7 +216,7 @@
                     return `
                         <tr>
                             <td>${time}</td>
-                            <td>${tx.telegram_id}</td>
+                            <td>${tx.telegram_id || 'N/A'}</td>
                             <td>${amount.toLocaleString()} TAMA</td>
                             <td>${fee.toLocaleString()} TAMA</td>
                             <td>${net.toLocaleString()} TAMA</td>
@@ -211,6 +227,8 @@
                 
             } catch (error) {
                 console.error('Error loading withdrawals:', error);
+                const tbody = document.getElementById('withdrawals-list');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">Error: ' + error.message + '</td></tr>';
             }
         }
 
