@@ -3439,7 +3439,7 @@ The withdrawal feature requires the API server to be running.
 🔗 **Transaction:**
 [View on Explorer]({explorer_url})
 
-тП▒я╕П **Status:** Completed
+✅ **Status:** Completed
 ⭐ **TAMA is now in your wallet!**
 
 Thank you for playing! 🎮
