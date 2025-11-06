@@ -51,8 +51,25 @@ class DailyRewards:
     def claim_reward(self, telegram_id: str) -> Tuple[bool, int, int]:
         """Claim daily reward. Returns (success, streak_days, reward_amount)"""
         try:
-            # Check last claim
-            response = self.supabase.table('leaderboard').select('last_daily_claim, daily_streak').eq('telegram_id', telegram_id).execute()
+            # Check last claim - try with last_daily_claim, fallback to other columns
+            try:
+                response = self.supabase.table('leaderboard').select('last_daily_claim, daily_streak').eq('telegram_id', telegram_id).execute()
+            except Exception as col_error:
+                # If column doesn't exist, try without it
+                print(f"Column last_daily_claim not found, using alternative method: {col_error}")
+                response = self.supabase.table('leaderboard').select('daily_streak').eq('telegram_id', telegram_id).execute()
+                if response.data:
+                    # Column doesn't exist, just give reward without streak tracking
+                    reward = 1000
+                    try:
+                        self.supabase.table('leaderboard').update({
+                            'daily_streak': 1
+                        }).eq('telegram_id', telegram_id).execute()
+                    except:
+                        pass  # Ignore update errors if column doesn't exist
+                    return True, 1, reward
+                else:
+                    return False, 0, 0
             
             if response.data:
                 last_claim = response.data[0].get('last_daily_claim')
@@ -78,11 +95,21 @@ class DailyRewards:
             # Calculate reward (1000 + streak * 100, max 10000)
             reward = min(1000 + (new_streak * 100), 10000)
             
-            # Update database
-            self.supabase.table('leaderboard').update({
-                'last_daily_claim': datetime.now().isoformat(),
-                'daily_streak': new_streak
-            }).eq('telegram_id', telegram_id).execute()
+            # Update database - try with last_daily_claim, fallback without it
+            try:
+                self.supabase.table('leaderboard').update({
+                    'last_daily_claim': datetime.now().isoformat(),
+                    'daily_streak': new_streak
+                }).eq('telegram_id', telegram_id).execute()
+            except Exception as update_error:
+                # If column doesn't exist, update only daily_streak
+                print(f"Could not update last_daily_claim, updating only daily_streak: {update_error}")
+                try:
+                    self.supabase.table('leaderboard').update({
+                        'daily_streak': new_streak
+                    }).eq('telegram_id', telegram_id).execute()
+                except:
+                    pass  # Ignore if update fails
             
             return True, new_streak, reward
         except Exception as e:
@@ -92,7 +119,14 @@ class DailyRewards:
     def can_claim(self, telegram_id: str) -> Tuple[bool, int]:
         """Check if user can claim. Returns (can_claim, current_streak)"""
         try:
-            response = self.supabase.table('leaderboard').select('last_daily_claim, daily_streak').eq('telegram_id', telegram_id).execute()
+            try:
+                response = self.supabase.table('leaderboard').select('last_daily_claim, daily_streak').eq('telegram_id', telegram_id).execute()
+            except Exception as col_error:
+                # If column doesn't exist, try without it
+                response = self.supabase.table('leaderboard').select('daily_streak').eq('telegram_id', telegram_id).execute()
+                if not response.data:
+                    return True, 0
+                return True, response.data[0].get('daily_streak', 0)
             
             if not response.data:
                 return True, 0

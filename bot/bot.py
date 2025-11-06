@@ -71,7 +71,15 @@ ADMIN_IDS = [int(x) for x in os.getenv('ADMIN_IDS', '7401131043').split(',') if 
 EXEMPT_GROUP_IDS = [int(x) for x in os.getenv('EXEMPT_GROUP_IDS', '-1002938566588').split(',') if x.strip()]  # @gotchigamechat group ID
 
 # TAMA API Configuration
-TAMA_API_BASE = "http://localhost:8002/api/tama"
+TAMA_API_BASE = os.getenv('TAMA_API_BASE', "http://localhost:8002/api/tama")
+
+def is_api_available():
+    """Check if TAMA API is available"""
+    try:
+        response = requests.get(f"{TAMA_API_BASE}/test", timeout=2)
+        return response.status_code == 200
+    except:
+        return False
 
 # Setup logging
 logging.basicConfig(
@@ -367,6 +375,19 @@ def check_suspicious_activity(user_id, action):
         pass
     
     return False
+
+def safe_edit_message_text(text, chat_id, message_id, parse_mode=None, reply_markup=None):
+    """Safely edit message text, ignoring 'message is not modified' errors"""
+    try:
+        safe_edit_message_text(text, chat_id, message_id, parse_mode=parse_mode, reply_markup=reply_markup)
+    except Exception as e:
+        error_msg = str(e)
+        if "message is not modified" in error_msg.lower():
+            # This is not a real error, just ignore it
+            pass
+        else:
+            # Real error, log it
+            print(f"Error editing message: {e}")
 
 def log_error(error_type, details, user_id=None):
     """Log errors and send alerts for critical ones"""
@@ -2933,7 +2954,7 @@ def handle_callback(call):
 
 💰 Check /my_nfts to see your collection!"""
                 
-                bot.edit_message_text(
+                safe_edit_message_text(
                     updated_text,
                     call.message.chat.id,
                     call.message.message_id,
@@ -3013,7 +3034,7 @@ def handle_callback(call):
         )
         
         try:
-            bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                 parse_mode='HTML', reply_markup=keyboard)
         except Exception as e:
             print(f"Error editing message: {e}")
@@ -3093,7 +3114,7 @@ def handle_callback(call):
             )
             
             try:
-                bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                     parse_mode='Markdown', reply_markup=keyboard)
             except:
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
@@ -3174,7 +3195,7 @@ You need **{shortage:,} more TAMA**.
             )
             
             try:
-                bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                     parse_mode='Markdown', reply_markup=keyboard)
             except:
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
@@ -3204,7 +3225,7 @@ After sending your address, I'll ask for the amount.
         )
         
         try:
-            bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                 parse_mode='Markdown', reply_markup=keyboard)
             # Set user state to expect wallet address
             bot.register_next_step_handler(call.message, process_wallet_address)
@@ -3217,8 +3238,24 @@ After sending your address, I'll ask for the amount.
         telegram_id = str(call.from_user.id)
         
         try:
+            # Check if API is available
+            if not is_api_available():
+                text = """
+❌ **API Server Not Available**
+
+The withdrawal history feature requires the API server to be running.
+
+**To enable:**
+1. Start the PHP API server (see PHP_API_SETUP.md)
+2. Or use direct Supabase queries
+
+**Current API:** `localhost:8002`
+                """
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
+                return
+            
             # Fetch from API
-            response = requests.get(f"{TAMA_API_BASE}/withdrawal/history?telegram_id={telegram_id}")
+            response = requests.get(f"{TAMA_API_BASE}/withdrawal/history?telegram_id={telegram_id}", timeout=5)
             
             if response.status_code == 200:
                 data = response.json()
@@ -3255,12 +3292,22 @@ Make your first withdrawal to see history here!
             )
             
             try:
-                bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                     parse_mode='Markdown', reply_markup=keyboard)
             except:
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
         except Exception as e:
             print(f"Error showing withdrawal history: {e}")
+            text = f"""
+❌ **Error loading withdrawal history**
+
+API server is not available or returned an error.
+
+**Error:** {str(e)}
+
+Please check if the API server is running on `localhost:8002`
+            """
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
             bot.answer_callback_query(call.id, "❌ Error loading history")
     
     elif call.data == "mint_nft":
@@ -3313,7 +3360,7 @@ All NFTs give you earning bonuses when playing!
             )
             
             try:
-                bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                     parse_mode='Markdown', reply_markup=keyboard)
             except:
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
@@ -3335,12 +3382,28 @@ All NFTs give you earning bonuses when playing!
         amount = withdrawal_data.get('amount')
         
         try:
+            # Check if API is available
+            if not is_api_available():
+                text = """
+❌ **API Server Not Available**
+
+The withdrawal feature requires the API server to be running.
+
+**To enable:**
+1. Start the PHP API server (see PHP_API_SETUP.md)
+2. Or configure withdrawal to work directly with Supabase
+
+**Current API:** `localhost:8002`
+                """
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
+                return
+            
             # Call withdrawal API
             response = requests.post(f"{TAMA_API_BASE}/withdrawal/request", json={
                 'telegram_id': telegram_id,
                 'wallet_address': wallet_address,
                 'amount': amount
-            })
+            }, timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
@@ -3382,7 +3445,7 @@ Thank you for playing! 🎮
                 del withdrawal_sessions[telegram_id]
                 
                 try:
-                    bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                         parse_mode='Markdown', reply_markup=keyboard)
                 except:
                     bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
@@ -3405,13 +3468,23 @@ Please try again or contact support.
                 )
                 
                 try:
-                    bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                         parse_mode='Markdown', reply_markup=keyboard)
                 except:
                     bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
                 
         except Exception as e:
             print(f"Error processing withdrawal: {e}")
+            text = f"""
+❌ **Error processing withdrawal**
+
+API server is not available or returned an error.
+
+**Error:** {str(e)}
+
+Please check if the API server is running on `localhost:8002`
+            """
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
             bot.answer_callback_query(call.id, "❌ Error processing withdrawal")
     
     elif call.data == "cancel_withdrawal":
@@ -3437,7 +3510,7 @@ You can try again anytime!
         )
         
         try:
-            bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                 parse_mode='Markdown', reply_markup=keyboard)
         except:
             bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
@@ -3517,7 +3590,7 @@ To start playing and tracking your stats:
         )
         
         try:
-            bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                 parse_mode='HTML', reply_markup=keyboard)
         except Exception as e:
             print(f"Error editing message: {e}")
@@ -3626,7 +3699,7 @@ Please try again later!
             )
         
         try:
-            bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                                 parse_mode='HTML', reply_markup=keyboard)
         except Exception as e:
             print(f"Error editing message: {e}")
@@ -3673,7 +3746,7 @@ Please try again later!
             types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
         )
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id, 
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
                             reply_markup=keyboard)
     
     elif call.data.startswith("qr_"):
@@ -3746,7 +3819,7 @@ Please try again later!
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data == "mini_games":
@@ -3781,7 +3854,7 @@ Please try again later!
             )
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data == "view_badges":
@@ -3811,7 +3884,7 @@ Please try again later!
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data == "view_rank":
@@ -3853,7 +3926,7 @@ Please try again later!
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data == "view_quests":
@@ -3885,7 +3958,7 @@ Please try again later!
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data == "my_stats_detailed":
@@ -3934,7 +4007,7 @@ Please try again later!
         )
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
     # ==================== GAME CALLBACKS ====================
@@ -3966,7 +4039,7 @@ Please try again later!
             types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
         )
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
         
         # Set waiting state for number input
@@ -4024,7 +4097,7 @@ Please try again later!
             types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
         )
         
-        bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data.startswith("trivia_"):
@@ -4050,7 +4123,7 @@ Play again tomorrow! 🎮
                 types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
             )
             
-            bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                 parse_mode='Markdown', reply_markup=keyboard)
         else:
             bot.answer_callback_query(call.id, result_text)
@@ -4078,7 +4151,7 @@ Play again tomorrow! 🎮
                 types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
             )
             
-            bot.edit_message_text(text, call.message.chat.id, call.message.message_id,
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                 parse_mode='Markdown', reply_markup=keyboard)
         else:
             bot.answer_callback_query(call.id, result_text)
