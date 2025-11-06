@@ -295,27 +295,45 @@
             const now = new Date();
             const daysSinceLaunch = Math.floor((now - launchDate) / (1000 * 60 * 60 * 24));
             
-            // Определить текущий период
-            const periodNumber = Math.floor(daysSinceLaunch / 180);
-            const daysInPeriod = daysSinceLaunch % 180;
-            const daysLeftInPeriod = 180 - daysInPeriod;
+            // Определить текущий период (с учетом разных длительностей периодов)
+            let periodNumber = 0;
+            let daysInPeriod = daysSinceLaunch;
+            let daysLeftInPeriod = 0;
             
-            // Периоды и их пулы
+            // Найти текущий период
+            for (let i = 0; i < periods.length; i++) {
+                if (daysInPeriod < periods[i].days) {
+                    periodNumber = i;
+                    daysLeftInPeriod = periods[i].days - daysInPeriod;
+                    break;
+                }
+                daysInPeriod -= periods[i].days;
+            }
+            
+            // Если все периоды прошли
+            if (periodNumber >= periods.length) {
+                periodNumber = periods.length - 1;
+                daysInPeriod = periods[periodNumber].days;
+                daysLeftInPeriod = 0;
+            }
+            
+            // Периоды и их пулы (400M всего, правильное распределение)
             const periods = [
-                { name: 'Year 1 H1', pool: 400000000, daily: 2222222 },
-                { name: 'Year 1 H2', pool: 200000000, daily: 1111111 },
-                { name: 'Year 2 H1', pool: 100000000, daily: 555556 },
-                { name: 'Year 2 H2', pool: 50000000, daily: 277778 },
-                { name: 'Year 3 H1', pool: 25000000, daily: 138889 },
-                { name: 'Year 3 H2', pool: 12500000, daily: 69444 },
-                { name: 'Year 4 H1', pool: 6250000, daily: 34722 },
-                { name: 'Year 4 H2', pool: 3125000, daily: 17361 }
+                { name: 'Year 1 H1', pool: 200000000, daily: 1111111, days: 180 },
+                { name: 'Year 1 H2', pool: 100000000, daily: 540541, days: 185 },
+                { name: 'Year 2 H1', pool: 50000000, daily: 277778, days: 180 },
+                { name: 'Year 2 H2', pool: 25000000, daily: 135135, days: 185 },
+                { name: 'Year 3 H1', pool: 12500000, daily: 69444, days: 180 },
+                { name: 'Year 3 H2', pool: 6250000, daily: 33784, days: 185 },
+                { name: 'Year 4 H1', pool: 3125000, daily: 17361, days: 180 },
+                { name: 'Year 4 H2', pool: 1562500, daily: 8446, days: 185 }
             ];
             
             const currentPeriod = periods[periodNumber] || periods[periods.length - 1];
             const nextPeriod = periods[periodNumber + 1] || null;
             
-            const distributed = daysInPeriod * currentPeriod.daily;
+            // Рассчитать распределение с учетом точного количества дней
+            const distributed = Math.min(daysInPeriod * currentPeriod.daily, currentPeriod.pool);
             const remaining = Math.max(0, currentPeriod.pool - distributed);
             
             return {
