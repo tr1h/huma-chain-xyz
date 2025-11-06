@@ -585,6 +585,12 @@ function handleWithdrawalRequest($url, $key) {
         $tamaMint = getenv('TAMA_MINT_ADDRESS');
         $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
         $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
+        $mintKeypair = getenv('SOLANA_MINT_KEYPAIR_PATH') ?: __DIR__ . '/../tama-mint-keypair.json';
+        
+        // Fallback: если mint keypair не найден, используем payer keypair
+        if (!file_exists($mintKeypair)) {
+            $mintKeypair = $payerKeypair;
+        }
         
         if (!$tamaMint) {
             http_response_code(500);
@@ -599,15 +605,17 @@ function handleWithdrawalRequest($url, $key) {
         }
         
         // Выполнить spl-token transfer
+        // Используем mint keypair как owner (для mint authority)
+        // Используем payer keypair для оплаты комиссии
         $cmd = [
             'spl-token',
             'transfer',
             $tamaMint,
-            (string)$amountSent,  // Amount after fee
+            (string)$amountSent,  // Amount after fee (в наименьших единицах, spl-token сам конвертирует)
             $wallet_address,
             '--fund-recipient',  // Create ATA if needed
             '--fee-payer', $payerKeypair,
-            '--owner', $payerKeypair,
+            '--owner', $mintKeypair,  // Owner должен быть mint authority
             '--url', $rpcUrl,
             '--output', 'json'
         ];
