@@ -350,11 +350,11 @@
             document.getElementById('halving-progress').textContent = progress.toFixed(1) + '%';
             
             // Update halving text
+            const halvingNote = document.getElementById('halving-countdown');
             if (poolInfo.nextPeriod !== 'End') {
                 document.getElementById('halving-text').innerHTML = 
                     `Next halving in <strong>${daysLeft}</strong> days<br>` +
                     `<small>Current: ${poolInfo.currentPeriod} → Next: ${poolInfo.nextPeriod}</small>`;
-                const halvingNote = document.querySelector('#halving-countdown small');
                 if (halvingNote) {
                     halvingNote.textContent = `After halving: Daily Pool will be ${poolInfo.nextDailyPool.toLocaleString()} TAMA/day`;
                 }
@@ -362,6 +362,9 @@
                 document.getElementById('halving-text').innerHTML = 
                     `<strong>All halvings completed</strong><br>` +
                     `<small>Current: ${poolInfo.currentPeriod}</small>`;
+                if (halvingNote) {
+                    halvingNote.textContent = `Final period: ${poolInfo.currentPeriod}`;
+                }
             }
         }
 
