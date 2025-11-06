@@ -472,7 +472,7 @@ def handle_group_message(message):
     if check_spam(user_id):
         try:
             bot.delete_message(chat_id, message.message_id)
-            bot.send_message(chat_id, f"тЪая╕П {message.from_user.first_name}, slow down! Anti-spam protection.")
+            bot.send_message(chat_id, f"⚠️ {message.from_user.first_name}, slow down! Anti-spam protection.")
         except:
             pass
         return
@@ -481,7 +481,7 @@ def handle_group_message(message):
     if message.text and has_banned_words(message.text):
         try:
             bot.delete_message(chat_id, message.message_id)
-            bot.send_message(chat_id, f"тЪая╕П {message.from_user.first_name}, your message was removed (prohibited content).")
+            bot.send_message(chat_id, f"⚠️ {message.from_user.first_name}, your message was removed (prohibited content).")
         except:
             pass
         return
@@ -1140,7 +1140,7 @@ Please enter a lower amount:
 **Fee (5%):** -{fee:,} TAMA
 **You receive:** **{amount_received:,} TAMA**
 
-тЪая╕П **This action cannot be undone!**
+⚠️ **This action cannot be undone!**
 
 Confirm withdrawal?
         """
@@ -3226,7 +3226,7 @@ Please send your Solana wallet address (e.g., from Phantom).
 **Format:** 44 characters, base58
 **Example:** `7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU`
 
-тЪая╕П **Double-check your address!**
+⚠️ **Double-check your address!**
 Wrong address = lost TAMA!
 
 After sending your address, I'll ask for the amount.
