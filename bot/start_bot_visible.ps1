@@ -20,10 +20,14 @@ $env:SOLANA_MINT_KEYPAIR_PATH = "C:\goooog\payer-keypair.json"
 $env:SUPABASE_URL = "https://zfrazyupameidxpjihrh.supabase.co"
 $env:SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU"
 
+# TAMA API Configuration
+$env:TAMA_API_BASE = "http://localhost:8002/api/tama"
+
 Write-Host "Environment variables set:" -ForegroundColor Yellow
 Write-Host "  BOT_USERNAME: $env:BOT_USERNAME"
 Write-Host "  TAMA_MINT_ADDRESS: $env:TAMA_MINT_ADDRESS"
 Write-Host "  SOLANA_RPC_URL: $env:SOLANA_RPC_URL"
+Write-Host "  TAMA_API_BASE: $env:TAMA_API_BASE"
 Write-Host ""
 Write-Host "Starting bot.py in VISIBLE window..." -ForegroundColor Green
 Write-Host "Press Ctrl+C to stop the bot" -ForegroundColor Yellow
