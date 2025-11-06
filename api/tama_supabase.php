@@ -706,11 +706,17 @@ function handleWithdrawalRequest($url, $key) {
             
             if (stream_select($read, $write, $except, 1) > 0) {
                 foreach ($read as $pipe) {
-                    if ($pipe === $pipes[1]) {
-                        $stdout .= stream_get_contents($pipe);
-                    } elseif ($pipe === $pipes[2]) {
-                        $stderr .= stream_get_contents($pipe);
+                    // Читаем только доступные данные (неблокирующий режим)
+                    stream_set_blocking($pipe, false);
+                    $data = fread($pipe, 8192); // Читаем до 8KB за раз
+                    if ($data !== false && $data !== '') {
+                        if ($pipe === $pipes[1]) {
+                            $stdout .= $data;
+                        } elseif ($pipe === $pipes[2]) {
+                            $stderr .= $data;
+                        }
                     }
+                    stream_set_blocking($pipe, true);
                 }
             }
             
