@@ -5,6 +5,7 @@ __pycache__/
 # Environment
 .env
 *.log
+bot/bot_monitoring.log
 
 # Keypairs (ВАЖНО!)
 *-keypair.json

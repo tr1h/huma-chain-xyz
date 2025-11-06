@@ -3,7 +3,13 @@
 Write-Host "Starting Gotchi Game Bot in VISIBLE mode..." -ForegroundColor Green
 
 # Set environment variables
-$env:TELEGRAM_BOT_TOKEN = "8445221254:AAHxX7NCDv3K14LTnAQkM69Lg4QCckFh-E8"
+# IMPORTANT: Set TELEGRAM_BOT_TOKEN as environment variable or in .env file
+# DO NOT hardcode tokens in this file!
+if (-not $env:TELEGRAM_BOT_TOKEN) {
+    Write-Host "ERROR: TELEGRAM_BOT_TOKEN not set!" -ForegroundColor Red
+    Write-Host "Please set it as environment variable or in .env file" -ForegroundColor Yellow
+    exit 1
+}
 $env:BOT_USERNAME = "GotchiGameBot"
 $env:TAMA_MINT_ADDRESS = "Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY"
 $env:SOLANA_RPC_URL = "https://api.devnet.solana.com"
