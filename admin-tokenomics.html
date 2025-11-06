@@ -317,16 +317,17 @@
                 daysLeftInPeriod = 0;
             }
             
-            // Периоды и их пулы (400M всего, правильное распределение)
+            // Периоды и их пулы (400M всего, уменьшенный Daily Pool для увеличения времени майнинга)
+            // Daily Pool уменьшен на ~30% для увеличения времени майнинга с 4 до 5.5 лет
             const periods = [
-                { name: 'Year 1 H1', pool: 200000000, daily: 1111111, days: 180 },
-                { name: 'Year 1 H2', pool: 100000000, daily: 540541, days: 185 },
-                { name: 'Year 2 H1', pool: 50000000, daily: 277778, days: 180 },
-                { name: 'Year 2 H2', pool: 25000000, daily: 135135, days: 185 },
-                { name: 'Year 3 H1', pool: 12500000, daily: 69444, days: 180 },
-                { name: 'Year 3 H2', pool: 6250000, daily: 33784, days: 185 },
-                { name: 'Year 4 H1', pool: 3125000, daily: 17361, days: 180 },
-                { name: 'Year 4 H2', pool: 1562500, daily: 8446, days: 185 }
+                { name: 'Year 1 H1', pool: 200000000, daily: 800000, days: 250 },
+                { name: 'Year 1 H2', pool: 100000000, daily: 392157, days: 255 },
+                { name: 'Year 2 H1', pool: 50000000, daily: 200000, days: 250 },
+                { name: 'Year 2 H2', pool: 25000000, daily: 98039, days: 255 },
+                { name: 'Year 3 H1', pool: 12500000, daily: 50000, days: 250 },
+                { name: 'Year 3 H2', pool: 6250000, daily: 24510, days: 255 },
+                { name: 'Year 4 H1', pool: 3125000, daily: 12500, days: 250 },
+                { name: 'Year 4 H2', pool: 1562500, daily: 6127, days: 255 }
             ];
             
             const currentPeriod = periods[periodNumber] || periods[periods.length - 1];
