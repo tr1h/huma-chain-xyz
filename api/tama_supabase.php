@@ -22,13 +22,42 @@ $dbname = getenv('SUPABASE_DB_NAME') ?: 'postgres';
 $user = getenv('SUPABASE_DB_USER') ?: 'postgres';
 $password = getenv('SUPABASE_DB_PASSWORD') ?: '';
 
+// Попытка подключения с обработкой ошибок
 try {
-    $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Используем IPv4 если возможно, иначе хост
+    $connectionString = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $pdo = new PDO($connectionString, $user, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_TIMEOUT => 5,
+        PDO::ATTR_PERSISTENT => false
+    ]);
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
-    exit();
+    // Если не удалось подключиться, пробуем через IPv4
+    if (strpos($e->getMessage(), 'could not translate host name') !== false) {
+        // Пробуем получить IPv4 адрес
+        $ipv4 = gethostbyname($host);
+        if ($ipv4 !== $host && filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            try {
+                $connectionString = "pgsql:host=$ipv4;port=$port;dbname=$dbname";
+                $pdo = new PDO($connectionString, $user, $password, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_TIMEOUT => 5
+                ]);
+            } catch (PDOException $e2) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Database connection failed: ' . $e2->getMessage()]);
+                exit();
+            }
+        } else {
+            http_response_code(500);
+            echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
+            exit();
+        }
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
+        exit();
+    }
 }
 
 // Константы TAMA токена
