@@ -105,8 +105,8 @@
             
             <div class="stat-card">
                 <h3>💧 DAILY POOL</h3>
-                <div class="big-number">2,222,222</div>
-                <small>Year 1 H1 (400M / 180 days)</small>
+                <div class="big-number" id="daily-pool">2,222,222</div>
+                <small id="daily-pool-period">Year 1 H1 (400M / 180 days)</small>
             </div>
         </div>
 
@@ -180,9 +180,15 @@
                         .select('total_withdrawn');
                     
                     if (!result.error && result.data) {
+                        // total_withdrawn уже содержит net amount (после fee)
                         const circulating = result.data.reduce((sum, user) => sum + (user.total_withdrawn || 0), 0);
                         document.getElementById('circulating').textContent = circulating.toLocaleString();
-                        const burned = Math.floor(circulating * 0.05 * 0.60);
+                        // ПРАВИЛЬНО: Считать burned от суммы всех fee
+                        // Если total_withdrawn = net amount, то fee = withdrawn / 0.95 * 0.05
+                        const totalWithdrawn = circulating;
+                        const totalAmount = totalWithdrawn / 0.95;  // Вернуть к исходной сумме (до fee)
+                        const totalFees = totalAmount - totalWithdrawn;
+                        const burned = Math.floor(totalFees * 0.60);
                         document.getElementById('burned').textContent = burned.toLocaleString();
                         return;
                     }
@@ -196,11 +202,20 @@
                 }
                 
                 withdrawals = result.data || [];
-                const circulating = Math.abs(withdrawals.reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0));
+                // ПРАВИЛЬНО: Считать от amount_sent (реально выведено), а не от amount
+                const circulating = withdrawals.reduce((sum, tx) => {
+                    // Используем amount_sent (net amount) или amount - fee
+                    const amountSent = tx.amount_sent || tx.net_amount || (Math.abs(tx.amount || 0) * 0.95);
+                    return sum + Math.abs(amountSent);
+                }, 0);
                 document.getElementById('circulating').textContent = circulating.toLocaleString();
                 
-                // Calculate burned (60% of fees)
-                const burned = Math.floor(circulating * 0.05 * 0.60);
+                // ПРАВИЛЬНО: Считать burned от суммы всех fee, а не от circulating
+                const totalFees = withdrawals.reduce((sum, tx) => {
+                    const fee = tx.fee || Math.floor(Math.abs(tx.amount || 0) * 0.05);
+                    return sum + fee;
+                }, 0);
+                const burned = Math.floor(totalFees * 0.60);  // 60% от fee сжигается
                 document.getElementById('burned').textContent = burned.toLocaleString();
                 
             } catch (error) {
@@ -274,19 +289,80 @@
             }
         }
 
+        // Calculate P2E Pool info
+        function calculateP2EPoolInfo() {
+            const launchDate = new Date('2025-11-01');
+            const now = new Date();
+            const daysSinceLaunch = Math.floor((now - launchDate) / (1000 * 60 * 60 * 24));
+            
+            // Определить текущий период
+            const periodNumber = Math.floor(daysSinceLaunch / 180);
+            const daysInPeriod = daysSinceLaunch % 180;
+            const daysLeftInPeriod = 180 - daysInPeriod;
+            
+            // Периоды и их пулы
+            const periods = [
+                { name: 'Year 1 H1', pool: 400000000, daily: 2222222 },
+                { name: 'Year 1 H2', pool: 200000000, daily: 1111111 },
+                { name: 'Year 2 H1', pool: 100000000, daily: 555556 },
+                { name: 'Year 2 H2', pool: 50000000, daily: 277778 },
+                { name: 'Year 3 H1', pool: 25000000, daily: 138889 },
+                { name: 'Year 3 H2', pool: 12500000, daily: 69444 },
+                { name: 'Year 4 H1', pool: 6250000, daily: 34722 },
+                { name: 'Year 4 H2', pool: 3125000, daily: 17361 }
+            ];
+            
+            const currentPeriod = periods[periodNumber] || periods[periods.length - 1];
+            const nextPeriod = periods[periodNumber + 1] || null;
+            
+            const distributed = daysInPeriod * currentPeriod.daily;
+            const remaining = Math.max(0, currentPeriod.pool - distributed);
+            
+            return {
+                currentPeriod: currentPeriod.name,
+                dailyPool: currentPeriod.daily,
+                initialPool: currentPeriod.pool,
+                distributed: distributed,
+                remaining: remaining,
+                daysInPeriod: daysInPeriod,
+                daysLeft: daysLeftInPeriod,
+                nextPeriod: nextPeriod ? nextPeriod.name : 'End',
+                nextDailyPool: nextPeriod ? nextPeriod.daily : 0
+            };
+        }
+
+        // Update Daily Pool display
+        function updateDailyPool() {
+            const poolInfo = calculateP2EPoolInfo();
+            document.getElementById('daily-pool').textContent = poolInfo.dailyPool.toLocaleString();
+            document.getElementById('daily-pool-period').textContent = 
+                `${poolInfo.currentPeriod} (${(poolInfo.remaining / 1000000).toFixed(1)}M remaining)`;
+        }
+
         // Halving countdown
         function updateHalvingCountdown() {
-            const launchDate = new Date('2025-11-01');
-            const halvingDate = new Date(launchDate);
-            halvingDate.setDate(halvingDate.getDate() + 180);
-            
-            const now = new Date();
-            const daysLeft = Math.max(0, Math.floor((halvingDate - now) / (1000 * 60 * 60 * 24)));
-            const progress = Math.min(100, ((180 - daysLeft) / 180) * 100);
+            const poolInfo = calculateP2EPoolInfo();
+            const daysLeft = poolInfo.daysLeft;
+            const progress = (poolInfo.daysInPeriod / 180) * 100;
             
             document.getElementById('days-left').textContent = daysLeft;
             document.getElementById('halving-progress').style.width = progress + '%';
             document.getElementById('halving-progress').textContent = progress.toFixed(1) + '%';
+            
+            // Update halving text
+            if (poolInfo.nextPeriod !== 'End') {
+                document.getElementById('halving-text').innerHTML = 
+                    `Next halving in <strong>${daysLeft}</strong> days<br>` +
+                    `<small>Current: ${poolInfo.currentPeriod} → Next: ${poolInfo.nextPeriod}</small>`;
+                const halvingNote = document.querySelector('#halving-countdown small');
+                if (halvingNote) {
+                    halvingNote.textContent = `After halving: Daily Pool will be ${poolInfo.nextDailyPool.toLocaleString()} TAMA/day`;
+                }
+            } else {
+                document.getElementById('halving-text').innerHTML = 
+                    `<strong>All halvings completed</strong><br>` +
+                    `<small>Current: ${poolInfo.currentPeriod}</small>`;
+            }
         }
 
         // Emission chart
@@ -323,6 +399,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadStats();
             loadWithdrawals();
+            updateDailyPool();
             updateHalvingCountdown();
             createEmissionChart();
             
@@ -330,6 +407,7 @@
             setInterval(() => {
                 loadStats();
                 loadWithdrawals();
+                updateDailyPool();
                 updateHalvingCountdown();
             }, 30000);
         });
