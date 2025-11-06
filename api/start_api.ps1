@@ -40,11 +40,23 @@ Write-Host "PHP Version:" -ForegroundColor Cyan
 & $phpPath -v | Select-Object -First 1
 
 Write-Host ""
-Write-Host "Starting PHP built-in server on http://localhost:8002" -ForegroundColor Green
-Write-Host "API will be available at: http://localhost:8002/api/tama" -ForegroundColor Cyan
+# Определить host для сервера
+# Для локальной разработки: localhost
+# Для доступа извне (если нужно): 0.0.0.0
+$apiHost = $env:API_HOST
+if (-not $apiHost) {
+    $apiHost = "localhost"  # По умолчанию localhost для безопасности
+}
+
+Write-Host "Starting PHP built-in server on http://${apiHost}:8002" -ForegroundColor Green
+Write-Host "API will be available at: http://${apiHost}:8002/api/tama" -ForegroundColor Cyan
+if ($apiHost -eq "localhost") {
+    Write-Host "Note: localhost means API is only accessible from this machine" -ForegroundColor Yellow
+    Write-Host "      To allow external access, set API_HOST=0.0.0.0" -ForegroundColor Yellow
+}
 Write-Host "Press Ctrl+C to stop the server" -ForegroundColor Yellow
 Write-Host ""
 
 # Start PHP server with router
-& $phpPath -S localhost:8002 router.php
+& $phpPath -S ${apiHost}:8002 router.php
 
