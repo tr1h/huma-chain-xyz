@@ -76,15 +76,22 @@ TAMA_API_BASE = os.getenv('TAMA_API_BASE', "http://localhost:8002/api/tama")
 def is_api_available():
     """Check if TAMA API is available"""
     try:
-        response = requests.get(f"{TAMA_API_BASE}/test", timeout=5)
+        # Try with shorter timeout first
+        response = requests.get(f"{TAMA_API_BASE}/test", timeout=3)
         if response.status_code == 200:
             return True
         return False
+    except requests.exceptions.Timeout:
+        # If timeout, try once more with longer timeout
+        try:
+            response = requests.get(f"{TAMA_API_BASE}/test", timeout=10)
+            return response.status_code == 200
+        except:
+            return False
     except requests.exceptions.RequestException as e:
-        print(f"API check failed: {e}")
+        # Don't log every failed check to avoid spam
         return False
     except Exception as e:
-        print(f"API check error: {e}")
         return False
 
 # Setup logging
