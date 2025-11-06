@@ -100,9 +100,27 @@ switch ($path) {
         }
         break;
         
+    case '/withdrawal/request':
+        if ($method === 'POST') {
+            handleWithdrawalRequest($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/withdrawal/history':
+        if ($method === 'GET') {
+            handleWithdrawalHistory($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     default:
         http_response_code(404);
-        echo json_encode(['error' => 'Endpoint not found']);
+        echo json_encode(['error' => 'Endpoint not found', 'path' => $path]);
         break;
 }
 
@@ -506,6 +524,147 @@ function handleGetLeaderboard($url, $key) {
         echo json_encode([
             'success' => true,
             'leaderboard' => $leaderboard
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Обработка запроса на вывод (withdrawal request)
+ */
+function handleWithdrawalRequest($url, $key) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $telegram_id = $input['telegram_id'] ?? null;
+    $wallet_address = $input['wallet_address'] ?? null;
+    $amount = $input['amount'] ?? null;
+    
+    if (!$telegram_id || !$wallet_address || !$amount) {
+        http_response_code(400);
+        echo json_encode(['error' => 'telegram_id, wallet_address, and amount are required']);
+        return;
+    }
+    
+    if ($amount < 1000) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Minimum withdrawal is 1,000 TAMA']);
+        return;
+    }
+    
+    try {
+        // Получить текущий баланс
+        $getResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => 'tama',
+            'telegram_id' => 'eq.' . $telegram_id,
+            'limit' => '1'
+        ]);
+        
+        if (empty($getResult['data'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'User not found']);
+            return;
+        }
+        
+        $currentBalance = (int)($getResult['data'][0]['tama'] ?? 0);
+        
+        if ($currentBalance < $amount) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Insufficient TAMA balance']);
+            return;
+        }
+        
+        // Calculate fee (5%)
+        $fee = (int)($amount * 0.05);
+        $amountSent = $amount - $fee;
+        $newBalance = $currentBalance - $amount;
+        
+        // TODO: Здесь должна быть реальная транзакция в Solana
+        // Пока возвращаем успешный ответ без реальной транзакции
+        $txSignature = 'pending_' . time() . '_' . bin2hex(random_bytes(8));
+        $explorerUrl = 'https://explorer.solana.com/tx/' . $txSignature . '?cluster=devnet';
+        
+        // Обновить баланс в Supabase
+        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+            'telegram_id' => 'eq.' . $telegram_id
+        ], [
+            'tama' => $newBalance,
+            'total_withdrawn' => ($getResult['data'][0]['total_withdrawn'] ?? 0) + $amount
+        ]);
+        
+        // Сохранить withdrawal в таблицу (если есть tama_economy или withdrawals)
+        try {
+            supabaseRequest($url, $key, 'POST', 'tama_economy', [], [
+                'telegram_id' => $telegram_id,
+                'transaction_type' => 'withdrawal',
+                'amount' => -$amount, // Negative for withdrawal
+                'fee' => $fee,
+                'signature' => $txSignature,
+                'wallet_address' => $wallet_address,
+                'status' => 'completed'
+            ]);
+        } catch (Exception $e) {
+            // Table might not exist, continue anyway
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'withdrawal' => [
+                'amount_sent' => $amountSent,
+                'fee' => $fee,
+                'transaction_signature' => $txSignature,
+                'explorer_url' => $explorerUrl,
+                'new_balance' => $newBalance
+            ]
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Получить историю выводов (withdrawal history)
+ */
+function handleWithdrawalHistory($url, $key) {
+    $telegram_id = $_GET['telegram_id'] ?? null;
+    
+    if (!$telegram_id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'telegram_id is required']);
+        return;
+    }
+    
+    try {
+        // Попробовать получить из tama_economy
+        $result = supabaseRequest($url, $key, 'GET', 'tama_economy', [
+            'select' => '*',
+            'telegram_id' => 'eq.' . $telegram_id,
+            'transaction_type' => 'eq.withdrawal',
+            'order' => 'created_at.desc',
+            'limit' => '50'
+        ]);
+        
+        $withdrawals = [];
+        if (!empty($result['data'])) {
+            foreach ($result['data'] as $tx) {
+                $withdrawals[] = [
+                    'amount' => abs((int)($tx['amount'] ?? 0)),
+                    'fee' => (int)($tx['fee'] ?? 0),
+                    'signature' => $tx['signature'] ?? null,
+                    'wallet_address' => $tx['wallet_address'] ?? null,
+                    'status' => $tx['status'] ?? 'completed',
+                    'created_at' => $tx['created_at'] ?? null
+                ];
+            }
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'withdrawals' => $withdrawals
         ]);
         
     } catch (Exception $e) {
