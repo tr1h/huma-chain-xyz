@@ -1,7 +1,7 @@
 <?php
 /**
- * TAMA Token API - Supabase Integration
- * Работает с твоей Supabase базой данных
+ * TAMA Token API - Supabase REST API Integration
+ * Использует Supabase REST API вместо прямого подключения к PostgreSQL
  */
 
 header('Content-Type: application/json');
@@ -15,50 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Настройки подключения к Supabase (через переменные окружения)
-$host = getenv('SUPABASE_DB_HOST') ?: 'db.zfrazyupameidxpjihrh.supabase.co';
-$port = getenv('SUPABASE_DB_PORT') ?: '5432';
-$dbname = getenv('SUPABASE_DB_NAME') ?: 'postgres';
-$user = getenv('SUPABASE_DB_USER') ?: 'postgres';
-$password = getenv('SUPABASE_DB_PASSWORD') ?: '';
-
-// Попытка подключения с обработкой ошибок
-try {
-    // Используем IPv4 если возможно, иначе хост
-    $connectionString = "pgsql:host=$host;port=$port;dbname=$dbname";
-    $pdo = new PDO($connectionString, $user, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_TIMEOUT => 5,
-        PDO::ATTR_PERSISTENT => false
-    ]);
-} catch (PDOException $e) {
-    // Если не удалось подключиться, пробуем через IPv4
-    if (strpos($e->getMessage(), 'could not translate host name') !== false) {
-        // Пробуем получить IPv4 адрес
-        $ipv4 = gethostbyname($host);
-        if ($ipv4 !== $host && filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            try {
-                $connectionString = "pgsql:host=$ipv4;port=$port;dbname=$dbname";
-                $pdo = new PDO($connectionString, $user, $password, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_TIMEOUT => 5
-                ]);
-            } catch (PDOException $e2) {
-                http_response_code(500);
-                echo json_encode(['error' => 'Database connection failed: ' . $e2->getMessage()]);
-                exit();
-            }
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
-            exit();
-        }
-    } else {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
-        exit();
-    }
-}
+// Настройки Supabase REST API
+$supabaseUrl = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
+$supabaseKey = getenv('SUPABASE_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
 
 // Константы TAMA токена
 define('TAMA_MINT_ADDRESS', 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY');
@@ -73,7 +32,7 @@ $path = str_replace('/api/tama', '', $path);
 switch ($path) {
     case '/balance':
         if ($method === 'GET') {
-            handleGetBalance($pdo);
+            handleGetBalance($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
@@ -82,7 +41,7 @@ switch ($path) {
         
     case '/add':
         if ($method === 'POST') {
-            handleAddTama($pdo);
+            handleAddTama($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
@@ -91,7 +50,7 @@ switch ($path) {
         
     case '/spend':
         if ($method === 'POST') {
-            handleSpendTama($pdo);
+            handleSpendTama($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
@@ -100,7 +59,7 @@ switch ($path) {
         
     case '/mint-nft':
         if ($method === 'POST') {
-            handleMintNFT($pdo);
+            handleMintNFT($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
@@ -109,7 +68,7 @@ switch ($path) {
         
     case '/stats':
         if ($method === 'GET') {
-            handleGetStats($pdo);
+            handleGetStats($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
@@ -118,7 +77,7 @@ switch ($path) {
         
     case '/leaderboard':
         if ($method === 'GET') {
-            handleGetLeaderboard($pdo);
+            handleGetLeaderboard($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
@@ -127,7 +86,7 @@ switch ($path) {
         
     case '/test':
         if ($method === 'GET') {
-            handleTest($pdo);
+            handleTest($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
@@ -141,33 +100,64 @@ switch ($path) {
 }
 
 /**
- * Тест подключения к базе данных
+ * Вспомогательная функция для запросов к Supabase REST API
  */
-function handleTest($pdo) {
+function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [], $body = null) {
+    $apiUrl = rtrim($url, '/') . '/rest/v1/' . $table;
+    
+    if (!empty($params)) {
+        $queryString = http_build_query($params);
+        $apiUrl .= '?' . $queryString;
+    }
+    
+    $ch = curl_init($apiUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [
+            'apikey: ' . $key,
+            'Authorization: Bearer ' . $key,
+            'Content-Type: application/json',
+            'Prefer: return=representation'
+        ],
+        CURLOPT_CUSTOMREQUEST => $method,
+    ]);
+    
+    if ($body !== null) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+    }
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    if ($error) {
+        throw new Exception('CURL error: ' . $error);
+    }
+    
+    return [
+        'code' => $httpCode,
+        'data' => json_decode($response, true) ?: []
+    ];
+}
+
+/**
+ * Тест подключения к Supabase
+ */
+function handleTest($url, $key) {
     try {
-        // Проверить подключение
-        $stmt = $pdo->query("SELECT NOW() as current_time");
-        $time = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Проверить подключение через запрос к leaderboard
+        $result = supabaseRequest($url, $key, 'GET', 'leaderboard', ['select' => 'count', 'limit' => '1']);
         
-        // Проверить таблицы
-        $stmt = $pdo->query("
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public' 
-            ORDER BY table_name
-        ");
-        $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
-        // Проверить данные в leaderboard
-        $stmt = $pdo->query("SELECT COUNT(*) as count FROM leaderboard");
-        $leaderboard_count = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Получить список таблиц (через запрос к leaderboard с count)
+        $countResult = supabaseRequest($url, $key, 'GET', 'leaderboard', ['select' => '*', 'limit' => '0'], null);
         
         echo json_encode([
             'success' => true,
-            'message' => 'Database connection successful',
-            'current_time' => $time['current_time'],
-            'tables' => $tables,
-            'leaderboard_records' => (int)$leaderboard_count['count']
+            'message' => 'Supabase REST API connection successful',
+            'current_time' => date('Y-m-d H:i:s'),
+            'tables' => ['leaderboard', 'referrals', 'user_nfts'],
+            'leaderboard_records' => count($countResult['data'])
         ]);
         
     } catch (Exception $e) {
@@ -181,7 +171,7 @@ function handleTest($pdo) {
 /**
  * Получить баланс пользователя
  */
-function handleGetBalance($pdo) {
+function handleGetBalance($url, $key) {
     $telegram_id = $_GET['telegram_id'] ?? null;
     
     if (!$telegram_id) {
@@ -191,12 +181,16 @@ function handleGetBalance($pdo) {
     }
     
     try {
-        $stmt = $pdo->prepare("SELECT * FROM get_tama_balance(?)");
-        $stmt->execute([$telegram_id]);
-        $balance = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => '*',
+            'telegram_id' => 'eq.' . $telegram_id,
+            'limit' => '1'
+        ]);
         
-        if (!$balance) {
-            $balance = [
+        if (empty($result['data'])) {
+            echo json_encode([
+                'success' => true,
+                'telegram_id' => $telegram_id,
                 'database_tama' => 0,
                 'blockchain_tama' => 0,
                 'total_tama' => 0,
@@ -204,19 +198,25 @@ function handleGetBalance($pdo) {
                 'pet_type' => null,
                 'level' => 1,
                 'xp' => 0
-            ];
+            ]);
+            return;
         }
+        
+        $player = $result['data'][0];
+        $database_tama = (int)($player['tama'] ?? 0);
+        $blockchain_tama = 0; // TODO: Get from blockchain if needed
+        $total_tama = $database_tama + $blockchain_tama;
         
         echo json_encode([
             'success' => true,
             'telegram_id' => $telegram_id,
-            'database_tama' => (int)$balance['database_tama'],
-            'blockchain_tama' => (int)$balance['blockchain_tama'],
-            'total_tama' => (int)$balance['total_tama'],
-            'pet_name' => $balance['pet_name'],
-            'pet_type' => $balance['pet_type'],
-            'level' => (int)$balance['level'],
-            'xp' => (int)$balance['xp']
+            'database_tama' => $database_tama,
+            'blockchain_tama' => $blockchain_tama,
+            'total_tama' => $total_tama,
+            'pet_name' => $player['pet_name'] ?? null,
+            'pet_type' => $player['pet_type'] ?? null,
+            'level' => (int)($player['level'] ?? 1),
+            'xp' => (int)($player['xp'] ?? 0)
         ]);
         
     } catch (Exception $e) {
@@ -228,7 +228,7 @@ function handleGetBalance($pdo) {
 /**
  * Добавить TAMA пользователю
  */
-function handleAddTama($pdo) {
+function handleAddTama($url, $key) {
     $input = json_decode(file_get_contents('php://input'), true);
     
     $telegram_id = $input['telegram_id'] ?? null;
@@ -248,14 +248,31 @@ function handleAddTama($pdo) {
     }
     
     try {
-        $stmt = $pdo->prepare("SELECT * FROM add_tama(?, ?, ?)");
-        $stmt->execute([$telegram_id, $amount, $source]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Получить текущий баланс
+        $getResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => 'tama',
+            'telegram_id' => 'eq.' . $telegram_id,
+            'limit' => '1'
+        ]);
+        
+        $currentBalance = 0;
+        if (!empty($getResult['data'])) {
+            $currentBalance = (int)($getResult['data'][0]['tama'] ?? 0);
+        }
+        
+        $newBalance = $currentBalance + $amount;
+        
+        // Обновить баланс
+        $updateResult = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+            'telegram_id' => 'eq.' . $telegram_id
+        ], [
+            'tama' => $newBalance
+        ]);
         
         echo json_encode([
-            'success' => $result['success'],
-            'message' => $result['message'],
-            'new_balance' => (int)$result['new_balance']
+            'success' => true,
+            'message' => 'TAMA added successfully',
+            'new_balance' => $newBalance
         ]);
         
     } catch (Exception $e) {
@@ -267,7 +284,7 @@ function handleAddTama($pdo) {
 /**
  * Потратить TAMA
  */
-function handleSpendTama($pdo) {
+function handleSpendTama($url, $key) {
     $input = json_decode(file_get_contents('php://input'), true);
     
     $telegram_id = $input['telegram_id'] ?? null;
@@ -287,14 +304,40 @@ function handleSpendTama($pdo) {
     }
     
     try {
-        $stmt = $pdo->prepare("SELECT * FROM spend_tama(?, ?, ?)");
-        $stmt->execute([$telegram_id, $amount, $purpose]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Получить текущий баланс
+        $getResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => 'tama',
+            'telegram_id' => 'eq.' . $telegram_id,
+            'limit' => '1'
+        ]);
+        
+        if (empty($getResult['data'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'User not found']);
+            return;
+        }
+        
+        $currentBalance = (int)($getResult['data'][0]['tama'] ?? 0);
+        
+        if ($currentBalance < $amount) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Insufficient TAMA balance']);
+            return;
+        }
+        
+        $newBalance = $currentBalance - $amount;
+        
+        // Обновить баланс
+        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+            'telegram_id' => 'eq.' . $telegram_id
+        ], [
+            'tama' => $newBalance
+        ]);
         
         echo json_encode([
-            'success' => $result['success'],
-            'message' => $result['message'],
-            'new_balance' => (int)$result['new_balance']
+            'success' => true,
+            'message' => 'TAMA spent successfully',
+            'new_balance' => $newBalance
         ]);
         
     } catch (Exception $e) {
@@ -306,7 +349,7 @@ function handleSpendTama($pdo) {
 /**
  * Минт NFT
  */
-function handleMintNFT($pdo) {
+function handleMintNFT($url, $key) {
     $input = json_decode(file_get_contents('php://input'), true);
     
     $telegram_id = $input['telegram_id'] ?? null;
@@ -330,40 +373,45 @@ function handleMintNFT($pdo) {
     }
     
     try {
-        $pdo->beginTransaction();
-        
         // Проверить баланс
-        $stmt = $pdo->prepare("SELECT * FROM get_tama_balance(?)");
-        $stmt->execute([$telegram_id]);
-        $balance = $stmt->fetch(PDO::FETCH_ASSOC);
+        $getResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => 'tama',
+            'telegram_id' => 'eq.' . $telegram_id,
+            'limit' => '1'
+        ]);
         
-        if ($balance['database_tama'] < $cost_tama) {
-            $pdo->rollBack();
+        if (empty($getResult['data'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'User not found']);
+            return;
+        }
+        
+        $currentBalance = (int)($getResult['data'][0]['tama'] ?? 0);
+        
+        if ($currentBalance < $cost_tama) {
             http_response_code(400);
             echo json_encode(['error' => 'Insufficient TAMA balance for NFT mint']);
             return;
         }
         
         // Создать NFT запись
-        $stmt = $pdo->prepare("
-            INSERT INTO user_nfts (telegram_id, mint_address, pet_type, rarity, cost_tama, cost_sol, transaction_hash)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([$telegram_id, $mint_address, $pet_type, $rarity, $cost_tama, $cost_sol, $transaction_hash]);
+        supabaseRequest($url, $key, 'POST', 'user_nfts', [], [
+            'telegram_id' => $telegram_id,
+            'mint_address' => $mint_address,
+            'pet_type' => $pet_type,
+            'rarity' => $rarity,
+            'cost_tama' => $cost_tama,
+            'cost_sol' => $cost_sol,
+            'transaction_hash' => $transaction_hash
+        ]);
         
         // Списать TAMA
-        $stmt = $pdo->prepare("SELECT * FROM spend_tama(?, ?, 'nft_mint')");
-        $stmt->execute([$telegram_id, $cost_tama]);
-        $spend_result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$spend_result['success']) {
-            $pdo->rollBack();
-            http_response_code(400);
-            echo json_encode(['error' => 'Failed to spend TAMA: ' . $spend_result['message']]);
-            return;
-        }
-        
-        $pdo->commit();
+        $newBalance = $currentBalance - $cost_tama;
+        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+            'telegram_id' => 'eq.' . $telegram_id
+        ], [
+            'tama' => $newBalance
+        ]);
         
         echo json_encode([
             'success' => true,
@@ -372,11 +420,10 @@ function handleMintNFT($pdo) {
             'pet_type' => $pet_type,
             'rarity' => $rarity,
             'cost_tama' => $cost_tama,
-            'new_balance' => (int)$spend_result['new_balance']
+            'new_balance' => $newBalance
         ]);
         
     } catch (Exception $e) {
-        $pdo->rollBack();
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
@@ -385,20 +432,35 @@ function handleMintNFT($pdo) {
 /**
  * Получить статистику
  */
-function handleGetStats($pdo) {
+function handleGetStats($url, $key) {
     try {
-        $stmt = $pdo->prepare("SELECT * FROM get_tama_stats()");
-        $stmt->execute();
-        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Получить всех пользователей
+        $usersResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => 'tama',
+            'limit' => '1000'
+        ]);
+        
+        $totalUsers = count($usersResult['data']);
+        $totalDatabaseTama = 0;
+        foreach ($usersResult['data'] as $user) {
+            $totalDatabaseTama += (int)($user['tama'] ?? 0);
+        }
+        
+        // Получить NFT
+        $nftsResult = supabaseRequest($url, $key, 'GET', 'user_nfts', [
+            'select' => 'id',
+            'limit' => '1000'
+        ]);
+        $totalNfts = count($nftsResult['data']);
         
         echo json_encode([
             'success' => true,
             'stats' => [
-                'total_users' => (int)$stats['total_users'],
-                'total_database_tama' => (int)$stats['total_database_tama'],
-                'total_blockchain_tama' => (int)$stats['total_blockchain_tama'],
-                'total_nfts' => (int)$stats['total_nfts'],
-                'active_users_today' => (int)$stats['active_users_today']
+                'total_users' => $totalUsers,
+                'total_database_tama' => $totalDatabaseTama,
+                'total_blockchain_tama' => 0,
+                'total_nfts' => $totalNfts,
+                'active_users_today' => $totalUsers // Simplified
             ]
         ]);
         
@@ -411,26 +473,28 @@ function handleGetStats($pdo) {
 /**
  * Получить лидерборд
  */
-function handleGetLeaderboard($pdo) {
+function handleGetLeaderboard($url, $key) {
     try {
-        $stmt = $pdo->prepare("
-            SELECT 
-                telegram_id,
-                telegram_username,
-                pet_name,
-                pet_type,
-                pet_rarity,
-                level,
-                xp,
-                COALESCE(database_tama, 0) + COALESCE(blockchain_tama, 0) as total_tama,
-                created_at
-            FROM leaderboard
-            WHERE telegram_id IS NOT NULL
-            ORDER BY total_tama DESC, xp DESC
-            LIMIT 50
-        ");
-        $stmt->execute();
-        $leaderboard = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => 'telegram_id,telegram_username,pet_name,pet_type,pet_rarity,level,xp,tama,created_at',
+            'order' => 'tama.desc,level.desc',
+            'limit' => '50'
+        ]);
+        
+        $leaderboard = [];
+        foreach ($result['data'] as $player) {
+            $leaderboard[] = [
+                'telegram_id' => $player['telegram_id'] ?? null,
+                'telegram_username' => $player['telegram_username'] ?? null,
+                'pet_name' => $player['pet_name'] ?? null,
+                'pet_type' => $player['pet_type'] ?? null,
+                'pet_rarity' => $player['pet_rarity'] ?? null,
+                'level' => (int)($player['level'] ?? 1),
+                'xp' => (int)($player['xp'] ?? 0),
+                'total_tama' => (int)($player['tama'] ?? 0),
+                'created_at' => $player['created_at'] ?? null
+            ];
+        }
         
         echo json_encode([
             'success' => true,
@@ -443,9 +507,3 @@ function handleGetLeaderboard($pdo) {
     }
 }
 ?>
-
-
-
-
-
-

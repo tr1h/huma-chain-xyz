@@ -20,12 +20,8 @@ $env:SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 # Set API base URL
 $env:TAMA_API_BASE = "http://localhost:8002/api/tama"
 
-# Set environment variables for API
-$env:SUPABASE_DB_HOST = "db.zfrazyupameidxpjihrh.supabase.co"
-$env:SUPABASE_DB_PORT = "5432"
-$env:SUPABASE_DB_NAME = "postgres"
-$env:SUPABASE_DB_USER = "postgres"
-$env:SUPABASE_DB_PASSWORD = "j76Wkc8hMFs5Trbm"
+# Set environment variables for API (REST API, not direct DB)
+# API now uses SUPABASE_URL and SUPABASE_KEY (same as bot)
 
 Write-Host "Environment variables set" -ForegroundColor Green
 Write-Host ""

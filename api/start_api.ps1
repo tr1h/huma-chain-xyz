@@ -2,18 +2,15 @@
 
 Write-Host "Starting PHP API Server..." -ForegroundColor Green
 
-# Set environment variables for Supabase
-$env:SUPABASE_DB_HOST = "db.zfrazyupameidxpjihrh.supabase.co"
-$env:SUPABASE_DB_PORT = "5432"
-$env:SUPABASE_DB_NAME = "postgres"
-$env:SUPABASE_DB_USER = "postgres"
-$env:SUPABASE_DB_PASSWORD = "j76Wkc8hMFs5Trbm"  # Get from Supabase Dashboard
+# Set environment variables for Supabase REST API
+$env:SUPABASE_URL = "https://zfrazyupameidxpjihrh.supabase.co"
+$env:SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU"
 
 # TAMA Token config
 $env:TAMA_MINT_ADDRESS = "Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY"
 
 Write-Host "Environment variables set:" -ForegroundColor Yellow
-Write-Host "  SUPABASE_DB_HOST: $env:SUPABASE_DB_HOST"
+Write-Host "  SUPABASE_URL: $env:SUPABASE_URL"
 Write-Host "  TAMA_MINT_ADDRESS: $env:TAMA_MINT_ADDRESS"
 Write-Host ""
 
