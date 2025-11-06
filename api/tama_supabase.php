@@ -610,18 +610,23 @@ function handleWithdrawalRequest($url, $key) {
         // НО! spl-token transfer может автоматически конвертировать, если передать с decimals
         // Попробуем сначала без конвертации (spl-token сам конвертирует)
         
+        // ВАЖНО: spl-token transfer требует, чтобы owner имел token account с балансом
+        // У payer keypair есть token account с TAMA токенами (~999.95 TAMA)
+        // У mint keypair НЕТ token account
+        // Поэтому используем payer keypair как owner
+        
         // Выполнить spl-token transfer
-        // Используем mint keypair как owner (для mint authority)
-        // Используем payer keypair для оплаты комиссии
+        // Используем payer keypair как owner (у него есть token account с балансом)
+        // И как fee-payer (у него есть SOL для комиссии)
         $cmd = [
             'spl-token',
             'transfer',
             $tamaMint,
-            (string)$amountSent,  // Amount after fee - spl-token сам конвертирует с учетом decimals
+            (string)$amountSent,  // Amount after fee - spl-token сам конвертирует с учетом decimals (9)
             $wallet_address,
             '--fund-recipient',  // Create ATA if needed
             '--fee-payer', $payerKeypair,
-            '--owner', $mintKeypair,  // Owner должен быть mint authority
+            '--owner', $payerKeypair,  // Owner должен иметь token account с балансом
             '--url', $rpcUrl,
             '--output', 'json'
         ];
