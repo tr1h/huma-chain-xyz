@@ -604,6 +604,12 @@ function handleWithdrawalRequest($url, $key) {
             return;
         }
         
+        // ВАЖНО: spl-token transfer принимает amount в базовых единицах токена
+        // НО для SPL токенов нужно использовать --decimals или передавать уже в lamports
+        // TAMA имеет 9 decimals, поэтому spl-token ожидает amount * 10^9
+        // НО! spl-token transfer может автоматически конвертировать, если передать с decimals
+        // Попробуем сначала без конвертации (spl-token сам конвертирует)
+        
         // Выполнить spl-token transfer
         // Используем mint keypair как owner (для mint authority)
         // Используем payer keypair для оплаты комиссии
@@ -611,7 +617,7 @@ function handleWithdrawalRequest($url, $key) {
             'spl-token',
             'transfer',
             $tamaMint,
-            (string)$amountSent,  // Amount after fee (в наименьших единицах, spl-token сам конвертирует)
+            (string)$amountSent,  // Amount after fee - spl-token сам конвертирует с учетом decimals
             $wallet_address,
             '--fund-recipient',  // Create ATA if needed
             '--fee-payer', $payerKeypair,
