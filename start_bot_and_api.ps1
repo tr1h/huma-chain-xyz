@@ -25,21 +25,26 @@ $env:SUPABASE_DB_HOST = "db.zfrazyupameidxpjihrh.supabase.co"
 $env:SUPABASE_DB_PORT = "5432"
 $env:SUPABASE_DB_NAME = "postgres"
 $env:SUPABASE_DB_USER = "postgres"
-$env:SUPABASE_DB_PASSWORD = "YOUR_SUPABASE_DB_PASSWORD"  # ⚠️ НУЖНО УКАЗАТЬ!
+$env:SUPABASE_DB_PASSWORD = "j76Wkc8hMFs5Trbm"
 
 Write-Host "Environment variables set" -ForegroundColor Green
 Write-Host ""
 
-# Check if PHP is installed
-$phpCheck = php -v 2>&1
+# Check if PHP is installed (try full path first, then PATH)
+$phpPath = "C:\xampp\php\php.exe"
+if (-not (Test-Path $phpPath)) {
+    $phpPath = "php"
+}
+
+$phpCheck = & $phpPath -v 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "⚠️  WARNING: PHP not found!" -ForegroundColor Yellow
+    Write-Host "WARNING: PHP not found!" -ForegroundColor Yellow
     Write-Host "API server will not start. Bot will work without API." -ForegroundColor Yellow
     Write-Host ""
     $startAPI = $false
 } else {
-    Write-Host "✅ PHP found:" -ForegroundColor Green
-    php -v | Select-Object -First 1
+    Write-Host "PHP found:" -ForegroundColor Green
+    & $phpPath -v | Select-Object -First 1
     Write-Host ""
     $startAPI = $true
 }
@@ -47,43 +52,42 @@ if ($LASTEXITCODE -ne 0) {
 # Check if Python is installed
 $pythonCheck = python --version 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ ERROR: Python not found!" -ForegroundColor Red
+    Write-Host "ERROR: Python not found!" -ForegroundColor Red
     Write-Host "Bot cannot start without Python!" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "✅ Python found:" -ForegroundColor Green
+Write-Host "Python found:" -ForegroundColor Green
 python --version
 Write-Host ""
 
 # Start API Server in background (if PHP available)
 if ($startAPI) {
-    Write-Host "🚀 Starting API Server on http://localhost:8002..." -ForegroundColor Cyan
+    Write-Host "Starting API Server on http://localhost:8002..." -ForegroundColor Cyan
     Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "api\start_api.ps1" -WindowStyle Normal
     Start-Sleep -Seconds 3
-    Write-Host "✅ API Server started" -ForegroundColor Green
+    Write-Host "API Server started" -ForegroundColor Green
     Write-Host ""
 } else {
-    Write-Host "⚠️  API Server skipped (PHP not found)" -ForegroundColor Yellow
+    Write-Host "API Server skipped (PHP not found)" -ForegroundColor Yellow
     Write-Host ""
 }
 
 # Start Bot
-Write-Host "🤖 Starting Telegram Bot..." -ForegroundColor Cyan
+Write-Host "Starting Telegram Bot..." -ForegroundColor Cyan
 Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "bot\start_bot_visible.ps1" -WindowStyle Normal
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  ✅ Both services started!" -ForegroundColor Green
+Write-Host "  Both services started!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "📊 Status:" -ForegroundColor Yellow
+Write-Host "Status:" -ForegroundColor Yellow
 if ($startAPI) {
-    Write-Host "  ✅ API Server: http://localhost:8002" -ForegroundColor Green
+    Write-Host "  API Server: http://localhost:8002" -ForegroundColor Green
 } else {
-    Write-Host "  ⚠️  API Server: Not started (PHP not found)" -ForegroundColor Yellow
+    Write-Host "  API Server: Not started (PHP not found)" -ForegroundColor Yellow
 }
-Write-Host "  ✅ Telegram Bot: @GotchiGameBot" -ForegroundColor Green
+Write-Host "  Telegram Bot: @GotchiGameBot" -ForegroundColor Green
 Write-Host ""
-Write-Host "💡 Tip: Check the PowerShell windows for logs" -ForegroundColor Cyan
-
+Write-Host "Tip: Check the PowerShell windows for logs" -ForegroundColor Cyan
