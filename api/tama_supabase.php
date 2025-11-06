@@ -652,6 +652,7 @@ function handleWithdrawalHistory($url, $key) {
         if (!empty($result['data'])) {
             foreach ($result['data'] as $tx) {
                 $withdrawals[] = [
+                    'amount_sent' => abs((int)($tx['amount'] ?? 0)) - (int)($tx['fee'] ?? 0),
                     'amount' => abs((int)($tx['amount'] ?? 0)),
                     'fee' => (int)($tx['fee'] ?? 0),
                     'signature' => $tx['signature'] ?? null,
