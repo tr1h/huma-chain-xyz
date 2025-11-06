@@ -620,17 +620,43 @@ function handleWithdrawalRequest($url, $key) {
             '--output', 'json'
         ];
         
+        // Проверить, установлен ли spl-token
+        $splTokenCheck = shell_exec('spl-token --version 2>&1');
+        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'spl-token CLI not found',
+                'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools',
+                'check_output' => $splTokenCheck
+            ]);
+            return;
+        }
+        
         $descriptorspec = [
             0 => ['pipe', 'r'],  // stdin
             1 => ['pipe', 'w'],  // stdout
             2 => ['pipe', 'w']   // stderr
         ];
         
-        $process = proc_open(implode(' ', array_map('escapeshellarg', $cmd)), $descriptorspec, $pipes);
+        // Используем правильный формат команды для Windows
+        $cmdString = '';
+        foreach ($cmd as $arg) {
+            if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0) {
+                $cmdString .= escapeshellarg($arg) . ' ';
+            } else {
+                $cmdString .= $arg . ' ';
+            }
+        }
+        $cmdString = trim($cmdString);
+        
+        $process = proc_open($cmdString, $descriptorspec, $pipes);
         
         if (!is_resource($process)) {
             http_response_code(500);
-            echo json_encode(['error' => 'Failed to start spl-token process']);
+            echo json_encode([
+                'error' => 'Failed to start spl-token process',
+                'command' => $cmdString
+            ]);
             return;
         }
         
@@ -642,12 +668,20 @@ function handleWithdrawalRequest($url, $key) {
         
         $returnCode = proc_close($process);
         
+        // Логируем для отладки
+        error_log("spl-token command: " . $cmdString);
+        error_log("spl-token stdout: " . $stdout);
+        error_log("spl-token stderr: " . $stderr);
+        error_log("spl-token return code: " . $returnCode);
+        
         if ($returnCode !== 0) {
             http_response_code(500);
             echo json_encode([
                 'error' => 'Solana transaction failed',
-                'details' => $stderr,
-                'command' => implode(' ', $cmd)
+                'details' => trim($stderr) ?: 'Unknown error',
+                'stdout' => trim($stdout),
+                'command' => $cmdString,
+                'return_code' => $returnCode
             ]);
             return;
         }
