@@ -1059,6 +1059,16 @@ Try again or /cancel to abort.
     # Store wallet address in session
     withdrawal_sessions[telegram_id] = {'wallet_address': wallet_address}
     
+    # Сохранить wallet address в базу данных для будущих использований
+    try:
+        supabase.table('leaderboard').update({
+            'wallet_address': wallet_address
+        }).eq('telegram_id', telegram_id).execute()
+        print(f"✅ Saved wallet address for user {telegram_id}: {wallet_address[:8]}...{wallet_address[-8:]}")
+    except Exception as e:
+        print(f"⚠️ Error saving wallet address: {e}")
+        # Продолжаем даже если сохранение не удалось
+    
     # Ask for amount
     try:
         leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
@@ -3140,13 +3150,46 @@ def handle_callback(call):
         telegram_id = str(call.from_user.id)
         
         try:
-            # Get user's TAMA balance
-            leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+            # Get user's TAMA balance and wallet address
+            leaderboard_response = supabase.table('leaderboard').select('tama,wallet_address').eq('telegram_id', telegram_id).execute()
             tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
+            saved_wallet = leaderboard_response.data[0].get('wallet_address') if leaderboard_response.data else None
             
             min_withdrawal = 1000
             fee_percent = 5
             can_withdraw = tama_balance >= min_withdrawal
+            
+            # Проверяем, есть ли сохраненный адрес (не placeholder)
+            if can_withdraw and saved_wallet and not saved_wallet.startswith('telegram_') and len(saved_wallet) >= 32:
+                # У пользователя уже есть сохраненный адрес - используем его
+                withdrawal_sessions[telegram_id] = {'wallet_address': saved_wallet}
+                
+                # Сразу спрашиваем сумму
+                text = f"""
+✅ **Using Saved Wallet Address**
+`{saved_wallet[:8]}...{saved_wallet[-8:]}`
+
+**Your Balance:** {tama_balance:,} TAMA
+
+**How much TAMA do you want to withdraw?**
+
+Enter amount (minimum 1,000 TAMA):
+                """
+                
+                keyboard = types.InlineKeyboardMarkup()
+                keyboard.row(
+                    types.InlineKeyboardButton("🔙 Change Address", callback_data="change_wallet_address"),
+                    types.InlineKeyboardButton("❌ Cancel", callback_data="back_to_menu")
+                )
+                
+                try:
+                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                        parse_mode='Markdown', reply_markup=keyboard)
+                    bot.register_next_step_handler(call.message, process_withdrawal_amount)
+                except:
+                    msg = bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+                    bot.register_next_step_handler(msg, process_withdrawal_amount)
+                return
             
             if can_withdraw:
                 example_amount = 10000
