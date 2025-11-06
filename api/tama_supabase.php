@@ -645,15 +645,20 @@ function handleWithdrawalRequest($url, $key) {
         ];
         
         // Используем правильный формат команды для Windows
+        // Важно: для Windows нужно правильно экранировать пути с пробелами
         $cmdString = '';
         foreach ($cmd as $arg) {
-            if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0) {
+            // Если аргумент содержит пробелы или это путь, экранируем
+            if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0 || strpos($arg, '.json') !== false) {
                 $cmdString .= escapeshellarg($arg) . ' ';
             } else {
                 $cmdString .= $arg . ' ';
             }
         }
         $cmdString = trim($cmdString);
+        
+        // Увеличиваем время выполнения для spl-token (может быть долго)
+        set_time_limit(120); // 2 минуты максимум
         
         $process = proc_open($cmdString, $descriptorspec, $pipes);
         
@@ -667,8 +672,54 @@ function handleWithdrawalRequest($url, $key) {
         }
         
         fclose($pipes[0]);
-        $stdout = stream_get_contents($pipes[1]);
-        $stderr = stream_get_contents($pipes[2]);
+        
+        // Читаем вывод с таймаутом (spl-token может выполняться долго)
+        $stdout = '';
+        $stderr = '';
+        $startTime = time();
+        $timeout = 90; // 90 секунд максимум
+        
+        while (true) {
+            $status = proc_get_status($process);
+            
+            // Проверяем, завершился ли процесс
+            if (!$status['running']) {
+                break;
+            }
+            
+            // Проверяем таймаут
+            if (time() - $startTime > $timeout) {
+                proc_terminate($process);
+                http_response_code(500);
+                echo json_encode([
+                    'error' => 'Solana transaction timeout',
+                    'details' => 'spl-token command took too long (>90 seconds)',
+                    'command' => $cmdString
+                ]);
+                return;
+            }
+            
+            // Читаем доступные данные
+            $read = [$pipes[1], $pipes[2]];
+            $write = null;
+            $except = null;
+            
+            if (stream_select($read, $write, $except, 1) > 0) {
+                foreach ($read as $pipe) {
+                    if ($pipe === $pipes[1]) {
+                        $stdout .= stream_get_contents($pipe);
+                    } elseif ($pipe === $pipes[2]) {
+                        $stderr .= stream_get_contents($pipe);
+                    }
+                }
+            }
+            
+            usleep(100000); // 0.1 секунды
+        }
+        
+        // Читаем оставшиеся данные
+        $stdout .= stream_get_contents($pipes[1]);
+        $stderr .= stream_get_contents($pipes[2]);
         fclose($pipes[1]);
         fclose($pipes[2]);
         

@@ -3412,11 +3412,12 @@ The withdrawal feature requires the API server to be running.
                 return
             
             # Call withdrawal API
+            # Увеличен таймаут до 60 секунд, так как spl-token transfer может выполняться долго
             response = requests.post(f"{TAMA_API_BASE}/withdrawal/request", json={
                 'telegram_id': telegram_id,
                 'wallet_address': wallet_address,
                 'amount': amount
-            }, timeout=10)
+            }, timeout=60)
             
             if response.status_code == 200:
                 data = response.json()
