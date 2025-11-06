@@ -23,9 +23,15 @@ Thumbs.db
 dist/
 build/
 
-# Docs (не публиковать на GitHub Pages)
+# Docs
+# .docs/ - документация проекта (публикуется на GitHub)
+# docs/ - старая папка, больше не используется
 docs/
 
-# Prompts (личное)
-sora2_*.md
-boomer_*.md
+# Backup files
+*.bak
+*-old.html
+
+# Temporary files
+*.tmp
+*.temp

@@ -1,6 +1,6 @@
-# Start Gotchi Game Bot with all required environment variables
+# Start Gotchi Game Bot in VISIBLE window (to see console output)
 
-Write-Host "Starting Gotchi Game Bot..." -ForegroundColor Green
+Write-Host "Starting Gotchi Game Bot in VISIBLE mode..." -ForegroundColor Green
 
 # Set environment variables
 $env:TELEGRAM_BOT_TOKEN = "8445221254:AAHxX7NCDv3K14LTnAQkM69Lg4QCckFh-E8"
@@ -19,11 +19,13 @@ Write-Host "  BOT_USERNAME: $env:BOT_USERNAME"
 Write-Host "  TAMA_MINT_ADDRESS: $env:TAMA_MINT_ADDRESS"
 Write-Host "  SOLANA_RPC_URL: $env:SOLANA_RPC_URL"
 Write-Host ""
+Write-Host "Starting bot.py in VISIBLE window..." -ForegroundColor Green
+Write-Host "Press Ctrl+C to stop the bot" -ForegroundColor Yellow
+Write-Host ""
 
 # Navigate to bot directory
 Set-Location $PSScriptRoot
 
-# Start bot
-Write-Host "Starting bot.py..." -ForegroundColor Green
+# Start bot in VISIBLE window (not hidden)
 python bot.py
 
