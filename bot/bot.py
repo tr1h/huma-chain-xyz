@@ -379,7 +379,7 @@ def check_suspicious_activity(user_id, action):
 def safe_edit_message_text(text, chat_id, message_id, parse_mode=None, reply_markup=None):
     """Safely edit message text, ignoring 'message is not modified' errors"""
     try:
-        safe_edit_message_text(text, chat_id, message_id, parse_mode=parse_mode, reply_markup=reply_markup)
+        bot.edit_message_text(text, chat_id, message_id, parse_mode=parse_mode, reply_markup=reply_markup)
     except Exception as e:
         error_msg = str(e)
         if "message is not modified" in error_msg.lower():
