@@ -581,10 +581,85 @@ function handleWithdrawalRequest($url, $key) {
         $amountSent = $amount - $fee;
         $newBalance = $currentBalance - $amount;
         
-        // TODO: Здесь должна быть реальная транзакция в Solana
-        // Пока возвращаем успешный ответ без реальной транзакции
-        $txSignature = 'pending_' . time() . '_' . bin2hex(random_bytes(8));
-        $explorerUrl = 'https://explorer.solana.com/tx/' . $txSignature . '?cluster=devnet';
+        // РЕАЛЬНАЯ ТРАНЗАКЦИЯ В SOLANA через spl-token CLI
+        $tamaMint = getenv('TAMA_MINT_ADDRESS');
+        $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
+        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
+        
+        if (!$tamaMint) {
+            http_response_code(500);
+            echo json_encode(['error' => 'TAMA_MINT_ADDRESS not configured']);
+            return;
+        }
+        
+        if (!file_exists($payerKeypair)) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Payer keypair not found: ' . $payerKeypair]);
+            return;
+        }
+        
+        // Выполнить spl-token transfer
+        $cmd = [
+            'spl-token',
+            'transfer',
+            $tamaMint,
+            (string)$amountSent,  // Amount after fee
+            $wallet_address,
+            '--fund-recipient',  // Create ATA if needed
+            '--fee-payer', $payerKeypair,
+            '--owner', $payerKeypair,
+            '--url', $rpcUrl,
+            '--output', 'json'
+        ];
+        
+        $descriptorspec = [
+            0 => ['pipe', 'r'],  // stdin
+            1 => ['pipe', 'w'],  // stdout
+            2 => ['pipe', 'w']   // stderr
+        ];
+        
+        $process = proc_open(implode(' ', array_map('escapeshellarg', $cmd)), $descriptorspec, $pipes);
+        
+        if (!is_resource($process)) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to start spl-token process']);
+            return;
+        }
+        
+        fclose($pipes[0]);
+        $stdout = stream_get_contents($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        
+        $returnCode = proc_close($process);
+        
+        if ($returnCode !== 0) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Solana transaction failed',
+                'details' => $stderr,
+                'command' => implode(' ', $cmd)
+            ]);
+            return;
+        }
+        
+        // Парсим JSON ответ от spl-token
+        $txData = json_decode($stdout, true);
+        
+        if (!$txData || !isset($txData['signature'])) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Failed to parse transaction signature',
+                'output' => $stdout,
+                'stderr' => $stderr
+            ]);
+            return;
+        }
+        
+        $txSignature = $txData['signature'];
+        $cluster = strpos($rpcUrl, 'devnet') !== false ? 'devnet' : 'mainnet-beta';
+        $explorerUrl = 'https://explorer.solana.com/tx/' . $txSignature . '?cluster=' . $cluster;
         
         // Обновить баланс в Supabase
         supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
