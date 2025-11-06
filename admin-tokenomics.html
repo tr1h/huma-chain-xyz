@@ -156,20 +156,47 @@
         // Load statistics
         async function loadStats() {
             try {
-                // Get total withdrawn (circulating supply)
-                const { data: withdrawals, error } = await supabase
-                    .from('tama_transactions')
-                    .select('amount')
-                    .eq('type', 'withdrawal');
+                // Try multiple table names and column names
+                let withdrawals = [];
+                let error = null;
                 
-                if (error) {
-                    console.error('Supabase error:', error);
+                // Try tama_economy with transaction_type
+                let result = await supabase
+                    .from('tama_economy')
+                    .select('amount')
+                    .eq('transaction_type', 'withdrawal');
+                
+                if (result.error && result.error.code !== 'PGRST116') {
+                    // Try withdrawals table
+                    result = await supabase
+                        .from('withdrawals')
+                        .select('amount');
+                }
+                
+                if (result.error && result.error.code !== 'PGRST116') {
+                    // Try leaderboard total_withdrawn
+                    result = await supabase
+                        .from('leaderboard')
+                        .select('total_withdrawn');
+                    
+                    if (!result.error && result.data) {
+                        const circulating = result.data.reduce((sum, user) => sum + (user.total_withdrawn || 0), 0);
+                        document.getElementById('circulating').textContent = circulating.toLocaleString();
+                        const burned = Math.floor(circulating * 0.05 * 0.60);
+                        document.getElementById('burned').textContent = burned.toLocaleString();
+                        return;
+                    }
+                }
+                
+                if (result.error) {
+                    console.error('Supabase error:', result.error);
                     document.getElementById('circulating').textContent = '0';
                     document.getElementById('burned').textContent = '0';
                     return;
                 }
                 
-                const circulating = Math.abs(withdrawals?.reduce((sum, tx) => sum + Math.abs(tx.amount), 0) || 0);
+                withdrawals = result.data || [];
+                const circulating = Math.abs(withdrawals.reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0));
                 document.getElementById('circulating').textContent = circulating.toLocaleString();
                 
                 // Calculate burned (60% of fees)
@@ -186,37 +213,52 @@
         // Load withdrawals
         async function loadWithdrawals() {
             try {
-                const { data, error } = await supabase
-                    .from('tama_transactions')
+                const tbody = document.getElementById('withdrawals-list');
+                let result = null;
+                
+                // Try multiple table names
+                // 1. Try tama_economy with transaction_type
+                result = await supabase
+                    .from('tama_economy')
                     .select('*')
-                    .eq('type', 'withdrawal')
+                    .eq('transaction_type', 'withdrawal')
                     .order('created_at', { ascending: false })
                     .limit(50);
                 
-                const tbody = document.getElementById('withdrawals-list');
+                if (result.error && result.error.code !== 'PGRST116') {
+                    // 2. Try withdrawals table
+                    result = await supabase
+                        .from('withdrawals')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+                }
                 
-                if (error) {
-                    console.error('Supabase error:', error);
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">Error loading withdrawals. Check console.</td></tr>';
+                if (result.error) {
+                    console.error('Supabase error:', result.error);
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">Table not found. Please create tama_economy or withdrawals table in Supabase.</td></tr>';
                     return;
                 }
                 
-                if (!data || data.length === 0) {
+                const data = result.data || [];
+                
+                if (data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No withdrawals yet</td></tr>';
                     return;
                 }
                 
                 tbody.innerHTML = data.map(tx => {
-                    const amount = Math.abs(tx.amount);
+                    const amount = Math.abs(tx.amount || 0);
                     const fee = Math.floor(amount * 0.05);
                     const net = amount - fee;
-                    const time = new Date(tx.created_at).toLocaleString();
-                    const sig = tx.signature ? tx.signature.substring(0, 8) + '...' : 'N/A';
+                    const time = new Date(tx.created_at || tx.completed_at || Date.now()).toLocaleString();
+                    const sig = (tx.signature || tx.tx_signature || '').substring(0, 8) + '...' || 'N/A';
+                    const telegramId = tx.telegram_id || 'N/A';
                     
                     return `
                         <tr>
                             <td>${time}</td>
-                            <td>${tx.telegram_id || 'N/A'}</td>
+                            <td>${telegramId}</td>
                             <td>${amount.toLocaleString()} TAMA</td>
                             <td>${fee.toLocaleString()} TAMA</td>
                             <td>${net.toLocaleString()} TAMA</td>
