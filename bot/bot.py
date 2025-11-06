@@ -3223,11 +3223,13 @@ You need **{shortage:,} more TAMA**.
 
 Please send your Solana wallet address (e.g., from Phantom).
 
-**Format:** 44 characters, base58
+**Format:** 32-44 characters, base58
 **Example:** `7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU`
 
 ⚠️ **Double-check your address!**
 Wrong address = lost TAMA!
+
+💾 **Note:** Your address will be saved for future withdrawals.
 
 After sending your address, I'll ask for the amount.
         """
@@ -3500,6 +3502,37 @@ Please check if the API server is running on `localhost:8002`
             """
             safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
             bot.answer_callback_query(call.id, "❌ Error processing withdrawal")
+    
+    elif call.data == "change_wallet_address":
+        # Change wallet address
+        text = """
+💰│ **ENTER YOUR SOLANA WALLET ADDRESS**
+
+Please send your new Solana wallet address (e.g., from Phantom).
+
+**Format:** 32-44 characters, base58
+**Example:** `7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU`
+
+⚠️ **Double-check your address!**
+Wrong address = lost TAMA!
+
+💾 **Note:** Your address will be saved for future withdrawals.
+
+After sending your address, I'll ask for the amount.
+        """
+        
+        keyboard = types.InlineKeyboardMarkup()
+        keyboard.row(
+            types.InlineKeyboardButton("🔙 Cancel", callback_data="withdraw_tama")
+        )
+        
+        try:
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                                parse_mode='Markdown', reply_markup=keyboard)
+            bot.register_next_step_handler(call.message, process_wallet_address)
+        except:
+            msg = bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
+            bot.register_next_step_handler(msg, process_wallet_address)
     
     elif call.data == "cancel_withdrawal":
         # Cancel withdrawal
