@@ -290,9 +290,9 @@
     </div>
 
     <script>
-        // Supabase config
-        const SUPABASE_URL = 'https://bvyigfxoaahwvfcdfhsr.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2eWlnZnhvYWFod3ZmY2RmaHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAwNjU0MTEsImV4cCI6MjA0NTY0MTQxMX0.O3vR5rGj7VEYnz48HfAKNaFuZsL8tXGrXFNiU7m5G-8';
+        // Supabase config (CORRECT URL)
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // State
@@ -460,15 +460,135 @@
                 return;
             }
             
+            const mintBtn = document.getElementById('mint-btn');
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            
+            if (!userId) {
+                alert('User ID not found! Please open this page from Telegram bot.');
+                return;
+            }
+            
+            // Check balance
             if (selectedPayment === 'tama') {
                 if (userTamaBalance < tamaPrice) {
                     alert(`Insufficient TAMA! You need ${tamaPrice.toLocaleString()} TAMA but only have ${userTamaBalance.toLocaleString()}`);
                     return;
                 }
+                
+                // Confirm TAMA payment
+                if (!confirm(`Mint ${selectedTier} NFT for ${tamaPrice.toLocaleString()} TAMA?\n\nYou will receive a random rarity with ${selectedTier === 'Bronze' ? '2-3x' : selectedTier === 'Silver' ? '2.5-3.5x' : '3-4x'} earning boost!`)) {
+                    return;
+                }
+                
+                // Disable button
+                mintBtn.disabled = true;
+                mintBtn.textContent = '⏳ Minting...';
+                
+                try {
+                    // 1. Deduct TAMA from user balance
+                    const { data: currentUser, error: fetchError } = await supabase
+                        .from('leaderboard')
+                        .select('tama')
+                        .eq('telegram_id', userId)
+                        .single();
+                    
+                    if (fetchError) throw fetchError;
+                    
+                    const newBalance = (currentUser.tama || 0) - tamaPrice;
+                    
+                    if (newBalance < 0) {
+                        throw new Error('Insufficient balance');
+                    }
+                    
+                    const { error: updateError } = await supabase
+                        .from('leaderboard')
+                        .update({ tama: newBalance })
+                        .eq('telegram_id', userId);
+                    
+                    if (updateError) throw updateError;
+                    
+                    // 2. Assign random rarity
+                    const rarity = assignRandomRarity(selectedTier);
+                    const multiplier = getMultiplierForRarity(selectedTier, rarity);
+                    
+                    // 3. Register NFT in database
+                    const nftMintAddress = 'NFT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    
+                    const { error: nftError } = await supabase
+                        .from('user_nfts')
+                        .insert({
+                            telegram_id: userId,
+                            nft_mint_address: nftMintAddress,
+                            tier_name: selectedTier,
+                            rarity: rarity,
+                            earning_multiplier: multiplier,
+                            is_active: true
+                        });
+                    
+                    if (nftError) throw nftError;
+                    
+                    // 4. Update balance display
+                    await loadTAMABalance();
+                    
+                    // 5. Success message
+                    alert(`✅ SUCCESS!\n\nYou minted ${selectedTier} ${rarity} NFT!\n\n💰 Earning Boost: ${multiplier}x\n🎨 NFT ID: ${nftMintAddress}\n\nYour earnings are now multiplied by ${multiplier}x!`);
+                    
+                    // Reset selection
+                    selectedTier = null;
+                    selectedPayment = null;
+                    document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
+                    document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+                    updateMintButton();
+                    
+                } catch (error) {
+                    console.error('Mint error:', error);
+                    alert(`❌ Minting failed: ${error.message}`);
+                    mintBtn.disabled = false;
+                    updateMintButton();
+                }
+                
+            } else if (selectedPayment === 'sol') {
+                // SOL payment
+                alert(`Minting ${selectedTier} NFT with ${solPrice} SOL...\n\nSOL payment will be implemented soon!\nUse TAMA for now.`);
             }
-            
-            alert(`Minting ${selectedTier} NFT with ${selectedPayment === 'tama' ? tamaPrice + ' TAMA' : solPrice + ' SOL'}...\n\nThis feature will be implemented soon!`);
         });
+        
+        // Helper: Assign random rarity based on tier probabilities
+        function assignRandomRarity(tier) {
+            const random = Math.random() * 100;
+            
+            if (tier === 'Bronze') {
+                if (random < 50) return 'Common';
+                if (random < 80) return 'Uncommon';
+                if (random < 95) return 'Rare';
+                if (random < 99) return 'Epic';
+                return 'Legendary';
+            } else if (tier === 'Silver') {
+                if (random < 40) return 'Common';
+                if (random < 70) return 'Uncommon';
+                if (random < 90) return 'Rare';
+                if (random < 98) return 'Epic';
+                return 'Legendary';
+            } else if (tier === 'Gold') {
+                if (random < 30) return 'Common';
+                if (random < 60) return 'Uncommon';
+                if (random < 85) return 'Rare';
+                if (random < 97) return 'Epic';
+                return 'Legendary';
+            }
+            return 'Common';
+        }
+        
+        // Helper: Get multiplier for tier + rarity
+        function getMultiplierForRarity(tier, rarity) {
+            const multipliers = {
+                'Bronze': { 'Common': 2.0, 'Uncommon': 2.2, 'Rare': 2.5, 'Epic': 2.8, 'Legendary': 3.0 },
+                'Silver': { 'Common': 2.5, 'Uncommon': 2.7, 'Rare': 3.0, 'Epic': 3.3, 'Legendary': 3.5 },
+                'Gold': { 'Common': 3.0, 'Uncommon': 3.2, 'Rare': 3.5, 'Epic': 3.8, 'Legendary': 4.0 }
+            };
+            return multipliers[tier]?.[rarity] || 2.0;
+        }
 
         // Event Listeners
         document.getElementById('connect-wallet').addEventListener('click', connectPhantomWallet);
