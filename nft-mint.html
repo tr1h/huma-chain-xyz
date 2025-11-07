@@ -535,11 +535,55 @@
                         p2e_pool: Math.floor(tamaPrice * 0.30)   // 750 TAMA
                     };
                     
-                    const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
-                    const P2E_POOL_ID = 'p2e_pool_system'; // System account for P2E pool tracking
+                    const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+                    const P2E_POOL_ID = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
                     
                     try {
-                        // Main NFT mint transaction
+                        // 💰 TRANSFER TO TREASURY (30%)
+                        // Get current Treasury balance
+                        const { data: treasuryData } = await supabase
+                            .from('leaderboard')
+                            .select('tama')
+                            .eq('telegram_id', TREASURY_MAIN_ID)
+                            .single();
+                        
+                        const treasuryOldBalance = treasuryData?.tama || 0;
+                        const treasuryNewBalance = treasuryOldBalance + distribution.treasury;
+                        
+                        // Update Treasury balance
+                        await supabase
+                            .from('leaderboard')
+                            .upsert({
+                                telegram_id: TREASURY_MAIN_ID,
+                                telegram_username: '💰 Treasury Main V2',
+                                tama: treasuryNewBalance,
+                                user_type: 'treasury'
+                            });
+                        
+                        // 🎮 TRANSFER TO P2E POOL (30%)
+                        // Get current P2E Pool balance
+                        const { data: p2eData } = await supabase
+                            .from('leaderboard')
+                            .select('tama')
+                            .eq('telegram_id', P2E_POOL_ID)
+                            .single();
+                        
+                        const p2eOldBalance = p2eData?.tama || 0;
+                        const p2eNewBalance = p2eOldBalance + distribution.p2e_pool;
+                        
+                        // Update P2E Pool balance
+                        await supabase
+                            .from('leaderboard')
+                            .upsert({
+                                telegram_id: P2E_POOL_ID,
+                                telegram_username: '🎮 P2E Pool',
+                                tama: p2eNewBalance,
+                                user_type: 'pool'
+                            });
+                        
+                        // LOG ALL TRANSACTIONS
+                        
+                        // 1. Main NFT mint transaction
                         await supabase.from('transactions').insert({
                             user_id: userId,
                             username: userId,
@@ -556,7 +600,7 @@
                             })
                         });
                         
-                        // BURN transaction (40%)
+                        // 2. BURN transaction (40%) - tokens disappear
                         await supabase.from('transactions').insert({
                             user_id: 'BURN_ADDRESS',
                             username: '🔥 Token Burn',
@@ -571,14 +615,14 @@
                             })
                         });
                         
-                        // TREASURY transaction (30%)
+                        // 3. TREASURY transaction (30%) - REAL TRANSFER
                         await supabase.from('transactions').insert({
-                            user_id: TREASURY_MAIN,
-                            username: '💰 Treasury Main',
+                            user_id: TREASURY_MAIN_ID,
+                            username: '💰 Treasury Main V2',
                             type: 'treasury_income_from_nft',
                             amount: distribution.treasury,
-                            balance_before: 0,
-                            balance_after: distribution.treasury,
+                            balance_before: treasuryOldBalance,
+                            balance_after: treasuryNewBalance,
                             metadata: JSON.stringify({
                                 source: 'bronze_nft_mint',
                                 nft_id: nftMintAddress,
@@ -586,25 +630,24 @@
                             })
                         });
                         
-                        // P2E POOL REFUND transaction (30%)
+                        // 4. P2E POOL transaction (30%) - REAL TRANSFER
                         await supabase.from('transactions').insert({
                             user_id: P2E_POOL_ID,
                             username: '🎮 P2E Pool Refund',
                             type: 'p2e_pool_refund_from_nft',
                             amount: distribution.p2e_pool,
-                            balance_before: 0,
-                            balance_after: distribution.p2e_pool,
+                            balance_before: p2eOldBalance,
+                            balance_after: p2eNewBalance,
                             metadata: JSON.stringify({
                                 source: 'bronze_nft_mint',
                                 nft_id: nftMintAddress,
-                                user: userId,
-                                pool_address: 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw'
+                                user: userId
                             })
                         });
                         
                     } catch (txError) {
-                        console.error('Failed to log transactions:', txError);
-                        // Don't fail the mint if transaction logging fails
+                        console.error('Failed to process distribution:', txError);
+                        throw new Error('Distribution failed: ' + txError.message);
                     }
                     
                     // 5. Update balance display
