@@ -394,12 +394,14 @@
                 return;
             }
             
-            if (!walletConnected) {
+            // For SOL payment, wallet is required
+            if (selectedPayment === 'sol' && !walletConnected) {
                 btn.disabled = true;
-                btn.textContent = '🔒 CONNECT WALLET FIRST';
+                btn.textContent = '🔒 CONNECT WALLET FOR SOL PAYMENT';
                 return;
             }
             
+            // For TAMA payment, wallet not needed (uses Telegram user_id)
             btn.disabled = false;
             if (selectedPayment === 'tama') {
                 btn.textContent = `💰 MINT ${selectedTier} (${tamaPrice.toLocaleString()} TAMA)`;
@@ -686,8 +688,134 @@
                 }
                 
             } else if (selectedPayment === 'sol') {
-                // SOL payment
-                alert(`Minting ${selectedTier} NFT with ${solPrice} SOL...\n\nSOL payment will be implemented soon!\nUse TAMA for now.`);
+                // SOL payment - REAL ON-CHAIN TRANSACTION
+                
+                // Check SOL balance
+                const solBalance = await connection.getBalance(new PublicKey(walletAddress));
+                const solBalanceFormatted = solBalance / 1000000000; // Convert lamports to SOL
+                const solPriceInLamports = Math.ceil(solPrice * 1000000000); // Convert SOL to lamports
+                
+                if (solBalanceFormatted < solPrice) {
+                    alert(`Insufficient SOL! You need ${solPrice} SOL but only have ${solBalanceFormatted.toFixed(4)} SOL`);
+                    return;
+                }
+                
+                // Confirm SOL payment
+                if (!confirm(`Mint ${selectedTier} NFT for ${solPrice} SOL?\n\nYou will receive a random rarity with ${selectedTier === 'Bronze' ? '2-3x' : selectedTier === 'Silver' ? '2.5-3.5x' : '3-4x'} earning boost!\n\nSOL will be sent to Treasury wallet.`)) {
+                    return;
+                }
+                
+                // Disable button
+                mintBtn.disabled = true;
+                mintBtn.textContent = '⏳ Minting with SOL...';
+                
+                try {
+                    // Treasury wallet address (where SOL goes)
+                    const TREASURY_SOL_WALLET = new PublicKey('6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM');
+                    
+                    // Create SOL transfer transaction
+                    const { Transaction, SystemProgram } = solanaWeb3;
+                    const transaction = new Transaction().add(
+                        SystemProgram.transfer({
+                            fromPubkey: new PublicKey(walletAddress),
+                            toPubkey: TREASURY_SOL_WALLET,
+                            lamports: solPriceInLamports
+                        })
+                    );
+                    
+                    // Get recent blockhash
+                    const { blockhash } = await connection.getLatestBlockhash('confirmed');
+                    transaction.recentBlockhash = blockhash;
+                    transaction.feePayer = new PublicKey(walletAddress);
+                    
+                    // Request signature from Phantom
+                    const signed = await window.solana.signAndSendTransaction(transaction);
+                    
+                    // Wait for confirmation
+                    await connection.confirmTransaction(signed, 'confirmed');
+                    
+                    console.log('✅ SOL transaction confirmed:', signed);
+                    
+                    // 2. Assign random rarity
+                    const rarity = assignRandomRarity(selectedTier);
+                    const multiplier = getMultiplierForRarity(selectedTier, rarity);
+                    
+                    // 3. Register NFT in database
+                    const nftMintAddress = 'NFT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    
+                    const { error: nftError } = await supabase
+                        .from('user_nfts')
+                        .insert({
+                            telegram_id: userId,
+                            nft_mint_address: nftMintAddress,
+                            tier_name: selectedTier,
+                            rarity: rarity,
+                            earning_multiplier: multiplier,
+                            is_active: true
+                        });
+                    
+                    if (nftError) throw nftError;
+                    
+                    // 4. Log SOL payment transaction (no TAMA distribution needed)
+                    const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+                    
+                    // Log NFT mint transaction (paid with SOL)
+                    await supabase.from('transactions').insert({
+                        user_id: userId,
+                        username: userId,
+                        type: 'nft_mint_sol',
+                        amount: solPrice,
+                        balance_before: 0,
+                        balance_after: 0,
+                        metadata: JSON.stringify({
+                            tier: selectedTier,
+                            rarity: rarity,
+                            multiplier: multiplier,
+                            nft_id: nftMintAddress,
+                            payment_method: 'SOL',
+                            sol_amount: solPrice,
+                            transaction_signature: signed,
+                            treasury_wallet: TREASURY_MAIN_ID
+                        })
+                    });
+                    
+                    // Log Treasury income (SOL received)
+                    await supabase.from('transactions').insert({
+                        user_id: TREASURY_MAIN_ID,
+                        username: '💰 Treasury Main V2',
+                        type: 'treasury_income_from_nft_sol',
+                        amount: solPrice,
+                        balance_before: 0,
+                        balance_after: 0,
+                        metadata: JSON.stringify({
+                            source: 'nft_mint_sol',
+                            nft_id: nftMintAddress,
+                            user: userId,
+                            tier: selectedTier,
+                            transaction_signature: signed
+                        })
+                    });
+                    
+                    // 5. Update wallet balance display
+                    await updateWalletBalance();
+                    
+                    // 6. Success message
+                    const explorerUrl = `https://explorer.solana.com/tx/${signed}?cluster=devnet`;
+                    alert(`✅ SUCCESS!\n\nYou minted ${selectedTier} ${rarity} NFT with SOL!\n\n💰 Earning Boost: ${multiplier}x\n🎨 NFT ID: ${nftMintAddress}\n🔗 Transaction: ${explorerUrl}\n\nYour earnings are now multiplied by ${multiplier}x!`);
+                    
+                    // Reset selection
+                    selectedTier = null;
+                    selectedPayment = null;
+                    document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
+                    document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+                    updateMintButton();
+                    
+                } catch (error) {
+                    console.error('SOL mint error:', error);
+                    alert(`❌ Minting failed: ${error.message}\n\nPlease try again or use TAMA payment.`);
+                    mintBtn.disabled = false;
+                    updateMintButton();
+                }
             }
         });
         
