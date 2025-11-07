@@ -167,29 +167,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Network Configuration -->
-    <script src="network-config.js"></script>
-    <!-- Umi SDK Loader -->
-    <script src="js/load-umi.js"></script>
-    <!-- Umi Candy Machine -->
-    <script src="js/umi-candy-machine.js"></script>
-    <!-- Metaplex JS SDK (Alternative) -->
-    <script src="js/metaplex-mint.js?v=6"></script>
-    <!-- Simple Real Mint (Solana Web3.js only) -->
-    <script src="js/simple-real-mint.js?v=6"></script>
-    
-    <!-- TAMA Mint Module -->
-    <script src="js/tama-mint.js?v=1"></script>
-    
-    <!-- Real SOL Mint Module -->
-    <script src="js/real-sol-mint.js?v=1"></script>
 </head>
 <body>
     <div class="mint-container">
         <!-- Header -->
         <header class="mint-header">
             <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="window.location.href='index.html'">
-                <img src="assets/logo.png" alt="Solana Tamagotchi" style="height: 50px; width: auto; image-rendering: pixelated;">
+                <span style="font-size: 32px;">🐾</span>
+                <span style="font-size: 18px; font-weight: bold; color: #8AC926;">SOLANA TAMAGOTCHI</span>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button id="connect-wallet" class="btn-wallet">🔗 Connect Wallet</button>
@@ -441,45 +426,180 @@
         </div>
     </div>
 
-    <script src="js/utils.js?v=5"></script>
-    
     <script>
+        // Wallet Connection System
+        let walletAddress = null;
+        let walletConnected = false;
+        const { Connection, PublicKey, Transaction } = solanaWeb3;
+        
+        // Initialize connection (devnet)
+        const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+        
+        // Connect Phantom Wallet
+        async function connectPhantomWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('❌ Phantom wallet not found!\n\nPlease install Phantom wallet from:\nhttps://phantom.app/');
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+                
+                const resp = await window.solana.connect();
+                walletAddress = resp.publicKey.toString();
+                walletConnected = true;
+                
+                console.log('✅ Wallet connected:', walletAddress);
+                
+                // Update UI
+                updateWalletUI();
+                
+                // Get balance
+                await updateWalletBalance();
+                
+            } catch (error) {
+                console.error('❌ Wallet connection error:', error);
+                alert('Failed to connect wallet: ' + error.message);
+            }
+        }
+        
+        // Disconnect wallet
+        async function disconnectWallet() {
+            try {
+                if (window.solana && window.solana.disconnect) {
+                    await window.solana.disconnect();
+                }
+                walletAddress = null;
+                walletConnected = false;
+                updateWalletUI();
+                console.log('🔓 Wallet disconnected');
+            } catch (error) {
+                console.error('Disconnect error:', error);
+            }
+        }
+        
+        // Copy wallet address
+        function copyWalletAddress() {
+            if (walletAddress) {
+                navigator.clipboard.writeText(walletAddress).then(() => {
+                    alert('✅ Address copied to clipboard!');
+                });
+            }
+        }
+        
+        // Update wallet UI
+        function updateWalletUI() {
+            const connectBtn = document.getElementById('connect-wallet');
+            const disconnectBtn = document.getElementById('disconnect-wallet');
+            const copyBtn = document.getElementById('copy-address');
+            
+            if (walletConnected && walletAddress) {
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'inline-block';
+                copyBtn.style.display = 'inline-block';
+                copyBtn.innerHTML = `📋 ${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+            } else {
+                connectBtn.style.display = 'inline-block';
+                disconnectBtn.style.display = 'none';
+                copyBtn.style.display = 'none';
+            }
+        }
+        
+        // Update wallet balance display
+        async function updateWalletBalance() {
+            if (!walletAddress) return;
+            
+            try {
+                const publicKey = new PublicKey(walletAddress);
+                const balance = await connection.getBalance(publicKey);
+                const solBalance = balance / 1e9;
+                
+                console.log(`💰 Wallet balance: ${solBalance} SOL`);
+                
+                // Update UI if balance element exists
+                const balanceEl = document.getElementById('wallet-balance');
+                if (balanceEl) {
+                    balanceEl.textContent = `${solBalance.toFixed(4)} SOL`;
+                }
+            } catch (error) {
+                console.error('Balance update error:', error);
+            }
+        }
+        
+        // Check if wallet is already connected
+        async function checkWalletConnection() {
+            try {
+                if (window.solana && window.solana.isPhantom) {
+                    const resp = await window.solana.connect({ onlyIfTrusted: true });
+                    if (resp && resp.publicKey) {
+                        walletAddress = resp.publicKey.toString();
+                        walletConnected = true;
+                        updateWalletUI();
+                        await updateWalletBalance();
+                        console.log('✅ Wallet already connected');
+                    }
+                }
+            } catch (error) {
+                // Not connected, that's okay
+                console.log('Wallet not connected yet');
+            }
+        }
+        
         // Function to view NFT on blockchain explorer
         function viewOnExplorer() {
-            // Get the minted NFT data
             const nftData = JSON.parse(localStorage.getItem('nftData') || '{}');
             
             if (nftData.mintAddress) {
-                // Open Solscan explorer for the mint address
                 const explorerUrl = `https://solscan.io/token/${nftData.mintAddress}?cluster=devnet`;
                 window.open(explorerUrl, '_blank');
             } else {
-                // Fallback to general Solscan devnet
                 const explorerUrl = 'https://solscan.io/?cluster=devnet';
                 window.open(explorerUrl, '_blank');
             }
         }
-    </script>
-    <script src="js/database-supabase.js?v=5"></script>
-    <script src="js/simple-tama-system.js?v=1001"></script>
-    <script src="js/treasury-system.js?v=1"></script>
-    <script src="js/simple-nft-mint.js?v=5"></script>
-    <script src="js/mint.js?v=11"></script>
-    
-    <!-- Script loading diagnostics -->
-    <script>
-        console.log('🔍 Script Loading Diagnostics:');
-        console.log('Umi:', typeof window['@metaplex-foundation/umi']);
-        console.log('Umi Bundle Defaults:', typeof window['@metaplex-foundation/umi-bundle-defaults']);
-        console.log('Candy Machine:', typeof window['@metaplex-foundation/mpl-candy-machine']);
-        console.log('Solana Web3:', typeof window.solanaWeb3);
-        console.log('Supabase:', typeof window.supabase);
+        
+        // Store original functions
+        const originalConnectPhantom = connectPhantomWallet;
+        const originalDisconnect = disconnectWallet;
+        
+        // Wrap connect function to update mint button
+        connectPhantomWallet = async function() {
+            await originalConnectPhantom();
+            updateMintButton();
+        };
+        
+        // Wrap disconnect function to update mint button
+        disconnectWallet = async function() {
+            await originalDisconnect();
+            updateMintButton();
+        };
+        
+        // Initialize wallet connection on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Setup button listeners
+            const connectBtn = document.getElementById('connect-wallet');
+            const disconnectBtn = document.getElementById('disconnect-wallet');
+            const copyBtn = document.getElementById('copy-address');
+            
+            if (connectBtn) {
+                connectBtn.addEventListener('click', connectPhantomWallet);
+            }
+            if (disconnectBtn) {
+                disconnectBtn.addEventListener('click', disconnectWallet);
+            }
+            if (copyBtn) {
+                copyBtn.addEventListener('click', copyWalletAddress);
+            }
+            
+            // Check if already connected
+            await checkWalletConnection();
+            updateMintButton();
+        });
         
         // Get real-time SOL price in USD
         async function getSOLPrice() {
             try {
-                // Try CoinGecko API first
-                const response = await fetch('https://cors-anywhere.herokuapp.com/https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+                // Try CoinGecko API directly (no CORS proxy needed)
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
                 const data = await response.json();
                 
                 if (data.solana && data.solana.usd) {
@@ -487,12 +607,12 @@
                     return data.solana.usd;
                 }
             } catch (error) {
-                console.warn('CoinGecko API failed, trying alternative...');
+                console.warn('CoinGecko API failed, trying alternative...', error);
             }
             
             try {
-                // Try alternative API
-                const response = await fetch('https://cors-anywhere.herokuapp.com/https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT');
+                // Try Binance API directly
+                const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT');
                 const data = await response.json();
                 
                 if (data.price) {
@@ -501,7 +621,7 @@
                     return price;
                 }
             } catch (error) {
-                console.warn('Binance API failed, using fallback...');
+                console.warn('Binance API failed, using fallback...', error);
             }
             
             // Fallback price
@@ -515,65 +635,55 @@
                 // Get real SOL price
                 const solPriceUSD = await getSOLPrice();
                 
-                if (window.Database && window.Database.supabase) {
-                    const { data } = await window.Database.supabase
-                        .from('game_settings')
-                        .select('value')
-                        .eq('key', 'nft_price')
-                        .single();
-                    
-                    if (data) {
-                        const price = parseFloat(data.value);
-                        const usdPrice = (price * solPriceUSD).toFixed(2);
-                        
-                        document.getElementById('mint-price').textContent = `${price} SOL`;
-                        document.getElementById('price-usd').textContent = `≈ $${usdPrice} USD`;
-                        
-                        // Update mint button
-                        const mintBtn = document.getElementById('mint-btn');
-                        if (mintBtn) {
-                            mintBtn.querySelector('.btn-text').textContent = `MINT NOW - ${price} SOL`;
-                        }
-                        
-                        console.log('✅ Price loaded from database:', price, 'SOL = $', usdPrice, 'USD');
-                        return price;
+                // Fallback price
+                const fallbackPrice = 0.1;
+                const usdPrice = (fallbackPrice * solPriceUSD).toFixed(2);
+                
+                // Update price display if elements exist
+                const priceEl = document.getElementById('mint-price');
+                const priceUsdEl = document.getElementById('price-usd');
+                
+                if (priceEl) {
+                    priceEl.textContent = `${fallbackPrice} SOL`;
+                }
+                if (priceUsdEl) {
+                    priceUsdEl.textContent = `≈ $${usdPrice} USD`;
+                }
+                
+                // Update mint button if exists
+                const mintBtn = document.getElementById('mint-btn');
+                if (mintBtn) {
+                    const btnText = mintBtn.querySelector('.btn-text');
+                    if (btnText) {
+                        btnText.textContent = `MINT NOW - ${fallbackPrice} SOL`;
                     }
                 }
+                
+                console.log('✅ Price loaded:', fallbackPrice, 'SOL = $', usdPrice, 'USD');
+                return fallbackPrice;
             } catch (error) {
-                console.warn('Could not load price from database, using fallback');
+                console.warn('Price load error:', error);
+                return 0.1;
             }
-            
-            // Fallback
-            const fallbackPrice = 0.1;
-            const solPriceUSD = await getSOLPrice();
-            const usdPrice = (fallbackPrice * solPriceUSD).toFixed(2);
-            
-            document.getElementById('mint-price').textContent = `${fallbackPrice} SOL`;
-            document.getElementById('price-usd').textContent = `≈ $${usdPrice} USD`;
-            
-            const mintBtn = document.getElementById('mint-btn');
-            if (mintBtn) {
-                mintBtn.querySelector('.btn-text').textContent = `MINT NOW - ${fallbackPrice} SOL`;
-            }
-            
-            return fallbackPrice;
         }
         
         // Update mint button based on wallet connection
         function updateMintButton() {
-            const connectBtn = document.getElementById('connect-wallet-btn');
             const mintBtn = document.getElementById('mint-btn');
+            if (!mintBtn) return;
             
-            if (window.WalletManager && window.WalletManager.isConnected()) {
-                connectBtn.textContent = 'Connected ✅';
-                connectBtn.disabled = true;
+            if (walletConnected) {
                 mintBtn.disabled = false;
-                mintBtn.textContent = 'MINT NFT';
+                const btnText = mintBtn.querySelector('.btn-text');
+                if (btnText) {
+                    btnText.textContent = 'MINT NFT';
+                }
             } else {
-                connectBtn.textContent = 'Connect Wallet';
-                connectBtn.disabled = false;
                 mintBtn.disabled = true;
-                mintBtn.textContent = 'CONNECT WALLET TO MINT';
+                const btnText = mintBtn.querySelector('.btn-text');
+                if (btnText) {
+                    btnText.textContent = 'CONNECT WALLET TO MINT';
+                }
             }
         }
         
@@ -615,47 +725,22 @@
             }
         }
         
-        // Initialize page
+        // Additional page initialization (runs after wallet connection setup)
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🎨 Mint page loaded');
             
             // Display TAMA balance from URL parameters
             displayTAMABalance();
             
-            // Check if wallet is already connected
-            if (window.WalletManager && window.WalletManager.isConnected()) {
-                console.log('🔗 Wallet already connected, updating UI...');
-                await window.WalletManager.updateBalanceDisplay();
-                updateMintButton();
-            }
-            
             // Load current price
-            loadCurrentPrice();
+            await loadCurrentPrice();
             
             // Auto-refresh price every 30 seconds
             setInterval(async () => {
                 console.log('🔄 Refreshing SOL price...');
                 await loadCurrentPrice();
             }, 30000);
-            
-            // Initialize wallet connection
-            if (window.WalletManager) {
-                WalletManager.init();
-            }
-            
-            // Initialize mint page
-            if (window.MintPage) {
-                MintPage.init();
-            }
         });
-        
-        // Check if all required objects are available
-        setTimeout(() => {
-            console.log('🔍 After 2 seconds:');
-            console.log('Umi:', typeof window['@metaplex-foundation/umi']);
-            console.log('Umi Bundle Defaults:', typeof window['@metaplex-foundation/umi-bundle-defaults']);
-            console.log('Candy Machine:', typeof window['@metaplex-foundation/mpl-candy-machine']);
-        }, 2000);
     </script>
 </body>
 </html>
