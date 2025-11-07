@@ -3086,15 +3086,37 @@ def handle_callback(call):
         telegram_id = str(call.from_user.id)
         
         try:
-            # Get user's NFTs from database
-            response = supabase.table('user_nfts').select('*').eq('telegram_id', telegram_id).order('created_at', desc=True).execute()
+            # Get user's NFTs from database (new structure: tier_name, rarity, earning_multiplier)
+            response = supabase.table('user_nfts').select('*').eq('telegram_id', telegram_id).eq('is_active', True).order('minted_at', desc=True).execute()
             
             if response.data and len(response.data) > 0:
                 nfts = response.data
+                
+                # Helper function for rarity emoji
+                def get_rarity_emoji(rarity):
+                    emoji_map = {
+                        'Common': '⚪',
+                        'Uncommon': '🟢',
+                        'Rare': '🔵',
+                        'Epic': '🟣',
+                        'Legendary': '🟠'
+                    }
+                    return emoji_map.get(rarity, '⚪')
+                
+                # Helper function for tier emoji
+                def get_tier_emoji(tier):
+                    emoji_map = {
+                        'Bronze': '🥉',
+                        'Silver': '🥈',
+                        'Gold': '🥇'
+                    }
+                    return emoji_map.get(tier, '🎨')
+                
                 nft_list = "\n\n".join([
-                    f"{i+1}. **{nft['pet_type'].upper()}** {get_rarity_emoji(nft['rarity'])}\n"
-                    f"   • Rarity: {nft['rarity'].upper()}\n"
-                    f"   • Earned: {nft.get('cost_tama', 0):,} TAMA"
+                    f"{i+1}. {get_tier_emoji(nft.get('tier_name', 'Unknown'))} **{nft.get('tier_name', 'Unknown')}** {get_rarity_emoji(nft.get('rarity', 'Common'))}\n"
+                    f"   • Rarity: {nft.get('rarity', 'Common')}\n"
+                    f"   • Boost: {nft.get('earning_multiplier', 1.0)}x earning\n"
+                    f"   • Minted: {nft.get('minted_at', 'Unknown')[:10] if nft.get('minted_at') else 'Unknown'}"
                     for i, nft in enumerate(nfts[:10])  # Show max 10
                 ])
                 
@@ -3102,21 +3124,24 @@ def handle_callback(call):
                 leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
                 tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
                 
+                # Calculate total multiplier (best NFT)
+                best_multiplier = max([float(nft.get('earning_multiplier', 1.0)) for nft in nfts])
+                
                 text = f"""
 🖼️ **YOUR NFT COLLECTION** 🖼️
 
 📦 Total NFTs: **{len(nfts)}**
 💰 TAMA Balance: **{tama_balance:,}**
+⚡ Active Boost: **{best_multiplier}x**
 
 {nft_list}
 
 🎮 *NFT Benefits:*
-• 🐾 Common: +25% TAMA earning
-• 🦊 Rare: +50% TAMA earning
-• 🐾 Epic: +75% TAMA earning
-• 🐉 Legendary: +100% TAMA earning
+• Your best NFT gives you **{best_multiplier}x** earning boost!
+• All TAMA rewards are multiplied automatically
+• View full collection on website!
 
-*Play the game to earn more with your NFTs!*
+🌐 [View on Website]({MINT_URL}my-nfts.html?user_id={telegram_id})
                 """
             else:
                 # No NFTs yet
@@ -3132,17 +3157,22 @@ def handle_callback(call):
 
 💰 *How to get NFTs:*
 
-**Option 1: TAMA MINT** 💰
-• Cost: 5,000 TAMA
-• Get: Common (70%) or Rare (30%)
-• Bonus: +500 TAMA after mint
+**🥉 Bronze NFT** 💰
+• Cost: 2,500 TAMA or 0.05 SOL
+• Boost: 2-3x earning
+• Random rarity (Common to Legendary)
 
-**Option 2: PREMIUM MINT** ⭐
-• Cost: 0.1 SOL
-• Get: Epic (60%) or Legendary (40%)
-• Bonus: +10,000 TAMA after mint
+**🥈 Silver NFT** 💎
+• Cost: 0.1 SOL (SOL only)
+• Boost: 2.5-3.5x earning
+• Better rarity chances!
 
-🎮 *Play the game to earn TAMA and mint your first NFT!*
+**🥇 Gold NFT** 💎
+• Cost: 0.2 SOL (SOL only)
+• Boost: 3-4x earning
+• Best rarity chances!
+
+🌐 [Mint NFT Now]({MINT_URL}nft-mint.html?user_id={telegram_id})
                 """
             
             keyboard = types.InlineKeyboardMarkup()
