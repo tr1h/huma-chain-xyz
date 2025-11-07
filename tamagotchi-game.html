@@ -5614,7 +5614,7 @@
 
         // Enhanced auto-save system with local backup
 
-        // Direct save to Supabase function
+        // Save game data via our API
         async function saveDirectToSupabase(userId) {
             try {
                 // Prepare pet_data JSON
@@ -5632,18 +5632,17 @@
                     hasAutoFeeder: gameState.hasAutoFeeder
                 };
                 
-                // Save directly to Supabase (NO MORE RAILWAY API!)
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${userId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
+                // Save via our API (proper way!)
+                const apiUrl = `${TAMA_API_BASE}/leaderboard/upsert`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        user_id: userId,
+                        user_type: 'telegram',
                         tama: gameState.tama,
                         level: gameState.level,
+                        xp: gameState.xp,
                         pet_data: pet_data,
                         pet_name: gameState.petType || 'Gotchi',
                         pet_type: gameState.petType || 'kawai'
@@ -5651,14 +5650,16 @@
                 });
                 
                 if (response.ok) {
-                    console.log('✅ Saved to Supabase:', { level: gameState.level, tama: gameState.tama });
+                    const result = await response.json();
+                    console.log('✅ Saved via API:', { level: gameState.level, tama: gameState.tama });
                     return true;
                 } else {
-                    console.error('❌ Supabase save failed:', response.status);
+                    const error = await response.text();
+                    console.error('❌ API save failed:', response.status, error);
                     return false;
                 }
             } catch (error) {
-                console.error('❌ Error saving to Supabase:', error);
+                console.error('❌ Error saving via API:', error);
                 return false;
             }
         }

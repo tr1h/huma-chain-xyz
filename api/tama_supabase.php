@@ -91,6 +91,15 @@ switch ($path) {
         }
         break;
         
+    case '/leaderboard/upsert':
+        if ($method === 'POST') {
+            handleLeaderboardUpsert($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     case '/test':
         if ($method === 'GET') {
             handleTest($supabaseUrl, $supabaseKey);
@@ -570,6 +579,97 @@ function handleGetLeaderboard($url, $key) {
             'success' => true,
             'leaderboard' => $leaderboard
         ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Сохранить/обновить данные игры (UPSERT)
+ */
+function handleLeaderboardUpsert($url, $key) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $user_id = $input['user_id'] ?? null;
+    $user_type = $input['user_type'] ?? 'telegram';
+    $tama = $input['tama'] ?? null;
+    $level = $input['level'] ?? 1;
+    $xp = $input['xp'] ?? 0;
+    $pet_data = $input['pet_data'] ?? null;
+    $pet_name = $input['pet_name'] ?? 'Gotchi';
+    $pet_type = $input['pet_type'] ?? 'kawai';
+    
+    if (!$user_id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'user_id is required']);
+        return;
+    }
+    
+    if ($tama === null) {
+        http_response_code(400);
+        echo json_encode(['error' => 'tama balance is required']);
+        return;
+    }
+    
+    try {
+        // Check if user exists
+        $getResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => 'telegram_id',
+            'telegram_id' => 'eq.' . $user_id,
+            'limit' => '1'
+        ]);
+        
+        $updateData = [
+            'tama' => (int)$tama,
+            'level' => (int)$level,
+            'pet_data' => $pet_data,
+            'pet_name' => $pet_name,
+            'pet_type' => $pet_type,
+            'last_activity' => date('Y-m-d\TH:i:s.u\Z')
+        ];
+        
+        // If xp is provided, update it
+        if ($xp !== null) {
+            $updateData['xp'] = (int)$xp;
+        }
+        
+        if (!empty($getResult['data'])) {
+            // User exists - UPDATE
+            $updateResult = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+                'telegram_id' => 'eq.' . $user_id
+            ], $updateData);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Game data updated successfully',
+                'data' => [
+                    'user_id' => $user_id,
+                    'tama' => (int)$tama,
+                    'level' => (int)$level
+                ]
+            ]);
+        } else {
+            // User doesn't exist - INSERT (should not happen, but handle it)
+            $insertData = array_merge($updateData, [
+                'telegram_id' => $user_id,
+                'telegram_username' => $user_id, // Default username
+                'user_type' => $user_type
+            ]);
+            
+            $insertResult = supabaseRequest($url, $key, 'POST', 'leaderboard', [], $insertData);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Game data saved successfully (new user)',
+                'data' => [
+                    'user_id' => $user_id,
+                    'tama' => (int)$tama,
+                    'level' => (int)$level
+                ]
+            ]);
+        }
         
     } catch (Exception $e) {
         http_response_code(500);
