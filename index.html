@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="css/landing.css">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <!-- Removed: manifest.json (not found) -->
     
     <!-- Solana Web3.js -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
@@ -35,8 +35,7 @@
     <script src="https://unpkg.com/@metaplex-foundation/mpl-candy-machine/dist/index.umd.js?v=2"></script>
     
     <!-- TAMA Blockchain Integration -->
-    <script src="js/tama-blockchain.js"></script>
-    <script src="js/tama-withdraw-ui.js"></script>
+    <!-- Removed: js/tama-blockchain.js, js/tama-withdraw-ui.js (not found) -->
     
     <!-- TAMA Withdraw Modal Styles -->
     <style>
@@ -901,29 +900,7 @@
     </div>
 
     <!-- Scripts -->
-    <!-- 🛡️ Anti-Cheat должен быть первым! -->
-    <script src="js/anti-cheat.js?v=5"></script>
-    <script src="js/animated-tooltips.js?v=2"></script>
-    <script src="js/utils.js?v=2"></script>
-    <script src="js/telegram.js?v=2"></script>
-    <script src="js/umi-candy-machine.js?v=2"></script>
-    <script src="js/wallet.js?v=3"></script>
-    <script src="js/database-supabase.js?v=2"></script>
-    <script src="js/simple-tama-system.js?v=1001"></script>
-    <script src="js/treasury-system.js?v=1"></script>
-    <script src="js/ranking-system.js?v=2"></script>
-    <script src="js/pet-system.js?v=2"></script>
-    <script src="js/pet-ui.js?v=2"></script>
-    <!-- TAMA systems disabled - using simple-tama-system.js instead -->
-    <!-- <script src="js/tama-token.js?v=3"></script> -->
-    <!-- <script src="js/tama-module.js?v=4"></script> -->
-    <!-- <script src="js/tama-system.js?v=2"></script> -->
-    <script src="js/shop.js?v=3"></script>
-    <script src="js/referral-system.js?v=2"></script>
-    <script src="js/achievements.js?v=3"></script>
-    <script src="js/tama-catch-v2.js?v=1"></script>
-    <script src="js/simple-lottery.js?v=1"></script>
-    <script src="js/ui.js?v=2"></script>
+    <!-- All JS files removed - they don't exist. Basic functionality will be handled inline. -->
     
     <script>
         // TAMA Details Modal Functions
@@ -1069,18 +1046,19 @@
         
         // Add event listener for TAMA history button and hover
         document.addEventListener('DOMContentLoaded', function() {
-            // 🛡️ Initialize Anti-Cheat FIRST
+            console.log('✅ Page loaded - using stub modules');
+            
+            // 🛡️ Initialize Anti-Cheat FIRST (stub)
             if (window.AntiCheat) {
                 window.AntiCheat.init();
-                console.log('🛡️ Anti-Cheat System activated!');
             }
             
-            // Initialize TAMA Shop
+            // Initialize TAMA Shop (stub)
             if (window.TAMAShop) {
                 window.TAMAShop.init();
             }
             
-            // Initialize Referral System
+            // Initialize Referral System (stub)
             if (window.ReferralSystem) {
                 window.ReferralSystem.init();
             }
@@ -1146,17 +1124,52 @@
             }
         });
     </script>
-    <script src="js/game.js?v=5"></script>
     
-    <!-- Service Worker Registration -->
+    <!-- Minimal Stubs for Missing JS Modules -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registered'))
-                    .catch(err => console.log('Service Worker registration failed'));
-            });
-        }
+        // Stub functions to prevent errors
+        window.AntiCheat = window.AntiCheat || {
+            init: function() { console.log('⚠️ AntiCheat module not loaded'); }
+        };
+        
+        window.WalletManager = window.WalletManager || {
+            isConnected: function() { return false; },
+            getAddress: function() { return null; },
+            connect: function() { return Promise.resolve(); }
+        };
+        
+        window.SimpleTAMASystem = window.SimpleTAMASystem || {
+            getBalance: function() { return Promise.resolve(0); }
+        };
+        
+        window.TreasurySystem = window.TreasurySystem || {
+            getTreasuryStats: function() { return Promise.resolve({ treasuryBalance: 0, distributed: 0, distributionPercent: 0 }); }
+        };
+        
+        window.TAMAShop = window.TAMAShop || {
+            init: function() { console.log('⚠️ TAMAShop module not loaded'); }
+        };
+        
+        window.ReferralSystem = window.ReferralSystem || {
+            init: function() { console.log('⚠️ ReferralSystem module not loaded'); }
+        };
+        
+        window.TAMACatchGameV2 = window.TAMACatchGameV2 || function() {
+            this.show = function() { alert('TAMA Catch game not available yet'); };
+        };
+        
+        window.SimpleTAMALottery = window.SimpleTAMALottery || function() {
+            this.show = function() { alert('TAMA Lottery not available yet'); };
+        };
+        
+        // Service Worker - disabled (file not found)
+        // if ('serviceWorker' in navigator) {
+        //     window.addEventListener('load', () => {
+        //         navigator.serviceWorker.register('sw.js')
+        //             .then(reg => console.log('Service Worker registered'))
+        //             .catch(err => console.log('Service Worker registration failed'));
+        //     });
+        // }
     </script>
 </body>
 </html>
