@@ -100,6 +100,24 @@ switch ($path) {
         }
         break;
         
+    case '/leaderboard/list':
+        if ($method === 'GET') {
+            handleLeaderboardList($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/transactions/list':
+        if ($method === 'GET') {
+            handleTransactionsList($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     case '/test':
         if ($method === 'GET') {
             handleTest($supabaseUrl, $supabaseKey);
@@ -674,6 +692,68 @@ function handleLeaderboardUpsert($url, $key) {
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Получить список пользователей (для админ-панели)
+ */
+function handleLeaderboardList($url, $key) {
+    try {
+        // Get limit and offset from query parameters
+        $limit = $_GET['limit'] ?? '100';
+        $offset = $_GET['offset'] ?? '0';
+        $order = $_GET['order'] ?? 'tama.desc';
+        
+        $result = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'select' => '*',
+            'order' => $order,
+            'limit' => $limit,
+            'offset' => $offset
+        ]);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $result['data'] ?? []
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Получить список транзакций (для админ-панели)
+ */
+function handleTransactionsList($url, $key) {
+    try {
+        // Get parameters from query string
+        $limit = $_GET['limit'] ?? '100';
+        $offset = $_GET['offset'] ?? '0';
+        $order = $_GET['order'] ?? 'created_at.desc';
+        
+        // Try to fetch from transactions table
+        $result = supabaseRequest($url, $key, 'GET', 'transactions', [
+            'select' => 'id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at',
+            'order' => $order,
+            'limit' => $limit,
+            'offset' => $offset
+        ]);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $result['data'] ?? []
+        ]);
+        
+    } catch (Exception $e) {
+        // If transactions table doesn't exist, return empty array
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'data' => [],
+            'message' => 'Transactions table not found or empty'
+        ]);
     }
 }
 
