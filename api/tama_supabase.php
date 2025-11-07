@@ -100,6 +100,24 @@ switch ($path) {
         }
         break;
         
+    case '/holders':
+        if ($method === 'GET') {
+            handleGetHolders($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/pools':
+        if ($method === 'GET') {
+            handleGetPools($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     case '/withdrawal/request':
         if ($method === 'POST') {
             handleWithdrawalRequest($supabaseUrl, $supabaseKey);
@@ -112,6 +130,33 @@ switch ($path) {
     case '/withdrawal/history':
         if ($method === 'GET') {
             handleWithdrawalHistory($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/distribute':
+        if ($method === 'POST') {
+            handleDistribute($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/mint':
+        if ($method === 'POST') {
+            handleMint($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/send':
+        if ($method === 'POST') {
+            handleSend($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
@@ -582,15 +627,14 @@ function handleWithdrawalRequest($url, $key) {
         $newBalance = $currentBalance - $amount;
         
         // РЕАЛЬНАЯ ТРАНЗАКЦИЯ В SOLANA через spl-token CLI
+        // ИЗМЕНЕНО: Теперь используем P2E Pool вместо mint authority
         $tamaMint = getenv('TAMA_MINT_ADDRESS');
         $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
         $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
-        $mintKeypair = getenv('SOLANA_MINT_KEYPAIR_PATH') ?: __DIR__ . '/../tama-mint-keypair.json';
+        $p2ePoolKeypair = getenv('SOLANA_P2E_POOL_KEYPAIR_PATH') ?: __DIR__ . '/../p2e-pool-keypair.json';
         
-        // Fallback: если mint keypair не найден, используем payer keypair
-        if (!file_exists($mintKeypair)) {
-            $mintKeypair = $payerKeypair;
-        }
+        // P2E Pool Address: HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw
+        $p2ePoolAddress = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
         
         if (!$tamaMint) {
             http_response_code(500);
@@ -604,20 +648,22 @@ function handleWithdrawalRequest($url, $key) {
             return;
         }
         
-        // ВАЖНО: spl-token transfer принимает amount в базовых единицах токена
-        // НО для SPL токенов нужно использовать --decimals или передавать уже в lamports
-        // TAMA имеет 9 decimals, поэтому spl-token ожидает amount * 10^9
-        // НО! spl-token transfer может автоматически конвертировать, если передать с decimals
-        // Попробуем сначала без конвертации (spl-token сам конвертирует)
+        if (!file_exists($p2ePoolKeypair)) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'P2E Pool keypair not found: ' . $p2ePoolKeypair,
+                'details' => 'P2E Pool keypair is required for withdrawals. Please ensure p2e-pool-keypair.json exists.'
+            ]);
+            return;
+        }
         
-        // ВАЖНО: spl-token transfer требует, чтобы owner имел token account с балансом
-        // У payer keypair есть token account с TAMA токенами (~999.95 TAMA)
-        // У mint keypair НЕТ token account
-        // Поэтому используем payer keypair как owner
+        // ВАЖНО: Теперь используем P2E Pool как источник токенов
+        // Токены переводятся из P2E Pool, а не минтится новые
+        // Это правильная реализация согласно токеномике
         
-        // Выполнить spl-token transfer
-        // Используем payer keypair как owner (у него есть token account с балансом)
-        // И как fee-payer (у него есть SOL для комиссии)
+        // Выполнить spl-token transfer из P2E Pool
+        // Используем p2e-pool-keypair как owner (у него должны быть токены)
+        // Используем payer keypair как fee-payer (для оплаты комиссии)
         $cmd = [
             'spl-token',
             'transfer',
@@ -625,8 +671,9 @@ function handleWithdrawalRequest($url, $key) {
             (string)$amountSent,  // Amount after fee - spl-token сам конвертирует с учетом decimals (9)
             $wallet_address,
             '--fund-recipient',  // Create ATA if needed
-            '--fee-payer', $payerKeypair,
-            '--owner', $payerKeypair,  // Owner должен иметь token account с балансом
+            '--allow-unfunded-recipient',  // Allow sending to unfunded addresses
+            '--fee-payer', $payerKeypair,  // Кто платит за транзакцию (SOL)
+            '--owner', $p2ePoolKeypair,  // Owner - P2E Pool (отсюда берутся токены)
             '--url', $rpcUrl,
             '--output', 'json'
         ];
@@ -772,11 +819,12 @@ function handleWithdrawalRequest($url, $key) {
         $explorerUrl = 'https://explorer.solana.com/tx/' . $txSignature . '?cluster=' . $cluster;
         
         // Обновить баланс в Supabase
+        $currentTotalWithdrawn = (int)($getResult['data'][0]['total_withdrawn'] ?? 0);
         supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
             'telegram_id' => 'eq.' . $telegram_id
         ], [
             'tama' => $newBalance,
-            'total_withdrawn' => ($getResult['data'][0]['total_withdrawn'] ?? 0) + $amount
+            'total_withdrawn' => $currentTotalWithdrawn + $amountSent // Используем amount_sent (после fee)
         ]);
         
         // Сохранить withdrawal в таблицу (если есть tama_economy или withdrawals)
@@ -785,9 +833,12 @@ function handleWithdrawalRequest($url, $key) {
                 'telegram_id' => $telegram_id,
                 'transaction_type' => 'withdrawal',
                 'amount' => -$amount, // Negative for withdrawal
+                'amount_sent' => $amountSent, // Net amount after fee
                 'fee' => $fee,
                 'signature' => $txSignature,
                 'wallet_address' => $wallet_address,
+                'source' => 'p2e_pool', // Указываем что токены из P2E Pool
+                'source_address' => $p2ePoolAddress, // Адрес P2E Pool
                 'status' => 'completed'
             ]);
         } catch (Exception $e) {
@@ -856,6 +907,1122 @@ function handleWithdrawalHistory($url, $key) {
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Распределение токенов между кошельками проекта
+ * POST /api/tama/distribute
+ * Body: { from_wallet: 'address', to_wallet: 'address', amount: 1000000 }
+ */
+function handleDistribute($url, $key) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $fromWallet = $input['from_wallet'] ?? null;
+    $toWallet = $input['to_wallet'] ?? null;
+    $amount = $input['amount'] ?? null;
+    
+    if (!$fromWallet || !$toWallet || !$amount) {
+        http_response_code(400);
+        echo json_encode(['error' => 'from_wallet, to_wallet, and amount are required']);
+        return;
+    }
+    
+    if ($amount < 1) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Amount must be at least 1 TAMA']);
+        return;
+    }
+    
+    try {
+        // РЕАЛЬНАЯ ТРАНЗАКЦИЯ В SOLANA через spl-token CLI
+        $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
+        $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
+        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
+        
+        if (!$tamaMint) {
+            http_response_code(500);
+            echo json_encode(['error' => 'TAMA_MINT_ADDRESS not configured']);
+            return;
+        }
+        
+        if (!file_exists($payerKeypair)) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Payer keypair not found: ' . $payerKeypair]);
+            return;
+        }
+        
+        // Проверить, установлен ли spl-token
+        $splTokenCheck = shell_exec('spl-token --version 2>&1');
+        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'spl-token CLI not found',
+                'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools'
+            ]);
+            return;
+        }
+        
+        // Выполнить spl-token transfer от from_wallet к to_wallet
+        // Используем payer keypair как fee-payer и owner (у него есть token account с балансом)
+        $cmd = [
+            'spl-token',
+            'transfer',
+            $tamaMint,
+            (string)$amount,  // Amount - spl-token сам конвертирует с учетом decimals (9)
+            $toWallet,
+            '--fund-recipient',  // Create ATA if needed
+            '--allow-unfunded-recipient',  // Allow sending to unfunded addresses (no SOL needed)
+            '--fee-payer', $payerKeypair,
+            '--owner', $payerKeypair,  // Owner должен иметь token account с балансом
+            '--url', $rpcUrl,
+            '--output', 'json'
+        ];
+        
+        $descriptorspec = [
+            0 => ['pipe', 'r'],  // stdin
+            1 => ['pipe', 'w'],  // stdout
+            2 => ['pipe', 'w']   // stderr
+        ];
+        
+        // Форматируем команду для Windows
+        $cmdString = '';
+        foreach ($cmd as $arg) {
+            if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0 || strpos($arg, '.json') !== false) {
+                $cmdString .= escapeshellarg($arg) . ' ';
+            } else {
+                $cmdString .= $arg . ' ';
+            }
+        }
+        $cmdString = trim($cmdString);
+        
+        // Увеличиваем время выполнения
+        set_time_limit(120);
+        
+        $process = proc_open($cmdString, $descriptorspec, $pipes);
+        
+        if (!is_resource($process)) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Failed to start spl-token process',
+                'command' => $cmdString
+            ]);
+            return;
+        }
+        
+        fclose($pipes[0]);
+        
+        // Читаем вывод с таймаутом
+        $stdout = '';
+        $stderr = '';
+        $startTime = time();
+        $timeout = 90;
+        
+        while (true) {
+            $status = proc_get_status($process);
+            
+            if ($status === false) {
+                break;
+            }
+            
+            if ($status['running'] === false) {
+                // Процесс завершился, читаем оставшиеся данные
+                $stdout .= stream_get_contents($pipes[1]);
+                $stderr .= stream_get_contents($pipes[2]);
+                break;
+            }
+            
+            // Проверяем таймаут
+            if (time() - $startTime > $timeout) {
+                proc_terminate($process);
+                proc_close($process);
+                http_response_code(500);
+                echo json_encode([
+                    'error' => 'Transaction timeout',
+                    'timeout' => $timeout
+                ]);
+                return;
+            }
+            
+            // Неблокирующее чтение
+            $read = [$pipes[1], $pipes[2]];
+            $write = null;
+            $except = null;
+            
+            if (stream_select($read, $write, $except, 0, 200000) > 0) {
+                if (in_array($pipes[1], $read)) {
+                    $chunk = fread($pipes[1], 8192);
+                    if ($chunk !== false) {
+                        $stdout .= $chunk;
+                    }
+                }
+                if (in_array($pipes[2], $read)) {
+                    $chunk = fread($pipes[2], 8192);
+                    if ($chunk !== false) {
+                        $stderr .= $chunk;
+                    }
+                }
+            }
+            
+            usleep(100000); // 100ms
+        }
+        
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $returnCode = proc_close($process);
+        
+        if ($returnCode !== 0) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Solana transaction failed',
+                'return_code' => $returnCode,
+                'stderr' => $stderr,
+                'stdout' => $stdout,
+                'command' => $cmdString
+            ]);
+            return;
+        }
+        
+        // Парсим результат
+        $result = json_decode($stdout, true);
+        $signature = $result['signature'] ?? null;
+        
+        if (!$signature) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Transaction signature not found',
+                'stdout' => $stdout,
+                'stderr' => $stderr
+            ]);
+            return;
+        }
+        
+        // Успешно!
+        echo json_encode([
+            'success' => true,
+            'message' => 'Tokens distributed successfully',
+            'from_wallet' => $fromWallet,
+            'to_wallet' => $toWallet,
+            'amount' => $amount,
+            'signature' => $signature,
+            'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Минтинг новых токенов (создание токенов)
+ * POST /api/tama/mint
+ * Body: { to_wallet: 'address', amount: 1000000 }
+ */
+function handleMint($url, $key) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $toWallet = $input['to_wallet'] ?? null;
+    $amount = $input['amount'] ?? null;
+    
+    if (!$toWallet || !$amount) {
+        http_response_code(400);
+        echo json_encode(['error' => 'to_wallet and amount are required']);
+        return;
+    }
+    
+    if ($amount < 1) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Amount must be at least 1 TAMA']);
+        return;
+    }
+    
+    try {
+        // РЕАЛЬНАЯ ТРАНЗАКЦИЯ В SOLANA через spl-token CLI
+        $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
+        $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
+        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
+        $mintKeypair = getenv('SOLANA_MINT_KEYPAIR_PATH') ?: __DIR__ . '/../tama-mint-keypair.json';
+        
+        if (!$tamaMint) {
+            http_response_code(500);
+            echo json_encode(['error' => 'TAMA_MINT_ADDRESS not configured']);
+            return;
+        }
+        
+        if (!file_exists($payerKeypair)) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Payer keypair not found: ' . $payerKeypair]);
+            return;
+        }
+        
+        // Проверить, установлен ли spl-token
+        $splTokenCheck = shell_exec('spl-token --version 2>&1');
+        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'spl-token CLI not found',
+                'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools'
+            ]);
+            return;
+        }
+        
+        // Выполнить spl-token mint (создание новых токенов)
+        // Используем mint keypair как owner (mint authority)
+        // Используем payer keypair как fee-payer
+        $cmd = [
+            'spl-token',
+            'mint',
+            $tamaMint,
+            (string)$amount,  // Amount - spl-token сам конвертирует с учетом decimals (9)
+            $toWallet,
+            '--owner', $mintKeypair,  // Mint authority (может создавать токены)
+            '--fee-payer', $payerKeypair,  // Кто платит за транзакцию
+            '--url', $rpcUrl,
+            '--output', 'json'
+        ];
+        
+        $descriptorspec = [
+            0 => ['pipe', 'r'],  // stdin
+            1 => ['pipe', 'w'],  // stdout
+            2 => ['pipe', 'w']   // stderr
+        ];
+        
+        // Форматируем команду для Windows
+        $cmdString = '';
+        foreach ($cmd as $arg) {
+            if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0 || strpos($arg, '.json') !== false) {
+                $cmdString .= escapeshellarg($arg) . ' ';
+            } else {
+                $cmdString .= $arg . ' ';
+            }
+        }
+        $cmdString = trim($cmdString);
+        
+        // Увеличиваем время выполнения
+        set_time_limit(120);
+        
+        $process = proc_open($cmdString, $descriptorspec, $pipes);
+        
+        if (!is_resource($process)) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Failed to start spl-token process',
+                'command' => $cmdString
+            ]);
+            return;
+        }
+        
+        fclose($pipes[0]);
+        
+        // Читаем вывод с таймаутом
+        $stdout = '';
+        $stderr = '';
+        $startTime = time();
+        $timeout = 90;
+        
+        while (true) {
+            $status = proc_get_status($process);
+            
+            if ($status === false) {
+                break;
+            }
+            
+            if ($status['running'] === false) {
+                // Процесс завершился, читаем оставшиеся данные
+                $stdout .= stream_get_contents($pipes[1]);
+                $stderr .= stream_get_contents($pipes[2]);
+                break;
+            }
+            
+            // Проверяем таймаут
+            if (time() - $startTime > $timeout) {
+                proc_terminate($process);
+                proc_close($process);
+                http_response_code(500);
+                echo json_encode([
+                    'error' => 'Transaction timeout',
+                    'timeout' => $timeout
+                ]);
+                return;
+            }
+            
+            // Неблокирующее чтение
+            $read = [$pipes[1], $pipes[2]];
+            $write = null;
+            $except = null;
+            
+            if (stream_select($read, $write, $except, 0, 200000) > 0) {
+                if (in_array($pipes[1], $read)) {
+                    $chunk = fread($pipes[1], 8192);
+                    if ($chunk !== false) {
+                        $stdout .= $chunk;
+                    }
+                }
+                if (in_array($pipes[2], $read)) {
+                    $chunk = fread($pipes[2], 8192);
+                    if ($chunk !== false) {
+                        $stderr .= $chunk;
+                    }
+                }
+            }
+            
+            usleep(100000); // 100ms
+        }
+        
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $returnCode = proc_close($process);
+        
+        if ($returnCode !== 0) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Mint transaction failed',
+                'return_code' => $returnCode,
+                'stderr' => $stderr,
+                'stdout' => $stdout,
+                'command' => $cmdString
+            ]);
+            return;
+        }
+        
+        // Парсим результат
+        $result = json_decode($stdout, true);
+        $signature = $result['signature'] ?? null;
+        
+        if (!$signature) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Transaction signature not found',
+                'stdout' => $stdout,
+                'stderr' => $stderr
+            ]);
+            return;
+        }
+        
+        // Успешно!
+        echo json_encode([
+            'success' => true,
+            'message' => 'Tokens minted successfully',
+            'to_wallet' => $toWallet,
+            'amount' => $amount,
+            'signature' => $signature,
+            'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Отправка токенов с конкретного кошелька
+ * POST /api/tama/send
+ * Body: { from_wallet: 'address', from_keypair_file: 'p2e-pool-keypair.json', to_wallet: 'address', amount: 1000000 }
+ */
+function handleSend($url, $key) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $fromWallet = $input['from_wallet'] ?? null;
+    $fromKeypairFile = $input['from_keypair_file'] ?? null;
+    $toWallet = $input['to_wallet'] ?? null;
+    $amount = $input['amount'] ?? null;
+    
+    if (!$fromWallet || !$fromKeypairFile || !$toWallet || !$amount) {
+        http_response_code(400);
+        echo json_encode(['error' => 'from_wallet, from_keypair_file, to_wallet, and amount are required']);
+        return;
+    }
+    
+    if ($amount < 1) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Amount must be at least 1 TAMA']);
+        return;
+    }
+    
+    try {
+        // РЕАЛЬНАЯ ТРАНЗАКЦИЯ В SOLANA через spl-token CLI
+        $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
+        $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
+        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
+        
+        // Путь к keypair файлу отправителя
+        $fromKeypairPath = __DIR__ . '/../' . $fromKeypairFile;
+        
+        if (!$tamaMint) {
+            http_response_code(500);
+            echo json_encode(['error' => 'TAMA_MINT_ADDRESS not configured']);
+            return;
+        }
+        
+        if (!file_exists($fromKeypairPath)) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'From keypair not found',
+                'path' => $fromKeypairPath,
+                'file' => $fromKeypairFile
+            ]);
+            return;
+        }
+        
+        if (!file_exists($payerKeypair)) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Payer keypair not found: ' . $payerKeypair]);
+            return;
+        }
+        
+        // Проверить, установлен ли spl-token
+        $splTokenCheck = shell_exec('spl-token --version 2>&1');
+        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'spl-token CLI not found',
+                'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools'
+            ]);
+            return;
+        }
+        
+        // Выполнить spl-token transfer от from_wallet к to_wallet
+        // Используем from_keypair как owner (у него должны быть токены)
+        // Используем payer keypair как fee-payer (для оплаты комиссии)
+        $cmd = [
+            'spl-token',
+            'transfer',
+            $tamaMint,
+            (string)$amount,  // Amount - spl-token сам конвертирует с учетом decimals (9)
+            $toWallet,
+            '--fund-recipient',  // Create ATA if needed
+            '--allow-unfunded-recipient',  // Allow sending to unfunded addresses (no SOL needed)
+            '--fee-payer', $payerKeypair,  // Кто платит за транзакцию
+            '--owner', $fromKeypairPath,  // Owner - кошелек отправителя (у него должны быть токены)
+            '--url', $rpcUrl,
+            '--output', 'json'
+        ];
+        
+        $descriptorspec = [
+            0 => ['pipe', 'r'],  // stdin
+            1 => ['pipe', 'w'],  // stdout
+            2 => ['pipe', 'w']   // stderr
+        ];
+        
+        // Форматируем команду для Windows
+        $cmdString = '';
+        foreach ($cmd as $arg) {
+            if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0 || strpos($arg, '.json') !== false) {
+                $cmdString .= escapeshellarg($arg) . ' ';
+            } else {
+                $cmdString .= $arg . ' ';
+            }
+        }
+        $cmdString = trim($cmdString);
+        
+        // Увеличиваем время выполнения
+        set_time_limit(120);
+        
+        $process = proc_open($cmdString, $descriptorspec, $pipes);
+        
+        if (!is_resource($process)) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Failed to start spl-token process',
+                'command' => $cmdString
+            ]);
+            return;
+        }
+        
+        fclose($pipes[0]);
+        
+        // Читаем вывод с таймаутом
+        $stdout = '';
+        $stderr = '';
+        $startTime = time();
+        $timeout = 90;
+        
+        while (true) {
+            $status = proc_get_status($process);
+            
+            if ($status === false) {
+                break;
+            }
+            
+            if ($status['running'] === false) {
+                // Процесс завершился, читаем оставшиеся данные
+                $stdout .= stream_get_contents($pipes[1]);
+                $stderr .= stream_get_contents($pipes[2]);
+                break;
+            }
+            
+            // Проверяем таймаут
+            if (time() - $startTime > $timeout) {
+                proc_terminate($process);
+                proc_close($process);
+                http_response_code(500);
+                echo json_encode([
+                    'error' => 'Transaction timeout',
+                    'timeout' => $timeout
+                ]);
+                return;
+            }
+            
+            // Неблокирующее чтение
+            $read = [$pipes[1], $pipes[2]];
+            $write = null;
+            $except = null;
+            
+            if (stream_select($read, $write, $except, 0, 200000) > 0) {
+                if (in_array($pipes[1], $read)) {
+                    $chunk = fread($pipes[1], 8192);
+                    if ($chunk !== false) {
+                        $stdout .= $chunk;
+                    }
+                }
+                if (in_array($pipes[2], $read)) {
+                    $chunk = fread($pipes[2], 8192);
+                    if ($chunk !== false) {
+                        $stderr .= $chunk;
+                    }
+                }
+            }
+            
+            usleep(100000); // 100ms
+        }
+        
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $returnCode = proc_close($process);
+        
+        if ($returnCode !== 0) {
+            http_response_code(500);
+            
+            // Парсим более детальную информацию об ошибке
+            $errorMessage = 'Send transaction failed';
+            if (strpos($stderr, 'InsufficientFunds') !== false) {
+                $errorMessage = 'Insufficient funds in source wallet';
+            } elseif (strpos($stderr, 'AccountNotFound') !== false) {
+                $errorMessage = 'Token account not found. The source wallet may not have TAMA tokens.';
+            } elseif (strpos($stderr, 'Insufficient') !== false) {
+                $errorMessage = 'Insufficient balance in source wallet';
+            }
+            
+            echo json_encode([
+                'error' => $errorMessage,
+                'return_code' => $returnCode,
+                'stderr' => trim($stderr),
+                'stdout' => trim($stdout),
+                'command' => $cmdString,
+                'from_wallet' => $fromWallet,
+                'from_keypair_file' => $fromKeypairFile,
+                'from_keypair_path' => $fromKeypairPath
+            ]);
+            return;
+        }
+        
+        // Парсим результат
+        $result = json_decode($stdout, true);
+        $signature = $result['signature'] ?? null;
+        
+        if (!$signature) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Transaction signature not found',
+                'stdout' => $stdout,
+                'stderr' => $stderr
+            ]);
+            return;
+        }
+        
+        // Успешно!
+        echo json_encode([
+            'success' => true,
+            'message' => 'Tokens sent successfully',
+            'from_wallet' => $fromWallet,
+            'to_wallet' => $toWallet,
+            'amount' => $amount,
+            'signature' => $signature,
+            'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Получить список всех держателей TAMA токенов
+ * Использует Solana RPC getProgramAccounts для получения всех token accounts
+ */
+function handleGetHolders($url, $key) {
+    $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
+    $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
+    
+    try {
+        // Используем getTokenLargestAccounts для получения топ держателей
+        // Этот метод работает на публичных RPC и не требует getProgramAccounts
+        $rpcRequest = [
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'getTokenLargestAccounts',
+            'params' => [
+                $tamaMint
+            ]
+        ];
+        
+        // Отправляем запрос к Solana RPC
+        $ch = curl_init($rpcUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($rpcRequest));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        if ($curlError) {
+            throw new Exception('RPC request failed: ' . $curlError);
+        }
+        
+        if ($httpCode !== 200) {
+            throw new Exception('RPC returned HTTP ' . $httpCode);
+        }
+        
+        $rpcData = json_decode($response, true);
+        
+        if (isset($rpcData['error'])) {
+            throw new Exception('RPC error: ' . $rpcData['error']['message']);
+        }
+        
+        if (!isset($rpcData['result']['value']) || !is_array($rpcData['result']['value'])) {
+            throw new Exception('Invalid RPC response');
+        }
+        
+        // Парсим результаты
+        $holders = [];
+        foreach ($rpcData['result']['value'] as $account) {
+            $tokenAccountPubkey = $account['address'];
+            $amountRaw = $account['amount'];
+            
+            // Конвертируем из lamports (9 decimals)
+            $amountTama = $amountRaw / pow(10, TAMA_DECIMALS);
+            
+            // Пропускаем нулевые балансы
+            if ($amountTama > 0) {
+                // Получаем owner address через RPC getAccountInfo
+                $ownerAddress = getTokenAccountOwner($tokenAccountPubkey, $rpcUrl);
+                
+                // Если не удалось получить через RPC, используем token account как fallback
+                if ($ownerAddress === 'Unknown') {
+                    $ownerAddress = $tokenAccountPubkey; // Временное решение
+                }
+                
+                $holders[] = [
+                    'address' => $ownerAddress,
+                    'token_account' => $tokenAccountPubkey,
+                    'balance' => $amountTama,
+                    'balance_raw' => $amountRaw
+                ];
+            }
+        }
+        
+        // Сортируем по балансу (от большего к меньшему)
+        usort($holders, function($a, $b) {
+            return $b['balance'] <=> $a['balance'];
+        });
+        
+        // Подсчитываем статистику
+        $totalHolders = count($holders);
+        $totalBalance = array_sum(array_column($holders, 'balance'));
+        
+        echo json_encode([
+            'success' => true,
+            'holders' => $holders,
+            'total_holders' => $totalHolders,
+            'total_balance' => $totalBalance,
+            'mint_address' => $tamaMint
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'error' => $e->getMessage(),
+            'details' => 'Failed to fetch token holders from Solana RPC'
+        ]);
+    }
+}
+
+/**
+ * Получить mint address token account через RPC
+ */
+function getTokenAccountMint($tokenAccount, $rpcUrl) {
+    try {
+        $rpcRequest = [
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'getAccountInfo',
+            'params' => [
+                $tokenAccount,
+                ['encoding' => 'jsonParsed']
+            ]
+        ];
+        
+        $ch = curl_init($rpcUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($rpcRequest));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        
+        $response = curl_exec($ch);
+        curl_close($ch);
+        
+        $rpcData = json_decode($response, true);
+        
+        if (isset($rpcData['result']['value']['data']['parsed']['info']['mint'])) {
+            return $rpcData['result']['value']['data']['parsed']['info']['mint'];
+        }
+        
+        return null;
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+/**
+ * Получить owner address token account через RPC
+ */
+function getTokenAccountOwner($tokenAccount, $rpcUrl) {
+    try {
+        // Используем jsonParsed encoding для более простого парсинга
+        $rpcRequest = [
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'getAccountInfo',
+            'params' => [
+                $tokenAccount,
+                ['encoding' => 'jsonParsed']
+            ]
+        ];
+        
+        $ch = curl_init($rpcUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($rpcRequest));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        
+        $response = curl_exec($ch);
+        curl_close($ch);
+        
+        $rpcData = json_decode($response, true);
+        
+        // Парсим owner address из jsonParsed ответа
+        if (isset($rpcData['result']['value']['data']['parsed']['info']['owner'])) {
+            return $rpcData['result']['value']['data']['parsed']['info']['owner'];
+        }
+        
+        // Fallback: используем base64 encoding
+        $rpcRequest2 = [
+            'jsonrpc' => '2.0',
+            'id' => 2,
+            'method' => 'getAccountInfo',
+            'params' => [
+                $tokenAccount,
+                ['encoding' => 'base64']
+            ]
+        ];
+        
+        $ch2 = curl_init($rpcUrl);
+        curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch2, CURLOPT_POST, true);
+        curl_setopt($ch2, CURLOPT_POSTFIELDS, json_encode($rpcRequest2));
+        curl_setopt($ch2, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch2, CURLOPT_TIMEOUT, 5);
+        
+        $response2 = curl_exec($ch2);
+        curl_close($ch2);
+        
+        $rpcData2 = json_decode($response2, true);
+        
+        if (isset($rpcData2['result']['value']['data'][0])) {
+            $decodedData = base64_decode($rpcData2['result']['value']['data'][0]);
+            
+            // Owner находится по offset 32 (32 bytes)
+            if (strlen($decodedData) >= 64) {
+                $ownerBytes = substr($decodedData, 32, 32);
+                // Конвертируем в base58
+                return bytesToBase58($ownerBytes);
+            }
+        }
+        
+        return 'Unknown';
+    } catch (Exception $e) {
+        return 'Unknown';
+    }
+}
+
+/**
+ * Получить mint address bytes через RPC getAccountInfo
+ * Используем RPC для получения account info и извлечения pubkey bytes
+ */
+function getMintAddressBytes($mintAddress, $rpcUrl) {
+    try {
+        // Получаем account info для mint address
+        $rpcRequest = [
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'getAccountInfo',
+            'params' => [
+                $mintAddress,
+                ['encoding' => 'jsonParsed']
+            ]
+        ];
+        
+        $ch = curl_init($rpcUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($rpcRequest));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        
+        $response = curl_exec($ch);
+        curl_close($ch);
+        
+        $rpcData = json_decode($response, true);
+        
+        // Если account существует, используем его pubkey
+        // Но нам нужны raw bytes для сравнения
+        // Используем другой подход - получаем через base64 encoding
+        
+        // Альтернативный подход: используем getAccountInfo с base64 encoding
+        $rpcRequest2 = [
+            'jsonrpc' => '2.0',
+            'id' => 2,
+            'method' => 'getAccountInfo',
+            'params' => [
+                $mintAddress,
+                ['encoding' => 'base64']
+            ]
+        ];
+        
+        $ch2 = curl_init($rpcUrl);
+        curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch2, CURLOPT_POST, true);
+        curl_setopt($ch2, CURLOPT_POSTFIELDS, json_encode($rpcRequest2));
+        curl_setopt($ch2, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch2, CURLOPT_TIMEOUT, 10);
+        
+        $response2 = curl_exec($ch2);
+        curl_close($ch2);
+        
+        // На самом деле, нам не нужны bytes mint address для сравнения
+        // Мы можем сравнивать напрямую через base58 строку или использовать другой метод
+        // Для простоты, вернем null и будем сравнивать через другой способ
+        
+        // Используем упрощенный подход: сравниваем через owner address или используем другой метод фильтрации
+        return null; // Вернем null, фильтрация будет через другой способ
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+/**
+ * Конвертировать bytes в base58 адрес
+ * Упрощенная версия base58 encoding
+ */
+function bytesToBase58($data) {
+    $alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    $base = strlen($alphabet);
+    
+    // Конвертируем bytes в big integer
+    $num = '0';
+    for ($i = 0; $i < strlen($data); $i++) {
+        $num = bcmul($num, '256');
+        $num = bcadd($num, (string)ord($data[$i]));
+    }
+    
+    // Конвертируем в base58
+    $result = '';
+    while (bccomp($num, '0') > 0) {
+        $remainder = bcmod($num, (string)$base);
+        $num = bcdiv($num, (string)$base, 0);
+        $result = $alphabet[(int)$remainder] . $result;
+    }
+    
+    // Добавляем ведущие нули
+    for ($i = 0; $i < strlen($data) && $data[$i] === "\0"; $i++) {
+        $result = $alphabet[0] . $result;
+    }
+    
+    return $result;
+}
+
+/**
+ * Получить фактическое распределение токенов по пулам проекта
+ */
+function handleGetPools($url, $key) {
+    $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
+    $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
+    
+    // Конфигурация пулов проекта
+    $pools = [
+        [
+            'name' => 'P2E Pool',
+            'address' => 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw',
+            'planned' => 400000000,
+            'percentage' => 40,
+            'status' => 'active',
+            'description' => 'Play-to-Earn rewards pool'
+        ],
+        [
+            'name' => 'Team',
+            'address' => 'AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR',
+            'planned' => 200000000,
+            'percentage' => 20,
+            'status' => 'locked',
+            'description' => 'Team allocation (vesting 4 years)'
+        ],
+        [
+            'name' => 'Marketing',
+            'address' => '2eryce7DH7mqDCPegTb696FjXReA5qmx9xfCKH5UneeF',
+            'planned' => 150000000,
+            'percentage' => 15,
+            'status' => 'active',
+            'description' => 'Marketing & partnerships'
+        ],
+        [
+            'name' => 'Liquidity',
+            'address' => '5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z',
+            'planned' => 100000000,
+            'percentage' => 10,
+            'status' => 'locked',
+            'description' => 'DEX liquidity (Raydium, Jupiter)'
+        ],
+        [
+            'name' => 'Community',
+            'address' => '9X1DYKzHiYP4V2UuVNGbU42DQkd8ST1nPwbJDuFQY3T',
+            'planned' => 100000000,
+            'percentage' => 10,
+            'status' => 'active',
+            'description' => 'Community rewards & airdrops'
+        ],
+        [
+            'name' => 'Reserve',
+            'address' => '8cDHbeHcuspjGKXofYzApCCBrAVenSHPy2UAPU1iCEj6',
+            'planned' => 50000000,
+            'percentage' => 5,
+            'status' => 'locked',
+            'description' => 'Reserve fund (emergency)'
+        ],
+        [
+            'name' => 'Payer',
+            'address' => '8s88JVHG8Cb6HGKi25rjnMA19MuW723M6pJRDW3maDVi',
+            'planned' => 0,
+            'percentage' => 0,
+            'status' => 'active',
+            'description' => 'Mint Authority & Transaction Payer'
+        ]
+    ];
+    
+    try {
+        // Получаем балансы для всех пулов
+        $poolsData = [];
+        $totalActual = 0;
+        
+        foreach ($pools as $pool) {
+            $balance = getTokenBalance($pool['address'], $tamaMint, $rpcUrl);
+            $balanceTama = $balance / pow(10, TAMA_DECIMALS);
+            $totalActual += $balanceTama;
+            
+            $poolsData[] = [
+                'name' => $pool['name'],
+                'address' => $pool['address'],
+                'planned' => $pool['planned'],
+                'actual' => $balanceTama,
+                'difference' => $balanceTama - $pool['planned'],
+                'percentage_planned' => $pool['percentage'],
+                'percentage_actual' => 0, // Будет рассчитано после
+                'status' => $pool['status'],
+                'description' => $pool['description']
+            ];
+        }
+        
+        // Рассчитываем процент от общего фактического баланса
+        $totalSupply = 1000000000; // 1B TAMA
+        foreach ($poolsData as &$pool) {
+            $pool['percentage_actual'] = $totalSupply > 0 ? ($pool['actual'] / $totalSupply) * 100 : 0;
+        }
+        
+        // Сортируем по фактическому балансу (от большего к меньшему)
+        usort($poolsData, function($a, $b) {
+            return $b['actual'] <=> $a['actual'];
+        });
+        
+        echo json_encode([
+            'success' => true,
+            'pools' => $poolsData,
+            'total_planned' => 1000000000,
+            'total_actual' => $totalActual,
+            'total_supply' => $totalSupply,
+            'mint_address' => $tamaMint
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'error' => $e->getMessage(),
+            'details' => 'Failed to fetch pool balances'
+        ]);
+    }
+}
+
+/**
+ * Получить баланс TAMA токенов для адреса
+ */
+function getTokenBalance($walletAddress, $mintAddress, $rpcUrl) {
+    try {
+        // Используем getTokenAccountsByOwner для получения token accounts
+        $rpcRequest = [
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'getTokenAccountsByOwner',
+            'params' => [
+                $walletAddress,
+                [
+                    'mint' => $mintAddress
+                ],
+                [
+                    'encoding' => 'jsonParsed'
+                ]
+            ]
+        ];
+        
+        $ch = curl_init($rpcUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($rpcRequest));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        
+        $response = curl_exec($ch);
+        curl_close($ch);
+        
+        $rpcData = json_decode($response, true);
+        
+        if (isset($rpcData['result']['value']) && is_array($rpcData['result']['value']) && count($rpcData['result']['value']) > 0) {
+            // Получаем баланс из первого token account
+            $tokenAccount = $rpcData['result']['value'][0];
+            if (isset($tokenAccount['account']['data']['parsed']['info']['tokenAmount']['amount'])) {
+                return (int)$tokenAccount['account']['data']['parsed']['info']['tokenAmount']['amount'];
+            }
+        }
+        
+        return 0;
+    } catch (Exception $e) {
+        return 0;
     }
 }
 ?>

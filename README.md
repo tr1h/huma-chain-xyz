@@ -142,7 +142,7 @@ huma-chain-xyz/
 │
 ├── 🛠️ BACKEND
 │   ├── api/
-│   │   └── tama_supabase.php # PHP API (7 endpoints)
+│   │   └── tama_supabase.php # PHP API (REST API, withdrawal, mint, send)
 │   │
 │   ├── bot/                  # НЕ ПУБЛИКУЕТСЯ (только для сервера)
 │   │   ├── bot.py            # Telegram Bot (@GotchiGameBot)
@@ -156,9 +156,10 @@ huma-chain-xyz/
 │   ├── tokenomics.json       # Параметры токеномики
 │   └── *.json               # Keypairs (не публикуются!)
 │
-└── 📚 DOCUMENTATION
+└── 📚 DOCUMENTATION (.docs/)
     ├── README.md             # Этот файл
-    ├── PROJECT_STRUCTURE.md  # Детальная структура
+    ├── ADDRESSES_AND_ALLOCATIONS.md  # Все адреса и распределение
+    ├── VESTING_STREAM_ID.md  # Team vesting информация
     ├── TOKENOMICS_FINAL.md   # Токеномика
     └── [еще 20+ документов]
 ```
@@ -169,6 +170,13 @@ huma-chain-xyz/
 - **API Server:** `api/tama_supabase.php`
 - **Token Info:** `tama-token-info.json`
 - **Admin Panel:** `admin-tokenomics.html`
+- **Tokenomics Dashboard:** `admin-tokenomics.html` (real-time stats)
+
+### **📖 Additional Documentation:**
+- **[Tokenomics & Distribution](.docs/ADDRESSES_AND_ALLOCATIONS.md)** - Complete token distribution breakdown
+- **[Vesting Information](.docs/VESTING_STREAM_ID.md)** - Team tokens vesting details
+- **[Tokenomics Guide](.docs/TOKENOMICS_FINAL.md)** - Full tokenomics explanation
+- **[Next Steps Plan](.docs/NEXT_STEPS_PLAN.md)** - Roadmap and future plans
 
 ---
 
@@ -187,6 +195,64 @@ huma-chain-xyz/
 ```
 
 **[View on Solana Explorer →](https://explorer.solana.com/address/Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY?cluster=devnet)**
+
+---
+
+### **💰 Tokenomics & Distribution**
+
+#### **Total Supply:** 1,000,000,000 TAMA
+
+| Category | Amount | Percentage | Status | Description |
+|----------|--------|-------------|--------|-------------|
+| **P2E Pool** | 400,000,000 | 40% | ✅ Active | Play-to-Earn rewards pool (5.5 years distribution) |
+| **Team** | 200,000,000 | 20% | 🔒 Locked | Team allocation (vesting 4 years, 6-month cliff) |
+| **Marketing** | 150,000,000 | 15% | ✅ Active | Marketing & partnerships |
+| **Liquidity** | 100,000,000 | 10% | 🔒 Locked | DEX liquidity (Raydium, Jupiter) |
+| **Community** | 100,000,000 | 10% | ✅ Active | Community rewards & airdrops |
+| **Reserve** | 50,000,000 | 5% | 🔒 Locked | Reserve fund (emergency) |
+
+#### **🔒 Team Tokens Vesting (Transparency)**
+
+**Stream ID:** `3tEskbJxeGyz4svTYAUscMiHghriZ2U7Ug6XLBeK82jm`
+
+- **Amount:** 200,000,000 TAMA (20%)
+- **Duration:** 4 years (48 months)
+- **Cliff:** 6 months (0% unlocked during cliff)
+- **Start Date:** May 6, 2026
+- **End Date:** May 4, 2030
+- **Recipient:** `AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR`
+
+**[View Vesting Stream on Solscan →](https://solscan.io/account/3tEskbJxeGyz4svTYAUscMiHghriZ2U7Ug6XLBeK82jm?cluster=devnet)**
+
+**Why Vesting?**
+- ✅ Protects investors from team dumping
+- ✅ Ensures long-term commitment
+- ✅ Standard practice in DeFi projects
+- ✅ Fully transparent on blockchain
+
+#### **💧 P2E Pool Distribution**
+
+The 400M TAMA pool is distributed over **5.5 years** with halving schedule:
+
+- **Year 1 H1:** 200M TAMA (Daily: 800K/day)
+- **Year 1 H2:** 100M TAMA (Daily: 392K/day)
+- **Year 2 H1:** 50M TAMA (Daily: 200K/day)
+- **Year 2 H2:** 25M TAMA (Daily: 98K/day)
+- **Year 3+:** Gradual reduction
+
+**Fee Recycling:**
+- 60% of withdrawal fees → Burned
+- 30% of withdrawal fees → Back to P2E Pool
+- 10% of withdrawal fees → Team
+
+This ensures **infinite mining** after the initial 5.5 years!
+
+#### **🔒 Locked Pools**
+
+- **Liquidity (100M):** Locked for DEX liquidity provision (mainnet: DEX lock)
+- **Reserve (50M):** Locked for emergency use (mainnet: Multi-sig wallet)
+
+**Full transparency:** All addresses and allocations are publicly verifiable on-chain.
 
 ---
 
@@ -221,10 +287,30 @@ SUPABASE_KEY=your_supabase_anon_key
 3. **Live URLs:**
    - 🎮 **Game:** https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html
    - 🎨 **Mint NFT:** https://tr1h.github.io/huma-chain-xyz/mint.html
-   - 📊 **Admin:** https://tr1h.github.io/huma-chain-xyz/admin-tokenomics.html
+   - 📊 **Tokenomics Dashboard:** https://tr1h.github.io/huma-chain-xyz/admin-tokenomics.html
    - 🏆 **Super Admin:** https://tr1h.github.io/huma-chain-xyz/super-admin.html
    - 🔗 **Referral:** https://tr1h.github.io/huma-chain-xyz/referral.html
    - 🏠 **Landing:** https://tr1h.github.io/huma-chain-xyz/
+
+### **Backend (PHP API):**
+```bash
+# Start PHP API server
+cd api
+.\start_api.ps1
+
+# API will be available at:
+# http://localhost:8002/api/tama
+```
+
+**API Endpoints:**
+- `GET /api/tama/test` - Health check
+- `GET /api/tama/balance?telegram_id=XXX` - Get user balance
+- `POST /api/tama/withdrawal/request` - Request withdrawal
+- `GET /api/tama/withdrawal/history?telegram_id=XXX` - Withdrawal history
+- `POST /api/tama/mint` - Mint new tokens (admin)
+- `POST /api/tama/send` - Send tokens (admin)
+- `GET /api/tama/holders` - List all token holders
+- `GET /api/tama/pools` - Pool distribution stats
 
 ### **Backend (Railway):**
 1. Connect GitHub repo to Railway
@@ -311,11 +397,38 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 📊 Project Status
+
+### **✅ Completed:**
+- ✅ Full-stack game (Web + Telegram Bot)
+- ✅ TAMA SPL Token on Solana Devnet
+- ✅ NFT minting system (100 unique NFTs)
+- ✅ 2-level referral system
+- ✅ Tokenomics dashboard (real-time stats)
+- ✅ Team tokens vesting (4 years, 6-month cliff)
+- ✅ Token distribution (all pools allocated)
+- ✅ Withdrawal system (real Solana transactions)
+- ✅ PHP API (REST API, withdrawal, admin functions)
+
+### **🚀 Current Status:**
+- **Devnet:** ✅ Fully operational
+- **Mainnet:** ⏳ Ready for launch (awaiting final testing)
+
+### **📈 Tokenomics:**
+- **Total Supply:** 1,000,000,000 TAMA
+- **Circulating:** Dynamic (based on withdrawals)
+- **P2E Pool:** 400M TAMA (5.5 years distribution)
+- **Team Vesting:** 200M TAMA (locked 4 years)
+- **Fee Recycling:** 60% burn, 30% pool, 10% team
+
+---
+
 ## 📞 Contact
 
 - **Telegram:** [@gotchi_ceo](https://t.me/gotchi_ceo)
 - **Bot:** [@GotchiGameBot](https://t.me/GotchiGameBot)
 - **GitHub:** [tr1h](https://github.com/tr1h)
+- **Email:** gotchigame@proton.me
 
 ---
 

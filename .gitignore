@@ -47,3 +47,5 @@ docs/
 
 # Admin panels (local only, contains sensitive operations)
 wallet-admin.html
+wallet-admin-password.js
+*.password.js

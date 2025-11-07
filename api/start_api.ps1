@@ -11,6 +11,7 @@ $env:TAMA_MINT_ADDRESS = "Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY"
 $env:SOLANA_RPC_URL = "https://api.devnet.solana.com"
 $env:SOLANA_PAYER_KEYPAIR_PATH = "C:\goooog\payer-keypair.json"
 $env:SOLANA_MINT_KEYPAIR_PATH = "C:\goooog\tama-mint-keypair.json"
+$env:SOLANA_P2E_POOL_KEYPAIR_PATH = "C:\goooog\p2e-pool-keypair.json"
 
 Write-Host "Environment variables set:" -ForegroundColor Yellow
 Write-Host "  SUPABASE_URL: $env:SUPABASE_URL"
@@ -18,6 +19,9 @@ Write-Host "  TAMA_MINT_ADDRESS: $env:TAMA_MINT_ADDRESS"
 Write-Host "  SOLANA_RPC_URL: $env:SOLANA_RPC_URL"
 Write-Host "  SOLANA_PAYER_KEYPAIR_PATH: $env:SOLANA_PAYER_KEYPAIR_PATH"
 Write-Host "  SOLANA_MINT_KEYPAIR_PATH: $env:SOLANA_MINT_KEYPAIR_PATH"
+Write-Host "  SOLANA_P2E_POOL_KEYPAIR_PATH: $env:SOLANA_P2E_POOL_KEYPAIR_PATH"
+Write-Host ""
+Write-Host "Withdrawals will use P2E Pool (HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw)" -ForegroundColor Cyan
 Write-Host ""
 
 # Navigate to API directory
