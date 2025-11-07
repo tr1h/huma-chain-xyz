@@ -4,16 +4,35 @@
  * Использует Supabase REST API вместо прямого подключения к PostgreSQL
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+// CORS Configuration - Allow all origins for now
+$allowedOrigins = [
+    'https://tr1h.github.io',
+    'http://localhost',
+    'http://localhost:3000',
+    'http://127.0.0.1',
+    '*'
+];
 
-// Обработка preflight запросов
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
+if (in_array($origin, $allowedOrigins) || in_array('*', $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . ($origin === '*' ? '*' : $origin));
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+
+header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Max-Age: 86400'); // 24 hours
+
+// Обработка preflight запросов (OPTIONS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
+    header('Content-Length: 0');
     exit();
 }
+
+header('Content-Type: application/json');
 
 // Настройки Supabase REST API
 $supabaseUrl = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
