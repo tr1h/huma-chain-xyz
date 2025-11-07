@@ -528,10 +528,33 @@
                     
                     if (nftError) throw nftError;
                     
-                    // 4. Update balance display
+                    // 4. Log transaction
+                    try {
+                        await supabase
+                            .from('transactions')
+                            .insert({
+                                user_id: userId,
+                                username: userId,
+                                type: 'nft_mint',
+                                amount: tamaPrice,
+                                balance_before: currentUser.tama,
+                                balance_after: newBalance,
+                                metadata: JSON.stringify({
+                                    tier: selectedTier,
+                                    rarity: rarity,
+                                    multiplier: multiplier,
+                                    nft_id: nftMintAddress
+                                })
+                            });
+                    } catch (txError) {
+                        console.error('Failed to log transaction:', txError);
+                        // Don't fail the mint if transaction logging fails
+                    }
+                    
+                    // 5. Update balance display
                     await loadTAMABalance();
                     
-                    // 5. Success message
+                    // 6. Success message
                     alert(`✅ SUCCESS!\n\nYou minted ${selectedTier} ${rarity} NFT!\n\n💰 Earning Boost: ${multiplier}x\n🎨 NFT ID: ${nftMintAddress}\n\nYour earnings are now multiplied by ${multiplier}x!`);
                     
                     // Reset selection
