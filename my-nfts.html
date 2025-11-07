@@ -244,8 +244,24 @@
             'Gold': '🥇'
         };
         
-        // NFT image map (placeholder - можно заменить на реальные изображения)
-        const nftImages = {
+        // NFT image map - поддержка изображений и GIF
+        // Структура: nft-assets/{tier}/{rarity}/{id}.png или .gif
+        function getNFTImageUrl(tier, rarity, mintAddress) {
+            const baseUrl = 'https://tr1h.github.io/huma-chain-xyz/nft-assets';
+            const tierLower = tier.toLowerCase();
+            const rarityLower = rarity.toLowerCase();
+            
+            // Пробуем сначала GIF, потом PNG
+            const imageId = mintAddress ? mintAddress.substring(0, 8) : 'default';
+            const gifUrl = `${baseUrl}/${tierLower}/${rarityLower}/${imageId}.gif`;
+            const pngUrl = `${baseUrl}/${tierLower}/${rarityLower}/${imageId}.png`;
+            
+            // Возвращаем URL (браузер попробует загрузить, если не найдено - покажет fallback)
+            return gifUrl; // Можно добавить проверку существования
+        }
+        
+        // Fallback emoji если изображение не загрузилось
+        const nftEmoji = {
             'Bronze': {
                 'Common': '🥉',
                 'Uncommon': '🥉',
@@ -335,9 +351,18 @@
                     
                     const nftCard = document.createElement('div');
                     nftCard.className = 'nft-card';
+                    const imageUrl = getNFTImageUrl(tier, rarity, nft.nft_mint_address);
+                    const fallbackEmoji = nftEmoji[tier]?.[rarity] || '🎨';
+                    
                     nftCard.innerHTML = `
                         <div class="nft-image">
-                            ${nftImages[tier]?.[rarity] || '🎨'}
+                            <img src="${imageUrl}" 
+                                 alt="${tier} ${rarity} NFT" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 80px;">
+                                ${fallbackEmoji}
+                            </div>
                         </div>
                         <div class="nft-tier">${tierEmoji[tier] || '🎨'} ${tier}</div>
                         <div class="nft-rarity rarity-${rarity.toLowerCase()}">
