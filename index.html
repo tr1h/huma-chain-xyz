@@ -214,7 +214,7 @@
         <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-content">
-                <img src="assets/logo.png" alt="Solana Tamagotchi" style="max-width: 400px; width: 80%; margin: 0 auto 30px; image-rendering: pixelated;">
+                <div style="max-width: 400px; width: 80%; margin: 0 auto 30px; font-size: 120px; text-align: center;">🐾</div>
                 <p class="hero-subtitle">The Ultimate Blockchain Pet Game on Solana! Play, Earn & Collect NFT Pets 🚀</p>
                 <div class="hero-buttons">
                     <button id="landing-connect-btn" class="btn-connect">CONNECT WALLET</button>
@@ -1044,9 +1044,25 @@
             }
         }
         
+        // Hide loading screen
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500); // Wait for fade-out animation
+            }
+        }
+        
         // Add event listener for TAMA history button and hover
         document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ Page loaded - using stub modules');
+            
+            // Hide loading screen after a short delay
+            setTimeout(() => {
+                hideLoadingScreen();
+            }, 500);
             
             // 🛡️ Initialize Anti-Cheat FIRST (stub)
             if (window.AntiCheat) {
