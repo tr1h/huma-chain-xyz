@@ -198,6 +198,16 @@
             background: #3b82f6;
             color: #fff;
         }
+        
+        .type-sol {
+            background: #f59e0b;
+            color: #fff;
+        }
+        
+        .type-treasury-sol {
+            background: #a855f7;
+            color: #fff;
+        }
 
         .type-level {
             background: #f59e0b;
@@ -660,14 +670,17 @@
                 const date = new Date(t.created_at).toLocaleString();
                 
                 // Categorize transactions
-                const isEarn = t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus' || t.type === 'treasury_income_from_nft' || t.type === 'p2e_pool_refund_from_nft';
-                const isSpend = t.type.startsWith('spend') || t.type === 'nft_mint';
+                const isEarn = t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus' || t.type === 'treasury_income_from_nft' || t.type === 'treasury_income_from_nft_sol' || t.type === 'p2e_pool_refund_from_nft';
+                const isSpend = t.type.startsWith('spend') || t.type === 'nft_mint' || t.type === 'nft_mint_sol';
                 const isBurn = t.type.startsWith('burn');
+                const isSOL = t.type.includes('_sol') || (t.metadata && typeof t.metadata === 'string' && t.metadata.includes('"payment_method":"SOL"'));
                 
                 const typeClass = t.type.startsWith('earn') ? 'type-earn' : 
                                  t.type === 'nft_mint' ? 'type-spend' :
+                                 t.type === 'nft_mint_sol' ? 'type-sol' :
                                  t.type.startsWith('burn') ? 'type-burn' :
                                  t.type === 'treasury_income_from_nft' ? 'type-treasury' :
+                                 t.type === 'treasury_income_from_nft_sol' ? 'type-treasury-sol' :
                                  t.type === 'p2e_pool_refund_from_nft' ? 'type-p2e' :
                                  isSpend ? 'type-spend' :
                                  t.type === 'level_up' ? 'type-level' :
@@ -676,6 +689,7 @@
                 
                 const amountClass = isBurn ? 'amount-burn' : (isEarn ? 'amount-positive' : 'amount-negative');
                 const amountPrefix = isBurn ? '🔥 ' : (isEarn ? '+' : '-');
+                const currency = isSOL ? ' SOL' : ' TAMA';
                 
                 const metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
                 const username = t.username || t.user_id;
@@ -685,7 +699,7 @@
                         <td>${date}</td>
                         <td><strong>${username}</strong></td>
                         <td><span class="type-badge ${typeClass}">${t.type}</span></td>
-                        <td class="${amountClass}">${amountPrefix}${Math.round(t.amount * 100) / 100}</td>
+                        <td class="${amountClass}">${amountPrefix}${Math.round(t.amount * 100) / 100}${currency}</td>
                         <td>${Math.round(t.balance_after || 0).toLocaleString()}</td>
                         <td style="font-size: 11px; opacity: 0.7;">${metadata}</td>
                     </tr>
