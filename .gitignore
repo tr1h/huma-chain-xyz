@@ -7,10 +7,18 @@ __pycache__/
 *.log
 bot/bot_monitoring.log
 
-# Keypairs (ВАЖНО!)
+# Keypairs (ВАЖНО! НИКОГДА НЕ КОММИТИТЬ!)
 *-keypair.json
-!tama-mint-keypair.json
-!payer-keypair.json
+*.json.keypair
+*keypair*.json
+payer-keypair.json
+tama-mint-keypair.json
+p2e-pool-keypair.json
+team-wallet-keypair.json
+marketing-wallet-keypair.json
+liquidity-pool-keypair.json
+community-wallet-keypair.json
+reserve-wallet-keypair.json
 
 # IDE
 .vscode/
