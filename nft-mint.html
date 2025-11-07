@@ -193,7 +193,7 @@
                 <div class="tier-card silver" onclick="selectTier('Silver', 5000, 0.1)">
                     <div class="tier-icon">🥈</div>
                     <div class="tier-name">SILVER</div>
-                    <div class="tier-price" id="silver-price">5,000 TAMA<br>0.1 SOL</div>
+                    <div class="tier-price" id="silver-price">0.1 SOL<br><small style="opacity: 0.7;">SOL only</small></div>
                     <div class="tier-boost">2.5-3.5x EARNING</div>
                     <div class="tier-rarities">
                         <div>⚪ Common (40%) - 2.5x</div>
@@ -208,7 +208,7 @@
                 <div class="tier-card gold" onclick="selectTier('Gold', 10000, 0.2)">
                     <div class="tier-icon">🥇</div>
                     <div class="tier-name">GOLD</div>
-                    <div class="tier-price" id="gold-price">10,000 TAMA<br>0.2 SOL</div>
+                    <div class="tier-price" id="gold-price">0.2 SOL<br><small style="opacity: 0.7;">SOL only</small></div>
                     <div class="tier-boost">3-4x EARNING</div>
                     <div class="tier-rarities">
                         <div>⚪ Common (30%) - 3.0x</div>
@@ -231,6 +231,9 @@
                         💎 Pay with SOL
                     </button>
                 </div>
+                <p id="payment-info" style="font-size: 12px; opacity: 0.7; margin-top: 10px; font-style: italic;">
+                    Bronze: TAMA or SOL | Silver/Gold: SOL only
+                </p>
                 <p style="font-size: 14px; opacity: 0.8; margin-top: 10px;">
                     Your TAMA Balance: <span id="user-tama-balance" style="font-weight: bold; color: #FFB703;">Loading...</span>
                 </p>
@@ -361,6 +364,24 @@
             document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
             
+            // Silver and Gold: SOL only (auto-select SOL, hide TAMA button)
+            if (tier === 'Silver' || tier === 'Gold') {
+                selectedPayment = 'sol';
+                document.getElementById('pay-tama-btn').style.display = 'none';
+                document.getElementById('pay-sol-btn').classList.add('active');
+                document.getElementById('pay-tama-btn').classList.remove('active');
+                document.getElementById('user-tama-balance').parentElement.style.display = 'none';
+                document.getElementById('payment-info').textContent = `${tier}: SOL only (requires Phantom wallet)`;
+            } else {
+                // Bronze: Show both options
+                selectedPayment = null; // Reset selection
+                document.getElementById('pay-tama-btn').style.display = 'inline-block';
+                document.getElementById('pay-tama-btn').classList.remove('active');
+                document.getElementById('pay-sol-btn').classList.remove('active');
+                document.getElementById('user-tama-balance').parentElement.style.display = 'block';
+                document.getElementById('payment-info').textContent = 'Bronze: TAMA or SOL | Silver/Gold: SOL only';
+            }
+            
             updateMintButton();
         }
 
@@ -388,6 +409,23 @@
                 return;
             }
             
+            // Silver and Gold: SOL only (no payment selection needed)
+            if (selectedTier === 'Silver' || selectedTier === 'Gold') {
+                selectedPayment = 'sol'; // Force SOL for Silver/Gold
+                
+                // Wallet required for SOL payment
+                if (!walletConnected) {
+                    btn.disabled = true;
+                    btn.textContent = '🔒 CONNECT WALLET TO MINT';
+                    return;
+                }
+                
+                btn.disabled = false;
+                btn.textContent = `💎 MINT ${selectedTier} (${solPrice} SOL)`;
+                return;
+            }
+            
+            // Bronze: Payment method selection required
             if (!selectedPayment) {
                 btn.disabled = true;
                 btn.textContent = '🔒 SELECT PAYMENT METHOD';
