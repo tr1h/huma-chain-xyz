@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="marketplace-integration.js"></script>
     
     <style>
         body {
@@ -187,6 +188,84 @@
         .mint-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 5px 20px rgba(138, 201, 38, 0.5);
+        }
+        
+        .sell-marketplace-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #8AC926, #1D3557);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .sell-marketplace-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(138, 201, 38, 0.5);
+        }
+        
+        .marketplace-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .marketplace-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .marketplace-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .marketplace-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .magic-eden { background: linear-gradient(135deg, #8B5CF6, #EC4899); color: white; }
+        .tensor { background: linear-gradient(135deg, #3B82F6, #1D4ED8); color: white; }
+        .solanart { background: linear-gradient(135deg, #10B981, #059669); color: white; }
+        .solscan { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; }
+        
+        .close-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
         }
         
         .loading {
@@ -376,6 +455,14 @@
                             Minted: ${mintedAt}<br>
                             ID: ${nft.nft_mint_address?.substring(0, 12) || 'N/A'}...
                         </div>
+                        ${nft.nft_mint_address && !nft.nft_mint_address.startsWith('NFT_') ? 
+                            `<button class="sell-marketplace-btn" onclick="showMarketplaceModal('${nft.nft_mint_address}')">
+                                💰 Sell on Marketplace
+                            </button>` : 
+                            `<div style="padding: 10px; background: rgba(0,0,0,0.1); border-radius: 10px; margin-top: 10px; font-size: 11px; color: #666;">
+                                ⚠️ Off-chain NFT (not tradeable yet)
+                            </div>`
+                        }
                     `;
                     nftGrid.appendChild(nftCard);
                 });
@@ -392,6 +479,53 @@
                     </div>
                 `;
             }
+        }
+        
+        // Marketplace functions (from marketplace-integration.js)
+        function showMarketplaceModal(mintAddress) {
+            const modal = document.createElement('div');
+            modal.className = 'marketplace-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h2>💰 Sell NFT on Marketplace</h2>
+                    <p>Choose marketplace to list your NFT:</p>
+                    <div class="marketplace-buttons">
+                        <button onclick="openMarketplace('${mintAddress}', 'magicEden'); closeModal();" class="marketplace-btn magic-eden">
+                            🎴 Magic Eden
+                        </button>
+                        <button onclick="openMarketplace('${mintAddress}', 'tensor'); closeModal();" class="marketplace-btn tensor">
+                            📊 Tensor
+                        </button>
+                        <button onclick="openMarketplace('${mintAddress}', 'solanart'); closeModal();" class="marketplace-btn solanart">
+                            🎨 Solanart
+                        </button>
+                        <button onclick="openMarketplace('${mintAddress}', 'solscan'); closeModal();" class="marketplace-btn solscan">
+                            🔍 View on Solscan
+                        </button>
+                    </div>
+                    <button onclick="closeModal()" class="close-btn">❌ Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+        }
+        
+        function closeModal() {
+            const modal = document.querySelector('.marketplace-modal');
+            if (modal) modal.remove();
+        }
+        
+        function openMarketplace(mintAddress, marketplace = 'magicEden') {
+            const MARKETPLACES = {
+                magicEden: (addr) => `https://magiceden.io/item-details/${addr}`,
+                tensor: (addr) => `https://www.tensor.trade/item/${addr}`,
+                solanart: (addr) => `https://solanart.io/search/?token=${addr}`,
+                solscan: (addr) => `https://solscan.io/token/${addr}?cluster=devnet`
+            };
+            const url = MARKETPLACES[marketplace]?.(mintAddress);
+            if (url) window.open(url, '_blank');
         }
         
         // Load on page load
