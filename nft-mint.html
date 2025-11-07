@@ -486,27 +486,42 @@
                 mintBtn.textContent = '⏳ Minting...';
                 
                 try {
-                    // 1. Deduct TAMA from user balance
+                    // 1. Get current user balance
                     const { data: currentUser, error: fetchError } = await supabase
                         .from('leaderboard')
-                        .select('tama')
+                        .select('tama,level,xp,pet_name,pet_type,pet_data')
                         .eq('telegram_id', userId)
                         .single();
                     
                     if (fetchError) throw fetchError;
                     
-                    const newBalance = (currentUser.tama || 0) - tamaPrice;
+                    const oldBalance = currentUser.tama || 0;
+                    const newBalance = oldBalance - tamaPrice;
                     
                     if (newBalance < 0) {
                         throw new Error('Insufficient balance');
                     }
                     
-                    const { error: updateError } = await supabase
-                        .from('leaderboard')
-                        .update({ tama: newBalance })
-                        .eq('telegram_id', userId);
+                    // Update via API (same as game) to prevent conflicts
+                    const TAMA_API_BASE = 'https://huma-chain-xyz-production.up.railway.app/api/tama';
+                    const updateResponse = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            tama: newBalance,
+                            level: currentUser.level || 1,
+                            xp: currentUser.xp || 0,
+                            pet_name: currentUser.pet_name || 'Gotchi',
+                            pet_type: currentUser.pet_type || 'kawai',
+                            pet_data: currentUser.pet_data || null
+                        })
+                    });
                     
-                    if (updateError) throw updateError;
+                    if (!updateResponse.ok) {
+                        const errorData = await updateResponse.json();
+                        throw new Error('Failed to update balance: ' + (errorData.error || 'Unknown error'));
+                    }
                     
                     // 2. Assign random rarity
                     const rarity = assignRandomRarity(selectedTier);
