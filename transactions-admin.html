@@ -535,14 +535,22 @@
                         lastTransactionTime = new Date(allTransactions[0].created_at]);
                     }
                     
-                    // Estimate total count if we got full page
-                    if (allTransactions.length === PAGE_SIZE) {
-                        totalCount = Math.max(totalCount, currentPage * PAGE_SIZE + 1);
+                    // Use count from API if available, otherwise estimate
+                    if (payload.count !== undefined) {
+                        totalCount = payload.count;
                     } else {
-                        totalCount = Math.max(totalCount, (currentPage - 1) * PAGE_SIZE + allTransactions.length);
+                        // Estimate total count if we got full page
+                        if (allTransactions.length === PAGE_SIZE) {
+                            totalCount = Math.max(totalCount, currentPage * PAGE_SIZE + 1);
+                        } else {
+                            totalCount = Math.max(totalCount, (currentPage - 1) * PAGE_SIZE + allTransactions.length);
+                        }
                     }
                 } else {
                     allTransactions = [];
+                    if (payload && payload.count !== undefined) {
+                        totalCount = payload.count;
+                    }
                 }
                 console.log(`✅ Loaded page ${currentPage}: ${allTransactions.length} transactions (Total: ~${totalCount})`);
                 
