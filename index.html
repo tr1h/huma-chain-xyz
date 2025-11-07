@@ -349,6 +349,46 @@
         <!-- How to Play Section -->
         <section class="features-section" style="background: linear-gradient(135deg, rgba(69, 123, 157, 0.95), rgba(29, 53, 87, 0.95)); padding: 80px 20px;">
             <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;">🚀 HOW TO PLAY</h2>
+            
+            <!-- Free vs Premium Choice -->
+            <div style="max-width: 1000px; margin: 0 auto 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- FREE MODE -->
+                <div style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.15), rgba(106, 153, 78, 0.15)); border: 3px solid #8AC926; border-radius: 20px; padding: 40px; text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">🆓</div>
+                    <h3 style="font-size: 2em; margin-bottom: 15px; color: #8AC926;">FREE MODE</h3>
+                    <p style="font-size: 1.8em; font-weight: bold; margin: 20px 0; color: #8AC926;">$0</p>
+                    <ul style="list-style: none; padding: 0; text-align: left; margin: 20px 0;">
+                        <li style="margin: 10px 0; opacity: 0.9;">✅ Virtual pet</li>
+                        <li style="margin: 10px 0; opacity: 0.9;">✅ Earn TAMA (1x rate)</li>
+                        <li style="margin: 10px 0; opacity: 0.9;">✅ All game features</li>
+                        <li style="margin: 10px 0; opacity: 0.9;">✅ Withdraw to wallet</li>
+                        <li style="margin: 10px 0; opacity: 0.9;">✅ Upgrade to NFT anytime</li>
+                    </ul>
+                    <button onclick="window.open('https://t.me/GotchiGameBot', '_blank')" style="width: 100%; padding: 15px; background: #8AC926; color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px;">
+                        Start Free
+                    </button>
+                </div>
+
+                <!-- PREMIUM MODE -->
+                <div style="background: linear-gradient(135deg, rgba(255, 183, 3, 0.15), rgba(251, 133, 0, 0.15)); border: 3px solid #FFB703; border-radius: 20px; padding: 40px; text-align: center; position: relative;">
+                    <div style="position: absolute; top: -15px; right: 20px; background: #E63946; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold;">POPULAR</div>
+                    <div style="font-size: 3em; margin-bottom: 15px;">💎</div>
+                    <h3 style="font-size: 2em; margin-bottom: 15px; color: #FFB703;">PREMIUM (NFT)</h3>
+                    <p style="font-size: 1.8em; font-weight: bold; margin: 20px 0; color: #FFB703;">0.05 SOL<br><span style="font-size: 0.6em; opacity: 0.8;">or 2,500 TAMA</span></p>
+                    <ul style="list-style: none; padding: 0; text-align: left; margin: 20px 0;">
+                        <li style="margin: 10px 0; opacity: 0.9;">✅ NFT pet (tradeable)</li>
+                        <li style="margin: 10px 0; opacity: 0.9;">🚀 <strong>Earn 2x TAMA</strong></li>
+                        <li style="margin: 10px 0; opacity: 0.9;">🎨 Exclusive pet types</li>
+                        <li style="margin: 10px 0; opacity: 0.9;">🏆 Tournament access</li>
+                        <li style="margin: 10px 0; opacity: 0.9;">💰 Sell/trade NFT</li>
+                    </ul>
+                    <button onclick="window.location.href='nft-mint.html'" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #FFB703, #FB8500); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px;">
+                        Mint NFT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Steps -->
             <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
                 <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(255, 202, 58, 0.3);">
                     <div style="font-size: 4em; margin-bottom: 20px;">1️⃣</div>
@@ -357,13 +397,13 @@
                 </div>
                 <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(138, 201, 38, 0.3);">
                     <div style="font-size: 4em; margin-bottom: 20px;">2️⃣</div>
-                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #8AC926;">Create Pet</h3>
-                    <p style="opacity: 0.9;">Choose from 10 unique pet types and start your journey</p>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #8AC926;">Choose Mode</h3>
+                    <p style="opacity: 0.9;">🆓 Free (virtual) or 💎 Premium (NFT) - your choice!</p>
                 </div>
                 <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(255, 183, 3, 0.3);">
                     <div style="font-size: 4em; margin-bottom: 20px;">3️⃣</div>
-                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFB703;">Earn TAMA</h3>
-                    <p style="opacity: 0.9;">Click, play mini-games, and complete quests</p>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFB703;">Play & Earn</h3>
+                    <p style="opacity: 0.9;">Click, complete quests, earn TAMA tokens</p>
                 </div>
                 <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(230, 57, 70, 0.3);">
                     <div style="font-size: 4em; margin-bottom: 20px;">4️⃣</div>
@@ -477,7 +517,7 @@
                 <!-- FAQ Item 3 -->
                 <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 4px solid #FFB703;">
                     <h3 style="font-size: 1.3em; margin-bottom: 10px; color: #FFB703;">🎨 How to mint NFT?</h3>
-                    <p style="opacity: 0.9; line-height: 1.6;">Click "💎 Mint NFT" button, connect your Phantom wallet, and choose mint type: pay with TAMA (5,000 TAMA) or SOL (0.1 SOL). NFTs are unique and tradeable.</p>
+                    <p style="opacity: 0.9; line-height: 1.6;">Click "💎 Mint NFT" button, connect your Phantom wallet, and choose: pay 2,500 TAMA (earned in-game) or 0.05 SOL (~$7.5). Get random rarity (Common→Legendary) with different earning boosts!</p>
                 </div>
 
                 <!-- FAQ Item 4 -->
