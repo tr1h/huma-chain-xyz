@@ -188,6 +188,7 @@ https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html - Веб-игра
 
 ## 🎯 ВАРИАНТ 4: КРАТКИЙ И ПРЯМОЙ (РЕКОМЕНДУЕМЫЙ)
 
+### 🇷🇺 Russian Version:
 ```
 🚀 Solana Tamagotchi - ГОТОВ К ЗАПУСКУ!
 
@@ -218,6 +219,44 @@ https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html - Веб-игра
 • Дефляция 40% (burn fee)
 
 🎮 Играй сейчас:
+
+@GotchiGameBot
+https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html
+
+#Solana #P2E #NFT #GameFi #TAMA
+```
+
+### 🇬🇧 English Version:
+```
+🚀 Solana Tamagotchi - READY TO LAUNCH!
+
+✨ What we built:
+
+🎮 Full P2E ecosystem on Solana
+🤖 Telegram bot + 🌐 Web game + 🎨 NFT
+💰 TAMA token with innovative economics
+
+🔥 Unique features:
+
+✅ Zero Wallet Barrier - play WITHOUT wallet!
+✅ Virtual tokens - instant rewards
+✅ Fee recycling - infinite mining
+✅ Daily Pool with halving (like Bitcoin!)
+
+💎 Innovations:
+
+🔥 Virtual token burning (inflation control)
+♻️ 50% fee recycling (long-term sustainability)
+🎯 Dynamic Daily Pool (self-regulation)
+
+📊 Tokenomics:
+
+• 400M TAMA in P2E Pool
+• 5.5 years of mining
+• 100 unique NFTs
+• 40% deflation (burn fee)
+
+🎮 Play now:
 
 @GotchiGameBot
 https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html
