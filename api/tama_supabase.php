@@ -757,12 +757,35 @@ function handleTransactionsList($url, $key) {
             'select' => 'id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at',
             'order' => $order,
             'limit' => $limit,
-            'offset' => $offset
+            'offset' => $offset,
+            'count' => 'exact' // Request total count
         ]);
+        
+        // Get total count from response
+        $totalCount = 0;
+        if (isset($result['count'])) {
+            $totalCount = (int)$result['count'];
+        } elseif (isset($result['data'])) {
+            // Estimate: if we got full page, there might be more
+            if (count($result['data']) == $limit) {
+                $totalCount = (int)$offset + (int)$limit + 1; // At least this many
+            } else {
+                $totalCount = (int)$offset + count($result['data']); // Exact count
+            }
+        }
+        
+        // Set Content-Range header for proper pagination
+        if ($totalCount > 0) {
+            $rangeEnd = min((int)$offset + count($result['data'] ?? []), $totalCount - 1);
+            header('Content-Range: ' . $offset . '-' . $rangeEnd . '/' . $totalCount);
+        }
         
         echo json_encode([
             'success' => true,
-            'data' => $result['data'] ?? []
+            'data' => $result['data'] ?? [],
+            'count' => $totalCount,
+            'limit' => (int)$limit,
+            'offset' => (int)$offset
         ]);
         
     } catch (Exception $e) {
@@ -771,6 +794,7 @@ function handleTransactionsList($url, $key) {
         echo json_encode([
             'success' => true,
             'data' => [],
+            'count' => 0,
             'message' => 'Transactions table not found or empty'
         ]);
     }
