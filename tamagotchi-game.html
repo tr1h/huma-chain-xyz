@@ -9,8 +9,6 @@
     <meta http-equiv="Expires" content="0">
     <title>Solana Tamagotchi v1.9.0</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Transaction Logger -->
-    <script src="js/transaction-logger.js?v=1.6.2"></script>
     <style>
         /* CSS Variables for Themes 🎨 */
         :root {
@@ -5634,17 +5632,18 @@
                     hasAutoFeeder: gameState.hasAutoFeeder
                 };
                 
-                // Save via API
-                const apiUrl = `${TAMA_API_BASE}/leaderboard/upsert`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                // Save directly to Supabase (NO MORE RAILWAY API!)
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${userId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
                     body: JSON.stringify({
-                        user_id: userId,
-                        user_type: 'telegram',
                         tama: gameState.tama,
                         level: gameState.level,
-                        xp: gameState.xp,
                         pet_data: pet_data,
                         pet_name: gameState.petType || 'Gotchi',
                         pet_type: gameState.petType || 'kawai'
@@ -5652,10 +5651,10 @@
                 });
                 
                 if (response.ok) {
-                    console.log('✅ Saved via API:', { level: gameState.level, tama: gameState.tama });
+                    console.log('✅ Saved to Supabase:', { level: gameState.level, tama: gameState.tama });
                     return true;
                 } else {
-                    console.error('❌ API save failed:', response.status);
+                    console.error('❌ Supabase save failed:', response.status);
                     return false;
                 }
             } catch (error) {
@@ -8265,33 +8264,37 @@
                 return;
             }
             try {
-                const { data, error } = await Database.supabase
-                    .from('user_nfts')
-                    .select('rarity')
-                    .eq('telegram_id', userId);
+                // Fetch NFTs directly from Supabase
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&select=earning_multiplier,is_active`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
 
-                if (error) throw error;
+                if (!response.ok) throw new Error('Failed to fetch NFTs');
+
+                const data = await response.json();
 
                 if (data && data.length > 0) {
-                    let maxBoost = 0;
+                    // Get max multiplier from active NFTs
+                    let maxMultiplier = 0;
                     data.forEach(nft => {
-                        let boost = 0;
-                        switch (nft.rarity) {
-                            case 'common': boost = 0.25; break; // +25%
-                            case 'rare': boost = 0.50; break;   // +50%
-                            case 'epic': boost = 0.75; break;   // +75%
-                            case 'legendary': boost = 1.00; break; // +100%
+                        if (nft.is_active && nft.earning_multiplier > maxMultiplier) {
+                            maxMultiplier = nft.earning_multiplier;
                         }
-                        if (boost > maxBoost) maxBoost = boost;
                     });
-                    window.userNFTBoost = maxBoost;
-                    console.log(`✅ Loaded NFT Boost for user ${userId}: +${(maxBoost * 100).toFixed(0)}%`);
-                    if (maxBoost > 0) {
-                        showMessage(`🖼️ NFT Boost Active: +${(maxBoost * 100).toFixed(0)}% TAMA earnings!`);
+                    
+                    // Convert multiplier to boost percentage (e.g., 2.0x = 100% boost = 1.0)
+                    window.userNFTBoost = maxMultiplier > 0 ? (maxMultiplier - 1.0) : 0;
+                    
+                    console.log(`✅ Loaded NFT Boost for user ${userId}: ${maxMultiplier.toFixed(1)}x multiplier (+${(window.userNFTBoost * 100).toFixed(0)}% boost)`);
+                    if (window.userNFTBoost > 0) {
+                        showMessage(`🖼️ NFT Boost Active: ${maxMultiplier.toFixed(1)}x earnings!`);
                     }
                 } else {
                     window.userNFTBoost = 0;
-                    console.log('ℹ️ No NFTs found for user, no boost applied.');
+                    console.log('ℹ️ No active NFTs found for user, no boost applied.');
                 }
             } catch (e) {
                 console.error('❌ Error loading user NFT boost:', e);
