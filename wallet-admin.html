@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Wallet Admin - Solana Tamagotchi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 30px;
+            color: #856404;
+        }
+        
+        .warning strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .wallet-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .wallet-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .wallet-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .wallet-info {
+            margin-bottom: 10px;
+        }
+        
+        .wallet-info label {
+            font-weight: bold;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .wallet-info .value {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 8px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 0.9em;
+        }
+        
+        .wallet-info .address {
+            color: #667eea;
+            cursor: pointer;
+        }
+        
+        .wallet-info .address:hover {
+            text-decoration: underline;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.locked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+        
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .modal-content textarea {
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stats h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-item .label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .stat-item .value {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Wallet Admin Panel</h1>
+        <p class="subtitle">Solana Tamagotchi - Secure Key Management</p>
+        
+        <div class="warning">
+            <strong>⚠️ ВАЖНО: БЕЗОПАСНОСТЬ</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Эта панель работает ТОЛЬКО на localhost (не в интернете!)</li>
+                <li>Ключи НЕ отправляются в интернет</li>
+                <li>Все операции выполняются локально</li>
+                <li>НЕ коммитьте keypair файлы в Git!</li>
+            </ul>
+        </div>
+        
+        <div class="stats">
+            <h2>📊 Total Distribution</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="label">Total Supply</div>
+                    <div class="value">1,000M</div>
+                </div>
+                <div class="stat-item">
+                    <div class="label">Distributed</div>
+                    <div class="value" id="totalDistributed">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="label">Remaining</div>
+                    <div class="value" id="totalRemaining">1,000M</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="wallet-grid" id="walletGrid">
+            <!-- Wallets will be loaded here -->
+        </div>
+    </div>
+    
+    <!-- Modal for keypair upload -->
+    <div class="modal" id="keypairModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Upload Keypair</h2>
+            <p>Select keypair file (JSON format):</p>
+            <input type="file" id="keypairFile" accept=".json">
+            <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
+                ⚠️ Keypair will be stored in browser memory only (not sent to server)
+            </p>
+            <button onclick="loadKeypair()">Load Keypair</button>
+            <button onclick="closeModal()" style="background: #6c757d; margin-left: 10px;">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Modal for balance check -->
+    <div class="modal" id="balanceModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBalanceModal()">&times;</span>
+            <h2>Check Balance</h2>
+            <div id="balanceResult"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Wallet configuration
+        const wallets = [
+            {
+                name: 'P2E Pool',
+                address: 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw',
+                allocation: 400000000,
+                percentage: 40,
+                status: 'active',
+                keypairFile: 'p2e-pool-keypair.json',
+                description: 'Play-to-Earn rewards pool'
+            },
+            {
+                name: 'Team',
+                address: 'AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR',
+                allocation: 200000000,
+                percentage: 20,
+                status: 'locked',
+                keypairFile: 'team-wallet-keypair.json',
+                description: 'Team allocation (vesting 4 years)'
+            },
+            {
+                name: 'Marketing',
+                address: '2eryce7DH7mqDCPegTb696FjXReA5qmx9xfCKH5UneeF',
+                allocation: 150000000,
+                percentage: 15,
+                status: 'active',
+                keypairFile: 'marketing-wallet-keypair.json',
+                description: 'Marketing & partnerships'
+            },
+            {
+                name: 'Liquidity',
+                address: '5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z',
+                allocation: 100000000,
+                percentage: 10,
+                status: 'locked',
+                keypairFile: 'liquidity-pool-keypair.json',
+                description: 'DEX liquidity (Raydium, Jupiter)'
+            },
+            {
+                name: 'Community',
+                address: '9X1DYKzHiYP4V2UuVNGbU42DQkd8ST1nPwbJDuFQY3T',
+                allocation: 100000000,
+                percentage: 10,
+                status: 'active',
+                keypairFile: 'community-wallet-keypair.json',
+                description: 'Community rewards & airdrops'
+            },
+            {
+                name: 'Reserve',
+                address: '8cDHbeHcuspjGKXofYzApCCBrAVenSHPy2UAPU1iCEj6',
+                allocation: 50000000,
+                percentage: 5,
+                status: 'locked',
+                keypairFile: 'reserve-wallet-keypair.json',
+                description: 'Reserve fund (emergency)'
+            },
+            {
+                name: 'Payer',
+                address: '8s88JVHG8Cb6HGKi25rjnMA19MuW723M6pJRDW3maDVi',
+                allocation: 0,
+                percentage: 0,
+                status: 'active',
+                keypairFile: 'payer-keypair.json',
+                description: 'Transaction payer & mint authority'
+            },
+            {
+                name: 'Mint Authority',
+                address: 'N/A',
+                allocation: 0,
+                percentage: 0,
+                status: 'active',
+                keypairFile: 'tama-mint-keypair.json',
+                description: 'Token mint authority'
+            }
+        ];
+        
+        // Store loaded keypairs in memory (not sent to server)
+        const loadedKeypairs = {};
+        
+        // Render wallets
+        function renderWallets() {
+            const grid = document.getElementById('walletGrid');
+            grid.innerHTML = '';
+            
+            wallets.forEach(wallet => {
+                const card = document.createElement('div');
+                card.className = 'wallet-card';
+                card.innerHTML = `
+                    <h3>${wallet.name}</h3>
+                    <div class="wallet-info">
+                        <label>Address:</label>
+                        <div class="value address" onclick="copyToClipboard('${wallet.address}')">
+                            ${wallet.address}
+                        </div>
+                    </div>
+                    <div class="wallet-info">
+                        <label>Allocation:</label>
+                        <div class="value">${formatNumber(wallet.allocation)} TAMA (${wallet.percentage}%)</div>
+                    </div>
+                    <div class="wallet-info">
+                        <label>Status:</label>
+                        <span class="status ${wallet.status}">${wallet.status.toUpperCase()}</span>
+                    </div>
+                    <div class="wallet-info">
+                        <label>Description:</label>
+                        <div class="value" style="font-size: 0.85em;">${wallet.description}</div>
+                    </div>
+                    <div class="actions">
+                        <button onclick="loadKeypairForWallet('${wallet.keypairFile}', '${wallet.name}')">
+                            📁 Load Keypair
+                        </button>
+                        <button onclick="checkBalance('${wallet.address}', '${wallet.name}')" 
+                                ${wallet.address === 'N/A' ? 'disabled' : ''}>
+                            💰 Check Balance
+                        </button>
+                        <button onclick="viewOnExplorer('${wallet.address}')" 
+                                ${wallet.address === 'N/A' ? 'disabled' : ''}
+                                class="btn-success">
+                            🔗 Explorer
+                        </button>
+                    </div>
+                    ${loadedKeypairs[wallet.keypairFile] ? 
+                        '<div style="margin-top: 10px; color: #28a745; font-weight: bold;">✅ Keypair loaded</div>' : 
+                        '<div style="margin-top: 10px; color: #999; font-size: 0.9em;">⚠️ Keypair not loaded</div>'
+                    }
+                `;
+                grid.appendChild(card);
+            });
+            
+            updateStats();
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toLocaleString();
+        }
+        
+        function updateStats() {
+            const totalDistributed = wallets.reduce((sum, w) => sum + w.allocation, 0);
+            document.getElementById('totalDistributed').textContent = formatNumber(totalDistributed);
+            document.getElementById('totalRemaining').textContent = formatNumber(1000000000 - totalDistributed);
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Address copied to clipboard!');
+            });
+        }
+        
+        function viewOnExplorer(address) {
+            const cluster = 'devnet'; // Change to 'mainnet-beta' for mainnet
+            window.open(`https://explorer.solana.com/address/${address}?cluster=${cluster}`, '_blank');
+        }
+        
+        let currentWallet = null;
+        
+        function loadKeypairForWallet(keypairFile, walletName) {
+            currentWallet = { keypairFile, walletName };
+            document.getElementById('keypairModal').classList.add('active');
+        }
+        
+        function loadKeypair() {
+            const fileInput = document.getElementById('keypairFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a keypair file');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const keypair = JSON.parse(e.target.result);
+                    
+                    // Store in memory (NOT sent to server)
+                    if (currentWallet) {
+                        loadedKeypairs[currentWallet.keypairFile] = keypair;
+                        alert(`✅ Keypair loaded for ${currentWallet.walletName}\n\n⚠️ Keypair is stored in browser memory only (not sent to server)`);
+                        closeModal();
+                        renderWallets();
+                    }
+                } catch (error) {
+                    alert('Error parsing keypair file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function closeModal() {
+            document.getElementById('keypairModal').classList.remove('active');
+            document.getElementById('keypairFile').value = '';
+            currentWallet = null;
+        }
+        
+        async function checkBalance(address, walletName) {
+            const modal = document.getElementById('balanceModal');
+            const result = document.getElementById('balanceResult');
+            
+            result.innerHTML = '<p>Loading balance...</p>';
+            modal.classList.add('active');
+            
+            try {
+                // Check SOL balance
+                const solResponse = await fetch(`https://api.devnet.solana.com`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getBalance',
+                        params: [address]
+                    })
+                });
+                
+                const solData = await solResponse.json();
+                const solBalance = (solData.result?.value || 0) / 1e9;
+                
+                // Check TAMA balance (if token account exists)
+                const TAMA_MINT = 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY';
+                const tokenResponse = await fetch(`https://api.devnet.solana.com`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getTokenAccountsByOwner',
+                        params: [
+                            address,
+                            { mint: TAMA_MINT },
+                            { encoding: 'jsonParsed' }
+                        ]
+                    })
+                });
+                
+                const tokenData = await tokenResponse.json();
+                let tamaBalance = 0;
+                
+                if (tokenData.result?.value?.length > 0) {
+                    const tokenAccount = tokenData.result.value[0].account.data.parsed.info.tokenAmount;
+                    tamaBalance = parseFloat(tokenAccount.uiAmount || 0);
+                }
+                
+                result.innerHTML = `
+                    <h3>${walletName} Balance</h3>
+                    <div style="margin-top: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <strong>SOL Balance:</strong>
+                            <div style="font-size: 1.2em; color: #667eea; margin-top: 5px;">
+                                ${solBalance.toFixed(4)} SOL
+                            </div>
+                        </div>
+                        <div>
+                            <strong>TAMA Balance:</strong>
+                            <div style="font-size: 1.2em; color: #667eea; margin-top: 5px;">
+                                ${formatNumber(tamaBalance)} TAMA
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="closeBalanceModal()" style="margin-top: 20px;">Close</button>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <p style="color: #dc3545;">Error checking balance: ${error.message}</p>
+                    <button onclick="closeBalanceModal()" style="margin-top: 20px;">Close</button>
+                `;
+            }
+        }
+        
+        function closeBalanceModal() {
+            document.getElementById('balanceModal').classList.remove('active');
+        }
+        
+        // Initialize
+        renderWallets();
+        
+        // Close modals on outside click
+        window.onclick = (event) => {
+            const keypairModal = document.getElementById('keypairModal');
+            const balanceModal = document.getElementById('balanceModal');
+            if (event.target === keypairModal) {
+                closeModal();
+            }
+            if (event.target === balanceModal) {
+                closeBalanceModal();
+            }
+        };
+    </script>
+</body>
+</html>
+
