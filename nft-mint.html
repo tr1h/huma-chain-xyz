@@ -528,26 +528,82 @@
                     
                     if (nftError) throw nftError;
                     
-                    // 4. Log transaction
+                    // 4. Distribution & Logging (Bronze: 40% burn + 30% treasury + 30% P2E)
+                    const distribution = {
+                        burn: Math.floor(tamaPrice * 0.40),      // 1000 TAMA
+                        treasury: Math.floor(tamaPrice * 0.30),  // 750 TAMA
+                        p2e_pool: Math.floor(tamaPrice * 0.30)   // 750 TAMA
+                    };
+                    
+                    const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+                    const P2E_POOL_ID = 'p2e_pool_system'; // System account for P2E pool tracking
+                    
                     try {
-                        await supabase
-                            .from('transactions')
-                            .insert({
-                                user_id: userId,
-                                username: userId,
-                                type: 'nft_mint',
-                                amount: tamaPrice,
-                                balance_before: currentUser.tama,
-                                balance_after: newBalance,
-                                metadata: JSON.stringify({
-                                    tier: selectedTier,
-                                    rarity: rarity,
-                                    multiplier: multiplier,
-                                    nft_id: nftMintAddress
-                                })
-                            });
+                        // Main NFT mint transaction
+                        await supabase.from('transactions').insert({
+                            user_id: userId,
+                            username: userId,
+                            type: 'nft_mint',
+                            amount: tamaPrice,
+                            balance_before: currentUser.tama,
+                            balance_after: newBalance,
+                            metadata: JSON.stringify({
+                                tier: selectedTier,
+                                rarity: rarity,
+                                multiplier: multiplier,
+                                nft_id: nftMintAddress,
+                                distribution: distribution
+                            })
+                        });
+                        
+                        // BURN transaction (40%)
+                        await supabase.from('transactions').insert({
+                            user_id: 'BURN_ADDRESS',
+                            username: '🔥 Token Burn',
+                            type: 'burn_from_nft_mint',
+                            amount: distribution.burn,
+                            balance_before: 0,
+                            balance_after: 0,
+                            metadata: JSON.stringify({
+                                source: 'bronze_nft_mint',
+                                nft_id: nftMintAddress,
+                                user: userId
+                            })
+                        });
+                        
+                        // TREASURY transaction (30%)
+                        await supabase.from('transactions').insert({
+                            user_id: TREASURY_MAIN,
+                            username: '💰 Treasury Main',
+                            type: 'treasury_income_from_nft',
+                            amount: distribution.treasury,
+                            balance_before: 0,
+                            balance_after: distribution.treasury,
+                            metadata: JSON.stringify({
+                                source: 'bronze_nft_mint',
+                                nft_id: nftMintAddress,
+                                user: userId
+                            })
+                        });
+                        
+                        // P2E POOL REFUND transaction (30%)
+                        await supabase.from('transactions').insert({
+                            user_id: P2E_POOL_ID,
+                            username: '🎮 P2E Pool Refund',
+                            type: 'p2e_pool_refund_from_nft',
+                            amount: distribution.p2e_pool,
+                            balance_before: 0,
+                            balance_after: distribution.p2e_pool,
+                            metadata: JSON.stringify({
+                                source: 'bronze_nft_mint',
+                                nft_id: nftMintAddress,
+                                user: userId,
+                                pool_address: 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw'
+                            })
+                        });
+                        
                     } catch (txError) {
-                        console.error('Failed to log transaction:', txError);
+                        console.error('Failed to log transactions:', txError);
                         // Don't fail the mint if transaction logging fails
                     }
                     
