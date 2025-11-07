@@ -226,6 +226,7 @@ function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [],
         $apiUrl .= '?' . $queryString;
     }
     
+    $headers = [];
     $ch = curl_init($apiUrl);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -233,9 +234,20 @@ function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [],
             'apikey: ' . $key,
             'Authorization: Bearer ' . $key,
             'Content-Type: application/json',
-            'Prefer: return=representation'
+            'Prefer: return=representation,count=exact'
         ],
         CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_HEADERFUNCTION => function($curl, $header) use (&$headers) {
+            $len = strlen($header);
+            $header = explode(':', $header, 2);
+            if (count($header) < 2) return $len;
+            
+            $name = strtolower(trim($header[0]));
+            $value = trim($header[1]);
+            $headers[$name] = $value;
+            
+            return $len;
+        }
     ]);
     
     if ($body !== null) {
@@ -251,10 +263,21 @@ function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [],
         throw new Exception('CURL error: ' . $error);
     }
     
-    return [
+    $result = [
         'code' => $httpCode,
         'data' => json_decode($response, true) ?: []
     ];
+    
+    // Parse Content-Range header for count
+    if (isset($headers['content-range'])) {
+        // Format: "0-99/123" or "*/123"
+        $range = $headers['content-range'];
+        if (preg_match('/\/(\d+)$/', $range, $matches)) {
+            $result['count'] = (int)$matches[1];
+        }
+    }
+    
+    return $result;
 }
 
 /**
