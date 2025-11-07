@@ -44,3 +44,6 @@ docs/
 # Temporary files
 *.tmp
 *.temp
+
+# Admin panels (local only, contains sensitive operations)
+wallet-admin.html
