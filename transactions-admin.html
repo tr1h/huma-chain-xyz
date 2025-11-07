@@ -514,7 +514,8 @@
 
                 const payload = await response.json();
                 if (payload && payload.data) {
-                    const newTransactions = payload.data;
+                    // Ensure data is an array
+                    const newTransactions = Array.isArray(payload.data) ? payload.data : [];
                     
                     // For live updates: check if we have new transactions
                     if (updateOnly && lastTransactionTime && newTransactions.length > 0) {
@@ -593,6 +594,12 @@
         }
 
         function updateStats() {
+            // Ensure allTransactions is always an array
+            if (!Array.isArray(allTransactions)) {
+                console.warn('⚠️ allTransactions is not an array, resetting to []');
+                allTransactions = [];
+            }
+            
             const totalEarned = allTransactions
                 .filter(t => t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus')
                 .reduce((sum, t) => sum + (t.amount || 0), 0);
@@ -661,8 +668,10 @@
                 // Get user from leaderboard
                 const user = allUsers[userId];
                 
-                // Get user transactions
-                const userTransactions = allTransactions.filter(t => t.user_id === userId);
+                // Get user transactions (ensure allTransactions is array)
+                const userTransactions = Array.isArray(allTransactions) 
+                    ? allTransactions.filter(t => t.user_id === userId)
+                    : [];
                 
                 const totalEarned = userTransactions
                     .filter(t => t.type.startsWith('earn') || t.type === 'level_up')
@@ -746,6 +755,12 @@
         }
 
         function filterTransactions() {
+            // Ensure allTransactions is always an array
+            if (!Array.isArray(allTransactions)) {
+                console.warn('⚠️ allTransactions is not an array, resetting to []');
+                allTransactions = [];
+            }
+            
             const userFilter = document.getElementById('filter-user').value.toLowerCase();
             const typeFilter = document.getElementById('filter-type').value;
             const dateFrom = document.getElementById('filter-date-from').value;
