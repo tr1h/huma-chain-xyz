@@ -190,6 +190,15 @@ switch ($path) {
             echo json_encode(['error' => 'Method not allowed']);
         }
         break;
+    
+    case '/nft/mint-bronze-onchain':
+        if ($method === 'POST') {
+            handleBronzeNFTOnChain($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
         
     case '/mint':
         if ($method === 'POST') {
