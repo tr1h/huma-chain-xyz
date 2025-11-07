@@ -4374,17 +4374,38 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"Error setting group permissions: {e}")
 
-    # Infinite restart loop
+    # Infinite restart loop with better error handling
     while True:
         try:
             # Skip webhook operations on PythonAnywhere (causes proxy errors)
             print("Starting polling (webhook disabled for PythonAnywhere)...")
-            bot.infinity_polling(none_stop=True, interval=2, timeout=60)
+            bot.infinity_polling(
+                none_stop=True, 
+                interval=2, 
+                timeout=60,
+                long_polling_timeout=20
+            )
         except KeyboardInterrupt:
-            print("\nBot stopped by user")
+            print("\n✅ Bot stopped by user")
             break
         except Exception as e:
-            print(f"Bot error: {e}")
-            print("Auto-restarting in 10 seconds...")
-            time.sleep(10)
-            print("Restarting now...")
+            error_str = str(e)
+            # Check for temporary Telegram API errors (not critical)
+            if "429" in error_str or "Too Many Requests" in error_str:
+                print(f"⚠️ Rate limit (429) - Telegram API temporary limit, waiting...")
+                time.sleep(5)  # Wait as Telegram suggests
+            elif "502" in error_str or "Bad Gateway" in error_str:
+                print(f"⚠️ Bad Gateway (502) - Telegram API temporary issue, retrying...")
+                time.sleep(5)
+            elif "SSL" in error_str or "DECRYPTION_FAILED" in error_str:
+                print(f"⚠️ SSL error - Network issue, retrying...")
+                time.sleep(5)
+            elif "chat not found" in error_str.lower():
+                print(f"⚠️ Chat not found - Channel/chat may not exist, continuing...")
+                # This is not critical, continue polling
+                continue
+            else:
+                print(f"❌ Bot error: {e}")
+                print("Auto-restarting in 10 seconds...")
+                time.sleep(10)
+            print("Retrying now...")
