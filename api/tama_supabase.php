@@ -651,9 +651,9 @@ function handleLeaderboardUpsert($url, $key) {
     }
     
     try {
-        // Check if user exists
+        // Check if user exists and get old balance
         $getResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
-            'select' => 'telegram_id',
+            'select' => 'telegram_id,tama,telegram_username',
             'telegram_id' => 'eq.' . $user_id,
             'limit' => '1'
         ]);
@@ -674,9 +674,36 @@ function handleLeaderboardUpsert($url, $key) {
         
         if (!empty($getResult['data'])) {
             // User exists - UPDATE
+            $oldTama = (int)($getResult['data'][0]['tama'] ?? 0);
+            $username = $getResult['data'][0]['telegram_username'] ?? $user_id;
+            $tamaDiff = (int)$tama - $oldTama;
+            
             $updateResult = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
                 'telegram_id' => 'eq.' . $user_id
             ], $updateData);
+            
+            // Log transaction if TAMA changed
+            if ($tamaDiff != 0) {
+                try {
+                    $transactionType = $tamaDiff > 0 ? 'earn_click' : 'spend_game';
+                    supabaseRequest($url, $key, 'POST', 'transactions', [], [
+                        'user_id' => $user_id,
+                        'username' => $username,
+                        'type' => $transactionType,
+                        'amount' => abs($tamaDiff),
+                        'balance_before' => $oldTama,
+                        'balance_after' => (int)$tama,
+                        'metadata' => json_encode([
+                            'level' => (int)$level,
+                            'xp' => (int)$xp,
+                            'pet_type' => $pet_type
+                        ])
+                    ]);
+                } catch (Exception $e) {
+                    // Log error but don't fail the request
+                    error_log('Failed to log transaction: ' . $e->getMessage());
+                }
+            }
             
             echo json_encode([
                 'success' => true,
