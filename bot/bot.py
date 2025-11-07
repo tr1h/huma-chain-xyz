@@ -3424,7 +3424,8 @@ All NFTs give you earning bonuses when playing!
             
             # Create mint URL with user data
             # Using nft-mint.html (beautiful design with gradients and modern UI)
-            mint_url = f"{MINT_URL}nft-mint.html?user_id={telegram_id}&tama={tama_balance}"
+            # TAMA balance загружается напрямую из базы данных (real-time)
+            mint_url = f"{MINT_URL}nft-mint.html?user_id={telegram_id}"
             
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(

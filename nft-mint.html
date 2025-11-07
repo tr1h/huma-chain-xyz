@@ -408,30 +408,48 @@
             }
         }
 
-        // Load User TAMA Balance
+        // Load User TAMA Balance (REAL-TIME from database)
         async function loadTAMABalance() {
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
-            const tamaFromUrl = urlParams.get('tama');
             
-            if (tamaFromUrl) {
-                userTamaBalance = parseInt(tamaFromUrl);
-                document.getElementById('user-tama-balance').textContent = userTamaBalance.toLocaleString() + ' TAMA';
-            } else if (userId) {
-                try {
-                    const { data, error } = await supabase
-                        .from('leaderboard')
-                        .select('tama')
-                        .eq('telegram_id', userId)
-                        .single();
-                    
-                    if (data) {
-                        userTamaBalance = data.tama || 0;
-                        document.getElementById('user-tama-balance').textContent = userTamaBalance.toLocaleString() + ' TAMA';
-                    }
-                } catch (err) {
-                    console.error('Error loading TAMA:', err);
+            if (!userId) {
+                document.getElementById('user-tama-balance').textContent = '0 TAMA (Connect via Telegram bot)';
+                return;
+            }
+            
+            try {
+                // Загружаем актуальный баланс из базы данных
+                const { data, error } = await supabase
+                    .from('leaderboard')
+                    .select('tama')
+                    .eq('telegram_id', userId)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (data) {
+                    userTamaBalance = data.tama || 0;
+                    document.getElementById('user-tama-balance').textContent = userTamaBalance.toLocaleString() + ' TAMA';
+                } else {
+                    userTamaBalance = 0;
+                    document.getElementById('user-tama-balance').textContent = '0 TAMA';
                 }
+            } catch (err) {
+                console.error('Error loading TAMA:', err);
+                document.getElementById('user-tama-balance').textContent = 'Error loading balance';
+            }
+        }
+        
+        // Auto-refresh balance every 10 seconds
+        async function startBalanceRefresh() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            
+            if (userId) {
+                setInterval(async () => {
+                    await loadTAMABalance();
+                }, 10000); // Обновление каждые 10 секунд
             }
         }
 
@@ -457,9 +475,10 @@
         document.getElementById('disconnect-wallet').addEventListener('click', disconnectWallet);
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTAMABalance();
-            console.log('NFT Mint page loaded');
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadTAMABalance();
+            startBalanceRefresh(); // Автообновление баланса
+            console.log('NFT Mint page loaded with real-time TAMA balance');
         });
     </script>
 </body>
