@@ -632,8 +632,9 @@
             tbody.innerHTML = transactions.map(t => {
                 const date = new Date(t.created_at).toLocaleString();
                 const isEarn = t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus';
+                const isSpend = t.type.startsWith('spend') || t.type === 'nft_mint';
                 const typeClass = t.type.startsWith('earn') ? 'type-earn' : 
-                                 t.type.startsWith('spend') ? 'type-spend' :
+                                 isSpend ? 'type-spend' :
                                  t.type === 'level_up' ? 'type-level' :
                                  t.type === 'quest_complete' ? 'type-quest' :
                                  t.type === 'referral_bonus' ? 'type-referral' : 'type-earn';
