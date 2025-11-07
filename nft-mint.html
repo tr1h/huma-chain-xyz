@@ -233,9 +233,9 @@
                         </div>
                     </div>
                     
-                    <!-- Big Mint Button (Hidden by default) -->
-                    <button class="mint-btn-large" id="mint-btn" style="display: none;" disabled>
-                        🔒 SELECT MINT TYPE
+                    <!-- Big Mint Button -->
+                    <button class="mint-btn-large" id="mint-btn" disabled>
+                        <span class="btn-text">🔒 SELECT MINT TYPE</span>
                     </button>
 
                     <!-- Pricing Phases (Better Design) -->
@@ -590,6 +590,35 @@
                 copyBtn.addEventListener('click', copyWalletAddress);
             }
             
+            // Setup mint type selection buttons
+            const tamaMintBtn = document.getElementById('tama-mint-btn');
+            const solMintBtn = document.getElementById('sol-mint-btn');
+            
+            if (tamaMintBtn) {
+                tamaMintBtn.addEventListener('click', () => selectMintType('tama'));
+            }
+            if (solMintBtn) {
+                solMintBtn.addEventListener('click', () => selectMintType('sol'));
+            }
+            
+            // Setup mint button click handler
+            const mintBtn = document.getElementById('mint-btn');
+            if (mintBtn) {
+                mintBtn.addEventListener('click', async function() {
+                    if (!walletConnected) {
+                        alert('Please connect your wallet first!');
+                        return;
+                    }
+                    if (!selectedMintType) {
+                        alert('Please select a mint type first!');
+                        return;
+                    }
+                    
+                    // TODO: Implement actual minting logic
+                    alert(`Minting with ${selectedMintType === 'tama' ? 'TAMA' : 'SOL'}...\n\nThis feature will be implemented soon!`);
+                });
+            }
+            
             // Check if already connected
             await checkWalletConnection();
             updateMintButton();
@@ -667,22 +696,57 @@
             }
         }
         
-        // Update mint button based on wallet connection
+        // Mint type selection
+        let selectedMintType = null; // 'tama' or 'sol'
+        
+        // Handle mint type selection
+        function selectMintType(type) {
+            selectedMintType = type;
+            
+            // Update button styles
+            const tamaBtn = document.getElementById('tama-mint-btn');
+            const solBtn = document.getElementById('sol-mint-btn');
+            
+            if (type === 'tama') {
+                if (tamaBtn) tamaBtn.style.transform = 'scale(1.05)';
+                if (tamaBtn) tamaBtn.style.boxShadow = '0 8px 30px rgba(251, 133, 0, 0.6)';
+                if (solBtn) solBtn.style.transform = 'scale(1)';
+                if (solBtn) solBtn.style.boxShadow = '0 5px 20px rgba(138, 201, 38, 0.4)';
+            } else {
+                if (solBtn) solBtn.style.transform = 'scale(1.05)';
+                if (solBtn) solBtn.style.boxShadow = '0 8px 30px rgba(138, 201, 38, 0.6)';
+                if (tamaBtn) tamaBtn.style.transform = 'scale(1)';
+                if (tamaBtn) tamaBtn.style.boxShadow = '0 5px 20px rgba(251, 133, 0, 0.4)';
+            }
+            
+            // Update mint button
+            updateMintButton();
+        }
+        
+        // Update mint button based on wallet connection and mint type selection
         function updateMintButton() {
             const mintBtn = document.getElementById('mint-btn');
             if (!mintBtn) return;
             
-            if (walletConnected) {
-                mintBtn.disabled = false;
-                const btnText = mintBtn.querySelector('.btn-text');
-                if (btnText) {
-                    btnText.textContent = 'MINT NFT';
+            const btnText = mintBtn.querySelector('.btn-text');
+            if (!btnText) return;
+            
+            if (!selectedMintType) {
+                mintBtn.disabled = true;
+                btnText.textContent = '🔒 SELECT MINT TYPE';
+            } else if (!walletConnected) {
+                mintBtn.disabled = true;
+                if (selectedMintType === 'tama') {
+                    btnText.textContent = '🔒 CONNECT WALLET TO MINT (TAMA)';
+                } else {
+                    btnText.textContent = '🔒 CONNECT WALLET TO MINT (SOL)';
                 }
             } else {
-                mintBtn.disabled = true;
-                const btnText = mintBtn.querySelector('.btn-text');
-                if (btnText) {
-                    btnText.textContent = 'CONNECT WALLET TO MINT';
+                mintBtn.disabled = false;
+                if (selectedMintType === 'tama') {
+                    btnText.textContent = '💰 MINT WITH TAMA (5,000 TAMA)';
+                } else {
+                    btnText.textContent = '✨ MINT WITH SOL (0.1 SOL)';
                 }
             }
         }
