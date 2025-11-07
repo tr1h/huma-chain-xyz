@@ -215,10 +215,23 @@
         <section class="hero-section">
             <div class="hero-content">
                 <div style="max-width: 400px; width: 80%; margin: 0 auto 30px; font-size: 120px; text-align: center;">🐾</div>
+                <h1 style="font-size: 2.5em; margin: 20px 0; color: #FFCA3A;">SOLANA TAMAGOTCHI</h1>
                 <p class="hero-subtitle">The Ultimate Blockchain Pet Game on Solana! Play, Earn & Collect NFT Pets 🚀</p>
-                <div class="hero-buttons">
-                    <button id="landing-connect-btn" class="btn-connect">CONNECT WALLET</button>
-                    <button onclick="document.getElementById('features-section').scrollIntoView({behavior:'smooth'})" class="btn-secondary">Learn More</button>
+                <div class="hero-buttons" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
+                    <button onclick="window.open('https://t.me/GotchiGameBot', '_blank')" class="btn-connect" style="background: linear-gradient(135deg, #26A5E4, #0088cc); font-size: 16px;">
+                        🎮 Play in Telegram
+                    </button>
+                    <button onclick="window.location.href='nft-mint.html'" class="btn-connect" style="background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%); font-size: 16px;">
+                        💎 Mint NFT
+                    </button>
+                    <button id="landing-connect-btn" class="btn-secondary" style="font-size: 16px;">
+                        👛 Connect Wallet
+                    </button>
+                </div>
+                <div style="margin-top: 25px; font-size: 14px; color: rgba(241, 250, 238, 0.8);">
+                    <span style="margin: 0 15px;">✅ 100% Free to Play</span>
+                    <span style="margin: 0 15px;">💰 Earn Real TAMA Tokens</span>
+                    <span style="margin: 0 15px;">🎨 Unique NFT Pets</span>
                 </div>
             </div>
         </section>
@@ -260,6 +273,67 @@
             </div>
         </section>
 
+        <!-- Tokenomics Section -->
+        <section id="tokenomics-section" class="features-section" style="background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(69, 123, 157, 0.95)); padding: 80px 20px;">
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 20px;">💰 TOKENOMICS</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 50px; font-size: 1.1em; opacity: 0.9;">
+                Total Supply: 1,000,000,000 TAMA | SPL Token on Solana
+            </p>
+            
+            <div class="features-grid" style="max-width: 1200px; margin: 0 auto;">
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(106, 153, 78, 0.1)); border: 2px solid rgba(138, 201, 38, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">🎮</span>
+                    <h3 class="feature-title">Play-to-Earn Pool</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #8AC926;">40%</p>
+                    <p class="feature-desc">400M TAMA<br>Player rewards over 5.5 years</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(255, 183, 3, 0.1), rgba(251, 133, 0, 0.1)); border: 2px solid rgba(255, 183, 3, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">👥</span>
+                    <h3 class="feature-title">Team & Development</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #FFB703;">20%</p>
+                    <p class="feature-desc">200M TAMA<br>🔒 Locked (4-year vesting)</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(230, 57, 70, 0.1), rgba(168, 218, 220, 0.1)); border: 2px solid rgba(230, 57, 70, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">📢</span>
+                    <h3 class="feature-title">Marketing</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #E63946;">15%</p>
+                    <p class="feature-desc">150M TAMA<br>Partnerships & growth</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(69, 123, 157, 0.1), rgba(168, 218, 220, 0.1)); border: 2px solid rgba(69, 123, 157, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">💧</span>
+                    <h3 class="feature-title">Liquidity</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #457B9D;">10%</p>
+                    <p class="feature-desc">100M TAMA<br>🔒 DEX liquidity</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(241, 250, 238, 0.1), rgba(168, 218, 220, 0.1)); border: 2px solid rgba(241, 250, 238, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">🎁</span>
+                    <h3 class="feature-title">Community</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #F1FAEE;">10%</p>
+                    <p class="feature-desc">100M TAMA<br>Airdrops & rewards</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(255, 202, 58, 0.1), rgba(251, 133, 0, 0.1)); border: 2px solid rgba(255, 202, 58, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">🏦</span>
+                    <h3 class="feature-title">Reserve</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #FFCA3A;">5%</p>
+                    <p class="feature-desc">50M TAMA<br>🔒 Emergency fund</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 50px;">
+                <p style="font-size: 1.1em; margin-bottom: 20px; opacity: 0.9;">
+                    🔒 <strong>Team Tokens Vesting:</strong> 4 years with 6-month cliff (Streamflow)
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="window.open('https://solscan.io/account/Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY?cluster=devnet', '_blank')" class="btn-secondary" style="font-size: 14px; padding: 12px 24px;">
+                        📊 View Token on Solscan
+                    </button>
+                    <button onclick="window.open('https://solscan.io/account/3tEskbJxeGyz4svTYAUscMiHghriZ2U7Ug6XLBeK82jm?cluster=devnet', '_blank')" class="btn-secondary" style="font-size: 14px; padding: 12px 24px;">
+                        🔒 View Vesting Stream
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- Pet Showcase -->
         <section class="pets-section">
             <h2 class="section-title">🎨 CHOOSE YOUR PET</h2>
@@ -269,6 +343,33 @@
                 <div class="pet-preview">🐉</div>
                 <div class="pet-preview">🦊</div>
                 <div class="pet-preview">🐻</div>
+            </div>
+        </section>
+
+        <!-- How to Play Section -->
+        <section class="features-section" style="background: linear-gradient(135deg, rgba(69, 123, 157, 0.95), rgba(29, 53, 87, 0.95)); padding: 80px 20px;">
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;">🚀 HOW TO PLAY</h2>
+            <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+                <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(255, 202, 58, 0.3);">
+                    <div style="font-size: 4em; margin-bottom: 20px;">1️⃣</div>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFCA3A;">Open Telegram</h3>
+                    <p style="opacity: 0.9;">Search for <strong>@GotchiGameBot</strong> and click Start</p>
+                </div>
+                <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(138, 201, 38, 0.3);">
+                    <div style="font-size: 4em; margin-bottom: 20px;">2️⃣</div>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #8AC926;">Create Pet</h3>
+                    <p style="opacity: 0.9;">Choose from 10 unique pet types and start your journey</p>
+                </div>
+                <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(255, 183, 3, 0.3);">
+                    <div style="font-size: 4em; margin-bottom: 20px;">3️⃣</div>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFB703;">Earn TAMA</h3>
+                    <p style="opacity: 0.9;">Click, play mini-games, and complete quests</p>
+                </div>
+                <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(230, 57, 70, 0.3);">
+                    <div style="font-size: 4em; margin-bottom: 20px;">4️⃣</div>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #E63946;">Withdraw</h3>
+                    <p style="opacity: 0.9;">Connect wallet and withdraw your TAMA to blockchain</p>
+                </div>
             </div>
         </section>
 
