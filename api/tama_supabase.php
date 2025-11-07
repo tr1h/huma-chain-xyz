@@ -1413,6 +1413,7 @@ function handleBronzeNFTOnChain($url, $key) {
     $tier = $input['tier'] ?? 'Bronze';
     $rarity = $input['rarity'] ?? 'Common';
     $multiplier = $input['multiplier'] ?? 2.0;
+    $tama_price = $input['tama_price'] ?? null; // Динамическая цена
     
     if (!$telegram_id) {
         http_response_code(400);
@@ -1426,12 +1427,39 @@ function handleBronzeNFTOnChain($url, $key) {
         $TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
         $BURN_ADDRESS = '1nc1nerator11111111111111111111111111111111'; // Solana burn address
         
-        $BRONZE_PRICE = 2500;
+        // Get price from nft_tiers table if not provided
+        if ($tama_price === null) {
+            try {
+                $tierResult = supabaseRequest($url, $key, 'GET', 'nft_tiers', [
+                    'select' => 'tama_price',
+                    'tier_name' => 'eq.' . $tier
+                ]);
+                
+                if (!empty($tierResult['data'])) {
+                    $tama_price = (int)$tierResult['data'][0]['tama_price'];
+                    error_log("✅ Loaded TAMA price from database: {$tama_price} for tier {$tier}");
+                } else {
+                    // Fallback to default prices
+                    $tama_price = $tier === 'Bronze' ? 2500 : ($tier === 'Silver' ? 5000 : 10000);
+                    error_log("⚠️ Using fallback price: {$tama_price} for tier {$tier}");
+                }
+            } catch (Exception $e) {
+                error_log("⚠️ Failed to load tier price: " . $e->getMessage());
+                $tama_price = 2500; // Default fallback
+            }
+        }
+        
+        // Distribution in percentages (dynamic based on actual price)
         $distribution = [
-            'burn' => (int)($BRONZE_PRICE * 0.40),      // 1,000
-            'treasury' => (int)($BRONZE_PRICE * 0.30),  // 750
-            'p2e_pool' => (int)($BRONZE_PRICE * 0.30)   // 750
+            'burn' => (int)($tama_price * 0.40),      // 40%
+            'treasury' => (int)($tama_price * 0.30),  // 30%
+            'p2e_pool' => (int)($tama_price * 0.30)   // 30%
         ];
+        
+        error_log("📊 Distribution for {$tier} NFT (price: {$tama_price} TAMA):");
+        error_log("  🔥 Burn: {$distribution['burn']} TAMA (40%)");
+        error_log("  💰 Treasury: {$distribution['treasury']} TAMA (30%)");
+        error_log("  🎮 P2E Pool: {$distribution['p2e_pool']} TAMA (30%)");
         
         // Config
         $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
@@ -1575,7 +1603,13 @@ function handleBronzeNFTOnChain($url, $key) {
             'tier' => $tier,
             'rarity' => $rarity,
             'multiplier' => $multiplier,
+            'tama_price' => $tama_price,
             'distribution' => $distribution,
+            'distribution_percentages' => [
+                'burn' => '40%',
+                'treasury' => '30%',
+                'p2e_pool' => '30%'
+            ],
             'transactions' => [
                 'burn' => [
                     'amount' => $distribution['burn'],
