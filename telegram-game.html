@@ -54,6 +54,29 @@
             backdrop-filter: blur(10px);
         }
         
+        .nft-boost-indicator {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+            border: 2px solid rgba(255, 215, 0, 0.6);
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            animation: pulse 2s ease-in-out infinite;
+            display: none;
+        }
+        
+        .nft-boost-indicator.active {
+            display: block;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
         .pet-container {
             background: rgba(255,255,255,0.15);
             border-radius: 15px;
@@ -268,6 +291,10 @@
             <div>👤 Loading user...</div>
         </div>
         
+        <div class="nft-boost-indicator" id="nft-boost-indicator">
+            💎 <span id="nft-boost-text">NFT Boost Active: 2.0x</span>
+        </div>
+        
         <div class="tama-balance">
             <div class="tama-amount" id="tama-balance">0</div>
             <div class="tama-label">TAMA Tokens</div>
@@ -365,7 +392,10 @@
             },
             tama: 0,
             clicks: 0,
-            achievements: []
+            achievements: [],
+            nftBoost: 1.0,  // NFT earnings multiplier
+            hasNFT: false,  // NFT ownership flag
+            nftRarity: null  // NFT rarity (common/rare/epic/legendary)
         };
         
         // Initialize
@@ -382,8 +412,11 @@
                 `;
             }
             
-            // Initialize Supabase (you'll need to add your keys)
-            // supabase = createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_KEY');
+            // Initialize Supabase
+            supabase = window.supabase.createClient(
+                'https://zfrazyupameidxpjihrh.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU'
+            );
             
             // Load game state
             loadGameState();
@@ -397,13 +430,60 @@
             tg.MainButton.show();
         }
         
-        function loadGameState() {
+        async function loadGameState() {
             // Load from localStorage or Supabase
             const saved = localStorage.getItem('tamagotchi_game_state');
             if (saved) {
                 gameState = { ...gameState, ...JSON.parse(saved) };
             }
+            
+            // Check for NFT ownership
+            await checkNFTBoost();
+            
             updateUI();
+        }
+        
+        // Check user's NFT and apply boost
+        async function checkNFTBoost() {
+            try {
+                const user = tg.initDataUnsafe.user;
+                if (!user) return;
+                
+                const telegram_id = String(user.id);
+                
+                // Check if user has NFTs
+                const { data, error } = await supabase
+                    .from('user_nfts')
+                    .select('rarity')
+                    .eq('telegram_id', telegram_id)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+                
+                if (data && data.length > 0) {
+                    gameState.hasNFT = true;
+                    gameState.nftRarity = data[0].rarity.toLowerCase();
+                    
+                    // Apply boost based on rarity
+                    const boostMap = {
+                        'common': 1.5,     // +50%
+                        'rare': 2.0,       // +100%
+                        'epic': 2.5,       // +150%
+                        'legendary': 3.0   // +200%
+                    };
+                    
+                    gameState.nftBoost = boostMap[gameState.nftRarity] || 1.0;
+                    
+                    console.log(`💎 NFT Boost Active: ${gameState.nftRarity.toUpperCase()} (${gameState.nftBoost}x)`);
+                } else {
+                    gameState.hasNFT = false;
+                    gameState.nftBoost = 1.0;
+                    gameState.nftRarity = null;
+                }
+            } catch (e) {
+                console.error('Error checking NFT boost:', e);
+                gameState.hasNFT = false;
+                gameState.nftBoost = 1.0;
+            }
         }
         
         function saveGameState() {
@@ -422,19 +502,24 @@
             gameState.clicks++;
             gameState.pet.stats.happiness = Math.min(100, gameState.pet.stats.happiness + 2);
             gameState.pet.xp += 5;
-            gameState.tama += 1;
+            
+            // Apply NFT boost
+            const baseReward = 1;
+            const boostedReward = Math.floor(baseReward * gameState.nftBoost);
+            gameState.tama += boostedReward;
             
             // Check for level up
             if (gameState.pet.xp >= gameState.pet.level * 100) {
                 levelUpPet();
             }
             
-            // Random message
+            // Random message with boost indicator
+            const boostText = gameState.hasNFT ? ` 💎 (${gameState.nftBoost}x boost!)` : '';
             const messages = [
-                "Pet is happy! +1 TAMA",
-                "Good click! +1 TAMA",
-                "Pet loves attention! +1 TAMA",
-                "Great interaction! +1 TAMA"
+                `Pet is happy! +${boostedReward} TAMA${boostText}`,
+                `Good click! +${boostedReward} TAMA${boostText}`,
+                `Pet loves attention! +${boostedReward} TAMA${boostText}`,
+                `Great interaction! +${boostedReward} TAMA${boostText}`
             ];
             showMessage(messages[Math.floor(Math.random() * messages.length)]);
             
@@ -450,9 +535,14 @@
             
             gameState.pet.stats.hunger = Math.min(100, gameState.pet.stats.hunger + 20);
             gameState.pet.stats.happiness = Math.min(100, gameState.pet.stats.happiness + 5);
-            gameState.tama += 2;
             
-            showMessage("Pet is fed! +2 TAMA");
+            // Apply NFT boost
+            const baseReward = 2;
+            const boostedReward = Math.floor(baseReward * gameState.nftBoost);
+            gameState.tama += boostedReward;
+            
+            const boostText = gameState.hasNFT ? ` 💎 (${gameState.nftBoost}x)` : '';
+            showMessage(`Pet is fed! +${boostedReward} TAMA${boostText}`);
             updateUI();
         }
         
@@ -464,9 +554,14 @@
             
             gameState.pet.stats.energy = Math.max(0, gameState.pet.stats.energy - 15);
             gameState.pet.stats.happiness = Math.min(100, gameState.pet.stats.happiness + 15);
-            gameState.tama += 3;
             
-            showMessage("Pet had fun playing! +3 TAMA");
+            // Apply NFT boost
+            const baseReward = 3;
+            const boostedReward = Math.floor(baseReward * gameState.nftBoost);
+            gameState.tama += boostedReward;
+            
+            const boostText = gameState.hasNFT ? ` 💎 (${gameState.nftBoost}x)` : '';
+            showMessage(`Pet had fun playing! +${boostedReward} TAMA${boostText}`);
             updateUI();
         }
         
@@ -485,9 +580,14 @@
             }
             
             gameState.pet.stats.health = Math.min(100, gameState.pet.stats.health + 30);
-            gameState.tama += 5;
             
-            showMessage("Pet is healed! +5 TAMA");
+            // Apply NFT boost
+            const baseReward = 5;
+            const boostedReward = Math.floor(baseReward * gameState.nftBoost);
+            gameState.tama += boostedReward;
+            
+            const boostText = gameState.hasNFT ? ` 💎 (${gameState.nftBoost}x)` : '';
+            showMessage(`Pet is healed! +${boostedReward} TAMA${boostText}`);
             updateUI();
         }
         
@@ -524,6 +624,23 @@
             // Update TAMA balance
             document.getElementById('tama-balance').textContent = gameState.tama;
             
+            // Update NFT boost indicator
+            const nftIndicator = document.getElementById('nft-boost-indicator');
+            const nftText = document.getElementById('nft-boost-text');
+            if (gameState.hasNFT) {
+                nftIndicator.classList.add('active');
+                const rarityEmoji = {
+                    'common': '🥉',
+                    'rare': '🥈',
+                    'epic': '🥇',
+                    'legendary': '💎'
+                };
+                const emoji = rarityEmoji[gameState.nftRarity] || '💎';
+                nftText.textContent = `${emoji} ${gameState.nftRarity.toUpperCase()} NFT Boost: ${gameState.nftBoost}x earning!`;
+            } else {
+                nftIndicator.classList.remove('active');
+            }
+            
             // Update button states
             document.getElementById('feed-btn').disabled = gameState.pet.stats.hunger >= 100;
             document.getElementById('play-btn').disabled = gameState.pet.stats.energy < 20;
@@ -544,14 +661,26 @@
             // Simple achievement system
             if (gameState.clicks === 10 && !gameState.achievements.includes('first_10_clicks')) {
                 gameState.achievements.push('first_10_clicks');
-                showMessage("🏆 Achievement unlocked: First 10 Clicks!");
-                gameState.tama += 10;
+                
+                // Apply NFT boost to achievement rewards
+                const baseReward = 10;
+                const boostedReward = Math.floor(baseReward * gameState.nftBoost);
+                gameState.tama += boostedReward;
+                
+                const boostText = gameState.hasNFT ? ` (${gameState.nftBoost}x boost!)` : '';
+                showMessage(`🏆 Achievement unlocked: First 10 Clicks! +${boostedReward} TAMA${boostText}`);
             }
             
             if (gameState.tama >= 100 && !gameState.achievements.includes('first_100_tama')) {
                 gameState.achievements.push('first_100_tama');
-                showMessage("🏆 Achievement unlocked: First 100 TAMA!");
-                gameState.tama += 25;
+                
+                // Apply NFT boost to achievement rewards
+                const baseReward = 25;
+                const boostedReward = Math.floor(baseReward * gameState.nftBoost);
+                gameState.tama += boostedReward;
+                
+                const boostText = gameState.hasNFT ? ` (${gameState.nftBoost}x boost!)` : '';
+                showMessage(`🏆 Achievement unlocked: First 100 TAMA! +${boostedReward} TAMA${boostText}`);
             }
         }
         

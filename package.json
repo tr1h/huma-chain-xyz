@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@solana/web3.js": "^1.98.4",
+    "@streamflow/stream": "^9.3.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "node-fetch": "^2.6.7"
