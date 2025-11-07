@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mint NFT Pet - Solana Tamagotchi</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/mint.css">
+    <!-- CSS is inline below -->
     
     <!-- TAMA Token Integration -->
     <script>
@@ -577,9 +576,50 @@
             }
         }
         
+        // Get URL parameters (from Telegram bot)
+        function getURLParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                userId: urlParams.get('user_id'),
+                tamaBalance: urlParams.get('tama')
+            };
+        }
+        
+        // Display TAMA balance from URL (if provided)
+        function displayTAMABalance() {
+            const params = getURLParams();
+            if (params.tamaBalance) {
+                const balance = parseInt(params.tamaBalance) || 0;
+                const balanceElement = document.getElementById('user-tama-balance');
+                if (balanceElement) {
+                    balanceElement.textContent = `${balance.toLocaleString()} TAMA`;
+                    balanceElement.style.display = 'block';
+                } else {
+                    // Create balance display if element doesn't exist
+                    const mintInfo = document.querySelector('.mint-info');
+                    if (mintInfo) {
+                        const balanceDiv = document.createElement('div');
+                        balanceDiv.id = 'user-tama-balance';
+                        balanceDiv.style.cssText = 'padding: 15px; background: linear-gradient(135deg, rgba(255, 183, 3, 0.15), rgba(251, 133, 0, 0.15)); border: 2px solid #FFB703; border-radius: 15px; text-align: center; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(255, 183, 3, 0.3);';
+                        balanceDiv.innerHTML = `
+                            <div style="font-size: 14px; color: #FFB703; margin-bottom: 5px; font-weight: bold;">💰 Your TAMA Balance</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #FB8500; margin: 10px 0;">${balance.toLocaleString()} TAMA</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">From Telegram Bot</div>
+                            ${balance >= 5000 ? '<div style="font-size: 12px; color: #8AC926; margin-top: 5px; font-weight: bold;">✅ Enough for TAMA Mint!</div>' : '<div style="font-size: 12px; color: #E63946; margin-top: 5px;">⚠️ Need ' + (5000 - balance).toLocaleString() + ' more TAMA</div>'}
+                        `;
+                        mintInfo.insertBefore(balanceDiv, mintInfo.firstChild);
+                    }
+                }
+                console.log(`✅ TAMA Balance displayed: ${balance} TAMA (User: ${params.userId})`);
+            }
+        }
+        
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🎨 Mint page loaded');
+            
+            // Display TAMA balance from URL parameters
+            displayTAMABalance();
             
             // Check if wallet is already connected
             if (window.WalletManager && window.WalletManager.isConnected()) {
