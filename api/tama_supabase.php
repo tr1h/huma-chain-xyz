@@ -807,8 +807,8 @@ function handleTransactionsList($url, $key) {
             'select' => 'id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at',
             'order' => $order,
             'limit' => $limit,
-            'offset' => $offset,
-            'count' => 'exact' // Request total count
+            'offset' => $offset
+            // Note: count is set via 'Prefer: count=exact' header in supabaseRequest()
         ]);
         
         // Get total count from response
