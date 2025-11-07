@@ -5,5 +5,5 @@ nixPkgs = ["php82", "php82Packages.composer"]
 cmds = ["composer install --no-dev --optimize-autoloader || true"]
 
 [start]
-cmd = "php -S 0.0.0.0:$PORT -t . api/tama_supabase.php"
+cmd = "bash start.sh"
 
