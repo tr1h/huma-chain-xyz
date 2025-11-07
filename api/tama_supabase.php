@@ -1388,6 +1388,318 @@ function handleDistribute($url, $key) {
 }
 
 /**
+ * On-Chain Bronze NFT Mint Distribution
+ * POST /api/tama/nft/mint-bronze-onchain
+ * Body: { telegram_id: '...', tier: 'Bronze', rarity: 'Common', multiplier: 2.0 }
+ * 
+ * Выполняет реальные SPL Token transfers:
+ * - 40% (1,000 TAMA) → Burn
+ * - 30% (750 TAMA) → Treasury Main
+ * - 30% (750 TAMA) → P2E Pool (обратно)
+ */
+function handleBronzeNFTOnChain($url, $key) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $telegram_id = $input['telegram_id'] ?? null;
+    $tier = $input['tier'] ?? 'Bronze';
+    $rarity = $input['rarity'] ?? 'Common';
+    $multiplier = $input['multiplier'] ?? 2.0;
+    
+    if (!$telegram_id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'telegram_id is required']);
+        return;
+    }
+    
+    try {
+        // Addresses
+        $P2E_POOL = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
+        $TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+        $BURN_ADDRESS = '1nc1nerator11111111111111111111111111111111'; // Solana burn address
+        
+        $BRONZE_PRICE = 2500;
+        $distribution = [
+            'burn' => (int)($BRONZE_PRICE * 0.40),      // 1,000
+            'treasury' => (int)($BRONZE_PRICE * 0.30),  // 750
+            'p2e_pool' => (int)($BRONZE_PRICE * 0.30)   // 750
+        ];
+        
+        // Config
+        $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
+        $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
+        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
+        $p2ePoolKeypair = getenv('SOLANA_P2E_POOL_KEYPAIR_PATH') ?: __DIR__ . '/../p2e-pool-keypair.json';
+        
+        if (!file_exists($payerKeypair)) {
+            throw new Exception('Payer keypair not found: ' . $payerKeypair);
+        }
+        
+        if (!file_exists($p2ePoolKeypair)) {
+            throw new Exception('P2E Pool keypair not found: ' . $p2ePoolKeypair);
+        }
+        
+        // Check spl-token CLI
+        $splTokenCheck = shell_exec('spl-token --version 2>&1');
+        if (strpos($splTokenCheck, 'spl-token') === false) {
+            throw new Exception('spl-token CLI not found');
+        }
+        
+        $transactions = [];
+        
+        // Transaction 1: BURN (1,000 TAMA)
+        error_log("🔥 BURN: Transferring {$distribution['burn']} TAMA to burn address");
+        $burnResult = executeSPLTransfer(
+            $p2ePoolKeypair,
+            $payerKeypair,
+            $BURN_ADDRESS,
+            $distribution['burn'],
+            $tamaMint,
+            $rpcUrl
+        );
+        
+        if (!$burnResult['success']) {
+            throw new Exception('Burn transaction failed: ' . $burnResult['error']);
+        }
+        
+        $transactions['burn'] = $burnResult['signature'];
+        error_log("✅ BURN successful: " . $burnResult['signature']);
+        
+        // Transaction 2: TREASURY (750 TAMA)
+        error_log("💰 TREASURY: Transferring {$distribution['treasury']} TAMA to Treasury Main");
+        $treasuryResult = executeSPLTransfer(
+            $p2ePoolKeypair,
+            $payerKeypair,
+            $TREASURY_MAIN,
+            $distribution['treasury'],
+            $tamaMint,
+            $rpcUrl
+        );
+        
+        if (!$treasuryResult['success']) {
+            throw new Exception('Treasury transaction failed: ' . $treasuryResult['error']);
+        }
+        
+        $transactions['treasury'] = $treasuryResult['signature'];
+        error_log("✅ TREASURY successful: " . $treasuryResult['signature']);
+        
+        // Transaction 3: P2E POOL REFUND (750 TAMA) - обратно в P2E Pool
+        error_log("🎮 P2E POOL: Refunding {$distribution['p2e_pool']} TAMA to P2E Pool");
+        $p2eResult = executeSPLTransfer(
+            $p2ePoolKeypair,
+            $payerKeypair,
+            $P2E_POOL,
+            $distribution['p2e_pool'],
+            $tamaMint,
+            $rpcUrl
+        );
+        
+        if (!$p2eResult['success']) {
+            throw new Exception('P2E Pool transaction failed: ' . $p2eResult['error']);
+        }
+        
+        $transactions['p2e_pool'] = $p2eResult['signature'];
+        error_log("✅ P2E POOL successful: " . $p2eResult['signature']);
+        
+        // Log all transactions in database
+        try {
+            // 1. Burn transaction log
+            supabaseRequest($url, $key, 'POST', 'transactions', [], [
+                'user_id' => 'BURN_ADDRESS',
+                'username' => '🔥 Token Burn',
+                'type' => 'burn_from_bronze_nft_onchain',
+                'amount' => $distribution['burn'],
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
+                    'source' => 'bronze_nft_mint_onchain',
+                    'tier' => $tier,
+                    'rarity' => $rarity,
+                    'user' => $telegram_id,
+                    'transaction_signature' => $transactions['burn']
+                ])
+            ]);
+            
+            // 2. Treasury transaction log
+            supabaseRequest($url, $key, 'POST', 'transactions', [], [
+                'user_id' => $TREASURY_MAIN,
+                'username' => '💰 Treasury Main V2',
+                'type' => 'treasury_income_from_nft_onchain',
+                'amount' => $distribution['treasury'],
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
+                    'source' => 'bronze_nft_mint_onchain',
+                    'tier' => $tier,
+                    'rarity' => $rarity,
+                    'user' => $telegram_id,
+                    'transaction_signature' => $transactions['treasury']
+                ])
+            ]);
+            
+            // 3. P2E Pool transaction log
+            supabaseRequest($url, $key, 'POST', 'transactions', [], [
+                'user_id' => $P2E_POOL,
+                'username' => '🎮 P2E Pool Refund',
+                'type' => 'p2e_pool_refund_from_nft_onchain',
+                'amount' => $distribution['p2e_pool'],
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
+                    'source' => 'bronze_nft_mint_onchain',
+                    'tier' => $tier,
+                    'rarity' => $rarity,
+                    'user' => $telegram_id,
+                    'transaction_signature' => $transactions['p2e_pool']
+                ])
+            ]);
+            
+            error_log("✅ All transactions logged in database");
+            
+        } catch (Exception $e) {
+            error_log('Failed to log transactions: ' . $e->getMessage());
+        }
+        
+        // Success response
+        echo json_encode([
+            'success' => true,
+            'message' => 'Bronze NFT on-chain distribution completed',
+            'tier' => $tier,
+            'rarity' => $rarity,
+            'multiplier' => $multiplier,
+            'distribution' => $distribution,
+            'transactions' => [
+                'burn' => [
+                    'amount' => $distribution['burn'],
+                    'signature' => $transactions['burn'],
+                    'explorer_url' => 'https://explorer.solana.com/tx/' . $transactions['burn'] . '?cluster=devnet'
+                ],
+                'treasury' => [
+                    'amount' => $distribution['treasury'],
+                    'signature' => $transactions['treasury'],
+                    'explorer_url' => 'https://explorer.solana.com/tx/' . $transactions['treasury'] . '?cluster=devnet'
+                ],
+                'p2e_pool' => [
+                    'amount' => $distribution['p2e_pool'],
+                    'signature' => $transactions['p2e_pool'],
+                    'explorer_url' => 'https://explorer.solana.com/tx/' . $transactions['p2e_pool'] . '?cluster=devnet'
+                ]
+            ]
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'error' => $e->getMessage(),
+            'details' => 'Failed to process on-chain Bronze NFT distribution'
+        ]);
+    }
+}
+
+/**
+ * Execute SPL Token Transfer
+ * Helper function for spl-token CLI execution
+ */
+function executeSPLTransfer($ownerKeypair, $feePayerKeypair, $toAddress, $amount, $tamaMint, $rpcUrl) {
+    $cmd = [
+        'spl-token',
+        'transfer',
+        $tamaMint,
+        (string)$amount,
+        $toAddress,
+        '--fund-recipient',
+        '--allow-unfunded-recipient',
+        '--fee-payer', $feePayerKeypair,
+        '--owner', $ownerKeypair,
+        '--url', $rpcUrl,
+        '--output', 'json'
+    ];
+    
+    // Format command
+    $cmdString = '';
+    foreach ($cmd as $arg) {
+        if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0 || strpos($arg, '.json') !== false) {
+            $cmdString .= escapeshellarg($arg) . ' ';
+        } else {
+            $cmdString .= $arg . ' ';
+        }
+    }
+    $cmdString = trim($cmdString);
+    
+    error_log("Executing: " . $cmdString);
+    
+    // Execute
+    $descriptorspec = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w']
+    ];
+    
+    $process = proc_open($cmdString, $descriptorspec, $pipes);
+    
+    if (!is_resource($process)) {
+        return ['success' => false, 'error' => 'Failed to start process'];
+    }
+    
+    fclose($pipes[0]);
+    
+    // Read output with timeout
+    $stdout = '';
+    $stderr = '';
+    $startTime = time();
+    $timeout = 90;
+    
+    while (true) {
+        $status = proc_get_status($process);
+        
+        if ($status === false || !$status['running']) {
+            $stdout .= stream_get_contents($pipes[1]);
+            $stderr .= stream_get_contents($pipes[2]);
+            break;
+        }
+        
+        if (time() - $startTime > $timeout) {
+            proc_terminate($process);
+            proc_close($process);
+            return ['success' => false, 'error' => 'Transaction timeout'];
+        }
+        
+        usleep(100000);
+    }
+    
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $returnCode = proc_close($process);
+    
+    if ($returnCode !== 0) {
+        error_log("SPL Transfer failed: " . $stderr);
+        return [
+            'success' => false,
+            'error' => trim($stderr) ?: trim($stdout),
+            'return_code' => $returnCode
+        ];
+    }
+    
+    // Parse result
+    $result = json_decode($stdout, true);
+    $signature = $result['signature'] ?? null;
+    
+    if (!$signature) {
+        return [
+            'success' => false,
+            'error' => 'Signature not found in output',
+            'stdout' => $stdout
+        ];
+    }
+    
+    return [
+        'success' => true,
+        'signature' => $signature,
+        'amount' => $amount,
+        'to_address' => $toAddress
+    ];
+}
+
+/**
  * Минтинг новых токенов (создание токенов)
  * POST /api/tama/mint
  * Body: { to_wallet: 'address', amount: 1000000 }
