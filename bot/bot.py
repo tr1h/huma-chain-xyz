@@ -22,6 +22,9 @@ from gamification import (
     BADGES, RANKS, QUESTS, ACHIEVEMENTS
 )
 
+# Import NFT system
+from nft_system import NFTSystem
+
 # Load environment variables (optional .env)
 import codecs
 env_path = '../.env'
@@ -124,6 +127,9 @@ rank_system = RankSystem(supabase)
 badge_system = BadgeSystem(supabase)
 quest_system = QuestSystem(supabase)
 
+# Initialize NFT system
+nft_system = NFTSystem(supabase)
+
 # Helper function for NFT rarity emojis
 def get_rarity_emoji(rarity):
     """Return emoji for NFT rarity"""
@@ -170,9 +176,20 @@ def get_tama_balance(telegram_id):
         print(f"Error getting TAMA balance: {e}")
         return 0
 
-def add_tama_reward(telegram_id, amount, source="game"):
+def add_tama_reward(telegram_id, amount, source="game", apply_nft_multiplier=True):
     """╨Ф╨╛╨▒╨░╨▓╨╕╤В╤М TAMA ╨╜╨░╨│╤А╨░╨┤╤Г ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤О"""
     try:
+        # Apply NFT multiplier if enabled
+        original_amount = amount
+        if apply_nft_multiplier:
+            try:
+                multiplier = nft_system.get_user_multiplier(telegram_id)
+                if multiplier > 1.0:
+                    amount = int(amount * multiplier)
+                    print(f"🎁 NFT Boost applied: {original_amount} TAMA × {multiplier}x = {amount} TAMA")
+            except Exception as e:
+                print(f"Error applying NFT multiplier: {e}")
+        
         response = requests.post(f"{TAMA_API_BASE}/add", json={
             "user_id": telegram_id,
             "user_type": "telegram",

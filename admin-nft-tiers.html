@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Tiers Admin - Solana Tamagotchi</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 30px; font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .tier-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 3px solid;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .tier-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .tier-card.bronze { border-color: #CD7F32; background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.05)); }
+        .tier-card.silver { border-color: #C0C0C0; background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.05)); }
+        .tier-card.gold { border-color: #FFD700; background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05)); }
+        .tier-icon { font-size: 4em; text-align: center; margin-bottom: 20px; }
+        .tier-name { font-size: 2em; font-weight: bold; text-align: center; margin-bottom: 15px; }
+        .tier-card.bronze .tier-name { color: #CD7F32; }
+        .tier-card.silver .tier-name { color: #C0C0C0; }
+        .tier-card.gold .tier-name { color: #FFD700; }
+        .price-section { margin: 20px 0; }
+        .price-input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid rgba(255,255,255,0.3); 
+            border-radius: 10px; 
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            font-size: 1.1em;
+            margin-top: 8px;
+        }
+        .price-label { font-weight: bold; margin-bottom: 5px; display: block; opacity: 0.9; }
+        .benefit-list { list-style: none; padding: 0; margin: 20px 0; }
+        .benefit-list li { 
+            padding: 8px 0; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            font-size: 0.95em;
+        }
+        .benefit-list li:last-child { border-bottom: none; }
+        .boost-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFB703, #FB8500);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn-save { background: linear-gradient(135deg, #8AC926, #6A994E); color: white; }
+        .btn-save:hover { background: linear-gradient(135deg, #6A994E, #8AC926); }
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        .status-success { background: rgba(138, 201, 38, 0.3); border: 2px solid #8AC926; }
+        .status-error { background: rgba(230, 57, 70, 0.3); border: 2px solid #E63946; }
+        .rarity-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .rarity-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .rarity-input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            text-align: center;
+        }
+        .current-price {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💎 NFT TIERS ADMIN PANEL</h1>
+        
+        <div class="header">
+            <h3>🎯 Hybrid NFT System: Multi-Tier + Random Rarity</h3>
+            <p style="opacity: 0.9; margin-top: 10px;">
+                Players choose Bronze/Silver/Gold tier → Get random rarity (Common→Legendary) → Higher rarity = bigger earning boost!
+            </p>
+        </div>
+
+        <div id="status-message" class="status-message"></div>
+
+        <div class="grid">
+            <!-- BRONZE TIER -->
+            <div class="tier-card bronze">
+                <div class="tier-icon">🥉</div>
+                <div class="tier-name">BRONZE TIER</div>
+                <div class="boost-badge">Base 2x Boost</div>
+                
+                <div class="price-section">
+                    <label class="price-label">💰 TAMA Price:</label>
+                    <input type="number" class="price-input" id="bronze-tama" value="2500" min="0">
+                    <div class="current-price">Current: <span id="bronze-tama-current">2500</span> TAMA</div>
+                </div>
+                
+                <div class="price-section">
+                    <label class="price-label">💎 SOL Price:</label>
+                    <input type="number" step="0.001" class="price-input" id="bronze-sol" value="0.05" min="0">
+                    <div class="current-price">Current: <span id="bronze-sol-current">0.05</span> SOL</div>
+                </div>
+
+                <div class="rarity-section">
+                    <h4 style="margin-bottom: 10px;">🎲 Random Rarity Chances:</h4>
+                    <div class="rarity-row">
+                        <span>⚪ Common (2x):</span>
+                        <input type="number" class="rarity-input" id="bronze-common" value="50" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟢 Uncommon (2.2x):</span>
+                        <input type="number" class="rarity-input" id="bronze-uncommon" value="30" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🔵 Rare (2.5x):</span>
+                        <input type="number" class="rarity-input" id="bronze-rare" value="15" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟣 Epic (2.8x):</span>
+                        <input type="number" class="rarity-input" id="bronze-epic" value="4" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟠 Legendary (3x):</span>
+                        <input type="number" class="rarity-input" id="bronze-legendary" value="1" min="0" max="100">%
+                    </div>
+                </div>
+
+                <ul class="benefit-list">
+                    <li>✅ NFT Pet (tradeable)</li>
+                    <li>✅ 2-3x TAMA earning</li>
+                    <li>✅ Exclusive pet types</li>
+                    <li>✅ Withdraw anytime</li>
+                </ul>
+                
+                <button class="btn btn-save" onclick="saveTier('bronze')">💾 Save Bronze Settings</button>
+            </div>
+
+            <!-- SILVER TIER -->
+            <div class="tier-card silver">
+                <div class="tier-icon">🥈</div>
+                <div class="tier-name">SILVER TIER</div>
+                <div class="boost-badge">Base 2.5x Boost</div>
+                
+                <div class="price-section">
+                    <label class="price-label">💰 TAMA Price:</label>
+                    <input type="number" class="price-input" id="silver-tama" value="5000" min="0">
+                    <div class="current-price">Current: <span id="silver-tama-current">5000</span> TAMA</div>
+                </div>
+                
+                <div class="price-section">
+                    <label class="price-label">💎 SOL Price:</label>
+                    <input type="number" step="0.001" class="price-input" id="silver-sol" value="0.1" min="0">
+                    <div class="current-price">Current: <span id="silver-sol-current">0.1</span> SOL</div>
+                </div>
+
+                <div class="rarity-section">
+                    <h4 style="margin-bottom: 10px;">🎲 Random Rarity Chances:</h4>
+                    <div class="rarity-row">
+                        <span>⚪ Common (2.5x):</span>
+                        <input type="number" class="rarity-input" id="silver-common" value="40" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟢 Uncommon (2.7x):</span>
+                        <input type="number" class="rarity-input" id="silver-uncommon" value="30" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🔵 Rare (3x):</span>
+                        <input type="number" class="rarity-input" id="silver-rare" value="20" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟣 Epic (3.3x):</span>
+                        <input type="number" class="rarity-input" id="silver-epic" value="8" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟠 Legendary (3.5x):</span>
+                        <input type="number" class="rarity-input" id="silver-legendary" value="2" min="0" max="100">%
+                    </div>
+                </div>
+
+                <ul class="benefit-list">
+                    <li>✅ All Bronze benefits</li>
+                    <li>✅ 2.5-3.5x TAMA earning</li>
+                    <li>✅ Rare pet types</li>
+                    <li>✅ Priority support</li>
+                    <li>✅ Tournament access</li>
+                </ul>
+                
+                <button class="btn btn-save" onclick="saveTier('silver')">💾 Save Silver Settings</button>
+            </div>
+
+            <!-- GOLD TIER -->
+            <div class="tier-card gold">
+                <div class="tier-icon">🥇</div>
+                <div class="tier-name">GOLD TIER</div>
+                <div class="boost-badge">Base 3x Boost</div>
+                
+                <div class="price-section">
+                    <label class="price-label">💰 TAMA Price:</label>
+                    <input type="number" class="price-input" id="gold-tama" value="10000" min="0">
+                    <div class="current-price">Current: <span id="gold-tama-current">10000</span> TAMA</div>
+                </div>
+                
+                <div class="price-section">
+                    <label class="price-label">💎 SOL Price:</label>
+                    <input type="number" step="0.001" class="price-input" id="gold-sol" value="0.2" min="0">
+                    <div class="current-price">Current: <span id="gold-sol-current">0.2</span> SOL</div>
+                </div>
+
+                <div class="rarity-section">
+                    <h4 style="margin-bottom: 10px;">🎲 Random Rarity Chances:</h4>
+                    <div class="rarity-row">
+                        <span>⚪ Common (3x):</span>
+                        <input type="number" class="rarity-input" id="gold-common" value="30" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟢 Uncommon (3.2x):</span>
+                        <input type="number" class="rarity-input" id="gold-uncommon" value="30" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🔵 Rare (3.5x):</span>
+                        <input type="number" class="rarity-input" id="gold-rare" value="25" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟣 Epic (3.8x):</span>
+                        <input type="number" class="rarity-input" id="gold-epic" value="12" min="0" max="100">%
+                    </div>
+                    <div class="rarity-row">
+                        <span>🟠 Legendary (4x):</span>
+                        <input type="number" class="rarity-input" id="gold-legendary" value="3" min="0" max="100">%
+                    </div>
+                </div>
+
+                <ul class="benefit-list">
+                    <li>✅ All Silver benefits</li>
+                    <li>✅ 3-4x TAMA earning</li>
+                    <li>✅ Ultra rare pet types</li>
+                    <li>✅ VIP support</li>
+                    <li>✅ Exclusive tournaments</li>
+                    <li>✅ Higher win rates</li>
+                </ul>
+                
+                <button class="btn btn-save" onclick="saveTier('gold')">💾 Save Gold Settings</button>
+            </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 25px; border: 2px solid rgba(255,255,255,0.2);">
+            <h3 style="margin-bottom: 15px;">📊 How It Works:</h3>
+            <ol style="line-height: 2; opacity: 0.9;">
+                <li><strong>Player selects tier</strong> (Bronze/Silver/Gold) based on price</li>
+                <li><strong>Random rarity is assigned</strong> at mint (Common→Legendary)</li>
+                <li><strong>Earning boost is applied</strong> automatically in-game</li>
+                <li><strong>NFT is stored</strong> in user's Solana wallet (tradeable)</li>
+                <li><strong>Bot checks NFT</strong> and applies correct multiplier to all earnings</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Supabase config
+        const SUPABASE_URL = 'https://bvyigfxoaahwvfcdfhsr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2eWlnZnhvYWFod3ZmY2RmaHNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAwNjU0MTEsImV4cCI6MjA0NTY0MTQxMX0.O3vR5rGj7VEYnz48HfAKNaFuZsL8tXGrXFNiU7m5G-8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Load current settings on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadCurrentSettings();
+        });
+
+        async function loadCurrentSettings() {
+            try {
+                const { data, error } = await supabase
+                    .from('nft_tiers')
+                    .select('*');
+                
+                if (error) {
+                    console.log('No existing settings, using defaults');
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    data.forEach(tier => {
+                        // Load prices
+                        if (tier.tier_name) {
+                            const tierName = tier.tier_name.toLowerCase();
+                            document.getElementById(`${tierName}-tama`).value = tier.tama_price || 0;
+                            document.getElementById(`${tierName}-sol`).value = tier.sol_price || 0;
+                            document.getElementById(`${tierName}-tama-current`).textContent = tier.tama_price || 0;
+                            document.getElementById(`${tierName}-sol-current`).textContent = tier.sol_price || 0;
+
+                            // Load rarity chances
+                            if (tier.rarity_chances) {
+                                const rarities = typeof tier.rarity_chances === 'string' 
+                                    ? JSON.parse(tier.rarity_chances) 
+                                    : tier.rarity_chances;
+                                
+                                Object.keys(rarities).forEach(rarity => {
+                                    const input = document.getElementById(`${tierName}-${rarity.toLowerCase()}`);
+                                    if (input) input.value = rarities[rarity];
+                                });
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading settings:', err);
+            }
+        }
+
+        async function saveTier(tierName) {
+            const tamaPrice = parseFloat(document.getElementById(`${tierName}-tama`).value);
+            const solPrice = parseFloat(document.getElementById(`${tierName}-sol`).value);
+
+            // Get rarity chances
+            const rarityChances = {
+                Common: parseInt(document.getElementById(`${tierName}-common`).value),
+                Uncommon: parseInt(document.getElementById(`${tierName}-uncommon`).value),
+                Rare: parseInt(document.getElementById(`${tierName}-rare`).value),
+                Epic: parseInt(document.getElementById(`${tierName}-epic`).value),
+                Legendary: parseInt(document.getElementById(`${tierName}-legendary`).value)
+            };
+
+            // Validate total is 100%
+            const total = Object.values(rarityChances).reduce((a, b) => a + b, 0);
+            if (total !== 100) {
+                showMessage(`❌ Error: Rarity chances must total 100% (current: ${total}%)`, 'error');
+                return;
+            }
+
+            try {
+                const tierData = {
+                    tier_name: tierName.charAt(0).toUpperCase() + tierName.slice(1),
+                    tama_price: tamaPrice,
+                    sol_price: solPrice,
+                    rarity_chances: rarityChances,
+                    updated_at: new Date().toISOString()
+                };
+
+                const { data, error } = await supabase
+                    .from('nft_tiers')
+                    .upsert(tierData, { onConflict: 'tier_name' });
+
+                if (error) throw error;
+
+                // Update current display
+                document.getElementById(`${tierName}-tama-current`).textContent = tamaPrice;
+                document.getElementById(`${tierName}-sol-current`).textContent = solPrice;
+
+                showMessage(`✅ ${tierName.toUpperCase()} tier saved successfully!`, 'success');
+            } catch (err) {
+                showMessage(`❌ Error saving ${tierName} tier: ${err.message}`, 'error');
+                console.error(err);
+            }
+        }
+
+        function showMessage(text, type) {
+            const msgEl = document.getElementById('status-message');
+            msgEl.textContent = text;
+            msgEl.className = `status-message status-${type}`;
+            msgEl.style.display = 'block';
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+
