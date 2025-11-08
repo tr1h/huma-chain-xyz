@@ -27,8 +27,9 @@ services:
     env: python
     region: oregon
     plan: free
-    buildCommand: pip install -r bot/requirements.txt
-    startCommand: cd bot && python bot.py
+    rootDir: bot
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
     healthCheckPath: /
     envVars:
       - key: TELEGRAM_BOT_TOKEN
