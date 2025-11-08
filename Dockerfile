@@ -33,6 +33,12 @@ RUN echo '<VirtualHost *:80>\n\
     <Directory /var/www/html>\n\
         AllowOverride All\n\
         Require all granted\n\
+        Options -Indexes +FollowSymLinks\n\
+    </Directory>\n\
+    <Directory /var/www/html/api>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+        Options -Indexes +FollowSymLinks\n\
     </Directory>\n\
     <FilesMatch \.php$>\n\
         SetHandler application/x-httpd-php\n\
