@@ -5514,7 +5514,15 @@
                     // Try to parse pet_data if exists
                     if (userData.pet_data) {
                         try {
-                            const petData = JSON.parse(userData.pet_data);
+                            // pet_data might already be an object or a JSON string
+                            let petData;
+                            if (typeof userData.pet_data === 'string') {
+                                petData = JSON.parse(userData.pet_data);
+                            } else if (typeof userData.pet_data === 'object') {
+                                petData = userData.pet_data;
+                            } else {
+                                throw new Error('pet_data is neither string nor object');
+                            }
                             gameState.hp = petData.hp || 100;
                             gameState.food = petData.food || 100;
                             gameState.happy = petData.happy || 100;
