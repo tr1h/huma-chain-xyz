@@ -1419,21 +1419,28 @@ function handleDistribute($url, $key) {
  * - 30% (750 TAMA) → P2E Pool (обратно)
  */
 function handleBronzeNFTOnChain($url, $key) {
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    $telegram_id = $input['telegram_id'] ?? null;
-    $tier = $input['tier'] ?? 'Bronze';
-    $rarity = $input['rarity'] ?? 'Common';
-    $multiplier = $input['multiplier'] ?? 2.0;
-    $tama_price = $input['tama_price'] ?? null; // Динамическая цена
-    
-    if (!$telegram_id) {
-        http_response_code(400);
-        echo json_encode(['error' => 'telegram_id is required']);
-        return;
-    }
+    // Suppress warnings to prevent HTML output
+    error_reporting(E_ALL);
+    ini_set('display_errors', 0);
     
     try {
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON input: ' . json_last_error_msg());
+        }
+        
+        $telegram_id = $input['telegram_id'] ?? null;
+        $tier = $input['tier'] ?? 'Bronze';
+        $rarity = $input['rarity'] ?? 'Common';
+        $multiplier = $input['multiplier'] ?? 2.0;
+        $tama_price = $input['tama_price'] ?? null; // Динамическая цена
+        
+        if (!$telegram_id) {
+            http_response_code(400);
+            echo json_encode(['error' => 'telegram_id is required']);
+            return;
+        }
         // Addresses
         $P2E_POOL = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
         $TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
@@ -1476,16 +1483,30 @@ function handleBronzeNFTOnChain($url, $key) {
         // Config
         $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
         $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
-        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
-        $p2ePoolKeypair = getenv('SOLANA_P2E_POOL_KEYPAIR_PATH') ?: __DIR__ . '/../p2e-pool-keypair.json';
+        
+        // Keypair paths - check both /app/ and fallback
+        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: '/app/payer-keypair.json';
+        $p2ePoolKeypair = getenv('SOLANA_P2E_POOL_KEYPAIR_PATH') ?: '/app/p2e-pool-keypair.json';
+        
+        // Try /app/ first, then fallback to relative path
+        if (!file_exists($payerKeypair)) {
+            $payerKeypair = __DIR__ . '/../payer-keypair.json';
+        }
+        if (!file_exists($p2ePoolKeypair)) {
+            $p2ePoolKeypair = __DIR__ . '/../p2e-pool-keypair.json';
+        }
         
         if (!file_exists($payerKeypair)) {
-            throw new Exception('Payer keypair not found: ' . $payerKeypair);
+            throw new Exception('Payer keypair not found. Tried: ' . getenv('SOLANA_PAYER_KEYPAIR_PATH') . ' and ' . __DIR__ . '/../payer-keypair.json');
         }
         
         if (!file_exists($p2ePoolKeypair)) {
-            throw new Exception('P2E Pool keypair not found: ' . $p2ePoolKeypair);
+            throw new Exception('P2E Pool keypair not found. Tried: ' . getenv('SOLANA_P2E_POOL_KEYPAIR_PATH') . ' and ' . __DIR__ . '/../p2e-pool-keypair.json');
         }
+        
+        error_log("✅ Using keypairs:");
+        error_log("  Payer: {$payerKeypair}");
+        error_log("  P2E Pool: {$p2ePoolKeypair}");
         
         // Check Solana CLI (includes spl-token commands)
         $solanaCheck = shell_exec('solana --version 2>&1');
