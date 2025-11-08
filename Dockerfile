@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     bzip2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Solana CLI (includes spl-token commands!)
+# Install Solana CLI (includes spl-token binary in the same release!)
 RUN wget -qO- https://github.com/solana-labs/solana/releases/download/v1.18.18/solana-release-x86_64-unknown-linux-gnu.tar.bz2 | tar -xjv && \
     mv solana-release/bin/* /usr/local/bin/ && \
     rm -rf solana-release
@@ -18,8 +18,8 @@ RUN wget -qO- https://github.com/solana-labs/solana/releases/download/v1.18.18/s
 # Verify Solana installation
 RUN solana --version
 
-# Verify spl-token is available (built into Solana CLI)
-RUN solana spl-token --version
+# Verify spl-token is available (it's in the same release package!)
+RUN spl-token --version
 
 # Copy project files
 COPY . /var/www/html/
