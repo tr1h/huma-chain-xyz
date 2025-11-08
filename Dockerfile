@@ -77,14 +77,22 @@ KeepAliveTimeout 5
 Timeout 300
 EOF
 
-# Create directory for keypairs
-RUN mkdir -p /app
+# Create directory for keypairs with proper permissions
+RUN mkdir -p /app && \
+    chown -R www-data:www-data /app && \
+    chmod -R 755 /app
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Expose port 80 (Railway will map to $PORT)
+# Expose port 80 (Render will map to $PORT)
 EXPOSE 80
+
+# Enable Apache modules
+RUN a2enmod headers
+
+# Verify configuration
+RUN apache2ctl configtest
 
 # Start Apache in foreground
 CMD ["apache2-foreground"]
