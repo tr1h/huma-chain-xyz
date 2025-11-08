@@ -2,12 +2,14 @@
 RewriteEngine On
 
 # Route API requests to tama_supabase.php
-# Match /api/tama/* and route to api/tama_supabase.php
+# CRITICAL: Skip tama_supabase.php itself to prevent redirect loop!
 RewriteCond %{REQUEST_URI} ^/api/tama
+RewriteCond %{REQUEST_URI} !tama_supabase\.php$
 RewriteRule ^api/tama(.*)$ /api/tama_supabase.php [QSA,L]
 
 # Route other API requests (but skip real PHP files like test.php)
 RewriteCond %{REQUEST_URI} ^/api/
+RewriteCond %{REQUEST_URI} !tama_supabase\.php$
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^api/(.*)$ /api/tama_supabase.php [QSA,L]
 
