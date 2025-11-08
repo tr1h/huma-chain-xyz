@@ -28,49 +28,54 @@ COPY . /var/www/html/
 RUN a2enmod rewrite
 
 # Configure Apache VirtualHost (listen on port 80, Railway maps $PORT)
-RUN echo '<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html\n\
-    <Directory /var/www/html>\n\
-        AllowOverride All\n\
-        Require all granted\n\
-        Options -Indexes +FollowSymLinks\n\
-    </Directory>\n\
-    <Directory /var/www/html/api>\n\
-        AllowOverride All\n\
-        Require all granted\n\
-        Options -Indexes +FollowSymLinks\n\
-    </Directory>\n\
-    <FilesMatch \.php$>\n\
-        SetHandler application/x-httpd-php\n\
-    </FilesMatch>\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+RUN cat > /etc/apache2/sites-available/000-default.conf << 'EOF'
+<VirtualHost *:80>
+    DocumentRoot /var/www/html
+    <Directory /var/www/html>
+        AllowOverride All
+        Require all granted
+        Options -Indexes +FollowSymLinks
+    </Directory>
+    <Directory /var/www/html/api>
+        AllowOverride All
+        Require all granted
+        Options -Indexes +FollowSymLinks
+    </Directory>
+    <FilesMatch \.php$>
+        SetHandler application/x-httpd-php
+    </FilesMatch>
+</VirtualHost>
+EOF
 
 # Create startup script to handle PORT variable
-RUN echo '#!/bin/bash\n\
-# Railway provides PORT, but Apache listens on 80\n\
-# Railway automatically maps $PORT to container port 80\n\
-# So we just start Apache normally\n\
-exec apache2-foreground' > /start-apache.sh && \
-    chmod +x /start-apache.sh
+RUN cat > /start-apache.sh << 'EOF'
+#!/bin/bash
+# Railway provides PORT, but Apache listens on 80
+# Railway automatically maps $PORT to container port 80
+# So we just start Apache normally
+exec apache2-foreground
+EOF
+RUN chmod +x /start-apache.sh
 
 # Set ServerName to suppress Apache warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Optimize Apache for production (prevent crashes)
 # Note: PHP Apache uses prefork MPM, not worker
-RUN echo "\n\
-# Production optimizations (prefork MPM)\n\
-<IfModule mpm_prefork_module>\n\
-    StartServers 5\n\
-    MinSpareServers 5\n\
-    MaxSpareServers 10\n\
-    MaxRequestWorkers 150\n\
-    MaxConnectionsPerChild 10000\n\
-</IfModule>\n\
-KeepAlive On\n\
-KeepAliveTimeout 5\n\
-Timeout 300\n\
-" >> /etc/apache2/apache2.conf
+RUN cat >> /etc/apache2/apache2.conf << 'EOF'
+
+# Production optimizations (prefork MPM)
+<IfModule mpm_prefork_module>
+    StartServers 5
+    MinSpareServers 5
+    MaxSpareServers 10
+    MaxRequestWorkers 150
+    MaxConnectionsPerChild 10000
+</IfModule>
+KeepAlive On
+KeepAliveTimeout 5
+Timeout 300
+EOF
 
 # Create directory for keypairs
 RUN mkdir -p /app
