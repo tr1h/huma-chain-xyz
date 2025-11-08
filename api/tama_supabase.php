@@ -1436,6 +1436,9 @@ function handleBronzeNFTOnChain($url, $key) {
     error_reporting(E_ALL);
     ini_set('display_errors', 0);
     
+    // Start output buffering to catch any accidental output
+    ob_start();
+    
     try {
         $input = json_decode(file_get_contents('php://input'), true);
         
@@ -1649,6 +1652,12 @@ function handleBronzeNFTOnChain($url, $key) {
         }
         
         // Success response - ensure JSON only
+        // Clear any accidental output
+        $obContent = ob_get_contents();
+        if (!empty($obContent)) {
+            error_log("⚠️ Warning: Output buffer contains data before JSON response: " . substr($obContent, 0, 200));
+        }
+        ob_end_clean(); // End and clean output buffer
         header('Content-Type: application/json');
         http_response_code(200);
         echo json_encode([
@@ -1686,6 +1695,12 @@ function handleBronzeNFTOnChain($url, $key) {
         
     } catch (Exception $e) {
         // Ensure JSON error response
+        // Clear any accidental output
+        $obContent = ob_get_contents();
+        if (!empty($obContent)) {
+            error_log("⚠️ Warning: Output buffer contains data before error JSON response: " . substr($obContent, 0, 200));
+        }
+        ob_end_clean(); // End and clean output buffer
         header('Content-Type: application/json');
         http_response_code(500);
         error_log('❌ On-chain distribution error: ' . $e->getMessage());
@@ -1699,6 +1714,14 @@ function handleBronzeNFTOnChain($url, $key) {
         return;
     } catch (Throwable $e) {
         // Catch any other errors (fatal errors, etc)
+        // Clear any accidental output
+        $obContent = ob_get_contents();
+        if (!empty($obContent)) {
+            error_log("⚠️ Warning: Output buffer contains data before fatal error JSON response: " . substr($obContent, 0, 200));
+        }
+        if (ob_get_level() > 0) {
+            ob_end_clean(); // End and clean output buffer
+        }
         header('Content-Type: application/json');
         http_response_code(500);
         error_log('❌ Fatal error in on-chain distribution: ' . $e->getMessage());
