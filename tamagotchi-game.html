@@ -4724,22 +4724,15 @@
             // Check for level up based on XP (original system)
             checkLevelUp();
             
-            // Log transaction to Supabase
-            if (window.TELEGRAM_USER_ID && typeof TransactionLogger !== 'undefined') {
-                TransactionLogger.logEarn(
-                    window.TELEGRAM_USER_ID,
-                    window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'user',
-                    gameState.combo >= 5 ? 'combo' : 'click',
-                    earnedTama,
-                    balanceBefore,
-                    balanceAfter,
-                    { 
-                        combo: gameState.combo, 
-                        xp_gained: earnedXP,
-                        click_power: gameState.clickPower,
-                        efficiency: clickEfficiency
-                    }
-                );
+            // Log transaction to Supabase immediately
+            if (window.TELEGRAM_USER_ID) {
+                logTransaction('earn_click', earnedTama, balanceBefore, balanceAfter, {
+                    combo: gameState.combo,
+                    xp_gained: earnedXP,
+                    click_power: gameState.clickPower,
+                    efficiency: clickEfficiency,
+                    is_combo: gameState.combo >= 5
+                });
             }
             
             // Play click sound (disabled - too annoying)
@@ -4878,12 +4871,23 @@
         feedBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(50);
             if (gameState.tama >= cost) {
+                const balanceBefore = gameState.tama;
                 gameState.tama -= cost;
+                const balanceAfter = gameState.tama;
                 gameState.food = Math.min(gameState.maxFood, gameState.food + 30);
                 gameState.xp += 10;
                 showMessage('🍔 Yummy! Food +30');
                 checkLevelUp();
                 updateUI();
+                
+                // Log transaction immediately
+                if (window.TELEGRAM_USER_ID) {
+                    logTransaction('spend_feed', cost, balanceBefore, balanceAfter, {
+                        food_gained: 30,
+                        xp_gained: 10
+                    });
+                }
+                
                 triggerAutoSave(); // Auto-save after feeding
             } else {
                 showMessage('❌ Not enough TAMA!');
@@ -4893,13 +4897,25 @@
         playBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(30);
             if (gameState.tama >= cost) {
+                const balanceBefore = gameState.tama;
                 gameState.tama -= cost;
+                const balanceAfter = gameState.tama;
                 gameState.happy = Math.min(gameState.maxHappy, gameState.happy + 40);
                 gameState.food = Math.max(0, gameState.food - 10);
                 gameState.xp += 15;
                 showMessage('🎮 So fun! Happy +40, Food -10');
                 checkLevelUp();
                 updateUI();
+                
+                // Log transaction immediately
+                if (window.TELEGRAM_USER_ID) {
+                    logTransaction('spend_play', cost, balanceBefore, balanceAfter, {
+                        happy_gained: 40,
+                        food_lost: 10,
+                        xp_gained: 15
+                    });
+                }
+                
                 triggerAutoSave(); // Auto-save after playing
             } else {
                 showMessage('❌ Not enough TAMA!');
@@ -4909,13 +4925,25 @@
         healBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(100);
             if (gameState.tama >= cost) {
+                const balanceBefore = gameState.tama;
                 gameState.tama -= cost;
+                const balanceAfter = gameState.tama;
                 gameState.hp = Math.min(gameState.maxHp, gameState.hp + 50);
                 gameState.xp += 20;
                 clickEfficiency = 1.0; // Restore click efficiency
                 showMessage('💊 Feeling better! HP +50');
                 checkLevelUp();
                 updateUI();
+                
+                // Log transaction immediately
+                if (window.TELEGRAM_USER_ID) {
+                    logTransaction('spend_heal', cost, balanceBefore, balanceAfter, {
+                        hp_gained: 50,
+                        xp_gained: 20,
+                        efficiency_restored: true
+                    });
+                }
+                
                 triggerAutoSave(); // Auto-save after healing
             } else {
                 showMessage('❌ Not enough TAMA!');
@@ -5009,7 +5037,19 @@
                 if (!gameState.achievements.includes(ach.id) && ach.check()) {
                     gameState.achievements.push(ach.id);
                     showAchievement(ach.name, ach.desc);
+                    
+                    // Log achievement reward
+                    const balanceBefore = gameState.tama;
                     gameState.tama += 100; // Bonus TAMA for achievement
+                    const balanceAfter = gameState.tama;
+                    
+                    if (window.TELEGRAM_USER_ID) {
+                        logTransaction('achievement_bonus', 100, balanceBefore, balanceAfter, {
+                            achievement_id: ach.id,
+                            achievement_name: ach.name
+                        });
+                    }
+                    
                     triggerAutoSave(); // Auto-save after achievement
                 }
             });
@@ -5034,7 +5074,19 @@
             // Quest 1: Click 50 times
             if (!gameState.questClicksCompleted && gameState.questClicks >= 50) {
                 gameState.questClicksCompleted = true;
+                
+                const balanceBefore = gameState.tama;
                 gameState.tama += 500;
+                const balanceAfter = gameState.tama;
+                
+                if (window.TELEGRAM_USER_ID) {
+                    logTransaction('quest_complete', 500, balanceBefore, balanceAfter, {
+                        quest_id: 'click_master',
+                        quest_name: 'Click Master',
+                        clicks_required: 50
+                    });
+                }
+                
                 showMessage('🎯 Quest Complete! Click Master +500 TAMA');
                 document.getElementById('quest-clicks').style.opacity = '0.5';
                 document.getElementById('quest-clicks').style.border = '2px solid #10b981';
@@ -5044,7 +5096,19 @@
             // Quest 2: Reach level 5
             if (!gameState.questLevelCompleted && gameState.level >= 5) {
                 gameState.questLevelCompleted = true;
+                
+                const balanceBefore = gameState.tama;
                 gameState.tama += 1000;
+                const balanceAfter = gameState.tama;
+                
+                if (window.TELEGRAM_USER_ID) {
+                    logTransaction('quest_complete', 1000, balanceBefore, balanceAfter, {
+                        quest_id: 'level_up',
+                        quest_name: 'Level Up!',
+                        level_required: 5
+                    });
+                }
+                
                 showMessage('🎯 Quest Complete! Level Up! +1,000 TAMA');
                 document.getElementById('quest-level').style.opacity = '0.5';
                 document.getElementById('quest-level').style.border = '2px solid #10b981';
@@ -5622,6 +5686,42 @@
 
         // Enhanced auto-save system with local backup
 
+        // Log transaction directly to Supabase
+        async function logTransaction(type, amount, balanceBefore, balanceAfter, metadata = {}) {
+            if (!window.TELEGRAM_USER_ID) return;
+            
+            try {
+                const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.TELEGRAM_USER_ID;
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        user_id: window.TELEGRAM_USER_ID,
+                        username: username,
+                        type: type,
+                        amount: amount,
+                        balance_before: balanceBefore,
+                        balance_after: balanceAfter,
+                        metadata: metadata
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log(`✅ Transaction logged: ${type} ${amount > 0 ? '+' : ''}${amount} TAMA`);
+                } else {
+                    console.warn(`⚠️ Failed to log transaction: ${type}`, await response.text());
+                }
+            } catch (error) {
+                console.warn('⚠️ Error logging transaction:', error);
+            }
+        }
+
         // Save game data via our API
         async function saveDirectToSupabase(userId) {
             try {
@@ -5641,6 +5741,8 @@
                 };
                 
                 // Save via our API (proper way!)
+                // Use skip_transaction_log: true to avoid duplicate logging
+                // (we log transactions immediately when actions happen)
                 const apiUrl = `${TAMA_API_BASE}/leaderboard/upsert`;
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -5653,7 +5755,8 @@
                         xp: gameState.xp,
                         pet_data: pet_data,
                         pet_name: gameState.petType || 'Gotchi',
-                        pet_type: gameState.petType || 'kawai'
+                        pet_type: gameState.petType || 'kawai',
+                        skip_transaction_log: true  // Skip auto-logging, we log manually
                     })
                 });
                 
