@@ -5,9 +5,11 @@
 ![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF?style=for-the-badge&logo=solana)
 ![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
 **Play-to-Earn Tamagotchi game on Telegram with Solana blockchain integration**
+
+> 🔄 **Latest Update (Nov 2025):** Migrated to Render.com with Keep-Alive • 3-Tier NFT System • On-Chain Revenue Distribution
 
 [🎮 Play Now](https://t.me/GotchiGameBot) • [📖 Documentation](#-documentation) • [🚀 Deploy](#-deployment)
 
@@ -30,11 +32,13 @@
 - **Daily Quests:** Complete challenges for extra TAMA
 - **Achievements:** Unlock badges and milestones
 
-### 🖼️ **NFT System**
-- **Mint NFT Pets:** Create unique collectibles for 1000 TAMA
-- **Phantom Wallet:** Connect and manage your NFTs
-- **5 Rarity Tiers:** Common to Legendary
-- **On-Chain Records:** Stored on Solana blockchain
+### 🖼️ **NFT System (3-Tier)**
+- **Bronze NFT (2,500 TAMA or 0.05 SOL):** 2-3x earning boost
+- **Silver NFT (0.1 SOL):** 2.5-3.5x earning boost
+- **Gold NFT (0.2 SOL):** 3-4x earning boost
+- **5 Rarity Levels:** Common → Uncommon → Rare → Epic → Legendary
+- **On-Chain Revenue Distribution:** 40% Burn, 30% Treasury, 30% P2E Pool
+- **Phantom Wallet Integration:** SOL payments on Solana blockchain
 
 ### 👥 **Social Features**
 - **Referral System:** Earn 1000 TAMA per friend invited
@@ -47,22 +51,29 @@
 
 ```
 ┌─────────────────┐
-│  Telegram Bot   │
-│  (@GotchiGameBot)│
+│  Telegram Bot   │  ← Webhook Mode (Render Web Service)
+│  (@GotchiGameBot)│  ← Keep-Alive (ping every 5 min)
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐      ┌──────────────┐
-│   GitHub Pages  │◄────►│  Railway API │
-│   (Frontend)    │      │  (Backend)   │
+│   GitHub Pages  │◄────►│  Render API  │  ← PHP + Apache
+│   (Frontend)    │      │  (Backend)   │  ← Keep-Alive enabled
 └────────┬────────┘      └──────┬───────┘
          │                      │
          ▼                      ▼
 ┌─────────────────┐      ┌──────────────┐
 │  Solana Devnet  │      │   Supabase   │
-│  (TAMA Token)   │      │  (Database)  │
+│  (TAMA Token)   │      │  (PostgreSQL)│
+│  (SPL Transfers)│      │  (Database)  │
 └─────────────────┘      └──────────────┘
 ```
+
+**Key Features:**
+- ✅ **Webhook Mode:** Instant bot responses (no polling)
+- ✅ **Keep-Alive:** Prevents Render Free tier from sleeping (ping every 5 min)
+- ✅ **On-Chain Transactions:** Real SPL token transfers for NFT revenue distribution
+- ✅ **CORS Configured:** Seamless frontend-backend communication
 
 ---
 
@@ -312,18 +323,55 @@ cd api
 - `GET /api/tama/holders` - List all token holders
 - `GET /api/tama/pools` - Pool distribution stats
 
-### **Backend (Railway):**
-1. Connect GitHub repo to Railway
-2. Set environment variables
-3. Deploy automatically on push
+### **Backend API (Render):**
 
-### **Bot (Any VPS):**
-```bash
-cd bot
-python bot.py
+**Live API:** https://huma-chain-xyz.onrender.com/api/tama
+
+**Deployment:**
+1. Connect GitHub repo to Render
+2. Set environment variables (see `render.yaml`)
+3. Auto-deploys on push to `main`
+4. Apache + PHP 8.2 + Solana CLI
+
+**Environment Variables:**
+```env
+SUPABASE_URL=https://zfrazyupameidxpjihrh.supabase.co
+SUPABASE_KEY=your_service_key
+TAMA_MINT_ADDRESS=Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY
+SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_PAYER_KEYPAIR={"keypair":"json"}
+SOLANA_P2E_POOL_KEYPAIR={"keypair":"json"}
 ```
 
-**See [DEPLOY_INSTRUCTIONS_RU.md](DEPLOY_INSTRUCTIONS_RU.md) for detailed guide.**
+### **Bot (Render Web Service - Webhook Mode):**
+
+**Live Bot:** https://huma-chain-xyz-bot.onrender.com
+
+**Deployment:**
+1. Connect GitHub repo to Render
+2. Set service type: **Web Service** (not Worker!)
+3. Set environment variables (see `render.yaml`)
+4. Auto-deploys on push to `main`
+
+**Environment Variables:**
+```env
+TELEGRAM_BOT_TOKEN=your_bot_token
+BOT_USERNAME=GotchiGameBot
+GAME_URL=https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html?v=20251108
+RENDER_EXTERNAL_HOSTNAME=huma-chain-xyz-bot.onrender.com
+RENDER=true  # Enables Keep-Alive
+TAMA_API_BASE=https://huma-chain-xyz.onrender.com/api/tama
+SUPABASE_URL=your_url
+SUPABASE_KEY=your_anon_key
+```
+
+**Keep-Alive Feature:**
+- Pings bot health endpoint every 5 minutes
+- Pings API health endpoint every 5 minutes
+- Prevents Render Free tier from sleeping
+- Logs: "✅ Keep-Alive: Bot pinged successfully"
+
+**See [.docs/KEEP_ALIVE_SETUP.md](.docs/KEEP_ALIVE_SETUP.md) for detailed guide.**
 
 ---
 
@@ -393,7 +441,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Solana Foundation** - For the amazing blockchain platform
 - **Telegram** - For the Bot API and Mini Apps framework
 - **Supabase** - For the backend infrastructure
-- **Railway** - For API hosting
+- **Render.com** - For API and bot hosting
 
 ---
 
@@ -402,13 +450,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### **✅ Completed:**
 - ✅ Full-stack game (Web + Telegram Bot)
 - ✅ TAMA SPL Token on Solana Devnet
-- ✅ NFT minting system (100 unique NFTs)
+- ✅ 3-Tier NFT system (Bronze/Silver/Gold)
+- ✅ On-chain revenue distribution (SPL transfers)
 - ✅ 2-level referral system
 - ✅ Tokenomics dashboard (real-time stats)
 - ✅ Team tokens vesting (4 years, 6-month cliff)
 - ✅ Token distribution (all pools allocated)
 - ✅ Withdrawal system (real Solana transactions)
 - ✅ PHP API (REST API, withdrawal, admin functions)
+- ✅ Webhook mode for bot (instant responses)
+- ✅ Keep-Alive system (prevents sleeping)
 
 ### **🚀 Current Status:**
 - **Devnet:** ✅ Fully operational
@@ -428,7 +479,41 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Telegram:** [@gotchi_ceo](https://t.me/gotchi_ceo)
 - **Bot:** [@GotchiGameBot](https://t.me/GotchiGameBot)
 - **GitHub:** [tr1h](https://github.com/tr1h)
-- **Email:** gotchigame@proton.me
+- **Twitter:** [@GotchiGame](https://x.com/GotchiGame)
+
+---
+
+## 🆕 Latest Updates (November 2025)
+
+### **Migration to Render.com**
+- ✅ API migrated from Railway to Render
+- ✅ Bot migrated to Render Web Service (webhook mode)
+- ✅ Keep-Alive implemented (5 min ping interval)
+- ✅ All CORS issues resolved
+
+### **3-Tier NFT System**
+- ✅ Bronze NFT: 2,500 TAMA or 0.05 SOL
+- ✅ Silver NFT: 0.1 SOL (SOL only)
+- ✅ Gold NFT: 0.2 SOL (SOL only)
+- ✅ Random rarity assignment (Common to Legendary)
+- ✅ Earning multipliers: 2-4x boost
+
+### **On-Chain Revenue Distribution**
+- ✅ Bronze TAMA mints: 40% Burn, 30% Treasury, 30% P2E Pool
+- ✅ Real SPL token transfers via `spl-token CLI`
+- ✅ All distributions logged in `transactions` table
+
+### **Infrastructure Improvements**
+- ✅ Webhook mode for instant bot responses
+- ✅ Apache + PHP 8.2 for API stability
+- ✅ Solana CLI integrated in Docker
+- ✅ Environment-based keypair loading
+
+**📚 See [.docs/](.docs/) for detailed documentation:**
+- [KEEP_ALIVE_SETUP.md](.docs/KEEP_ALIVE_SETUP.md) - Keep-Alive configuration
+- [TEST_ALL_ENDPOINTS.md](.docs/TEST_ALL_ENDPOINTS.md) - Testing guide
+- [BRONZE_NFT_ONCHAIN_READY.md](.docs/BRONZE_NFT_ONCHAIN_READY.md) - On-chain distribution
+- [PROJECT_LEVEL_ASSESSMENT.md](.docs/PROJECT_LEVEL_ASSESSMENT.md) - Technical assessment
 
 ---
 
