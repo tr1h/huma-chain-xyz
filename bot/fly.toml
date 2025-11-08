@@ -1,0 +1,25 @@
+# Fly.io configuration for Telegram Bot
+app = "huma-chain-xyz-bot"
+primary_region = "ams" # Amsterdam (ближе к Европе)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  BOT_USERNAME = "GotchiGameBot"
+  GAME_URL = "https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html?v=20251108"
+  MINT_URL = "https://tr1h.github.io/huma-chain-xyz/"
+  CHANNEL_USERNAME = "@GotchiGame"
+  MENU_BUTTON_TEXT = "🎮 Gotchi Game"
+  GROUP_ID = "-1002938566588"
+  ADMIN_IDS = "7401131043"
+  EXEMPT_GROUP_IDS = "-1002938566588"
+  TAMA_API_BASE = "https://huma-chain-xyz.onrender.com/api/tama"
+  SUPABASE_URL = "https://zfrazyupameidxpjihrh.supabase.co"
+
+# VM resources (Free tier: 3 shared-cpu-1x VMs)
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256
+
