@@ -4,6 +4,9 @@
  * Использует Supabase REST API вместо прямого подключения к PostgreSQL
  */
 
+// Load keypairs from environment variables (Railway)
+require_once __DIR__ . '/load_keypairs.php';
+
 // CORS Configuration - Allow all origins for now
 $allowedOrigins = [
     'https://tr1h.github.io',
