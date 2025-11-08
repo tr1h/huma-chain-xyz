@@ -678,10 +678,13 @@
                 const typeClass = t.type.startsWith('earn') ? 'type-earn' : 
                                  t.type === 'nft_mint' ? 'type-spend' :
                                  t.type === 'nft_mint_sol' ? 'type-sol' :
+                                 t.type === 'nft_mint_onchain' ? 'type-spend' : // On-chain mint
                                  t.type.startsWith('burn') ? 'type-burn' :
                                  t.type === 'treasury_income_from_nft' ? 'type-treasury' :
                                  t.type === 'treasury_income_from_nft_sol' ? 'type-treasury-sol' :
+                                 t.type === 'treasury_income_from_nft_onchain' ? 'type-treasury-onchain' :
                                  t.type === 'p2e_pool_refund_from_nft' ? 'type-p2e' :
+                                 t.type === 'p2e_pool_refund_from_nft_onchain' ? 'type-p2e-onchain' :
                                  isSpend ? 'type-spend' :
                                  t.type === 'level_up' ? 'type-level' :
                                  t.type === 'quest_complete' ? 'type-quest' :
