@@ -15,6 +15,7 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import qrcode
 import requests
+from flask import Flask, request
 
 # Import gamification module
 from gamification import (
@@ -4443,38 +4444,67 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"Error setting group permissions: {e}")
 
-    # Infinite restart loop with better error handling
-    while True:
+    # ========================================
+    # WEBHOOK MODE (для Railway / Production)
+    # ========================================
+    
+    # Create Flask app for webhook
+    app = Flask(__name__)
+    
+    # Webhook endpoint (Telegram will POST updates here)
+    @app.route(f'/{TOKEN}', methods=['POST'])
+    def webhook():
+        """Handle incoming updates from Telegram"""
         try:
-            # Skip webhook operations on PythonAnywhere (causes proxy errors)
-            print("Starting polling (webhook disabled for PythonAnywhere)...")
-            bot.infinity_polling(
-                none_stop=True, 
-                interval=2, 
-                timeout=60,
-                long_polling_timeout=20
-            )
-        except KeyboardInterrupt:
-            print("\n✅ Bot stopped by user")
-            break
+            json_string = request.get_data().decode('utf-8')
+            update = telebot.types.Update.de_json(json_string)
+            bot.process_new_updates([update])
+            return '', 200
         except Exception as e:
-            error_str = str(e)
-            # Check for temporary Telegram API errors (not critical)
-            if "429" in error_str or "Too Many Requests" in error_str:
-                print(f"⚠️ Rate limit (429) - Telegram API temporary limit, waiting...")
-                time.sleep(5)  # Wait as Telegram suggests
-            elif "502" in error_str or "Bad Gateway" in error_str:
-                print(f"⚠️ Bad Gateway (502) - Telegram API temporary issue, retrying...")
-                time.sleep(5)
-            elif "SSL" in error_str or "DECRYPTION_FAILED" in error_str:
-                print(f"⚠️ SSL error - Network issue, retrying...")
-                time.sleep(5)
-            elif "chat not found" in error_str.lower():
-                print(f"⚠️ Chat not found - Channel/chat may not exist, continuing...")
-                # This is not critical, continue polling
-                continue
+            print(f"❌ Webhook error: {e}")
+            return '', 500
+    
+    # Health check endpoint (для Railway)
+    @app.route('/', methods=['GET'])
+    def health():
+        """Health check endpoint"""
+        return {'status': 'ok', 'bot': 'running'}, 200
+    
+    # Set webhook URL (if not set already)
+    try:
+        # Get Railway/Render public URL from environment
+        WEBHOOK_HOST = os.getenv('RAILWAY_PUBLIC_DOMAIN') or os.getenv('RENDER_EXTERNAL_HOSTNAME')
+        
+        if WEBHOOK_HOST:
+            WEBHOOK_URL = f"https://{WEBHOOK_HOST}/{TOKEN}"
+            webhook_info = bot.get_webhook_info()
+            
+            if webhook_info.url != WEBHOOK_URL:
+                print(f"🔗 Setting webhook to: {WEBHOOK_URL}")
+                bot.remove_webhook()
+                time.sleep(1)
+                bot.set_webhook(url=WEBHOOK_URL)
+                print("✅ Webhook set successfully!")
             else:
-                print(f"❌ Bot error: {e}")
-                print("Auto-restarting in 10 seconds...")
-                time.sleep(10)
-            print("Retrying now...")
+                print(f"✅ Webhook already set: {webhook_info.url}")
+        else:
+            print("⚠️ No WEBHOOK_HOST found - webhook not set (use RAILWAY_PUBLIC_DOMAIN or RENDER_EXTERNAL_HOSTNAME)")
+            
+    except Exception as e:
+        print(f"❌ Error setting webhook: {e}")
+    
+    # Run Flask app (Railway/Render will provide PORT)
+    PORT = int(os.getenv('PORT', 8080))
+    print(f"🚀 Starting webhook server on port {PORT}...")
+    print(f"📡 Bot is ready to receive updates!")
+    
+    # Use gunicorn in production, Flask dev server for local
+    if os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('RENDER'):
+        # Production: use gunicorn (installed in requirements.txt)
+        # Railway/Render will run: gunicorn bot:app
+        # But we can also run Flask directly (Railway handles it)
+        app.run(host='0.0.0.0', port=PORT, debug=False)
+    else:
+        # Local development: use Flask dev server
+        print("🔧 Running in development mode (Flask dev server)")
+        app.run(host='0.0.0.0', port=PORT, debug=True)
