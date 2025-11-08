@@ -965,11 +965,11 @@ function handleWithdrawalRequest($url, $key) {
         ];
         
         // Проверить, установлен ли spl-token
-        $splTokenCheck = shell_exec('spl-token --version 2>&1');
-        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+        $solanaCheck = shell_exec('solana --version 2>&1');
+        if (strpos($solanaCheck, 'solana-cli') === false) {
             http_response_code(500);
             echo json_encode([
-                'error' => 'spl-token CLI not found',
+                'error' => 'Solana CLI not found',
                 'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools',
                 'check_output' => $splTokenCheck
             ]);
@@ -1239,11 +1239,11 @@ function handleDistribute($url, $key) {
         }
         
         // Проверить, установлен ли spl-token
-        $splTokenCheck = shell_exec('spl-token --version 2>&1');
-        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+        $solanaCheck = shell_exec('solana --version 2>&1');
+        if (strpos($solanaCheck, 'solana-cli') === false) {
             http_response_code(500);
             echo json_encode([
-                'error' => 'spl-token CLI not found',
+                'error' => 'Solana CLI not found',
                 'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools'
             ]);
             return;
@@ -1797,11 +1797,11 @@ function handleMint($url, $key) {
         }
         
         // Проверить, установлен ли spl-token
-        $splTokenCheck = shell_exec('spl-token --version 2>&1');
-        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+        $solanaCheck = shell_exec('solana --version 2>&1');
+        if (strpos($solanaCheck, 'solana-cli') === false) {
             http_response_code(500);
             echo json_encode([
-                'error' => 'spl-token CLI not found',
+                'error' => 'Solana CLI not found',
                 'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools'
             ]);
             return;
@@ -2014,11 +2014,11 @@ function handleSend($url, $key) {
         }
         
         // Проверить, установлен ли spl-token
-        $splTokenCheck = shell_exec('spl-token --version 2>&1');
-        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+        $solanaCheck = shell_exec('solana --version 2>&1');
+        if (strpos($solanaCheck, 'solana-cli') === false) {
             http_response_code(500);
             echo json_encode([
-                'error' => 'spl-token CLI not found',
+                'error' => 'Solana CLI not found',
                 'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools'
             ]);
             return;
