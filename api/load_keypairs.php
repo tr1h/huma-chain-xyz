@@ -18,12 +18,15 @@ function loadKeypairsFromEnv() {
             ?: ($_ENV[$envVar] ?? null)
             ?: ($_SERVER[$envVar] ?? null);
         
-        // Debug: log what we found
-        if ($keyPairJson) {
-            error_log("🔵 Found {$envVar} (length: " . strlen($keyPairJson) . ")");
-        } else {
-            error_log("⚠️ Environment variable not set: {$envVar}");
-            error_log("   Tried: getenv(), \$_ENV, \$_SERVER");
+        // Debug: log what we found (only if not in web context to avoid header issues)
+        if (php_sapi_name() !== 'cli') {
+            // In web context, use error_log which goes to stderr, not stdout
+            if ($keyPairJson) {
+                error_log("🔵 Found {$envVar} (length: " . strlen($keyPairJson) . ")");
+            } else {
+                error_log("⚠️ Environment variable not set: {$envVar}");
+                error_log("   Tried: getenv(), \$_ENV, \$_SERVER");
+            }
         }
         
         if ($keyPairJson && !file_exists($filePath)) {
