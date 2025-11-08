@@ -339,6 +339,14 @@ function handleTest($url, $key) {
 function handleGetBalance($url, $key) {
     $telegram_id = $_GET['telegram_id'] ?? null;
     
+    // Clean telegram_id (remove any URL parts if accidentally included)
+    if ($telegram_id) {
+        // Extract only the ID part (numbers before any URL)
+        if (preg_match('/^(\d+)/', $telegram_id, $matches)) {
+            $telegram_id = $matches[1];
+        }
+    }
+    
     if (!$telegram_id) {
         http_response_code(400);
         echo json_encode(['error' => 'telegram_id is required']);
