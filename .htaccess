@@ -1,0 +1,24 @@
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Route API requests to tama_supabase.php
+RewriteCond %{REQUEST_URI} ^/api/tama
+RewriteRule ^api/tama(.*)$ api/tama_supabase.php [QSA,L]
+
+# Route root API requests
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ api/tama_supabase.php [QSA,L]
+
+# Set default charset
+AddDefaultCharset UTF-8
+
+# Disable directory listing
+Options -Indexes
+
+# Enable CORS for API (Apache will handle this, but we also handle in PHP)
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+</IfModule>
+

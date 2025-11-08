@@ -27,7 +27,7 @@ COPY . /var/www/html/
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Configure Apache VirtualHost
+# Configure Apache VirtualHost (listen on port 80, Railway maps $PORT)
 RUN echo '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html\n\
     <Directory /var/www/html>\n\
@@ -39,8 +39,32 @@ RUN echo '<VirtualHost *:80>\n\
     </FilesMatch>\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
+# Create startup script to handle PORT variable
+RUN echo '#!/bin/bash\n\
+# Railway provides PORT, but Apache listens on 80\n\
+# Railway automatically maps $PORT to container port 80\n\
+# So we just start Apache normally\n\
+exec apache2-foreground' > /start-apache.sh && \
+    chmod +x /start-apache.sh
+
 # Set ServerName to suppress Apache warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+# Optimize Apache for production (prevent crashes)
+# Note: PHP Apache uses prefork MPM, not worker
+RUN echo "\n\
+# Production optimizations (prefork MPM)\n\
+<IfModule mpm_prefork_module>\n\
+    StartServers 5\n\
+    MinSpareServers 5\n\
+    MaxSpareServers 10\n\
+    MaxRequestWorkers 150\n\
+    MaxConnectionsPerChild 10000\n\
+</IfModule>\n\
+KeepAlive On\n\
+KeepAliveTimeout 5\n\
+Timeout 300\n\
+" >> /etc/apache2/apache2.conf
 
 # Create directory for keypairs
 RUN mkdir -p /app
