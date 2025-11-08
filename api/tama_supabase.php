@@ -149,6 +149,15 @@ switch ($path) {
         }
         break;
         
+    case '/env-check':
+        if ($method === 'GET') {
+            handleEnvCheck();
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     case '/holders':
         if ($method === 'GET') {
             handleGetHolders($supabaseUrl, $supabaseKey);
@@ -2661,5 +2670,52 @@ function getTokenBalance($walletAddress, $mintAddress, $rpcUrl) {
     } catch (Exception $e) {
         return 0;
     }
+}
+
+/**
+ * Check Environment Variables
+ * Debug endpoint to see what env vars are available
+ */
+function handleEnvCheck() {
+    $envVars = [
+        'SOLANA_PAYER_KEYPAIR',
+        'SOLANA_P2E_POOL_KEYPAIR',
+        'TAMA_MINT_ADDRESS',
+        'SOLANA_RPC_URL',
+        'SUPABASE_URL',
+        'SUPABASE_KEY'
+    ];
+    
+    $results = [];
+    
+    foreach ($envVars as $var) {
+        $value = getenv($var) ?: ($_ENV[$var] ?? null) ?: ($_SERVER[$var] ?? null);
+        
+        $results[$var] = [
+            'found' => $value !== null,
+            'method' => getenv($var) ? 'getenv' : ($_ENV[$var] ?? null ? '$_ENV' : ($_SERVER[$var] ?? null ? '$_SERVER' : 'none')),
+            'length' => $value ? strlen($value) : 0,
+            'preview' => $value ? (substr($value, 0, 50) . '...') : null,
+            'is_keypair' => $var === 'SOLANA_PAYER_KEYPAIR' || $var === 'SOLANA_P2E_POOL_KEYPAIR' ? ($value && strpos($value, '[') === 0) : null
+        ];
+    }
+    
+    // Also check all env vars that start with SOLANA_
+    $allSolanaVars = [];
+    foreach ($_SERVER as $key => $value) {
+        if (strpos($key, 'SOLANA_') === 0) {
+            $allSolanaVars[$key] = [
+                'length' => strlen($value),
+                'preview' => substr($value, 0, 50) . '...'
+            ];
+        }
+    }
+    
+    echo json_encode([
+        'env_vars' => $results,
+        'all_solana_vars' => $allSolanaVars,
+        'php_version' => PHP_VERSION,
+        'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown'
+    ], JSON_PRETTY_PRINT);
 }
 ?>
