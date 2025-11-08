@@ -59,5 +59,4 @@ function loadKeypairsFromEnv() {
 
 // Auto-load keypairs when this file is included
 loadKeypairsFromEnv();
-?>
-
+// Note: No closing ?> tag to prevent accidental whitespace output
