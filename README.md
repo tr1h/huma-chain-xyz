@@ -140,43 +140,43 @@ python bot.py
 ### **Project Structure:**
 ```
 huma-chain-xyz/
-├── 🌐 FRONTEND (GitHub Pages - всё в корне!)
+├── 🌐 FRONTEND (GitHub Pages - all in root!)
 │   ├── tamagotchi-game.html  # ⭐ Main game UI (403KB)
-│   ├── telegram-game.html    # Telegram Web App версия
-│   ├── mint.html             # NFT Mint страница
-│   ├── admin-tokenomics.html # Админка токеномики
-│   ├── super-admin.html      # Супер-админка
-│   ├── referral.html         # Реферальная система
-│   ├── s.html                # Короткая ссылка
+│   ├── telegram-game.html    # Telegram Web App version
+│   ├── mint.html             # NFT Mint page
+│   ├── admin-tokenomics.html # Tokenomics admin panel
+│   ├── super-admin.html      # Super admin panel
+│   ├── referral.html         # Referral system
+│   ├── s.html                # Short link
 │   ├── index.html            # Landing page
-│   └── [еще 10+ HTML страниц]
+│   └── [10+ more HTML pages]
 │
 ├── 🛠️ BACKEND
 │   ├── api/
 │   │   └── tama_supabase.php # PHP API (REST API, withdrawal, mint, send)
 │   │
-│   ├── bot/                  # НЕ ПУБЛИКУЕТСЯ (только для сервера)
+│   ├── bot/                  # NOT PUBLISHED (server-only)
 │   │   ├── bot.py            # Telegram Bot (@GotchiGameBot)
-│   │   └── start_bot.ps1     # PowerShell скрипт запуска
+│   │   └── start_bot.ps1     # PowerShell launch script
 │   │
 │   └── sql/
 │       └── update_burn_stats_function.sql
 │
 ├── 🔧 CONFIG
 │   ├── package.json
-│   ├── tokenomics.json       # Параметры токеномики
-│   └── *.json               # Keypairs (не публикуются!)
+│   ├── tokenomics.json       # Tokenomics parameters
+│   └── *.json               # Keypairs (not published!)
 │
 └── 📚 DOCUMENTATION (.docs/)
-    ├── README.md             # Этот файл
-    ├── ADDRESSES_AND_ALLOCATIONS.md  # Все адреса и распределение
-    ├── VESTING_STREAM_ID.md  # Team vesting информация
-    ├── TOKENOMICS_FINAL.md   # Токеномика
-    └── [еще 20+ документов]
+    ├── README.md             # This file
+    ├── ADDRESSES_AND_ALLOCATIONS.md  # All addresses and allocations
+    ├── VESTING_STREAM_ID.md  # Team vesting info
+    ├── TOKENOMICS_FINAL.md   # Tokenomics guide
+    └── [20+ more docs]
 ```
 
 ### **Key Files:**
-- **Game Logic:** `tamagotchi-game.html` (в корне!)
+- **Game Logic:** `tamagotchi-game.html` (in root!)
 - **Telegram Bot:** `bot/bot.py`
 - **API Server:** `api/tama_supabase.php`
 - **Token Info:** `tama-token-info.json`
