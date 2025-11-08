@@ -6,22 +6,16 @@
       "use": "@vercel/php"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/tama/(.*)",
-      "dest": "/api/tama_supabase.php"
+      "source": "/api/tama/(.*)",
+      "destination": "/api/tama_supabase.php"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/tama_supabase.php"
+      "source": "/api/(.*)",
+      "destination": "/api/tama_supabase.php"
     }
   ],
-  "env": {
-    "SUPABASE_URL": "@supabase_url",
-    "SUPABASE_KEY": "@supabase_key",
-    "TAMA_MINT_ADDRESS": "Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY",
-    "SOLANA_RPC_URL": "https://api.devnet.solana.com"
-  },
   "headers": [
     {
       "source": "/api/(.*)",
@@ -37,6 +31,10 @@
         {
           "key": "Access-Control-Allow-Headers",
           "value": "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
         }
       ]
     }
