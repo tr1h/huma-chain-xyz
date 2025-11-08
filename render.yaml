@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: huma-chain-xyz-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    plan: free
+    healthCheckPath: /api/test.php
+    envVars:
+      - key: SUPABASE_URL
+        value: https://zfrazyupameidxpjihrh.supabase.co
+      - key: SUPABASE_KEY
+        sync: false
+      - key: TAMA_MINT_ADDRESS
+        value: Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY
+      - key: SOLANA_RPC_URL
+        value: https://api.devnet.solana.com
+      - key: SOLANA_PAYER_KEYPAIR
+        sync: false
+      - key: SOLANA_P2E_POOL_KEYPAIR
+        sync: false
+
