@@ -19,19 +19,6 @@ AddDefaultCharset UTF-8
 # Disable directory listing
 Options -Indexes
 
-# Enable CORS for API (Apache will handle this, but we also handle in PHP)
-<IfModule mod_headers.c>
-    # Handle preflight OPTIONS requests FIRST (before rewrite)
-    RewriteCond %{REQUEST_METHOD} OPTIONS
-    RewriteRule ^(.*)$ - [R=200,L]
-    
-    # Set CORS headers for all API requests
-    <FilesMatch "\.(php)$">
-        Header always set Access-Control-Allow-Origin "*"
-        Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-        Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin"
-        Header always set Access-Control-Allow-Credentials "true"
-        Header always set Access-Control-Max-Age "86400"
-    </FilesMatch>
-</IfModule>
+# CORS headers are handled in PHP (api/tama_supabase.php)
+# to avoid duplicate headers conflict
 

@@ -17,13 +17,14 @@ $allowedOrigins = [
     'https://tr1h.github.io',
     'http://localhost',
     'http://localhost:3000',
-    'http://127.0.0.1',
-    '*'
+    'http://127.0.0.1'
 ];
 
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
-if (in_array($origin, $allowedOrigins) || in_array('*', $allowedOrigins)) {
-    header('Access-Control-Allow-Origin: ' . ($origin === '*' ? '*' : $origin));
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+// If origin is in allowed list, send it back; otherwise send *
+if ($origin && in_array($origin, $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
 } else {
     header('Access-Control-Allow-Origin: *');
 }
