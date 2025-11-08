@@ -1,4 +1,5 @@
 services:
+  # API Service (PHP + Apache)
   - type: web
     name: huma-chain-xyz-api
     env: docker
@@ -18,5 +19,39 @@ services:
       - key: SOLANA_PAYER_KEYPAIR
         sync: false
       - key: SOLANA_P2E_POOL_KEYPAIR
+        sync: false
+
+  # Bot Service (Python Background Worker)
+  - type: worker
+    name: huma-chain-xyz-bot
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r bot/requirements.txt
+    startCommand: cd bot && python bot.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: BOT_USERNAME
+        value: GotchiGameBot
+      - key: GAME_URL
+        value: https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html?v=20251030-final
+      - key: MINT_URL
+        value: https://tr1h.github.io/huma-chain-xyz/
+      - key: CHANNEL_USERNAME
+        value: "@GotchiGame"
+      - key: MENU_BUTTON_TEXT
+        value: "🎮 Gotchi Game"
+      - key: GROUP_ID
+        value: "-1002938566588"
+      - key: ADMIN_IDS
+        value: "7401131043"
+      - key: EXEMPT_GROUP_IDS
+        value: "-1002938566588"
+      - key: TAMA_API_BASE
+        value: https://huma-chain-xyz.onrender.com/api/tama
+      - key: SUPABASE_URL
+        value: https://zfrazyupameidxpjihrh.supabase.co
+      - key: SUPABASE_KEY
         sync: false
 
