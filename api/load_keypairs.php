@@ -6,6 +6,11 @@
  * as environment variables and write them to files on startup.
  */
 
+// Suppress errors to prevent HTML output
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 function loadKeypairsFromEnv() {
     $keyPairs = [
         'SOLANA_PAYER_KEYPAIR' => '/app/payer-keypair.json',
@@ -31,11 +36,11 @@ function loadKeypairsFromEnv() {
             // Ensure directory exists
             $dir = dirname($filePath);
             if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
+                @mkdir($dir, 0755, true); // Suppress warnings
             }
             
             // Write keypair to file
-            $result = file_put_contents($filePath, $keyPairJson);
+            $result = @file_put_contents($filePath, $keyPairJson); // Suppress warnings
             
             if ($result === false) {
                 error_log("❌ Failed to write keypair: {$filePath}");
@@ -44,7 +49,7 @@ function loadKeypairsFromEnv() {
             } else {
                 error_log("✅ Keypair loaded: {$filePath} ({$result} bytes)");
                 // Set file permissions (read-only for security)
-                chmod($filePath, 0400);
+                @chmod($filePath, 0400); // Suppress warnings
             }
         } elseif (file_exists($filePath)) {
             error_log("✅ Keypair already exists: {$filePath}");

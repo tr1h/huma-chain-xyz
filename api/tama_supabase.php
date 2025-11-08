@@ -4,6 +4,11 @@
  * Использует Supabase REST API вместо прямого подключения к PostgreSQL
  */
 
+// ⚠️ CRITICAL: Suppress all PHP errors to prevent HTML output (MUST BE FIRST!)
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 // CORS Configuration - MUST BE FIRST (before any output!)
 $allowedOrigins = [
     'https://tr1h.github.io',
