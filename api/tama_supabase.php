@@ -1635,7 +1635,9 @@ function handleBronzeNFTOnChain($url, $key) {
             error_log('Failed to log transactions: ' . $e->getMessage());
         }
         
-        // Success response
+        // Success response - ensure JSON only
+        header('Content-Type: application/json');
+        http_response_code(200);
         echo json_encode([
             'success' => true,
             'message' => 'Bronze NFT on-chain distribution completed',
@@ -1667,13 +1669,32 @@ function handleBronzeNFTOnChain($url, $key) {
                 ]
             ]
         ]);
+        return;
         
     } catch (Exception $e) {
+        // Ensure JSON error response
+        header('Content-Type: application/json');
         http_response_code(500);
+        error_log('❌ On-chain distribution error: ' . $e->getMessage());
+        error_log('❌ Stack trace: ' . $e->getTraceAsString());
         echo json_encode([
             'error' => $e->getMessage(),
-            'details' => 'Failed to process on-chain Bronze NFT distribution'
+            'details' => 'On-chain distribution failed. NFT is registered but distribution incomplete.',
+            'file' => basename($e->getFile()),
+            'line' => $e->getLine()
         ]);
+        return;
+    } catch (Throwable $e) {
+        // Catch any other errors (fatal errors, etc)
+        header('Content-Type: application/json');
+        http_response_code(500);
+        error_log('❌ Fatal error in on-chain distribution: ' . $e->getMessage());
+        echo json_encode([
+            'error' => 'Internal server error',
+            'details' => 'On-chain distribution failed. NFT is registered but distribution incomplete.',
+            'message' => $e->getMessage()
+        ]);
+        return;
     }
 }
 
