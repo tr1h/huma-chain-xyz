@@ -73,8 +73,8 @@ ADMIN_IDS = [int(x) for x in os.getenv('ADMIN_IDS', '7401131043').split(',') if 
 # Group IDs that are exempt from anti-spam
 EXEMPT_GROUP_IDS = [int(x) for x in os.getenv('EXEMPT_GROUP_IDS', '-1002938566588').split(',') if x.strip()]  # @gotchigamechat group ID
 
-# TAMA API Configuration
-TAMA_API_BASE = os.getenv('TAMA_API_BASE', "http://localhost:8002/api/tama")
+# TAMA API Configuration (UPDATED TO RENDER)
+TAMA_API_BASE = os.getenv('TAMA_API_BASE', "https://huma-chain-xyz.onrender.com/api/tama")
 
 def is_api_available():
     """Check if TAMA API is available"""
