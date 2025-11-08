@@ -638,11 +638,11 @@
             }
             
             const totalEarned = allTransactions
-                .filter(t => t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus')
+                .filter(t => t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus' || t.type === 'treasury_income_from_nft' || t.type === 'treasury_income_from_nft_sol' || t.type === 'treasury_income_from_nft_onchain' || t.type === 'p2e_pool_refund_from_nft' || t.type === 'p2e_pool_refund_from_nft_onchain')
                 .reduce((sum, t) => sum + (t.amount || 0), 0);
 
             const totalSpent = allTransactions
-                .filter(t => t.type.startsWith('spend'))
+                .filter(t => t.type.startsWith('spend') || t.type === 'nft_mint' || t.type === 'nft_mint_sol' || t.type === 'nft_mint_onchain' || t.type.startsWith('burn'))
                 .reduce((sum, t) => sum + (t.amount || 0), 0);
 
             const uniqueUsers = new Set(allTransactions.map(t => t.user_id)).size;
@@ -671,7 +671,7 @@
                 
                 // Categorize transactions
                 const isEarn = t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus' || t.type === 'treasury_income_from_nft' || t.type === 'treasury_income_from_nft_sol' || t.type === 'p2e_pool_refund_from_nft';
-                const isSpend = t.type.startsWith('spend') || t.type === 'nft_mint' || t.type === 'nft_mint_sol';
+                const isSpend = t.type.startsWith('spend') || t.type === 'nft_mint' || t.type === 'nft_mint_sol' || t.type === 'nft_mint_onchain';
                 const isBurn = t.type.startsWith('burn');
                 const isSOL = t.type.includes('_sol') || (t.metadata && typeof t.metadata === 'string' && t.metadata.includes('"payment_method":"SOL"'));
                 
