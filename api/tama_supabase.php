@@ -950,6 +950,7 @@ function handleWithdrawalRequest($url, $key) {
         // Используем p2e-pool-keypair как owner (у него должны быть токены)
         // Используем payer keypair как fee-payer (для оплаты комиссии)
         $cmd = [
+            'solana',
             'spl-token',
             'transfer',
             $tamaMint,
@@ -1251,6 +1252,7 @@ function handleDistribute($url, $key) {
         // Выполнить spl-token transfer от from_wallet к to_wallet
         // Используем payer keypair как fee-payer и owner (у него есть token account с балансом)
         $cmd = [
+            'solana',
             'spl-token',
             'transfer',
             $tamaMint,
@@ -1478,10 +1480,16 @@ function handleBronzeNFTOnChain($url, $key) {
             throw new Exception('P2E Pool keypair not found: ' . $p2ePoolKeypair);
         }
         
-        // Check spl-token CLI
-        $splTokenCheck = shell_exec('spl-token --version 2>&1');
-        if (strpos($splTokenCheck, 'spl-token') === false) {
-            throw new Exception('spl-token CLI not found');
+        // Check Solana CLI (includes spl-token commands)
+        $solanaCheck = shell_exec('solana --version 2>&1');
+        if (strpos($solanaCheck, 'solana-cli') === false) {
+            throw new Exception('Solana CLI not found');
+        }
+        
+        // Verify spl-token is available
+        $splTokenCheck = shell_exec('solana spl-token --version 2>&1');
+        if (strpos($splTokenCheck, 'spl-token') === false && strpos($splTokenCheck, 'error') !== false) {
+            error_log('⚠️ Warning: solana spl-token check failed, but continuing...');
         }
         
         $transactions = [];
@@ -1647,6 +1655,7 @@ function handleBronzeNFTOnChain($url, $key) {
  */
 function executeSPLTransfer($ownerKeypair, $feePayerKeypair, $toAddress, $amount, $tamaMint, $rpcUrl) {
     $cmd = [
+        'solana',
         'spl-token',
         'transfer',
         $tamaMint,
@@ -1802,6 +1811,7 @@ function handleMint($url, $key) {
         // Используем mint keypair как owner (mint authority)
         // Используем payer keypair как fee-payer
         $cmd = [
+            'solana',
             'spl-token',
             'mint',
             $tamaMint,
@@ -2018,6 +2028,7 @@ function handleSend($url, $key) {
         // Используем from_keypair как owner (у него должны быть токены)
         // Используем payer keypair как fee-payer (для оплаты комиссии)
         $cmd = [
+            'solana',
             'spl-token',
             'transfer',
             $tamaMint,
