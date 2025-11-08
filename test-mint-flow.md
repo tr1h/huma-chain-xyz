@@ -106,7 +106,7 @@ console.log('Recent transactions:', txs);
 
 3. **Проверь API:**
    ```javascript
-   fetch('https://huma-chain-xyz-production.up.railway.app/api/tama/transactions/list?limit=10')
+   fetch('https://huma-chain-xyz.onrender.com/api/tama/transactions/list?limit=10')
      .then(r => r.json())
      .then(d => console.log(d))
    ```

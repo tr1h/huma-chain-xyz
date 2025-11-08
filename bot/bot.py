@@ -4464,11 +4464,50 @@ if __name__ == '__main__':
             print(f"❌ Webhook error: {e}")
             return '', 500
     
-    # Health check endpoint (для Railway)
+    # Health check endpoint (для Railway/Render)
     @app.route('/', methods=['GET'])
     def health():
         """Health check endpoint"""
-        return {'status': 'ok', 'bot': 'running'}, 200
+        return {'status': 'ok', 'bot': 'running', 'timestamp': datetime.now().isoformat()}, 200
+    
+    # Keep-Alive function (prevents Render Free tier from sleeping)
+    def keep_alive_ping():
+        """Ping bot and API every 5 minutes to prevent sleep"""
+        while True:
+            try:
+                time.sleep(300)  # 5 minutes
+                
+                # Ping bot health endpoint
+                WEBHOOK_HOST = os.getenv('RAILWAY_PUBLIC_DOMAIN') or os.getenv('RENDER_EXTERNAL_HOSTNAME')
+                if WEBHOOK_HOST:
+                    bot_url = f"https://{WEBHOOK_HOST}/"
+                    try:
+                        response = requests.get(bot_url, timeout=10)
+                        if response.status_code == 200:
+                            print(f"✅ Keep-Alive: Bot pinged successfully")
+                        else:
+                            print(f"⚠️ Keep-Alive: Bot ping returned {response.status_code}")
+                    except Exception as e:
+                        print(f"❌ Keep-Alive: Bot ping failed: {e}")
+                
+                # Ping API health endpoint
+                try:
+                    api_response = requests.get(f"{TAMA_API_BASE}/test", timeout=10)
+                    if api_response.status_code == 200:
+                        print(f"✅ Keep-Alive: API pinged successfully")
+                    else:
+                        print(f"⚠️ Keep-Alive: API ping returned {api_response.status_code}")
+                except Exception as e:
+                    print(f"❌ Keep-Alive: API ping failed: {e}")
+                    
+            except Exception as e:
+                print(f"❌ Keep-Alive thread error: {e}")
+    
+    # Start Keep-Alive in background thread (only on Render)
+    if os.getenv('RENDER'):
+        keep_alive_thread = threading.Thread(target=keep_alive_ping, daemon=True)
+        keep_alive_thread.start()
+        print("🔄 Keep-Alive started (5 min interval)")
     
     # Set webhook URL (if not set already)
     try:
