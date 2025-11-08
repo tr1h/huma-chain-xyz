@@ -9,6 +9,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
+// ⚠️ CRITICAL: Start output buffering IMMEDIATELY to catch any accidental output
+ob_start();
+
 // CORS Configuration - MUST BE FIRST (before any output!)
 $allowedOrigins = [
     'https://tr1h.github.io',
@@ -39,6 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Load keypairs from environment variables (Railway) - AFTER CORS headers
 require_once __DIR__ . '/load_keypairs.php';
+
+// Clear any accidental output from load_keypairs.php before setting Content-Type
+if (ob_get_level() > 0) {
+    $obContent = ob_get_contents();
+    if (!empty($obContent)) {
+        error_log("⚠️ Warning: Output buffer contains data after load_keypairs.php: " . substr($obContent, 0, 200));
+        ob_clean();
+    }
+}
 
 header('Content-Type: application/json');
 

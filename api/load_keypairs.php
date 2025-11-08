@@ -25,11 +25,12 @@ function loadKeypairsFromEnv() {
         
         // Debug: log what we found (use error_log which goes to stderr, not stdout)
         // This won't interfere with headers
+        // Note: Removed emojis to prevent encoding issues
         if ($keyPairJson) {
-            error_log("🔵 Found {$envVar} (length: " . strlen($keyPairJson) . ")");
+            error_log("[KEYPAIR] Found {$envVar} (length: " . strlen($keyPairJson) . ")");
         } else {
-            error_log("⚠️ Environment variable not set: {$envVar}");
-            error_log("   Tried: getenv(), \$_ENV, \$_SERVER");
+            error_log("[KEYPAIR] Environment variable not set: {$envVar}");
+            error_log("[KEYPAIR] Tried: getenv(), \$_ENV, \$_SERVER");
         }
         
         if ($keyPairJson && !file_exists($filePath)) {
@@ -43,20 +44,19 @@ function loadKeypairsFromEnv() {
             $result = @file_put_contents($filePath, $keyPairJson); // Suppress warnings
             
             if ($result === false) {
-                error_log("❌ Failed to write keypair: {$filePath}");
-                error_log("   Directory exists: " . (is_dir($dir) ? 'YES' : 'NO'));
-                error_log("   Directory writable: " . (is_writable($dir) ? 'YES' : 'NO'));
+                error_log("[KEYPAIR] Failed to write keypair: {$filePath}");
+                error_log("[KEYPAIR] Directory exists: " . (is_dir($dir) ? 'YES' : 'NO'));
+                error_log("[KEYPAIR] Directory writable: " . (is_writable($dir) ? 'YES' : 'NO'));
             } else {
-                error_log("✅ Keypair loaded: {$filePath} ({$result} bytes)");
+                error_log("[KEYPAIR] Keypair loaded: {$filePath} ({$result} bytes)");
                 // Set file permissions (read-only for security)
                 @chmod($filePath, 0400); // Suppress warnings
             }
         } elseif (file_exists($filePath)) {
-            error_log("✅ Keypair already exists: {$filePath}");
+            error_log("[KEYPAIR] Keypair already exists: {$filePath}");
         }
     }
 }
 
 // Auto-load keypairs when this file is included
 loadKeypairsFromEnv();
-// Note: No closing ?> tag to prevent accidental whitespace output
