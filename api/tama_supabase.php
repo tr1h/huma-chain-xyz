@@ -1809,8 +1809,24 @@ function executeSPLTransfer($ownerKeypair, $feePayerKeypair, $toAddress, $amount
     fclose($pipes[2]);
     $returnCode = proc_close($process);
     
+    // Parse result first (spl-token may return non-zero code even on success)
+    $result = json_decode($stdout, true);
+    $signature = $result['signature'] ?? null;
+    
+    // If we have a signature, transaction was successful
+    if ($signature) {
+        error_log("✅ SPL Transfer successful: " . $signature);
+        return [
+            'success' => true,
+            'signature' => $signature,
+            'amount' => $amount,
+            'to_address' => $toAddress
+        ];
+    }
+    
+    // No signature - this is a real error
     if ($returnCode !== 0) {
-        error_log("SPL Transfer failed: " . $stderr);
+        error_log("❌ SPL Transfer failed: " . $stderr);
         return [
             'success' => false,
             'error' => trim($stderr) ?: trim($stdout),
@@ -1818,23 +1834,12 @@ function executeSPLTransfer($ownerKeypair, $feePayerKeypair, $toAddress, $amount
         ];
     }
     
-    // Parse result
-    $result = json_decode($stdout, true);
-    $signature = $result['signature'] ?? null;
-    
-    if (!$signature) {
-        return [
-            'success' => false,
-            'error' => 'Signature not found in output',
-            'stdout' => $stdout
-        ];
-    }
-    
+    // Edge case: returnCode 0 but no signature
     return [
-        'success' => true,
-        'signature' => $signature,
-        'amount' => $amount,
-        'to_address' => $toAddress
+        'success' => false,
+        'error' => 'Signature not found in output',
+        'stdout' => $stdout,
+        'stderr' => $stderr
     ];
 }
 
