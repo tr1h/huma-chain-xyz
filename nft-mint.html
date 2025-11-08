@@ -543,6 +543,7 @@
                     }
                     
                     // Update via API (same as game) to prevent conflicts
+                    // skip_transaction_log: true - we'll log nft_mint_onchain manually
                     const TAMA_API_BASE = 'https://huma-chain-xyz-production.up.railway.app/api/tama';
                     const updateResponse = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
                         method: 'POST',
@@ -554,7 +555,8 @@
                             xp: currentUser.xp || 0,
                             pet_name: currentUser.pet_name || 'Gotchi',
                             pet_type: currentUser.pet_type || 'kawai',
-                            pet_data: currentUser.pet_data || null
+                            pet_data: currentUser.pet_data || null,
+                            skip_transaction_log: true // Skip auto-logging, we'll log nft_mint_onchain manually
                         })
                     });
                     

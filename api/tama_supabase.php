@@ -706,6 +706,7 @@ function handleLeaderboardUpsert($url, $key) {
     $pet_data = $input['pet_data'] ?? null;
     $pet_name = $input['pet_name'] ?? 'Gotchi';
     $pet_type = $input['pet_type'] ?? 'kawai';
+    $skip_transaction_log = $input['skip_transaction_log'] ?? false; // Skip auto-logging if true
     
     if (!$user_id) {
         http_response_code(400);
@@ -751,8 +752,8 @@ function handleLeaderboardUpsert($url, $key) {
                 'telegram_id' => 'eq.' . $user_id
             ], $updateData);
             
-            // Log transaction if TAMA changed
-            if ($tamaDiff != 0) {
+            // Log transaction if TAMA changed (unless skip_transaction_log is true)
+            if ($tamaDiff != 0 && !$skip_transaction_log) {
                 try {
                     $transactionType = $tamaDiff > 0 ? 'earn_click' : 'spend_game';
                     supabaseRequest($url, $key, 'POST', 'transactions', [], [
