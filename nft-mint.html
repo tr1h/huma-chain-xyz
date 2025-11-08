@@ -583,126 +583,57 @@
                     
                     if (nftError) throw nftError;
                     
-                    // 4. Distribution & Logging (Bronze: 40% burn + 30% treasury + 30% P2E)
-                    const distribution = {
-                        burn: Math.floor(tamaPrice * 0.40),      // 1000 TAMA
-                        treasury: Math.floor(tamaPrice * 0.30),  // 750 TAMA
-                        p2e_pool: Math.floor(tamaPrice * 0.30)   // 750 TAMA
-                    };
-                    
-                    const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
-                    const P2E_POOL_ID = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
+                    // 4. ON-CHAIN Distribution via Backend API
+                    console.log('🔗 Calling on-chain distribution API...');
                     
                     try {
-                        // 💰 TRANSFER TO TREASURY (30%)
-                        // Get current Treasury balance
-                        const { data: treasuryData } = await supabase
-                            .from('leaderboard')
-                            .select('tama')
-                            .eq('telegram_id', TREASURY_MAIN_ID)
-                            .single();
-                        
-                        const treasuryOldBalance = treasuryData?.tama || 0;
-                        const treasuryNewBalance = treasuryOldBalance + distribution.treasury;
-                        
-                        // Update Treasury balance
-                        await supabase
-                            .from('leaderboard')
-                            .upsert({
-                                telegram_id: TREASURY_MAIN_ID,
-                                telegram_username: '💰 Treasury Main V2',
-                                tama: treasuryNewBalance,
-                                user_type: 'treasury'
-                            });
-                        
-                        // 🎮 TRANSFER TO P2E POOL (30%)
-                        // Get current P2E Pool balance
-                        const { data: p2eData } = await supabase
-                            .from('leaderboard')
-                            .select('tama')
-                            .eq('telegram_id', P2E_POOL_ID)
-                            .single();
-                        
-                        const p2eOldBalance = p2eData?.tama || 0;
-                        const p2eNewBalance = p2eOldBalance + distribution.p2e_pool;
-                        
-                        // Update P2E Pool balance
-                        await supabase
-                            .from('leaderboard')
-                            .upsert({
-                                telegram_id: P2E_POOL_ID,
-                                telegram_username: '🎮 P2E Pool',
-                                tama: p2eNewBalance,
-                                user_type: 'pool'
-                            });
-                        
-                        // LOG ALL TRANSACTIONS
-                        
-                        // 1. Main NFT mint transaction
-                        await supabase.from('transactions').insert({
-                            user_id: userId,
-                            username: userId,
-                            type: 'nft_mint',
-                            amount: tamaPrice,
-                            balance_before: currentUser.tama,
-                            balance_after: newBalance,
-                            metadata: JSON.stringify({
+                        const TAMA_API_BASE = 'https://huma-chain-xyz-production.up.railway.app/api/tama';
+                        const onchainResponse = await fetch(`${TAMA_API_BASE}/nft/mint-bronze-onchain`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                telegram_id: userId,
                                 tier: selectedTier,
                                 rarity: rarity,
                                 multiplier: multiplier,
-                                nft_id: nftMintAddress,
-                                distribution: distribution
+                                tama_price: tamaPrice
                             })
                         });
                         
-                        // 2. BURN transaction (40%) - tokens disappear
-                        await supabase.from('transactions').insert({
-                            user_id: 'BURN_ADDRESS',
-                            username: '🔥 Token Burn',
-                            type: 'burn_from_nft_mint',
-                            amount: distribution.burn,
-                            balance_before: 0,
-                            balance_after: 0,
-                            metadata: JSON.stringify({
-                                source: 'bronze_nft_mint',
-                                nft_id: nftMintAddress,
-                                user: userId
-                            })
-                        });
+                        if (!onchainResponse.ok) {
+                            const errorData = await onchainResponse.json();
+                            console.error('❌ On-chain distribution failed:', errorData);
+                            // Continue anyway - NFT is already registered
+                            alert('⚠️ Note: On-chain distribution failed, but NFT is registered. Contact support if needed.');
+                        } else {
+                            const onchainData = await onchainResponse.json();
+                            console.log('✅ On-chain distribution successful:', onchainData);
+                            
+                            // Log main NFT mint transaction with on-chain data
+                            await supabase.from('transactions').insert({
+                                user_id: userId,
+                                username: userId,
+                                type: 'nft_mint_onchain',
+                                amount: tamaPrice,
+                                balance_before: currentUser.tama,
+                                balance_after: newBalance,
+                                metadata: JSON.stringify({
+                                    tier: selectedTier,
+                                    rarity: rarity,
+                                    multiplier: multiplier,
+                                    nft_id: nftMintAddress,
+                                    tama_price: onchainData.tama_price,
+                                    distribution: onchainData.distribution,
+                                    distribution_percentages: onchainData.distribution_percentages,
+                                    transactions: onchainData.transactions
+                                })
+                            });
+                        }
                         
-                        // 3. TREASURY transaction (30%) - REAL TRANSFER
-                        await supabase.from('transactions').insert({
-                            user_id: TREASURY_MAIN_ID,
-                            username: '💰 Treasury Main V2',
-                            type: 'treasury_income_from_nft',
-                            amount: distribution.treasury,
-                            balance_before: treasuryOldBalance,
-                            balance_after: treasuryNewBalance,
-                            metadata: JSON.stringify({
-                                source: 'bronze_nft_mint',
-                                nft_id: nftMintAddress,
-                                user: userId
-                            })
-                        });
-                        
-                        // 4. P2E POOL transaction (30%) - REAL TRANSFER
-                        await supabase.from('transactions').insert({
-                            user_id: P2E_POOL_ID,
-                            username: '🎮 P2E Pool Refund',
-                            type: 'p2e_pool_refund_from_nft',
-                            amount: distribution.p2e_pool,
-                            balance_before: p2eOldBalance,
-                            balance_after: p2eNewBalance,
-                            metadata: JSON.stringify({
-                                source: 'bronze_nft_mint',
-                                nft_id: nftMintAddress,
-                                user: userId
-                            })
-                        });
-                        
-                    } catch (txError) {
-                        console.error('Failed to process distribution:', txError);
-                        throw new Error('Distribution failed: ' + txError.message);
+                    } catch (onchainError) {
+                        console.error('⚠️ On-chain distribution error:', onchainError);
+                        // Continue anyway - NFT is still valid
+                        alert('⚠️ Note: On-chain distribution error. NFT is registered but distribution may be incomplete. Contact support.');
                     }
                     
                     // 5. Update balance display
