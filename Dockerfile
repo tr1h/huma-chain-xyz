@@ -20,18 +20,19 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 # Verify Rust installation
 RUN rustc --version && cargo --version
 
-# Install Solana CLI
-RUN sh -c "$(curl -sSfL https://release.solana.com/v1.18.18/install)"
-ENV PATH="/root/.local/share/solana/install/active_release/bin:${PATH}"
+# Install Solana CLI (direct binary download)
+RUN wget -qO- https://github.com/solana-labs/solana/releases/download/v1.18.18/solana-release-x86_64-unknown-linux-gnu.tar.bz2 | tar -xjv && \
+    mv solana-release/bin/* /usr/local/bin/ && \
+    rm -rf solana-release
 
-# Verify Solana installation (use full path for verification)
-RUN /root/.local/share/solana/install/active_release/bin/solana --version
+# Verify Solana installation
+RUN solana --version
 
 # Install spl-token CLI
 RUN cargo install spl-token-cli --version 3.4.0
 
-# Verify spl-token installation (cargo bin should be in PATH)
-RUN /root/.cargo/bin/spl-token --version || echo "spl-token will be available after PATH is loaded"
+# Verify spl-token installation
+RUN spl-token --version
 
 # Copy project files
 COPY . /var/www/html/
