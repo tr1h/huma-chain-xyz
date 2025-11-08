@@ -1,0 +1,42 @@
+# Node modules
+node_modules
+solana-tamagotchi/node_modules
+solana-tamagotchi/scripts/node_modules
+
+# Bot files (not needed for API)
+solana-tamagotchi/bot
+test_*.py
+start_bot_*.py
+
+# Keypairs (security)
+*-keypair.json
+*.key
+
+# Documentation
+*.md
+docs
+.docs
+BOT_*.md
+FINAL_*.md
+HACKATHON_*.md
+LAUNCH_*.md
+QUICK_*.md
+README*.md
+SETUP*.md
+STATUS*.md
+TOKENOMICS*.md
+
+# Assets
+solana-tamagotchi/nft-assets
+*.png
+*.webp
+*.svg
+*.gif
+
+# Git
+.git
+.gitignore
+
+# Solana (not supported on Vercel serverless)
+solana-release
+
