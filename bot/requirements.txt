@@ -1,8 +1,9 @@
 pyTelegramBotAPI==4.14.0
-supabase==2.3.0
+supabase==2.5.0
 python-dotenv==1.0.0
 qrcode==7.4.2
 Pillow==10.2.0
 schedule==1.2.0
 requests==2.31.0
+httpx==0.27.0
 

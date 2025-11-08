@@ -115,10 +115,30 @@ monitoring_stats = {
     'referrals_today': 0
 }
 
-# Supabase connection
+# Supabase connection (with retry for network issues)
 SUPABASE_URL = os.getenv('SUPABASE_URL', 'YOUR_SUPABASE_URL_HERE')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY', 'YOUR_SUPABASE_KEY_HERE')
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Retry Supabase connection (Railway network may not be ready immediately)
+supabase = None
+max_retries = 5
+for attempt in range(max_retries):
+    try:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        print(f"✅ Supabase connected (attempt {attempt + 1})")
+        break
+    except Exception as e:
+        if attempt < max_retries - 1:
+            wait_time = (attempt + 1) * 2
+            print(f"⚠️ Supabase connection failed (attempt {attempt + 1}/{max_retries}): {e}")
+            print(f"⏳ Retrying in {wait_time} seconds...")
+            time.sleep(wait_time)
+        else:
+            print(f"❌ Failed to connect to Supabase after {max_retries} attempts: {e}")
+            raise
+
+if supabase is None:
+    raise RuntimeError("Failed to initialize Supabase client")
 
 # Initialize gamification systems
 daily_rewards = DailyRewards(supabase)
