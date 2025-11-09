@@ -27,6 +27,32 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
         }
         
         .header h1 {
@@ -172,6 +198,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <a href="super-admin.html" class="back-btn">⬅️ Back to Dashboard</a>
             <h1>🐾 Solana Tamagotchi</h1>
             <p>Admin Table - Referrals & TAMA Balances</p>
         </div>

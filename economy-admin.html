@@ -29,6 +29,28 @@
             border-radius: 15px;
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: #5568d3;
+            transform: translateX(5px);
         }
 
         h1 {
@@ -241,6 +263,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <a href="super-admin.html" class="back-btn">⬅️ Back</a>
             <h1>💰 Economy Admin Panel</h1>
             <p class="subtitle">Adjust game economy parameters in real-time</p>
         </div>
