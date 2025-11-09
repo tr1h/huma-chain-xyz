@@ -5574,10 +5574,18 @@
                     console.warn('⚠️ Telegram WebApp not available - running in browser mode');
                 }
                 
-                // Fallback to localStorage if cloud load failed
+                // Fallback to localStorage ONLY if cloud load failed
                 if (!cloudLoaded) {
-                    console.log('💾 Loading from localStorage (fallback)');
-                    loadFromLocalStorage();
+                    console.log('💾 Loading from localStorage (fallback - Supabase failed)');
+                    const localLoaded = loadFromLocalStorage();
+                    if (localLoaded) {
+                        console.log('✅ Loaded from localStorage as fallback');
+                    } else {
+                        console.log('⚠️ No data in localStorage, starting fresh');
+                    }
+                } else {
+                    console.log('✅ Using Supabase data (PRIMARY SOURCE) - localStorage ignored');
+                    // Don't load from localStorage if Supabase data is available
                 }
                 
                 updateUI();
@@ -5663,7 +5671,8 @@
                     console.log('✅ LOADED FROM SUPABASE (PRIMARY):', userData);
                     console.log('📊 Current state: TAMA=' + gameState.tama + ', Level=' + gameState.level);
                     
-                    // Also save to localStorage as backup
+                    // ⚠️ IMPORTANT: Save to localStorage as backup, but Supabase is source of truth
+                    // This ensures localStorage is synced with Supabase, not the other way around
                     saveToLocalStorage();
                     
                     return true;
@@ -8320,6 +8329,37 @@
         // API Configuration (UPDATED TO RENDER)
         const TAMA_API_BASE = 'https://huma-chain-xyz.onrender.com/api/tama';
 
+        // Fetch user's rank even if not in top 50
+        async function fetchUserRank(telegramId) {
+            try {
+                // Get all users ordered by TAMA descending
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=telegram_id,tama&order=tama.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch rank: ${response.status}`);
+                }
+                
+                const allUsers = await response.json();
+                
+                // Find user's position
+                const userIndex = allUsers.findIndex(p => String(p.telegram_id) === String(telegramId));
+                
+                if (userIndex !== -1) {
+                    return userIndex + 1; // Rank is 1-based
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error fetching user rank:', error);
+                return null;
+            }
+        }
+        
         // Load leaderboard from Supabase
         async function loadLeaderboard() {
             try {
@@ -8371,9 +8411,21 @@
                         rankDisplay.textContent = `#${currentUserData.rank}`;
                         console.log('✅ Rank updated:', currentUserData.rank);
                     } else {
-                        // User not in top 50, try to fetch their rank separately
-                        rankDisplay.textContent = '#---';
-                        console.log('⚠️ User not found in top 50, rank set to ---');
+                        // User not in top 50, fetch their rank separately
+                        console.log('⚠️ User not found in top 50, fetching rank separately...');
+                        fetchUserRank(currentUserId).then(rank => {
+                            if (rank && rankDisplay) {
+                                rankDisplay.textContent = `#${rank}`;
+                                console.log('✅ Rank fetched separately:', rank);
+                            } else if (rankDisplay) {
+                                rankDisplay.textContent = '#---';
+                            }
+                        }).catch(err => {
+                            console.warn('⚠️ Failed to fetch user rank:', err);
+                            if (rankDisplay) {
+                                rankDisplay.textContent = '#---';
+                            }
+                        });
                     }
                 } else {
                     if (rankDisplay) {
