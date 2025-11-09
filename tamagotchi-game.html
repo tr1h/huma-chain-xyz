@@ -5524,9 +5524,13 @@
                     // Method 1: Try initDataUnsafe.user
                     const user = window.Telegram.WebApp.initDataUnsafe?.user;
                     if (user && user.id) {
-                        userId = user.id.toString();
+                        // ⚠️ CRITICAL: Always convert to string for consistency
+                        userId = String(user.id);
                         console.log('✅ Method 1: Got user from initDataUnsafe:', {
                             id: userId,
+                            idType: typeof userId,
+                            originalId: user.id,
+                            originalIdType: typeof user.id,
                             username: user.username,
                             first_name: user.first_name
                         });
@@ -5540,9 +5544,13 @@
                                 const userParam = params.get('user');
                                 if (userParam) {
                                     const parsedUser = JSON.parse(decodeURIComponent(userParam));
-                                    userId = parsedUser.id?.toString();
+                                    // ⚠️ CRITICAL: Always convert to string for consistency
+                                    userId = String(parsedUser.id || '');
                                     console.log('✅ Method 2: Parsed user from initData:', {
                                         id: userId,
+                                        idType: typeof userId,
+                                        originalId: parsedUser.id,
+                                        originalIdType: typeof parsedUser.id,
                                         username: parsedUser.username,
                                         first_name: parsedUser.first_name
                                     });
@@ -5554,11 +5562,20 @@
                     }
                     
                     if (userId) {
-                        console.log('📥 Loading from Supabase for user:', userId);
-                        cloudLoaded = await loadFromSupabase(userId);
+                        // ⚠️ CRITICAL: Always store as string for consistency
+                        const userIdStr = String(userId);
+                        console.log('📥 Loading from Supabase for user:', userIdStr);
+                        console.log('🔍 User ID type check:', {
+                            original: userId,
+                            asString: userIdStr,
+                            originalType: typeof userId,
+                            stringType: typeof userIdStr
+                        });
                         
-                        // Store userId globally for leaderboard
-                        window.TELEGRAM_USER_ID = userId;
+                        cloudLoaded = await loadFromSupabase(userIdStr);
+                        
+                        // Store userId globally for leaderboard (always as string)
+                        window.TELEGRAM_USER_ID = userIdStr;
                         
                         // Load rank after user ID is set (with small delay to ensure DOM is ready)
                         setTimeout(() => {
@@ -5628,7 +5645,11 @@
         // Load game data from Supabase
         async function loadFromSupabase(userId) {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${userId}&select=*`, {
+                // ⚠️ CRITICAL: Ensure userId is always a string for consistent querying
+                const userIdStr = String(userId);
+                console.log('🔍 Loading from Supabase with userId:', userIdStr, '(type:', typeof userIdStr, ')');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${userIdStr}&select=*`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -5636,17 +5657,40 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch from Supabase');
+                    console.error('❌ Supabase response not OK:', response.status, response.statusText);
+                    throw new Error(`Failed to fetch from Supabase: ${response.status} ${response.statusText}`);
                 }
                 
                 const data = await response.json();
+                console.log('📦 Supabase response data:', data);
+                console.log('📊 Found', data?.length || 0, 'record(s) for user', userIdStr);
                 
                 if (data && data.length > 0) {
-                    const userData = data[0];
+                    // ⚠️ If multiple records, use the most recent one (by last_activity or id)
+                    const userData = data.length > 1 
+                        ? data.sort((a, b) => (b.last_activity || b.id || 0) - (a.last_activity || a.id || 0))[0]
+                        : data[0];
+                    
+                    console.log('✅ Using user data:', {
+                        telegram_id: userData.telegram_id,
+                        level: userData.level,
+                        tama: userData.tama,
+                        last_activity: userData.last_activity
+                    });
+                    
+                    // ⚠️ CRITICAL: Verify telegram_id matches (in case of type mismatch)
+                    const dbTelegramId = String(userData.telegram_id || '');
+                    if (dbTelegramId !== userIdStr) {
+                        console.error('❌ TELEGRAM ID MISMATCH!', {
+                            requested: userIdStr,
+                            found: dbTelegramId,
+                            'This should never happen!'
+                        });
+                    }
                     
                     // Load TAMA and Level from Supabase (PRIMARY SOURCE OF TRUTH!)
-                    gameState.tama = userData.tama || 0;
-                    gameState.level = userData.level || 1; // Use actual level from DB, not calculated!
+                    gameState.tama = Number(userData.tama) || 0;
+                    gameState.level = Number(userData.level) || 1; // Use actual level from DB, not calculated!
                     gameState.xpToLevel = gameState.level * 100;
                     
                     // Try to parse pet_data if exists
