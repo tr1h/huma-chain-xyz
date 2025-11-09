@@ -831,8 +831,8 @@ function handleLeaderboardUpsert($url, $key) {
             $insertData = array_merge($updateData, [
                 'telegram_id' => $user_id,
                 'telegram_username' => $telegram_username ?? $user_id, // Use provided username or default to user_id
-                'user_type' => $user_type,
                 'wallet_address' => 'telegram_' . $user_id  // Generate wallet address for Telegram users
+                // Note: user_type is NOT a column in leaderboard table, removed
             ]);
             
             error_log("📝 INSERT data: " . json_encode($insertData));
