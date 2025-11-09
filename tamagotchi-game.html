@@ -5858,6 +5858,18 @@
         // Save game data via our API
         async function saveDirectToSupabase(userId) {
             try {
+                // ⚠️ CRITICAL: Ensure userId is always a string for consistency
+                const userIdStr = String(userId);
+                console.log('💾 Saving to Supabase with userId:', userIdStr, '(type:', typeof userIdStr, ')');
+                console.log('💾 Current game state:', {
+                    level: gameState.level,
+                    tama: gameState.tama,
+                    xp: gameState.xp,
+                    hp: gameState.hp,
+                    food: gameState.food,
+                    happy: gameState.happy
+                });
+                
                 // Prepare pet_data JSON
                 const pet_data = {
                     hp: gameState.hp,
@@ -5875,17 +5887,14 @@
                 
                 // Get username from Telegram
                 const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-                const username = telegramUser?.username || telegramUser?.first_name || `User${userId}`;
+                const username = telegramUser?.username || telegramUser?.first_name || `User${userIdStr}`;
                 
                 // Save via our API (proper way!)
                 // Use skip_transaction_log: true to avoid duplicate logging
                 // (we log transactions immediately when actions happen)
                 const apiUrl = `${TAMA_API_BASE}/leaderboard/upsert`;
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userId,
+                const requestBody = {
+                    user_id: userIdStr,  // ⚠️ Always use string
                         user_type: 'telegram',
                         telegram_username: username,  // ✅ ADD USERNAME
                         tama: gameState.tama,
@@ -5895,12 +5904,28 @@
                         pet_name: gameState.petType || 'Gotchi',
                         pet_type: gameState.petType || 'kawai',
                         skip_transaction_log: true  // Skip auto-logging, we log manually
-                    })
+                };
+                
+                console.log('📤 Sending to API:', {
+                    user_id: requestBody.user_id,
+                    level: requestBody.level,
+                    tama: requestBody.tama
+                });
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
                 });
                 
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('✅ Saved via API:', { level: gameState.level, tama: gameState.tama });
+                    console.log('✅ Saved via API:', { 
+                        user_id: userIdStr,
+                        level: gameState.level, 
+                        tama: gameState.tama,
+                        api_response: result
+                    });
                     return true;
                 } else {
                     const error = await response.text();

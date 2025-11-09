@@ -717,7 +717,12 @@ function handleGetLeaderboard($url, $key) {
 function handleLeaderboardUpsert($url, $key) {
     $input = json_decode(file_get_contents('php://input'), true);
     
+    // ⚠️ CRITICAL: Always convert user_id to string for consistency
     $user_id = $input['user_id'] ?? null;
+    if ($user_id !== null) {
+        $user_id = (string)$user_id; // Ensure it's always a string
+    }
+    
     $user_type = $input['user_type'] ?? 'telegram';
     $telegram_username = $input['telegram_username'] ?? null; // ✅ Accept username from game
     $tama = $input['tama'] ?? null;
@@ -727,6 +732,9 @@ function handleLeaderboardUpsert($url, $key) {
     $pet_name = $input['pet_name'] ?? 'Gotchi';
     $pet_type = $input['pet_type'] ?? 'kawai';
     $skip_transaction_log = $input['skip_transaction_log'] ?? false; // Skip auto-logging if true
+    
+    // Log incoming request for debugging
+    error_log("💾 Leaderboard upsert request: user_id={$user_id}, level={$level}, tama={$tama}");
     
     if (!$user_id) {
         http_response_code(400);
@@ -741,12 +749,21 @@ function handleLeaderboardUpsert($url, $key) {
     }
     
     try {
+        // ⚠️ CRITICAL: Use string for telegram_id query
         // Check if user exists and get old balance
         $getResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
-            'select' => 'telegram_id,tama,telegram_username',
+            'select' => 'telegram_id,tama,telegram_username,level',
             'telegram_id' => 'eq.' . $user_id,
             'limit' => '1'
         ]);
+        
+        // Log what we found
+        if (!empty($getResult['data'])) {
+            $existingData = $getResult['data'][0];
+            error_log("✅ Found existing user: telegram_id={$existingData['telegram_id']}, level={$existingData['level']}, tama={$existingData['tama']}");
+        } else {
+            error_log("⚠️ User not found, will create new record: telegram_id={$user_id}");
+        }
         
         $updateData = [
             'tama' => (int)$tama,
