@@ -4887,6 +4887,12 @@
 
                 // Send level up to bot
                 sendDataToBot('level_up', { level: gameState.level });
+                
+                // ✅ Check quests after level up (for "Level Up!" quest)
+                checkQuests();
+                
+                // ✅ Update action prices after level up (prices scale with level)
+                updateActionPrices();
             }
         }
 
@@ -5575,6 +5581,9 @@
                 }
                 
                 updateUI();
+                
+                // ✅ Update quest progress in UI after loading
+                checkQuests();
                 
                 // Load rank immediately on start
                 loadLeaderboard().catch(() => {
@@ -8650,134 +8659,17 @@
 
         // ==================== ACTION BUTTONS ====================
         
-        // Feed Pet Function
-        function feedPet() {
-            console.log('🍔 FEED PET CALLED - NEW VERSION!');
-            const feedCost = 50;
-            console.log('💰 Feed cost:', feedCost, 'Current TAMA:', gameState.tama);
-            
-            if (gameState.tama < feedCost) {
-                showMessage('❌ Not enough TAMA! Need 50 TAMA');
-                return;
-            }
+        // ⚠️ REMOVED: Old feedPet(), playWithPet(), healPet() functions
+        // These used fixed prices (50, 30, 100) and conflicted with new progressive pricing handlers
+        // New handlers (lines 4911-4991) use getProgressivePrice() which scales with level:
+        // - Every 5 levels = +20% price
+        // - Level 10: 50 * 1.4 = 70 TAMA (feed), 30 * 1.4 = 42 TAMA (play), 100 * 1.4 = 140 TAMA (heal)
 
-            // Log transaction BEFORE updating balance
-            const balanceBefore = gameState.tama;
-            gameState.tama -= feedCost;
-            const balanceAfter = gameState.tama;
-            console.log('💸 TAMA SPENT:', feedCost, 'Balance:', balanceBefore, '->', balanceAfter);
-            
-            // Restore food
-            gameState.food = Math.min(gameState.maxFood, gameState.food + 30);
-            gameState.happy = Math.min(gameState.maxHappy, gameState.happy + 10);
-            
-            showMessage('🍔 Pet fed! +30 Food, +10 Happy');
-            updateUI();
-            triggerAutoSave();
-            
-            // Log feed transaction
-            if (window.TELEGRAM_USER_ID && typeof TransactionLogger !== 'undefined') {
-                TransactionLogger.logSpend(
-                    window.TELEGRAM_USER_ID,
-                    window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'user',
-                    'feed',
-                    feedCost,
-                    balanceBefore,
-                    balanceAfter,
-                    { food_gained: 30, happy_gained: 10 }
-                );
-            }
-        }
-
-        // Play with Pet Function
-        function playWithPet() {
-            const playCost = 30;
-            if (gameState.tama < playCost) {
-                showMessage('❌ Not enough TAMA! Need 30 TAMA');
-                return;
-            }
-
-            // Log transaction BEFORE updating balance
-            const balanceBefore = gameState.tama;
-            gameState.tama -= playCost;
-            const balanceAfter = gameState.tama;
-            
-            // Increase happiness and slight food decrease
-            gameState.happy = Math.min(gameState.maxHappy, gameState.happy + 25);
-            gameState.food = Math.max(0, gameState.food - 5);
-            
-            showMessage('🎮 Pet played! +25 Happy, -5 Food');
-            updateUI();
-            triggerAutoSave();
-            
-            // Log play transaction
-            if (window.TELEGRAM_USER_ID && typeof TransactionLogger !== 'undefined') {
-                TransactionLogger.logSpend(
-                    window.TELEGRAM_USER_ID,
-                    window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'user',
-                    'play',
-                    playCost,
-                    balanceBefore,
-                    balanceAfter,
-                    { happy_gained: 25, food_lost: 5 }
-                );
-            }
-        }
-
-        // Heal Pet Function
-        function healPet() {
-            const healCost = 100;
-            if (gameState.tama < healCost) {
-                showMessage('❌ Not enough TAMA! Need 100 TAMA');
-                return;
-            }
-
-            // Log transaction BEFORE updating balance
-            const balanceBefore = gameState.tama;
-            gameState.tama -= healCost;
-            const balanceAfter = gameState.tama;
-            
-            // Restore HP
-            gameState.hp = Math.min(gameState.maxHp, gameState.hp + 50);
-            gameState.happy = Math.min(gameState.maxHappy, gameState.happy + 15);
-            
-            showMessage('💊 Pet healed! +50 HP, +15 Happy');
-            updateUI();
-            triggerAutoSave();
-            
-            // Log heal transaction
-            if (window.TELEGRAM_USER_ID && typeof TransactionLogger !== 'undefined') {
-                TransactionLogger.logSpend(
-                    window.TELEGRAM_USER_ID,
-                    window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'user',
-                    'heal',
-                    healCost,
-                    balanceBefore,
-                    balanceAfter,
-                    { hp_gained: 50, happy_gained: 15 }
-                );
-            }
-        }
-
-        // Add event listeners for action buttons
+        // ⚠️ REMOVED: Old duplicate handlers (feedPet, playWithPet, healPet)
+        // New handlers with progressive pricing are already set up above (lines 4911-4991)
+        // They use getProgressivePrice() which scales with level
+        
         document.addEventListener('DOMContentLoaded', function() {
-            // Feed button
-            const feedBtn = document.getElementById('feed-btn');
-            if (feedBtn) {
-                feedBtn.addEventListener('click', feedPet);
-            }
-
-            // Play button
-            const playBtn = document.getElementById('play-btn');
-            if (playBtn) {
-                playBtn.addEventListener('click', playWithPet);
-            }
-
-            // Heal button
-            const healBtn = document.getElementById('heal-btn');
-            if (healBtn) {
-                healBtn.addEventListener('click', healPet);
-            }
             
             // INITIALIZE MINI GAMES HANDLERS
             console.log('Initializing mini games handlers...');
