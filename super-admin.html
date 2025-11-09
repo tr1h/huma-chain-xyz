@@ -615,6 +615,25 @@
                     <div class="stat-value" id="active-today">0</div>
                     <div class="stat-change" id="active-change">Last hour: 0</div>
                 </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(255, 183, 3, 0.1), rgba(251, 133, 0, 0.1)); border: 2px solid rgba(255, 183, 3, 0.3);">
+                    <div class="stat-icon">💎</div>
+                    <div class="stat-label">NFT SOL Revenue</div>
+                    <div class="stat-value" id="nft-sol-revenue" style="color: #FFB703; font-size: 1.8em;">0 SOL</div>
+                    <div class="stat-change" id="nft-sol-breakdown" style="font-size: 0.85em; margin-top: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span>Main (50%):</span>
+                            <span id="nft-sol-main" style="font-weight: bold;">0 SOL</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span>Liquidity (30%):</span>
+                            <span id="nft-sol-liquidity" style="font-weight: bold;">0 SOL</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Team (20%):</span>
+                            <span id="nft-sol-team" style="font-weight: bold;">0 SOL</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Quick Access to Admin Panels -->
@@ -960,6 +979,9 @@
                 // Load referrals
                 loadReferrals();
                 
+                // Load NFT SOL revenue
+                loadNFTSOLRevenue();
+                
             } catch (error) {
                 console.error('Error loading data:', error);
                 alert('Failed to load data from database. Check console for details.');
@@ -1062,6 +1084,57 @@
                 }
             } catch (error) {
                 console.error('Error loading referrals:', error);
+            }
+        }
+
+        async function loadNFTSOLRevenue() {
+            try {
+                // Treasury wallet IDs
+                const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+                const TREASURY_LIQUIDITY_ID = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+                const TREASURY_TEAM_ID = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
+
+                // Fetch all treasury income transactions
+                const [mainResponse, liquidityResponse, teamResponse] = await Promise.all([
+                    fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_income_from_nft_sol&user_id=eq.${TREASURY_MAIN_ID}`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }),
+                    fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_liquidity_income_from_nft_sol&user_id=eq.${TREASURY_LIQUIDITY_ID}`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }),
+                    fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_team_income_from_nft_sol&user_id=eq.${TREASURY_TEAM_ID}`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    })
+                ]);
+
+                if (mainResponse.ok && liquidityResponse.ok && teamResponse.ok) {
+                    const mainData = await mainResponse.json();
+                    const liquidityData = await liquidityResponse.json();
+                    const teamData = await teamResponse.json();
+
+                    // Calculate totals
+                    const mainTotal = mainData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+                    const liquidityTotal = liquidityData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+                    const teamTotal = teamData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+                    const totalRevenue = mainTotal + liquidityTotal + teamTotal;
+
+                    // Update UI
+                    document.getElementById('nft-sol-revenue').textContent = totalRevenue.toFixed(4) + ' SOL';
+                    document.getElementById('nft-sol-main').textContent = mainTotal.toFixed(4) + ' SOL';
+                    document.getElementById('nft-sol-liquidity').textContent = liquidityTotal.toFixed(4) + ' SOL';
+                    document.getElementById('nft-sol-team').textContent = teamTotal.toFixed(4) + ' SOL';
+                }
+            } catch (error) {
+                console.error('Error loading NFT SOL revenue:', error);
             }
         }
 
