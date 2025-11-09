@@ -5806,6 +5806,11 @@
                     // This ensures localStorage is synced with Supabase, not the other way around
                     saveToLocalStorage();
                     
+                    // ✅ Update player name display after loading from Supabase
+                    if (typeof updatePlayerNameDisplay === 'function') {
+                        updatePlayerNameDisplay();
+                    }
+                    
                     return true;
                 }
             } catch (error) {
@@ -8406,9 +8411,13 @@
         // Update player name display on init
         function updatePlayerNameDisplay() {
             if (playerNameDisplay) {
-                const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-                const displayName = telegramUser?.username || telegramUser?.first_name || 'Player';
+                // ✅ Use custom username if set, otherwise use Telegram username
+                const displayName = gameState.customUsername || 
+                    window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 
+                    window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 
+                    'Player';
                 playerNameDisplay.textContent = displayName;
+                console.log('✅ Updated player name display:', displayName, '(custom:', !!gameState.customUsername, ')');
             }
         }
 
