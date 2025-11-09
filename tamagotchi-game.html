@@ -4700,6 +4700,17 @@
             const MAX_COMBO_BONUS = economyConfig.MAX_COMBO_BONUS || 10; // Cap combo bonus at 10 TAMA
             const MIN_REWARD = economyConfig.MIN_REWARD || 0.5; // Minimum reward
             
+            // Log economy config values (only on first click or when combo resets)
+            if (gameState.combo === 1 || gameState.combo === 0) {
+                console.log('💰 Economy Config:', {
+                    BASE_CLICK_REWARD,
+                    clickPower,
+                    clickEfficiency,
+                    combo: gameState.combo,
+                    nftBoost: window.userNFTBoost
+                });
+            }
+            
             const comboBonus = Math.floor(gameState.combo / COMBO_BONUS_DIVIDER);
             const cappedComboBonus = Math.min(comboBonus, MAX_COMBO_BONUS);
             
