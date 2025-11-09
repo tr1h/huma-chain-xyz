@@ -734,7 +734,7 @@ function handleLeaderboardUpsert($url, $key) {
     $skip_transaction_log = $input['skip_transaction_log'] ?? false; // Skip auto-logging if true
     
     // Log incoming request for debugging
-    error_log("💾 Leaderboard upsert request: user_id={$user_id}, level={$level}, tama={$tama}");
+    error_log("💾 Leaderboard upsert request: user_id={$user_id}, level={$level}, tama={$tama}, username={$telegram_username}");
     
     if (!$user_id) {
         http_response_code(400);
@@ -790,9 +790,15 @@ function handleLeaderboardUpsert($url, $key) {
             $username = $getResult['data'][0]['telegram_username'] ?? $user_id;
             $tamaDiff = (int)$tama - $oldTama;
             
+            // ⚠️ DEBUG: Log what we're about to UPDATE
+            error_log("🔄 UPDATE data: " . json_encode($updateData));
+            
             $updateResult = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
                 'telegram_id' => 'eq.' . $user_id
             ], $updateData);
+            
+            // ⚠️ DEBUG: Log UPDATE result
+            error_log("✅ UPDATE result code: " . $updateResult['code']);
             
             // Log transaction if TAMA changed (unless skip_transaction_log is true)
             if ($tamaDiff != 0 && !$skip_transaction_log) {
