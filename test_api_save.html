@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Save - User 8445221254</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { color: #00ff88; }
+        button {
+            background: #00ff88;
+            color: #1a1a2e;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover { background: #00cc66; }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #0f0f1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #00ff88;
+            padding-left: 10px;
+        }
+        .log-error {
+            border-left-color: #ff4444;
+            color: #ff6666;
+        }
+        .log-success {
+            border-left-color: #00ff88;
+            color: #00ff88;
+        }
+        .log-info {
+            border-left-color: #4488ff;
+            color: #6699ff;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .status-success { background: #00ff88; color: #1a1a2e; }
+        .status-error { background: #ff4444; color: white; }
+        .status-pending { background: #ffaa00; color: #1a1a2e; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test API Save - User 8445221254</h1>
+    
+    <div>
+        <button onclick="testAPIConnection()">1. Test API Connection</button>
+        <button onclick="testLoadUser()">2. Load User from DB</button>
+        <button onclick="testSaveUser()">3. Save User to DB</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <h2>Status:</h2>
+    <div id="status"></div>
+
+    <h2>Logs:</h2>
+    <div class="log" id="logs"></div>
+
+    <script>
+        const API_BASE = 'https://huma-chain-xyz.onrender.com/api/tama';
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const TEST_USER_ID = '8445221254';
+
+        const logsDiv = document.getElementById('logs');
+        const statusDiv = document.getElementById('status');
+
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.insertBefore(entry, logsDiv.firstChild);
+        }
+
+        function setStatus(message, type = 'pending') {
+            statusDiv.innerHTML = `<span class="status status-${type}">${message}</span>`;
+        }
+
+        function clearLogs() {
+            logsDiv.innerHTML = '';
+            statusDiv.innerHTML = '';
+        }
+
+        async function testAPIConnection() {
+            log('🔄 Testing API connection...', 'info');
+            setStatus('Testing API...', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE}/leaderboard/top?limit=5`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log(`✅ API is working! Got ${data.length} players`, 'success');
+                log(`Top player: ${data[0]?.telegram_username || 'Unknown'} (${data[0]?.tama || 0} TAMA)`, 'info');
+                setStatus('API is working!', 'success');
+                return true;
+            } catch (error) {
+                log(`❌ API Error: ${error.message}`, 'error');
+                setStatus('API is DOWN!', 'error');
+                return false;
+            }
+        }
+
+        async function testLoadUser() {
+            log(`🔄 Loading user ${TEST_USER_ID} from Supabase...`, 'info');
+            setStatus('Loading user...', 'pending');
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${TEST_USER_ID}&select=*`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    log(`✅ User FOUND in database!`, 'success');
+                    log(`Level: ${data[0].level}, TAMA: ${data[0].tama}, Last activity: ${data[0].last_activity}`, 'info');
+                    setStatus('User exists in DB', 'success');
+                } else {
+                    log(`⚠️ User NOT FOUND in database!`, 'error');
+                    log(`This explains why data is not syncing!`, 'error');
+                    setStatus('User NOT in DB!', 'error');
+                }
+                
+                return data;
+            } catch (error) {
+                log(`❌ Load Error: ${error.message}`, 'error');
+                setStatus('Failed to load user', 'error');
+                return null;
+            }
+        }
+
+        async function testSaveUser() {
+            log(`🔄 Saving user ${TEST_USER_ID} via API...`, 'info');
+            setStatus('Saving user...', 'pending');
+            
+            const testData = {
+                user_id: TEST_USER_ID,
+                user_type: 'telegram',
+                telegram_username: 'test_user_8445221254',
+                tama: 50000,
+                level: 10,
+                xp: 100,
+                pet_data: {
+                    hp: 100,
+                    food: 100,
+                    happy: 100,
+                    totalClicks: 500,
+                    maxCombo: 10,
+                    xp: 100,
+                    achievements: ['first_click', 'rich_1000'],
+                    selectedPet: 'cat',
+                    ownedPets: ['cat'],
+                    hasAutoFeeder: false
+                },
+                pet_name: 'Gotchi',
+                pet_type: 'kawai',
+                skip_transaction_log: true
+            };
+            
+            log(`📤 Sending data: ${JSON.stringify(testData, null, 2).substring(0, 200)}...`, 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/leaderboard/upsert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                log(`✅ User saved successfully!`, 'success');
+                log(`API Response: ${JSON.stringify(result, null, 2)}`, 'info');
+                setStatus('User saved!', 'success');
+                
+                // Verify by loading again
+                setTimeout(() => {
+                    log('🔄 Verifying save by loading user again...', 'info');
+                    testLoadUser();
+                }, 2000);
+                
+                return result;
+            } catch (error) {
+                log(`❌ Save Error: ${error.message}`, 'error');
+                setStatus('Failed to save user', 'error');
+                return null;
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('DOMContentLoaded', async () => {
+            log('🚀 Starting auto-test...', 'info');
+            
+            // Test 1: API Connection
+            const apiOk = await testAPIConnection();
+            await new Promise(r => setTimeout(r, 1000));
+            
+            if (apiOk) {
+                // Test 2: Load User
+                await testLoadUser();
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        });
+    </script>
+</body>
+</html>
+
