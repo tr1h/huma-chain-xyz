@@ -33,6 +33,25 @@
             align-items: center;
             margin-bottom: 30px;
         }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
 
         h1 {
             font-size: 32px;
@@ -395,6 +414,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <a href="super-admin.html" class="back-btn">⬅️ Back</a>
             <h1>📊 TAMA Transactions - Live Monitor</h1>
             <div class="live-indicator">
                 <div class="live-dot"></div>
