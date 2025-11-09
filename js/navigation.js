@@ -20,10 +20,9 @@ function initNavigation(currentPage = '') {
     `;
     
     const navItems = [
-        { id: 'game', label: '🎮 Game', url: 'tamagotchi-game.html' },
+        { id: 'game', label: '🎮 Game', url: 'telegram-game.html' },
         { id: 'nft', label: '🎨 Mint NFT', url: 'nft-mint.html' },
-        { id: 'my-nfts', label: '🖼️ My NFTs', url: 'my-nfts.html' },
-        { id: 'admin', label: '⚙️ Admin', url: 'super-admin.html' }
+        { id: 'my-nfts', label: '🖼️ My NFTs', url: 'my-nfts.html' }
     ];
     
     navItems.forEach(item => {
