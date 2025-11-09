@@ -1910,9 +1910,9 @@
             border: 3px solid #4a5568;
             border-radius: 15px;
             padding: 20px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 70vh;
+            max-width: 600px;
+            width: 95%;
+            max-height: 85vh;
             overflow-y: auto;
         }
 
@@ -2259,11 +2259,13 @@
             background: rgba(0, 0, 0, 0.3);
             border: 2px solid #4a5568;
             border-radius: 10px;
-            padding: 15px;
+            padding: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: all 0.2s;
+            gap: 10px;
+            min-height: 60px;
         }
 
         .leaderboard-item:hover {
@@ -2277,9 +2279,11 @@
         }
 
         .leaderboard-rank {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
-            min-width: 40px;
+            min-width: 50px;
+            text-align: center;
+            flex-shrink: 0;
         }
 
         .leaderboard-rank.gold { color: #fbbf24; }
@@ -2288,24 +2292,33 @@
 
         .leaderboard-player {
             flex: 1;
-            margin: 0 15px;
+            min-width: 0; /* Important for text truncation */
+            overflow: hidden;
         }
 
         .leaderboard-name {
             font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 5px;
+            font-size: 15px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .leaderboard-level {
             font-size: 12px;
-            opacity: 0.8;
+            opacity: 0.7;
+            white-space: nowrap;
         }
 
         .leaderboard-tama {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #fbbf24;
+            text-align: right;
+            flex-shrink: 0;
+            min-width: 100px;
+            white-space: nowrap;
         }
 
         .loading {
@@ -8531,13 +8544,29 @@
                 console.log('Leaderboard data:', data);
                 
                 // Add ranks
-                const leaderboardData = data.map((player, index) => ({
-                    rank: index + 1,
-                    name: player.telegram_username || player.pet_name || `Player #${player.telegram_id}`,
-                    level: player.level || Math.floor((player.tama || 0) / 1000) + 1, // Use actual level from DB
-                    tama: player.tama || 0,
-                    telegram_id: player.telegram_id
-                }));
+                const leaderboardData = data.map((player, index) => {
+                    // Shortened name logic: username > pet_name > "Player"
+                    let displayName = 'Player';
+                    
+                    if (player.telegram_username) {
+                        // Use telegram username (without @)
+                        displayName = player.telegram_username.replace('@', '');
+                    } else if (player.pet_name && player.pet_name !== 'Gotchi') {
+                        // Use pet name if not default
+                        displayName = player.pet_name;
+                    } else {
+                        // Fallback: just "Player" with rank number
+                        displayName = `Player`;
+                    }
+                    
+                    return {
+                        rank: index + 1,
+                        name: displayName,
+                        level: player.level || Math.floor((player.tama || 0) / 1000) + 1,
+                        tama: player.tama || 0,
+                        telegram_id: player.telegram_id
+                    };
+                });
                 
                 // Update current user's rank in header
                 if (currentUserId && rankDisplay) {
