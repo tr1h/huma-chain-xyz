@@ -390,126 +390,10 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/admin-env.js"></script>
     <script>
-        // Supabase configuration from AdminEnv or manual input
-        let SUPABASE_URL = window.AdminEnv?.SUPABASE_URL || localStorage.getItem('SUPABASE_URL') || '';
-        let SUPABASE_KEY = window.AdminEnv?.SUPABASE_KEY || localStorage.getItem('SUPABASE_KEY') || '';
-        let TAMA_API_BASE = window.AdminEnv?.TAMA_API_BASE || localStorage.getItem('TAMA_API_BASE') || '';
-        let REF_API_BASE = window.AdminEnv?.REF_API_BASE || localStorage.getItem('REF_API_BASE') || '';
-        let supabase = (SUPABASE_URL && SUPABASE_KEY) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-
-        // Simple settings UI
-        document.addEventListener('DOMContentLoaded', () => {
-            const bar = document.createElement('div');
-            bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:9999;background:#ffffff;border-bottom:1px solid #e5e7eb;padding:10px;display:flex;gap:10px;align-items:center;';
-            
-            // Safe DOM creation to prevent XSS
-            const label = document.createElement('span');
-            label.style.cssText = 'font-weight:600;color:#4a5568';
-            label.textContent = 'Connection:';
-            bar.appendChild(label);
-            
-            const urlInput = document.createElement('input');
-            urlInput.id = 'sb_url';
-            urlInput.placeholder = 'Supabase URL (https://....supabase.co)';
-            urlInput.style.cssText = 'flex:1;padding:8px;border:1px solid #cbd5e0;border-radius:8px';
-            urlInput.value = SUPABASE_URL || '';
-            bar.appendChild(urlInput);
-            
-            const keyInput = document.createElement('input');
-            keyInput.id = 'sb_key';
-            keyInput.placeholder = 'Supabase anon key';
-            keyInput.style.cssText = 'flex:1;padding:8px;border:1px solid #cbd5e0;border-radius:8px';
-            keyInput.value = SUPABASE_KEY || '';
-            bar.appendChild(keyInput);
-            
-            const apiInput = document.createElement('input');
-            apiInput.id = 'tama_api';
-            apiInput.placeholder = 'TAMA API (optional)';
-            apiInput.style.cssText = 'flex:1;padding:8px;border:1px solid #cbd5e0;border-radius:8px';
-            apiInput.value = TAMA_API_BASE || '';
-            bar.appendChild(apiInput);
-            
-            const testBtn = document.createElement('button');
-            testBtn.id = 'test_api';
-            testBtn.textContent = 'Test API';
-            testBtn.style.cssText = 'background:#10b981;color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer';
-            bar.appendChild(testBtn);
-            
-            const saveBtn = document.createElement('button');
-            saveBtn.id = 'save_conn';
-            saveBtn.textContent = 'Save';
-            saveBtn.style.cssText = 'background:#667eea;color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer';
-            bar.appendChild(saveBtn);
-            
-            const statusSpan = document.createElement('span');
-            statusSpan.id = 'conn_status';
-            statusSpan.style.cssText = 'margin-left:8px;font-size:12px;color:#4a5568';
-            bar.appendChild(statusSpan);
-            
-            document.body.appendChild(bar);
-            document.body.style.paddingTop = '60px';
-
-            function setStatus(text, ok) {
-                const el = document.getElementById('conn_status');
-                el.textContent = text;
-                el.style.color = ok ? '#16a34a' : '#dc2626';
-            }
-
-            async function initSupabase() {
-                if (SUPABASE_URL && SUPABASE_KEY) {
-                    try {
-                        // Normalize dashboard URL to project API domain
-                        const dashMatch = SUPABASE_URL.match(/supabase\.com\/dashboard\/project\/([a-z0-9]+)/i);
-                        if (dashMatch) {
-                            SUPABASE_URL = `https://${dashMatch[1]}.supabase.co`;
-                            document.getElementById('sb_url').value = SUPABASE_URL;
-                            localStorage.setItem('SUPABASE_URL', SUPABASE_URL);
-                        }
-                        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                        // quick ping
-                        const { data, error } = await supabase.from('leaderboard').select('id').limit(1);
-                        if (error) throw error;
-                        setStatus('Connected', true);
-                    } catch (e) {
-                        setStatus('Connection error: ' + e.message, false);
-                        supabase = null;
-                    }
-                } else {
-                    setStatus('Not configured', false);
-                }
-            }
-
-            document.getElementById('save_conn').onclick = () => {
-                SUPABASE_URL = document.getElementById('sb_url').value.trim();
-                SUPABASE_KEY = document.getElementById('sb_key').value.trim();
-                TAMA_API_BASE = document.getElementById('tama_api').value.trim();
-                localStorage.setItem('SUPABASE_URL', SUPABASE_URL);
-                localStorage.setItem('SUPABASE_KEY', SUPABASE_KEY);
-                localStorage.setItem('TAMA_API_BASE', TAMA_API_BASE);
-                initSupabase();
-            };
-
-            document.getElementById('test_api').onclick = async () => {
-                const base = document.getElementById('tama_api').value.trim();
-                if (!base) { setStatus('Set TAMA API first', false); return; }
-                try {
-                    const url = base.replace(/\/$/, '') + '/test';
-                    if (location.protocol === 'https:' && url.startsWith('http://')) {
-                        setStatus('TAMA API blocked by browser (http on https). Use https or leave empty.', false);
-                        return;
-                    }
-                    const res = await fetch(url);
-                    const ok = res.ok;
-                    setStatus(ok ? 'TAMA API OK' : `TAMA API error: ${res.status}`, ok);
-                } catch (e) {
-                    setStatus('TAMA API fetch error: ' + e.message, false);
-                }
-            };
-
-            initSupabase();
-        });
+        // API Configuration from AdminEnv or default
+        const TAMA_API_BASE = (window.AdminEnv?.TAMA_API_BASE || 'https://huma-chain-xyz.onrender.com/api/tama').replace(/\/$/, '');
 
         const presets = {
             current: {
@@ -653,27 +537,21 @@
 
             try {
                 // Save via backend API
-                const apiBase = (window.AdminEnv?.TAMA_API_BASE || '/api/tama_supabase_api.php').replace(/\/$/, '');
-                const upsertResp = await fetch(`${apiBase}/economy/apply`, {
+                const upsertResp = await fetch(`${TAMA_API_BASE}/economy/apply`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ config_name: 'custom', settings: config })
                 });
-                const upsertResult = upsertResp.ok ? await upsertResp.json() : { error: 'failed' };
-
-                if (upsertResult.error) throw upsertResult.error;
-
-                // Also notify backend API if configured (legacy)
-                if (TAMA_API_BASE) {
-                    try {
-                        await fetch(`${TAMA_API_BASE}/config`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ config })
-                        });
-                    } catch (e) {
-                        console.warn('TAMA API notify failed (optional):', e.message);
-                    }
+                
+                if (!upsertResp.ok) {
+                    const errorText = await upsertResp.text();
+                    throw new Error(`API error (${upsertResp.status}): ${errorText}`);
+                }
+                
+                const upsertResult = await upsertResp.json();
+                
+                if (upsertResult.error) {
+                    throw new Error(upsertResult.error);
                 }
 
                 // Save to localStorage as backup
@@ -733,8 +611,13 @@
         // Load config from database
         async function loadFromDatabase() {
             try {
-                const apiBase = (window.AdminEnv?.TAMA_API_BASE || '/api/tama_supabase_api.php').replace(/\/$/, '');
-                const resp = await fetch(`${apiBase}/economy/active`);
+                const resp = await fetch(`${TAMA_API_BASE}/economy/active`);
+                
+                if (!resp.ok) {
+                    console.warn('Failed to load economy config from API:', resp.status);
+                    return;
+                }
+                
                 const json = await resp.json();
                 const data = (json?.data && json.data[0]) || null;
 
