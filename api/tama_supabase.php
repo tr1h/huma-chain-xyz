@@ -2867,9 +2867,24 @@ function handleEconomyApply($url, $key) {
             }
         }
         
-        // First, deactivate all configs
-        $updateBody = ['is_active' => false];
-        supabaseRequest($url, $key, 'PATCH', 'economy_config', [], $updateBody);
+        // First, deactivate all configs (set is_active=false for all)
+        // Supabase PATCH with filter: use is_active=eq.true to find active ones
+        try {
+            $deactivateParams = ['is_active' => 'eq.true', 'select' => 'id'];
+            $activeConfigs = supabaseRequest($url, $key, 'GET', 'economy_config', $deactivateParams);
+            
+            // Deactivate each active config individually
+            if (!empty($activeConfigs['data']) && is_array($activeConfigs['data'])) {
+                foreach ($activeConfigs['data'] as $activeConfig) {
+                    $id = $activeConfig['id'];
+                    $updateParams = ['id' => 'eq.' . $id];
+                    supabaseRequest($url, $key, 'PATCH', 'economy_config', $updateParams, ['is_active' => false]);
+                }
+            }
+        } catch (Exception $e) {
+            // Log but continue - deactivation is not critical
+            error_log('Warning: Failed to deactivate existing configs: ' . $e->getMessage());
+        }
         
         // Prepare config data for database
         $configData = [
