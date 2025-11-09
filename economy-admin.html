@@ -229,6 +229,12 @@
             color: #742a2a;
             display: block;
         }
+
+        .status.warning {
+            background: #feebc8;
+            color: #7c2d12;
+            display: block;
+        }
     </style>
     <script src="js/admin-env.js"></script>
 </head>
@@ -511,6 +517,8 @@
         }
 
         async function applySettings() {
+            console.log('💾 Applying economy settings...');
+            
             const baseReward = parseFloat(document.getElementById('base-reward').value);
             const minReward = parseFloat(document.getElementById('min-reward').value);
             const maxCombo = parseInt(document.getElementById('max-combo').value);
@@ -535,6 +543,9 @@
                 HAPPY_PER_CLICK: happyLoss
             };
 
+            console.log('📤 Sending config to API:', config);
+            showStatus('⏳ Saving settings...', 'warning');
+
             try {
                 // Save via backend API
                 const upsertResp = await fetch(`${TAMA_API_BASE}/economy/apply`, {
@@ -543,12 +554,16 @@
                     body: JSON.stringify({ config_name: 'custom', settings: config })
                 });
                 
+                console.log('📡 API Response status:', upsertResp.status, upsertResp.statusText);
+                
                 if (!upsertResp.ok) {
                     const errorText = await upsertResp.text();
-                    throw new Error(`API error (${upsertResp.status}): ${errorText}`);
+                    console.error('❌ API Error:', upsertResp.status, errorText);
+                    throw new Error(`API error (${upsertResp.status}): ${errorText.substring(0, 200)}`);
                 }
                 
                 const upsertResult = await upsertResp.json();
+                console.log('✅ API Response:', upsertResult);
                 
                 if (upsertResult.error) {
                     throw new Error(upsertResult.error);
@@ -562,13 +577,14 @@
                     const channel = new BroadcastChannel('economy-updates');
                     channel.postMessage({ type: 'config-update', config: config });
                     channel.close();
+                    console.log('📢 Broadcasted config update to game tabs');
                 } catch (e) {
-                    console.log('BroadcastChannel not available');
+                    console.log('⚠️ BroadcastChannel not available');
                 }
 
                 showStatus('✅ Settings saved to database and applied! Changes active for all players.', 'success');
             } catch (error) {
-                console.error('Error saving to database:', error);
+                console.error('❌ Error saving to database:', error);
                 showStatus('❌ Error saving to database: ' + error.message, 'error');
             }
         }
@@ -610,18 +626,28 @@
 
         // Load config from database
         async function loadFromDatabase() {
+            console.log('🔄 Loading economy config from API:', TAMA_API_BASE);
+            
             try {
                 const resp = await fetch(`${TAMA_API_BASE}/economy/active`);
                 
+                console.log('📡 API Response status:', resp.status, resp.statusText);
+                
                 if (!resp.ok) {
-                    console.warn('Failed to load economy config from API:', resp.status);
+                    const errorText = await resp.text();
+                    console.error('❌ Failed to load economy config:', resp.status, errorText);
+                    showStatus(`⚠️ API Error (${resp.status}): ${errorText.substring(0, 100)}`, 'error');
                     return;
                 }
                 
                 const json = await resp.json();
+                console.log('📦 API Response data:', json);
+                
                 const data = (json?.data && json.data[0]) || null;
 
                 if (data) {
+                    console.log('✅ Found active config:', data.config_name, data);
+                    
                     // Load values into form
                     document.getElementById('base-reward').value = data.base_click_reward;
                     document.getElementById('min-reward').value = data.min_reward;
@@ -636,14 +662,20 @@
 
                     updateDisplay();
                     showStatus('✅ Loaded config from database: ' + data.config_name, 'success');
+                } else {
+                    console.warn('⚠️ No active config found in database');
+                    showStatus('⚠️ No active config found. Using default values.', 'warning');
                 }
             } catch (error) {
-                console.error('Error loading from database:', error);
-                showStatus('⚠️ Using default values', 'warning');
+                console.error('❌ Error loading from database:', error);
+                showStatus('❌ Error: ' + error.message, 'error');
             }
         }
 
         // Initialize
+        console.log('🚀 Economy Admin Panel initialized');
+        console.log('🔗 API Base URL:', TAMA_API_BASE);
+        
         updateDisplay();
         loadFromDatabase();
     </script>
