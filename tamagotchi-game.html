@@ -4719,12 +4719,30 @@
             const comboBonus = Math.floor(gameState.combo / COMBO_BONUS_DIVIDER);
             const cappedComboBonus = Math.min(comboBonus, MAX_COMBO_BONUS);
             
-            let earnedTama = Math.max(MIN_REWARD, (clickPower * BASE_CLICK_REWARD) + cappedComboBonus);
+            // Calculate base reward
+            const baseReward = (clickPower * BASE_CLICK_REWARD) + cappedComboBonus;
+            let earnedTama = Math.max(MIN_REWARD, baseReward);
+            
+            // Log detailed calculation (only on first click or when combo resets)
+            if (gameState.combo === 1 || gameState.combo === 0) {
+                console.log('🧮 Reward Calculation:', {
+                    clickPower: clickPower.toFixed(2),
+                    BASE_CLICK_REWARD,
+                    comboBonus,
+                    cappedComboBonus,
+                    baseReward: baseReward.toFixed(2),
+                    MIN_REWARD,
+                    earnedTamaBeforeNFT: earnedTama.toFixed(2)
+                });
+            }
             
             // 🎨 NFT BOOST: Apply rarity bonus if user has NFTs
             if (window.userNFTBoost && window.userNFTBoost > 0) {
+                const earnedTamaBeforeBoost = earnedTama;
                 earnedTama *= (1 + window.userNFTBoost);
-                console.log(`🖼️ NFT Boost applied: +${(window.userNFTBoost * 100).toFixed(0)}%`);
+                if (gameState.combo === 1 || gameState.combo === 0) {
+                    console.log(`🖼️ NFT Boost: ${earnedTamaBeforeBoost.toFixed(2)} × ${(1 + window.userNFTBoost).toFixed(2)} = ${earnedTama.toFixed(2)} TAMA`);
+                }
             }
             
             const earnedXP = Math.max(1, 3 + Math.floor(cappedComboBonus / 2));
