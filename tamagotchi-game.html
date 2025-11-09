@@ -6078,6 +6078,7 @@
                     hasAutoFeeder: gameState.hasAutoFeeder,
                     boosterActive: gameState.boosterActive,
                     boosterEndTime: gameState.boosterEndTime,
+                    customUsername: gameState.customUsername,  // ✅ Save custom username
                     lastSave: Date.now()
                 };
                 localStorage.setItem('tamagotchi_save', JSON.stringify(saveData));
@@ -6122,6 +6123,12 @@
                         gameState.hasAutoFeeder = data.hasAutoFeeder || false;
                         gameState.boosterActive = data.boosterActive || false;
                         gameState.boosterEndTime = data.boosterEndTime || 0;
+                        
+                        // ✅ Load custom username if saved
+                        if (data.customUsername) {
+                            gameState.customUsername = data.customUsername;
+                            console.log('✅ Loaded custom username from localStorage:', data.customUsername);
+                        }
                         
                         console.log('Game loaded from localStorage');
                         return true;
