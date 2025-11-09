@@ -698,7 +698,14 @@
                 }
                 
                 // Confirm SOL payment
-                if (!confirm(`Mint ${selectedTier} NFT for ${solPrice} SOL?\n\nYou will receive a random rarity with ${selectedTier === 'Bronze' ? '2-3x' : selectedTier === 'Silver' ? '2.5-3.5x' : '3-4x'} earning boost!\n\nSOL will be sent to Treasury wallet.`)) {
+                const confirmMsg = `Mint ${selectedTier} NFT for ${solPrice} SOL?\n\n` +
+                    `You will receive a random rarity with ${selectedTier === 'Bronze' ? '2-3x' : selectedTier === 'Silver' ? '2.5-3.5x' : '3-4x'} earning boost!\n\n` +
+                    `💰 SOL Distribution:\n` +
+                    `• 50% → Treasury Main (${(solPrice * 0.50).toFixed(4)} SOL)\n` +
+                    `• 30% → Treasury Liquidity (${(solPrice * 0.30).toFixed(4)} SOL)\n` +
+                    `• 20% → Treasury Team (${(solPrice * 0.20).toFixed(4)} SOL)`;
+                
+                if (!confirm(confirmMsg)) {
                     return;
                 }
                 
@@ -707,18 +714,50 @@
                 mintBtn.textContent = '⏳ Minting with SOL...';
                 
                 try {
-                    // Treasury wallet address (where SOL goes)
-                    const TREASURY_SOL_WALLET = new PublicKey('6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM');
+                    // Treasury wallet addresses (3 wallets with distribution)
+                    const TREASURY_MAIN = new PublicKey('6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM'); // 50%
+                    const TREASURY_LIQUIDITY = new PublicKey('CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1'); // 30%
+                    const TREASURY_TEAM = new PublicKey('Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8'); // 20%
                     
-                    // Create SOL transfer transaction
+                    // Calculate distribution (dynamic percentages)
+                    const distribution = {
+                        main: Math.floor(solPriceInLamports * 0.50),      // 50%
+                        liquidity: Math.floor(solPriceInLamports * 0.30), // 30%
+                        team: Math.floor(solPriceInLamports * 0.20)       // 20%
+                    };
+                    
+                    console.log('💰 SOL Distribution:');
+                    console.log(`  Main (50%): ${(distribution.main / 1e9).toFixed(4)} SOL`);
+                    console.log(`  Liquidity (30%): ${(distribution.liquidity / 1e9).toFixed(4)} SOL`);
+                    console.log(`  Team (20%): ${(distribution.team / 1e9).toFixed(4)} SOL`);
+                    
+                    // Create SOL transfer transaction with 3 transfers
                     const { Transaction, SystemProgram } = solanaWeb3;
-                    const transaction = new Transaction().add(
-                        SystemProgram.transfer({
-                            fromPubkey: new PublicKey(walletAddress),
-                            toPubkey: TREASURY_SOL_WALLET,
-                            lamports: solPriceInLamports
-                        })
-                    );
+                    const transaction = new Transaction()
+                        .add(
+                            // Transfer 1: 50% to Treasury Main
+                            SystemProgram.transfer({
+                                fromPubkey: new PublicKey(walletAddress),
+                                toPubkey: TREASURY_MAIN,
+                                lamports: distribution.main
+                            })
+                        )
+                        .add(
+                            // Transfer 2: 30% to Treasury Liquidity
+                            SystemProgram.transfer({
+                                fromPubkey: new PublicKey(walletAddress),
+                                toPubkey: TREASURY_LIQUIDITY,
+                                lamports: distribution.liquidity
+                            })
+                        )
+                        .add(
+                            // Transfer 3: 20% to Treasury Team
+                            SystemProgram.transfer({
+                                fromPubkey: new PublicKey(walletAddress),
+                                toPubkey: TREASURY_TEAM,
+                                lamports: distribution.team
+                            })
+                        );
                     
                     // Get recent blockhash
                     const { blockhash } = await connection.getLatestBlockhash('confirmed');
@@ -731,7 +770,8 @@
                     // Wait for confirmation
                     await connection.confirmTransaction(signed, 'confirmed');
                     
-                    console.log('✅ SOL transaction confirmed:', signed);
+                    console.log('✅ SOL distribution transaction confirmed:', signed);
+                    console.log(`🔗 View on Solscan: https://explorer.solana.com/tx/${signed}?cluster=devnet`);
                     
                     // 2. Assign random rarity
                     const rarity = assignRandomRarity(selectedTier);
@@ -753,10 +793,19 @@
                     
                     if (nftError) throw nftError;
                     
-                    // 4. Log SOL payment transaction (no TAMA distribution needed)
+                    // 4. Log SOL payment transactions for all 3 wallets
                     const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+                    const TREASURY_LIQUIDITY_ID = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+                    const TREASURY_TEAM_ID = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
                     
-                    // Log NFT mint transaction (paid with SOL)
+                    // Convert distribution to SOL (for logging)
+                    const distributionSOL = {
+                        main: (distribution.main / 1e9),
+                        liquidity: (distribution.liquidity / 1e9),
+                        team: (distribution.team / 1e9)
+                    };
+                    
+                    // Log user's NFT mint transaction (paid with SOL)
                     await supabase.from('transactions').insert({
                         user_id: userId,
                         username: userId,
@@ -772,26 +821,69 @@
                             payment_method: 'SOL',
                             sol_amount: solPrice,
                             transaction_signature: signed,
-                            treasury_wallet: TREASURY_MAIN_ID
+                            distribution: {
+                                treasury_main: `${distributionSOL.main.toFixed(4)} SOL (50%)`,
+                                treasury_liquidity: `${distributionSOL.liquidity.toFixed(4)} SOL (30%)`,
+                                treasury_team: `${distributionSOL.team.toFixed(4)} SOL (20%)`
+                            }
                         })
                     });
                     
-                    // Log Treasury income (SOL received)
+                    // Log Treasury Main income (50%)
                     await supabase.from('transactions').insert({
                         user_id: TREASURY_MAIN_ID,
                         username: '💰 Treasury Main V2',
                         type: 'treasury_income_from_nft_sol',
-                        amount: solPrice,
+                        amount: distributionSOL.main,
                         balance_before: 0,
                         balance_after: 0,
                         metadata: JSON.stringify({
                             source: 'nft_mint_sol',
+                            percentage: '50%',
                             nft_id: nftMintAddress,
                             user: userId,
                             tier: selectedTier,
                             transaction_signature: signed
                         })
                     });
+                    
+                    // Log Treasury Liquidity income (30%)
+                    await supabase.from('transactions').insert({
+                        user_id: TREASURY_LIQUIDITY_ID,
+                        username: '💧 Treasury Liquidity V2',
+                        type: 'treasury_liquidity_income_from_nft_sol',
+                        amount: distributionSOL.liquidity,
+                        balance_before: 0,
+                        balance_after: 0,
+                        metadata: JSON.stringify({
+                            source: 'nft_mint_sol',
+                            percentage: '30%',
+                            nft_id: nftMintAddress,
+                            user: userId,
+                            tier: selectedTier,
+                            transaction_signature: signed
+                        })
+                    });
+                    
+                    // Log Treasury Team income (20%)
+                    await supabase.from('transactions').insert({
+                        user_id: TREASURY_TEAM_ID,
+                        username: '👥 Treasury Team V2',
+                        type: 'treasury_team_income_from_nft_sol',
+                        amount: distributionSOL.team,
+                        balance_before: 0,
+                        balance_after: 0,
+                        metadata: JSON.stringify({
+                            source: 'nft_mint_sol',
+                            percentage: '20%',
+                            nft_id: nftMintAddress,
+                            user: userId,
+                            tier: selectedTier,
+                            transaction_signature: signed
+                        })
+                    });
+                    
+                    console.log('✅ All SOL distribution transactions logged in database');
                     
                     // 5. Update wallet balance display
                     await updateWalletBalance();
