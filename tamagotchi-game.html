@@ -5804,6 +5804,11 @@
                             gameState.totalClicks = petData.totalClicks || 0;
                             gameState.achievements = petData.achievements || [];
                             
+                            // ✅ FIX: Load quest flags to prevent duplicate rewards
+                            gameState.questClicks = petData.questClicks || 0;
+                            gameState.questClicksCompleted = petData.questClicksCompleted || false;
+                            gameState.questLevelCompleted = petData.questLevelCompleted || false;
+                            
                             // Also load XP if available
                             if (petData.xp !== undefined) {
                                 gameState.xp = petData.xp;
@@ -5983,7 +5988,11 @@
                     selectedPet: gameState.selectedPet,
                     ownedPets: gameState.ownedPets,
                     petType: gameState.petType,
-                    hasAutoFeeder: gameState.hasAutoFeeder
+                    hasAutoFeeder: gameState.hasAutoFeeder,
+                    // ✅ FIX: Save quest flags to prevent duplicate rewards
+                    questClicks: gameState.questClicks,
+                    questClicksCompleted: gameState.questClicksCompleted,
+                    questLevelCompleted: gameState.questLevelCompleted
                 };
                 
                 // Get username from Telegram (default) or use custom username if set
