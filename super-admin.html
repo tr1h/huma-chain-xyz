@@ -673,6 +673,40 @@
                 </div>
             </div>
 
+            <!-- NFT Holders Table (NEW!) -->
+            <div class="data-table" style="margin-top: 30px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.05), rgba(233, 30, 99, 0.05));">
+                <div class="table-header" style="background: rgba(156, 39, 176, 0.1);">
+                    <h3>🎨 NFT Holders (Real On-Chain NFTs)</h3>
+                    <div class="table-actions">
+                        <span id="nft-holders-count" style="margin-right: 15px; font-weight: bold; color: #9C27B0;">0 NFTs</span>
+                        <input type="text" class="search-box" placeholder="Search by Telegram ID..." id="search-nft-holders">
+                        <button class="refresh-btn" onclick="loadNFTHolders()" style="background: linear-gradient(135deg, #9C27B0, #E91E63);">🔄 Refresh</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Telegram ID</th>
+                            <th>Tier</th>
+                            <th>Rarity</th>
+                            <th>Multiplier</th>
+                            <th>NFT Mint Address</th>
+                            <th>Minted At</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nft-holders-tbody">
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px;">
+                                <div class="loading"></div> Loading NFT holders...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <!-- Top Players Table -->
             <div class="data-table" style="margin-top: 30px;">
                 <div class="table-header">
@@ -982,6 +1016,9 @@
                 // Load NFT SOL revenue
                 loadNFTSOLRevenue();
                 
+                // Load NFT Holders
+                loadNFTHolders();
+                
             } catch (error) {
                 console.error('Error loading data:', error);
                 alert('Failed to load data from database. Check console for details.');
@@ -1136,6 +1173,124 @@
             } catch (error) {
                 console.error('Error loading NFT SOL revenue:', error);
             }
+        }
+
+        // Load NFT Holders from user_nfts table
+        async function loadNFTHolders() {
+            try {
+                console.log('🎨 Loading NFT holders from user_nfts table...');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*&order=minted_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch NFT holders: ${response.status}`);
+                }
+
+                const nftHolders = await response.json();
+                console.log(`✅ Loaded ${nftHolders.length} NFT holders`);
+
+                // Update count
+                document.getElementById('nft-holders-count').textContent = `${nftHolders.length} NFTs`;
+                
+                // Update table
+                const tbody = document.getElementById('nft-holders-tbody');
+                tbody.innerHTML = '';
+
+                if (nftHolders.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
+                                No NFT holders yet. Mint your first NFT! 🎨
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                nftHolders.forEach((nft, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Format mint address (shortened)
+                    const shortMint = nft.nft_mint_address ? 
+                        `${nft.nft_mint_address.substring(0, 8)}...${nft.nft_mint_address.substring(nft.nft_mint_address.length - 6)}` : 
+                        'N/A';
+                    
+                    // Format date
+                    const mintedDate = nft.minted_at ? new Date(nft.minted_at).toLocaleString() : 'Unknown';
+                    
+                    // Status badge
+                    const statusBadge = nft.is_active 
+                        ? '<span class="badge success">✅ Active</span>' 
+                        : '<span class="badge">❌ Inactive</span>';
+
+                    // Tier badge (with color)
+                    let tierColor = '#9C27B0'; // Default purple
+                    if (nft.tier_name === 'Bronze') tierColor = '#CD7F32';
+                    if (nft.tier_name === 'Silver') tierColor = '#C0C0C0';
+                    if (nft.tier_name === 'Gold') tierColor = '#FFD700';
+                    
+                    // Rarity badge (with color)
+                    let rarityColor = '#666';
+                    if (nft.rarity === 'Common') rarityColor = '#9E9E9E';
+                    if (nft.rarity === 'Uncommon') rarityColor = '#4CAF50';
+                    if (nft.rarity === 'Rare') rarityColor = '#2196F3';
+                    if (nft.rarity === 'Epic') rarityColor = '#9C27B0';
+                    if (nft.rarity === 'Legendary') rarityColor = '#FF9800';
+
+                    row.innerHTML = `
+                        <td style="font-weight: bold;">${index + 1}</td>
+                        <td><a href="https://t.me/${nft.telegram_id}" target="_blank" style="color: #2196F3; text-decoration: none;">${nft.telegram_id}</a></td>
+                        <td><span style="background: ${tierColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${nft.tier_name}</span></td>
+                        <td><span style="background: ${rarityColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${nft.rarity}</span></td>
+                        <td style="font-weight: bold; color: ${tierColor};">×${nft.earning_multiplier || 2.0}</td>
+                        <td>
+                            <a href="https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet" target="_blank" 
+                               style="color: #9C27B0; text-decoration: none; font-family: monospace; font-size: 12px;"
+                               title="${nft.nft_mint_address}">
+                                ${shortMint} 🔗
+                            </a>
+                        </td>
+                        <td style="font-size: 12px; color: #666;">${mintedDate}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="action-btn view" onclick="viewNFT('${nft.nft_mint_address}')">🔍 View</button>
+                            <button class="action-btn" onclick="window.open('https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet', '_blank')" style="background: linear-gradient(135deg, #9C27B0, #E91E63);">⛓️ On-Chain</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                // Search functionality for NFT holders
+                document.getElementById('search-nft-holders')?.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#nft-holders-tbody tr');
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+
+            } catch (error) {
+                console.error('❌ Error loading NFT holders:', error);
+                document.getElementById('nft-holders-tbody').innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #f44336;">
+                            ❌ Failed to load NFT holders. Check console for details.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function viewNFT(mintAddress) {
+            alert(`Viewing NFT: ${mintAddress}\n\nThis will show detailed NFT information including:\n- Owner\n- Metadata\n- Image\n- Attributes\n- Transaction history`);
+            // TODO: Implement NFT details modal
         }
 
         function refreshAllData() {
