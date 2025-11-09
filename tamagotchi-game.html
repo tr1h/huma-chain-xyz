@@ -4846,7 +4846,8 @@
                 gameState.level++;
                 gameState.xp = 0;
                 gameState.xpToLevel = Math.floor(gameState.xpToLevel * 1.5);
-                gameState.clickPower = gameState.level;
+                // ⚠️ REMOVED: gameState.clickPower = gameState.level;
+                // clickPower should remain 1.0 - economy is controlled via Admin Panel only!
                 
                 // Level up bonuses - increase maximums and give partial restoration
                 gameState.maxHp += 10;
@@ -5546,6 +5547,15 @@
                         
                         // Store userId globally for leaderboard
                         window.TELEGRAM_USER_ID = userId;
+                        
+                        // Load rank after user ID is set (with small delay to ensure DOM is ready)
+                        setTimeout(() => {
+                            if (rankDisplay && !rankDisplay.textContent || rankDisplay.textContent === '#---') {
+                                loadLeaderboard().catch(() => {
+                                    console.log('Rank load failed, will retry later');
+                                });
+                            }
+                        }, 1000);
                     } else {
                         console.warn('⚠️ Could not get user ID from Telegram WebApp');
                     }
@@ -5886,7 +5896,12 @@
                         gameState.maxFood = data.maxFood || 100;
                         gameState.happy = data.happy || 100;
                         gameState.maxHappy = data.maxHappy || 100;
-                        gameState.clickPower = data.clickPower || 1;
+                        // ⚠️ FIX: clickPower should always be 1.0 (economy controlled via Admin Panel)
+                        // Reset if it was incorrectly set to level value
+                        gameState.clickPower = (data.clickPower && data.clickPower <= 2.0) ? data.clickPower : 1;
+                        if (data.clickPower && data.clickPower > 2.0) {
+                            console.warn(`⚠️ Fixed clickPower: was ${data.clickPower}, reset to 1.0`);
+                        }
                         gameState.petType = data.petType || '🐾';
                         gameState.totalClicks = data.totalClicks || 0;
                         gameState.combo = data.combo || 0;
@@ -8331,10 +8346,22 @@
                 }));
                 
                 // Update current user's rank in header
-                if (currentUserId) {
-                    const currentUserData = leaderboardData.find(p => p.telegram_id === currentUserId);
+                if (currentUserId && rankDisplay) {
+                    const currentUserData = leaderboardData.find(p => String(p.telegram_id) === String(currentUserId));
                     if (currentUserData) {
                         rankDisplay.textContent = `#${currentUserData.rank}`;
+                        console.log('✅ Rank updated:', currentUserData.rank);
+                    } else {
+                        // User not in top 50, try to fetch their rank separately
+                        rankDisplay.textContent = '#---';
+                        console.log('⚠️ User not found in top 50, rank set to ---');
+                    }
+                } else {
+                    if (rankDisplay) {
+                        rankDisplay.textContent = '#---';
+                    }
+                    if (!currentUserId) {
+                        console.warn('⚠️ No user ID available for rank display');
                     }
                 }
                 
