@@ -125,6 +125,73 @@
         </div>
 
         <div class="chart-container">
+            <h2>🎨 NFT MINTS (TAMA Payment)</h2>
+            <button class="btn" onclick="loadNFTMints()">🔄 Refresh</button>
+            <div style="margin-bottom: 15px;">
+                <div class="stat-card" style="display: inline-block; margin-right: 15px;">
+                    <h4>Total NFTs Minted</h4>
+                    <div class="big-number" style="font-size: 24px;" id="total-nfts">0</div>
+                </div>
+                <div class="stat-card" style="display: inline-block;">
+                    <h4>TAMA Spent on NFTs</h4>
+                    <div class="big-number" style="font-size: 24px;" id="total-tama-spent">0</div>
+                </div>
+            </div>
+            <div class="withdrawal-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Tier</th>
+                            <th>Rarity</th>
+                            <th>Multiplier</th>
+                            <th>TAMA Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nft-mints-list">
+                        <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>🌐 TAMA BLOCKCHAIN TRANSACTIONS</h2>
+            <button class="btn" onclick="loadBlockchainTx()">🔄 Refresh</button>
+            <div style="margin-bottom: 15px;">
+                <div class="stat-card" style="display: inline-block; margin-right: 15px;">
+                    <h4>P2E Pool Refunds</h4>
+                    <div class="big-number" style="font-size: 24px; color: #10b981;" id="total-p2e-refunds">0</div>
+                </div>
+                <div class="stat-card" style="display: inline-block; margin-right: 15px;">
+                    <h4>Treasury Income</h4>
+                    <div class="big-number" style="font-size: 24px; color: #f59e0b;" id="total-treasury">0</div>
+                </div>
+                <div class="stat-card" style="display: inline-block;">
+                    <h4>Burned (Virtual)</h4>
+                    <div class="big-number" style="font-size: 24px; color: #ef4444;" id="total-burned-virtual">0</div>
+                </div>
+            </div>
+            <div class="withdrawal-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Signature</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blockchain-tx-list">
+                        <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="chart-container">
             <h2>💸 RECENT WITHDRAWALS</h2>
             <button class="btn" onclick="loadWithdrawals()">🔄 Refresh</button>
             <div class="withdrawal-table">
@@ -289,6 +356,143 @@
             }
         }
 
+        // Load NFT Mints (from transactions table)
+        async function loadNFTMints() {
+            try {
+                const tbody = document.getElementById('nft-mints-list');
+                
+                // Load NFT mint transactions
+                const result = await supabase
+                    .from('transactions')
+                    .select('*')
+                    .eq('type', 'nft_mint_onchain')
+                    .order('timestamp', { ascending: false })
+                    .limit(50);
+                
+                if (result.error) {
+                    console.error('Supabase error:', result.error);
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">Error loading NFT mints</td></tr>';
+                    return;
+                }
+                
+                const data = result.data || [];
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No NFT mints yet</td></tr>';
+                    document.getElementById('total-nfts').textContent = '0';
+                    document.getElementById('total-tama-spent').textContent = '0 TAMA';
+                    return;
+                }
+                
+                // Calculate totals
+                const totalNFTs = data.length;
+                const totalTAMA = data.reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+                document.getElementById('total-nfts').textContent = totalNFTs.toLocaleString();
+                document.getElementById('total-tama-spent').textContent = totalTAMA.toLocaleString() + ' TAMA';
+                
+                // Render table
+                tbody.innerHTML = data.map(tx => {
+                    const metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
+                    const time = new Date(tx.timestamp || Date.now()).toLocaleString();
+                    const tier = metadata?.tier || 'N/A';
+                    const rarity = metadata?.rarity || 'N/A';
+                    const multiplier = metadata?.multiplier || 'N/A';
+                    const price = Math.abs(tx.amount || 0);
+                    
+                    return `
+                        <tr>
+                            <td>${time}</td>
+                            <td>${tx.user_id || 'N/A'}</td>
+                            <td><strong>${tier}</strong></td>
+                            <td>${rarity}</td>
+                            <td style="color: #10b981; font-weight: bold;">${multiplier}x</td>
+                            <td><strong>${price.toLocaleString()} TAMA</strong></td>
+                        </tr>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading NFT mints:', error);
+                const tbody = document.getElementById('nft-mints-list');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">Error: ' + error.message + '</td></tr>';
+            }
+        }
+
+        // Load Blockchain Transactions (P2E Pool, Treasury, Burn)
+        async function loadBlockchainTx() {
+            try {
+                const tbody = document.getElementById('blockchain-tx-list');
+                
+                // Load blockchain-related transactions
+                const result = await supabase
+                    .from('transactions')
+                    .select('*')
+                    .in('type', ['p2e_pool_refund', 'treasury_income', 'burn_from_bronze_nft', 'burn_from_withdrawal'])
+                    .order('timestamp', { ascending: false })
+                    .limit(50);
+                
+                if (result.error) {
+                    console.error('Supabase error:', result.error);
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ef4444;">Error loading blockchain transactions</td></tr>';
+                    return;
+                }
+                
+                const data = result.data || [];
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No blockchain transactions yet</td></tr>';
+                    document.getElementById('total-p2e-refunds').textContent = '0 TAMA';
+                    document.getElementById('total-treasury').textContent = '0 TAMA';
+                    document.getElementById('total-burned-virtual').textContent = '0 TAMA';
+                    return;
+                }
+                
+                // Calculate totals
+                const p2eTotal = data.filter(tx => tx.type === 'p2e_pool_refund').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+                const treasuryTotal = data.filter(tx => tx.type === 'treasury_income').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+                const burnedTotal = data.filter(tx => tx.type.includes('burn')).reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+                
+                document.getElementById('total-p2e-refunds').textContent = p2eTotal.toLocaleString() + ' TAMA';
+                document.getElementById('total-treasury').textContent = treasuryTotal.toLocaleString() + ' TAMA';
+                document.getElementById('total-burned-virtual').textContent = burnedTotal.toLocaleString() + ' TAMA';
+                
+                // Render table
+                tbody.innerHTML = data.map(tx => {
+                    const metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
+                    const time = new Date(tx.timestamp || Date.now()).toLocaleString();
+                    const amount = Math.abs(tx.amount || 0);
+                    const signature = metadata?.transaction_signature?.substring(0, 8) + '...' || 'N/A';
+                    const explorerUrl = metadata?.transaction_signature 
+                        ? `https://explorer.solana.com/tx/${metadata.transaction_signature}?cluster=devnet`
+                        : '#';
+                    
+                    // Type labels with emojis
+                    const typeLabels = {
+                        'p2e_pool_refund': '🎮 P2E Pool Refund',
+                        'treasury_income': '🏦 Treasury Income',
+                        'burn_from_bronze_nft': '🔥 NFT Burn',
+                        'burn_from_withdrawal': '🔥 Withdrawal Burn'
+                    };
+                    const typeLabel = typeLabels[tx.type] || tx.type;
+                    
+                    return `
+                        <tr>
+                            <td>${time}</td>
+                            <td><strong>${typeLabel}</strong></td>
+                            <td style="font-weight: bold;">${amount.toLocaleString()} TAMA</td>
+                            <td><a href="${explorerUrl}" target="_blank" style="color: #a78bfa;"><code>${signature}</code></a></td>
+                            <td>${metadata?.tier || metadata?.source || 'N/A'}</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Error loading blockchain transactions:', error);
+                const tbody = document.getElementById('blockchain-tx-list');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ef4444;">Error: ' + error.message + '</td></tr>';
+            }
+        }
+
         // Calculate P2E Pool info
         function calculateP2EPoolInfo() {
             const launchDate = new Date('2025-11-01');
@@ -421,6 +625,8 @@
         // Init
         document.addEventListener('DOMContentLoaded', () => {
             loadStats();
+            loadNFTMints();
+            loadBlockchainTx();
             loadWithdrawals();
             updateDailyPool();
             updateHalvingCountdown();
@@ -429,6 +635,8 @@
             // Auto-refresh every 30 seconds
             setInterval(() => {
                 loadStats();
+                loadNFTMints();
+                loadBlockchainTx();
                 loadWithdrawals();
                 updateDailyPool();
                 updateHalvingCountdown();
