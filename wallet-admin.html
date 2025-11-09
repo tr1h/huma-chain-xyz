@@ -426,6 +426,15 @@
                     </button>
                 </div>
                 <div class="stat-item">
+                    <div class="label">🔥 Burned (Total)</div>
+                    <div class="value" id="totalBurned" style="color: #ef4444;">Loading...</div>
+                </div>
+                <div class="stat-item">
+                    <div class="label">💫 Circulating Supply</div>
+                    <div class="value" id="circulatingSupply" style="color: #10b981; font-weight: bold;">Loading...</div>
+                    <div style="font-size: 0.75em; color: #666; margin-top: 5px;">Total - Burned</div>
+                </div>
+                <div class="stat-item">
                     <div class="label">Distributed</div>
                     <div class="value" id="totalDistributed">0</div>
                 </div>
@@ -825,15 +834,53 @@
             }
         }
         
+        // Get total burned tokens from Supabase
+        async function fetchBurnedTokens() {
+            try {
+                const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0NDgyMjgsImV4cCI6MjA2MjAyNDIyOH0.w5k-Z40rD7Qw7zAC9JaEePzgEy2n8h-MvuiuUx7hW-4';
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.burn_from_bronze_nft_onchain`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.warn('⚠️ Could not fetch burn transactions');
+                    return 0;
+                }
+                
+                const burnTransactions = await response.json();
+                const totalBurned = burnTransactions.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+                
+                console.log(`✅ Total burned from database: ${totalBurned} TAMA (${burnTransactions.length} transactions)`);
+                return totalBurned;
+            } catch (error) {
+                console.error('❌ Error fetching burned tokens:', error);
+                return 0;
+            }
+        }
+        
         async function updateStats() {
             // Fetch real supply from blockchain
             await fetchRealTokenSupply();
+            
+            // Fetch burned tokens from database
+            const totalBurned = await fetchBurnedTokens();
+            
+            // Calculate circulating supply (Total - Burned)
+            const circulatingSupply = realTotalSupply - totalBurned;
             
             const totalDistributed = wallets.reduce((sum, w) => sum + w.allocation, 0);
             const remaining = realTotalSupply - totalDistributed;
             
             // Update UI
             document.getElementById('totalSupply').textContent = formatNumber(realTotalSupply);
+            document.getElementById('totalBurned').textContent = formatNumber(totalBurned);
+            document.getElementById('circulatingSupply').textContent = formatNumber(circulatingSupply);
             document.getElementById('totalDistributed').textContent = formatNumber(totalDistributed);
             document.getElementById('totalRemaining').textContent = formatNumber(remaining);
             
@@ -845,6 +892,13 @@
             } else {
                 supplyElement.style.color = '#667eea';
                 supplyElement.title = 'Real supply from blockchain';
+            }
+            
+            // Highlight circulating supply if different from total
+            const circulatingElement = document.getElementById('circulatingSupply');
+            if (totalBurned > 0) {
+                circulatingElement.style.color = '#10b981';
+                circulatingElement.title = `${formatNumber(totalBurned)} TAMA burned (${((totalBurned / realTotalSupply) * 100).toFixed(2)}% of total)`;
             }
         }
         
