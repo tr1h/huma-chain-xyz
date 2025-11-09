@@ -597,11 +597,11 @@
                     <div class="stat-value" id="avg-level">0</div>
                     <div class="stat-change" id="level-change">Max: 0</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" onclick="scrollToNFTHolders()" style="cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     <div class="stat-icon">🎨</div>
                     <div class="stat-label">NFT Holders</div>
                     <div class="stat-value" id="nft-count">0</div>
-                    <div class="stat-change info" id="nft-change">Coming soon</div>
+                    <div class="stat-change info" id="nft-change" style="color: #9C27B0; font-weight: bold;">👇 View Table</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">🔗</div>
@@ -1197,6 +1197,8 @@
 
                 // Update count
                 document.getElementById('nft-holders-count').textContent = `${nftHolders.length} NFTs`;
+                document.getElementById('nft-count').textContent = nftHolders.length;
+                document.getElementById('nft-holders').textContent = nftHolders.length;
                 
                 // Update table
                 const tbody = document.getElementById('nft-holders-tbody');
@@ -1291,6 +1293,19 @@
         function viewNFT(mintAddress) {
             alert(`Viewing NFT: ${mintAddress}\n\nThis will show detailed NFT information including:\n- Owner\n- Metadata\n- Image\n- Attributes\n- Transaction history`);
             // TODO: Implement NFT details modal
+        }
+
+        function scrollToNFTHolders() {
+            // Find the NFT Holders table
+            const nftTable = document.querySelector('.data-table[style*="rgba(156, 39, 176"]');
+            if (nftTable) {
+                nftTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Add highlight effect
+                nftTable.style.boxShadow = '0 0 30px rgba(156, 39, 176, 0.5)';
+                setTimeout(() => {
+                    nftTable.style.boxShadow = '';
+                }, 2000);
+            }
         }
 
         function refreshAllData() {
