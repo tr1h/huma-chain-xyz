@@ -834,7 +834,20 @@ function handleLeaderboardUpsert($url, $key) {
                 'user_type' => $user_type
             ]);
             
+            error_log("📝 INSERT data: " . json_encode($insertData));
+            
             $insertResult = supabaseRequest($url, $key, 'POST', 'leaderboard', [], $insertData);
+            
+            error_log("✅ INSERT result code: " . $insertResult['code']);
+            error_log("✅ INSERT result data: " . json_encode($insertResult['data']));
+            
+            // Check if INSERT was successful
+            if ($insertResult['code'] >= 200 && $insertResult['code'] < 300) {
+                error_log("✅ User created successfully: telegram_id={$user_id}");
+            } else {
+                error_log("❌ INSERT failed! HTTP {$insertResult['code']}: " . json_encode($insertResult['data']));
+                // Still return success to client, but log the error
+            }
             
             echo json_encode([
                 'success' => true,
