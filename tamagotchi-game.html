@@ -4596,18 +4596,23 @@
         function clickPet(e) {
             const now = Date.now();
             
+            // ⚡ RESET CLICK EFFICIENCY TO 1.0 AT START OF EACH CLICK
+            // This prevents accumulation of penalties from previous clicks
+            let localClickEfficiency = 1.0;
+            
             // ⚡ FATIGUE SYSTEM - Track clicks per minute
             if (now - lastClickWindowReset >= CLICK_WINDOW) {
                 clicksInWindow = 0;
                 lastClickWindowReset = now;
-                clickEfficiency = 1.0; // Reset efficiency
+                clickEfficiency = 1.0; // Reset global efficiency
             }
             
             clicksInWindow++;
             
             // Apply fatigue after max clicks
             if (clicksInWindow > MAX_CLICKS_PER_WINDOW) {
-                clickEfficiency = 0.5; // 50% efficiency when fatigued
+                localClickEfficiency = 0.5; // 50% efficiency when fatigued
+                clickEfficiency = 0.5; // Update global for UI
                 if (clicksInWindow === MAX_CLICKS_PER_WINDOW + 1) {
                     showMessage('😴 Your pet is tired! Efficiency reduced to 50%. Rest for 60 seconds.');
                 }
@@ -4630,9 +4635,9 @@
             }
 
             // NEW: Pet condition affects click efficiency
-            if (gameState.hp < 30) clickEfficiency *= 0.5; // 50% efficiency
-            if (gameState.food < 30) clickEfficiency *= 0.7; // 70% efficiency  
-            if (gameState.happy < 30) clickEfficiency *= 0.8; // 80% efficiency
+            if (gameState.hp < 30) localClickEfficiency *= 0.5; // 50% efficiency
+            if (gameState.food < 30) localClickEfficiency *= 0.7; // 70% efficiency  
+            if (gameState.happy < 30) localClickEfficiency *= 0.8; // 80% efficiency
             
             // ⚡ ENERGY COST - Every click consumes resources!
             gameState.hp = Math.max(0, gameState.hp - 0.5);    // -0.5 HP per click
@@ -4658,7 +4663,7 @@
             if (now - gameState.lastClickTime < COMBO_COOLDOWN) {
                 // Too fast clicking - no combo, reduced rewards
                 gameState.combo = 1;
-                clickEfficiency *= SPAM_PENALTY; // Penalty for spam clicking (from admin panel)
+                localClickEfficiency *= SPAM_PENALTY; // Penalty for spam clicking (from admin panel)
             } else if (now - gameState.lastClickTime < COMBO_WINDOW) {
                 // Within combo window - increase combo
                 gameState.combo++;
@@ -4691,8 +4696,8 @@
                 clickPower *= 2;
             }
             
-            // Apply efficiency penalty
-            clickPower *= clickEfficiency;
+            // Apply efficiency penalty (use local variable)
+            clickPower *= localClickEfficiency;
             
             // BALANCED Combo bonus - Load from admin panel or use defaults
             const BASE_CLICK_REWARD = economyConfig.BASE_CLICK_REWARD || 1.0; // Base reward per click
@@ -4705,7 +4710,7 @@
                 console.log('💰 Economy Config:', {
                     BASE_CLICK_REWARD,
                     clickPower,
-                    clickEfficiency,
+                    clickEfficiency: localClickEfficiency,
                     combo: gameState.combo,
                     nftBoost: window.userNFTBoost
                 });
@@ -4741,7 +4746,7 @@
                     combo: gameState.combo,
                     xp_gained: earnedXP,
                     click_power: gameState.clickPower,
-                    efficiency: clickEfficiency,
+                    efficiency: localClickEfficiency,
                     is_combo: gameState.combo >= 5
                 });
             }
