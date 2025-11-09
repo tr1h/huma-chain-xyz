@@ -4391,7 +4391,8 @@
                 
                 lastDegradationTime = now;
                 updateUI();
-                saveToLocalStorage();
+                // ⚠️ Save via triggerAutoSave (which prioritizes Supabase)
+                triggerAutoSave();
             }
         }
 
@@ -5612,7 +5613,14 @@
                 }, 5000);
             } catch (error) {
                 console.error('Init game error:', error);
-                loadFromLocalStorage();
+                // ⚠️ IMPORTANT: Only load from localStorage if Supabase failed
+                // If cloudLoaded was successful, don't overwrite with localStorage!
+                if (!cloudLoaded) {
+                    console.log('💾 Supabase failed, loading from localStorage as fallback');
+                    loadFromLocalStorage();
+                } else {
+                    console.log('✅ Supabase data already loaded, ignoring localStorage');
+                }
                 updateUI();
             }
         }
@@ -5685,24 +5693,38 @@
 
         // Save game when page is about to close
         window.addEventListener('beforeunload', () => {
-            saveToLocalStorage();
-            
-            // Also save to Supabase (synchronous attempt)
+            // ⚠️ IMPORTANT: Supabase is PRIMARY, localStorage is backup
             const userId = window.TELEGRAM_USER_ID;
             if (userId) {
-                saveDirectToSupabase(userId);
+                // Try to save to Supabase first (primary)
+                saveDirectToSupabase(userId).then(() => {
+                    // Save to localStorage as backup
+                    saveToLocalStorage();
+                }).catch(() => {
+                    // Fallback to localStorage if Supabase fails
+                    saveToLocalStorage();
+                });
+            } else {
+                saveToLocalStorage();
             }
         });
 
         // Save game when page becomes hidden (mobile)
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                saveToLocalStorage();
-                
-                // Also save to Supabase when hiding
+                // ⚠️ IMPORTANT: Supabase is PRIMARY, localStorage is backup
                 const userId = window.TELEGRAM_USER_ID;
                 if (userId) {
-                    saveDirectToSupabase(userId);
+                    // Try to save to Supabase first (primary)
+                    saveDirectToSupabase(userId).then(() => {
+                        // Save to localStorage as backup
+                        saveToLocalStorage();
+                    }).catch(() => {
+                        // Fallback to localStorage if Supabase fails
+                        saveToLocalStorage();
+                    });
+                } else {
+                    saveToLocalStorage();
                 }
             }
         });
@@ -5850,21 +5872,27 @@
         function triggerAutoSave() {
             const now = Date.now();
             if (now - lastSaveTime > SAVE_COOLDOWN) {
-                // Save to localStorage first (backup)
-                saveToLocalStorage();
-                
-                // Get user ID and save directly to Supabase
+                // ⚠️ IMPORTANT: Supabase is PRIMARY, localStorage is backup
+                // Save to Supabase FIRST (primary source of truth)
                 const userId = window.TELEGRAM_USER_ID;
                 if (userId) {
                     saveDirectToSupabase(userId).then(success => {
                         if (success) {
-                            console.log('💾 Auto-save successful');
+                            console.log('💾 Auto-save successful (Supabase)');
+                            // Only save to localStorage AFTER successful Supabase save (as backup)
+                            saveToLocalStorage();
                         } else {
-                            console.warn('⚠️ Auto-save failed, data in localStorage');
+                            console.warn('⚠️ Auto-save to Supabase failed, saving to localStorage as backup');
+                            saveToLocalStorage();
                         }
+                    }).catch(error => {
+                        console.error('❌ Auto-save error:', error);
+                        // Fallback to localStorage if Supabase fails
+                        saveToLocalStorage();
                     });
                 } else {
                     console.warn('⚠️ No user ID, saving only to localStorage');
+                    saveToLocalStorage();
                 }
                 
                 lastSaveTime = now;
