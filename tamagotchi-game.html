@@ -4144,10 +4144,15 @@
         }
 
         // Update UI
+        // Format number with spaces as thousand separators
+        function formatNumber(num) {
+            return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+        
         function updateUI() {
             // Header
             levelDisplay.textContent = `Lvl ${gameState.level}`;
-            tamaDisplay.textContent = gameState.tama.toLocaleString();
+            tamaDisplay.textContent = formatNumber(gameState.tama);
 
             // Stats
             updateStat('hp', gameState.hp, gameState.maxHp);
@@ -5784,6 +5789,10 @@
                     hasAutoFeeder: gameState.hasAutoFeeder
                 };
                 
+                // Get username from Telegram
+                const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+                const username = telegramUser?.username || telegramUser?.first_name || `User${userId}`;
+                
                 // Save via our API (proper way!)
                 // Use skip_transaction_log: true to avoid duplicate logging
                 // (we log transactions immediately when actions happen)
@@ -5794,6 +5803,7 @@
                     body: JSON.stringify({
                         user_id: userId,
                         user_type: 'telegram',
+                        telegram_username: username,  // ✅ ADD USERNAME
                         tama: gameState.tama,
                         level: gameState.level,
                         xp: gameState.xp,
@@ -8405,7 +8415,7 @@
                             <div class="leaderboard-name">${player.name}${isCurrentUser ? ' (You)' : ''}</div>
                             <div class="leaderboard-level">Level ${player.level}</div>
                         </div>
-                        <div class="leaderboard-tama">${player.tama.toLocaleString()} 💰</div>
+                        <div class="leaderboard-tama">${formatNumber(player.tama)} 💰</div>
                     </div>
                 `;
             });

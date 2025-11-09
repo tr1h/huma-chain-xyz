@@ -719,6 +719,7 @@ function handleLeaderboardUpsert($url, $key) {
     
     $user_id = $input['user_id'] ?? null;
     $user_type = $input['user_type'] ?? 'telegram';
+    $telegram_username = $input['telegram_username'] ?? null; // ✅ Accept username from game
     $tama = $input['tama'] ?? null;
     $level = $input['level'] ?? 1;
     $xp = $input['xp'] ?? 0;
@@ -755,6 +756,11 @@ function handleLeaderboardUpsert($url, $key) {
             'pet_type' => $pet_type,
             'last_activity' => date('Y-m-d\TH:i:s.u\Z')
         ];
+        
+        // ✅ Update username if provided
+        if ($telegram_username !== null) {
+            $updateData['telegram_username'] = $telegram_username;
+        }
         
         // If xp is provided, update it
         if ($xp !== null) {
@@ -807,7 +813,7 @@ function handleLeaderboardUpsert($url, $key) {
             // User doesn't exist - INSERT (should not happen, but handle it)
             $insertData = array_merge($updateData, [
                 'telegram_id' => $user_id,
-                'telegram_username' => $user_id, // Default username
+                'telegram_username' => $telegram_username ?? $user_id, // Use provided username or default to user_id
                 'user_type' => $user_type
             ]);
             

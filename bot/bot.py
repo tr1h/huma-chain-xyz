@@ -3813,7 +3813,7 @@ To start playing and tracking your stats:
                     pending = user['pending']
                     
                     # Show actual TAMA balance from database
-                    display_tama = tama_balance
+                    display_tama = user['tama']  # ✅ FIX: use user['tama'] instead of undefined tama_balance
                     referral_text += f"{medal} {name} - {total} referrals ({display_tama:,} TAMA)\n"
             else:
                 referral_text = "No referrals yet!\n\n🔗 Start referring friends to climb the ranks!"
