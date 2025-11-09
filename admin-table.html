@@ -226,7 +226,10 @@
             </div>
         </div>
         
-        <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+            <button class="refresh-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);" onclick="fixAllBalances()">⚡ Fix All Balances</button>
+        </div>
         
         <div class="table-container">
             <h2 class="table-title">📊 Users & Referrals Overview</h2>
@@ -330,12 +333,34 @@
                 document.getElementById('pendingReferrals').textContent = pendingData.length || 0;
                 document.getElementById('totalClicks').textContent = clicksData.length || 0;
 
-                // Count wrong balances
+                // ✅ NEW: Load transactions for accurate wrong balance count
+                const transactionsStatsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=user_id,type,amount`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const transactionsStatsData = await transactionsStatsResponse.json();
+                
+                // Count wrong balances using transaction-based calculation
                 let wrongCount = 0;
                 leaderboardData.forEach(user => {
-                    const activeReferrals = referralsData.filter(r => r.referrer_telegram_id === user.telegram_id).length;
-                    const shouldBeTama = activeReferrals * 1000;
-                    if (user.tama !== shouldBeTama) {
+                    const userTransactions = transactionsStatsData.filter(t => String(t.user_id) === String(user.telegram_id));
+                    let shouldBeTama = 0;
+                    
+                    userTransactions.forEach(transaction => {
+                        if (['earn_click', 'quest_complete', 'achievement_bonus', 'referral_bonus', 'daily_reward'].includes(transaction.type)) {
+                            shouldBeTama += transaction.amount || 0;
+                        } else if (['spend_feed', 'spend_play', 'spend_heal', 'spend_game', 'nft_mint_onchain', 'withdrawal'].includes(transaction.type)) {
+                            shouldBeTama -= Math.abs(transaction.amount || 0);
+                        }
+                    });
+                    
+                    shouldBeTama = Math.max(0, Math.round(shouldBeTama));
+                    const difference = Math.abs(user.tama - shouldBeTama);
+                    
+                    if (difference >= 1) { // More than 1 TAMA difference
                         wrongCount++;
                     }
                 });
@@ -377,6 +402,16 @@
                     }
                 });
                 const pendingData = await pendingResponse.json();
+                
+                // ✅ NEW: Load transactions data to calculate correct balances
+                const transactionsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=user_id,type,amount`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const transactionsData = await transactionsResponse.json();
 
                 // Process data
                 const usersTableBody = document.getElementById('usersTableBody');
@@ -387,9 +422,25 @@
                     const activeReferrals = referralsData.filter(r => r.referrer_telegram_id === user.telegram_id).length;
                     const pendingReferrals = pendingData.filter(p => p.referrer_telegram_id === user.telegram_id).length;
                     const totalReferrals = activeReferrals + pendingReferrals;
-                    const shouldBeTama = activeReferrals * 1000;
+                    
+                    // ✅ NEW: Calculate correct balance from transactions
+                    const userTransactions = transactionsData.filter(t => String(t.user_id) === String(user.telegram_id));
+                    let shouldBeTama = 0;
+                    
+                    userTransactions.forEach(transaction => {
+                        // Earn types (positive)
+                        if (['earn_click', 'quest_complete', 'achievement_bonus', 'referral_bonus', 'daily_reward'].includes(transaction.type)) {
+                            shouldBeTama += transaction.amount || 0;
+                        }
+                        // Spend types (negative)
+                        else if (['spend_feed', 'spend_play', 'spend_heal', 'spend_game', 'nft_mint_onchain', 'withdrawal'].includes(transaction.type)) {
+                            shouldBeTama -= Math.abs(transaction.amount || 0);
+                        }
+                    });
+                    
+                    shouldBeTama = Math.max(0, Math.round(shouldBeTama)); // Round and ensure non-negative
                     const difference = user.tama - shouldBeTama;
-                    const isCorrect = difference === 0;
+                    const isCorrect = Math.abs(difference) < 1; // Allow 1 TAMA tolerance for rounding
 
                     const userData = {
                         telegram_id: user.telegram_id,
@@ -431,12 +482,18 @@
         }
 
         async function fixUserTama(telegramId) {
-            if (!confirm('Fix TAMA balance for this user?')) return;
+            const user = allUsersData.find(u => u.telegram_id === telegramId);
+            if (!user) return;
+            
+            const message = `Fix TAMA balance for user ${user.telegram_username || telegramId}?\n\n` +
+                           `Current: ${user.current_tama.toLocaleString()} TAMA\n` +
+                           `Should be: ${user.should_be_tama.toLocaleString()} TAMA\n` +
+                           `Difference: ${user.difference > 0 ? '+' : ''}${user.difference.toLocaleString()} TAMA\n\n` +
+                           `⚠️ This will update the database!`;
+            
+            if (!confirm(message)) return;
             
             try {
-                const user = allUsersData.find(u => u.telegram_id === telegramId);
-                if (!user) return;
-
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
                     method: 'PATCH',
                     headers: {
@@ -451,15 +508,63 @@
                 });
 
                 if (response.ok) {
-                    alert('TAMA balance fixed!');
+                    alert(`✅ Balance fixed!\n${user.current_tama} → ${user.should_be_tama} TAMA`);
                     loadData(); // Refresh data
                 } else {
-                    alert('Error fixing TAMA balance');
+                    alert('❌ Error fixing TAMA balance');
                 }
             } catch (error) {
                 console.error('Error fixing TAMA:', error);
-                alert('Error fixing TAMA balance');
+                alert('❌ Error fixing TAMA balance');
             }
+        }
+        
+        async function fixAllBalances() {
+            const wrongUsers = allUsersData.filter(u => !u.is_correct);
+            
+            if (wrongUsers.length === 0) {
+                alert('✅ All balances are correct!');
+                return;
+            }
+            
+            const message = `Fix ALL ${wrongUsers.length} wrong balances?\n\n` +
+                           `This will update ${wrongUsers.length} users in the database.\n\n` +
+                           `⚠️ This action cannot be undone!\n\n` +
+                           `Continue?`;
+            
+            if (!confirm(message)) return;
+            
+            let fixed = 0;
+            let failed = 0;
+            
+            for (const user of wrongUsers) {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${user.telegram_id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({
+                            tama: user.should_be_tama
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        fixed++;
+                    } else {
+                        failed++;
+                    }
+                } catch (error) {
+                    console.error('Error fixing user:', user.telegram_id, error);
+                    failed++;
+                }
+            }
+            
+            alert(`✅ Fixed ${fixed} balances\n${failed > 0 ? `❌ Failed: ${failed}` : ''}`);
+            loadData(); // Refresh data
         }
 
         // Load data on page load
