@@ -4253,6 +4253,11 @@
             feedBtn.disabled = gameState.tama < feedCost;
             playBtn.disabled = gameState.tama < playCost;
             healBtn.disabled = gameState.tama < healCost;
+            
+            // ✅ Update player name display (in case customUsername changed)
+            if (typeof updatePlayerNameDisplay === 'function') {
+                updatePlayerNameDisplay();
+            }
         }
 
         // NEW: Update pet status and mood indicators
@@ -5671,6 +5676,10 @@
                     const localLoaded = loadFromLocalStorage();
                     if (localLoaded) {
                         console.log('✅ Loaded from localStorage as fallback');
+                        // ✅ Update player name display after loading from localStorage
+                        if (typeof updatePlayerNameDisplay === 'function') {
+                            setTimeout(() => updatePlayerNameDisplay(), 100);
+                        }
                     } else {
                         console.log('⚠️ No data in localStorage, starting fresh');
                     }
@@ -5680,6 +5689,11 @@
                 }
                 
                 updateUI();
+                
+                // ✅ Update player name display after UI update (ensures customUsername is loaded)
+                if (typeof updatePlayerNameDisplay === 'function') {
+                    setTimeout(() => updatePlayerNameDisplay(), 200);
+                }
                 
                 // ✅ Update quest progress in UI after loading
                 checkQuests();
@@ -5807,9 +5821,12 @@
                     saveToLocalStorage();
                     
                     // ✅ Update player name display after loading from Supabase
-                    if (typeof updatePlayerNameDisplay === 'function') {
-                        updatePlayerNameDisplay();
-                    }
+                    // Use setTimeout to ensure function is defined and DOM is ready
+                    setTimeout(() => {
+                        if (typeof updatePlayerNameDisplay === 'function') {
+                            updatePlayerNameDisplay();
+                        }
+                    }, 300);
                     
                     return true;
                 }
