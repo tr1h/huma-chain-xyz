@@ -8429,30 +8429,68 @@
         // Fetch user's rank even if not in top 50
         async function fetchUserRank(telegramId) {
             try {
-                // Get all users ordered by TAMA descending
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=telegram_id,tama&order=tama.desc`, {
+                // ⚠️ CRITICAL: Ensure telegramId is always a string
+                const telegramIdStr = String(telegramId);
+                console.log('🔍 Fetching rank for user:', telegramIdStr);
+                
+                // Get user's TAMA balance first
+                const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramIdStr}&select=tama`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch rank: ${response.status}`);
+                if (!userResponse.ok) {
+                    throw new Error(`Failed to fetch user data: ${userResponse.status}`);
                 }
                 
-                const allUsers = await response.json();
-                
-                // Find user's position
-                const userIndex = allUsers.findIndex(p => String(p.telegram_id) === String(telegramId));
-                
-                if (userIndex !== -1) {
-                    return userIndex + 1; // Rank is 1-based
+                const userData = await userResponse.json();
+                if (!userData || userData.length === 0) {
+                    console.warn('⚠️ User not found in database');
+                    return null;
                 }
                 
-                return null;
+                const userTama = userData[0].tama || 0;
+                console.log('💰 User TAMA:', userTama);
+                
+                // Count users with more TAMA (this is the rank)
+                const rankResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=count&tama=gt.${userTama}`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!rankResponse.ok) {
+                    // Fallback: get all users and count manually
+                    console.log('⚠️ Count query failed, using fallback method');
+                    const allUsersResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=telegram_id,tama&order=tama.desc&limit=1000`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    
+                    if (allUsersResponse.ok) {
+                        const allUsers = await allUsersResponse.json();
+                        const userIndex = allUsers.findIndex(p => String(p.telegram_id) === telegramIdStr);
+                        if (userIndex !== -1) {
+                            const rank = userIndex + 1;
+                            console.log('✅ Rank calculated (fallback):', rank);
+                            return rank;
+                        }
+                    }
+                    return null;
+                }
+                
+                // Parse count from response
+                const countData = await rankResponse.json();
+                const rank = (countData?.length || 0) + 1; // +1 because rank is 1-based
+                console.log('✅ Rank calculated:', rank);
+                return rank;
             } catch (error) {
-                console.error('Error fetching user rank:', error);
+                console.error('❌ Error fetching user rank:', error);
                 return null;
             }
         }
