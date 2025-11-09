@@ -5550,7 +5550,7 @@
                         
                         // Load rank after user ID is set (with small delay to ensure DOM is ready)
                         setTimeout(() => {
-                            if (rankDisplay && !rankDisplay.textContent || rankDisplay.textContent === '#---') {
+                            if (rankDisplay && (!rankDisplay.textContent || rankDisplay.textContent === '#---')) {
                                 loadLeaderboard().catch(() => {
                                     console.log('Rank load failed, will retry later');
                                 });
