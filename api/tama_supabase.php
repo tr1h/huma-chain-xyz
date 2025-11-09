@@ -248,6 +248,24 @@ switch ($path) {
         }
         break;
         
+    case '/economy/apply':
+        if ($method === 'POST') {
+            handleEconomyApply($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/economy/active':
+        if ($method === 'GET') {
+            handleEconomyActive($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     default:
         http_response_code(404);
         echo json_encode(['error' => 'Endpoint not found', 'path' => $path]);
@@ -2814,5 +2832,128 @@ function handleEnvCheck() {
         'php_version' => PHP_VERSION,
         'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown'
     ], JSON_PRETTY_PRINT);
+}
+
+/**
+ * Apply Economy Config
+ * POST /api/tama/economy/apply
+ * Body: { "config_name": "custom", "settings": { ... } }
+ */
+function handleEconomyApply($url, $key) {
+    try {
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        if (!$data || !isset($data['config_name']) || !isset($data['settings'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid request body. Expected: { "config_name": "...", "settings": { ... } }']);
+            return;
+        }
+        
+        $configName = $data['config_name'];
+        $settings = $data['settings'];
+        
+        // Validate settings
+        $requiredFields = [
+            'BASE_CLICK_REWARD', 'MIN_REWARD', 'MAX_COMBO_BONUS',
+            'COMBO_WINDOW', 'COMBO_COOLDOWN', 'COMBO_BONUS_DIVIDER', 'SPAM_PENALTY'
+        ];
+        
+        foreach ($requiredFields as $field) {
+            if (!isset($settings[$field])) {
+                http_response_code(400);
+                echo json_encode(['error' => "Missing required field: $field"]);
+                return;
+            }
+        }
+        
+        // First, deactivate all configs
+        $updateBody = ['is_active' => false];
+        supabaseRequest($url, $key, 'PATCH', 'economy_config', [], $updateBody);
+        
+        // Prepare config data for database
+        $configData = [
+            'config_name' => $configName,
+            'base_click_reward' => floatval($settings['BASE_CLICK_REWARD']),
+            'min_reward' => floatval($settings['MIN_REWARD']),
+            'max_combo_bonus' => intval($settings['MAX_COMBO_BONUS']),
+            'combo_window' => intval($settings['COMBO_WINDOW']),
+            'combo_cooldown' => intval($settings['COMBO_COOLDOWN']),
+            'combo_bonus_divider' => intval($settings['COMBO_BONUS_DIVIDER']),
+            'spam_penalty' => floatval($settings['SPAM_PENALTY']),
+            'hp_per_click' => floatval($settings['HP_PER_CLICK'] ?? 0.1),
+            'food_per_click' => floatval($settings['FOOD_PER_CLICK'] ?? 0.05),
+            'happy_per_click' => floatval($settings['HAPPY_PER_CLICK'] ?? 0.05),
+            'is_active' => true,
+            'updated_at' => date('Y-m-d\TH:i:s.u\Z')
+        ];
+        
+        // Check if config exists
+        $checkParams = [
+            'config_name' => 'eq.' . $configName,
+            'select' => 'id'
+        ];
+        
+        $checkResult = supabaseRequest($url, $key, 'GET', 'economy_config', $checkParams);
+        $exists = !empty($checkResult['data']);
+        
+        if ($exists) {
+            // Update existing config
+            $updateParams = ['config_name' => 'eq.' . $configName];
+            $result = supabaseRequest($url, $key, 'PATCH', 'economy_config', $updateParams, $configData);
+        } else {
+            // Insert new config
+            $result = supabaseRequest($url, $key, 'POST', 'economy_config', [], $configData);
+        }
+        
+        if ($result['code'] >= 200 && $result['code'] < 300) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Economy config applied successfully',
+                'config_name' => $configName,
+                'action' => $exists ? 'updated' : 'created'
+            ]);
+        } else {
+            http_response_code($result['code']);
+            echo json_encode([
+                'error' => 'Failed to apply economy config',
+                'details' => $result['data']
+            ]);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Get Active Economy Config
+ * GET /api/tama/economy/active
+ */
+function handleEconomyActive($url, $key) {
+    try {
+        $params = [
+            'is_active' => 'eq.true',
+            'select' => '*'
+        ];
+        
+        $result = supabaseRequest($url, $key, 'GET', 'economy_config', $params);
+        
+        if ($result['code'] === 200) {
+            echo json_encode([
+                'success' => true,
+                'data' => $result['data']
+            ]);
+        } else {
+            http_response_code($result['code']);
+            echo json_encode([
+                'error' => 'Failed to fetch active economy config',
+                'details' => $result['data']
+            ]);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
 }
 ?>

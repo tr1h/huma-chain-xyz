@@ -1,0 +1,4 @@
+Building production Solana Tamagotchi P2E game on Telegram. 3-Tier NFT system with on-chain revenue distribution (40% burn, 30% treasury, 30% P2E pool). Real SPL token transfers, Webhook bot. Full-stack: Solana + PHP API + Telegram Mini Apps. Zero wallet barrier, targeting mass Web3 adoption. Based in Dubai.
+
+
+

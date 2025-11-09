@@ -209,3 +209,5 @@ RENDER_EXTERNAL_HOSTNAME=huma-chain-xyz-bot.onrender.com
 
 **Все работает автоматически! Ничего настраивать не нужно.**
 
+
+

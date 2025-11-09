@@ -8352,6 +8352,50 @@
             leaderboardList.innerHTML = html;
         }
         
+        // Load Economy Config from API
+        async function loadEconomyConfig() {
+            try {
+                const response = await fetch(`${TAMA_API_BASE}/economy/active`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success && result.data && result.data.length > 0) {
+                        const dbConfig = result.data[0];
+                        
+                        // Convert database format to game format
+                        const gameConfig = {
+                            BASE_CLICK_REWARD: dbConfig.base_click_reward,
+                            MIN_REWARD: dbConfig.min_reward,
+                            MAX_COMBO_BONUS: dbConfig.max_combo_bonus,
+                            COMBO_WINDOW: dbConfig.combo_window,
+                            COMBO_COOLDOWN: dbConfig.combo_cooldown,
+                            COMBO_BONUS_DIVIDER: dbConfig.combo_bonus_divider,
+                            SPAM_PENALTY: dbConfig.spam_penalty,
+                            HP_PER_CLICK: dbConfig.hp_per_click,
+                            FOOD_PER_CLICK: dbConfig.food_per_click,
+                            HAPPY_PER_CLICK: dbConfig.happy_per_click
+                        };
+                        
+                        // Save to localStorage
+                        localStorage.setItem('economyConfig', JSON.stringify(gameConfig));
+                        console.log('✅ Loaded economy config from API:', dbConfig.config_name, gameConfig);
+                        
+                        return gameConfig;
+                    } else {
+                        console.log('⚠️ No active economy config found in database, using defaults');
+                        return null;
+                    }
+                } else {
+                    console.warn('⚠️ Failed to load economy config from API, using defaults');
+                    return null;
+                }
+            } catch (error) {
+                console.warn('⚠️ Error loading economy config:', error.message);
+                return null;
+            }
+        }
+        
         // Initialize everything when DOM is ready
         // Listen for economy config updates from admin panel
         try {
@@ -8366,6 +8410,9 @@
         } catch (e) {
             console.log('BroadcastChannel not supported, using localStorage only');
         }
+        
+        // Load economy config from API on startup
+        loadEconomyConfig();
 
         // 🎨 Load NFT boost for user
         async function loadUserNFTBoost() {
