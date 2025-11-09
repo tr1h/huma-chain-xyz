@@ -5766,6 +5766,12 @@
                     gameState.level = Number(userData.level) || 1; // Use actual level from DB, not calculated!
                     gameState.xpToLevel = gameState.level * 100;
                     
+                    // ✅ Load custom username from Supabase (if user changed it)
+                    if (userData.telegram_username) {
+                        gameState.customUsername = userData.telegram_username;
+                        console.log('✅ Loaded custom username from Supabase:', gameState.customUsername);
+                    }
+                    
                     // Try to parse pet_data if exists
                     if (userData.pet_data) {
                         try {
@@ -5958,9 +5964,14 @@
                     hasAutoFeeder: gameState.hasAutoFeeder
                 };
                 
-                // Get username from Telegram
+                // Get username from Telegram (default) or use custom username if set
                 const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-                const username = telegramUser?.username || telegramUser?.first_name || `User${userIdStr}`;
+                const defaultUsername = telegramUser?.username || telegramUser?.first_name || `User${userIdStr}`;
+                
+                // ⚠️ IMPORTANT: Use custom username if set, otherwise use Telegram username
+                // This prevents overwriting custom names on auto-save
+                const username = gameState.customUsername || defaultUsername;
+                console.log('💾 Using username:', username, '(custom:', !!gameState.customUsername, ')');
                 
                 // Save via our API (proper way!)
                 // Use skip_transaction_log: true to avoid duplicate logging
@@ -5969,7 +5980,7 @@
                 const requestBody = {
                     user_id: userIdStr,  // ⚠️ Always use string
                         user_type: 'telegram',
-                        telegram_username: username,  // ✅ ADD USERNAME
+                        telegram_username: username,  // ✅ Use custom or default username
                         tama: gameState.tama,
                         level: gameState.level,
                         xp: gameState.xp,
@@ -8345,6 +8356,10 @@
                     });
 
                     if (response.ok) {
+                        // ✅ Update custom username in game state
+                        gameState.customUsername = newName;
+                        console.log('✅ Custom username updated in gameState:', newName);
+                        
                         nameChangeStatus.textContent = '✅ Name changed successfully!';
                         nameChangeStatus.style.color = '#00ff88';
                         
