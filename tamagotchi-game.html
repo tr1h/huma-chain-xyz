@@ -2327,6 +2327,31 @@
             opacity: 0.7;
         }
 
+        /* Edit Name Button */
+        .edit-name-btn {
+            background: rgba(251, 191, 36, 0.2);
+            border: 2px solid #fbbf24;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .edit-name-btn:hover {
+            background: rgba(251, 191, 36, 0.4);
+            transform: scale(1.1);
+        }
+
+        .edit-name-btn:active {
+            transform: scale(0.95);
+        }
+
         /* Particle Effects */
         .particle {
             position: absolute;
@@ -2580,7 +2605,13 @@
 
         <!-- Header with Level and TAMA -->
         <div class="game-header">
-            <h2 style="font-size: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">🐾 SOLANA TAMAGOTCHI</h2>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                <h2 style="font-size: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin: 0;">🐾 SOLANA TAMAGOTCHI</h2>
+                <button id="edit-name-btn" class="edit-name-btn" title="Change your name">
+                    ✏️
+                </button>
+            </div>
+            <div id="player-name-display" style="font-size: 14px; opacity: 0.9; margin-bottom: 10px;">Player</div>
             <div class="header-stats">
                 <div class="header-stat">
                     <div class="header-stat-value" id="level-display">Lvl 1</div>
@@ -3748,6 +3779,35 @@
             </div>
             <div id="leaderboard-list" class="leaderboard-list">
                 <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Name Modal -->
+    <div class="leaderboard-modal" id="edit-name-modal">
+        <div class="leaderboard-content" style="max-width: 400px;">
+            <div class="leaderboard-header">
+                <h2>✏️ Change Your Name</h2>
+                <button class="close-btn" id="close-edit-name">✕</button>
+            </div>
+            <div style="padding: 20px;">
+                <p style="margin-bottom: 15px; opacity: 0.8;">Choose your display name:</p>
+                <input 
+                    type="text" 
+                    id="new-name-input" 
+                    placeholder="Enter your name"
+                    maxlength="20"
+                    style="width: 100%; padding: 12px; font-size: 16px; border: 2px solid #4a5568; border-radius: 8px; background: #2d3748; color: white; font-family: 'Courier New', monospace; margin-bottom: 15px;"
+                />
+                <div style="display: flex; gap: 10px;">
+                    <button id="save-name-btn" style="flex: 1; padding: 12px; background: #fbbf24; color: #1a202c; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
+                        💾 Save
+                    </button>
+                    <button id="cancel-name-btn" style="flex: 1; padding: 12px; background: #4a5568; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
+                        ✕ Cancel
+                    </button>
+                </div>
+                <p id="name-change-status" style="margin-top: 10px; text-align: center; font-size: 14px;"></p>
             </div>
         </div>
     </div>
@@ -8179,6 +8239,159 @@
                 }
             });
         }
+
+        // Edit Name Modal Elements
+        const editNameBtn = document.getElementById('edit-name-btn');
+        const editNameModal = document.getElementById('edit-name-modal');
+        const closeEditName = document.getElementById('close-edit-name');
+        const newNameInput = document.getElementById('new-name-input');
+        const saveNameBtn = document.getElementById('save-name-btn');
+        const cancelNameBtn = document.getElementById('cancel-name-btn');
+        const nameChangeStatus = document.getElementById('name-change-status');
+        const playerNameDisplay = document.getElementById('player-name-display');
+
+        // Open edit name modal
+        if (editNameBtn && editNameModal) {
+            editNameBtn.addEventListener('click', () => {
+                const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+                const currentName = telegramUser?.username || telegramUser?.first_name || 'Player';
+                newNameInput.value = currentName;
+                nameChangeStatus.textContent = '';
+                editNameModal.classList.add('show');
+                newNameInput.focus();
+            });
+        }
+
+        // Close edit name modal
+        if (closeEditName && editNameModal) {
+            closeEditName.addEventListener('click', () => {
+                editNameModal.classList.remove('show');
+            });
+        }
+
+        if (cancelNameBtn && editNameModal) {
+            cancelNameBtn.addEventListener('click', () => {
+                editNameModal.classList.remove('show');
+            });
+        }
+
+        // Close on background click
+        if (editNameModal) {
+            editNameModal.addEventListener('click', (e) => {
+                if (e.target.id === 'edit-name-modal') {
+                    editNameModal.classList.remove('show');
+                }
+            });
+        }
+
+        // Save new name
+        if (saveNameBtn && newNameInput) {
+            saveNameBtn.addEventListener('click', async () => {
+                const newName = newNameInput.value.trim();
+                
+                if (!newName || newName.length < 2) {
+                    nameChangeStatus.textContent = '❌ Name must be at least 2 characters';
+                    nameChangeStatus.style.color = '#ff4444';
+                    return;
+                }
+
+                if (newName.length > 20) {
+                    nameChangeStatus.textContent = '❌ Name is too long (max 20 characters)';
+                    nameChangeStatus.style.color = '#ff4444';
+                    return;
+                }
+
+                const userId = window.TELEGRAM_USER_ID;
+                if (!userId) {
+                    nameChangeStatus.textContent = '❌ User ID not found';
+                    nameChangeStatus.style.color = '#ff4444';
+                    return;
+                }
+
+                // Show loading
+                nameChangeStatus.textContent = '⏳ Saving...';
+                nameChangeStatus.style.color = '#fbbf24';
+                saveNameBtn.disabled = true;
+
+                try {
+                    // Save to Supabase via API
+                    const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            user_type: 'telegram',
+                            telegram_username: newName,
+                            tama: gameState.tama,
+                            level: gameState.level,
+                            xp: gameState.xp,
+                            pet_data: {
+                                hp: gameState.hp,
+                                food: gameState.food,
+                                happy: gameState.happy,
+                                totalClicks: gameState.totalClicks,
+                                maxCombo: gameState.maxCombo,
+                                xp: gameState.xp,
+                                achievements: gameState.achievements,
+                                selectedPet: gameState.selectedPet,
+                                ownedPets: gameState.ownedPets,
+                                petType: gameState.petType,
+                                hasAutoFeeder: gameState.hasAutoFeeder
+                            },
+                            pet_name: gameState.petType || 'Gotchi',
+                            pet_type: gameState.petType || 'kawai',
+                            skip_transaction_log: true
+                        })
+                    });
+
+                    if (response.ok) {
+                        nameChangeStatus.textContent = '✅ Name changed successfully!';
+                        nameChangeStatus.style.color = '#00ff88';
+                        
+                        // Update display
+                        if (playerNameDisplay) {
+                            playerNameDisplay.textContent = newName;
+                        }
+
+                        // Close modal after 1.5 seconds
+                        setTimeout(() => {
+                            editNameModal.classList.remove('show');
+                            saveNameBtn.disabled = false;
+                        }, 1500);
+                    } else {
+                        const error = await response.text();
+                        console.error('❌ Name change failed:', error);
+                        nameChangeStatus.textContent = '❌ Failed to save name';
+                        nameChangeStatus.style.color = '#ff4444';
+                        saveNameBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('❌ Name change error:', error);
+                    nameChangeStatus.textContent = '❌ Network error';
+                    nameChangeStatus.style.color = '#ff4444';
+                    saveNameBtn.disabled = false;
+                }
+            });
+
+            // Allow Enter key to save
+            newNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveNameBtn.click();
+                }
+            });
+        }
+
+        // Update player name display on init
+        function updatePlayerNameDisplay() {
+            if (playerNameDisplay) {
+                const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+                const displayName = telegramUser?.username || telegramUser?.first_name || 'Player';
+                playerNameDisplay.textContent = displayName;
+            }
+        }
+
+        // Call on init
+        setTimeout(updatePlayerNameDisplay, 500);
 
         // Help Modal Event Listeners
         if (helpBtn && helpModal) {
