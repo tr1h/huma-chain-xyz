@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint NFT Pet - 5 Tiers | Solana Tamagotchi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/mint.css">
+    
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #1d3557, #457b9d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Logo */
+        .game-logo {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 10000;
+            transition: transform 0.3s ease;
+        }
+
+        .game-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .game-logo img {
+            height: 70px;
+            width: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 5px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 50px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .header p {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        /* Wallet Section */
+        .wallet-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .btn-connect, .btn-mynfts {
+            padding: 15px 30px;
+            font-size: 16px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: 'Press Start 2P', cursive;
+            transition: all 0.3s ease;
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .btn-mynfts {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .btn-connect:hover, .btn-mynfts:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .wallet-info {
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Tier Grid */
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        /* Tier Card */
+        .tier-card {
+            background: rgba(29, 53, 87, 0.8);
+            border: 3px solid;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .tier-card.bronze { border-color: #CD7F32; }
+        .tier-card.silver { border-color: #C0C0C0; }
+        .tier-card.gold { border-color: #FFD700; }
+        .tier-card.platinum { border-color: #E5E4E2; }
+        .tier-card.diamond { border-color: #B9F2FF; }
+
+        .tier-card.selected {
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 0 0 30px rgba(138, 201, 38, 0.7);
+        }
+
+        .tier-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .tier-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .tier-supply {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-bottom: 15px;
+        }
+
+        .tier-price {
+            font-size: 14px;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .tier-boost {
+            font-size: 16px;
+            color: #8AC926;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8AC926, #FFD700);
+            transition: width 0.5s ease;
+        }
+
+        .next-price {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+
+        .fomo-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #FF006E;
+            color: white;
+            font-size: 10px;
+            padding: 5px 10px;
+            border-radius: 12px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        /* Mint Button */
+        .mint-btn {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            font-size: 18px;
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            color: #1d3557;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 30px auto;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .mint-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(138, 201, 38, 0.6);
+        }
+
+        .mint-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: rgba(138, 201, 38, 0.1);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .info-box h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .info-item .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .info-item p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #8AC926;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .tier-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tier-card {
+                padding: 20px;
+            }
+
+            .tier-name {
+                font-size: 16px;
+            }
+
+            .mint-btn {
+                font-size: 14px;
+                padding: 15px;
+            }
+
+            .game-logo img {
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo -->
+    <a href="index.html" class="game-logo">
+        <img src="assets/logo.png" alt="Solana Tamagotchi" onerror="this.style.display='none'">
+    </a>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎨 MINT YOUR NFT PET</h1>
+            <p>5 TIERS | BONDING CURVE | FIXED BOOSTS</p>
+        </div>
+
+        <!-- Wallet Section -->
+        <div class="wallet-section">
+            <button id="connect-wallet" class="btn-connect" onclick="connectWallet()">
+                👛 Connect Wallet
+            </button>
+            <button class="btn-mynfts" onclick="goToMyNFTs()">
+                🖼️ My NFTs
+            </button>
+            <div id="wallet-info" class="wallet-info" style="display: none;">
+                <p>Connected: <span id="wallet-address"></span></p>
+                <p>SOL Balance: <span id="wallet-balance">0</span> SOL</p>
+                <p>TAMA Balance: <span id="tama-balance">Loading...</span> TAMA</p>
+            </div>
+        </div>
+
+        <!-- Tier Cards -->
+        <div class="tier-grid" id="tier-grid">
+            <!-- Bronze Card -->
+            <div class="tier-card bronze" id="tier-bronze">
+                <div class="tier-icon">🟫</div>
+                <div class="tier-name">BRONZE</div>
+                <div class="tier-supply">Common · 4,500 available</div>
+                
+                <div class="tier-price">
+                    <div style="font-size: 16px; color: #FFD700;">5,000 TAMA</div>
+                    <div style="font-size: 10px; opacity: 0.7; margin-top: 5px;">TAMA Only · Fixed Price</div>
+                </div>
+                
+                <div class="tier-boost">×2.0 EARNING</div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-bronze" style="width: 0%"></div>
+                </div>
+                
+                <div style="font-size: 10px; margin-top: 10px;">
+                    Minted: <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span>
+                </div>
+                
+                <button class="mint-btn" onclick="mintBronze()" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                    🔥 MINT BRONZE
+                </button>
+            </div>
+
+            <!-- Silver Card -->
+            <div class="tier-card silver" id="tier-silver">
+                <div class="fomo-badge">🔥 PRICE ↑</div>
+                <div class="tier-icon">🥈</div>
+                <div class="tier-name">SILVER</div>
+                <div class="tier-supply">Uncommon · 350 available</div>
+                
+                <div class="tier-price">
+                    <div style="font-size: 16px; color: #C0C0C0;">
+                        <span id="price-silver-sol">1.0</span> SOL
+                    </div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        $<span id="price-silver-usd">164</span>
+                    </div>
+                    <div class="next-price">
+                        Next: <span id="next-silver">1.006</span> SOL (+0.6%)
+                    </div>
+                </div>
+                
+                <div class="tier-boost">×2.3 EARNING</div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-silver" style="width: 0%"></div>
+                </div>
+                
+                <div style="font-size: 10px; margin-top: 10px;">
+                    Minted: <span id="minted-silver">0</span> / <span id="max-silver">350</span>
+                </div>
+                
+                <button class="mint-btn" onclick="mintSOL('Silver')" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                    💎 MINT SILVER
+                </button>
+            </div>
+
+            <!-- Gold Card -->
+            <div class="tier-card gold" id="tier-gold">
+                <div class="fomo-badge">🔥 PRICE ↑</div>
+                <div class="tier-icon">🥇</div>
+                <div class="tier-name">GOLD</div>
+                <div class="tier-supply">Rare · 130 available</div>
+                
+                <div class="tier-price">
+                    <div style="font-size: 16px; color: #FFD700;">
+                        <span id="price-gold-sol">3.0</span> SOL
+                    </div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        $<span id="price-gold-usd">492</span>
+                    </div>
+                    <div class="next-price">
+                        Next: <span id="next-gold">3.054</span> SOL (+1.8%)
+                    </div>
+                </div>
+                
+                <div class="tier-boost">×2.7 EARNING</div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-gold" style="width: 0%"></div>
+                </div>
+                
+                <div style="font-size: 10px; margin-top: 10px;">
+                    Minted: <span id="minted-gold">0</span> / <span id="max-gold">130</span>
+                </div>
+                
+                <button class="mint-btn" onclick="mintSOL('Gold')" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                    🏆 MINT GOLD
+                </button>
+            </div>
+
+            <!-- Platinum Card -->
+            <div class="tier-card platinum" id="tier-platinum">
+                <div class="fomo-badge">🔥 RARE!</div>
+                <div class="tier-icon">💎</div>
+                <div class="tier-name">PLATINUM</div>
+                <div class="tier-supply">Epic · Only 18!</div>
+                
+                <div class="tier-price">
+                    <div style="font-size: 16px; color: #E5E4E2;">
+                        <span id="price-platinum-sol">10.0</span> SOL
+                    </div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        $<span id="price-platinum-usd">1,641</span>
+                    </div>
+                    <div class="next-price">
+                        Next: <span id="next-platinum">11.11</span> SOL (+11%)
+                    </div>
+                </div>
+                
+                <div class="tier-boost">×3.5 EARNING</div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-platinum" style="width: 0%"></div>
+                </div>
+                
+                <div style="font-size: 10px; margin-top: 10px;">
+                    Minted: <span id="minted-platinum">0</span> / <span id="max-platinum">18</span>
+                </div>
+                
+                <button class="mint-btn" onclick="mintSOL('Platinum')" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                    ⚡ MINT PLATINUM
+                </button>
+            </div>
+
+            <!-- Diamond Card -->
+            <div class="tier-card diamond" id="tier-diamond">
+                <div class="fomo-badge">⚠️ ONLY 2!</div>
+                <div class="tier-icon">🔷</div>
+                <div class="tier-name">DIAMOND</div>
+                <div class="tier-supply">Legendary · ONLY 2 EXIST!</div>
+                
+                <div class="tier-price">
+                    <div style="font-size: 16px; color: #B9F2FF;">
+                        <span id="price-diamond-sol">50.0</span> SOL
+                    </div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        $<span id="price-diamond-usd">8,204</span>
+                    </div>
+                    <div class="next-price">
+                        Next: <span id="next-diamond">100.0</span> SOL (+100%)
+                    </div>
+                </div>
+                
+                <div class="tier-boost">×5.0 MAXIMUM!</div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-diamond" style="width: 0%"></div>
+                </div>
+                
+                <div style="font-size: 10px; margin-top: 10px;">
+                    Minted: <span id="minted-diamond">0</span> / <span id="max-diamond">2</span>
+                </div>
+                
+                <button class="mint-btn" onclick="mintSOL('Diamond')" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                    👑 MINT DIAMOND
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <h3>🎁 WHAT YOU GET</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="icon">🎨</div>
+                    <p><strong>Unique Design</strong><br>5,000 unique NFTs</p>
+                </div>
+                <div class="info-item">
+                    <div class="icon">🚀</div>
+                    <p><strong>Fixed Boost</strong><br>Guaranteed multiplier</p>
+                </div>
+                <div class="info-item">
+                    <div class="icon">💎</div>
+                    <p><strong>No RNG Tier</strong><br>You get what you pay for</p>
+                </div>
+                <div class="info-item">
+                    <div class="icon">📈</div>
+                    <p><strong>Bonding Curve</strong><br>Price increases = FOMO</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="info-box">
+            <h3>❓ HOW IT WORKS</h3>
+            <div style="text-align: left; font-size: 12px; line-height: 1.8;">
+                <p><strong>1️⃣ Bronze (TAMA Only):</strong> Pay 5,000 TAMA → Get Bronze NFT with ×2.0 boost → Fixed price</p>
+                <p><strong>2️⃣ Silver-Diamond (SOL):</strong> Pay SOL → Get guaranteed tier → Price increases with each mint</p>
+                <p><strong>3️⃣ Bonding Curve:</strong> The more people mint, the higher the price → Early buyers profit!</p>
+                <p><strong>4️⃣ Fair System:</strong> No random tier! You choose tier, you get that tier, guaranteed!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==============================================
+        // CONFIG
+        // ==============================================
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const SOL_USD_RATE = 164.07; // 1 SOL = $164.07
+        const TELEGRAM_USER_ID = getTelegramUserId();
+
+        // State
+        let walletConnected = false;
+        let walletAddress = null;
+        let tamaBalance = 0;
+
+        // ==============================================
+        // UTILITY FUNCTIONS
+        // ==============================================
+        function getTelegramUserId() {
+            // Try to get from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('user_id')) {
+                return parseInt(urlParams.get('user_id'));
+            }
+            
+            // Try Telegram WebApp API
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) {
+                    return user.id;
+                }
+            }
+            
+            // Fallback for testing
+            return 123456789;
+        }
+
+        function goToMyNFTs() {
+            window.location.href = `my-nfts.html?user_id=${TELEGRAM_USER_ID}`;
+        }
+
+        // ==============================================
+        // WALLET FUNCTIONS
+        // ==============================================
+        async function connectWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('Please install Phantom wallet!');
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+
+                const resp = await window.solana.connect();
+                walletAddress = resp.publicKey.toString();
+                walletConnected = true;
+
+                document.getElementById('wallet-address').textContent = 
+                    walletAddress.substring(0, 4) + '...' + walletAddress.substring(walletAddress.length - 4);
+                
+                document.getElementById('connect-wallet').textContent = '✅ Connected';
+                document.getElementById('wallet-info').style.display = 'block';
+
+                // Get SOL balance
+                const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
+                const balance = await connection.getBalance(resp.publicKey);
+                document.getElementById('wallet-balance').textContent = (balance / 1e9).toFixed(4);
+
+                console.log('✅ Wallet connected:', walletAddress);
+            } catch (err) {
+                console.error('❌ Wallet connection failed:', err);
+                alert('Failed to connect wallet!');
+            }
+        }
+
+        // ==============================================
+        // LOAD PRICES & STATS
+        // ==============================================
+        async function loadPricesAndStats() {
+            try {
+                console.log('📊 Loading prices and stats...');
+
+                // Get bonding state
+                const { data: bondingData, error: bondingError } = await supabase
+                    .from('nft_bonding_state')
+                    .select('*');
+
+                if (bondingError) {
+                    console.error('❌ Error loading bonding state:', bondingError);
+                    return;
+                }
+
+                console.log('✅ Bonding state loaded:', bondingData);
+
+                // Update UI for each tier
+                bondingData.forEach(tier => {
+                    updateTierUI(tier);
+                });
+
+                // Get TAMA balance
+                await loadTAMABalance();
+
+            } catch (err) {
+                console.error('❌ Error loading prices:', err);
+            }
+        }
+
+        function updateTierUI(tier) {
+            const tierName = tier.tier_name.toLowerCase();
+            
+            // Update minted count
+            const mintedSpan = document.getElementById(`minted-${tierName}`);
+            if (mintedSpan) mintedSpan.textContent = tier.minted_count;
+
+            // Update max supply
+            const maxSpan = document.getElementById(`max-${tierName}`);
+            if (maxSpan) maxSpan.textContent = tier.max_supply;
+
+            // Update progress bar
+            const progressFill = document.getElementById(`progress-${tierName}`);
+            if (progressFill) {
+                const percentage = (tier.minted_count / tier.max_supply) * 100;
+                progressFill.style.width = percentage + '%';
+            }
+
+            // Update prices for SOL tiers
+            if (tier.payment_type === 'SOL') {
+                const solSpan = document.getElementById(`price-${tierName}-sol`);
+                if (solSpan) solSpan.textContent = parseFloat(tier.current_price).toFixed(2);
+
+                const usdSpan = document.getElementById(`price-${tierName}-usd`);
+                if (usdSpan) {
+                    const usdPrice = parseFloat(tier.current_price) * SOL_USD_RATE;
+                    usdSpan.textContent = Math.round(usdPrice).toLocaleString();
+                }
+
+                const nextSpan = document.getElementById(`next-${tierName}`);
+                if (nextSpan) {
+                    const nextPrice = parseFloat(tier.current_price) + parseFloat(tier.increment_per_mint);
+                    nextSpan.textContent = nextPrice.toFixed(2);
+                }
+            }
+        }
+
+        async function loadTAMABalance() {
+            try {
+                const { data, error } = await supabase
+                    .from('players')
+                    .select('tama_balance')
+                    .eq('telegram_id', TELEGRAM_USER_ID)
+                    .single();
+
+                if (error) {
+                    console.error('❌ Error loading TAMA balance:', error);
+                    document.getElementById('tama-balance').textContent = '0';
+                    return;
+                }
+
+                tamaBalance = data ? data.tama_balance : 0;
+                document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
+                
+                console.log('✅ TAMA balance loaded:', tamaBalance);
+            } catch (err) {
+                console.error('❌ Error loading TAMA:', err);
+            }
+        }
+
+        // ==============================================
+        // MINT FUNCTIONS
+        // ==============================================
+        async function mintBronze() {
+            try {
+                console.log('🟫 Minting Bronze NFT...');
+
+                // Check TAMA balance
+                if (tamaBalance < 5000) {
+                    alert(`Not enough TAMA! You need 5,000 TAMA.\\nYour balance: ${tamaBalance} TAMA`);
+                    return;
+                }
+
+                if (!confirm(`Mint Bronze NFT for 5,000 TAMA?\\nYou will get ×2.0 earning boost!`)) {
+                    return;
+                }
+
+                // Show loading
+                const spinner = document.createElement('div');
+                spinner.className = 'spinner';
+                spinner.id = 'loading-spinner';
+                document.querySelector('.container').appendChild(spinner);
+
+                // Call API
+                const response = await fetch('api/mint-nft-bronze.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: TELEGRAM_USER_ID
+                    })
+                });
+
+                const result = await response.json();
+
+                // Remove loading
+                document.getElementById('loading-spinner')?.remove();
+
+                if (result.success) {
+                    alert(`🎉 SUCCESS!\\n\\nYou minted Bronze NFT #${result.design_number}!\\n\\nBoost: ×2.0\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}`);
+                    
+                    // Reload prices & balance
+                    await loadPricesAndStats();
+                } else {
+                    alert(`❌ Error: ${result.error || 'Unknown error'}`);
+                }
+
+            } catch (err) {
+                console.error('❌ Mint Bronze failed:', err);
+                alert('Failed to mint Bronze NFT!');
+                document.getElementById('loading-spinner')?.remove();
+            }
+        }
+
+        async function mintSOL(tierName) {
+            try {
+                console.log(`💎 Minting ${tierName} NFT...`);
+
+                if (!walletConnected) {
+                    alert('Please connect your wallet first!');
+                    return;
+                }
+
+                // Get current price
+                const { data: tierData, error } = await supabase
+                    .from('nft_bonding_state')
+                    .select('current_price')
+                    .eq('tier_name', tierName)
+                    .single();
+
+                if (error || !tierData) {
+                    alert('Failed to get current price!');
+                    return;
+                }
+
+                const price = parseFloat(tierData.current_price);
+                const priceUSD = (price * SOL_USD_RATE).toFixed(2);
+
+                const boostMap = {
+                    'Silver': 2.3,
+                    'Gold': 2.7,
+                    'Platinum': 3.5,
+                    'Diamond': 5.0
+                };
+
+                if (!confirm(`Mint ${tierName} NFT for ${price} SOL ($${priceUSD})?\\n\\nYou will get ×${boostMap[tierName]} earning boost!`)) {
+                    return;
+                }
+
+                // Show loading
+                const spinner = document.createElement('div');
+                spinner.className = 'spinner';
+                spinner.id = 'loading-spinner';
+                document.querySelector('.container').appendChild(spinner);
+
+                // Call API
+                const response = await fetch('api/mint-nft-sol.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: TELEGRAM_USER_ID,
+                        wallet_address: walletAddress,
+                        tier: tierName,
+                        price_sol: price
+                    })
+                });
+
+                const result = await response.json();
+
+                // Remove loading
+                document.getElementById('loading-spinner')?.remove();
+
+                if (result.success) {
+                    alert(`🎉 SUCCESS!\\n\\nYou minted ${tierName} NFT #${result.design_number}!\\n\\nBoost: ×${boostMap[tierName]}\\nPrice: ${price} SOL\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}`);
+                    
+                    // Reload prices
+                    await loadPricesAndStats();
+                } else {
+                    alert(`❌ Error: ${result.error || 'Unknown error'}`);
+                }
+
+            } catch (err) {
+                console.error(`❌ Mint ${tierName} failed:`, err);
+                alert(`Failed to mint ${tierName} NFT!`);
+                document.getElementById('loading-spinner')?.remove();
+            }
+        }
+
+        // ==============================================
+        // INIT
+        // ==============================================
+        window.addEventListener('load', async () => {
+            console.log('🚀 NFT Mint Page loaded');
+            console.log('👤 Telegram User ID:', TELEGRAM_USER_ID);
+
+            await loadPricesAndStats();
+
+            // Auto-refresh prices every 10 seconds
+            setInterval(loadPricesAndStats, 10000);
+        });
+    </script>
+</body>
+</html>
+
