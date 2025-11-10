@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily NFT Rewards | Solana Tamagotchi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #1d3557 0%, #457b9d 50%, #a8dadc 100%);
+            background-attachment: fixed;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #8AC926, #FFD700, #FF006E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(138, 201, 38, 0.6);
+        }
+
+        .stat-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #8AC926;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .claim-section {
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(255, 215, 0, 0.2));
+            backdrop-filter: blur(10px);
+            border: 3px solid #8AC926;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .claim-amount {
+            font-size: 48px;
+            font-weight: bold;
+            color: #FFD700;
+            margin: 20px 0;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .claim-btn {
+            padding: 20px 50px;
+            font-size: 16px;
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            color: #1d3557;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(138, 201, 38, 0.5);
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .claim-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(138, 201, 38, 0.7);
+        }
+
+        .claim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #666;
+        }
+
+        .rewards-list {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .rewards-list h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #8AC926;
+        }
+
+        .reward-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reward-item.bronze { border-color: #CD7F32; }
+        .reward-item.silver { border-color: #C0C0C0; }
+        .reward-item.gold { border-color: #FFD700; }
+        .reward-item.platinum { border-color: #E5E4E2; }
+        .reward-item.diamond { border-color: #B9F2FF; }
+
+        .reward-info {
+            flex: 1;
+        }
+
+        .reward-tier {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .reward-amount {
+            font-size: 20px;
+            color: #8AC926;
+            font-weight: bold;
+        }
+
+        .reward-status {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #8AC926;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .claim-amount {
+                font-size: 36px;
+            }
+
+            .claim-btn {
+                padding: 15px 35px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← Back to Game</a>
+
+        <div class="header">
+            <h1>💰 DAILY NFT REWARDS</h1>
+            <p>Passive Income from Your NFTs</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🖼️</div>
+                <div class="stat-value" id="nft-count">0</div>
+                <div class="stat-label">Your NFTs</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value" id="daily-income">0</div>
+                <div class="stat-label">Daily Income (TAMA)</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">💎</div>
+                <div class="stat-value" id="lifetime-claimed">0</div>
+                <div class="stat-label">Lifetime Claimed (TAMA)</div>
+            </div>
+        </div>
+
+        <!-- Claim Section -->
+        <div class="claim-section">
+            <h2>⏰ Available Now</h2>
+            <div class="claim-amount" id="pending-amount">0 TAMA</div>
+            <p style="font-size: 12px; opacity: 0.8; margin-bottom: 15px;">
+                <span id="claim-status">Loading...</span>
+            </p>
+            <button class="claim-btn" id="claim-btn" onclick="claimRewards()" disabled>
+                🎁 CLAIM ALL REWARDS
+            </button>
+        </div>
+
+        <!-- Rewards List -->
+        <div class="rewards-list">
+            <h2>💎 Your NFT Rewards</h2>
+            <div id="rewards-container">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Config
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const TELEGRAM_USER_ID = getTelegramUserId();
+
+        function getTelegramUserId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('user_id')) {
+                return parseInt(urlParams.get('user_id'));
+            }
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) return user.id;
+            }
+            return 123456789;
+        }
+
+        // Load rewards data
+        async function loadRewards() {
+            try {
+                console.log('💰 Loading daily rewards...');
+
+                const response = await fetch(`/api/get-daily-rewards.php?telegram_id=${TELEGRAM_USER_ID}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load rewards');
+                }
+
+                console.log('✅ Rewards loaded:', data);
+
+                // Update stats
+                document.getElementById('nft-count').textContent = data.stats.nft_count || 0;
+                document.getElementById('daily-income').textContent = (data.stats.daily_total_income || 0).toLocaleString();
+                document.getElementById('lifetime-claimed').textContent = (data.stats.lifetime_claimed || 0).toLocaleString();
+
+                // Update pending amount
+                const pending = data.total_pending || 0;
+                document.getElementById('pending-amount').textContent = pending.toLocaleString() + ' TAMA';
+
+                // Update claim button
+                const claimBtn = document.getElementById('claim-btn');
+                if (data.can_claim && pending > 0) {
+                    claimBtn.disabled = false;
+                    document.getElementById('claim-status').textContent = '✅ Ready to claim!';
+                } else {
+                    claimBtn.disabled = true;
+                    document.getElementById('claim-status').textContent = '⏰ Come back tomorrow!';
+                }
+
+                // Display rewards list
+                displayRewardsList(data.rewards);
+
+            } catch (error) {
+                console.error('❌ Error loading rewards:', error);
+                document.getElementById('rewards-container').innerHTML = `
+                    <p style="text-align: center; color: #FF006E;">Failed to load rewards. Please try again.</p>
+                `;
+            }
+        }
+
+        function displayRewardsList(rewards) {
+            const container = document.getElementById('rewards-container');
+
+            if (!rewards || rewards.length === 0) {
+                container.innerHTML = `
+                    <p style="text-align: center; opacity: 0.7;">No NFTs found. Mint an NFT to start earning!</p>
+                `;
+                return;
+            }
+
+            container.innerHTML = rewards.map(reward => `
+                <div class="reward-item ${reward.tier_name.toLowerCase()}">
+                    <div class="reward-info">
+                        <div class="reward-tier">${getTierIcon(reward.tier_name)} ${reward.tier_name.toUpperCase()}</div>
+                        <div class="reward-amount">+${reward.daily_reward.toLocaleString()} TAMA/day</div>
+                        <div class="reward-status">
+                            ${reward.can_claim ? 
+                                `✅ Ready to claim! (${reward.days_since_claim} days)` : 
+                                '⏰ Already claimed today'}
+                        </div>
+                    </div>
+                    ${reward.can_claim ? `<div style="font-size: 24px;">💰</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function getTierIcon(tierName) {
+            const icons = {
+                'Bronze': '🟫',
+                'Silver': '🥈',
+                'Gold': '🥇',
+                'Platinum': '💎',
+                'Diamond': '🔷'
+            };
+            return icons[tierName] || '💎';
+        }
+
+        // Claim rewards
+        async function claimRewards() {
+            try {
+                console.log('🎁 Claiming rewards...');
+
+                const claimBtn = document.getElementById('claim-btn');
+                claimBtn.disabled = true;
+                claimBtn.textContent = 'CLAIMING...';
+
+                const response = await fetch('/api/claim-daily-rewards.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telegram_id: TELEGRAM_USER_ID })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.total_claimed > 0) {
+                    alert(`🎉 SUCCESS!\\n\\nYou claimed ${result.total_claimed.toLocaleString()} TAMA!\\n\\nFrom ${result.nfts_claimed} NFT(s)!\\n\\nCome back tomorrow for more! 💰`);
+                    await loadRewards(); // Reload data
+                } else {
+                    alert(`⏰ ${result.message}\\n\\nCome back tomorrow to claim your rewards!`);
+                }
+
+                claimBtn.textContent = '🎁 CLAIM ALL REWARDS';
+
+            } catch (error) {
+                console.error('❌ Claim error:', error);
+                alert('Failed to claim rewards. Please try again!');
+                document.getElementById('claim-btn').disabled = false;
+                document.getElementById('claim-btn').textContent = '🎁 CLAIM ALL REWARDS';
+            }
+        }
+
+        // Init
+        window.addEventListener('load', () => {
+            console.log('🚀 Daily Rewards page loaded');
+            console.log('👤 User ID:', TELEGRAM_USER_ID);
+            loadRewards();
+
+            // Auto-refresh every 60 seconds
+            setInterval(loadRewards, 60000);
+        });
+    </script>
+</body>
+</html>
+
