@@ -673,6 +673,167 @@
                 </div>
             </div>
 
+            <!-- NFT 5-Tier Stats (NEW!) -->
+            <div class="data-table" style="margin-top: 30px; background: linear-gradient(135deg, rgba(138, 201, 38, 0.05), rgba(255, 215, 0, 0.05));">
+                <div class="table-header" style="background: rgba(138, 201, 38, 0.1);">
+                    <h3>💎 NFT 5-Tier System - Live Stats</h3>
+                    <div class="table-actions">
+                        <button class="refresh-btn" onclick="loadNFTTierStats()" style="background: linear-gradient(135deg, #8AC926, #FFD700);">🔄 Refresh</button>
+                    </div>
+                </div>
+                
+                <!-- Tier Stats Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 20px;">
+                    <!-- Bronze -->
+                    <div style="background: rgba(205, 127, 50, 0.1); border: 2px solid #CD7F32; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 40px; margin-bottom: 10px;">🟫</div>
+                        <h4 style="color: #CD7F32; margin-bottom: 15px;">BRONZE</h4>
+                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Common · TAMA Only</div>
+                        
+                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                            <div style="font-size: 16px; font-weight: bold; color: #CD7F32;"><span id="bronze-price">5,000</span> TAMA</div>
+                            <div style="font-size: 10px; opacity: 0.7;">Fixed Price</div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="bronze-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #CD7F32, #FFB703); transition: width 0.5s;"></div>
+                            </div>
+                            <div style="font-size: 11px; margin-top: 5px;">
+                                Minted: <span id="bronze-minted">0</span> / <span id="bronze-max">4,500</span>
+                                (<span id="bronze-percent">0</span>%)
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×2.0 Boost</div>
+                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="bronze-available">4,500</span></div>
+                    </div>
+
+                    <!-- Silver -->
+                    <div style="background: rgba(192, 192, 192, 0.1); border: 2px solid #C0C0C0; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 40px; margin-bottom: 10px;">🥈</div>
+                        <h4 style="color: #C0C0C0; margin-bottom: 15px;">SILVER</h4>
+                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Uncommon · SOL Bonding</div>
+                        
+                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                            <div style="font-size: 16px; font-weight: bold; color: #C0C0C0;"><span id="silver-price">1.0</span> SOL</div>
+                            <div style="font-size: 10px; opacity: 0.7;">Next: <span id="silver-next">1.006</span> SOL</div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="silver-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #C0C0C0, #E5E5E5); transition: width 0.5s;"></div>
+                            </div>
+                            <div style="font-size: 11px; margin-top: 5px;">
+                                Minted: <span id="silver-minted">0</span> / <span id="silver-max">350</span>
+                                (<span id="silver-percent">0</span>%)
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×2.3 Boost</div>
+                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="silver-available">350</span></div>
+                    </div>
+
+                    <!-- Gold -->
+                    <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid #FFD700; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 40px; margin-bottom: 10px;">🥇</div>
+                        <h4 style="color: #FFD700; margin-bottom: 15px;">GOLD</h4>
+                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Rare · SOL Bonding</div>
+                        
+                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                            <div style="font-size: 16px; font-weight: bold; color: #FFD700;"><span id="gold-price">3.0</span> SOL</div>
+                            <div style="font-size: 10px; opacity: 0.7;">Next: <span id="gold-next">3.054</span> SOL</div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="gold-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #FFD700, #FFED4E); transition: width 0.5s;"></div>
+                            </div>
+                            <div style="font-size: 11px; margin-top: 5px;">
+                                Minted: <span id="gold-minted">0</span> / <span id="gold-max">130</span>
+                                (<span id="gold-percent">0</span>%)
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×2.7 Boost</div>
+                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="gold-available">130</span></div>
+                    </div>
+
+                    <!-- Platinum -->
+                    <div style="background: rgba(229, 228, 226, 0.1); border: 2px solid #E5E4E2; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 40px; margin-bottom: 10px;">💎</div>
+                        <h4 style="color: #E5E4E2; margin-bottom: 15px;">PLATINUM</h4>
+                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Epic · Only 18!</div>
+                        
+                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                            <div style="font-size: 16px; font-weight: bold; color: #E5E4E2;"><span id="platinum-price">10.0</span> SOL</div>
+                            <div style="font-size: 10px; opacity: 0.7;">Next: <span id="platinum-next">11.11</span> SOL</div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="platinum-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #E5E4E2, #FFFFFF); transition: width 0.5s;"></div>
+                            </div>
+                            <div style="font-size: 11px; margin-top: 5px;">
+                                Minted: <span id="platinum-minted">0</span> / <span id="platinum-max">18</span>
+                                (<span id="platinum-percent">0</span>%)
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×3.5 Boost</div>
+                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="platinum-available">18</span></div>
+                    </div>
+
+                    <!-- Diamond -->
+                    <div style="background: rgba(185, 242, 255, 0.1); border: 2px solid #B9F2FF; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 40px; margin-bottom: 10px;">🔷</div>
+                        <h4 style="color: #B9F2FF; margin-bottom: 15px;">DIAMOND</h4>
+                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Legendary · ONLY 2!</div>
+                        
+                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                            <div style="font-size: 16px; font-weight: bold; color: #B9F2FF;"><span id="diamond-price">50.0</span> SOL</div>
+                            <div style="font-size: 10px; opacity: 0.7;">Next: <span id="diamond-next">100.0</span> SOL</div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="diamond-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #B9F2FF, #00D9FF); transition: width 0.5s;"></div>
+                            </div>
+                            <div style="font-size: 11px; margin-top: 5px;">
+                                Minted: <span id="diamond-minted">0</span> / <span id="diamond-max">2</span>
+                                (<span id="diamond-percent">0</span>%)
+                            </div>
+                        </div>
+                        
+                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×5.0 MAX!</div>
+                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="diamond-available">2</span></div>
+                    </div>
+                </div>
+
+                <!-- Total Stats -->
+                <div style="background: rgba(138, 201, 38, 0.1); padding: 20px; margin: 0 20px 20px 20px; border-radius: 10px; text-align: center;">
+                    <h4 style="margin-bottom: 15px;">📊 Total Collection Stats</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                        <div>
+                            <div style="font-size: 24px; font-weight: bold; color: #8AC926;"><span id="total-minted">0</span></div>
+                            <div style="font-size: 12px; opacity: 0.7;">Total Minted</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: bold; color: #FFD700;"><span id="total-available">5,000</span></div>
+                            <div style="font-size: 12px; opacity: 0.7;">Available</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: bold; color: #667eea;"><span id="total-revenue">$0</span></div>
+                            <div style="font-size: 12px; opacity: 0.7;">SOL Revenue</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: bold; color: #10b981;"><span id="total-percent">0</span>%</div>
+                            <div style="font-size: 12px; opacity: 0.7;">Collection Progress</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- NFT Holders Table (NEW!) -->
             <div class="data-table" style="margin-top: 30px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.05), rgba(233, 30, 99, 0.05));">
                 <div class="table-header" style="background: rgba(156, 39, 176, 0.1);">
@@ -1016,6 +1177,9 @@
                 // Load NFT SOL revenue
                 loadNFTSOLRevenue();
                 
+                // Load NFT 5-Tier Stats
+                loadNFTTierStats();
+                
                 // Load NFT Holders
                 loadNFTHolders();
                 
@@ -1175,6 +1339,81 @@
             }
         }
 
+        // Load NFT 5-Tier Stats
+        async function loadNFTTierStats() {
+            try {
+                console.log('💎 Loading NFT 5-Tier stats...');
+                
+                // Fetch bonding state from API
+                const response = await fetch('/api/get-nft-prices.php');
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch NFT prices: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.success || !data.tiers) {
+                    throw new Error('Invalid response from API');
+                }
+
+                console.log('✅ Loaded tier stats:', data.tiers);
+
+                const SOL_USD_RATE = 164.07;
+                let totalMinted = 0;
+                let totalAvailable = 0;
+                let totalRevenue = 0;
+
+                // Update each tier
+                data.tiers.forEach(tier => {
+                    const tierName = tier.tier_name.toLowerCase();
+                    
+                    // Update minted count
+                    document.getElementById(`${tierName}-minted`).textContent = tier.minted_count;
+                    document.getElementById(`${tierName}-max`).textContent = tier.max_supply;
+                    document.getElementById(`${tierName}-available`).textContent = tier.available;
+                    
+                    // Update percentage
+                    const percentage = tier.minted_percentage;
+                    document.getElementById(`${tierName}-percent`).textContent = percentage.toFixed(1);
+                    document.getElementById(`${tierName}-progress`).style.width = percentage + '%';
+                    
+                    // Update prices
+                    if (tier.payment_type === 'TAMA') {
+                        document.getElementById(`${tierName}-price`).textContent = tier.current_price.toLocaleString();
+                    } else {
+                        document.getElementById(`${tierName}-price`).textContent = tier.current_price.toFixed(2);
+                        document.getElementById(`${tierName}-next`).textContent = tier.next_price.toFixed(2);
+                        
+                        // Calculate revenue for this tier (only SOL tiers)
+                        // Simple estimate: minted_count * average_price
+                        const avgPrice = (tier.start_price + tier.current_price) / 2;
+                        const tierRevenue = tier.minted_count * avgPrice * SOL_USD_RATE;
+                        totalRevenue += tierRevenue;
+                    }
+                    
+                    // Sum totals
+                    totalMinted += tier.minted_count;
+                    totalAvailable += tier.available;
+                });
+
+                // Update total stats
+                document.getElementById('total-minted').textContent = totalMinted.toLocaleString();
+                document.getElementById('total-available').textContent = totalAvailable.toLocaleString();
+                document.getElementById('total-revenue').textContent = '$' + Math.round(totalRevenue).toLocaleString();
+                
+                const totalPercent = (totalMinted / 5000 * 100).toFixed(1);
+                document.getElementById('total-percent').textContent = totalPercent;
+
+                console.log(`✅ Total minted: ${totalMinted} / 5,000 (${totalPercent}%)`);
+                console.log(`✅ Total SOL revenue: $${Math.round(totalRevenue)}`);
+
+            } catch (error) {
+                console.error('❌ Error loading NFT tier stats:', error);
+                alert('Failed to load NFT tier stats. Make sure database is set up!');
+            }
+        }
+
         // Load NFT Holders from user_nfts table
         async function loadNFTHolders() {
             try {
@@ -1236,6 +1475,8 @@
                     if (nft.tier_name === 'Bronze') tierColor = '#CD7F32';
                     if (nft.tier_name === 'Silver') tierColor = '#C0C0C0';
                     if (nft.tier_name === 'Gold') tierColor = '#FFD700';
+                    if (nft.tier_name === 'Platinum') tierColor = '#E5E4E2';
+                    if (nft.tier_name === 'Diamond') tierColor = '#B9F2FF';
                     
                     // Rarity badge (with color)
                     let rarityColor = '#666';
