@@ -147,13 +147,13 @@
             padding: 20px 0;
         }
 
-        /* Tier Card */
+        /* Tier Card - УЛУЧШЕННАЯ ЧИТАЕМОСТЬ! */
         .tier-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border: 3px solid;
             border-radius: 20px;
-            padding: 25px;
+            padding: 30px; /* +5px для воздуха */
             text-align: center;
             transition: all 0.4s ease;
             position: relative;
@@ -230,56 +230,58 @@
         }
 
         .tier-icon {
-            font-size: 60px;
-            margin-bottom: 15px;
+            font-size: 70px; /* +10px КРУПНЕЕ */
+            margin-bottom: 20px; /* +5px spacing */
             filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
             transition: transform 0.3s ease;
         }
 
         .tier-card:hover .tier-icon {
-            transform: scale(1.1) rotate(5deg);
+            transform: scale(1.15) rotate(5deg); /* больше эффект */
         }
 
         .tier-name {
-            font-size: 18px;
+            font-size: 22px; /* +4px КРУПНЕЕ */
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 10px; /* +2px spacing */
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px; /* лучше читаемость */
         }
 
         .tier-supply {
-            font-size: 10px;
-            opacity: 0.8;
-            margin-bottom: 12px;
+            font-size: 11px; /* +1px читаемее */
+            opacity: 0.85; /* +0.05 ярче */
+            margin-bottom: 18px; /* +6px spacing */
+            line-height: 1.4;
         }
 
         .tier-price {
-            font-size: 14px;
-            margin: 12px 0;
-            padding: 10px;
+            font-size: 16px; /* +2px КРУПНЕЕ */
+            margin: 15px 0; /* +3px spacing */
+            padding: 12px; /* +2px воздуха */
             background: rgba(0, 0, 0, 0.4);
             border-radius: 10px;
             font-weight: bold;
         }
 
         .tier-boost {
-            font-size: 14px;
+            font-size: 16px; /* +2px КРУПНЕЕ */
             background: linear-gradient(135deg, #FFB703, #FB8500);
             color: white;
-            padding: 8px 16px;
+            padding: 10px 20px; /* +2px и +4px */
             border-radius: 20px;
             display: inline-block;
-            margin: 12px 0;
+            margin: 18px 0; /* +6px spacing */
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(251, 133, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(251, 133, 0, 0.5);
         }
 
         .progress-bar {
             width: 100%;
-            height: 10px;
+            height: 12px; /* +2px ТОЛЩЕ - виднее! */
             background: rgba(0, 0, 0, 0.4);
-            border-radius: 5px;
-            margin: 15px 0;
+            border-radius: 6px; /* +1px */
+            margin: 18px 0; /* +3px spacing */
             overflow: hidden;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
@@ -288,13 +290,14 @@
             height: 100%;
             background: linear-gradient(90deg, #8AC926, #FFD700, #FF006E);
             transition: width 0.5s ease;
-            box-shadow: 0 0 10px rgba(138, 201, 38, 0.5);
+            box-shadow: 0 0 12px rgba(138, 201, 38, 0.6); /* +2px ярче */
         }
 
         .next-price {
-            font-size: 10px;
-            opacity: 0.7;
+            font-size: 11px; /* +1px читаемее */
+            opacity: 0.75; /* +0.05 ярче */
             margin-top: 10px;
+            line-height: 1.4;
         }
 
         .fomo-badge {
@@ -303,11 +306,13 @@
             right: 15px;
             background: linear-gradient(135deg, #FF006E, #FF4500);
             color: white;
-            font-size: 10px;
-            padding: 8px 12px;
+            font-size: 11px; /* +1px КРУПНЕЕ */
+            padding: 10px 14px; /* +2px воздуха */
             border-radius: 15px;
             animation: pulse 2s infinite;
             box-shadow: 0 4px 15px rgba(255, 0, 110, 0.6);
+            font-weight: bold; /* добавил */
+            z-index: 10;
         }
 
         @keyframes pulse {
@@ -500,8 +505,8 @@
                 <div class="tier-supply">Common · 4,500 available</div>
                 
                 <div class="tier-price">
-                    <div style="font-size: 16px; color: #FFD700;">5,000 TAMA</div>
-                    <div style="font-size: 10px; opacity: 0.7; margin-top: 5px;">TAMA Only · Fixed Price</div>
+                    <div style="font-size: 20px; color: #FFD700; font-weight: bold;">5,000 TAMA</div>
+                    <div style="font-size: 11px; opacity: 0.75; margin-top: 6px;">TAMA Only · Fixed Price</div>
                 </div>
                 
                 <div class="tier-boost">×2.0 EARNING</div>
@@ -510,11 +515,11 @@
                     <div class="progress-fill" id="progress-bronze" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 10px; margin-top: 10px;">
+                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
                     Minted: <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintBronze()" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                <button class="mint-btn" onclick="mintBronze()" style="margin-top: 18px; font-size: 13px; padding: 12px;">
                     🔥 MINT BRONZE
                 </button>
             </div>
@@ -527,10 +532,10 @@
                 <div class="tier-supply">Uncommon · 350 available</div>
                 
                 <div class="tier-price">
-                    <div style="font-size: 16px; color: #C0C0C0;">
+                    <div style="font-size: 20px; color: #C0C0C0; font-weight: bold;">
                         <span id="price-silver-sol">1.0</span> SOL
                     </div>
-                    <div style="font-size: 12px; margin-top: 5px;">
+                    <div style="font-size: 14px; margin-top: 6px; opacity: 0.85;">
                         $<span id="price-silver-usd">164</span>
                     </div>
                     <div class="next-price">
@@ -544,11 +549,11 @@
                     <div class="progress-fill" id="progress-silver" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 10px; margin-top: 10px;">
+                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
                     Minted: <span id="minted-silver">0</span> / <span id="max-silver">350</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintSOL('Silver')" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                <button class="mint-btn" onclick="mintSOL('Silver')" style="margin-top: 18px; font-size: 13px; padding: 12px;">
                     💎 MINT SILVER
                 </button>
             </div>
@@ -561,10 +566,10 @@
                 <div class="tier-supply">Rare · 130 available</div>
                 
                 <div class="tier-price">
-                    <div style="font-size: 16px; color: #FFD700;">
+                    <div style="font-size: 20px; color: #FFD700; font-weight: bold;">
                         <span id="price-gold-sol">3.0</span> SOL
                     </div>
-                    <div style="font-size: 12px; margin-top: 5px;">
+                    <div style="font-size: 14px; margin-top: 6px; opacity: 0.85;">
                         $<span id="price-gold-usd">492</span>
                     </div>
                     <div class="next-price">
@@ -578,11 +583,11 @@
                     <div class="progress-fill" id="progress-gold" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 10px; margin-top: 10px;">
+                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
                     Minted: <span id="minted-gold">0</span> / <span id="max-gold">130</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintSOL('Gold')" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                <button class="mint-btn" onclick="mintSOL('Gold')" style="margin-top: 18px; font-size: 13px; padding: 12px;">
                     🏆 MINT GOLD
                 </button>
             </div>
@@ -595,10 +600,10 @@
                 <div class="tier-supply">Epic · Only 18!</div>
                 
                 <div class="tier-price">
-                    <div style="font-size: 16px; color: #E5E4E2;">
+                    <div style="font-size: 20px; color: #E5E4E2; font-weight: bold;">
                         <span id="price-platinum-sol">10.0</span> SOL
                     </div>
-                    <div style="font-size: 12px; margin-top: 5px;">
+                    <div style="font-size: 14px; margin-top: 6px; opacity: 0.85;">
                         $<span id="price-platinum-usd">1,641</span>
                     </div>
                     <div class="next-price">
@@ -612,11 +617,11 @@
                     <div class="progress-fill" id="progress-platinum" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 10px; margin-top: 10px;">
+                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
                     Minted: <span id="minted-platinum">0</span> / <span id="max-platinum">18</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintSOL('Platinum')" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                <button class="mint-btn" onclick="mintSOL('Platinum')" style="margin-top: 18px; font-size: 13px; padding: 12px;">
                     ⚡ MINT PLATINUM
                 </button>
             </div>
@@ -629,10 +634,10 @@
                 <div class="tier-supply">Legendary · ONLY 2 EXIST!</div>
                 
                 <div class="tier-price">
-                    <div style="font-size: 16px; color: #B9F2FF;">
+                    <div style="font-size: 20px; color: #B9F2FF; font-weight: bold;">
                         <span id="price-diamond-sol">50.0</span> SOL
                     </div>
-                    <div style="font-size: 12px; margin-top: 5px;">
+                    <div style="font-size: 14px; margin-top: 6px; opacity: 0.85;">
                         $<span id="price-diamond-usd">8,204</span>
                     </div>
                     <div class="next-price">
@@ -646,11 +651,11 @@
                     <div class="progress-fill" id="progress-diamond" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 10px; margin-top: 10px;">
+                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
                     Minted: <span id="minted-diamond">0</span> / <span id="max-diamond">2</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintSOL('Diamond')" style="margin-top: 15px; font-size: 12px; padding: 10px;">
+                <button class="mint-btn" onclick="mintSOL('Diamond')" style="margin-top: 18px; font-size: 13px; padding: 12px;">
                     👑 MINT DIAMOND
                 </button>
             </div>
