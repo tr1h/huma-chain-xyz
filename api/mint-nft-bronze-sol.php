@@ -130,21 +130,18 @@ try {
     
     $nft_id = $pdo->lastInsertId();
     
-    // 6. Update bonding curve
-    $new_price = $expected_price + floatval($bonding['increment_per_mint']);
+    // 6. Update minted count (price stays fixed at 0.15 SOL)
     $new_minted = $bonding['minted_count'] + 1;
     
     $stmt = $pdo->prepare("
         UPDATE nft_bonding_state
         SET 
-            current_price = :new_price,
             minted_count = :new_minted,
             updated_at = NOW()
         WHERE tier_name = 'Bronze_SOL'
     ");
     
     $stmt->execute([
-        ':new_price' => $new_price,
         ':new_minted' => $new_minted
     ]);
     
@@ -161,7 +158,7 @@ try {
     // Commit transaction
     $pdo->commit();
     
-    error_log("✅ Bronze SOL NFT minted: ID=$nft_id, Design=#{$design['design_number']}, Price=$sent_price SOL");
+    error_log("✅ Bronze SOL NFT minted: ID=$nft_id, Design=#{$design['design_number']}, Price=$sent_price SOL (Fixed)");
     
     echo json_encode([
         'success' => true,
@@ -172,10 +169,10 @@ try {
         'boost_multiplier' => 2.0,
         'price_sol' => $sent_price,
         'price_usd' => round($price_usd, 2),
-        'next_price_sol' => round($new_price, 4),
+        'next_price_sol' => 0.15, // Fixed price, doesn't change!
         'minted_count' => $new_minted,
         'max_supply' => $bonding['max_supply'],
-        'message' => 'Bronze NFT minted successfully (SOL)!'
+        'message' => 'Bronze NFT minted successfully! Fixed price: 0.15 SOL'
     ]);
     
 } catch (Exception $e) {

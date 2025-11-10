@@ -2,30 +2,31 @@
 -- BRONZE SOL + PASSIVE INCOME SYSTEM
 -- ============================================
 
--- 1. ОБНОВЛЯЕМ nft_bonding_state: добавляем Bronze SOL tier
+-- 1. ОБНОВЛЯЕМ nft_bonding_state: добавляем Bronze SOL tier (ФИКС ЦЕНА 0.15 SOL!)
 INSERT INTO nft_bonding_state (
     tier_name,
-    tier_id,
-    rarity_id,
     payment_type,
     start_price,
     current_price,
+    end_price,
     increment_per_mint,
     max_supply,
-    minted_count
+    minted_count,
+    is_active
 ) VALUES (
     'Bronze_SOL',
-    1,
-    1,
     'SOL',
-    0.10,  -- Старт: 0.10 SOL ($16.40)
-    0.10,
-    0.00004444,  -- Инкремент: 0.10 → 0.30 за 4500 минтов = (0.30-0.10)/4500 = 0.00004444
+    0.15,  -- Фикс: 0.15 SOL ($24.60) - Express Mint!
+    0.15,  -- Не меняется!
+    0.15,  -- Остаётся 0.15
+    0.0,   -- НЕТ инкремента (фикс цена!)
     4500,  -- Макс как у Bronze TAMA
-    0
+    0,
+    TRUE
 ) ON CONFLICT (tier_name) DO UPDATE SET
     start_price = EXCLUDED.start_price,
     current_price = EXCLUDED.current_price,
+    end_price = EXCLUDED.end_price,
     increment_per_mint = EXCLUDED.increment_per_mint;
 
 -- 2. СОЗДАЁМ ТАБЛИЦУ ДЛЯ ПАССИВНОГО ДОХОДА

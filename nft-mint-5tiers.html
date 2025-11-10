@@ -534,10 +534,10 @@
                 <!-- TWO BUTTONS: TAMA and SOL -->
                 <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
                     <button class="mint-btn" onclick="mintBronze()" style="background: linear-gradient(135deg, #8AC926, #FFD700);">
-                        🎮 MINT (TAMA)
+                        🎮 FREE MINT (TAMA)
                     </button>
                     <button class="mint-btn" onclick="mintBronzeSOL()" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                        ⚡ EXPRESS (<span id="bronze-sol-price">0.10</span> SOL)
+                        ⚡ EXPRESS MINT (0.15 SOL)
                     </button>
                 </div>
             </div>
@@ -824,13 +824,10 @@
         function updateTierUI(tier) {
             const tierName = tier.tier_name.toLowerCase();
             
-            // Special handling for Bronze_SOL
+            // Special handling for Bronze_SOL (fixed price, no updates needed)
             if (tierName === 'bronze_sol') {
-                const bronzeSolPriceSpan = document.getElementById('bronze-sol-price');
-                if (bronzeSolPriceSpan) {
-                    bronzeSolPriceSpan.textContent = parseFloat(tier.current_price).toFixed(2);
-                }
-                return; // Don't update regular Bronze UI
+                // Fixed price 0.15 SOL - no UI updates needed
+                return;
             }
             
             // Update minted count
@@ -952,19 +949,11 @@
                     return;
                 }
 
-                // Get current Bronze_SOL price
-                const response_price = await fetch('/api/get-nft-prices.php');
-                const price_data = await response_price.json();
-                
-                let bronzeSolPrice = 0.10; // Default
-                const bronzeSolTier = price_data.tiers?.find(t => t.tier_name === 'Bronze_SOL');
-                if (bronzeSolTier) {
-                    bronzeSolPrice = bronzeSolTier.current_price;
-                }
-
+                // Fixed price: 0.15 SOL
+                const bronzeSolPrice = 0.15;
                 const priceUSD = (bronzeSolPrice * SOL_USD_RATE).toFixed(2);
 
-                if (!confirm(`Mint Bronze NFT (Express) for ${bronzeSolPrice} SOL ($${priceUSD})?\\n\\n⚡ Skip the wait - instant mint!\\n✅ Same ×2.0 boost as TAMA version\\n🚀 Price increases with each mint!`)) {
+                if (!confirm(`Mint Bronze NFT (Express) for ${bronzeSolPrice} SOL ($${priceUSD})?\\n\\n⚡ Skip the wait - instant mint!\\n✅ Same ×2.0 boost as TAMA version\\n💎 Fixed price - no FOMO stress!\\n🎁 +50 TAMA passive income daily!`)) {
                     return;
                 }
 
@@ -991,7 +980,7 @@
                 document.getElementById('loading-spinner')?.remove();
 
                 if (result.success) {
-                    alert(`🎉 EXPRESS SUCCESS!\\n\\nYou minted Bronze NFT #${result.design_number}!\\n\\nBoost: ×2.0\\nPrice: ${result.price_sol} SOL\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}\\n\\n⚡ Next price: ${result.next_price_sol} SOL (+${((result.next_price_sol / result.price_sol - 1) * 100).toFixed(1)}%)`);
+                    alert(`🎉 EXPRESS SUCCESS!\\n\\nYou minted Bronze NFT #${result.design_number}!\\n\\nBoost: ×2.0 earning\\nPassive: +50 TAMA/day\\nPrice: ${result.price_sol} SOL ($${(result.price_sol * SOL_USD_RATE).toFixed(2)})\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}\\n\\n💎 Fixed price - always 0.15 SOL!`);
                     
                     // Reload prices & balance
                     await loadPricesAndStats();
