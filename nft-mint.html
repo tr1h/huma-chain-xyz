@@ -760,11 +760,15 @@
                     const TREASURY_LIQUIDITY = new PublicKey('CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1'); // 30%
                     const TREASURY_TEAM = new PublicKey('Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8'); // 20%
                     
-                    // Calculate distribution (dynamic percentages)
+                    // Calculate distribution (dynamic percentages) - ensure total equals solPriceInLamports
+                    const mainLamports = Math.floor(solPriceInLamports * 0.50);      // 50%
+                    const liquidityLamports = Math.floor(solPriceInLamports * 0.30); // 30%
+                    const teamLamports = solPriceInLamports - mainLamports - liquidityLamports; // 20% (remainder to ensure exact total)
+                    
                     const distribution = {
-                        main: Math.floor(solPriceInLamports * 0.50),      // 50%
-                        liquidity: Math.floor(solPriceInLamports * 0.30), // 30%
-                        team: Math.floor(solPriceInLamports * 0.20)       // 20%
+                        main: mainLamports,
+                        liquidity: liquidityLamports,
+                        team: teamLamports
                     };
                     
                     console.log('💰 SOL Distribution:');
@@ -839,11 +843,11 @@
                     const TREASURY_LIQUIDITY_ID = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
                     const TREASURY_TEAM_ID = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
                     
-                    // Convert distribution to SOL (for logging)
+                    // Convert distribution to SOL (for logging) - use precise calculation
                     const distributionSOL = {
-                        main: (distribution.main / 1e9),
-                        liquidity: (distribution.liquidity / 1e9),
-                        team: (distribution.team / 1e9)
+                        main: Math.round((distribution.main / 1e9) * 10000) / 10000,      // Round to 4 decimals
+                        liquidity: Math.round((distribution.liquidity / 1e9) * 10000) / 10000, // Round to 4 decimals
+                        team: Math.round((distribution.team / 1e9) * 10000) / 10000         // Round to 4 decimals
                     };
                     
                     // Log user's NFT mint transaction (paid with SOL)
