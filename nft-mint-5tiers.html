@@ -514,30 +514,30 @@
             <div class="tier-card bronze" id="tier-bronze">
                 <div class="tier-icon">🟫</div>
                 <div class="tier-name">BRONZE</div>
-                <div class="tier-supply">Common · 4,500 available</div>
+                <div class="tier-supply" style="margin-bottom: 10px;">Common · 4,500 available</div>
                 
-                <div class="tier-price">
-                    <div style="font-size: 20px; color: #FFD700; font-weight: bold;">5,000 TAMA</div>
-                    <div style="font-size: 11px; opacity: 0.75; margin-top: 6px;">TAMA Only · Fixed Price</div>
+                <!-- Compact Info -->
+                <div style="font-size: 12px; margin-bottom: 12px; opacity: 0.9;">
+                    <div style="margin-bottom: 4px;">💰 5,000 TAMA or 0.15 SOL</div>
+                    <div style="margin-bottom: 4px;">⚡ ×2.0 EARNING</div>
+                    <div>🎁 +50 TAMA/day</div>
                 </div>
-                
-                <div class="tier-boost">×2.0 EARNING</div>
                 
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-bronze" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
-                    Minted: <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span>
+                <div style="font-size: 10px; margin-top: 8px; margin-bottom: 8px; opacity: 0.75;">
+                    <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span> minted
                 </div>
                 
                 <!-- TWO BUTTONS: TAMA and SOL -->
-                <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
-                    <button class="mint-btn" onclick="mintBronze()" style="background: linear-gradient(135deg, #8AC926, #FFD700);">
-                        🎮 FREE MINT (TAMA)
+                <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
+                    <button class="mint-btn" onclick="mintBronze()" style="background: linear-gradient(135deg, #8AC926, #FFD700); padding: 12px; font-size: 11px;">
+                        🎮 FREE (TAMA)
                     </button>
-                    <button class="mint-btn" onclick="mintBronzeSOL()" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                        ⚡ EXPRESS MINT (0.15 SOL)
+                    <button class="mint-btn" onclick="mintBronzeSOL()" style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 12px; font-size: 11px;">
+                        ⚡ EXPRESS ($25)
                     </button>
                 </div>
             </div>

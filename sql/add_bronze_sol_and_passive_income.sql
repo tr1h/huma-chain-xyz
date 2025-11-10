@@ -2,6 +2,11 @@
 -- BRONZE SOL + PASSIVE INCOME SYSTEM
 -- ============================================
 
+-- 0. СНАЧАЛА ОБНОВЛЯЕМ CHECK CONSTRAINT для tier_name
+ALTER TABLE nft_bonding_state DROP CONSTRAINT IF EXISTS nft_bonding_state_tier_name_check;
+ALTER TABLE nft_bonding_state ADD CONSTRAINT nft_bonding_state_tier_name_check 
+    CHECK (tier_name IN ('Bronze', 'Bronze_SOL', 'Silver', 'Gold', 'Platinum', 'Diamond'));
+
 -- 1. ОБНОВЛЯЕМ nft_bonding_state: добавляем Bronze SOL tier (ФИКС ЦЕНА 0.15 SOL!)
 INSERT INTO nft_bonding_state (
     tier_name,
