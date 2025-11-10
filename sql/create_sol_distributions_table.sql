@@ -37,19 +37,17 @@ CREATE TABLE IF NOT EXISTS sol_distributions (
     
     -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Indexes
-    INDEX idx_sol_dist_tx_sig (transaction_signature),
-    INDEX idx_sol_dist_status (status),
-    INDEX idx_sol_dist_type (distribution_type),
-    INDEX idx_sol_dist_created (created_at DESC)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- ============================================
 -- INDEXES
 -- ============================================
 
+CREATE INDEX IF NOT EXISTS idx_sol_dist_tx_sig ON sol_distributions(transaction_signature);
+CREATE INDEX IF NOT EXISTS idx_sol_dist_status ON sol_distributions(status);
+CREATE INDEX IF NOT EXISTS idx_sol_dist_type ON sol_distributions(distribution_type);
+CREATE INDEX IF NOT EXISTS idx_sol_dist_created ON sol_distributions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sol_distributions_telegram ON sol_distributions(telegram_id);
 CREATE INDEX IF NOT EXISTS idx_sol_distributions_nft_tier ON sol_distributions(nft_tier);
 

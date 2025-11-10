@@ -27,8 +27,8 @@ require_once __DIR__ . '/config.php';
 // ============================================
 
 $TREASURY_MAIN = getenv('TREASURY_MAIN') ?: '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
-$TREASURY_LIQUIDITY = getenv('TREASURY_LIQUIDITY') ?: 'LiquidityPoolWallet111111111111111111111111';
-$TREASURY_TEAM = getenv('TREASURY_TEAM') ?: 'TeamWallet11111111111111111111111111111111';
+$TREASURY_LIQUIDITY = getenv('TREASURY_LIQUIDITY') ?: 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+$TREASURY_TEAM = getenv('TREASURY_TEAM') ?: 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
 
 // ============================================
 // DISTRIBUTION PERCENTAGES
