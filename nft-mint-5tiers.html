@@ -537,7 +537,7 @@
                         🎮 FREE (TAMA)
                     </button>
                     <button class="mint-btn" onclick="mintBronzeSOL()" style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 12px; font-size: 11px;">
-                        ⚡ EXPRESS ($25)
+                        ⚡ EXPRESS (0.15 SOL)
                     </button>
                 </div>
             </div>
@@ -562,6 +562,7 @@
                 </div>
                 
                 <div class="tier-boost">×2.3 EARNING</div>
+                <div style="font-size: 12px; margin-top: 8px; opacity: 0.9;">🎁 +150 TAMA/day</div>
                 
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-silver" style="width: 0%"></div>
@@ -596,6 +597,7 @@
                 </div>
                 
                 <div class="tier-boost">×2.7 EARNING</div>
+                <div style="font-size: 12px; margin-top: 8px; opacity: 0.9;">🎁 +500 TAMA/day</div>
                 
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-gold" style="width: 0%"></div>
@@ -630,6 +632,7 @@
                 </div>
                 
                 <div class="tier-boost">×3.5 EARNING</div>
+                <div style="font-size: 12px; margin-top: 8px; opacity: 0.9;">🎁 +2000 TAMA/day</div>
                 
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-platinum" style="width: 0%"></div>
@@ -664,6 +667,7 @@
                 </div>
                 
                 <div class="tier-boost">×5.0 MAXIMUM!</div>
+                <div style="font-size: 12px; margin-top: 8px; opacity: 0.9;">🎁 +10000 TAMA/day</div>
                 
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-diamond" style="width: 0%"></div>
@@ -1077,6 +1081,7 @@
             console.log('👤 Telegram User ID:', TELEGRAM_USER_ID);
 
             await loadPricesAndStats();
+            await loadTamaBalance(); // 🔥 FIX: Load TAMA balance!
 
             // Auto-refresh prices every 10 seconds
             setInterval(loadPricesAndStats, 10000);
