@@ -138,43 +138,22 @@
             padding: 20px;
         }
 
-        /* Tier Grid - HORIZONTAL SCROLL */
+        /* Tier Grid - ALL IN ONE ROW */
         .tier-grid {
-            display: flex;
-            gap: 25px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
             margin: 30px 0;
-            overflow-x: auto;
-            padding: 20px 10px;
-            scroll-behavior: smooth;
-            
-            /* Custom scrollbar */
-            scrollbar-width: thin;
-            scrollbar-color: #8AC926 rgba(255, 255, 255, 0.1);
-        }
-
-        .tier-grid::-webkit-scrollbar {
-            height: 10px;
-        }
-
-        .tier-grid::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .tier-grid::-webkit-scrollbar-thumb {
-            background: linear-gradient(90deg, #8AC926, #FFD700);
-            border-radius: 10px;
+            padding: 20px 0;
         }
 
         /* Tier Card */
         .tier-card {
-            min-width: 320px;
-            max-width: 320px;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border: 3px solid;
             border-radius: 20px;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
             transition: all 0.4s ease;
             position: relative;
@@ -251,8 +230,8 @@
         }
 
         .tier-icon {
-            font-size: 70px;
-            margin-bottom: 20px;
+            font-size: 60px;
+            margin-bottom: 15px;
             filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
             transition: transform 0.3s ease;
         }
@@ -262,35 +241,35 @@
         }
 
         .tier-name {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .tier-supply {
-            font-size: 11px;
+            font-size: 10px;
             opacity: 0.8;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .tier-price {
-            font-size: 16px;
-            margin: 15px 0;
-            padding: 12px;
+            font-size: 14px;
+            margin: 12px 0;
+            padding: 10px;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 10px;
             font-weight: bold;
         }
 
         .tier-boost {
-            font-size: 16px;
+            font-size: 14px;
             background: linear-gradient(135deg, #FFB703, #FB8500);
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 20px;
             display: inline-block;
-            margin: 15px 0;
+            margin: 12px 0;
             font-weight: bold;
             box-shadow: 0 4px 15px rgba(251, 133, 0, 0.4);
         }
@@ -436,6 +415,14 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Tablet Responsive */
+        @media (max-width: 1200px) {
+            .tier-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .header h1 {
@@ -443,21 +430,21 @@
             }
 
             .tier-grid {
-                padding: 15px 5px;
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 15px 0;
             }
 
             .tier-card {
-                min-width: 280px;
-                max-width: 280px;
                 padding: 25px;
             }
 
             .tier-icon {
-                font-size: 60px;
+                font-size: 50px;
             }
 
             .tier-name {
-                font-size: 18px;
+                font-size: 16px;
             }
 
             .mint-btn {
@@ -473,20 +460,6 @@
                 font-size: 12px;
                 padding: 12px 25px;
             }
-        }
-
-        /* Scroll hint */
-        .scroll-hint {
-            text-align: center;
-            font-size: 12px;
-            opacity: 0.6;
-            margin-top: 10px;
-            animation: bounceX 2s infinite;
-        }
-
-        @keyframes bounceX {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(10px); }
         }
     </style>
 </head>
@@ -681,11 +654,6 @@
                     👑 MINT DIAMOND
                 </button>
             </div>
-        </div>
-
-        <!-- Scroll Hint -->
-        <div class="scroll-hint">
-            ← Scroll to see all tiers →
         </div>
 
         <!-- Info Box -->
