@@ -21,7 +21,7 @@ function initNavigation(currentPage = '') {
     
     const navItems = [
         { id: 'game', label: '🎮 Game', url: 'telegram-game.html' },
-        { id: 'nft', label: '🎨 Mint NFT', url: 'nft-mint.html' },
+        { id: 'nft', label: '🎨 Mint NFT', url: 'nft-mint-5tiers.html' },
         { id: 'my-nfts', label: '🖼️ My NFTs', url: 'my-nfts.html' }
     ];
     

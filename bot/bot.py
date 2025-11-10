@@ -3193,7 +3193,7 @@ def handle_callback(call):
 • Boost: 3-4x earning
 • Best rarity chances!
 
-🌐 [Mint NFT Now]({MINT_URL}nft-mint.html?user_id={telegram_id})
+🌐 [Mint NFT Now]({MINT_URL}nft-mint-5tiers.html?user_id={telegram_id})
                 """
             
             keyboard = types.InlineKeyboardMarkup()
@@ -3474,9 +3474,9 @@ All NFTs give you earning bonuses when playing!
             """
             
             # Create mint URL with user data
-            # Using nft-mint.html (beautiful design with gradients and modern UI)
+            # Using nft-mint-5tiers.html (NEW 5-tier system with bonding curve!)
             # TAMA balance загружается напрямую из базы данных (real-time)
-            mint_url = f"{MINT_URL}nft-mint.html?user_id={telegram_id}"
+            mint_url = f"{MINT_URL}nft-mint-5tiers.html?user_id={telegram_id}"
             
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
