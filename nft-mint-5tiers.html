@@ -160,6 +160,9 @@
             cursor: pointer;
             animation: slideInUp 0.6s ease;
             animation-fill-mode: both;
+            /* ВЫРАВНИВАНИЕ КНОПОК */
+            display: flex;
+            flex-direction: column;
         }
 
         @keyframes slideInUp {
@@ -326,7 +329,7 @@
             }
         }
 
-        /* Mint Button */
+        /* Mint Button - ВЫРОВНЕН ПО НИЗУ */
         .mint-btn {
             width: 100%;
             padding: 15px;
@@ -337,7 +340,7 @@
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: auto; /* Прижимает к низу! */
             transition: all 0.3s ease;
             box-shadow: 0 6px 20px rgba(138, 201, 38, 0.4);
             font-weight: bold;
@@ -519,7 +522,7 @@
                     Minted: <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintBronze()" style="margin-top: 18px; font-size: 13px; padding: 12px;">
+                <button class="mint-btn" onclick="mintBronze()">
                     🔥 MINT BRONZE
                 </button>
             </div>
@@ -553,7 +556,7 @@
                     Minted: <span id="minted-silver">0</span> / <span id="max-silver">350</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintSOL('Silver')" style="margin-top: 18px; font-size: 13px; padding: 12px;">
+                <button class="mint-btn" onclick="mintSOL('Silver')">
                     💎 MINT SILVER
                 </button>
             </div>
@@ -587,7 +590,7 @@
                     Minted: <span id="minted-gold">0</span> / <span id="max-gold">130</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintSOL('Gold')" style="margin-top: 18px; font-size: 13px; padding: 12px;">
+                <button class="mint-btn" onclick="mintSOL('Gold')">
                     🏆 MINT GOLD
                 </button>
             </div>
@@ -621,7 +624,7 @@
                     Minted: <span id="minted-platinum">0</span> / <span id="max-platinum">18</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintSOL('Platinum')" style="margin-top: 18px; font-size: 13px; padding: 12px;">
+                <button class="mint-btn" onclick="mintSOL('Platinum')">
                     ⚡ MINT PLATINUM
                 </button>
             </div>
@@ -655,7 +658,7 @@
                     Minted: <span id="minted-diamond">0</span> / <span id="max-diamond">2</span>
                 </div>
                 
-                <button class="mint-btn" onclick="mintSOL('Diamond')" style="margin-top: 18px; font-size: 13px; padding: 12px;">
+                <button class="mint-btn" onclick="mintSOL('Diamond')">
                     👑 MINT DIAMOND
                 </button>
             </div>
