@@ -995,10 +995,10 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
-                // Call API - use absolute path for GitHub Pages
+                // Call API - use absolute path for GitHub Pages (REST API version - no DB password needed!)
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'api/mint-nft-bronze.php'
-                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze.php';
+                    ? 'api/mint-nft-bronze-rest.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze-rest.php';
                 
                 console.log('📡 Calling API:', apiUrl);
                 
@@ -1082,10 +1082,10 @@
                     // Continue with mint even if distribution fails (user can manually distribute later)
                 }
 
-                // Call API - use absolute path for GitHub Pages
+                // Call API - use absolute path for GitHub Pages (REST API version)
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'api/mint-nft-bronze-sol.php'
-                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze-sol.php';
+                    ? 'api/mint-nft-bronze-sol-rest.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze-sol-rest.php';
                 
                 console.log('📡 Calling API:', apiUrl);
                 
@@ -1199,10 +1199,10 @@
                     // Continue with mint even if distribution fails (user can manually distribute later)
                 }
 
-                // Call API - use absolute path for GitHub Pages
+                // Call API - use absolute path for GitHub Pages (REST API version)
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'api/mint-nft-sol.php'
-                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-sol.php';
+                    ? 'api/mint-nft-sol-rest.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-sol-rest.php';
                 
                 console.log('📡 Calling API:', apiUrl);
                 
