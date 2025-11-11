@@ -73,12 +73,12 @@ try {
             error_log("🟫 Bronze TAMA mint request: user=$telegram_id");
     
     // 1. Check TAMA balance from leaderboard table (balance is stored there, not in players)
-    $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+    $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
     
     if ($leaderboard['code'] !== 200 || empty($leaderboard['data'])) {
         // Create player in leaderboard table with default values
         $newPlayer = supabaseQuery('leaderboard', 'POST', [
-            'telegram_id' => $telegram_id,
+            'telegram_id' => intval($telegram_id), // ✅ Convert to integer (bigint)
             'tama' => 0
         ]);
         
@@ -120,7 +120,7 @@ try {
         'leaderboard', 
         'PATCH', 
         ['tama' => $newBalance],
-        '?telegram_id=eq.' . $telegram_id
+        '?telegram_id=eq.' . intval($telegram_id) // ✅ Convert to integer
     );
     
     if ($updatePlayer['code'] < 200 || $updatePlayer['code'] >= 300) {
@@ -141,10 +141,10 @@ try {
     if ($mintedCount >= $maxSupply) {
         // Refund TAMA
         supabaseQuery(
-            'players', 
+            'leaderboard', 
             'PATCH', 
-            ['tama_balance' => $tamaBalance],
-            '?telegram_id=eq.' . $telegram_id
+            ['tama' => $tamaBalance],
+            '?telegram_id=eq.' . intval($telegram_id) // ✅ Convert to integer
         );
         throw new Exception('Bronze NFTs sold out!');
     }
@@ -222,12 +222,12 @@ try {
         error_log("💾 Saving wallet_address to player: $wallet_address");
     }
     
-    $updateBoost = supabaseQuery(
-        'players',
-        'PATCH',
-        $updateData,
-        '?telegram_id=eq.' . $telegram_id
-    );
+            $updateBoost = supabaseQuery(
+                'players',
+                'PATCH',
+                $updateData,
+                '?telegram_id=eq.' . intval($telegram_id) // ✅ Convert to integer
+            );
     
     error_log("✅ Bronze NFT minted: Design=#{$randomDesign['design_number']}, User=$telegram_id");
     
