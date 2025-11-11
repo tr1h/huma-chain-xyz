@@ -60,18 +60,19 @@ try {
     
     error_log("🟫 Bronze TAMA mint request: user=$telegram_id");
     
-    // 1. Check TAMA balance (create player if not exists)
-    $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+    // 1. Check TAMA balance from leaderboard table (balance is stored there, not in players)
+    $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
     
-    if ($player['code'] !== 200 || empty($player['data'])) {
-            // Auto-create player with only telegram_id (tama_balance might be in another table)
-            $newPlayer = supabaseQuery('players', 'POST', [
-                'telegram_id' => $telegram_id
-            ]);
+    if ($leaderboard['code'] !== 200 || empty($leaderboard['data'])) {
+        // Create player in leaderboard table with default values
+        $newPlayer = supabaseQuery('leaderboard', 'POST', [
+            'telegram_id' => $telegram_id,
+            'tama' => 0
+        ]);
         
         if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
             $errorDetails = json_encode($newPlayer['data'] ?? ['no_data' => true]);
-            error_log("❌ Failed to create player: code={$newPlayer['code']}, data={$errorDetails}");
+            error_log("❌ Failed to create player in leaderboard: code={$newPlayer['code']}, data={$errorDetails}");
             
             // Try to get more details from Supabase error
             $errorMsg = 'Failed to create player account';
@@ -87,26 +88,26 @@ try {
         }
         
         // Get the newly created player
-        $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
-        if ($player['code'] !== 200 || empty($player['data'])) {
+        $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+        if ($leaderboard['code'] !== 200 || empty($leaderboard['data'])) {
             throw new Exception('Player account created but could not be retrieved');
         }
     }
     
-    $playerData = $player['data'][0];
-    // Try different possible column names for TAMA balance
-    $tamaBalance = floatval($playerData['tama_balance'] ?? $playerData['tama'] ?? $playerData['balance'] ?? 0);
+    $playerData = $leaderboard['data'][0];
+    // TAMA balance is stored in 'tama' column in leaderboard table
+    $tamaBalance = floatval($playerData['tama'] ?? 0);
     
     if ($tamaBalance < 5000) {
         throw new Exception('Insufficient TAMA balance. You need 5,000 TAMA.');
     }
     
-    // 2. Deduct 5000 TAMA
+    // 2. Deduct 5000 TAMA from leaderboard table
     $newBalance = $tamaBalance - 5000;
     $updatePlayer = supabaseQuery(
-        'players', 
+        'leaderboard', 
         'PATCH', 
-        ['tama_balance' => $newBalance],
+        ['tama' => $newBalance],
         '?telegram_id=eq.' . $telegram_id
     );
     
