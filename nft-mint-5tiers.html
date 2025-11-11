@@ -647,10 +647,20 @@
                 info: 'ℹ️'
             };
             
+            // SECURITY: Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            const safeTitle = escapeHtml(title);
+            const safeMessage = escapeHtml(message);
+            
             toast.innerHTML = `
                 <div class="toast-header">
                     <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
-                    <span class="toast-title">${title}</span>
+                    <span class="toast-title">${safeTitle}</span>
                     <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>
                 <div class="toast-message">${message}</div>
