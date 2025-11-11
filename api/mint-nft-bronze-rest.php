@@ -173,16 +173,17 @@ try {
     // - nft_mint_address (required, use placeholder until on-chain mint)
     // - rarity (required, Bronze = Common)
     // - telegram_id must be integer (bigint in database)
-    // IMPORTANT: Use (int) cast to ensure PHP sends as number, not string in JSON
-    $telegram_id_int = (int)$telegram_id;
+    // IMPORTANT: Supabase REST API may require bigint as string to avoid precision loss
+    // Try sending as numeric string first, if that fails, try as integer
+    $telegram_id_str = (string)(int)$telegram_id; // Ensure it's a numeric string
     $design_id_int = (int)$randomDesign['id'];
     
-    // Debug: Log the types to ensure they're integers
-    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_int) . ", value=" . $telegram_id_int);
-    error_log("🔍 Debug: design_id type=" . gettype($design_id_int) . ", value=" . $design_id_int);
+    // Debug: Log the types to ensure they're correct
+    error_log("🔍 Debug: telegram_id (string)=" . $telegram_id_str . ", type=" . gettype($telegram_id_str));
+    error_log("🔍 Debug: design_id (int)=" . $design_id_int . ", type=" . gettype($design_id_int));
     
     $nftData = [
-        'telegram_id' => $telegram_id_int, // ✅ Cast to integer (bigint) - ensures JSON number type
+        'telegram_id' => $telegram_id_str, // ✅ Send as numeric string (Supabase bigint may require string)
         'nft_design_id' => $design_id_int, // ✅ Cast to integer - ensures JSON number type
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
