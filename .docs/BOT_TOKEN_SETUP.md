@@ -11,8 +11,8 @@
 ### **Способ 1: Переменные окружения (PowerShell)**
 
 ```powershell
-# Установи токен
-$env:TELEGRAM_BOT_TOKEN = "8445221254:AAE3F6Bha29dS-zzWOmJhz26K9u6lfBUu1g"
+# Установи токен (получи от @BotFather)
+$env:TELEGRAM_BOT_TOKEN = "YOUR_TOKEN_FROM_BOTFATHER"
 
 # Запусти бота
 cd C:\goooog\bot
@@ -23,7 +23,7 @@ cd C:\goooog\bot
 
 1. Создай файл `C:\goooog\bot\.env`:
 ```
-TELEGRAM_BOT_TOKEN=8445221254:AAE3F6Bha29dS-zzWOmJhz26K9u6lfBUu1g
+TELEGRAM_BOT_TOKEN=YOUR_TOKEN_FROM_BOTFATHER
 BOT_USERNAME=GotchiGameBot
 SUPABASE_URL=https://zfrazyupameidxpjihrh.supabase.co
 SUPABASE_KEY=твой_supabase_key
@@ -38,7 +38,7 @@ cd C:\goooog\bot
 ### **Способ 3: Системные переменные окружения**
 
 1. Открой "Системные переменные среды" в Windows
-2. Добавь `TELEGRAM_BOT_TOKEN` = `8445221254:AAE3F6Bha29dS-zzWOmJhz26K9u6lfBUu1g`
+2. Добавь `TELEGRAM_BOT_TOKEN` = `YOUR_TOKEN_FROM_BOTFATHER`
 3. Перезапусти PowerShell
 4. Запусти бота
 
@@ -57,13 +57,13 @@ Bot started!
 
 ---
 
-## 🔐 Текущий токен:
+## 🔐 Как получить токен:
 
-```
-8445221254:AAE3F6Bha29dS-zzWOmJhz26K9u6lfBUu1g
-```
+1. Открой @BotFather в Telegram
+2. Отправь `/newbot` или выбери существующего бота
+3. Скопируй токен (формат: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
 
-**Храни его в безопасности!** Не коммить в Git!
+**ВАЖНО:** Храни токен в безопасности! Не коммить в Git!
 
 ---
 
