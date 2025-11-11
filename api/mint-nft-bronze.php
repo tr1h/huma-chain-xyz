@@ -1,25 +1,7 @@
 <?php
 /**
- * Mint Bronze NFT (TAMA Payment)
- * 
- * Endpoint: /api/mint-nft-bronze.php
- * Method: POST
- * 
- * Request Body:
- * {
- *   "telegram_id": 123456789
- * }
- * 
- * Response:
- * {
- *   "success": true,
- *   "design_number": 1234,
- *   "design_theme": "Baby Creatures",
- *   "design_variant": "Green",
- *   "boost": 2.0,
- *   "image_url": "https://arweave.net/...",
- *   "message": "Bronze NFT minted successfully!"
- * }
+ * Mint Bronze NFT (TAMA Payment) - Supabase REST API Version
+ * NO DATABASE PASSWORD NEEDED!
  */
 
 header('Content-Type: application/json');
@@ -32,233 +14,218 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit();
-}
+// Supabase REST API Settings
+$supabaseUrl = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
+$supabaseKey = getenv('SUPABASE_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
 
-// Load config
-require_once __DIR__ . '/config.php';
-
-// Get request body
-$input = json_decode(file_get_contents('php://input'), true);
-$telegram_id = isset($input['telegram_id']) ? intval($input['telegram_id']) : null;
-
-if (!$telegram_id) {
-    http_response_code(400);
-    echo json_encode(['error' => 'telegram_id is required']);
-    exit();
+// Helper function for Supabase REST API
+function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') {
+    global $supabaseUrl, $supabaseKey;
+    
+    $url = $supabaseUrl . '/rest/v1/' . $endpoint . $filters;
+    $headers = [
+        'apikey: ' . $supabaseKey,
+        'Authorization: Bearer ' . $supabaseKey,
+        'Content-Type: application/json',
+        'Prefer: return=representation'
+    ];
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    
+    if ($data) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    return ['code' => $httpCode, 'data' => json_decode($response, true)];
 }
 
 try {
-    // Connect to Supabase (PostgreSQL)
-    $dsn = "host=" . SUPABASE_DB_HOST . " port=" . SUPABASE_DB_PORT . " dbname=" . SUPABASE_DB_NAME . " user=" . SUPABASE_DB_USER . " password=" . SUPABASE_DB_PASSWORD . " sslmode=require";
-    $conn = pg_connect($dsn);
-
-    if (!$conn) {
-        throw new Exception('Database connection failed');
+    // Get POST data
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+    
+    $telegram_id = $data['telegram_id'] ?? null;
+    
+    if (!$telegram_id) {
+        throw new Exception('Missing telegram_id');
     }
-
-    // Start transaction
-    pg_query($conn, "BEGIN");
-
-    // ==========================================
-    // STEP 1: Check TAMA balance
-    // ==========================================
-    $query = "SELECT tama_balance FROM players WHERE telegram_id = $1";
-    $result = pg_query_params($conn, $query, array($telegram_id));
-
-    if (!$result) {
-        throw new Exception('Failed to check TAMA balance');
-    }
-
-    $player = pg_fetch_assoc($result);
-
-    if (!$player) {
-        throw new Exception('Player not found');
-    }
-
-    $tama_balance = floatval($player['tama_balance']);
-
-    if ($tama_balance < 5000) {
-        throw new Exception('Insufficient TAMA balance. You need 5,000 TAMA.');
-    }
-
-    // ==========================================
-    // STEP 2: Get random unminted Bronze design
-    // ==========================================
-    $query = "
-        SELECT id, design_number, design_theme, design_variant, image_url, metadata_url
-        FROM nft_designs
-        WHERE tier_name = 'Bronze' AND is_minted = false
-        ORDER BY RANDOM()
-        LIMIT 1
-    ";
-    $result = pg_query($conn, $query);
-
-    if (!$result) {
-        throw new Exception('Failed to get Bronze design');
-    }
-
-    $design = pg_fetch_assoc($result);
-
-    if (!$design) {
-        throw new Exception('No Bronze NFTs left! All 4,500 have been minted.');
-    }
-
-    $design_id = intval($design['id']);
-    $design_number = intval($design['design_number']);
-    $design_theme = $design['design_theme'];
-    $design_variant = $design['design_variant'];
-    $image_url = $design['image_url'] ?: 'https://placeholder.com/bronze.png';
-    $metadata_url = $design['metadata_url'] ?: '';
-
-    // ==========================================
-    // STEP 3: Mark design as minted
-    // ==========================================
-    $query = "
-        UPDATE nft_designs
-        SET is_minted = true, minted_by = $1, minted_at = NOW()
-        WHERE id = $2
-    ";
-    $result = pg_query_params($conn, $query, array($telegram_id, $design_id));
-
-    if (!$result) {
-        throw new Exception('Failed to mark design as minted');
-    }
-
-    // ==========================================
-    // STEP 4: Create user NFT record
-    // ==========================================
-    $query = "
-        INSERT INTO user_nfts 
-        (telegram_id, nft_design_id, tier_name, earning_multiplier, purchase_price_tama, is_active, minted_at)
-        VALUES ($1, $2, $3, $4, $5, true, NOW())
-        RETURNING id
-    ";
-    $result = pg_query_params($conn, $query, array(
-        $telegram_id,
-        $design_id,
-        'Bronze',
-        2.0,
-        5000
-    ));
-
-    if (!$result) {
-        throw new Exception('Failed to create user NFT record');
-    }
-
-    $user_nft = pg_fetch_assoc($result);
-    $user_nft_id = $user_nft['id'];
-
-    // ==========================================
-    // STEP 5: Burn TAMA
-    // ==========================================
-    $new_balance = $tama_balance - 5000;
-    $query = "UPDATE players SET tama_balance = $1 WHERE telegram_id = $2";
-    $result = pg_query_params($conn, $query, array($new_balance, $telegram_id));
-
-    if (!$result) {
-        throw new Exception('Failed to burn TAMA');
-    }
-
-    // ==========================================
-    // STEP 6: Update bonding state
-    // ==========================================
-    $query = "
-        UPDATE nft_bonding_state
-        SET minted_count = minted_count + 1, updated_at = NOW()
-        WHERE tier_name = 'Bronze'
-    ";
-    $result = pg_query($conn, $query);
-
-    if (!$result) {
-        throw new Exception('Failed to update bonding state');
-    }
-
-    // ==========================================
-    // STEP 7: Log transaction to transactions table
-    // ==========================================
-    try {
-        // Get username from leaderboard
-        $username_query = "SELECT telegram_username FROM leaderboard WHERE telegram_id = $1 LIMIT 1";
-        $username_result = pg_query_params($conn, $username_query, array($telegram_id));
-        $username_row = pg_fetch_assoc($username_result);
-        $username = $username_row['telegram_username'] ?? 'user_' . $telegram_id;
-        
-        // Log NFT mint transaction
-        $log_query = "
-            INSERT INTO transactions (
-                user_id,
-                username,
-                type,
-                amount,
-                balance_before,
-                balance_after,
-                metadata,
-                created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-        ";
-        
-        $metadata = json_encode([
-            'tier' => 'Bronze',
-            'design_id' => $design_id,
-            'design_number' => $design_number,
-            'design_theme' => $design_theme,
-            'design_variant' => $design_variant,
-            'payment_method' => 'TAMA',
-            'price_tama' => 5000
+    
+    error_log("🟫 Bronze TAMA mint request: user=$telegram_id");
+    
+    // 1. Check TAMA balance (create player if not exists)
+    $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+    
+    if ($player['code'] !== 200 || empty($player['data'])) {
+        // Auto-create player with default values (NO level column - it's in leaderboard table!)
+        $newPlayer = supabaseQuery('players', 'POST', [
+            'telegram_id' => $telegram_id,
+            'tama_balance' => 0
         ]);
         
-        pg_query_params($conn, $log_query, array(
-            (string)$telegram_id,
-            $username,
-            'nft_mint',
-            -5000, // Negative amount (spend)
-            $tama_balance,
-            $new_balance,
-            $metadata
-        ));
+        if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
+            error_log("❌ Failed to create player: code={$newPlayer['code']}, data=" . json_encode($newPlayer['data']));
+            throw new Exception('Failed to create player account');
+        }
         
-        error_log("✅ Transaction logged: NFT mint (Bronze) for user $telegram_id");
+        // Get the newly created player
+        $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+        if ($player['code'] !== 200 || empty($player['data'])) {
+            throw new Exception('Player account created but could not be retrieved');
+        }
+    }
+    
+    $playerData = $player['data'][0];
+    $tamaBalance = floatval($playerData['tama_balance'] ?? 0);
+    
+    if ($tamaBalance < 5000) {
+        throw new Exception('Insufficient TAMA balance. You need 5,000 TAMA.');
+    }
+    
+    // 2. Get Bronze bonding state
+    $bonding = supabaseQuery('nft_bonding_state', 'GET', null, '?tier_name=eq.Bronze&payment_type=eq.TAMA');
+    
+    if ($bonding['code'] !== 200 || empty($bonding['data'])) {
+        throw new Exception('Bronze tier not configured');
+    }
+    
+    $bondingData = $bonding['data'][0];
+    $mintedCount = intval($bondingData['minted_count'] ?? 0);
+    $maxSupply = intval($bondingData['max_supply'] ?? 4500);
+    
+    if ($mintedCount >= $maxSupply) {
+        throw new Exception('Bronze NFTs sold out!');
+    }
+    
+    // 3. Get random Bronze design
+    $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_id=eq.1&rarity_id=eq.1&limit=100');
+    
+    if ($designs['code'] !== 200 || empty($designs['data'])) {
+        throw new Exception('No Bronze designs available');
+    }
+    
+    $randomDesign = $designs['data'][array_rand($designs['data'])];
+    
+    // 4. Deduct 5000 TAMA
+    $newBalance = $tamaBalance - 5000;
+    $updatePlayer = supabaseQuery(
+        'players', 
+        'PATCH', 
+        ['tama_balance' => $newBalance],
+        '?telegram_id=eq.' . $telegram_id
+    );
+    
+    if ($updatePlayer['code'] < 200 || $updatePlayer['code'] >= 300) {
+        throw new Exception('Failed to deduct TAMA');
+    }
+    
+    // 5. Create NFT record
+    $nftData = [
+        'telegram_id' => $telegram_id,
+        'tier_id' => 1,
+        'tier_name' => 'Bronze',
+        'rarity_id' => 1,
+        'design_id' => $randomDesign['id'],
+        'design_number' => $randomDesign['design_number'],
+        'design_theme' => $randomDesign['theme'],
+        'design_variant' => $randomDesign['variant'],
+        'boost_multiplier' => 2.0,
+        'price_paid_tama' => 5000,
+        'payment_type' => 'TAMA',
+        'is_active' => true
+    ];
+    
+    $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
+    
+    if ($createNFT['code'] < 200 || $createNFT['code'] >= 300) {
+        // Refund TAMA if NFT creation fails
+        supabaseQuery(
+            'players', 
+            'PATCH', 
+            ['tama_balance' => $tamaBalance],
+            '?telegram_id=eq.' . $telegram_id
+        );
+        throw new Exception('Failed to create NFT record');
+    }
+    
+    // 6. Update bonding state
+    $updateBonding = supabaseQuery(
+        'nft_bonding_state',
+        'PATCH',
+        ['minted_count' => $mintedCount + 1],
+        '?tier_name=eq.Bronze&payment_type=eq.TAMA'
+    );
+    
+    // 7. Update player boost
+    $updateBoost = supabaseQuery(
+        'players',
+        'PATCH',
+        ['nft_boost_multiplier' => 2.0],
+        '?telegram_id=eq.' . $telegram_id
+    );
+    
+    // 8. Log transaction to transactions table
+    try {
+        // Get username from leaderboard
+        $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=telegram_username&limit=1');
+        $username = 'user_' . $telegram_id;
+        if ($leaderboard['code'] === 200 && !empty($leaderboard['data'])) {
+            $username = $leaderboard['data'][0]['telegram_username'] ?? $username;
+        }
+        
+        // Log NFT mint transaction
+        $transactionData = [
+            'user_id' => (string)$telegram_id,
+            'username' => $username,
+            'type' => 'nft_mint',
+            'amount' => -5000, // Negative amount (spend)
+            'balance_before' => $tamaBalance,
+            'balance_after' => $newBalance,
+            'metadata' => json_encode([
+                'tier' => 'Bronze',
+                'design_id' => $randomDesign['id'],
+                'design_number' => $randomDesign['design_number'],
+                'design_theme' => $randomDesign['theme'],
+                'design_variant' => $randomDesign['variant'],
+                'payment_method' => 'TAMA',
+                'price_tama' => 5000
+            ])
+        ];
+        
+        $logTransaction = supabaseQuery('transactions', 'POST', $transactionData);
+        
+        if ($logTransaction['code'] >= 200 && $logTransaction['code'] < 300) {
+            error_log("✅ Transaction logged: NFT mint (Bronze) for user $telegram_id");
+        } else {
+            error_log("⚠️ Failed to log transaction: " . json_encode($logTransaction));
+        }
     } catch (Exception $log_error) {
         // Don't fail mint if transaction logging fails
         error_log("⚠️ Failed to log transaction: " . $log_error->getMessage());
     }
-
-    // Commit transaction
-    pg_query($conn, "COMMIT");
-    pg_close($conn);
-
-    // ==========================================
-    // SUCCESS RESPONSE
-    // ==========================================
-    http_response_code(200);
+    
+    error_log("✅ Bronze NFT minted: Design=#{$randomDesign['design_number']}, User=$telegram_id");
+    
     echo json_encode([
         'success' => true,
-        'tier' => 'Bronze',
-        'design_id' => $design_id,
-        'design_number' => $design_number,
-        'design_theme' => $design_theme,
-        'design_variant' => $design_variant,
+        'design_number' => $randomDesign['design_number'],
+        'design_theme' => $randomDesign['theme'],
+        'design_variant' => $randomDesign['variant'],
         'boost' => 2.0,
         'price_tama' => 5000,
-        'image_url' => $image_url,
-        'metadata_url' => $metadata_url,
-        'user_nft_id' => $user_nft_id,
-        'new_tama_balance' => $new_balance,
+        'new_balance' => $newBalance,
         'message' => 'Bronze NFT minted successfully!'
     ]);
-
+    
 } catch (Exception $e) {
-    // Rollback transaction
-    if (isset($conn) && $conn) {
-        pg_query($conn, "ROLLBACK");
-        pg_close($conn);
-    }
-
-    // Error response
+    error_log("❌ Bronze TAMA mint error: " . $e->getMessage());
+    
     http_response_code(400);
     echo json_encode([
         'success' => false,
@@ -266,4 +233,3 @@ try {
     ]);
 }
 ?>
-
