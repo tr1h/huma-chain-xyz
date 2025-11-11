@@ -174,9 +174,16 @@ try {
     // - rarity (required, Bronze = Common)
     // - telegram_id must be integer (bigint in database)
     // IMPORTANT: Use (int) cast to ensure PHP sends as number, not string in JSON
+    $telegram_id_int = (int)$telegram_id;
+    $design_id_int = (int)$randomDesign['id'];
+    
+    // Debug: Log the types to ensure they're integers
+    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_int) . ", value=" . $telegram_id_int);
+    error_log("🔍 Debug: design_id type=" . gettype($design_id_int) . ", value=" . $design_id_int);
+    
     $nftData = [
-        'telegram_id' => (int)$telegram_id, // ✅ Cast to integer (bigint) - ensures JSON number type
-        'nft_design_id' => (int)$randomDesign['id'], // ✅ Cast to integer - ensures JSON number type
+        'telegram_id' => $telegram_id_int, // ✅ Cast to integer (bigint) - ensures JSON number type
+        'nft_design_id' => $design_id_int, // ✅ Cast to integer - ensures JSON number type
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
         'rarity' => 'Common', // ✅ Required field: Bronze = Common
@@ -184,6 +191,10 @@ try {
         'purchase_price_tama' => 5000, // ✅ Correct field name
         'is_active' => true
     ];
+    
+    // Debug: Log the JSON that will be sent
+    $jsonDebug = json_encode($nftData, JSON_NUMERIC_CHECK);
+    error_log("🔍 Debug: JSON to send: " . $jsonDebug);
     
     $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
     
