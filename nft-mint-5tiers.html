@@ -663,8 +663,8 @@
                     <span class="toast-title">${safeTitle}</span>
                     <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>
-                <div class="toast-message">${message}</div>
-                ${link ? `<a href="${link}" target="_blank" class="toast-link">🔗 View on Explorer →</a>` : ''}
+                <div class="toast-message">${safeMessage}</div>
+                ${link ? `<a href="${escapeHtml(link)}" target="_blank" class="toast-link">🔗 View on Explorer →</a>` : ''}
             `;
             
             container.appendChild(toast);
