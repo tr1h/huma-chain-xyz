@@ -52,6 +52,7 @@ try {
     $data = json_decode($json, true);
     
     $telegram_id = $data['telegram_id'] ?? null;
+    $wallet_address = $data['wallet_address'] ?? null; // Optional: wallet address from frontend
     
     if (!$telegram_id) {
         throw new Exception('Missing telegram_id');
@@ -177,11 +178,20 @@ try {
         '?tier_name=eq.Bronze&payment_type=eq.TAMA'
     );
     
-    // 7. Update player boost
+    // 7. Update player boost and wallet_address (if provided)
+    $updateData = ['nft_boost_multiplier' => 2.0];
+    
+    // If wallet_address is provided in request, save it to player
+    $wallet_address = $data['wallet_address'] ?? null;
+    if ($wallet_address) {
+        $updateData['wallet_address'] = $wallet_address;
+        error_log("💾 Saving wallet_address to player: $wallet_address");
+    }
+    
     $updateBoost = supabaseQuery(
         'players',
         'PATCH',
-        ['nft_boost_multiplier' => 2.0],
+        $updateData,
         '?telegram_id=eq.' . $telegram_id
     );
     

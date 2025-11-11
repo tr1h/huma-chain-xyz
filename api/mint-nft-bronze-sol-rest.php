@@ -253,13 +253,24 @@ try {
         }
     }
 
-    // 6. Apply boost to user (update if new boost is higher)
+    // 6. Apply boost to user and ensure wallet_address is saved
+    $updateData = [
+        'nft_boost_multiplier' => 2.0,
+        'wallet_address' => $wallet_address // ✅ Always save wallet_address after mint
+    ];
+    
     $updatePlayerBoost = supabaseQuery(
         'players',
         'PATCH',
-        ['nft_boost_multiplier' => 2.0],
-        '?telegram_id=eq.' . $telegram_id . '&nft_boost_multiplier=lt.2.0'
+        $updateData,
+        '?telegram_id=eq.' . $telegram_id
     );
+    
+    if ($updatePlayerBoost['code'] >= 200 && $updatePlayerBoost['code'] < 300) {
+        error_log("✅ Player updated with wallet_address and boost: user=$telegram_id, wallet=$wallet_address");
+    } else {
+        error_log("⚠️ Failed to update player with wallet: code={$updatePlayerBoost['code']}");
+    }
 
     error_log("✅ Bronze SOL NFT minted: ID=$nft_id, Design=#{$design['design_number']}, Price=$price_sol SOL");
 
