@@ -29,36 +29,51 @@ define('TREASURY_LIQUIDITY', getenv('TREASURY_LIQUIDITY') ?: 'CeeKjLEVfY15fmiVnP
 define('TREASURY_TEAM', getenv('TREASURY_TEAM') ?: 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8');
 
 // ============================================
-// PDO DATABASE CONNECTION
+// PDO DATABASE CONNECTION (OPTIONAL - only if needed)
 // ============================================
-try {
-    $dsn = sprintf(
-        'pgsql:host=%s;port=%s;dbname=%s;sslmode=require',
-        SUPABASE_DB_HOST,
-        SUPABASE_DB_PORT,
-        SUPABASE_DB_NAME
-    );
+// Note: REST API files don't need direct DB connection
+// Only initialize PDO if explicitly needed (lazy initialization)
+function getPDOConnection() {
+    static $pdo = null;
     
-    $pdo = new PDO($dsn, SUPABASE_DB_USER, SUPABASE_DB_PASSWORD, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
-    ]);
-    
-    error_log("✅ Database connected successfully");
-    
-} catch (PDOException $e) {
-    error_log("❌ Database connection failed: " . $e->getMessage());
-    
-    // Don't expose DB errors to client
-    if (php_sapi_name() !== 'cli') {
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Database connection failed'
-        ]);
-        exit;
+    if ($pdo === null) {
+        try {
+            $dsn = sprintf(
+                'pgsql:host=%s;port=%s;dbname=%s;sslmode=require',
+                SUPABASE_DB_HOST,
+                SUPABASE_DB_PORT,
+                SUPABASE_DB_NAME
+            );
+            
+            $pdo = new PDO($dsn, SUPABASE_DB_USER, SUPABASE_DB_PASSWORD, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false
+            ]);
+            
+            error_log("✅ Database connected successfully");
+            
+        } catch (PDOException $e) {
+            error_log("❌ Database connection failed: " . $e->getMessage());
+            throw $e;
+        }
     }
-    throw $e;
+    
+    return $pdo;
+}
+
+// For backward compatibility, create $pdo only if SUPABASE_DB_PASSWORD is set
+// REST API files don't need it, so we skip initialization
+if (!empty(SUPABASE_DB_PASSWORD)) {
+    try {
+        $pdo = getPDOConnection();
+    } catch (PDOException $e) {
+        // Don't fail if DB connection is not available (REST API files work without it)
+        error_log("⚠️ PDO connection not available (REST API files don't need it): " . $e->getMessage());
+        $pdo = null;
+    }
+} else {
+    $pdo = null;
+    error_log("ℹ️ PDO connection skipped (no password set - using REST API only)");
 }
 
