@@ -453,6 +453,83 @@ function handleGetBalance($url, $key) {
 }
 
 /**
+ * Handle wallet address update
+ * POST /api/tama/update-wallet
+ */
+function handleUpdateWallet($url, $key) {
+    try {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $telegram_id = $input['telegram_id'] ?? null;
+        $wallet_address = $input['wallet_address'] ?? null;
+        
+        if (!$telegram_id || !$wallet_address) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'telegram_id and wallet_address are required']);
+            return;
+        }
+        
+        error_log("💾 Updating wallet address: user=$telegram_id, wallet=$wallet_address");
+        
+        // Check if player exists in 'players' table
+        $playerCheck = supabaseRequest($url, $key, 'GET', 'players', ['telegram_id' => "eq.$telegram_id"], null);
+        
+        if ($playerCheck['code'] === 200 && !empty($playerCheck['data'])) {
+            // Player exists - update wallet_address
+            $updateResult = supabaseRequest($url, $key, 'PATCH', 'players', ['telegram_id' => "eq.$telegram_id"], [
+                'wallet_address' => $wallet_address
+            ]);
+            
+            if ($updateResult['code'] >= 200 && $updateResult['code'] < 300) {
+                error_log("✅ Wallet address updated in players table: user=$telegram_id");
+            } else {
+                error_log("⚠️ Failed to update wallet in players table: code={$updateResult['code']}");
+            }
+        } else {
+            // Player doesn't exist - create with wallet_address
+            $createResult = supabaseRequest($url, $key, 'POST', 'players', [], [
+                'telegram_id' => $telegram_id,
+                'wallet_address' => $wallet_address,
+                'tama_balance' => 0,
+                'level' => 1,
+                'xp' => 0,
+                'username' => 'user_' . $telegram_id
+            ]);
+            
+            if ($createResult['code'] >= 200 && $createResult['code'] < 300) {
+                error_log("✅ Player created with wallet address: user=$telegram_id");
+            } else {
+                error_log("⚠️ Failed to create player with wallet: code={$createResult['code']}");
+            }
+        }
+        
+        // Also update leaderboard table if exists
+        $leaderboardCheck = supabaseRequest($url, $key, 'GET', 'leaderboard', ['telegram_id' => "eq.$telegram_id"], null);
+        
+        if ($leaderboardCheck['code'] === 200 && !empty($leaderboardCheck['data'])) {
+            $updateLeaderboard = supabaseRequest($url, $key, 'PATCH', 'leaderboard', ['telegram_id' => "eq.$telegram_id"], [
+                'wallet_address' => $wallet_address
+            ]);
+            
+            if ($updateLeaderboard['code'] >= 200 && $updateLeaderboard['code'] < 300) {
+                error_log("✅ Wallet address updated in leaderboard table: user=$telegram_id");
+            }
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Wallet address saved to database',
+            'telegram_id' => $telegram_id,
+            'wallet_address' => $wallet_address
+        ]);
+        
+    } catch (Exception $e) {
+        error_log("❌ Error updating wallet: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
+/**
  * Добавить TAMA пользователю
  */
 function handleAddTama($url, $key) {
