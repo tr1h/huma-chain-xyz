@@ -46,8 +46,18 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     
     if ($data) {
         // Encode JSON - ensure integers are sent as numbers, not strings
-        // Don't use JSON_NUMERIC_CHECK as it may convert strings to numbers incorrectly
-        $jsonData = json_encode($data);
+        // Use JSON_UNESCAPED_SLASHES for cleaner JSON
+        // Don't use JSON_BIGINT_AS_STRING - we want numbers, not strings
+        $jsonData = json_encode($data, JSON_UNESCAPED_SLASHES);
+        
+        // Debug: Log the JSON to verify telegram_id is a number
+        if (isset($data['telegram_id'])) {
+            $telegramIdInJson = preg_match('/"telegram_id"\s*:\s*"?(\d+)"?/', $jsonData, $matches);
+            if ($telegramIdInJson) {
+                error_log("🔍 JSON Debug: telegram_id in JSON = " . $matches[1] . " (quoted: " . (strpos($jsonData, '"telegram_id":"') !== false ? 'YES' : 'NO') . ")");
+            }
+        }
+        
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     }
     
