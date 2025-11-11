@@ -1248,10 +1248,10 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
-                // Call API - use absolute path for GitHub Pages
+                // Call API - use absolute path for GitHub Pages (REST API version - no DB password needed!)
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'api/mint-nft-bronze.php'
-                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze.php';
+                    ? 'api/mint-nft-bronze-rest.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze-rest.php';
                 
                 console.log('📡 Calling API:', apiUrl);
                 
