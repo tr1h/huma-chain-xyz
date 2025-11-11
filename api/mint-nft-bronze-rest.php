@@ -60,14 +60,17 @@ try {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
     
-    $telegram_id = $data['telegram_id'] ?? null;
-    $wallet_address = $data['wallet_address'] ?? null; // Optional: wallet address from frontend
-    
-    if (!$telegram_id) {
-        throw new Exception('Missing telegram_id');
-    }
-    
-    error_log("🟫 Bronze TAMA mint request: user=$telegram_id");
+            $telegram_id = $data['telegram_id'] ?? null;
+            $wallet_address = $data['wallet_address'] ?? null; // Optional: wallet address from frontend
+            
+            if (!$telegram_id) {
+                throw new Exception('Missing telegram_id');
+            }
+            
+            // SECURITY: Convert telegram_id to integer (bigint in database)
+            $telegram_id = intval($telegram_id);
+            
+            error_log("🟫 Bronze TAMA mint request: user=$telegram_id");
     
     // 1. Check TAMA balance from leaderboard table (balance is stored there, not in players)
     $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
@@ -96,8 +99,8 @@ try {
             throw new Exception($errorMsg);
         }
         
-        // Get the newly created player
-        $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+                // Get the newly created player
+                $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
         if ($leaderboard['code'] !== 200 || empty($leaderboard['data'])) {
             throw new Exception('Player account created but could not be retrieved');
         }
@@ -167,9 +170,10 @@ try {
     // - purchase_price_tama (not price_paid_tama)
     // - nft_mint_address (required, use placeholder until on-chain mint)
     // - rarity (required, Bronze = Common)
+    // - telegram_id must be integer (bigint in database)
     $nftData = [
-        'telegram_id' => $telegram_id,
-        'nft_design_id' => $randomDesign['id'], // ✅ Correct field name
+        'telegram_id' => intval($telegram_id), // ✅ Convert to integer (bigint)
+        'nft_design_id' => intval($randomDesign['id']), // ✅ Convert to integer
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
         'rarity' => 'Common', // ✅ Required field: Bronze = Common
