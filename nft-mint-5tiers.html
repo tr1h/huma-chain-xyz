@@ -1359,6 +1359,14 @@
                     throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
                 }
 
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('❌ API returned non-JSON:', text.substring(0, 500));
+                    throw new Error(`API returned HTML instead of JSON. Status: ${response.status}. Check server logs.`);
+                }
+                
                 const result = await response.json();
 
                 // Remove loading
@@ -1376,7 +1384,8 @@
 
             } catch (err) {
                 console.error(`❌ Mint ${tierName} failed:`, err);
-                alert(`Failed to mint ${tierName} NFT!`);
+                const errorMsg = err.message || 'Unknown error';
+                alert(`Failed to mint ${tierName} NFT!\n\nError: ${errorMsg}`);
                 document.getElementById('loading-spinner')?.remove();
             }
         }
