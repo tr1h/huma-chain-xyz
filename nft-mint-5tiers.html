@@ -148,18 +148,27 @@
             padding: 40px 30px;
         }
 
-        /* Tier Grid - ALL 5 IN ONE ROW (like example) */
+        /* Tier Grid - ALL 5 IN ONE ROW (PERFECT ALIGNMENT) */
         .tier-grid {
-            display: flex;
-            flex-direction: row;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
             gap: 20px;
-            margin: 30px 0;
+            margin: 30px auto;
             padding: 25px;
-            max-width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            justify-content: center;
+            max-width: 1400px;
             align-items: stretch;
+        }
+        
+        /* Mobile: scroll horizontally */
+        @media (max-width: 1400px) {
+            .tier-grid {
+                display: flex;
+                flex-direction: row;
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                justify-content: flex-start;
+            }
         }
         
         /* Custom scrollbar */
@@ -181,7 +190,7 @@
             background: rgba(255, 202, 58, 0.8);
         }
 
-        /* Tier Card - PERFECT ALIGNMENT */
+        /* Tier Card - PERFECT ALIGNMENT - ALL CARDS SAME HEIGHT */
         .tier-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -198,9 +207,9 @@
             flex-direction: column;
             min-width: 240px;
             max-width: 260px;
-            width: 240px;
+            width: 100%;
             flex-shrink: 0;
-            height: 580px;
+            min-height: 650px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             justify-content: space-between;
         }
@@ -1259,10 +1268,10 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
-                // Call API - use absolute path for GitHub Pages (REST API version - no DB password needed!)
+                // Call API - use absolute path for GitHub Pages
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'api/mint-nft-bronze-rest.php'
-                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze-rest.php';
+                    ? 'api/mint-nft-bronze.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze.php';
                 
                 console.log('📡 Calling API:', apiUrl);
                 
@@ -1425,8 +1434,8 @@
 
                 // Call API - use absolute path for GitHub Pages
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'api/mint-nft-sol-rest.php'
-                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-sol-rest.php';
+                    ? 'api/mint-nft-sol.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-sol.php';
                 
                 console.log('📡 Calling API:', apiUrl);
                 
