@@ -59,12 +59,29 @@ try {
     
     error_log("🟫 Bronze TAMA mint request: user=$telegram_id");
     
-    // 1. Check TAMA balance
+    // 1. Check TAMA balance (create player if not exists)
     $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
     
     if ($player['code'] !== 200 || empty($player['data'])) {
-        error_log("❌ Player query failed: code={$player['code']}, data=" . json_encode($player['data']));
-        throw new Exception('Player not found. Please play the game first to create your account.');
+        // Auto-create player with default values
+        $newPlayer = supabaseQuery('players', 'POST', [
+            'telegram_id' => $telegram_id,
+            'tama_balance' => 0,
+            'level' => 1,
+            'xp' => 0,
+            'username' => 'user_' . $telegram_id
+        ]);
+        
+        if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
+            error_log("❌ Failed to create player: code={$newPlayer['code']}, data=" . json_encode($newPlayer['data']));
+            throw new Exception('Failed to create player account');
+        }
+        
+        // Get the newly created player
+        $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+        if ($player['code'] !== 200 || empty($player['data'])) {
+            throw new Exception('Player account created but could not be retrieved');
+        }
     }
     
     $playerData = $player['data'][0];
