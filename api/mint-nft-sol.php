@@ -25,10 +25,34 @@
  * }
  */
 
+// CORS Configuration - MUST BE FIRST
+$allowedOrigins = [
+    'https://tr1h.github.io',
+    'http://localhost',
+    'http://localhost:3000',
+    'http://127.0.0.1'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? $_SERVER['HTTP_REFERER'] ?? '';
+
+// Extract origin from referer if needed
+if (!$origin && isset($_SERVER['HTTP_REFERER'])) {
+    $parsed = parse_url($_SERVER['HTTP_REFERER']);
+    $origin = $parsed['scheme'] . '://' . $parsed['host'];
+}
+
+// If origin is in allowed list, send it back; otherwise send *
+if ($origin && in_array($origin, $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Max-Age: 86400');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
