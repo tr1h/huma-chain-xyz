@@ -62,11 +62,28 @@ try {
     
     error_log("💎 $tier_name SOL mint request: user=$telegram_id, wallet=$wallet_address, price=$price_sol SOL");
     
-    // 1. Check player exists
+    // 1. Check player exists (create if not exists)
     $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id);
     
     if ($player['code'] !== 200 || empty($player['data'])) {
-        throw new Exception('Player not found. Please start the game first!');
+        // Auto-create player with default values
+        $newPlayer = supabaseQuery('players', 'POST', [
+            'telegram_id' => $telegram_id,
+            'tama_balance' => 0,
+            'level' => 1,
+            'xp' => 0,
+            'username' => 'user_' . $telegram_id
+        ]);
+        
+        if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
+            throw new Exception('Failed to create player account');
+        }
+        
+        // Get the newly created player
+        $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id);
+        if ($player['code'] !== 200 || empty($player['data'])) {
+            throw new Exception('Player account created but could not be retrieved');
+        }
     }
     
     // 2. Get bonding state
