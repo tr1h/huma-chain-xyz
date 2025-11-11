@@ -1147,7 +1147,7 @@
                 console.log(`💎 Minting ${tierName} NFT...`);
 
                 if (!walletConnected) {
-                    alert('Please connect your wallet first!');
+                    showNotification('warning', 'Wallet Required', 'Please connect your wallet first to mint with SOL!');
                     return;
                 }
 
