@@ -494,6 +494,11 @@
         const SOL_USD_RATE = 164.07; // 1 SOL = $164.07
         const TELEGRAM_USER_ID = getTelegramUserId();
 
+        // Treasury Wallet Addresses (Devnet)
+        const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+        const TREASURY_LIQUIDITY = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+        const TREASURY_TEAM = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
+
         // State
         let walletConnected = false;
         let walletAddress = null;
@@ -727,6 +732,71 @@
         }
 
         // ==============================================
+        // SOL DISTRIBUTION FUNCTION
+        // ==============================================
+        async function createAndSendDistributionTransaction(priceSOL) {
+            try {
+                const { Transaction, SystemProgram, PublicKey, Connection } = solanaWeb3;
+                const connection = new Connection('https://api.devnet.solana.com');
+                
+                // Create transaction with 3 transfers
+                const transaction = new Transaction();
+                
+                // Transfer 1: 50% to Treasury Main
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_MAIN),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.50)
+                    })
+                );
+                
+                // Transfer 2: 30% to Treasury Liquidity
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_LIQUIDITY),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.30)
+                    })
+                );
+                
+                // Transfer 3: 20% to Treasury Team
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_TEAM),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.20)
+                    })
+                );
+                
+                // Get recent blockhash
+                const { blockhash } = await connection.getLatestBlockhash('confirmed');
+                transaction.recentBlockhash = blockhash;
+                transaction.feePayer = new PublicKey(walletAddress);
+                
+                console.log('💰 Creating SOL distribution transaction...');
+                console.log(`  🏦 Treasury Main: ${(priceSOL * 0.50).toFixed(6)} SOL (50%)`);
+                console.log(`  💧 Treasury Liquidity: ${(priceSOL * 0.30).toFixed(6)} SOL (30%)`);
+                console.log(`  👥 Treasury Team: ${(priceSOL * 0.20).toFixed(6)} SOL (20%)`);
+                
+                // Request signature from Phantom
+                const signed = await window.solana.signAndSendTransaction(transaction);
+                
+                // Wait for confirmation
+                await connection.confirmTransaction(signed, 'confirmed');
+                
+                console.log('✅ SOL distribution transaction confirmed:', signed);
+                console.log(`🔗 View on Explorer: https://explorer.solana.com/tx/${signed}?cluster=devnet`);
+                
+                return signed;
+                
+            } catch (err) {
+                console.error('❌ Distribution transaction failed:', err);
+                throw new Error('Failed to create distribution transaction: ' + err.message);
+            }
+        }
+
+        // ==============================================
         // MINT FUNCTIONS
         // ==============================================
         async function mintBronze() {
@@ -827,6 +897,16 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
+                // Create and send SOL distribution transaction
+                let transactionSignature = null;
+                try {
+                    transactionSignature = await createAndSendDistributionTransaction(bronzeSolPrice);
+                    console.log('✅ Distribution transaction completed:', transactionSignature);
+                } catch (distError) {
+                    console.error('⚠️ Distribution transaction failed, but continuing with mint:', distError);
+                    // Continue with mint even if distribution fails (user can manually distribute later)
+                }
+
                 // Call API - use absolute path for GitHub Pages
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
                     ? 'api/mint-nft-bronze-sol.php'
@@ -840,7 +920,8 @@
                     body: JSON.stringify({
                         telegram_id: TELEGRAM_USER_ID,
                         wallet_address: walletAddress,
-                        price_sol: bronzeSolPrice
+                        price_sol: bronzeSolPrice,
+                        transaction_signature: transactionSignature // ✅ Send transaction signature!
                     })
                 });
 
@@ -856,7 +937,13 @@
                 document.getElementById('loading-spinner')?.remove();
 
                 if (result.success) {
-                    alert(`🎉 EXPRESS SUCCESS!\\n\\nYou minted Bronze NFT #${result.design_number}!\\n\\nBoost: ×2.0 earning\\nPassive: +50 TAMA/day\\nPrice: ${result.price_sol} SOL ($${(result.price_sol * SOL_USD_RATE).toFixed(2)})\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}\\n\\n💎 Fixed price - always 0.15 SOL!`);
+                    let successMsg = `🎉 EXPRESS SUCCESS!\\n\\nYou minted Bronze NFT #${result.design_number}!\\n\\nBoost: ×2.0 earning\\nPassive: +50 TAMA/day\\nPrice: ${result.price_sol} SOL ($${(result.price_sol * SOL_USD_RATE).toFixed(2)})\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}\\n\\n💎 Fixed price - always 0.15 SOL!`;
+                    
+                    if (result.distribution_logged && transactionSignature) {
+                        successMsg += `\\n\\n💰 SOL Distribution logged!\\n🔗 TX: ${transactionSignature.substring(0, 16)}...`;
+                    }
+                    
+                    alert(successMsg);
                     
                     // Reload prices & balance
                     await loadPricesAndStats();
@@ -919,6 +1006,16 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
+                // Create and send SOL distribution transaction
+                let transactionSignature = null;
+                try {
+                    transactionSignature = await createAndSendDistributionTransaction(price);
+                    console.log('✅ Distribution transaction completed:', transactionSignature);
+                } catch (distError) {
+                    console.error('⚠️ Distribution transaction failed, but continuing with mint:', distError);
+                    // Continue with mint even if distribution fails (user can manually distribute later)
+                }
+
                 // Call API - use absolute path for GitHub Pages
                 const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
                     ? 'api/mint-nft-sol.php'
@@ -933,7 +1030,8 @@
                         telegram_id: TELEGRAM_USER_ID,
                         wallet_address: walletAddress,
                         tier: tierName,
-                        price_sol: price
+                        price_sol: price,
+                        transaction_signature: transactionSignature // ✅ Send transaction signature!
                     })
                 });
 
@@ -957,7 +1055,13 @@
                 document.getElementById('loading-spinner')?.remove();
 
                 if (result.success) {
-                    alert(`🎉 SUCCESS!\\n\\nYou minted ${tierName} NFT #${result.design_number}!\\n\\nBoost: ×${boostMap[tierName]}\\nPrice: ${price} SOL\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}`);
+                    let successMsg = `🎉 SUCCESS!\\n\\nYou minted ${tierName} NFT #${result.design_number}!\\n\\nBoost: ×${boostMap[tierName]}\\nPrice: ${price} SOL\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}`;
+                    
+                    if (result.distribution_logged && transactionSignature) {
+                        successMsg += `\\n\\n💰 SOL Distribution logged!\\n🔗 TX: ${transactionSignature.substring(0, 16)}...`;
+                    }
+                    
+                    alert(successMsg);
                     
                     // Reload prices and balance (balance might have changed)
                     await loadPricesAndStats();
