@@ -36,7 +36,7 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
         'apikey: ' . $supabaseKey,
         'Authorization: Bearer ' . $supabaseKey,
         'Content-Type: application/json',
-        'Prefer: return=representation'
+        'Prefer: return=representation,resolution=merge-duplicates'
     ];
     
     $ch = curl_init($url);
@@ -45,18 +45,20 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     
     if ($data) {
-        // Encode JSON - ensure integers are sent as numbers, not strings
-        // Use JSON_UNESCAPED_SLASHES for cleaner JSON
-        // Don't use JSON_BIGINT_AS_STRING - we want numbers, not strings
-        $jsonData = json_encode($data, JSON_UNESCAPED_SLASHES);
-        
-        // Debug: Log the JSON to verify telegram_id is a number
+        // CRITICAL FIX: Cast all numeric IDs to integers before encoding
+        // This ensures they're sent as JSON numbers, not strings
         if (isset($data['telegram_id'])) {
-            $telegramIdInJson = preg_match('/"telegram_id"\s*:\s*"?(\d+)"?/', $jsonData, $matches);
-            if ($telegramIdInJson) {
-                error_log("🔍 JSON Debug: telegram_id in JSON = " . $matches[1] . " (quoted: " . (strpos($jsonData, '"telegram_id":"') !== false ? 'YES' : 'NO') . ")");
-            }
+            $data['telegram_id'] = (int)$data['telegram_id'];
         }
+        if (isset($data['nft_design_id'])) {
+            $data['nft_design_id'] = (int)$data['nft_design_id'];
+        }
+        
+        // Encode without any special flags - let PHP use default behavior
+        $jsonData = json_encode($data);
+        
+        // Debug: Log the exact JSON being sent
+        error_log("🔍 JSON being sent to Supabase: " . substr($jsonData, 0, 500));
         
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     }
@@ -65,7 +67,14 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     
-    return ['code' => $httpCode, 'data' => json_decode($response, true)];
+    $responseData = json_decode($response, true);
+    
+    // Debug: Log response if error
+    if ($httpCode >= 400) {
+        error_log("🔍 Supabase error response: " . $response);
+    }
+    
+    return ['code' => $httpCode, 'data' => $responseData];
 }
 
 try {
