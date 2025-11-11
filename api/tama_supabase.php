@@ -91,6 +91,15 @@ switch ($path) {
         }
         break;
         
+    case '/update-wallet':
+        if ($method === 'POST') {
+            handleUpdateWallet($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     case '/add':
         if ($method === 'POST') {
             handleAddTama($supabaseUrl, $supabaseKey);

@@ -747,6 +747,28 @@
                 localStorage.setItem('phantom_wallet_address', walletAddress);
                 console.log('✅ Wallet address saved to localStorage:', walletAddress);
 
+                // Save wallet address to database
+                try {
+                    const saveWalletUrl = `${TAMA_API_BASE}/update-wallet`;
+                    const saveWalletResponse = await fetch(saveWalletUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            telegram_id: TELEGRAM_USER_ID,
+                            wallet_address: walletAddress
+                        })
+                    });
+                    
+                    if (saveWalletResponse.ok) {
+                        const saveResult = await saveWalletResponse.json();
+                        console.log('✅ Wallet address saved to database:', saveResult);
+                    } else {
+                        console.warn('⚠️ Failed to save wallet to database:', saveWalletResponse.status);
+                    }
+                } catch (err) {
+                    console.warn('⚠️ Error saving wallet to database:', err);
+                }
+
                 document.getElementById('wallet-status').textContent = 
                     walletAddress.substring(0, 4) + '...' + walletAddress.substring(walletAddress.length - 4);
                 
@@ -1326,6 +1348,27 @@
                             walletAddress = resp.publicKey.toString();
                             walletConnected = true;
                             console.log('✅ Wallet auto-connected:', walletAddress);
+                            
+                            // Save wallet address to database on auto-connect
+                            try {
+                                const saveWalletUrl = `${TAMA_API_BASE}/update-wallet`;
+                                const saveWalletResponse = await fetch(saveWalletUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        telegram_id: TELEGRAM_USER_ID,
+                                        wallet_address: walletAddress
+                                    })
+                                });
+                                
+                                if (saveWalletResponse.ok) {
+                                    const saveResult = await saveWalletResponse.json();
+                                    console.log('✅ Wallet address saved to database (auto-connect):', saveResult);
+                                }
+                            } catch (err) {
+                                console.warn('⚠️ Error saving wallet to database (auto-connect):', err);
+                            }
+                            
                             updateWalletUI();
                         }
                     } catch (err) {
