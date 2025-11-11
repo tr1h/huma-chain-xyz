@@ -350,10 +350,126 @@ try {
     }
 
     // ==========================================
-    // STEP 7: Log transaction
+    // STEP 7: Log transaction to transactions table
     // ==========================================
-    // Optional: Log to transactions table for analytics
-    // INSERT INTO transactions (telegram_id, type, amount_sol, tier, ...) VALUES (...)
+    try {
+        // Get username and current balance from leaderboard
+        $username_query = "SELECT telegram_username, tama FROM leaderboard WHERE telegram_id = $1 LIMIT 1";
+        $username_result = pg_query_params($conn, $username_query, array($telegram_id));
+        $username_row = pg_fetch_assoc($username_result);
+        $username = $username_row['telegram_username'] ?? 'user_' . $telegram_id;
+        $current_balance = floatval($username_row['tama'] ?? 0);
+        
+        // Convert SOL price to TAMA equivalent (for transaction amount)
+        // 1 SOL ≈ 164 USD, 1 TAMA = $0.005, so 1 SOL ≈ 32,800 TAMA
+        $tama_equivalent = $price_sol * 32800; // Approximate conversion
+        
+        // Log NFT mint transaction (SOL payment)
+        $log_query = "
+            INSERT INTO transactions (
+                user_id,
+                username,
+                type,
+                amount,
+                balance_before,
+                balance_after,
+                metadata,
+                created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+        ";
+        
+        $metadata = json_encode([
+            'tier' => $tier,
+            'design_id' => $design_id,
+            'design_number' => $design_number,
+            'design_theme' => $design_theme,
+            'design_variant' => $design_variant,
+            'payment_method' => 'SOL',
+            'price_sol' => $price_sol,
+            'price_usd' => round($price_sol * 164.07, 2),
+            'tama_equivalent' => round($tama_equivalent),
+            'transaction_signature' => $transaction_signature,
+            'wallet_address' => $wallet_address
+        ]);
+        
+        pg_query_params($conn, $log_query, array(
+            (string)$telegram_id,
+            $username,
+            'nft_mint_sol',
+            -$tama_equivalent, // Negative amount (spend)
+            $current_balance,
+            $current_balance, // Balance doesn't change for SOL payments
+            $metadata
+        ));
+        
+        error_log("✅ Transaction logged: NFT mint ($tier) SOL for user $telegram_id");
+        
+        // Log SOL distribution transactions if signature provided
+        if ($transaction_signature) {
+            // Log Treasury Main (50%)
+            $treasury_main_amount = $price_sol * 0.50 * 32800; // Convert to TAMA equivalent
+            pg_query_params($conn, $log_query, array(
+                TREASURY_MAIN,
+                '💰 Treasury Main',
+                'treasury_income_from_nft_sol',
+                $treasury_main_amount,
+                0,
+                0,
+                json_encode([
+                    'source' => 'nft_mint_sol',
+                    'tier' => $tier,
+                    'user' => $telegram_id,
+                    'percentage' => 50,
+                    'amount_sol' => $price_sol * 0.50,
+                    'transaction_signature' => $transaction_signature
+                ])
+            ));
+            
+            // Log Treasury Liquidity (30%)
+            $treasury_liquidity_amount = $price_sol * 0.30 * 32800;
+            pg_query_params($conn, $log_query, array(
+                TREASURY_LIQUIDITY,
+                '💧 Treasury Liquidity',
+                'treasury_liquidity_income_from_nft_sol',
+                $treasury_liquidity_amount,
+                0,
+                0,
+                json_encode([
+                    'source' => 'nft_mint_sol',
+                    'tier' => $tier,
+                    'user' => $telegram_id,
+                    'percentage' => 30,
+                    'amount_sol' => $price_sol * 0.30,
+                    'transaction_signature' => $transaction_signature
+                ])
+            ));
+            
+            // Log Treasury Team (20%)
+            $treasury_team_amount = $price_sol * 0.20 * 32800;
+            pg_query_params($conn, $log_query, array(
+                TREASURY_TEAM,
+                '👥 Treasury Team',
+                'treasury_team_income_from_nft_sol',
+                $treasury_team_amount,
+                0,
+                0,
+                json_encode([
+                    'source' => 'nft_mint_sol',
+                    'tier' => $tier,
+                    'user' => $telegram_id,
+                    'percentage' => 20,
+                    'amount_sol' => $price_sol * 0.20,
+                    'transaction_signature' => $transaction_signature
+                ])
+            ));
+            
+            error_log("✅ Distribution transactions logged for $tier NFT");
+        }
+        
+    } catch (Exception $log_error) {
+        // Don't fail mint if transaction logging fails
+        error_log("⚠️ Failed to log transaction: " . $log_error->getMessage());
+    }
 
     // Commit transaction
     pg_query($conn, "COMMIT");

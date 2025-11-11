@@ -178,9 +178,54 @@ try {
     }
 
     // ==========================================
-    // STEP 7: Log transaction (optional)
+    // STEP 7: Log transaction to transactions table
     // ==========================================
-    // You can add transaction logging here if needed
+    try {
+        // Get username from leaderboard
+        $username_query = "SELECT telegram_username FROM leaderboard WHERE telegram_id = $1 LIMIT 1";
+        $username_result = pg_query_params($conn, $username_query, array($telegram_id));
+        $username_row = pg_fetch_assoc($username_result);
+        $username = $username_row['telegram_username'] ?? 'user_' . $telegram_id;
+        
+        // Log NFT mint transaction
+        $log_query = "
+            INSERT INTO transactions (
+                user_id,
+                username,
+                type,
+                amount,
+                balance_before,
+                balance_after,
+                metadata,
+                created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+        ";
+        
+        $metadata = json_encode([
+            'tier' => 'Bronze',
+            'design_id' => $design_id,
+            'design_number' => $design_number,
+            'design_theme' => $design_theme,
+            'design_variant' => $design_variant,
+            'payment_method' => 'TAMA',
+            'price_tama' => 5000
+        ]);
+        
+        pg_query_params($conn, $log_query, array(
+            (string)$telegram_id,
+            $username,
+            'nft_mint',
+            -5000, // Negative amount (spend)
+            $tama_balance,
+            $new_balance,
+            $metadata
+        ));
+        
+        error_log("✅ Transaction logged: NFT mint (Bronze) for user $telegram_id");
+    } catch (Exception $log_error) {
+        // Don't fail mint if transaction logging fails
+        error_log("⚠️ Failed to log transaction: " . $log_error->getMessage());
+    }
 
     // Commit transaction
     pg_query($conn, "COMMIT");

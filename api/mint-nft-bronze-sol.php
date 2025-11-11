@@ -258,6 +258,119 @@ try {
         error_log("ℹ️ No transaction signature provided, skipping distribution log");
     }
     
+    // 9. Log transaction to transactions table
+    try {
+        // Get username from leaderboard
+        $stmt = $pdo->prepare("SELECT telegram_username, tama FROM leaderboard WHERE telegram_id = :telegram_id LIMIT 1");
+        $stmt->execute([':telegram_id' => $telegram_id]);
+        $user_row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $username = $user_row['telegram_username'] ?? 'user_' . $telegram_id;
+        $current_balance = floatval($user_row['tama'] ?? 0);
+        
+        // Convert SOL price to TAMA equivalent
+        $tama_equivalent = $sent_price * 32800; // 1 SOL ≈ 32,800 TAMA
+        
+        // Log NFT mint transaction
+        $log_stmt = $pdo->prepare("
+            INSERT INTO transactions (
+                user_id,
+                username,
+                type,
+                amount,
+                balance_before,
+                balance_after,
+                metadata,
+                created_at
+            ) VALUES (:user_id, :username, 'nft_mint_sol', :amount, :balance_before, :balance_after, :metadata, NOW())
+        ");
+        
+        $metadata = json_encode([
+            'tier' => 'Bronze',
+            'design_id' => $design['id'],
+            'design_number' => $design['design_number'],
+            'design_theme' => $design['theme'],
+            'design_variant' => $design['variant'],
+            'payment_method' => 'SOL',
+            'price_sol' => $sent_price,
+            'price_usd' => round($sent_price * 164.07, 2),
+            'tama_equivalent' => round($tama_equivalent),
+            'transaction_signature' => $transaction_signature,
+            'wallet_address' => $wallet_address,
+            'is_express' => true
+        ]);
+        
+        $log_stmt->execute([
+            ':user_id' => (string)$telegram_id,
+            ':username' => $username,
+            ':amount' => -$tama_equivalent,
+            ':balance_before' => $current_balance,
+            ':balance_after' => $current_balance,
+            ':metadata' => $metadata
+        ]);
+        
+        error_log("✅ Transaction logged: Bronze NFT mint (SOL Express) for user $telegram_id");
+        
+        // Log SOL distribution transactions if signature provided
+        if ($transaction_signature) {
+            $treasury_main = getenv('TREASURY_MAIN') ?: '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+            $treasury_liquidity = getenv('TREASURY_LIQUIDITY') ?: 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+            $treasury_team = getenv('TREASURY_TEAM') ?: 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
+            
+            // Treasury Main (50%)
+            $log_stmt->execute([
+                ':user_id' => $treasury_main,
+                ':username' => '💰 Treasury Main',
+                ':amount' => $sent_price * 0.50 * 32800,
+                ':balance_before' => 0,
+                ':balance_after' => 0,
+                ':metadata' => json_encode([
+                    'source' => 'bronze_nft_mint_sol',
+                    'user' => $telegram_id,
+                    'percentage' => 50,
+                    'amount_sol' => $sent_price * 0.50,
+                    'transaction_signature' => $transaction_signature
+                ])
+            ]);
+            
+            // Treasury Liquidity (30%)
+            $log_stmt->execute([
+                ':user_id' => $treasury_liquidity,
+                ':username' => '💧 Treasury Liquidity',
+                ':amount' => $sent_price * 0.30 * 32800,
+                ':balance_before' => 0,
+                ':balance_after' => 0,
+                ':metadata' => json_encode([
+                    'source' => 'bronze_nft_mint_sol',
+                    'user' => $telegram_id,
+                    'percentage' => 30,
+                    'amount_sol' => $sent_price * 0.30,
+                    'transaction_signature' => $transaction_signature
+                ])
+            ]);
+            
+            // Treasury Team (20%)
+            $log_stmt->execute([
+                ':user_id' => $treasury_team,
+                ':username' => '👥 Treasury Team',
+                ':amount' => $sent_price * 0.20 * 32800,
+                ':balance_before' => 0,
+                ':balance_after' => 0,
+                ':metadata' => json_encode([
+                    'source' => 'bronze_nft_mint_sol',
+                    'user' => $telegram_id,
+                    'percentage' => 20,
+                    'amount_sol' => $sent_price * 0.20,
+                    'transaction_signature' => $transaction_signature
+                ])
+            ]);
+            
+            error_log("✅ Distribution transactions logged for Bronze NFT");
+        }
+        
+    } catch (Exception $log_error) {
+        error_log("⚠️ Failed to log transaction: " . $log_error->getMessage());
+    }
+    
     // Commit transaction
     $pdo->commit();
     
