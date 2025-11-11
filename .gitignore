@@ -62,6 +62,6 @@ NEXT_STEPS.md
 *.private-key.txt
 
 # Admin panels with passwords (local only)
-# wallet-admin.html - ВОССТАНОВЛЕН! Нужен для проекта!
-wallet-admin-password.js
+wallet-admin.html  # ПРИВАТНЫЙ! Только локально, НЕ в Git!
+wallet-admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
 *.password.js
