@@ -138,11 +138,33 @@ try {
     }
     
     // 4. Get random Bronze design
+    // Try different combinations of tier_id and rarity_id for Bronze
     $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_id=eq.1&rarity_id=eq.1&limit=100');
     
+    // If no designs found, try without rarity_id filter
     if ($designs['code'] !== 200 || empty($designs['data'])) {
-        throw new Exception('No Bronze designs available');
+        error_log("⚠️ No designs found with tier_id=1&rarity_id=1, trying tier_id=1 only...");
+        $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_id=eq.1&limit=100');
     }
+    
+    // If still no designs, try with tier_name filter
+    if ($designs['code'] !== 200 || empty($designs['data'])) {
+        error_log("⚠️ No designs found with tier_id=1, trying tier_name=Bronze...");
+        $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_name=eq.Bronze&limit=100');
+    }
+    
+    // If still no designs, try without any filters (get all designs)
+    if ($designs['code'] !== 200 || empty($designs['data'])) {
+        error_log("⚠️ No designs found with Bronze filters, trying all designs...");
+        $designs = supabaseQuery('nft_designs', 'GET', null, '?limit=100');
+    }
+    
+    if ($designs['code'] !== 200 || empty($designs['data'])) {
+        error_log("❌ No designs available in nft_designs table at all!");
+        throw new Exception('No Bronze designs available. Please contact support to add NFT designs to the database.');
+    }
+    
+    error_log("✅ Found " . count($designs['data']) . " design(s) for Bronze NFT");
     
     $randomDesign = $designs['data'][array_rand($designs['data'])];
     
