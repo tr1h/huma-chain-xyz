@@ -1,6 +1,6 @@
 <?php
 /**
- * Mint SOL NFTs (Silver, Gold, Platinum, Diamond) - Supabase REST API Version
+ * Mint SOL-based NFTs (Silver, Gold, Platinum, Diamond) - Supabase REST API Version
  * NO DATABASE PASSWORD NEEDED!
  */
 
@@ -60,13 +60,27 @@ try {
         throw new Exception('Missing required fields');
     }
     
-    error_log("💎 SOL mint request: user=$telegram_id, tier=$tier_name, price=$price_sol SOL");
+    error_log("💎 $tier_name SOL mint request: user=$telegram_id, wallet=$wallet_address, price=$price_sol SOL");
     
-    // Get bonding state
-    $bonding = supabaseQuery('nft_bonding_state', 'GET', null, '?tier_name=eq.' . $tier_name . '&payment_type=eq.SOL&select=*');
+    // Map tier names to IDs and boosts
+    $tierMap = [
+        'Silver' => ['id' => 2, 'rarity' => 2, 'boost' => 2.3, 'passive' => 150],
+        'Gold' => ['id' => 3, 'rarity' => 3, 'boost' => 2.7, 'passive' => 500],
+        'Platinum' => ['id' => 4, 'rarity' => 4, 'boost' => 3.5, 'passive' => 2000],
+        'Diamond' => ['id' => 5, 'rarity' => 5, 'boost' => 5.0, 'passive' => 10000]
+    ];
+    
+    if (!isset($tierMap[$tier_name])) {
+        throw new Exception('Invalid tier name');
+    }
+    
+    $tierInfo = $tierMap[$tier_name];
+    
+    // 1. Get bonding state
+    $bonding = supabaseQuery('nft_bonding_state', 'GET', null, "?tier_name=eq.$tier_name&payment_type=eq.SOL");
     
     if ($bonding['code'] !== 200 || empty($bonding['data'])) {
-        throw new Exception($tier_name . ' tier not configured');
+        throw new Exception("$tier_name tier not configured");
     }
     
     $bondingData = $bonding['data'][0];
@@ -76,46 +90,38 @@ try {
     $increment = floatval($bondingData['increment_per_mint'] ?? 0);
     
     if ($mintedCount >= $maxSupply) {
-        throw new Exception($tier_name . ' NFTs sold out!');
+        throw new Exception("$tier_name NFTs sold out!");
     }
     
-    // Verify price (5% tolerance)
+    // 2. Verify price (allow 5% tolerance)
     $tolerance = $currentPrice * 0.05;
     if ($price_sol < ($currentPrice - $tolerance)) {
         throw new Exception("Price mismatch. Expected: $currentPrice SOL, Sent: $price_sol SOL");
     }
     
-    // Get tier ID mapping
-    $tierMap = ['Silver' => 2, 'Gold' => 3, 'Platinum' => 4, 'Diamond' => 5];
-    $tierId = $tierMap[$tier_name] ?? 2;
-    
-    // Get random design
-    $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_id=eq.' . $tierId . '&select=*&limit=100');
+    // 3. Get random design
+    $designs = supabaseQuery('nft_designs', 'GET', null, "?tier_id=eq.{$tierInfo['id']}&rarity_id=eq.{$tierInfo['rarity']}&limit=100");
     
     if ($designs['code'] !== 200 || empty($designs['data'])) {
-        throw new Exception('No ' . $tier_name . ' designs available');
+        throw new Exception("No $tier_name designs available");
     }
     
     $randomDesign = $designs['data'][array_rand($designs['data'])];
     
-    // Boost mapping
-    $boostMap = ['Silver' => 2.3, 'Gold' => 2.7, 'Platinum' => 3.5, 'Diamond' => 5.0];
-    $boost = $boostMap[$tier_name] ?? 2.3;
-    
-    // Create NFT record
+    // 4. Create NFT record
     $nftData = [
         'telegram_id' => $telegram_id,
         'wallet_address' => $wallet_address,
-        'tier_id' => $tierId,
+        'tier_id' => $tierInfo['id'],
         'tier_name' => $tier_name,
-        'rarity_id' => $randomDesign['rarity_id'],
+        'rarity_id' => $tierInfo['rarity'],
         'design_id' => $randomDesign['id'],
         'design_number' => $randomDesign['design_number'],
         'design_theme' => $randomDesign['theme'],
         'design_variant' => $randomDesign['variant'],
-        'boost_multiplier' => $boost,
+        'boost_multiplier' => $tierInfo['boost'],
         'price_paid_sol' => $price_sol,
-        'price_paid_usd' => round($price_sol * 164.07, 2),
+        'price_paid_usd' => $price_sol * 164.07,
         'payment_type' => 'SOL',
         'is_active' => true
     ];
@@ -123,42 +129,44 @@ try {
     $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
     
     if ($createNFT['code'] < 200 || $createNFT['code'] >= 300) {
-        error_log("❌ Failed to create NFT: " . json_encode($createNFT));
         throw new Exception('Failed to create NFT record');
     }
     
-    // Update bonding state
-    $newPrice = $currentPrice + $increment;
+    // 5. Update bonding state (price increases!)
+    $nextPrice = $currentPrice + $increment;
     $updateBonding = supabaseQuery(
         'nft_bonding_state',
         'PATCH',
         [
             'minted_count' => $mintedCount + 1,
-            'current_price' => $newPrice
+            'current_price' => $nextPrice
         ],
-        '?tier_name=eq.' . $tier_name . '&payment_type=eq.SOL'
+        "?tier_name=eq.$tier_name&payment_type=eq.SOL"
     );
     
-    // Update player boost
+    // 6. Update player boost
     $updateBoost = supabaseQuery(
         'players',
         'PATCH',
-        ['nft_boost_multiplier' => $boost],
-        '?telegram_id=eq.' . $telegram_id
+        ['nft_boost_multiplier' => $tierInfo['boost']],
+        "?telegram_id=eq.$telegram_id"
     );
     
-    error_log("✅ $tier_name NFT minted: Design=#{$randomDesign['design_number']}, User=$telegram_id, Price=$price_sol SOL");
+    error_log("✅ $tier_name NFT minted: Design=#{$randomDesign['design_number']}, User=$telegram_id, NextPrice=$nextPrice SOL");
     
     echo json_encode([
         'success' => true,
         'design_number' => $randomDesign['design_number'],
         'design_theme' => $randomDesign['theme'],
         'design_variant' => $randomDesign['variant'],
-        'boost' => $boost,
+        'boost' => $tierInfo['boost'],
+        'passive' => $tierInfo['passive'],
         'price_sol' => $price_sol,
         'price_usd' => round($price_sol * 164.07, 2),
-        'next_price' => $newPrice,
-        'message' => $tier_name . ' NFT minted successfully!'
+        'next_price_sol' => $nextPrice,
+        'minted_count' => $mintedCount + 1,
+        'max_supply' => $maxSupply,
+        'message' => "$tier_name NFT minted successfully!"
     ]);
     
 } catch (Exception $e) {
@@ -171,4 +179,3 @@ try {
     ]);
 }
 ?>
-
