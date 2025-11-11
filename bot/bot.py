@@ -4538,6 +4538,10 @@ if __name__ == '__main__':
     print(f"📡 Bot is ready to receive updates!")
     
     # Use gunicorn in production, Flask dev server for local
+    # SECURITY: Never enable debug mode in production!
+    # Use FLASK_DEBUG environment variable for local development only
+    DEBUG_MODE = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    
     if os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('RENDER'):
         # Production: use gunicorn (installed in requirements.txt)
         # Railway/Render will run: gunicorn bot:app
@@ -4545,5 +4549,8 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=PORT, debug=False)
     else:
         # Local development: use Flask dev server
-        print("🔧 Running in development mode (Flask dev server)")
-        app.run(host='0.0.0.0', port=PORT, debug=True)
+        if DEBUG_MODE:
+            print("🔧 Running in development mode (Flask dev server with debug)")
+        else:
+            print("🔧 Running in local mode (Flask dev server, debug disabled for security)")
+        app.run(host='0.0.0.0', port=PORT, debug=DEBUG_MODE)
