@@ -36,7 +36,8 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
         'apikey: ' . $supabaseKey,
         'Authorization: Bearer ' . $supabaseKey,
         'Content-Type: application/json',
-        'Prefer: return=representation,resolution=merge-duplicates'
+        'Prefer: return=representation,resolution=merge-duplicates',
+        'Accept: application/vnd.pgjson.object+json' // Explicit JSON format
     ];
     
     $ch = curl_init($url);
