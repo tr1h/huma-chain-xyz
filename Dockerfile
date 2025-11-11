@@ -47,6 +47,14 @@ RUN a2enmod rewrite headers
 # Copy API files
 COPY api/ /app/api/
 
+# Create .htaccess for API routing
+RUN echo 'RewriteEngine On\n\
+RewriteCond %{REQUEST_URI} ^/api/tama\n\
+RewriteRule ^api/tama(.*)$ /api/tama_supabase.php [QSA,L]\n\
+RewriteCond %{REQUEST_FILENAME} !-f\n\
+RewriteCond %{REQUEST_URI} ^/api/tama\n\
+RewriteRule ^api/tama(.*)$ /api/tama_supabase.php [QSA,L]' > /app/api/.htaccess
+
 # Configure Apache
 RUN echo '<VirtualHost *:80>\n\
     DocumentRoot /app\n\
