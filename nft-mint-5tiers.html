@@ -1010,8 +1010,9 @@
                 if (result.success) {
                     alert(`🎉 SUCCESS!\\n\\nYou minted Bronze NFT #${result.design_number}!\\n\\nBoost: ×2.0\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}`);
                     
-                    // Reload prices & balance
+                    // Reload prices & balance (balance decreased by 5,000 TAMA)
                     await loadPricesAndStats();
+                    await loadTAMABalance(); // Update TAMA balance after mint
                 } else {
                     alert(`❌ Error: ${result.error || 'Unknown error'}`);
                 }
