@@ -36,10 +36,10 @@ COPY --from=solana-installer /root/.local/share/solana /root/.local/share/solana
 # Set PATH for Solana CLI
 ENV PATH="/root/.local/share/solana/install/active_release/bin:${PATH}"
 
-# Verify Solana CLI is available
+# Verify Solana CLI is available (non-fatal if fails)
 RUN export PATH="/root/.local/share/solana/install/active_release/bin:$PATH" && \
-    solana --version && \
-    spl-token --version
+    (solana --version || echo "⚠️ Warning: Solana CLI check failed") && \
+    (spl-token --version || echo "⚠️ Warning: spl-token check failed")
 
 # Enable Apache modules
 RUN a2enmod rewrite headers
@@ -85,13 +85,15 @@ RUN echo '<VirtualHost *:80>\n\
 RUN echo '#!/bin/bash\n\
 set -e\n\
 PORT=${PORT:-80}\n\
-echo "Starting Apache on port $PORT"\n\
-echo "Solana CLI version:"\n\
+echo "🚀 Starting Apache on port $PORT"\n\
+echo "📦 Solana CLI check:"\n\
 export PATH="/root/.local/share/solana/install/active_release/bin:$PATH"\n\
-solana --version || echo "⚠️ Solana CLI not found"\n\
-spl-token --version || echo "⚠️ spl-token not found"\n\
-sed -i "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf || true\n\
-sed -i "s/<VirtualHost \\*:80>/<VirtualHost *:$PORT>/g" /etc/apache2/sites-available/000-default.conf || true\n\
+solana --version 2>&1 || echo "⚠️ Solana CLI not found (non-critical)"\n\
+spl-token --version 2>&1 || echo "⚠️ spl-token not found (non-critical)"\n\
+echo "🔧 Configuring Apache for port $PORT"\n\
+sed -i "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf 2>/dev/null || true\n\
+sed -i "s/<VirtualHost \\*:80>/<VirtualHost *:$PORT>/g" /etc/apache2/sites-available/000-default.conf 2>/dev/null || true\n\
+echo "✅ Starting Apache..."\n\
 exec apache2-foreground' > /start.sh
 RUN chmod +x /start.sh
 

@@ -6,7 +6,7 @@ services:
     dockerfilePath: ./Dockerfile
     region: oregon
     plan: free
-    healthCheckPath: /api/test.php
+    healthCheckPath: /api/tama/test
     envVars:
       - key: SUPABASE_URL
         value: https://zfrazyupameidxpjihrh.supabase.co
