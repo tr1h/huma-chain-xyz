@@ -166,11 +166,13 @@ try {
     // - earning_multiplier (not boost_multiplier)
     // - purchase_price_tama (not price_paid_tama)
     // - nft_mint_address (required, use placeholder until on-chain mint)
+    // - rarity (required, Bronze = Common)
     $nftData = [
         'telegram_id' => $telegram_id,
         'nft_design_id' => $randomDesign['id'], // ✅ Correct field name
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
+        'rarity' => 'Common', // ✅ Required field: Bronze = Common
         'earning_multiplier' => 2.0, // ✅ Correct field name
         'purchase_price_tama' => 5000, // ✅ Correct field name
         'is_active' => true
