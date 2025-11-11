@@ -74,6 +74,9 @@ define('TAMA_DECIMALS', 9);
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
+// Debug: Log the original path
+error_log("🔍 API Request - Method: $method, Original Path: $path");
+
 // Убрать /api/tama из пути, если есть
 $path = preg_replace('#^/api/tama#', '', $path);
 
@@ -81,6 +84,9 @@ $path = preg_replace('#^/api/tama#', '', $path);
 if (empty($path) || $path === '') {
     $path = '/';
 }
+
+// Debug: Log the processed path
+error_log("🔍 API Request - Processed Path: $path");
 
 // Маршрутизация
 switch ($path) {

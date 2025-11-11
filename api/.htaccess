@@ -3,12 +3,9 @@
 
 RewriteEngine On
 
-# Route /api/tama/* to tama_supabase.php
+# Route /api/tama/* to tama_supabase.php (absolute path from document root)
 RewriteCond %{REQUEST_URI} ^/api/tama
-RewriteRule ^api/tama(.*)$ /api/tama_supabase.php [QSA,L]
-
-# If file doesn't exist, try tama_supabase.php
+RewriteCond %{REQUEST_URI} !tama_supabase\.php$
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} ^/api/tama
 RewriteRule ^api/tama(.*)$ /api/tama_supabase.php [QSA,L]
 
