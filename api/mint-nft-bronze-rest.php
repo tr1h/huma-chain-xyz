@@ -46,19 +46,25 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     
     if ($data) {
-        // CRITICAL FIX: Based on error message, Supabase schema expects BIGINT (number)
-        // Even though old data shows strings, the actual schema is BIGINT
-        // So we MUST send as INTEGER (number in JSON), not string
+        // CRITICAL FIX: Supabase PostgREST may have issues with bigint
+        // Try using explicit type casting in the JSON by ensuring it's a true integer
+        // and using JSON_NUMERIC_CHECK to prevent string conversion
         if (isset($data['telegram_id'])) {
-            $data['telegram_id'] = (int)$data['telegram_id']; // ✅ Send as INTEGER (BIGINT in DB)
+            // Force to integer type
+            $data['telegram_id'] = (int)$data['telegram_id'];
+            // Double-check it's actually an integer
+            if (!is_int($data['telegram_id'])) {
+                $data['telegram_id'] = intval($data['telegram_id']);
+            }
         }
         // nft_design_id can be integer or null
         if (isset($data['nft_design_id']) && $data['nft_design_id'] !== null) {
             $data['nft_design_id'] = (int)$data['nft_design_id'];
         }
         
-        // Encode without any special flags - let PHP use default behavior
-        $jsonData = json_encode($data);
+        // Use JSON_NUMERIC_CHECK to ensure numbers stay as numbers
+        // But be careful - this can convert numeric strings to numbers
+        $jsonData = json_encode($data, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
         
         // Debug: Log the exact JSON being sent
         error_log("🔍 JSON being sent to Supabase: " . substr($jsonData, 0, 500));
@@ -68,7 +74,7 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
             if (strpos($jsonData, '"telegram_id":"') !== false) {
                 error_log("⚠️ WARNING: telegram_id is quoted in JSON! This is wrong for BIGINT!");
             } else {
-                error_log("✅ telegram_id is a number in JSON (correct for BIGINT)");
+                error_log("✅ telegram_id is a number in JSON (correct for BIGINT): " . $matches[1]);
             }
         }
         
