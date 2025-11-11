@@ -280,9 +280,18 @@ switch ($path) {
         break;
         
     default:
+        // Ensure JSON response for unknown routes
+        ob_clean();
+        header('Content-Type: application/json');
         http_response_code(404);
-        echo json_encode(['error' => 'Endpoint not found', 'path' => $path]);
-        break;
+        echo json_encode([
+            'success' => false,
+            'error' => 'Endpoint not found',
+            'path' => $path,
+            'method' => $method,
+            'available_endpoints' => ['/balance', '/add', '/spend', '/mint-nft', '/stats', '/leaderboard', '/test']
+        ]);
+        exit();
 }
 
 /**

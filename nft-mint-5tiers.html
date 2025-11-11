@@ -425,22 +425,23 @@
 
         /* Compact Bronze Buttons - Icon-like */
         .bronze-btn-compact {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             padding: 0;
-            font-size: 20px;
+            font-size: 18px;
             font-family: 'Press Start 2P', cursive;
             background: linear-gradient(135deg, #8AC926, #FFD700);
             color: #1d3557;
             border: 2px solid #CD7F32;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(138, 201, 38, 0.4);
+            box-shadow: 0 3px 12px rgba(138, 201, 38, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            line-height: 1;
         }
 
         .bronze-btn-compact:hover {
@@ -742,12 +743,12 @@
                     <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span> minted
                 </div>
                 
-                <!-- COMPACT BUTTONS: Horizontal, icon-like -->
-                <div style="display: flex; gap: 6px; margin-top: auto; justify-content: center; align-items: center;">
-                    <button class="bronze-btn-compact" onclick="mintBronze()" title="Mint with TAMA">
+                <!-- COMPACT BUTTONS: Horizontal, icon-like, aligned with other cards -->
+                <div style="display: flex; gap: 8px; margin-top: auto; justify-content: center; align-items: center; padding-top: 8px;">
+                    <button class="bronze-btn-compact" onclick="mintBronze()" title="Mint with TAMA (5,000 TAMA)">
                         🎮
                     </button>
-                    <button class="bronze-btn-compact bronze-btn-sol" onclick="mintBronzeSOL()" title="Mint with SOL">
+                    <button class="bronze-btn-compact bronze-btn-sol" onclick="mintBronzeSOL()" title="Mint with SOL (0.15 SOL)">
                         ⚡
                     </button>
                 </div>
