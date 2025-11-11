@@ -345,7 +345,7 @@
             height: 12px;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 6px;
-            margin: 16px 0;
+            margin: 16px 0 12px 0;
             overflow: hidden;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
@@ -421,6 +421,17 @@
             opacity: 0.5;
             cursor: not-allowed;
             background: #666;
+        }
+
+        /* Unified Minted Count Display - All cards aligned */
+        .tier-minted-count {
+            font-size: 11px;
+            margin-top: 0;
+            margin-bottom: 16px;
+            opacity: 0.8;
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            line-height: 1.4;
         }
 
         /* Bronze Text Buttons */
@@ -735,8 +746,8 @@
                     <div class="progress-fill" id="progress-bronze" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 10px; margin-top: 10px; margin-bottom: 12px; opacity: 0.75;">
-                    <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span> minted
+                <div class="tier-minted-count">
+                    Minted: <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span>
                 </div>
                 
                 <!-- Bronze Buttons: Text Style -->
@@ -776,7 +787,7 @@
                     <div class="progress-fill" id="progress-silver" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
+                <div class="tier-minted-count">
                     Minted: <span id="minted-silver">0</span> / <span id="max-silver">350</span>
                 </div>
                 
@@ -811,7 +822,7 @@
                     <div class="progress-fill" id="progress-gold" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
+                <div class="tier-minted-count">
                     Minted: <span id="minted-gold">0</span> / <span id="max-gold">130</span>
                 </div>
                 
@@ -846,7 +857,7 @@
                     <div class="progress-fill" id="progress-platinum" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
+                <div class="tier-minted-count">
                     Minted: <span id="minted-platinum">0</span> / <span id="max-platinum">18</span>
                 </div>
                 
@@ -881,7 +892,7 @@
                     <div class="progress-fill" id="progress-diamond" style="width: 0%"></div>
                 </div>
                 
-                <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">
+                <div class="tier-minted-count">
                     Minted: <span id="minted-diamond">0</span> / <span id="max-diamond">2</span>
                 </div>
                 
