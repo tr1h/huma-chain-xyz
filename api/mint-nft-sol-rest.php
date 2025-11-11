@@ -70,17 +70,29 @@ try {
     
     error_log("💎 $tier_name SOL mint request: user=$telegram_id, wallet=$wallet_address, price=$price_sol SOL");
     
-    // 1. Check player exists (create if not exists)
-    $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id);
+    // 1. Check if player exists by wallet_address first (for direct link users)
+    $playerByWallet = supabaseQuery('players', 'GET', null, '?wallet_address=eq.' . $wallet_address);
+    
+    // If player found by wallet, use their telegram_id
+    if ($playerByWallet['code'] === 200 && !empty($playerByWallet['data'])) {
+        $existingPlayer = $playerByWallet['data'][0];
+        $telegram_id = $existingPlayer['telegram_id'];
+        error_log("✅ Found existing player by wallet_address: telegram_id=$telegram_id");
+        $player = $playerByWallet;
+    } else {
+        // Check player exists by telegram_id
+        $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id);
+    }
     
     if ($player['code'] !== 200 || empty($player['data'])) {
         // Auto-create player with default values and wallet_address
+        $username = $telegram_id < 1000000000 ? 'wallet_' . substr($wallet_address, 0, 8) : 'user_' . $telegram_id;
         $newPlayer = supabaseQuery('players', 'POST', [
             'telegram_id' => $telegram_id,
             'tama_balance' => 0,
             'level' => 1,
             'xp' => 0,
-            'username' => 'user_' . $telegram_id,
+            'username' => $username,
             'wallet_address' => $wallet_address // ✅ Save wallet_address when creating player
         ]);
         
