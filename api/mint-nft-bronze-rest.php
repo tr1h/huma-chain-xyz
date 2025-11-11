@@ -45,10 +45,11 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     
     if ($data) {
-        // CRITICAL FIX: telegram_id must be STRING in user_nfts table!
-        // The schema uses TEXT, not BIGINT, so we send as string
+        // CRITICAL FIX: Based on error message, Supabase schema expects BIGINT (number)
+        // Even though old data shows strings, the actual schema is BIGINT
+        // So we MUST send as INTEGER (number in JSON), not string
         if (isset($data['telegram_id'])) {
-            $data['telegram_id'] = (string)$data['telegram_id']; // ✅ Send as STRING!
+            $data['telegram_id'] = (int)$data['telegram_id']; // ✅ Send as INTEGER (BIGINT in DB)
         }
         // nft_design_id can be integer or null
         if (isset($data['nft_design_id']) && $data['nft_design_id'] !== null) {
@@ -60,6 +61,15 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
         
         // Debug: Log the exact JSON being sent
         error_log("🔍 JSON being sent to Supabase: " . substr($jsonData, 0, 500));
+        
+        // Verify telegram_id is a number in JSON (not quoted)
+        if (preg_match('/"telegram_id"\s*:\s*"?(\d+)"?/', $jsonData, $matches)) {
+            if (strpos($jsonData, '"telegram_id":"') !== false) {
+                error_log("⚠️ WARNING: telegram_id is quoted in JSON! This is wrong for BIGINT!");
+            } else {
+                error_log("✅ telegram_id is a number in JSON (correct for BIGINT)");
+            }
+        }
         
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     }
@@ -200,17 +210,18 @@ try {
     // - purchase_price_tama (not price_paid_tama)
     // - nft_mint_address (required, use placeholder until on-chain mint)
     // - rarity (required, Bronze = Common)
-    // - telegram_id must be STRING in user_nfts table (schema uses TEXT, not BIGINT!)
-    // This was the root cause - Supabase expects string, not number
-    $telegram_id_str = (string)$telegram_id; // ✅ Convert to string
+    // - telegram_id must be INTEGER (BIGINT in database schema)
+    // Error message confirms: "column telegram_id is of type bigint"
+    // So we MUST send as integer (number in JSON), not string
+    $telegram_id_int = (int)$telegram_id; // ✅ Convert to integer
     $design_id_int = (int)$randomDesign['id']; // ✅ Design ID is integer
     
     // Debug: Log the types to ensure correct format
-    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_str) . ", value=" . $telegram_id_str);
+    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_int) . ", value=" . $telegram_id_int);
     error_log("🔍 Debug: design_id type=" . gettype($design_id_int) . ", value=" . $design_id_int);
     
     $nftData = [
-        'telegram_id' => $telegram_id_str, // ✅ Send as STRING (user_nfts.telegram_id is TEXT)
+        'telegram_id' => $telegram_id_int, // ✅ Send as INTEGER (user_nfts.telegram_id is BIGINT)
         'nft_design_id' => $design_id_int, // ✅ Send as integer
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
