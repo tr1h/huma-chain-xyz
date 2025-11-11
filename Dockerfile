@@ -1,6 +1,24 @@
 # PHP API Dockerfile for Render.com
-# PHP 8.2 + Apache (minimal version - Solana CLI will be added later if needed)
+# PHP 8.2 + Apache + Solana CLI (optimized with multi-stage build)
 
+# Stage 1: Install Solana CLI (pre-built binaries, fast)
+FROM ubuntu:22.04 as solana-installer
+
+WORKDIR /tmp
+
+# Install curl and ca-certificates only
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Solana CLI (includes spl-token, no compilation needed!)
+RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)" && \
+    export PATH="/root/.local/share/solana/install/active_release/bin:$PATH" && \
+    solana --version && \
+    spl-token --version
+
+# Stage 2: PHP + Apache + Copy Solana CLI
 FROM php:8.2-apache
 
 # Set working directory
@@ -11,6 +29,17 @@ RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy Solana CLI from stage 1 (much faster than installing again)
+COPY --from=solana-installer /root/.local/share/solana /root/.local/share/solana
+
+# Set PATH for Solana CLI
+ENV PATH="/root/.local/share/solana/install/active_release/bin:${PATH}"
+
+# Verify Solana CLI is available
+RUN export PATH="/root/.local/share/solana/install/active_release/bin:$PATH" && \
+    solana --version && \
+    spl-token --version
 
 # Enable Apache modules
 RUN a2enmod rewrite headers
@@ -38,6 +67,10 @@ RUN echo '#!/bin/bash\n\
 set -e\n\
 PORT=${PORT:-80}\n\
 echo "Starting Apache on port $PORT"\n\
+echo "Solana CLI version:"\n\
+export PATH="/root/.local/share/solana/install/active_release/bin:$PATH"\n\
+solana --version || echo "⚠️ Solana CLI not found"\n\
+spl-token --version || echo "⚠️ spl-token not found"\n\
 sed -i "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf || true\n\
 sed -i "s/<VirtualHost \\*:80>/<VirtualHost *:$PORT>/g" /etc/apache2/sites-available/000-default.conf || true\n\
 exec apache2-foreground' > /start.sh
