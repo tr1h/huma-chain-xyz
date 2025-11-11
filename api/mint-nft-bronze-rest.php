@@ -63,10 +63,11 @@ try {
     $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
     
     if ($player['code'] !== 200 || empty($player['data'])) {
-        // Auto-create player with default values (NO level column - it's in leaderboard table!)
+        // Auto-create player with default values
         $newPlayer = supabaseQuery('players', 'POST', [
             'telegram_id' => $telegram_id,
-            'tama_balance' => 0
+            'tama_balance' => 0,
+            'username' => 'user_' . $telegram_id
         ]);
         
         if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
