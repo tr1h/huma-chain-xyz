@@ -1080,6 +1080,7 @@
                     
                     // Reload prices & balance
                     await loadPricesAndStats();
+                    await loadTAMABalance(); // Update TAMA balance (might have passive income)
                 } else {
                     alert(`❌ Error: ${result.error || 'Unknown error'}`);
                 }
