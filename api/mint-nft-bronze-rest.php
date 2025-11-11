@@ -161,26 +161,24 @@ try {
     $randomDesign = $designs['data'][array_rand($designs['data'])];
     
     // 5. Create NFT record
-    // Use design fields from nft_designs table (tier_name, design_number, design_theme, design_variant)
-    // Check what fields are actually in user_nfts table - use only required ones
+    // Use correct field names from user_nfts table schema:
+    // - nft_design_id (not design_id)
+    // - earning_multiplier (not boost_multiplier)
+    // - purchase_price_tama (not price_paid_tama)
     $nftData = [
         'telegram_id' => $telegram_id,
-        'wallet_address' => $wallet_address ?? null, // Add wallet_address if available
+        'nft_design_id' => $randomDesign['id'], // ✅ Correct field name
         'tier_name' => 'Bronze',
-        'design_id' => $randomDesign['id'],
-        'design_number' => $randomDesign['design_number'],
-        'design_theme' => $randomDesign['design_theme'] ?? 'Unknown',
-        'design_variant' => $randomDesign['design_variant'] ?? 'Unknown',
-        'boost_multiplier' => 2.0,
-        'price_paid_tama' => 5000,
-        'payment_type' => 'TAMA',
+        'earning_multiplier' => 2.0, // ✅ Correct field name
+        'purchase_price_tama' => 5000, // ✅ Correct field name
         'is_active' => true
     ];
     
-    // Remove null values to avoid schema issues
-    $nftData = array_filter($nftData, function($value) {
-        return $value !== null;
-    });
+    // Add optional fields if they exist in schema
+    if (isset($randomDesign['design_number'])) {
+        // Only add if column exists (might not be in schema)
+        // $nftData['design_number'] = $randomDesign['design_number'];
+    }
     
     $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
     
