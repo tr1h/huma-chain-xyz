@@ -81,9 +81,16 @@ try {
             }
             
             // SECURITY: Convert telegram_id to integer (bigint in database)
-            $telegram_id = intval($telegram_id);
+            // Use (int) cast instead of intval() to ensure proper type
+            $telegram_id = (int)$telegram_id;
             
-            error_log("🟫 Bronze TAMA mint request: user=$telegram_id");
+            // Verify it's actually an integer
+            if (!is_int($telegram_id)) {
+                error_log("⚠️ WARNING: telegram_id conversion failed! Original: " . var_export($data['telegram_id'], true));
+                $telegram_id = (int)$telegram_id; // Force conversion
+            }
+            
+            error_log("🟫 Bronze TAMA mint request: user=$telegram_id (type: " . gettype($telegram_id) . ")");
     
     // 1. Check TAMA balance from leaderboard table (balance is stored there, not in players)
     $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
