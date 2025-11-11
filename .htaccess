@@ -6,7 +6,8 @@ RewriteEngine On
 RewriteCond %{REQUEST_URI} ^/api/tama
 RewriteCond %{REQUEST_URI} !tama_supabase\.php$
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^api/tama(.*)$ /api/tama_supabase.php [QSA,L]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/tama(.*)$ api/tama_supabase.php [QSA,L]
 
 # Route /api/test.php to test.php (if exists)
 RewriteCond %{REQUEST_URI} ^/api/test\.php$

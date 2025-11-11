@@ -51,12 +51,12 @@ COPY api/ /app/api/
 COPY .htaccess /app/.htaccess
 
 # Ensure .htaccess in api/ directory exists for routing
-# Use REQUEST_URI which contains full path from document root
+# In .htaccess within directory, use relative path from this directory
 RUN echo 'RewriteEngine On\n\
 RewriteCond %{REQUEST_URI} ^/api/tama\n\
 RewriteCond %{REQUEST_URI} !tama_supabase\.php$\n\
 RewriteCond %{REQUEST_FILENAME} !-f\n\
-RewriteRule ^/api/tama(.*)$ /api/tama_supabase.php [QSA,L]' > /app/api/.htaccess
+RewriteRule ^tama(.*)$ tama_supabase.php [QSA,L]' > /app/api/.htaccess
 
 # Configure Apache with proper routing
 RUN echo '<VirtualHost *:80>\n\
