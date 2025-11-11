@@ -290,7 +290,7 @@ switch ($path) {
             'error' => 'Endpoint not found',
             'path' => $path,
             'method' => $method,
-            'available_endpoints' => ['/balance', '/add', '/spend', '/mint-nft', '/stats', '/leaderboard', '/test']
+            'available_endpoints' => ['/balance', '/add', '/spend', '/mint-nft', '/stats', '/leaderboard', '/update-wallet', '/test']
         ]);
         exit();
 }
