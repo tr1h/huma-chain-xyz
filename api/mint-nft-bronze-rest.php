@@ -67,6 +67,8 @@ try {
         $newPlayer = supabaseQuery('players', 'POST', [
             'telegram_id' => $telegram_id,
             'tama_balance' => 0,
+            'level' => 1,
+            'xp' => 0,
             'username' => 'user_' . $telegram_id
         ]);
         
