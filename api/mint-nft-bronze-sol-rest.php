@@ -111,7 +111,7 @@ try {
         // Auto-create player with default values (without level/xp if not in schema)
         $username = $telegram_id < 1000000000 ? 'wallet_' . substr($wallet_address, 0, 8) : 'user_' . $telegram_id;
         $newPlayer = supabaseQuery('players', 'POST', [
-            'telegram_id' => (int)$telegram_id, // ✅ Cast to integer
+            'telegram_id' => (string)$telegram_id, // ✅ Cast to STRING (players.telegram_id is TEXT)
             'tama_balance' => 0,
             'username' => $username,
             'wallet_address' => $wallet_address
@@ -156,7 +156,7 @@ try {
     $price_usd = $price_sol * $SOL_USD_RATE;
 
     $insertNft = supabaseQuery('user_nfts', 'POST', [
-        'telegram_id' => (int)$telegram_id, // ✅ Cast to integer
+        'telegram_id' => (string)$telegram_id, // ✅ Cast to STRING (user_nfts.telegram_id is TEXT)
         'wallet_address' => $wallet_address,
         'tier_id' => 1,
         'tier_name' => 'Bronze',
