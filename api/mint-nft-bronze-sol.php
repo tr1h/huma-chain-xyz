@@ -61,30 +61,25 @@ try {
     
     error_log("🟫 Bronze SOL mint request: user=$telegram_id, wallet=$wallet_address, price=$price_sol SOL");
     
-    // Start transaction
-    $pdo->beginTransaction();
+    $sent_price = floatval($price_sol);
+    $price_usd = $sent_price * 164.07; // SOL to USD
     
     // 1. Get current bonding state for Bronze_SOL
-    $stmt = $pdo->prepare("
-        SELECT * FROM nft_bonding_state 
-        WHERE tier_name = 'Bronze_SOL' AND payment_type = 'SOL'
-        FOR UPDATE
-    ");
-    $stmt->execute();
-    $bonding = $stmt->fetch(PDO::FETCH_ASSOC);
+    $bonding = supabaseQuery('nft_bonding_state', 'GET', null, '?tier_name=eq.Bronze_SOL&payment_type=eq.SOL');
     
-    if (!$bonding) {
+    if ($bonding['code'] !== 200 || empty($bonding['data'])) {
         throw new Exception('Bronze SOL tier not configured');
     }
     
+    $bondingData = $bonding['data'][0];
+    
     // 2. Check if sold out
-    if ($bonding['minted_count'] >= $bonding['max_supply']) {
+    if (intval($bondingData['minted_count'] ?? 0) >= intval($bondingData['max_supply'] ?? 0)) {
         throw new Exception('Bronze SOL NFTs sold out!');
     }
     
     // 3. Verify price (allow 5% tolerance for network delays)
-    $expected_price = floatval($bonding['current_price']);
-    $sent_price = floatval($price_sol);
+    $expected_price = floatval($bondingData['current_price'] ?? 0.15);
     $tolerance = $expected_price * 0.05;
     
     if ($sent_price < ($expected_price - $tolerance)) {
@@ -92,98 +87,77 @@ try {
     }
     
     // 4. Get random Bronze design
-    $stmt = $pdo->prepare("
-        SELECT * FROM nft_designs 
-        WHERE tier_id = 1 
-          AND rarity_id = 1
-          AND id NOT IN (SELECT design_id FROM user_nfts WHERE is_active = TRUE)
-        ORDER BY RANDOM()
-        LIMIT 1
-    ");
-    $stmt->execute();
-    $design = $stmt->fetch(PDO::FETCH_ASSOC);
+    $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_id=eq.1&rarity_id=eq.1&limit=100');
     
-    if (!$design) {
+    if ($designs['code'] !== 200 || empty($designs['data'])) {
         throw new Exception('No Bronze designs available');
     }
     
+    $randomDesign = $designs['data'][array_rand($designs['data'])];
+    $design = [
+        'id' => $randomDesign['id'],
+        'design_number' => $randomDesign['design_number'],
+        'theme' => $randomDesign['theme'],
+        'variant' => $randomDesign['variant']
+    ];
+    
     // 5. Insert into user_nfts
-    $stmt = $pdo->prepare("
-        INSERT INTO user_nfts (
-            telegram_id,
-            wallet_address,
-            tier_id,
-            tier_name,
-            rarity_id,
-            design_id,
-            design_number,
-            design_theme,
-            design_variant,
-            boost_multiplier,
-            price_paid_sol,
-            price_paid_usd,
-            payment_type,
-            is_active,
-            minted_at
-        ) VALUES (
-            :telegram_id,
-            :wallet_address,
-            1,
-            'Bronze',
-            1,
-            :design_id,
-            :design_number,
-            :design_theme,
-            :design_variant,
-            2.0,
-            :price_sol,
-            :price_usd,
-            'SOL',
-            TRUE,
-            NOW()
-        )
-        RETURNING id
-    ");
+    $nftData = [
+        'telegram_id' => $telegram_id,
+        'wallet_address' => $wallet_address,
+        'tier_id' => 1,
+        'tier_name' => 'Bronze',
+        'rarity_id' => 1,
+        'design_id' => $design['id'],
+        'design_number' => $design['design_number'],
+        'design_theme' => $design['theme'],
+        'design_variant' => $design['variant'],
+        'boost_multiplier' => 2.0,
+        'price_paid_sol' => $sent_price,
+        'price_paid_usd' => $price_usd,
+        'payment_type' => 'SOL',
+        'is_active' => true
+    ];
     
-    $price_usd = $sent_price * 164.07; // SOL to USD
+    $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
     
-    $stmt->execute([
-        ':telegram_id' => $telegram_id,
-        ':wallet_address' => $wallet_address,
-        ':design_id' => $design['id'],
-        ':design_number' => $design['design_number'],
-        ':design_theme' => $design['theme'],
-        ':design_variant' => $design['variant'],
-        ':price_sol' => $sent_price,
-        ':price_usd' => $price_usd
-    ]);
+    if ($createNFT['code'] < 200 || $createNFT['code'] >= 300) {
+        throw new Exception('Failed to create NFT record');
+    }
     
-    $nft_id = $pdo->lastInsertId();
+    $nft_id = $createNFT['data'][0]['id'] ?? null;
     
     // 6. Update minted count (price stays fixed at 0.15 SOL)
-    $new_minted = $bonding['minted_count'] + 1;
+    $new_minted = intval($bondingData['minted_count'] ?? 0) + 1;
     
-    $stmt = $pdo->prepare("
-        UPDATE nft_bonding_state
-        SET 
-            minted_count = :new_minted,
-            updated_at = NOW()
-        WHERE tier_name = 'Bronze_SOL'
-    ");
+    $updateBonding = supabaseQuery(
+        'nft_bonding_state',
+        'PATCH',
+        ['minted_count' => $new_minted],
+        '?tier_name=eq.Bronze_SOL&payment_type=eq.SOL'
+    );
     
-    $stmt->execute([
-        ':new_minted' => $new_minted
-    ]);
+    // 7. Apply boost to user (create player if not exists)
+    $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id);
     
-    // 7. Apply boost to user
-    $stmt = $pdo->prepare("
-        UPDATE players
-        SET 
-            nft_boost_multiplier = GREATEST(nft_boost_multiplier, 2.0),
-            updated_at = NOW()
-        WHERE telegram_id = :telegram_id
-    ");
-    $stmt->execute([':telegram_id' => $telegram_id]);
+    if ($player['code'] !== 200 || empty($player['data'])) {
+        // Create player
+        supabaseQuery('players', 'POST', [
+            'telegram_id' => $telegram_id,
+            'tama_balance' => 0,
+            'nft_boost_multiplier' => 2.0
+        ]);
+    } else {
+        // Update boost
+        $currentBoost = floatval($player['data'][0]['nft_boost_multiplier'] ?? 0);
+        $newBoost = max($currentBoost, 2.0);
+        supabaseQuery(
+            'players',
+            'PATCH',
+            ['nft_boost_multiplier' => $newBoost],
+            '?telegram_id=eq.' . $telegram_id
+        );
+    }
     
     // 8. Log SOL distribution (if transaction signature provided)
     $transaction_signature = $data['transaction_signature'] ?? null;
@@ -215,69 +189,51 @@ try {
             error_log("  💧 Treasury Liquidity: {$amounts['liquidity']} SOL (30%)");
             error_log("  👥 Treasury Team: {$amounts['team']} SOL (20%)");
             
-            // Check if sol_distributions table exists
-            $check_table = $pdo->query("
-                SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
-                    AND table_name = 'sol_distributions'
-                )
-            ");
-            $table_exists = $check_table->fetchColumn();
-            
-            if ($table_exists) {
+            // Try to log to sol_distributions table (may not exist)
+            try {
                 // Log main treasury
-                $dist_stmt = $pdo->prepare("
-                    INSERT INTO sol_distributions (
-                        transaction_signature,
-                        from_wallet,
-                        to_wallet,
-                        amount_sol,
-                        percentage,
-                        distribution_type,
-                        nft_tier,
-                        telegram_id,
-                        status,
-                        created_at
-                    ) VALUES (:tx_sig, :from_wallet, :to_wallet, :amount, :percentage, 'main', :tier, :telegram_id, 'pending', NOW())
-                ");
-                
-                $dist_stmt->execute([
-                    ':tx_sig' => $transaction_signature,
-                    ':from_wallet' => $wallet_address,
-                    ':to_wallet' => $treasury_main,
-                    ':amount' => $amounts['main'],
-                    ':percentage' => 50,
-                    ':tier' => 'Bronze',
-                    ':telegram_id' => $telegram_id
+                supabaseQuery('sol_distributions', 'POST', [
+                    'transaction_signature' => $transaction_signature,
+                    'from_wallet' => $wallet_address,
+                    'to_wallet' => $treasury_main,
+                    'amount_sol' => $amounts['main'],
+                    'percentage' => 50,
+                    'distribution_type' => 'main',
+                    'nft_tier' => 'Bronze',
+                    'telegram_id' => $telegram_id,
+                    'status' => 'pending'
                 ]);
                 
                 // Log liquidity treasury
-                $dist_stmt->execute([
-                    ':tx_sig' => $transaction_signature,
-                    ':from_wallet' => $wallet_address,
-                    ':to_wallet' => $treasury_liquidity,
-                    ':amount' => $amounts['liquidity'],
-                    ':percentage' => 30,
-                    ':tier' => 'Bronze',
-                    ':telegram_id' => $telegram_id
+                supabaseQuery('sol_distributions', 'POST', [
+                    'transaction_signature' => $transaction_signature,
+                    'from_wallet' => $wallet_address,
+                    'to_wallet' => $treasury_liquidity,
+                    'amount_sol' => $amounts['liquidity'],
+                    'percentage' => 30,
+                    'distribution_type' => 'liquidity',
+                    'nft_tier' => 'Bronze',
+                    'telegram_id' => $telegram_id,
+                    'status' => 'pending'
                 ]);
                 
                 // Log team treasury
-                $dist_stmt->execute([
-                    ':tx_sig' => $transaction_signature,
-                    ':from_wallet' => $wallet_address,
-                    ':to_wallet' => $treasury_team,
-                    ':amount' => $amounts['team'],
-                    ':percentage' => 20,
-                    ':tier' => 'Bronze',
-                    ':telegram_id' => $telegram_id
+                supabaseQuery('sol_distributions', 'POST', [
+                    'transaction_signature' => $transaction_signature,
+                    'from_wallet' => $wallet_address,
+                    'to_wallet' => $treasury_team,
+                    'amount_sol' => $amounts['team'],
+                    'percentage' => 20,
+                    'distribution_type' => 'team',
+                    'nft_tier' => 'Bronze',
+                    'telegram_id' => $telegram_id,
+                    'status' => 'pending'
                 ]);
                 
                 $distribution_logged = true;
                 error_log("✅ SOL distribution logged successfully");
-            } else {
-                error_log("⚠️ sol_distributions table not found, skipping distribution log");
+            } catch (Exception $table_error) {
+                error_log("⚠️ sol_distributions table not found or error: " . $table_error->getMessage());
             }
             
         } catch (Exception $dist_error) {
@@ -291,54 +247,47 @@ try {
     // 9. Log transaction to transactions table
     try {
         // Get username from leaderboard
-        $stmt = $pdo->prepare("SELECT telegram_username, tama FROM leaderboard WHERE telegram_id = :telegram_id LIMIT 1");
-        $stmt->execute([':telegram_id' => $telegram_id]);
-        $user_row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $username = $user_row['telegram_username'] ?? 'user_' . $telegram_id;
-        $current_balance = floatval($user_row['tama'] ?? 0);
+        $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=telegram_username,tama&limit=1');
+        $username = 'user_' . $telegram_id;
+        $current_balance = 0;
+        
+        if ($leaderboard['code'] === 200 && !empty($leaderboard['data'])) {
+            $username = $leaderboard['data'][0]['telegram_username'] ?? $username;
+            $current_balance = floatval($leaderboard['data'][0]['tama'] ?? 0);
+        }
         
         // Convert SOL price to TAMA equivalent
         $tama_equivalent = $sent_price * 32800; // 1 SOL ≈ 32,800 TAMA
         
         // Log NFT mint transaction
-        $log_stmt = $pdo->prepare("
-            INSERT INTO transactions (
-                user_id,
-                username,
-                type,
-                amount,
-                balance_before,
-                balance_after,
-                metadata,
-                created_at
-            ) VALUES (:user_id, :username, 'nft_mint_sol', :amount, :balance_before, :balance_after, :metadata, NOW())
-        ");
+        $transactionData = [
+            'user_id' => (string)$telegram_id,
+            'username' => $username,
+            'type' => 'nft_mint_sol',
+            'amount' => -$tama_equivalent,
+            'balance_before' => $current_balance,
+            'balance_after' => $current_balance,
+            'metadata' => json_encode([
+                'tier' => 'Bronze',
+                'design_id' => $design['id'],
+                'design_number' => $design['design_number'],
+                'design_theme' => $design['theme'],
+                'design_variant' => $design['variant'],
+                'payment_method' => 'SOL',
+                'price_sol' => $sent_price,
+                'price_usd' => round($sent_price * 164.07, 2),
+                'tama_equivalent' => round($tama_equivalent),
+                'transaction_signature' => $transaction_signature,
+                'wallet_address' => $wallet_address,
+                'is_express' => true
+            ])
+        ];
         
-        $metadata = json_encode([
-            'tier' => 'Bronze',
-            'design_id' => $design['id'],
-            'design_number' => $design['design_number'],
-            'design_theme' => $design['theme'],
-            'design_variant' => $design['variant'],
-            'payment_method' => 'SOL',
-            'price_sol' => $sent_price,
-            'price_usd' => round($sent_price * 164.07, 2),
-            'tama_equivalent' => round($tama_equivalent),
-            'transaction_signature' => $transaction_signature,
-            'wallet_address' => $wallet_address,
-            'is_express' => true
-        ]);
+        $logTransaction = supabaseQuery('transactions', 'POST', $transactionData);
         
-        $log_stmt->execute([
-            ':user_id' => (string)$telegram_id,
-            ':username' => $username,
-            ':amount' => -$tama_equivalent,
-            ':balance_before' => $current_balance,
-            ':balance_after' => $current_balance,
-            ':metadata' => $metadata
-        ]);
-        
-        error_log("✅ Transaction logged: Bronze NFT mint (SOL Express) for user $telegram_id");
+        if ($logTransaction['code'] >= 200 && $logTransaction['code'] < 300) {
+            error_log("✅ Transaction logged: Bronze NFT mint (SOL Express) for user $telegram_id");
+        }
         
         // Log SOL distribution transactions if signature provided
         if ($transaction_signature) {
@@ -347,27 +296,14 @@ try {
             $treasury_team = getenv('TREASURY_TEAM') ?: 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
             
             // Treasury Main (50%)
-            $treasury_stmt = $pdo->prepare("
-                INSERT INTO transactions (
-                    user_id,
-                    username,
-                    type,
-                    amount,
-                    balance_before,
-                    balance_after,
-                    metadata,
-                    created_at
-                ) VALUES (:user_id, :username, :type, :amount, :balance_before, :balance_after, :metadata, NOW())
-            ");
-            
-            $treasury_stmt->execute([
-                ':user_id' => $treasury_main,
-                ':username' => '💰 Treasury Main',
-                ':type' => 'treasury_income_from_nft_sol',
-                ':amount' => $sent_price * 0.50 * 32800,
-                ':balance_before' => 0,
-                ':balance_after' => 0,
-                ':metadata' => json_encode([
+            supabaseQuery('transactions', 'POST', [
+                'user_id' => $treasury_main,
+                'username' => '💰 Treasury Main',
+                'type' => 'treasury_income_from_nft_sol',
+                'amount' => $sent_price * 0.50 * 32800,
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
                     'source' => 'bronze_nft_mint_sol',
                     'user' => $telegram_id,
                     'percentage' => 50,
@@ -377,14 +313,14 @@ try {
             ]);
             
             // Treasury Liquidity (30%)
-            $treasury_stmt->execute([
-                ':user_id' => $treasury_liquidity,
-                ':username' => '💧 Treasury Liquidity',
-                ':type' => 'treasury_liquidity_income_from_nft_sol',
-                ':amount' => $sent_price * 0.30 * 32800,
-                ':balance_before' => 0,
-                ':balance_after' => 0,
-                ':metadata' => json_encode([
+            supabaseQuery('transactions', 'POST', [
+                'user_id' => $treasury_liquidity,
+                'username' => '💧 Treasury Liquidity',
+                'type' => 'treasury_liquidity_income_from_nft_sol',
+                'amount' => $sent_price * 0.30 * 32800,
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
                     'source' => 'bronze_nft_mint_sol',
                     'user' => $telegram_id,
                     'percentage' => 30,
@@ -394,14 +330,14 @@ try {
             ]);
             
             // Treasury Team (20%)
-            $treasury_stmt->execute([
-                ':user_id' => $treasury_team,
-                ':username' => '👥 Treasury Team',
-                ':type' => 'treasury_team_income_from_nft_sol',
-                ':amount' => $sent_price * 0.20 * 32800,
-                ':balance_before' => 0,
-                ':balance_after' => 0,
-                ':metadata' => json_encode([
+            supabaseQuery('transactions', 'POST', [
+                'user_id' => $treasury_team,
+                'username' => '👥 Treasury Team',
+                'type' => 'treasury_team_income_from_nft_sol',
+                'amount' => $sent_price * 0.20 * 32800,
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
                     'source' => 'bronze_nft_mint_sol',
                     'user' => $telegram_id,
                     'percentage' => 20,
@@ -417,9 +353,6 @@ try {
         error_log("⚠️ Failed to log transaction: " . $log_error->getMessage());
     }
     
-    // Commit transaction
-    $pdo->commit();
-    
     error_log("✅ Bronze SOL NFT minted: ID=$nft_id, Design=#{$design['design_number']}, Price=$sent_price SOL (Fixed)");
     
     echo json_encode([
@@ -433,17 +366,13 @@ try {
         'price_usd' => round($price_usd, 2),
         'next_price_sol' => 0.15, // Fixed price, doesn't change!
         'minted_count' => $new_minted,
-        'max_supply' => $bonding['max_supply'],
+        'max_supply' => $bondingData['max_supply'],
         'message' => 'Bronze NFT minted successfully! Fixed price: 0.15 SOL',
         'distribution_logged' => $distribution_logged,
         'transaction_signature' => $transaction_signature
     ]);
     
 } catch (Exception $e) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-    
     error_log("❌ Bronze SOL mint error: " . $e->getMessage());
     
     http_response_code(400);
