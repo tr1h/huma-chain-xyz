@@ -1155,8 +1155,13 @@
 
             // Update prices for SOL tiers
             if (tier.payment_type === 'SOL') {
+                // Helper: format SOL price (remove .00 for whole numbers)
+                const formatSOL = (num) => {
+                    return num % 1 === 0 ? num.toString() : num.toFixed(2);
+                };
+                
                 const solSpan = document.getElementById(`price-${tierName}-sol`);
-                if (solSpan) solSpan.textContent = parseFloat(tier.current_price).toFixed(2);
+                if (solSpan) solSpan.textContent = formatSOL(parseFloat(tier.current_price));
 
                 const usdSpan = document.getElementById(`price-${tierName}-usd`);
                 if (usdSpan) {
@@ -1167,7 +1172,7 @@
                 const nextSpan = document.getElementById(`next-${tierName}`);
                 if (nextSpan) {
                     const nextPrice = parseFloat(tier.current_price) + parseFloat(tier.increment_per_mint);
-                    nextSpan.textContent = nextPrice.toFixed(2);
+                    nextSpan.textContent = formatSOL(nextPrice);
                 }
             }
         }
