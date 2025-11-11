@@ -45,12 +45,13 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     
     if ($data) {
-        // CRITICAL FIX: Cast all numeric IDs to integers before encoding
-        // This ensures they're sent as JSON numbers, not strings
+        // CRITICAL FIX: telegram_id must be STRING in user_nfts table!
+        // The schema uses TEXT, not BIGINT, so we send as string
         if (isset($data['telegram_id'])) {
-            $data['telegram_id'] = (int)$data['telegram_id'];
+            $data['telegram_id'] = (string)$data['telegram_id']; // ✅ Send as STRING!
         }
-        if (isset($data['nft_design_id'])) {
+        // nft_design_id can be integer or null
+        if (isset($data['nft_design_id']) && $data['nft_design_id'] !== null) {
             $data['nft_design_id'] = (int)$data['nft_design_id'];
         }
         
@@ -199,25 +200,18 @@ try {
     // - purchase_price_tama (not price_paid_tama)
     // - nft_mint_address (required, use placeholder until on-chain mint)
     // - rarity (required, Bronze = Common)
-    // - telegram_id must be integer (bigint in database)
-    // IMPORTANT: Supabase REST API requires bigint as NUMBER in JSON, not string
-    // PHP integers are automatically encoded as JSON numbers
-    $telegram_id_int = (int)$telegram_id; // Explicit cast to integer
-    $design_id_int = (int)$randomDesign['id']; // Explicit cast to integer
+    // - telegram_id must be STRING in user_nfts table (schema uses TEXT, not BIGINT!)
+    // This was the root cause - Supabase expects string, not number
+    $telegram_id_str = (string)$telegram_id; // ✅ Convert to string
+    $design_id_int = (int)$randomDesign['id']; // ✅ Design ID is integer
     
-    // Debug: Log the types to ensure they're integers (not strings)
-    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_int) . ", value=" . $telegram_id_int);
+    // Debug: Log the types to ensure correct format
+    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_str) . ", value=" . $telegram_id_str);
     error_log("🔍 Debug: design_id type=" . gettype($design_id_int) . ", value=" . $design_id_int);
     
-    // Verify they are actually integers
-    if (!is_int($telegram_id_int)) {
-        error_log("⚠️ WARNING: telegram_id is not integer! Type: " . gettype($telegram_id_int));
-        $telegram_id_int = (int)$telegram_id_int; // Force conversion
-    }
-    
     $nftData = [
-        'telegram_id' => $telegram_id_int, // ✅ Send as integer (PHP will encode as JSON number)
-        'nft_design_id' => $design_id_int, // ✅ Send as integer (PHP will encode as JSON number)
+        'telegram_id' => $telegram_id_str, // ✅ Send as STRING (user_nfts.telegram_id is TEXT)
+        'nft_design_id' => $design_id_int, // ✅ Send as integer
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
         'rarity' => 'Common', // ✅ Required field: Bronze = Common
