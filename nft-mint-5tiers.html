@@ -726,6 +726,11 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // API Base URL
+        const TAMA_API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8002/api/tama'
+            : 'https://huma-chain-xyz.onrender.com/api/tama';
+
         const SOL_USD_RATE = 164.07; // 1 SOL = $164.07
         const TELEGRAM_USER_ID = getTelegramUserId();
 
@@ -870,24 +875,48 @@
 
         async function loadTAMABalance() {
             try {
-                const { data, error } = await supabase
-                    .from('players')
-                    .select('tama_balance')
-                    .eq('telegram_id', TELEGRAM_USER_ID)
-                    .single();
+                // Try to get balance from URL parameter first
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlTama = urlParams.get('tama');
+                if (urlTama) {
+                    tamaBalance = parseInt(urlTama) || 0;
+                    document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
+                    console.log('✅ TAMA balance from URL:', tamaBalance);
+                    return;
+                }
 
-                if (error) {
-                    console.error('❌ Error loading TAMA balance:', error);
+                // Use API endpoint to get balance
+                if (!TELEGRAM_USER_ID) {
+                    console.warn('⚠️ No Telegram User ID, setting balance to 0');
+                    tamaBalance = 0;
                     document.getElementById('tama-balance').textContent = '0';
                     return;
                 }
 
-                tamaBalance = data ? data.tama_balance : 0;
-                document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
+                const apiUrl = `${TAMA_API_BASE}/balance?telegram_id=${TELEGRAM_USER_ID}`;
+                console.log('📡 Loading TAMA balance from API:', apiUrl);
+
+                const response = await fetch(apiUrl);
                 
-                console.log('✅ TAMA balance loaded:', tamaBalance);
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    tamaBalance = result.database_tama || result.total_tama || 0;
+                    document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
+                    console.log('✅ TAMA balance loaded from API:', tamaBalance);
+                } else {
+                    console.warn('⚠️ API returned error:', result.error);
+                    tamaBalance = 0;
+                    document.getElementById('tama-balance').textContent = '0';
+                }
             } catch (err) {
-                console.error('❌ Error loading TAMA:', err);
+                console.error('❌ Error loading TAMA balance:', err);
+                tamaBalance = 0;
+                document.getElementById('tama-balance').textContent = '0';
             }
         }
 
@@ -914,14 +943,26 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
-                // Call API
-                const response = await fetch('api/mint-nft-bronze.php', {
+                // Call API - use absolute path for GitHub Pages
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'api/mint-nft-bronze.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze.php';
+                
+                console.log('📡 Calling API:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         telegram_id: TELEGRAM_USER_ID
                     })
                 });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', response.status, errorText);
+                    throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+                }
 
                 const result = await response.json();
 
@@ -967,8 +1008,14 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
-                // Call API
-                const response = await fetch('api/mint-nft-bronze-sol.php', {
+                // Call API - use absolute path for GitHub Pages
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'api/mint-nft-bronze-sol.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze-sol.php';
+                
+                console.log('📡 Calling API:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -977,6 +1024,12 @@
                         price_sol: bronzeSolPrice
                     })
                 });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', response.status, errorText);
+                    throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+                }
 
                 const result = await response.json();
 
@@ -1040,8 +1093,14 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
-                // Call API
-                const response = await fetch('api/mint-nft-sol.php', {
+                // Call API - use absolute path for GitHub Pages
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'api/mint-nft-sol.php'
+                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-sol.php';
+                
+                console.log('📡 Calling API:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1051,6 +1110,12 @@
                         price_sol: price
                     })
                 });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', response.status, errorText);
+                    throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+                }
 
                 const result = await response.json();
 
@@ -1081,7 +1146,7 @@
             console.log('👤 Telegram User ID:', TELEGRAM_USER_ID);
 
             await loadPricesAndStats();
-            await loadTamaBalance(); // 🔥 FIX: Load TAMA balance!
+            await loadTAMABalance(); // 🔥 FIX: Load TAMA balance!
 
             // Auto-refresh prices every 10 seconds
             setInterval(loadPricesAndStats, 10000);
