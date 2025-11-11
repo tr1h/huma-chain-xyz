@@ -64,10 +64,9 @@ try {
     $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
     
     if ($player['code'] !== 200 || empty($player['data'])) {
-            // Auto-create player with default values (only required fields: telegram_id and tama_balance)
+            // Auto-create player with only telegram_id (tama_balance might be in another table)
             $newPlayer = supabaseQuery('players', 'POST', [
-                'telegram_id' => $telegram_id,
-                'tama_balance' => 0
+                'telegram_id' => $telegram_id
             ]);
         
         if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
@@ -95,7 +94,8 @@ try {
     }
     
     $playerData = $player['data'][0];
-    $tamaBalance = floatval($playerData['tama_balance'] ?? 0);
+    // Try different possible column names for TAMA balance
+    $tamaBalance = floatval($playerData['tama_balance'] ?? $playerData['tama'] ?? $playerData['balance'] ?? 0);
     
     if ($tamaBalance < 5000) {
         throw new Exception('Insufficient TAMA balance. You need 5,000 TAMA.');
