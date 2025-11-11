@@ -42,7 +42,9 @@ function supabaseQuery($table, $method, $data = null, $params = '') {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
     if ($data && ($method === 'POST' || $method === 'PATCH')) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        // Ensure integers are sent as numbers, not strings in JSON
+        $jsonData = json_encode($data);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     }
 
     $response = curl_exec($ch);
@@ -109,7 +111,7 @@ try {
         // Auto-create player with default values (without level/xp if not in schema)
         $username = $telegram_id < 1000000000 ? 'wallet_' . substr($wallet_address, 0, 8) : 'user_' . $telegram_id;
         $newPlayer = supabaseQuery('players', 'POST', [
-            'telegram_id' => $telegram_id,
+            'telegram_id' => (int)$telegram_id, // ✅ Cast to integer
             'tama_balance' => 0,
             'username' => $username,
             'wallet_address' => $wallet_address
@@ -154,7 +156,7 @@ try {
     $price_usd = $price_sol * $SOL_USD_RATE;
 
     $insertNft = supabaseQuery('user_nfts', 'POST', [
-        'telegram_id' => $telegram_id,
+        'telegram_id' => (int)$telegram_id, // ✅ Cast to integer
         'wallet_address' => $wallet_address,
         'tier_id' => 1,
         'tier_name' => 'Bronze',
