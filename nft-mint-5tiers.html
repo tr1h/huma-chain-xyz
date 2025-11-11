@@ -995,6 +995,18 @@
             try {
                 console.log('🟫 Minting Bronze NFT...');
 
+                // Check if user came from game (has telegram_id)
+                if (!TELEGRAM_USER_ID || TELEGRAM_USER_ID === 123456789) {
+                    showNotification('warning', 'Game Required', 
+                        'To mint with TAMA, you need to play the game first!\n\n' +
+                        '🎮 Go to Telegram bot and play the game\n' +
+                        '💰 Earn TAMA tokens\n' +
+                        '🔗 Then come back here to mint NFT\n\n' +
+                        '💡 Or mint with SOL instead (no game required)!'
+                    );
+                    return;
+                }
+
                 // Check TAMA balance
                 if (tamaBalance < 5000) {
                     showNotification('error', 'Insufficient Balance', `You need 5,000 TAMA to mint Bronze NFT.\n\nYour balance: ${tamaBalance.toLocaleString()} TAMA`);

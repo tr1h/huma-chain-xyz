@@ -56,8 +56,16 @@ try {
     $tier_name = $data['tier_name'] ?? null;
     $price_sol = floatval($data['price_sol'] ?? 0);
     
-    if (!$telegram_id || !$wallet_address || !$tier_name || !$price_sol) {
-        throw new Exception('Missing required fields');
+    if (!$wallet_address || !$tier_name || !$price_sol) {
+        throw new Exception('Missing required fields: wallet_address, tier_name, price_sol');
+    }
+    
+    // If no telegram_id, create temporary player using wallet_address hash as ID
+    if (!$telegram_id) {
+        // Generate temporary telegram_id from wallet_address (first 8 chars as number)
+        $temp_id = abs(crc32(substr($wallet_address, 0, 8))) % 1000000000; // Max 9 digits
+        $telegram_id = $temp_id;
+        error_log("⚠️ No telegram_id provided, using temporary ID from wallet: $telegram_id");
     }
     
     error_log("💎 $tier_name SOL mint request: user=$telegram_id, wallet=$wallet_address, price=$price_sol SOL");

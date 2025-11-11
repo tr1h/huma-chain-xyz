@@ -69,8 +69,16 @@ try {
     $price_sol = floatval($data['price_sol'] ?? 0);
     $transaction_signature = $data['transaction_signature'] ?? null;
     
-    if (!$telegram_id || !$wallet_address) {
-        throw new Exception('Missing telegram_id or wallet_address');
+    if (!$wallet_address) {
+        throw new Exception('Missing wallet_address');
+    }
+    
+    // If no telegram_id, create temporary player using wallet_address hash as ID
+    if (!$telegram_id) {
+        // Generate temporary telegram_id from wallet_address (first 8 chars as number)
+        $temp_id = abs(crc32(substr($wallet_address, 0, 8))) % 1000000000; // Max 9 digits
+        $telegram_id = $temp_id;
+        error_log("⚠️ No telegram_id provided, using temporary ID from wallet: $telegram_id");
     }
     
     // Fixed price for Bronze SOL: 0.15 SOL
@@ -83,17 +91,29 @@ try {
     
     error_log("🟫⚡ Bronze SOL mint request: user=$telegram_id, wallet=$wallet_address, price=$price_sol SOL");
     
-    // 1. Check player exists (create if not exists)
-    $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+    // 1. Check if player exists by wallet_address first (for direct link users)
+    $playerByWallet = supabaseQuery('players', 'GET', null, '?wallet_address=eq.' . $wallet_address . '&select=*');
+    
+    // If player found by wallet, use their telegram_id
+    if ($playerByWallet['code'] === 200 && !empty($playerByWallet['data'])) {
+        $existingPlayer = $playerByWallet['data'][0];
+        $telegram_id = $existingPlayer['telegram_id'];
+        error_log("✅ Found existing player by wallet_address: telegram_id=$telegram_id");
+        $player = $playerByWallet;
+    } else {
+        // Check player exists by telegram_id
+        $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+    }
     
     if ($player['code'] !== 200 || empty($player['data'])) {
         // Auto-create player with default values
+        $username = $telegram_id < 1000000000 ? 'wallet_' . substr($wallet_address, 0, 8) : 'user_' . $telegram_id;
         $newPlayer = supabaseQuery('players', 'POST', [
             'telegram_id' => $telegram_id,
             'tama_balance' => 0,
             'level' => 1,
             'xp' => 0,
-            'username' => 'user_' . $telegram_id,
+            'username' => $username,
             'wallet_address' => $wallet_address
         ]);
         
