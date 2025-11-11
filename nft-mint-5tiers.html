@@ -423,13 +423,12 @@
             background: #666;
         }
 
-        /* Compact Bronze Buttons - Icon-like */
-        .bronze-btn-compact {
-            width: 45px;
-            height: 45px;
-            padding: 0;
-            font-size: 18px;
+        /* Bronze Text Buttons */
+        .bronze-btn-text {
+            padding: 12px 20px;
+            font-size: 11px;
             font-family: 'Press Start 2P', cursive;
+            font-weight: bold;
             background: linear-gradient(135deg, #8AC926, #FFD700);
             color: #1d3557;
             border: 2px solid #CD7F32;
@@ -437,27 +436,24 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 3px 12px rgba(138, 201, 38, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            line-height: 1;
+            white-space: nowrap;
         }
 
-        .bronze-btn-compact:hover {
-            transform: translateY(-3px) scale(1.1);
+        .bronze-btn-text:hover {
+            transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(138, 201, 38, 0.6);
             background: linear-gradient(135deg, #FFD700, #8AC926);
             border-color: #FFB703;
         }
 
-        .bronze-btn-compact.bronze-btn-sol {
+        .bronze-btn-text.bronze-btn-sol {
             background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
             border-color: #764ba2;
             box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
         }
 
-        .bronze-btn-compact.bronze-btn-sol:hover {
+        .bronze-btn-text.bronze-btn-sol:hover {
             background: linear-gradient(135deg, #764ba2, #667eea);
             border-color: #667eea;
             box-shadow: 0 8px 25px rgba(118, 75, 162, 0.6);
