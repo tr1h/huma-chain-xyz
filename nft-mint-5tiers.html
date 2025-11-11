@@ -1185,6 +1185,22 @@
                     showNotification('warning', 'Wallet Required', 'Please connect your wallet first to mint with SOL!');
                     return;
                 }
+                
+                // For SOL minting, telegram_id is optional (can create temporary player)
+                // But show info if no telegram_id
+                if (!TELEGRAM_USER_ID || TELEGRAM_USER_ID === 123456789) {
+                    const confirmed = await showConfirmModal(
+                        'Direct Mint (No Game Account)',
+                        'You are minting without a game account.\n\n' +
+                        '✅ NFT will be minted successfully\n' +
+                        '💾 Wallet address will be saved\n' +
+                        '🔗 Later you can link this wallet to your Telegram account via bot\n\n' +
+                        'Continue with mint?'
+                    );
+                    if (!confirmed) {
+                        return;
+                    }
+                }
 
                 // Get current price
                 const { data: tierData, error } = await supabase
@@ -1247,7 +1263,7 @@
                     body: JSON.stringify({
                         telegram_id: TELEGRAM_USER_ID,
                         wallet_address: walletAddress,
-                        tier: tierName,
+                        tier_name: tierName,
                         price_sol: price,
                         transaction_signature: transactionSignature // ✅ Send transaction signature!
                     })
