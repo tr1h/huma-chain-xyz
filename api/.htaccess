@@ -1,12 +1,8 @@
-# Apache .htaccess for API routing
-# Routes /api/tama/* requests to tama_supabase.php
-
 RewriteEngine On
+RewriteBase /api
 
-# Route /api/tama/* to tama_supabase.php
-# In .htaccess within directory, use relative path from this directory
-RewriteCond %{REQUEST_URI} ^/api/tama
-RewriteCond %{REQUEST_URI} !tama_supabase\.php$
+# Route tama/* to tama_supabase.php
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^tama(.*)$ tama_supabase.php [QSA,L]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^tama(/.*)?$ tama_supabase.php [QSA,L]
 
