@@ -40,10 +40,26 @@ docs/
 # Backup files
 *.bak
 *-old.html
+*-OLD.html
+backups/
+*.zip
+*.tar.gz
 
 # Temporary files
 *.tmp
 *.temp
+check_*.txt
+check_*.md
+*_SUMMARY.md
+DEBUG_*.md
+QUICK_*.md
+test-*.md
+TESTING_*.md
+NEXT_STEPS.md
+
+# Private keys
+*-private-key.txt
+*.private-key.txt
 
 # Admin panels (local only, contains sensitive operations)
 wallet-admin.html
