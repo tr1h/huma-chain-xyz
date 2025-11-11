@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Load config
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 // Get request body
 $input = json_decode(file_get_contents('php://input'), true);

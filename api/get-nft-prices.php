@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 // Load config
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 try {
     // Connect to Supabase (PostgreSQL)
