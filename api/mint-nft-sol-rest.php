@@ -166,13 +166,24 @@ try {
         '?tier_name=eq.' . $tier_name . '&payment_type=eq.SOL'
     );
     
-    // 8. Update player boost
+    // 8. Update player boost and ensure wallet_address is saved
+    $updateData = [
+        'nft_boost_multiplier' => $boost,
+        'wallet_address' => $wallet_address // ✅ Always save wallet_address after mint
+    ];
+    
     $updateBoost = supabaseQuery(
         'players',
         'PATCH',
-        ['nft_boost_multiplier' => $boost],
+        $updateData,
         '?telegram_id=eq.' . $telegram_id
     );
+    
+    if ($updateBoost['code'] >= 200 && $updateBoost['code'] < 300) {
+        error_log("✅ Player updated with wallet_address and boost: user=$telegram_id, wallet=$wallet_address, boost=$boost");
+    } else {
+        error_log("⚠️ Failed to update player with wallet: code={$updateBoost['code']}");
+    }
     
     error_log("✅ $tier_name NFT minted: Design=#{$randomDesign['design_number']}, User=$telegram_id, Price=$price_sol SOL");
     
