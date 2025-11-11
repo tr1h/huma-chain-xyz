@@ -71,8 +71,20 @@ try {
         ]);
         
         if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
-            error_log("❌ Failed to create player: code={$newPlayer['code']}, data=" . json_encode($newPlayer['data']));
-            throw new Exception('Failed to create player account');
+            $errorDetails = json_encode($newPlayer['data'] ?? ['no_data' => true]);
+            error_log("❌ Failed to create player: code={$newPlayer['code']}, data={$errorDetails}");
+            
+            // Try to get more details from Supabase error
+            $errorMsg = 'Failed to create player account';
+            if (isset($newPlayer['data']['message'])) {
+                $errorMsg .= ': ' . $newPlayer['data']['message'];
+            } elseif (isset($newPlayer['data']['hint'])) {
+                $errorMsg .= ': ' . $newPlayer['data']['hint'];
+            } elseif (isset($newPlayer['data'][0]['message'])) {
+                $errorMsg .= ': ' . $newPlayer['data'][0]['message'];
+            }
+            
+            throw new Exception($errorMsg);
         }
         
         // Get the newly created player
