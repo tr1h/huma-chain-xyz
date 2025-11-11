@@ -181,13 +181,13 @@
             background: rgba(255, 202, 58, 0.8);
         }
 
-        /* Tier Card - UNIFORM HEIGHT */
+        /* Tier Card - PERFECT ALIGNMENT */
         .tier-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border: 3px solid;
             border-radius: 15px;
-            padding: 25px 20px;
+            padding: 20px 18px;
             text-align: center;
             transition: all 0.4s ease;
             position: relative;
@@ -200,9 +200,9 @@
             max-width: 260px;
             width: 240px;
             flex-shrink: 0;
-            height: 560px;
+            height: 580px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            gap: 0;
+            justify-content: space-between;
         }
 
         @keyframes slideInUp {
@@ -275,11 +275,12 @@
 
         .tier-icon {
             font-size: 48px;
-            margin: 0 0 10px 0;
+            margin: 0;
             filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
             transition: transform 0.3s ease;
             line-height: 1;
             height: 48px;
+            flex-shrink: 0;
         }
 
         .tier-card:hover .tier-icon {
@@ -289,39 +290,41 @@
         .tier-name {
             font-size: 15px;
             font-weight: bold;
-            margin: 0 0 8px 0;
+            margin: 8px 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
             white-space: normal;
             line-height: 1.3;
             word-wrap: break-word;
-            height: 20px;
+            min-height: 20px;
+            flex-shrink: 0;
         }
 
         .tier-supply {
             font-size: 10px;
             opacity: 0.85;
-            margin-bottom: 12px;
-            margin-top: 0;
+            margin: 0 0 12px 0;
             line-height: 1.4;
-            min-height: 30px;
+            min-height: 28px;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            flex-shrink: 0;
         }
 
         .tier-price {
             font-size: 13px;
-            margin: 14px 0;
+            margin: 0 0 12px 0;
             padding: 12px;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 10px;
             font-weight: bold;
-            min-height: 90px;
+            min-height: 95px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            flex-shrink: 0;
         }
 
         .tier-boost {
@@ -330,17 +333,18 @@
             color: white;
             padding: 10px 14px;
             border-radius: 8px;
-            margin: 0 0 8px 0;
+            margin: 0 0 10px 0;
             font-family: 'Press Start 2P', cursive;
             font-weight: bold;
             box-shadow: 0 4px 10px rgba(255, 107, 53, 0.4);
             white-space: normal;
             word-wrap: break-word;
             line-height: 1.3;
-            height: 32px;
+            min-height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .progress-bar {
@@ -348,9 +352,10 @@
             height: 12px;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 6px;
-            margin: 12px 0;
+            margin: 10px 0;
             overflow: hidden;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
         }
 
         .progress-fill {
@@ -430,12 +435,13 @@
         /* Unified Minted Count Display - All cards aligned */
         .tier-minted-count {
             font-size: 11px;
-            margin: 0 0 16px 0;
+            margin: 0 0 14px 0;
             opacity: 0.8;
             text-align: center;
             font-family: 'Press Start 2P', cursive;
             line-height: 1.4;
-            height: 16px;
+            min-height: 16px;
+            flex-shrink: 0;
         }
 
         /* Bronze Text Buttons */
@@ -755,7 +761,7 @@
                 </div>
                 
                 <!-- Bronze Buttons: Text Style -->
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding-top: 8px;">
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto;">
                     <button class="bronze-btn-text" onclick="mintBronze()">
                         FREE
                     </button>
