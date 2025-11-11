@@ -1048,7 +1048,7 @@
                 console.log('⚡ Minting Bronze NFT (SOL Express)...');
 
                 if (!walletConnected) {
-                    alert('Please connect your wallet first!');
+                    showNotification('warning', 'Wallet Required', 'Please connect your wallet first to mint with SOL!');
                     return;
                 }
 
