@@ -6,12 +6,12 @@ RewriteEngine On
 RewriteCond %{REQUEST_URI} ^/api/tama
 RewriteCond %{REQUEST_URI} !tama_supabase\.php$
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^api/tama(.*)$ api/tama_supabase.php [QSA,L]
+RewriteRule ^api/tama(.*)$ /api/tama_supabase.php [QSA,L]
 
 # Route /api/test.php to test.php (if exists)
 RewriteCond %{REQUEST_URI} ^/api/test\.php$
 RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^api/test\.php$ api/test.php [L]
+RewriteRule ^api/test\.php$ /api/test.php [L]
 
 # Set default charset
 AddDefaultCharset UTF-8
