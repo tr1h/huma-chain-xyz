@@ -208,25 +208,45 @@ try {
     
     error_log("✅ Bronze NFT minted: Design=#{$randomDesign['design_number']}, User=$telegram_id");
     
+    // Clean output buffer before sending JSON
+    ob_clean();
+    header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'design_number' => $randomDesign['design_number'],
-        'design_theme' => $randomDesign['design_theme'] ?? $randomDesign['theme'] ?? 'Unknown',
-        'design_variant' => $randomDesign['design_variant'] ?? $randomDesign['variant'] ?? 'Unknown',
+        'design_theme' => $randomDesign['design_theme'] ?? 'Unknown',
+        'design_variant' => $randomDesign['design_variant'] ?? 'Unknown',
         'boost' => 2.0,
         'price_tama' => 5000,
         'new_balance' => $newBalance,
         'message' => 'Bronze NFT minted successfully!'
     ]);
+    exit();
     
 } catch (Exception $e) {
     error_log("❌ Bronze TAMA mint error: " . $e->getMessage());
     
+    // Clean any output buffer before sending JSON
+    ob_clean();
+    header('Content-Type: application/json');
     http_response_code(400);
     echo json_encode([
         'success' => false,
         'error' => $e->getMessage()
     ]);
+    exit();
+} catch (Error $e) {
+    error_log("❌ Bronze TAMA mint fatal error: " . $e->getMessage());
+    
+    // Clean any output buffer before sending JSON
+    ob_clean();
+    header('Content-Type: application/json');
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Internal server error: ' . $e->getMessage()
+    ]);
+    exit();
 }
 ?>
 
