@@ -17,10 +17,17 @@ $allowedOrigins = [
     'https://tr1h.github.io',
     'http://localhost',
     'http://localhost:3000',
-    'http://127.0.0.1'
+    'http://127.0.0.1',
+    'https://tr1h.github.io'
 ];
 
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$origin = $_SERVER['HTTP_ORIGIN'] ?? $_SERVER['HTTP_REFERER'] ?? '';
+
+// Extract origin from referer if needed
+if (!$origin && isset($_SERVER['HTTP_REFERER'])) {
+    $parsed = parse_url($_SERVER['HTTP_REFERER']);
+    $origin = $parsed['scheme'] . '://' . $parsed['host'];
+}
 
 // If origin is in allowed list, send it back; otherwise send *
 if ($origin && in_array($origin, $allowedOrigins)) {
