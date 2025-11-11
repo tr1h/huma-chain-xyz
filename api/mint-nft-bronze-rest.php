@@ -37,7 +37,8 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
         'Authorization: Bearer ' . $supabaseKey,
         'Content-Type: application/json',
         'Prefer: return=representation,resolution=merge-duplicates',
-        'Accept: application/vnd.pgjson.object+json' // Explicit JSON format
+        'Accept: application/vnd.pgjson.object+json', // Explicit JSON format
+        'Accept-Profile: public' // Force public schema (may help with schema cache)
     ];
     
     $ch = curl_init($url);
@@ -65,12 +66,12 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
         // Debug: Log the exact JSON being sent
         error_log("🔍 JSON being sent to Supabase: " . substr($jsonData, 0, 500));
         
-        // Verify telegram_id is a number in JSON (not quoted)
+        // Verify telegram_id is a string in JSON (quoted) - column is TEXT in Supabase
         if (preg_match('/"telegram_id"\s*:\s*"?(\d+)"?/', $jsonData, $matches)) {
             if (strpos($jsonData, '"telegram_id":"') !== false) {
-                error_log("⚠️ WARNING: telegram_id is quoted in JSON! This is wrong for BIGINT!");
+                error_log("✅ telegram_id is a STRING in JSON (correct for TEXT column): " . $matches[1]);
             } else {
-                error_log("✅ telegram_id is a number in JSON (correct for BIGINT): " . $matches[1]);
+                error_log("⚠️ WARNING: telegram_id is NOT quoted in JSON! Should be string for TEXT column!");
             }
         }
         
