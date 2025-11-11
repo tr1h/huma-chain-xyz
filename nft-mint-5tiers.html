@@ -181,7 +181,7 @@
             background: rgba(255, 202, 58, 0.8);
         }
 
-        /* Tier Card - WIDER TO FIT TEXT */
+        /* Tier Card - UNIFORM HEIGHT */
         .tier-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -200,9 +200,9 @@
             max-width: 260px;
             width: 240px;
             flex-shrink: 0;
-            min-height: 520px;
+            height: 560px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            gap: 14px;
+            gap: 0;
         }
 
         @keyframes slideInUp {
@@ -275,11 +275,11 @@
 
         .tier-icon {
             font-size: 48px;
-            margin-bottom: 12px;
-            margin-top: 0;
+            margin: 0 0 10px 0;
             filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
             transition: transform 0.3s ease;
             line-height: 1;
+            height: 48px;
         }
 
         .tier-card:hover .tier-icon {
@@ -289,13 +289,13 @@
         .tier-name {
             font-size: 15px;
             font-weight: bold;
-            margin-bottom: 10px;
-            margin-top: 0;
+            margin: 0 0 8px 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
             white-space: normal;
             line-height: 1.3;
             word-wrap: break-word;
+            height: 20px;
         }
 
         .tier-supply {
@@ -345,7 +345,7 @@
             height: 12px;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 6px;
-            margin: 16px 0 12px 0;
+            margin: 12px 0;
             overflow: hidden;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
@@ -426,12 +426,12 @@
         /* Unified Minted Count Display - All cards aligned */
         .tier-minted-count {
             font-size: 11px;
-            margin-top: 0;
-            margin-bottom: 16px;
+            margin: 0 0 16px 0;
             opacity: 0.8;
             text-align: center;
             font-family: 'Press Start 2P', cursive;
             line-height: 1.4;
+            height: 16px;
         }
 
         /* Bronze Text Buttons */
