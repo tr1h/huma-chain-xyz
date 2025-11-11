@@ -67,8 +67,37 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-// Load config
-require_once __DIR__ . '/config.php';
+// Supabase REST API Settings (NO DATABASE PASSWORD NEEDED!)
+$supabaseUrl = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
+$supabaseKey = getenv('SUPABASE_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+
+// Helper function for Supabase REST API
+function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') {
+    global $supabaseUrl, $supabaseKey;
+    
+    $url = $supabaseUrl . '/rest/v1/' . $endpoint . $filters;
+    $headers = [
+        'apikey: ' . $supabaseKey,
+        'Authorization: Bearer ' . $supabaseKey,
+        'Content-Type: application/json',
+        'Prefer: return=representation'
+    ];
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    
+    if ($data) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    return ['code' => $httpCode, 'data' => json_decode($response, true)];
+}
 
 // Import treasury constants
 if (!defined('TREASURY_MAIN')) {
@@ -112,135 +141,98 @@ $tier_boosts = [
 ];
 
 try {
-    // Connect to Supabase (PostgreSQL)
-    $dsn = "host=" . SUPABASE_DB_HOST . " port=" . SUPABASE_DB_PORT . " dbname=" . SUPABASE_DB_NAME . " user=" . SUPABASE_DB_USER . " password=" . SUPABASE_DB_PASSWORD . " sslmode=require";
-    $conn = pg_connect($dsn);
-
-    if (!$conn) {
-        throw new Exception('Database connection failed');
-    }
-
-    // Start transaction
-    pg_query($conn, "BEGIN");
-
     // ==========================================
     // STEP 1: Get current bonding state
     // ==========================================
-    $query = "
-        SELECT current_price, minted_count, max_supply, increment_per_mint
-        FROM nft_bonding_state
-        WHERE tier_name = $1 AND is_active = true
-    ";
-    $result = pg_query_params($conn, $query, array($tier));
-
-    if (!$result) {
-        throw new Exception('Failed to get bonding state');
-    }
-
-    $bonding = pg_fetch_assoc($result);
-
-    if (!$bonding) {
+    $bonding = supabaseQuery('nft_bonding_state', 'GET', null, '?tier_name=eq.' . $tier . '&is_active=eq.true');
+    
+    if ($bonding['code'] !== 200 || empty($bonding['data'])) {
         throw new Exception('Tier not found or inactive');
     }
-
-    $current_price = floatval($bonding['current_price']);
-    $minted_count = intval($bonding['minted_count']);
-    $max_supply = intval($bonding['max_supply']);
-    $increment = floatval($bonding['increment_per_mint']);
-
+    
+    $bondingData = $bonding['data'][0];
+    $current_price = floatval($bondingData['current_price'] ?? 0);
+    $minted_count = intval($bondingData['minted_count'] ?? 0);
+    $max_supply = intval($bondingData['max_supply'] ?? 0);
+    $increment = floatval($bondingData['increment_per_mint'] ?? 0);
+    
     // Check if supply exhausted
     if ($minted_count >= $max_supply) {
         throw new Exception("$tier tier sold out! All $max_supply have been minted.");
     }
-
+    
     // Verify price (allow small tolerance for floating point)
     if (abs($price_sol - $current_price) > 0.01) {
         throw new Exception("Price mismatch! Current price: $current_price SOL, your price: $price_sol SOL. Please refresh and try again.");
     }
-
+    
     // ==========================================
     // STEP 2: Get random unminted design
     // ==========================================
-    $query = "
-        SELECT id, design_number, design_theme, design_variant, image_url, metadata_url
-        FROM nft_designs
-        WHERE tier_name = $1 AND is_minted = false
-        ORDER BY RANDOM()
-        LIMIT 1
-    ";
-    $result = pg_query_params($conn, $query, array($tier));
-
-    if (!$result) {
-        throw new Exception('Failed to get design');
-    }
-
-    $design = pg_fetch_assoc($result);
-
-    if (!$design) {
+    $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_name=eq.' . $tier . '&is_minted=eq.false&limit=100');
+    
+    if ($designs['code'] !== 200 || empty($designs['data'])) {
         throw new Exception("No $tier NFTs left! All have been minted.");
     }
-
-    $design_id = intval($design['id']);
-    $design_number = intval($design['design_number']);
-    $design_theme = $design['design_theme'];
-    $design_variant = $design['design_variant'];
-    $image_url = $design['image_url'] ?: "https://placeholder.com/$tier.png";
-    $metadata_url = $design['metadata_url'] ?: '';
-
+    
+    $randomDesign = $designs['data'][array_rand($designs['data'])];
+    $design_id = intval($randomDesign['id']);
+    $design_number = intval($randomDesign['design_number']);
+    $design_theme = $randomDesign['design_theme'];
+    $design_variant = $randomDesign['design_variant'];
+    $image_url = $randomDesign['image_url'] ?: "https://placeholder.com/$tier.png";
+    $metadata_url = $randomDesign['metadata_url'] ?: '';
+    
     // ==========================================
     // STEP 3: Mark design as minted
     // ==========================================
-    $query = "
-        UPDATE nft_designs
-        SET is_minted = true, minted_by = $1, minted_at = NOW()
-        WHERE id = $2
-    ";
-    $result = pg_query_params($conn, $query, array($telegram_id, $design_id));
-
-    if (!$result) {
+    $updateDesign = supabaseQuery(
+        'nft_designs',
+        'PATCH',
+        ['is_minted' => true, 'minted_by' => $telegram_id],
+        '?id=eq.' . $design_id
+    );
+    
+    if ($updateDesign['code'] < 200 || $updateDesign['code'] >= 300) {
         throw new Exception('Failed to mark design as minted');
     }
-
+    
     // ==========================================
     // STEP 4: Create user NFT record
     // ==========================================
     $boost = $tier_boosts[$tier];
-    $query = "
-        INSERT INTO user_nfts 
-        (telegram_id, nft_design_id, tier_name, earning_multiplier, purchase_price_sol, is_active, minted_at)
-        VALUES ($1, $2, $3, $4, $5, true, NOW())
-        RETURNING id
-    ";
-    $result = pg_query_params($conn, $query, array(
-        $telegram_id,
-        $design_id,
-        $tier,
-        $boost,
-        $price_sol
-    ));
-
-    if (!$result) {
+    $nftData = [
+        'telegram_id' => $telegram_id,
+        'nft_design_id' => $design_id,
+        'tier_name' => $tier,
+        'earning_multiplier' => $boost,
+        'purchase_price_sol' => $price_sol,
+        'is_active' => true
+    ];
+    
+    $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
+    
+    if ($createNFT['code'] < 200 || $createNFT['code'] >= 300) {
         throw new Exception('Failed to create user NFT record');
     }
-
-    $user_nft = pg_fetch_assoc($result);
-    $user_nft_id = $user_nft['id'];
-
+    
+    $user_nft_id = $createNFT['data'][0]['id'] ?? null;
+    
     // ==========================================
     // STEP 5: Update bonding curve price
     // ==========================================
     $new_price = $current_price + $increment;
-    $query = "
-        UPDATE nft_bonding_state
-        SET 
-            current_price = $1,
-            minted_count = minted_count + 1,
-            updated_at = NOW()
-        WHERE tier_name = $2
-    ";
-    $result = pg_query_params($conn, $query, array($new_price, $tier));
-
-    if (!$result) {
+    $updateBonding = supabaseQuery(
+        'nft_bonding_state',
+        'PATCH',
+        [
+            'current_price' => $new_price,
+            'minted_count' => $minted_count + 1
+        ],
+        '?tier_name=eq.' . $tier
+    );
+    
+    if ($updateBonding['code'] < 200 || $updateBonding['code'] >= 300) {
         throw new Exception('Failed to update bonding curve');
     }
 
@@ -277,68 +269,51 @@ try {
             error_log("  💧 Treasury Liquidity: {$amounts['liquidity']} SOL (30%)");
             error_log("  👥 Treasury Team: {$amounts['team']} SOL (20%)");
             
-            // Log distribution to sol_distributions table (if exists)
-            // Check if table exists first
-            $check_table = pg_query($conn, "
-                SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
-                    AND table_name = 'sol_distributions'
-                )
-            ");
-            $table_exists = pg_fetch_result($check_table, 0, 0) === 't';
-            
-            if ($table_exists) {
+            // Try to log to sol_distributions table (may not exist)
+            try {
                 // Log main treasury
-                $dist_query = "
-                    INSERT INTO sol_distributions (
-                        transaction_signature,
-                        from_wallet,
-                        to_wallet,
-                        amount_sol,
-                        percentage,
-                        distribution_type,
-                        nft_tier,
-                        telegram_id,
-                        status,
-                        created_at
-                    ) VALUES ($1, $2, $3, $4, $5, 'main', $6, $7, 'pending', NOW())
-                ";
-                pg_query_params($conn, $dist_query, array(
-                    $transaction_signature,
-                    $wallet_address,
-                    $treasury_main,
-                    $amounts['main'],
-                    50,
-                    $tier,
-                    $telegram_id
-                ));
+                supabaseQuery('sol_distributions', 'POST', [
+                    'transaction_signature' => $transaction_signature,
+                    'from_wallet' => $wallet_address,
+                    'to_wallet' => $treasury_main,
+                    'amount_sol' => $amounts['main'],
+                    'percentage' => 50,
+                    'distribution_type' => 'main',
+                    'nft_tier' => $tier,
+                    'telegram_id' => $telegram_id,
+                    'status' => 'pending'
+                ]);
                 
                 // Log liquidity treasury
-                pg_query_params($conn, $dist_query, array(
-                    $transaction_signature,
-                    $wallet_address,
-                    $treasury_liquidity,
-                    $amounts['liquidity'],
-                    30,
-                    $tier,
-                    $telegram_id
-                ));
+                supabaseQuery('sol_distributions', 'POST', [
+                    'transaction_signature' => $transaction_signature,
+                    'from_wallet' => $wallet_address,
+                    'to_wallet' => $treasury_liquidity,
+                    'amount_sol' => $amounts['liquidity'],
+                    'percentage' => 30,
+                    'distribution_type' => 'liquidity',
+                    'nft_tier' => $tier,
+                    'telegram_id' => $telegram_id,
+                    'status' => 'pending'
+                ]);
                 
                 // Log team treasury
-                pg_query_params($conn, $dist_query, array(
-                    $transaction_signature,
-                    $wallet_address,
-                    $treasury_team,
-                    $amounts['team'],
-                    20,
-                    $tier,
-                    $telegram_id
-                ));
+                supabaseQuery('sol_distributions', 'POST', [
+                    'transaction_signature' => $transaction_signature,
+                    'from_wallet' => $wallet_address,
+                    'to_wallet' => $treasury_team,
+                    'amount_sol' => $amounts['team'],
+                    'percentage' => 20,
+                    'distribution_type' => 'team',
+                    'nft_tier' => $tier,
+                    'telegram_id' => $telegram_id,
+                    'status' => 'pending'
+                ]);
                 
+                $distribution_logged = true;
                 error_log("✅ SOL distribution logged successfully");
-            } else {
-                error_log("⚠️ sol_distributions table not found, skipping distribution log");
+            } catch (Exception $table_error) {
+                error_log("⚠️ sol_distributions table not found or error: " . $table_error->getMessage());
             }
             
         } catch (Exception $dist_error) {
@@ -354,68 +329,60 @@ try {
     // ==========================================
     try {
         // Get username and current balance from leaderboard
-        $username_query = "SELECT telegram_username, tama FROM leaderboard WHERE telegram_id = $1 LIMIT 1";
-        $username_result = pg_query_params($conn, $username_query, array($telegram_id));
-        $username_row = pg_fetch_assoc($username_result);
-        $username = $username_row['telegram_username'] ?? 'user_' . $telegram_id;
-        $current_balance = floatval($username_row['tama'] ?? 0);
+        $leaderboard = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=telegram_username,tama&limit=1');
+        $username = 'user_' . $telegram_id;
+        $current_balance = 0;
+        
+        if ($leaderboard['code'] === 200 && !empty($leaderboard['data'])) {
+            $username = $leaderboard['data'][0]['telegram_username'] ?? $username;
+            $current_balance = floatval($leaderboard['data'][0]['tama'] ?? 0);
+        }
         
         // Convert SOL price to TAMA equivalent (for transaction amount)
         // 1 SOL ≈ 164 USD, 1 TAMA = $0.005, so 1 SOL ≈ 32,800 TAMA
         $tama_equivalent = $price_sol * 32800; // Approximate conversion
         
         // Log NFT mint transaction (SOL payment)
-        $log_query = "
-            INSERT INTO transactions (
-                user_id,
-                username,
-                type,
-                amount,
-                balance_before,
-                balance_after,
-                metadata,
-                created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-        ";
+        $transactionData = [
+            'user_id' => (string)$telegram_id,
+            'username' => $username,
+            'type' => 'nft_mint_sol',
+            'amount' => -$tama_equivalent, // Negative amount (spend)
+            'balance_before' => $current_balance,
+            'balance_after' => $current_balance, // Balance doesn't change for SOL payments
+            'metadata' => json_encode([
+                'tier' => $tier,
+                'design_id' => $design_id,
+                'design_number' => $design_number,
+                'design_theme' => $design_theme,
+                'design_variant' => $design_variant,
+                'payment_method' => 'SOL',
+                'price_sol' => $price_sol,
+                'price_usd' => round($price_sol * 164.07, 2),
+                'tama_equivalent' => round($tama_equivalent),
+                'transaction_signature' => $transaction_signature,
+                'wallet_address' => $wallet_address
+            ])
+        ];
         
-        $metadata = json_encode([
-            'tier' => $tier,
-            'design_id' => $design_id,
-            'design_number' => $design_number,
-            'design_theme' => $design_theme,
-            'design_variant' => $design_variant,
-            'payment_method' => 'SOL',
-            'price_sol' => $price_sol,
-            'price_usd' => round($price_sol * 164.07, 2),
-            'tama_equivalent' => round($tama_equivalent),
-            'transaction_signature' => $transaction_signature,
-            'wallet_address' => $wallet_address
-        ]);
+        $logTransaction = supabaseQuery('transactions', 'POST', $transactionData);
         
-        pg_query_params($conn, $log_query, array(
-            (string)$telegram_id,
-            $username,
-            'nft_mint_sol',
-            -$tama_equivalent, // Negative amount (spend)
-            $current_balance,
-            $current_balance, // Balance doesn't change for SOL payments
-            $metadata
-        ));
-        
-        error_log("✅ Transaction logged: NFT mint ($tier) SOL for user $telegram_id");
+        if ($logTransaction['code'] >= 200 && $logTransaction['code'] < 300) {
+            error_log("✅ Transaction logged: NFT mint ($tier) SOL for user $telegram_id");
+        }
         
         // Log SOL distribution transactions if signature provided
         if ($transaction_signature) {
             // Log Treasury Main (50%)
             $treasury_main_amount = $price_sol * 0.50 * 32800; // Convert to TAMA equivalent
-            pg_query_params($conn, $log_query, array(
-                TREASURY_MAIN,
-                '💰 Treasury Main',
-                'treasury_income_from_nft_sol',
-                $treasury_main_amount,
-                0,
-                0,
-                json_encode([
+            supabaseQuery('transactions', 'POST', [
+                'user_id' => TREASURY_MAIN,
+                'username' => '💰 Treasury Main',
+                'type' => 'treasury_income_from_nft_sol',
+                'amount' => $treasury_main_amount,
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
                     'source' => 'nft_mint_sol',
                     'tier' => $tier,
                     'user' => $telegram_id,
@@ -423,18 +390,18 @@ try {
                     'amount_sol' => $price_sol * 0.50,
                     'transaction_signature' => $transaction_signature
                 ])
-            ));
+            ]);
             
             // Log Treasury Liquidity (30%)
             $treasury_liquidity_amount = $price_sol * 0.30 * 32800;
-            pg_query_params($conn, $log_query, array(
-                TREASURY_LIQUIDITY,
-                '💧 Treasury Liquidity',
-                'treasury_liquidity_income_from_nft_sol',
-                $treasury_liquidity_amount,
-                0,
-                0,
-                json_encode([
+            supabaseQuery('transactions', 'POST', [
+                'user_id' => TREASURY_LIQUIDITY,
+                'username' => '💧 Treasury Liquidity',
+                'type' => 'treasury_liquidity_income_from_nft_sol',
+                'amount' => $treasury_liquidity_amount,
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
                     'source' => 'nft_mint_sol',
                     'tier' => $tier,
                     'user' => $telegram_id,
@@ -442,18 +409,18 @@ try {
                     'amount_sol' => $price_sol * 0.30,
                     'transaction_signature' => $transaction_signature
                 ])
-            ));
+            ]);
             
             // Log Treasury Team (20%)
             $treasury_team_amount = $price_sol * 0.20 * 32800;
-            pg_query_params($conn, $log_query, array(
-                TREASURY_TEAM,
-                '👥 Treasury Team',
-                'treasury_team_income_from_nft_sol',
-                $treasury_team_amount,
-                0,
-                0,
-                json_encode([
+            supabaseQuery('transactions', 'POST', [
+                'user_id' => TREASURY_TEAM,
+                'username' => '👥 Treasury Team',
+                'type' => 'treasury_team_income_from_nft_sol',
+                'amount' => $treasury_team_amount,
+                'balance_before' => 0,
+                'balance_after' => 0,
+                'metadata' => json_encode([
                     'source' => 'nft_mint_sol',
                     'tier' => $tier,
                     'user' => $telegram_id,
@@ -461,7 +428,7 @@ try {
                     'amount_sol' => $price_sol * 0.20,
                     'transaction_signature' => $transaction_signature
                 ])
-            ));
+            ]);
             
             error_log("✅ Distribution transactions logged for $tier NFT");
         }
@@ -470,10 +437,6 @@ try {
         // Don't fail mint if transaction logging fails
         error_log("⚠️ Failed to log transaction: " . $log_error->getMessage());
     }
-
-    // Commit transaction
-    pg_query($conn, "COMMIT");
-    pg_close($conn);
 
     // ==========================================
     // SUCCESS RESPONSE
@@ -500,12 +463,6 @@ try {
     ]);
 
 } catch (Exception $e) {
-    // Rollback transaction
-    if (isset($conn) && $conn) {
-        pg_query($conn, "ROLLBACK");
-        pg_close($conn);
-    }
-
     // Error response
     http_response_code(400);
     echo json_encode([
