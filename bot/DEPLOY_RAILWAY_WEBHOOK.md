@@ -80,7 +80,7 @@ SUPABASE_URL=https://zfrazyupameidxpjihrh.supabase.co
 ```
 ✅ Supabase connected (attempt 1)
 ✅ Set global menu button to: ...
-🔗 Setting webhook to: https://твой-бот.up.railway.app/8445221254:AAE...
+🔗 Setting webhook to: https://твой-бот.up.railway.app/YOUR_BOT_TOKEN
 ✅ Webhook set successfully!
 🚀 Starting webhook server on port 8080...
 📡 Bot is ready to receive updates!
@@ -142,7 +142,7 @@ https://твой-бот.up.railway.app/
    Должно быть:
    ```json
    {
-     "url": "https://твой-бот.up.railway.app/8445221254:AAE...",
+     "url": "https://твой-бот.up.railway.app/YOUR_BOT_TOKEN",
      "has_custom_certificate": false,
      "pending_update_count": 0
    }

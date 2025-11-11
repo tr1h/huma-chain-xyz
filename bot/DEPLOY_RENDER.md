@@ -78,7 +78,7 @@ RENDER = true
 ```
 ✅ Supabase connected (attempt 1)
 ✅ Bot started!
-🔗 Setting webhook to: https://huma-chain-xyz-bot.onrender.com/8445221254:AAE...
+🔗 Setting webhook to: https://huma-chain-xyz-bot.onrender.com/YOUR_BOT_TOKEN
 ✅ Webhook set successfully!
 🚀 Starting webhook server on port 10000...
 📡 Bot is ready to receive updates!
@@ -136,7 +136,7 @@ https://huma-chain-xyz-bot.onrender.com/
    Должно быть:
    ```json
    {
-     "url": "https://huma-chain-xyz-bot.onrender.com/8445221254:AAE...",
+     "url": "https://huma-chain-xyz-bot.onrender.com/YOUR_BOT_TOKEN",
      "has_custom_certificate": false,
      "pending_update_count": 0
    }

@@ -1,9 +1,11 @@
 # 🔐 Установка Telegram Bot Token
 
-## Твой новый токен:
-```
-8445221254:AAE3F6Bha29dS-zzWOmJhz26K9u6lfBUu1g
-```
+## ⚠️ ВАЖНО: Токен НЕ должен быть в коде!
+
+**Получи токен от @BotFather:**
+1. Открой @BotFather в Telegram
+2. Отправь `/newbot` или выбери существующего бота
+3. Скопируй токен (формат: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
 
 ---
 
@@ -12,7 +14,7 @@
 Открой PowerShell и выполни:
 
 ```powershell
-$env:TELEGRAM_BOT_TOKEN = "8445221254:AAE3F6Bha29dS-zzWOmJhz26K9u6lfBUu1g"
+$env:TELEGRAM_BOT_TOKEN = "YOUR_TOKEN_FROM_BOTFATHER"
 cd C:\goooog\bot
 .\start_bot.ps1
 ```
@@ -23,7 +25,7 @@ cd C:\goooog\bot
 
 1. Создай файл `C:\goooog\bot\.env`:
 ```
-TELEGRAM_BOT_TOKEN=8445221254:AAE3F6Bha29dS-zzWOmJhz26K9u6lfBUu1g
+TELEGRAM_BOT_TOKEN=YOUR_TOKEN_FROM_BOTFATHER
 BOT_USERNAME=GotchiGameBot
 SUPABASE_URL=https://zfrazyupameidxpjihrh.supabase.co
 SUPABASE_KEY=твой_supabase_key
