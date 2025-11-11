@@ -45,7 +45,9 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     
     if ($data) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        // Ensure bigint values (telegram_id, nft_design_id) are sent as numbers, not strings
+        $jsonData = json_encode($data, JSON_NUMERIC_CHECK);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     }
     
     $response = curl_exec($ch);
@@ -78,7 +80,7 @@ try {
     if ($leaderboard['code'] !== 200 || empty($leaderboard['data'])) {
         // Create player in leaderboard table with default values
         $newPlayer = supabaseQuery('leaderboard', 'POST', [
-            'telegram_id' => intval($telegram_id), // ✅ Convert to integer (bigint)
+            'telegram_id' => (int)$telegram_id, // ✅ Cast to integer (bigint) - ensures JSON number type
             'tama' => 0
         ]);
         
