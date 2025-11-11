@@ -769,9 +769,10 @@
                     })
                 );
                 
-                // Get recent blockhash
-                const { blockhash } = await connection.getLatestBlockhash('confirmed');
+                // Get recent blockhash and set fee payer
+                const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
                 transaction.recentBlockhash = blockhash;
+                transaction.lastValidBlockHeight = lastValidBlockHeight;
                 transaction.feePayer = new PublicKey(walletAddress);
                 
                 console.log('💰 Creating SOL distribution transaction...');
