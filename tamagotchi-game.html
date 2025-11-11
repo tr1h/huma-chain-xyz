@@ -4207,7 +4207,8 @@
 
         // Auto-save variables
         let lastSaveTime = 0;
-        const SAVE_COOLDOWN = 3000; // 3 seconds minimum between saves
+        const SAVE_COOLDOWN = 10000; // 10 seconds minimum between saves (optimized to reduce API load)
+        let lastSavedState = null; // Track last saved state to avoid unnecessary saves
 
         // ⏰ HALVING SYSTEM - Daily Pool Calculation
         const LAUNCH_DATE = new Date('2025-11-01T00:00:00Z'); // Project launch date (UTC)
@@ -5301,10 +5302,10 @@
             }
         }, 5000); // Check every 5 seconds
 
-        // Enhanced auto-save every 10 seconds (more frequent like top games)
+        // Optimized auto-save every 30 seconds (reduced frequency to prevent API lag)
         setInterval(() => {
             triggerAutoSave();
-        }, 10000);
+        }, 30000);
 
         // Achievements system
         function checkAchievements() {
@@ -6213,34 +6214,88 @@
             }
         }
 
+        // Check if game state has changed since last save
+        function hasStateChanged() {
+            const currentState = {
+                tama: gameState.tama,
+                level: gameState.level,
+                xp: gameState.xp,
+                hp: gameState.hp,
+                food: gameState.food,
+                happy: gameState.happy,
+                totalClicks: gameState.totalClicks,
+                maxCombo: gameState.maxCombo,
+                achievements: JSON.stringify(gameState.achievements.sort())
+            };
+            
+            if (!lastSavedState) {
+                return true; // First save, always save
+            }
+            
+            // Compare critical fields
+            return (
+                currentState.tama !== lastSavedState.tama ||
+                currentState.level !== lastSavedState.level ||
+                currentState.xp !== lastSavedState.xp ||
+                currentState.totalClicks !== lastSavedState.totalClicks ||
+                currentState.maxCombo !== lastSavedState.maxCombo ||
+                currentState.achievements !== lastSavedState.achievements ||
+                Math.abs(currentState.hp - lastSavedState.hp) > 1 || // HP changes gradually
+                Math.abs(currentState.food - lastSavedState.food) > 1 || // Food changes gradually
+                Math.abs(currentState.happy - lastSavedState.happy) > 1 // Happy changes gradually
+            );
+        }
+
         function triggerAutoSave() {
             const now = Date.now();
-            if (now - lastSaveTime > SAVE_COOLDOWN) {
-                // ⚠️ IMPORTANT: Supabase is PRIMARY, localStorage is backup
-                // Save to Supabase FIRST (primary source of truth)
-                const userId = window.TELEGRAM_USER_ID;
-                if (userId) {
-                    saveDirectToSupabase(userId).then(success => {
-                        if (success) {
-                            console.log('💾 Auto-save successful (Supabase)');
-                            // Only save to localStorage AFTER successful Supabase save (as backup)
-                            saveToLocalStorage();
-                        } else {
-                            console.warn('⚠️ Auto-save to Supabase failed, saving to localStorage as backup');
-                            saveToLocalStorage();
-                        }
-                    }).catch(error => {
-                        console.error('❌ Auto-save error:', error);
-                        // Fallback to localStorage if Supabase fails
-                        saveToLocalStorage();
-                    });
-                } else {
-                    console.warn('⚠️ No user ID, saving only to localStorage');
-                    saveToLocalStorage();
-                }
-                
-                lastSaveTime = now;
+            
+            // Check cooldown
+            if (now - lastSaveTime < SAVE_COOLDOWN) {
+                return; // Still in cooldown
             }
+            
+            // Check if state has changed (optimization to reduce unnecessary API calls)
+            if (!hasStateChanged()) {
+                console.log('⏭️ Skipping save: no changes detected');
+                return; // No changes, skip save
+            }
+            
+            // ⚠️ IMPORTANT: Supabase is PRIMARY, localStorage is backup
+            // Save to Supabase FIRST (primary source of truth)
+            const userId = window.TELEGRAM_USER_ID;
+            if (userId) {
+                saveDirectToSupabase(userId).then(success => {
+                    if (success) {
+                        console.log('💾 Auto-save successful (Supabase)');
+                        // Update last saved state
+                        lastSavedState = {
+                            tama: gameState.tama,
+                            level: gameState.level,
+                            xp: gameState.xp,
+                            hp: gameState.hp,
+                            food: gameState.food,
+                            happy: gameState.happy,
+                            totalClicks: gameState.totalClicks,
+                            maxCombo: gameState.maxCombo,
+                            achievements: JSON.stringify(gameState.achievements.sort())
+                        };
+                        // Only save to localStorage AFTER successful Supabase save (as backup)
+                        saveToLocalStorage();
+                    } else {
+                        console.warn('⚠️ Auto-save to Supabase failed, saving to localStorage as backup');
+                        saveToLocalStorage();
+                    }
+                }).catch(error => {
+                    console.error('❌ Auto-save error:', error);
+                    // Fallback to localStorage if Supabase fails
+                    saveToLocalStorage();
+                });
+            } else {
+                console.warn('⚠️ No user ID, saving only to localStorage');
+                saveToLocalStorage();
+            }
+            
+            lastSaveTime = now;
         }
 
         // Local storage functions
