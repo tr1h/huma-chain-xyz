@@ -165,20 +165,16 @@ try {
     // - nft_design_id (not design_id)
     // - earning_multiplier (not boost_multiplier)
     // - purchase_price_tama (not price_paid_tama)
+    // - nft_mint_address (required, use placeholder until on-chain mint)
     $nftData = [
         'telegram_id' => $telegram_id,
         'nft_design_id' => $randomDesign['id'], // ✅ Correct field name
+        'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
         'earning_multiplier' => 2.0, // ✅ Correct field name
         'purchase_price_tama' => 5000, // ✅ Correct field name
         'is_active' => true
     ];
-    
-    // Add optional fields if they exist in schema
-    if (isset($randomDesign['design_number'])) {
-        // Only add if column exists (might not be in schema)
-        // $nftData['design_number'] = $randomDesign['design_number'];
-    }
     
     $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
     
