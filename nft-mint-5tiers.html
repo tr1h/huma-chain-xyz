@@ -91,8 +91,8 @@
         /* Wallet Section */
         .wallet-section {
             text-align: center;
-            margin: 40px 0 50px 0;
-            padding: 30px 0;
+            margin: 20px 0 25px 0;
+            padding: 15px 0;
             animation: fadeIn 1s ease;
         }
 
@@ -153,7 +153,7 @@
             display: flex;
             flex-direction: row;
             gap: 15px;
-            margin: 50px 0;
+            margin: 25px 0;
             padding: 20px;
             max-width: 100%;
             overflow-x: auto;
@@ -181,13 +181,13 @@
             background: rgba(255, 202, 58, 0.8);
         }
 
-        /* Tier Card - COMPACT TO FIT IN ONE ROW */
+        /* Tier Card - WIDER TO FIT TEXT */
         .tier-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border: 3px solid;
             border-radius: 15px;
-            padding: 18px;
+            padding: 20px;
             text-align: center;
             transition: all 0.4s ease;
             position: relative;
@@ -196,13 +196,13 @@
             animation-fill-mode: both;
             display: flex;
             flex-direction: column;
-            min-width: 200px;
-            max-width: 220px;
-            width: 200px;
+            min-width: 240px;
+            max-width: 260px;
+            width: 240px;
             flex-shrink: 0;
-            min-height: 480px;
+            min-height: 500px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            gap: 10px;
+            gap: 12px;
         }
 
         @keyframes slideInUp {
@@ -287,23 +287,26 @@
         }
 
         .tier-name {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
             margin-bottom: 8px;
             margin-top: 3px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
-            white-space: nowrap;
-            line-height: 1.2;
+            white-space: normal;
+            line-height: 1.3;
+            word-wrap: break-word;
         }
 
         .tier-supply {
-            font-size: 9px;
+            font-size: 10px;
             opacity: 0.85;
             margin-bottom: 10px;
             margin-top: 3px;
-            line-height: 1.3;
-            min-height: 25px;
+            line-height: 1.4;
+            min-height: 30px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .tier-price {
@@ -497,11 +500,11 @@
             }
             
             .tier-card {
-                min-width: 180px;
-                max-width: 180px;
-                width: 180px;
-                padding: 14px;
-                min-height: 450px;
+                min-width: 200px;
+                max-width: 200px;
+                width: 200px;
+                padding: 16px;
+                min-height: 480px;
             }
             
             .tier-icon {
