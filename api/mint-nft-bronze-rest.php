@@ -138,33 +138,16 @@ try {
     }
     
     // 4. Get random Bronze design
-    // Try different combinations of tier_id and rarity_id for Bronze
-    $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_id=eq.1&rarity_id=eq.1&limit=100');
-    
-    // If no designs found, try without rarity_id filter
-    if ($designs['code'] !== 200 || empty($designs['data'])) {
-        error_log("⚠️ No designs found with tier_id=1&rarity_id=1, trying tier_id=1 only...");
-        $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_id=eq.1&limit=100');
-    }
-    
-    // If still no designs, try with tier_name filter
-    if ($designs['code'] !== 200 || empty($designs['data'])) {
-        error_log("⚠️ No designs found with tier_id=1, trying tier_name=Bronze...");
-        $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_name=eq.Bronze&limit=100');
-    }
-    
-    // If still no designs, try without any filters (get all designs)
-    if ($designs['code'] !== 200 || empty($designs['data'])) {
-        error_log("⚠️ No designs found with Bronze filters, trying all designs...");
-        $designs = supabaseQuery('nft_designs', 'GET', null, '?limit=100');
-    }
+    // Table uses tier_name (text) not tier_id (number) - use tier_name=Bronze
+    $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_name=eq.Bronze&limit=100');
     
     if ($designs['code'] !== 200 || empty($designs['data'])) {
-        error_log("❌ No designs available in nft_designs table at all!");
+        error_log("❌ No Bronze designs found in nft_designs table!");
+        error_log("   Query used: tier_name=eq.Bronze");
         throw new Exception('No Bronze designs available. Please contact support to add NFT designs to the database.');
     }
     
-    error_log("✅ Found " . count($designs['data']) . " design(s) for Bronze NFT");
+    error_log("✅ Found " . count($designs['data']) . " Bronze design(s)");
     
     $randomDesign = $designs['data'][array_rand($designs['data'])];
     
@@ -220,8 +203,8 @@ try {
     echo json_encode([
         'success' => true,
         'design_number' => $randomDesign['design_number'],
-        'design_theme' => $randomDesign['theme'],
-        'design_variant' => $randomDesign['variant'],
+        'design_theme' => $randomDesign['design_theme'] ?? $randomDesign['theme'] ?? 'Unknown',
+        'design_variant' => $randomDesign['design_variant'] ?? $randomDesign['variant'] ?? 'Unknown',
         'boost' => 2.0,
         'price_tama' => 5000,
         'new_balance' => $newBalance,
