@@ -45,8 +45,9 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     
     if ($data) {
-        // Ensure bigint values (telegram_id, nft_design_id) are sent as numbers, not strings
-        $jsonData = json_encode($data, JSON_NUMERIC_CHECK);
+        // Encode JSON - ensure integers are sent as numbers, not strings
+        // Don't use JSON_NUMERIC_CHECK as it may convert strings to numbers incorrectly
+        $jsonData = json_encode($data);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     }
     
@@ -80,7 +81,7 @@ try {
     if ($leaderboard['code'] !== 200 || empty($leaderboard['data'])) {
         // Create player in leaderboard table with default values
         $newPlayer = supabaseQuery('leaderboard', 'POST', [
-            'telegram_id' => (int)$telegram_id, // ✅ Cast to integer (bigint) - ensures JSON number type
+            'telegram_id' => (int)$telegram_id, // ✅ Cast to integer - PHP will encode as JSON number
             'tama' => 0
         ]);
         
@@ -173,18 +174,24 @@ try {
     // - nft_mint_address (required, use placeholder until on-chain mint)
     // - rarity (required, Bronze = Common)
     // - telegram_id must be integer (bigint in database)
-    // IMPORTANT: Supabase REST API may require bigint as string to avoid precision loss
-    // Try sending as numeric string first, if that fails, try as integer
-    $telegram_id_str = (string)(int)$telegram_id; // Ensure it's a numeric string
-    $design_id_int = (int)$randomDesign['id'];
+    // IMPORTANT: Supabase REST API requires bigint as NUMBER in JSON, not string
+    // PHP integers are automatically encoded as JSON numbers
+    $telegram_id_int = (int)$telegram_id; // Explicit cast to integer
+    $design_id_int = (int)$randomDesign['id']; // Explicit cast to integer
     
-    // Debug: Log the types to ensure they're correct
-    error_log("🔍 Debug: telegram_id (string)=" . $telegram_id_str . ", type=" . gettype($telegram_id_str));
-    error_log("🔍 Debug: design_id (int)=" . $design_id_int . ", type=" . gettype($design_id_int));
+    // Debug: Log the types to ensure they're integers (not strings)
+    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_int) . ", value=" . $telegram_id_int);
+    error_log("🔍 Debug: design_id type=" . gettype($design_id_int) . ", value=" . $design_id_int);
+    
+    // Verify they are actually integers
+    if (!is_int($telegram_id_int)) {
+        error_log("⚠️ WARNING: telegram_id is not integer! Type: " . gettype($telegram_id_int));
+        $telegram_id_int = (int)$telegram_id_int; // Force conversion
+    }
     
     $nftData = [
-        'telegram_id' => $telegram_id_str, // ✅ Send as numeric string (Supabase bigint may require string)
-        'nft_design_id' => $design_id_int, // ✅ Cast to integer - ensures JSON number type
+        'telegram_id' => $telegram_id_int, // ✅ Send as integer (PHP will encode as JSON number)
+        'nft_design_id' => $design_id_int, // ✅ Send as integer (PHP will encode as JSON number)
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
         'rarity' => 'Common', // ✅ Required field: Bronze = Common
@@ -193,9 +200,16 @@ try {
         'is_active' => true
     ];
     
-    // Debug: Log the JSON that will be sent
-    $jsonDebug = json_encode($nftData, JSON_NUMERIC_CHECK);
+    // Debug: Log the JSON that will be sent (without flags to see raw encoding)
+    $jsonDebug = json_encode($nftData);
     error_log("🔍 Debug: JSON to send: " . $jsonDebug);
+    
+    // Verify telegram_id appears as number in JSON (not quoted)
+    if (strpos($jsonDebug, '"telegram_id":"') !== false) {
+        error_log("⚠️ WARNING: telegram_id is encoded as STRING in JSON! This is wrong!");
+    } else {
+        error_log("✅ telegram_id is encoded as NUMBER in JSON (correct)");
+    }
     
     $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
     
