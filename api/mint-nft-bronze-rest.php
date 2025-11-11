@@ -46,25 +46,21 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     
     if ($data) {
-        // CRITICAL FIX: Supabase PostgREST may have issues with bigint
-        // Try using explicit type casting in the JSON by ensuring it's a true integer
-        // and using JSON_NUMERIC_CHECK to prevent string conversion
+        // CRITICAL FIX: PostgREST has known issues with bigint in JSON
+        // Even when JSON contains a number, PostgREST may interpret it as text
+        // Solution: Send as STRING and let PostgreSQL cast it to BIGINT
+        // PostgreSQL will automatically cast numeric strings to bigint
         if (isset($data['telegram_id'])) {
-            // Force to integer type
-            $data['telegram_id'] = (int)$data['telegram_id'];
-            // Double-check it's actually an integer
-            if (!is_int($data['telegram_id'])) {
-                $data['telegram_id'] = intval($data['telegram_id']);
-            }
+            // Convert to string - PostgreSQL will cast "202140267" to bigint automatically
+            $data['telegram_id'] = (string)(int)$data['telegram_id']; // Ensure it's a numeric string
         }
         // nft_design_id can be integer or null
         if (isset($data['nft_design_id']) && $data['nft_design_id'] !== null) {
             $data['nft_design_id'] = (int)$data['nft_design_id'];
         }
         
-        // Use JSON_NUMERIC_CHECK to ensure numbers stay as numbers
-        // But be careful - this can convert numeric strings to numbers
-        $jsonData = json_encode($data, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
+        // Encode normally - telegram_id will be a quoted string in JSON
+        $jsonData = json_encode($data, JSON_UNESCAPED_SLASHES);
         
         // Debug: Log the exact JSON being sent
         error_log("🔍 JSON being sent to Supabase: " . substr($jsonData, 0, 500));
@@ -217,18 +213,18 @@ try {
     // - purchase_price_tama (not price_paid_tama)
     // - nft_mint_address (required, use placeholder until on-chain mint)
     // - rarity (required, Bronze = Common)
-    // - telegram_id must be INTEGER (BIGINT in database schema)
-    // Error message confirms: "column telegram_id is of type bigint"
-    // So we MUST send as integer (number in JSON), not string
-    $telegram_id_int = (int)$telegram_id; // ✅ Convert to integer
+    // - telegram_id: PostgREST has issues with bigint in JSON numbers
+    // Solution: Send as STRING and let PostgreSQL cast it to BIGINT
+    // PostgreSQL automatically casts numeric strings like "202140267" to bigint
+    $telegram_id_str = (string)(int)$telegram_id; // ✅ Convert to numeric string
     $design_id_int = (int)$randomDesign['id']; // ✅ Design ID is integer
     
     // Debug: Log the types to ensure correct format
-    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_int) . ", value=" . $telegram_id_int);
+    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_str) . ", value=" . $telegram_id_str);
     error_log("🔍 Debug: design_id type=" . gettype($design_id_int) . ", value=" . $design_id_int);
     
     $nftData = [
-        'telegram_id' => $telegram_id_int, // ✅ Send as INTEGER (user_nfts.telegram_id is BIGINT)
+        'telegram_id' => $telegram_id_str, // ✅ Send as STRING (PostgreSQL will cast to BIGINT)
         'nft_design_id' => $design_id_int, // ✅ Send as integer
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
@@ -242,11 +238,12 @@ try {
     $jsonDebug = json_encode($nftData);
     error_log("🔍 Debug: JSON to send: " . $jsonDebug);
     
-    // Verify telegram_id appears as number in JSON (not quoted)
+    // Verify telegram_id appears as string in JSON (quoted)
+    // This is correct - PostgreSQL will cast numeric strings to bigint
     if (strpos($jsonDebug, '"telegram_id":"') !== false) {
-        error_log("⚠️ WARNING: telegram_id is encoded as STRING in JSON! This is wrong!");
+        error_log("✅ telegram_id is encoded as STRING in JSON (correct - PostgreSQL will cast to BIGINT)");
     } else {
-        error_log("✅ telegram_id is encoded as NUMBER in JSON (correct)");
+        error_log("⚠️ WARNING: telegram_id is NOT a string in JSON!");
     }
     
     $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
