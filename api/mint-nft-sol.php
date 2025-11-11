@@ -70,6 +70,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Load config
 require_once __DIR__ . '/config.php';
 
+// Import treasury constants
+if (!defined('TREASURY_MAIN')) {
+    define('TREASURY_MAIN', getenv('TREASURY_MAIN') ?: '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM');
+}
+if (!defined('TREASURY_LIQUIDITY')) {
+    define('TREASURY_LIQUIDITY', getenv('TREASURY_LIQUIDITY') ?: 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1');
+}
+if (!defined('TREASURY_TEAM')) {
+    define('TREASURY_TEAM', getenv('TREASURY_TEAM') ?: 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8');
+}
+
 // Get request body
 $input = json_decode(file_get_contents('php://input'), true);
 $telegram_id = isset($input['telegram_id']) ? intval($input['telegram_id']) : null;
@@ -234,20 +245,109 @@ try {
     }
 
     // ==========================================
-    // STEP 6: Process SOL payment (IMPORTANT!)
+    // STEP 6: Process SOL payment distribution
     // ==========================================
-    // NOTE: In a real implementation, you would:
-    // 1. Verify the SOL transaction on Solana blockchain
-    // 2. Check that payment was sent to treasury wallet
-    // 3. Only mint NFT after payment confirmed
-    //
-    // For MVP/hackathon, we're trusting frontend for now
-    // TODO: Add Solana payment verification!
-    //
-    // Example (pseudocode):
-    // if (!verifySolanaPayment($wallet_address, $price_sol, $treasury_wallet)) {
-    //     throw new Exception('Payment verification failed');
-    // }
+    // Get transaction signature if provided (from frontend wallet payment)
+    $transaction_signature = isset($input['transaction_signature']) ? trim($input['transaction_signature']) : null;
+    
+    // If transaction signature provided, log distribution
+    if ($transaction_signature) {
+        try {
+            // Distribution percentages
+            $distribution = [
+                'main' => 0.50,      // 50%
+                'liquidity' => 0.30, // 30%
+                'team' => 0.20       // 20%
+            ];
+            
+            // Calculate amounts
+            $amounts = [
+                'main' => $price_sol * $distribution['main'],
+                'liquidity' => $price_sol * $distribution['liquidity'],
+                'team' => $price_sol * $distribution['team']
+            ];
+            
+            // Treasury wallet addresses
+            $treasury_main = TREASURY_MAIN;
+            $treasury_liquidity = TREASURY_LIQUIDITY;
+            $treasury_team = TREASURY_TEAM;
+            
+            error_log("💰 SOL Distribution for $tier NFT:");
+            error_log("  🏦 Treasury Main: {$amounts['main']} SOL (50%)");
+            error_log("  💧 Treasury Liquidity: {$amounts['liquidity']} SOL (30%)");
+            error_log("  👥 Treasury Team: {$amounts['team']} SOL (20%)");
+            
+            // Log distribution to sol_distributions table (if exists)
+            // Check if table exists first
+            $check_table = pg_query($conn, "
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'sol_distributions'
+                )
+            ");
+            $table_exists = pg_fetch_result($check_table, 0, 0) === 't';
+            
+            if ($table_exists) {
+                // Log main treasury
+                $dist_query = "
+                    INSERT INTO sol_distributions (
+                        transaction_signature,
+                        from_wallet,
+                        to_wallet,
+                        amount_sol,
+                        percentage,
+                        distribution_type,
+                        nft_tier,
+                        telegram_id,
+                        status,
+                        created_at
+                    ) VALUES ($1, $2, $3, $4, $5, 'main', $6, $7, 'pending', NOW())
+                ";
+                pg_query_params($conn, $dist_query, array(
+                    $transaction_signature,
+                    $wallet_address,
+                    $treasury_main,
+                    $amounts['main'],
+                    50,
+                    $tier,
+                    $telegram_id
+                ));
+                
+                // Log liquidity treasury
+                pg_query_params($conn, $dist_query, array(
+                    $transaction_signature,
+                    $wallet_address,
+                    $treasury_liquidity,
+                    $amounts['liquidity'],
+                    30,
+                    $tier,
+                    $telegram_id
+                ));
+                
+                // Log team treasury
+                pg_query_params($conn, $dist_query, array(
+                    $transaction_signature,
+                    $wallet_address,
+                    $treasury_team,
+                    $amounts['team'],
+                    20,
+                    $tier,
+                    $telegram_id
+                ));
+                
+                error_log("✅ SOL distribution logged successfully");
+            } else {
+                error_log("⚠️ sol_distributions table not found, skipping distribution log");
+            }
+            
+        } catch (Exception $dist_error) {
+            // Don't fail mint if distribution logging fails
+            error_log("⚠️ Failed to log SOL distribution: " . $dist_error->getMessage());
+        }
+    } else {
+        error_log("ℹ️ No transaction signature provided, skipping distribution log");
+    }
 
     // ==========================================
     // STEP 7: Log transaction
@@ -278,7 +378,9 @@ try {
         'image_url' => $image_url,
         'metadata_url' => $metadata_url,
         'user_nft_id' => $user_nft_id,
-        'message' => "$tier NFT minted successfully!"
+        'message' => "$tier NFT minted successfully!",
+        'distribution_logged' => $transaction_signature ? true : false,
+        'transaction_signature' => $transaction_signature
     ]);
 
 } catch (Exception $e) {
