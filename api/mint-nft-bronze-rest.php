@@ -152,15 +152,14 @@ try {
     $randomDesign = $designs['data'][array_rand($designs['data'])];
     
     // 5. Create NFT record
+    // Use design fields from nft_designs table (tier_name, design_number, design_theme, design_variant)
     $nftData = [
         'telegram_id' => $telegram_id,
-        'tier_id' => 1,
         'tier_name' => 'Bronze',
-        'rarity_id' => 1,
         'design_id' => $randomDesign['id'],
         'design_number' => $randomDesign['design_number'],
-        'design_theme' => $randomDesign['theme'],
-        'design_variant' => $randomDesign['variant'],
+        'design_theme' => $randomDesign['design_theme'] ?? 'Unknown',
+        'design_variant' => $randomDesign['design_variant'] ?? 'Unknown',
         'boost_multiplier' => 2.0,
         'price_paid_tama' => 5000,
         'payment_type' => 'TAMA',
