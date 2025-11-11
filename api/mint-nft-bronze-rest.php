@@ -64,11 +64,10 @@ try {
     $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
     
     if ($player['code'] !== 200 || empty($player['data'])) {
-            // Auto-create player with default values (without level/xp if not in schema)
+            // Auto-create player with default values (only required fields: telegram_id and tama_balance)
             $newPlayer = supabaseQuery('players', 'POST', [
                 'telegram_id' => $telegram_id,
-                'tama_balance' => 0,
-                'username' => 'user_' . $telegram_id
+                'tama_balance' => 0
             ]);
         
         if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
