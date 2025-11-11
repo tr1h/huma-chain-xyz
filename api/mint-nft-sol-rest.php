@@ -85,13 +85,11 @@ try {
     }
     
     if ($player['code'] !== 200 || empty($player['data'])) {
-        // Auto-create player with default values and wallet_address
+        // Auto-create player with default values and wallet_address (without level/xp if not in schema)
         $username = $telegram_id < 1000000000 ? 'wallet_' . substr($wallet_address, 0, 8) : 'user_' . $telegram_id;
         $newPlayer = supabaseQuery('players', 'POST', [
             'telegram_id' => $telegram_id,
             'tama_balance' => 0,
-            'level' => 1,
-            'xp' => 0,
             'username' => $username,
             'wallet_address' => $wallet_address // ✅ Save wallet_address when creating player
         ]);
