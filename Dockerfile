@@ -57,19 +57,28 @@ RewriteCond %{REQUEST_URI} !tama_supabase\.php$\n\
 RewriteCond %{REQUEST_FILENAME} !-f\n\
 RewriteRule ^api/tama(.*)$ /api/tama_supabase.php [QSA,L]' > /app/api/.htaccess
 
-# Configure Apache
+# Configure Apache with proper routing
 RUN echo '<VirtualHost *:80>\n\
+    ServerName localhost\n\
     DocumentRoot /app\n\
     <Directory /app>\n\
         Options Indexes FollowSymLinks\n\
         AllowOverride All\n\
         Require all granted\n\
+        RewriteEngine On\n\
     </Directory>\n\
     <Directory /app/api>\n\
         Options Indexes FollowSymLinks\n\
         AllowOverride All\n\
         Require all granted\n\
+        RewriteEngine On\n\
     </Directory>\n\
+    # Fallback: Route /api/tama/* to tama_supabase.php if .htaccess fails\n\
+    RewriteEngine On\n\
+    RewriteCond %{REQUEST_URI} ^/api/tama\n\
+    RewriteCond %{REQUEST_URI} !tama_supabase\.php$\n\
+    RewriteCond %{REQUEST_FILENAME} !-f\n\
+    RewriteRule ^/api/tama(.*)$ /api/tama_supabase.php [QSA,L]\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Create startup script to handle PORT variable (Render requirement)
