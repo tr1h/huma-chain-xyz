@@ -1,9 +1,10 @@
 # Enable Rewrite Engine
 RewriteEngine On
 
-# Direct access to mint PHP files (NO rewriting)
+# CRITICAL: Allow direct access to ALL PHP files in /api/ (mint, get, etc.)
 RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^api/mint-nft-.*\.php$ - [L]
+RewriteCond %{REQUEST_URI} ^/api/.*\.php$
+RewriteRule ^ - [L]
 
 # Route /api/tama/* requests to tama_supabase.php
 # CRITICAL: Skip tama_supabase.php itself to prevent redirect loop!
