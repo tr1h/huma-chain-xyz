@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINT NFT PET - Solana Tamagotchi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        /* HEADER - EPIC STYLE */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+        .header h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #FFD700, #FF6B35, #8AC926);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .header .subtitle {
+            font-size: 12px;
+            color: #8AC926;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        /* WALLET SECTION */
+        .wallet-section {
+            background: rgba(138, 201, 38, 0.1);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .wallet-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .wallet-info div {
+            font-size: 10px;
+            color: #8AC926;
+        }
+        .btn-connect {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: #1d3557;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(138, 201, 38, 0.6);
+        }
+        
+        /* TIER GRID - EPIC CARDS */
+        .tier-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        .tier-card {
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.05), rgba(29, 53, 87, 0.1));
+            backdrop-filter: blur(20px);
+            border: 3px solid;
+            border-radius: 20px;
+            padding: 25px 20px;
+            width: 260px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.4s;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .tier-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(138, 201, 38, 0.4);
+        }
+        .tier-card.bronze { border-color: #CD7F32; }
+        .tier-card.silver { border-color: #C0C0C0; }
+        .tier-card.gold { border-color: #FFD700; }
+        .tier-card.platinum { border-color: #E5E4E2; }
+        .tier-card.diamond { border-color: #B9F2FF; }
+        
+        .fomo-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #FF006E, #FF4500);
+            color: white;
+            font-size: 9px;
+            padding: 6px 10px;
+            border-radius: 15px;
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+        .tier-icon {
+            font-size: 50px;
+            text-align: center;
+            margin: 10px 0;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+        }
+        .tier-name {
+            font-size: 16px;
+            text-align: center;
+            margin: 8px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .tier-supply {
+            font-size: 9px;
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+        .tier-price {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 4px 0 15px 0;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+        }
+        .tier-price .main-price {
+            font-size: 22px;
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .tier-price .usd-price {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-bottom: 6px;
+        }
+        .tier-price .next-price {
+            font-size: 10px;
+            opacity: 0.75;
+        }
+        .tier-boost {
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 11px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+        .passive-income {
+            font-size: 11px;
+            color: #8AC926;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8AC926, #FFD700);
+            transition: width 0.5s;
+        }
+        .tier-minted-count {
+            font-size: 10px;
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+        .mint-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: #1d3557;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: auto;
+        }
+        .mint-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(138, 201, 38, 0.6);
+        }
+        .bronze-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: auto;
+        }
+        .bronze-btn {
+            padding: 12px;
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: #1d3557;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .bronze-btn.sol {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 MINT YOUR NFT PET</h1>
+            <div class="subtitle">5 TIERS | BONDING CURVE | FIXED BOOSTS</div>
+        </div>
+        
+        <div class="wallet-section">
+            <div class="wallet-info">
+                <div>👛 <span id="wallet-status">Connect Wallet</span></div>
+                <div>SOL: <span id="sol-balance">0</span></div>
+                <div>TAMA: <span id="tama-balance">Loading...</span></div>
+            </div>
+            <button class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+        </div>
+        
+        <div class="tier-grid">
+            <!-- Bronze Card -->
+            <div class="tier-card bronze">
+                <div class="tier-icon">🟫</div>
+                <div class="tier-name">BRONZE</div>
+                <div class="tier-supply">Common · 4,500 available</div>
+                <div class="tier-price">
+                    <div class="main-price">5000 TAMA</div>
+                    <div class="usd-price">$25</div>
+                    <div class="next-price">or 0.15 SOL</div>
+                </div>
+                <div class="tier-boost">×2.0 EARNING</div>
+                <div class="passive-income">🎁 +50 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 4500</div>
+                <div class="bronze-buttons">
+                    <button class="bronze-btn" onclick="mintBronze()">FREE</button>
+                    <button class="bronze-btn sol" onclick="mintBronzeSOL()">0.15 SOL</button>
+                </div>
+            </div>
+            
+            <!-- Silver Card -->
+            <div class="tier-card silver">
+                <div class="fomo-badge">🔥 PRICE ↑</div>
+                <div class="tier-icon">🥈</div>
+                <div class="tier-name">SILVER</div>
+                <div class="tier-supply">Uncommon · 350 available</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-silver-sol">1</span> SOL</div>
+                    <div class="usd-price">$<span id="price-silver-usd">164</span></div>
+                    <div class="next-price">Next: <span id="next-silver">1.01</span> SOL (+0.6%)</div>
+                </div>
+                <div class="tier-boost">×2.3 EARNING</div>
+                <div class="passive-income">🎁 +150 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 350</div>
+                <button class="mint-btn" onclick="mintSOL('Silver')">💎 MINT SILVER</button>
+            </div>
+            
+            <!-- Gold Card -->
+            <div class="tier-card gold">
+                <div class="fomo-badge">🔥 PRICE ↑</div>
+                <div class="tier-icon">🥇</div>
+                <div class="tier-name">GOLD</div>
+                <div class="tier-supply">Rare · 130 available</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-gold-sol">3</span> SOL</div>
+                    <div class="usd-price">$<span id="price-gold-usd">492</span></div>
+                    <div class="next-price">Next: <span id="next-gold">3.05</span> SOL (+1.8%)</div>
+                </div>
+                <div class="tier-boost">×2.7 EARNING</div>
+                <div class="passive-income">🎁 +500 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 130</div>
+                <button class="mint-btn" onclick="mintSOL('Gold')">🏆 MINT GOLD</button>
+            </div>
+            
+            <!-- Platinum Card -->
+            <div class="tier-card platinum">
+                <div class="fomo-badge">🔥 RARE!</div>
+                <div class="tier-icon">💎</div>
+                <div class="tier-name">PLATINUM</div>
+                <div class="tier-supply">Epic · Only 18!</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-platinum-sol">10</span> SOL</div>
+                    <div class="usd-price">$<span id="price-platinum-usd">1,641</span></div>
+                    <div class="next-price">Next: <span id="next-platinum">11.11</span> SOL (+11%)</div>
+                </div>
+                <div class="tier-boost">×3.5 EARNING</div>
+                <div class="passive-income">🎁 +2000 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 18</div>
+                <button class="mint-btn" onclick="mintSOL('Platinum')">⚡ MINT PLATINUM</button>
+            </div>
+            
+            <!-- Diamond Card -->
+            <div class="tier-card diamond">
+                <div class="fomo-badge">⚠️ ONLY 2!</div>
+                <div class="tier-icon">🔷</div>
+                <div class="tier-name">DIAMOND</div>
+                <div class="tier-supply">Legendary · ONLY 2 EXIST!</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-diamond-sol">50</span> SOL</div>
+                    <div class="usd-price">$<span id="price-diamond-usd">8,204</span></div>
+                    <div class="next-price">Next: <span id="next-diamond">100</span> SOL (+100%)</div>
+                </div>
+                <div class="tier-boost">×5.0 MAXIMUM!</div>
+                <div class="passive-income">🎁 +10000 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 2</div>
+                <button class="mint-btn" onclick="mintSOL('Diamond')">👑 MINT DIAMOND</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Copy all JS from original file here
+        console.log('Variant 1: Epic Gradient Style');
+    </script>
+</body>
+</html>
+
