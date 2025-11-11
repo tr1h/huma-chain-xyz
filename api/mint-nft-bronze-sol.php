@@ -317,9 +317,23 @@ try {
             $treasury_team = getenv('TREASURY_TEAM') ?: 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
             
             // Treasury Main (50%)
-            $log_stmt->execute([
+            $treasury_stmt = $pdo->prepare("
+                INSERT INTO transactions (
+                    user_id,
+                    username,
+                    type,
+                    amount,
+                    balance_before,
+                    balance_after,
+                    metadata,
+                    created_at
+                ) VALUES (:user_id, :username, :type, :amount, :balance_before, :balance_after, :metadata, NOW())
+            ");
+            
+            $treasury_stmt->execute([
                 ':user_id' => $treasury_main,
                 ':username' => '💰 Treasury Main',
+                ':type' => 'treasury_income_from_nft_sol',
                 ':amount' => $sent_price * 0.50 * 32800,
                 ':balance_before' => 0,
                 ':balance_after' => 0,
@@ -333,9 +347,10 @@ try {
             ]);
             
             // Treasury Liquidity (30%)
-            $log_stmt->execute([
+            $treasury_stmt->execute([
                 ':user_id' => $treasury_liquidity,
                 ':username' => '💧 Treasury Liquidity',
+                ':type' => 'treasury_liquidity_income_from_nft_sol',
                 ':amount' => $sent_price * 0.30 * 32800,
                 ':balance_before' => 0,
                 ':balance_after' => 0,
@@ -349,9 +364,10 @@ try {
             ]);
             
             // Treasury Team (20%)
-            $log_stmt->execute([
+            $treasury_stmt->execute([
                 ':user_id' => $treasury_team,
                 ':username' => '👥 Treasury Team',
+                ':type' => 'treasury_team_income_from_nft_sol',
                 ':amount' => $sent_price * 0.20 * 32800,
                 ':balance_before' => 0,
                 ':balance_after' => 0,
