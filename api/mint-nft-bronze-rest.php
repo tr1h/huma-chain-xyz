@@ -173,9 +173,10 @@ try {
     // - nft_mint_address (required, use placeholder until on-chain mint)
     // - rarity (required, Bronze = Common)
     // - telegram_id must be integer (bigint in database)
+    // IMPORTANT: Use (int) cast to ensure PHP sends as number, not string in JSON
     $nftData = [
-        'telegram_id' => intval($telegram_id), // ✅ Convert to integer (bigint)
-        'nft_design_id' => intval($randomDesign['id']), // ✅ Convert to integer
+        'telegram_id' => (int)$telegram_id, // ✅ Cast to integer (bigint) - ensures JSON number type
+        'nft_design_id' => (int)$randomDesign['id'], // ✅ Cast to integer - ensures JSON number type
         'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
         'rarity' => 'Common', // ✅ Required field: Bronze = Common
