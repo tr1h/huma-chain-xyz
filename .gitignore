@@ -4,8 +4,12 @@ __pycache__/
 
 # Environment
 .env
+.env.local
+.env.*.local
+*.env
 *.log
 bot/bot_monitoring.log
+**/*.log
 
 # Keypairs (ВАЖНО! НИКОГДА НЕ КОММИТИТЬ!)
 *-keypair.json
@@ -57,9 +61,22 @@ test-*.md
 TESTING_*.md
 NEXT_STEPS.md
 
-# Private keys
+# Private keys and secrets
 *-private-key.txt
 *.private-key.txt
+*.secret
+*secret*.json
+*secret*.txt
+*secret*.env
+*token*.txt
+*credentials.json
+secrets.json
+credentials.json
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
 
 # Admin panels with passwords (local only)
 wallet-admin.html  # ПРИВАТНЫЙ! Только локально, НЕ в Git!
