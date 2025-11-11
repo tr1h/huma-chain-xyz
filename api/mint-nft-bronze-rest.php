@@ -162,8 +162,10 @@ try {
     
     // 5. Create NFT record
     // Use design fields from nft_designs table (tier_name, design_number, design_theme, design_variant)
+    // Check what fields are actually in user_nfts table - use only required ones
     $nftData = [
         'telegram_id' => $telegram_id,
+        'wallet_address' => $wallet_address ?? null, // Add wallet_address if available
         'tier_name' => 'Bronze',
         'design_id' => $randomDesign['id'],
         'design_number' => $randomDesign['design_number'],
@@ -175,10 +177,31 @@ try {
         'is_active' => true
     ];
     
+    // Remove null values to avoid schema issues
+    $nftData = array_filter($nftData, function($value) {
+        return $value !== null;
+    });
+    
     $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
     
     if ($createNFT['code'] < 200 || $createNFT['code'] >= 300) {
-        throw new Exception('Failed to create NFT record');
+        $errorDetails = json_encode($createNFT['data'] ?? ['no_data' => true]);
+        error_log("❌ Failed to create NFT record: code={$createNFT['code']}, data={$errorDetails}");
+        error_log("   NFT data sent: " . json_encode($nftData));
+        
+        // Try to get more details from Supabase error
+        $errorMsg = 'Failed to create NFT record';
+        if (isset($createNFT['data']['message'])) {
+            $errorMsg .= ': ' . $createNFT['data']['message'];
+        } elseif (isset($createNFT['data']['hint'])) {
+            $errorMsg .= ': ' . $createNFT['data']['hint'];
+        } elseif (isset($createNFT['data'][0]['message'])) {
+            $errorMsg .= ': ' . $createNFT['data'][0]['message'];
+        } elseif (isset($createNFT['data']['details'])) {
+            $errorMsg .= ': ' . $createNFT['data']['details'];
+        }
+        
+        throw new Exception($errorMsg);
     }
     
     // 6. Update bonding state
