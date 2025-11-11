@@ -1133,9 +1133,13 @@
         function updateTierUI(tier) {
             const tierName = tier.tier_name.toLowerCase();
             
-            // Special handling for Bronze_SOL (fixed price, no updates needed)
+            // Special handling for Bronze_SOL (fixed price, update USD only)
             if (tierName === 'bronze_sol') {
-                // Fixed price 0.15 SOL - no UI updates needed
+                // Fixed price 0.15 SOL - update USD price only
+                const bronzeUsdSpan = document.getElementById('price-bronze-usd');
+                if (bronzeUsdSpan) {
+                    bronzeUsdSpan.textContent = Math.round(0.15 * SOL_USD_RATE);
+                }
                 return;
             }
             
