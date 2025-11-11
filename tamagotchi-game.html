@@ -9722,11 +9722,39 @@
             const mintNftBtn = document.getElementById('mint-nft-btn');
 
             if (nftBtn) {
-                nftBtn.addEventListener('click', () => {
-                    // Open NFT Mint page in new window
+                nftBtn.addEventListener('click', async () => {
+                    // Save current game state before navigating
                     const userId = window.TELEGRAM_USER_ID || 'guest';
+                    const userIdStr = String(userId);
+                    
+                    // Force save to Supabase before leaving
+                    try {
+                        await saveDirectToSupabase(userIdStr);
+                        console.log('✅ Game state saved before NFT mint page');
+                    } catch (err) {
+                        console.warn('⚠️ Failed to save before navigation:', err);
+                    }
+                    
+                    // Get current balance (ensure it's up to date)
                     const tamaBalance = gameState.tama || 0;
-                    const nftUrl = `https://tr1h.github.io/huma-chain-xyz/nft-mint-5tiers.html?user_id=${userId}&tama=${tamaBalance}`;
+                    const level = gameState.level || 1;
+                    const xp = gameState.xp || 0;
+                    
+                    // Save wallet connection state if exists
+                    if (window.solana && window.solana.isConnected) {
+                        try {
+                            const wallet = window.solana.publicKey;
+                            if (wallet) {
+                                localStorage.setItem('phantom_wallet_address', wallet.toString());
+                                console.log('✅ Wallet address saved:', wallet.toString());
+                            }
+                        } catch (err) {
+                            console.warn('⚠️ Failed to save wallet:', err);
+                        }
+                    }
+                    
+                    // Build URL with all important data
+                    const nftUrl = `https://tr1h.github.io/huma-chain-xyz/nft-mint-5tiers.html?user_id=${userIdStr}&tama=${tamaBalance}&level=${level}&xp=${xp}`;
                     
                     if (window.Telegram && window.Telegram.WebApp) {
                         // In Telegram, open external link

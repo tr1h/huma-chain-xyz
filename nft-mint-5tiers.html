@@ -765,6 +765,40 @@
             window.location.href = `my-nfts.html?user_id=${TELEGRAM_USER_ID}`;
         }
 
+        function updateWalletUI() {
+            if (walletConnected && walletAddress) {
+                const walletAddressEl = document.getElementById('wallet-address');
+                const connectWalletEl = document.getElementById('connect-wallet');
+                const walletInfoEl = document.getElementById('wallet-info');
+                
+                if (walletAddressEl) {
+                    walletAddressEl.textContent = 
+                        walletAddress.substring(0, 4) + '...' + walletAddress.substring(walletAddress.length - 4);
+                }
+                
+                if (connectWalletEl) {
+                    connectWalletEl.textContent = '✅ Connected';
+                }
+                
+                if (walletInfoEl) {
+                    walletInfoEl.style.display = 'block';
+                }
+                
+                // Update SOL balance
+                if (window.solana && window.solana.publicKey) {
+                    const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
+                    connection.getBalance(window.solana.publicKey).then(balance => {
+                        const walletBalanceEl = document.getElementById('wallet-balance');
+                        if (walletBalanceEl) {
+                            walletBalanceEl.textContent = (balance / 1e9).toFixed(4);
+                        }
+                    }).catch(err => {
+                        console.warn('⚠️ Failed to get SOL balance:', err);
+                    });
+                }
+            }
+        }
+
         // ==============================================
         // WALLET FUNCTIONS
         // ==============================================
@@ -779,6 +813,10 @@
                 const resp = await window.solana.connect();
                 walletAddress = resp.publicKey.toString();
                 walletConnected = true;
+
+                // Save wallet address to localStorage for persistence
+                localStorage.setItem('phantom_wallet_address', walletAddress);
+                console.log('✅ Wallet address saved to localStorage:', walletAddress);
 
                 document.getElementById('wallet-address').textContent = 
                     walletAddress.substring(0, 4) + '...' + walletAddress.substring(walletAddress.length - 4);
@@ -1125,8 +1163,9 @@
                 if (result.success) {
                     alert(`🎉 SUCCESS!\\n\\nYou minted ${tierName} NFT #${result.design_number}!\\n\\nBoost: ×${boostMap[tierName]}\\nPrice: ${price} SOL\\nTheme: ${result.design_theme}\\nVariant: ${result.design_variant}`);
                     
-                    // Reload prices
+                    // Reload prices and balance (balance might have changed)
                     await loadPricesAndStats();
+                    await loadTAMABalance(); // Update TAMA balance after mint
                 } else {
                     alert(`❌ Error: ${result.error || 'Unknown error'}`);
                 }
@@ -1145,11 +1184,34 @@
             console.log('🚀 NFT Mint Page loaded');
             console.log('👤 Telegram User ID:', TELEGRAM_USER_ID);
 
+            // Restore wallet connection if exists
+            try {
+                const savedWallet = localStorage.getItem('phantom_wallet_address');
+                if (savedWallet && window.solana && window.solana.isPhantom) {
+                    try {
+                        const resp = await window.solana.connect({ onlyIfTrusted: true });
+                        if (resp && resp.publicKey) {
+                            walletAddress = resp.publicKey.toString();
+                            walletConnected = true;
+                            console.log('✅ Wallet auto-connected:', walletAddress);
+                            updateWalletUI();
+                        }
+                    } catch (err) {
+                        console.log('ℹ️ Wallet not auto-connected (user needs to connect manually)');
+                    }
+                }
+            } catch (err) {
+                console.warn('⚠️ Failed to restore wallet:', err);
+            }
+
             await loadPricesAndStats();
             await loadTAMABalance(); // 🔥 FIX: Load TAMA balance!
 
             // Auto-refresh prices every 10 seconds
             setInterval(loadPricesAndStats, 10000);
+            
+            // Auto-refresh balance every 30 seconds (in case user earned TAMA in game)
+            setInterval(loadTAMABalance, 30000);
         });
     </script>
 </body>
