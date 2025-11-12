@@ -147,10 +147,18 @@ function supabaseQueryManual($endpoint, $method = 'POST', $jsonString = null, $f
     return ['code' => $httpCode, 'data' => $responseData];
 }
 
+// Log that the script is executing
+error_log("🚀 mint-nft-bronze-rest.php: Script started, REQUEST_METHOD=" . $_SERVER['REQUEST_METHOD']);
+
 try {
     // Get POST data
     $json = file_get_contents('php://input');
+    error_log("🚀 mint-nft-bronze-rest.php: Received POST data, length=" . strlen($json));
     $data = json_decode($json, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log("❌ JSON decode error: " . json_last_error_msg());
+    }
     
             $telegram_id = $data['telegram_id'] ?? null;
             $wallet_address = $data['wallet_address'] ?? null; // Optional: wallet address from frontend
