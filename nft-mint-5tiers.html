@@ -1039,47 +1039,99 @@
                 spinner.id = 'loading-spinner';
                 document.querySelector('.container').appendChild(spinner);
 
-                // Call API - use absolute path for GitHub Pages (REST API version - no DB password needed!)
-                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'api/mint-nft-bronze-rest.php'
-                    : 'https://huma-chain-xyz.onrender.com/api/mint-nft-bronze-rest.php';
+                // ============================================
+                // DIRECT SUPABASE APPROACH (bypasses PHP API)
+                // ============================================
+                console.log('📊 Checking balance from leaderboard...');
                 
-                console.log('📡 Calling API:', apiUrl);
+                // 1. Get current TAMA balance from leaderboard
+                const { data: leaderboardData, error: leaderboardError } = await supabase
+                    .from('leaderboard')
+                    .select('tama')
+                    .eq('telegram_id', Number(TELEGRAM_USER_ID))
+                    .single();
                 
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegram_id: TELEGRAM_USER_ID,
-                        wallet_address: walletAddress // ✅ Send wallet_address to link it with player
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('❌ API Error:', response.status, errorText);
-                    throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+                if (leaderboardError || !leaderboardData) {
+                    throw new Error('Could not fetch TAMA balance. Please try again.');
                 }
-
-                const result = await response.json();
+                
+                const currentTama = leaderboardData.tama || 0;
+                if (currentTama < 5000) {
+                    throw new Error(`Insufficient TAMA balance. You have ${currentTama}, need 5000.`);
+                }
+                
+                console.log('💰 Current TAMA balance:', currentTama);
+                
+                // 2. Deduct 5000 TAMA from leaderboard
+                const newTama = currentTama - 5000;
+                const { error: updateError } = await supabase
+                    .from('leaderboard')
+                    .update({ tama: newTama })
+                    .eq('telegram_id', Number(TELEGRAM_USER_ID));
+                
+                if (updateError) {
+                    throw new Error('Failed to deduct TAMA: ' + updateError.message);
+                }
+                
+                console.log('✅ Deducted 5000 TAMA, new balance:', newTama);
+                
+                // 3. Get random Bronze design
+                const { data: designs, error: designError } = await supabase
+                    .from('nft_designs')
+                    .select('*')
+                    .eq('tier_name', 'Bronze')
+                    .eq('is_active', true);
+                
+                if (designError || !designs || designs.length === 0) {
+                    // Rollback TAMA deduction
+                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    throw new Error('No Bronze NFT designs available');
+                }
+                
+                const randomDesign = designs[Math.floor(Math.random() * designs.length)];
+                console.log('🎨 Selected design:', randomDesign);
+                
+                // 4. Create NFT record in user_nfts table
+                const nftMintAddress = `bronze_${Number(TELEGRAM_USER_ID)}_${Date.now()}_${randomDesign.id}`;
+                
+                const { data: nftData, error: nftError } = await supabase
+                    .from('user_nfts')
+                    .insert({
+                        telegram_id: Number(TELEGRAM_USER_ID), // ✅ Force to Number
+                        nft_design_id: randomDesign.id,
+                        nft_mint_address: nftMintAddress,
+                        tier_name: 'Bronze',
+                        rarity: 'Common',
+                        earning_multiplier: 2.0,
+                        purchase_price_tama: 5000,
+                        is_active: true
+                    })
+                    .select()
+                    .single();
+                
+                if (nftError) {
+                    console.error('❌ NFT creation error:', nftError);
+                    // Rollback TAMA deduction
+                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    throw new Error('Failed to create NFT: ' + nftError.message);
+                }
+                
+                console.log('✅ NFT created:', nftData);
 
                 // Remove loading
                 document.getElementById('loading-spinner')?.remove();
 
-                if (result.success) {
-                    showNotification('success', '🎉 NFT Minted!', 
-                        `Bronze NFT #${result.design_number} minted successfully!\n\n` +
-                        `Boost: ×2.0\n` +
-                        `Theme: ${result.design_theme}\n` +
-                        `Variant: ${result.design_variant}`
-                    );
-                    
-                    // Reload prices & balance (balance decreased by 5,000 TAMA)
-                    await loadPricesAndStats();
-                    await loadTAMABalance(); // Update TAMA balance after mint
-                } else {
-                    showNotification('error', 'Mint Failed', result.error || 'Unknown error occurred');
-                }
+                showNotification('success', '🎉 NFT Minted!', 
+                    `Bronze NFT minted successfully!\n\n` +
+                    `Design: #${randomDesign.design_number}\n` +
+                    `Boost: ×2.0\n` +
+                    `Theme: ${randomDesign.design_theme}\n` +
+                    `Variant: ${randomDesign.design_variant}`
+                );
+                
+                // Reload prices & balance
+                await loadPricesAndStats();
+                await loadTAMABalance();
 
             } catch (err) {
                 console.error('❌ Mint Bronze failed:', err);
