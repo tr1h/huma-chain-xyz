@@ -327,6 +327,9 @@ try {
     // CRITICAL FIX: Use RPC function to bypass PostgREST type interpretation issues
     // The RPC function explicitly casts telegram_id to BIGINT in PostgreSQL
     // This is the most reliable way to handle BIGINT columns in PostgREST
+    error_log("🔍 STEP 1: Preparing RPC function call...");
+    error_log("🔍 STEP 1: telegram_id_final=" . $telegram_id_final . " (type: " . gettype($telegram_id_final) . ")");
+    
     $rpcData = [
         'p_telegram_id' => $telegram_id_final, // ✅ Send as integer
         'p_nft_design_id' => $design_id_int,
@@ -338,22 +341,27 @@ try {
         'p_is_active' => $nftData['is_active']
     ];
     
-    error_log("🔍 Attempting RPC function call with data: " . json_encode($rpcData, JSON_NUMERIC_CHECK));
+    error_log("🔍 STEP 2: RPC data prepared: " . json_encode($rpcData, JSON_NUMERIC_CHECK));
+    error_log("🔍 STEP 3: Attempting RPC function call: rpc/insert_user_nft");
     
     // Try RPC function first (if it exists)
     $createNFT = supabaseQuery('rpc/insert_user_nft', 'POST', $rpcData);
     
-    error_log("🔍 RPC function response: code=" . $createNFT['code'] . ", data=" . json_encode($createNFT['data'] ?? []));
+    error_log("🔍 STEP 4: RPC function response: code=" . $createNFT['code'] . ", data=" . json_encode($createNFT['data'] ?? []));
     
     // If RPC function doesn't exist (404) or returns error, try alternative approaches
     if ($createNFT['code'] === 404) {
-        error_log("⚠️ RPC function insert_user_nft not found (404), using direct POST");
+        error_log("⚠️ STEP 5a: RPC function insert_user_nft not found (404), using direct POST");
         // Use manual JSON construction to ensure correct type
         $createNFT = supabaseQueryManual('user_nfts', 'POST', $manualJson);
+        error_log("🔍 STEP 5b: Direct POST response: code=" . $createNFT['code']);
     } elseif ($createNFT['code'] >= 400 && $createNFT['code'] < 500) {
         // RPC function exists but returned error - might be type issue
-        error_log("⚠️ RPC function returned error, trying direct POST as fallback");
+        error_log("⚠️ STEP 6a: RPC function returned error (code " . $createNFT['code'] . "), trying direct POST as fallback");
         $createNFT = supabaseQueryManual('user_nfts', 'POST', $manualJson);
+        error_log("🔍 STEP 6b: Direct POST fallback response: code=" . $createNFT['code']);
+    } elseif ($createNFT['code'] >= 200 && $createNFT['code'] < 300) {
+        error_log("✅ STEP 7: RPC function SUCCESS! code=" . $createNFT['code']);
     }
     
     if ($createNFT['code'] < 200 || $createNFT['code'] >= 300) {
