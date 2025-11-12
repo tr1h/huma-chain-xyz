@@ -94,7 +94,9 @@ try {
     error_log("🟫⚡ Bronze SOL mint request: user=$telegram_id, wallet=$wallet_address, price=$price_sol SOL");
     
     // 1. Check if player exists by wallet_address first (for direct link users)
-    $playerByWallet = supabaseQuery('leaderboard', 'GET', null, '?wallet_address=eq.' . $wallet_address . '&select=*');
+    error_log("🔍 Step 1: Checking for player by wallet_address: $wallet_address");
+    $playerByWallet = supabaseQuery('leaderboard', 'GET', null, '?wallet_address=eq.' . urlencode($wallet_address) . '&select=*');
+    error_log("🔍 Player by wallet query result: code={$playerByWallet['code']}, data_count=" . (is_array($playerByWallet['data']) ? count($playerByWallet['data']) : 0));
     
     // If player found by wallet, use their telegram_id
     if ($playerByWallet['code'] === 200 && !empty($playerByWallet['data'])) {
@@ -104,29 +106,68 @@ try {
         $player = $playerByWallet;
     } else {
         // Check player exists by telegram_id in leaderboard table
+        error_log("🔍 Step 2: Checking for player by telegram_id: $telegram_id");
         $player = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
+        error_log("🔍 Player by telegram_id query result: code={$player['code']}, data_count=" . (is_array($player['data']) ? count($player['data']) : 0));
     }
     
     if ($player['code'] !== 200 || empty($player['data'])) {
         // Auto-create player in leaderboard table with default values
+        error_log("🔍 Step 3: Player not found, creating new player: telegram_id=$telegram_id, wallet=$wallet_address");
         $username = $telegram_id < 1000000000 ? 'wallet_' . substr($wallet_address, 0, 8) : 'user_' . $telegram_id;
-        $newPlayer = supabaseQuery('leaderboard', 'POST', [
+        $playerData = [
             'telegram_id' => (int)$telegram_id, // ✅ Cast to integer - PHP will encode as JSON number
             'tama' => 0,  // leaderboard uses 'tama', not 'tama_balance'
             'username' => $username,
             'wallet_address' => $wallet_address
-        ]);
+        ];
+        error_log("🔍 Player data to create: " . json_encode($playerData));
+        $newPlayer = supabaseQuery('leaderboard', 'POST', $playerData);
+        error_log("🔍 Create player response: code={$newPlayer['code']}, data=" . json_encode($newPlayer['data'] ?? []));
         
         if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
-            $errorDetails = json_encode($newPlayer['data'] ?? ['no_data' => true]);
-            error_log("❌ Failed to create player in leaderboard: code={$newPlayer['code']}, data={$errorDetails}");
-            throw new Exception('Failed to create player account');
+            // Check if player already exists (duplicate key error)
+            if ($newPlayer['code'] === 409 || ($newPlayer['code'] === 400 && 
+                (strpos(json_encode($newPlayer['data']), 'duplicate') !== false || 
+                 strpos(json_encode($newPlayer['data']), 'already exists') !== false))) {
+                error_log("⚠️ Player already exists (duplicate), retrieving existing player");
+                $player = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
+                if ($player['code'] === 200 && !empty($player['data'])) {
+                    error_log("✅ Retrieved existing player after duplicate error");
+                } else {
+                    $errorDetails = json_encode($newPlayer['data'] ?? ['no_data' => true]);
+                    error_log("❌ Failed to create player in leaderboard: code={$newPlayer['code']}, data={$errorDetails}");
+                    throw new Exception('Failed to create player account: ' . ($newPlayer['data']['message'] ?? $newPlayer['data']['hint'] ?? 'Unknown error'));
+                }
+            } else {
+                $errorDetails = json_encode($newPlayer['data'] ?? ['no_data' => true]);
+                error_log("❌ Failed to create player in leaderboard: code={$newPlayer['code']}, data={$errorDetails}");
+                throw new Exception('Failed to create player account: ' . ($newPlayer['data']['message'] ?? $newPlayer['data']['hint'] ?? 'Unknown error'));
+            }
+        } else {
+            // Get the newly created player
+            error_log("🔍 Step 4: Retrieving newly created player");
+            $player = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
+            if ($player['code'] !== 200 || empty($player['data'])) {
+                error_log("❌ Player created but retrieval failed: code={$player['code']}");
+                throw new Exception('Player account created but could not be retrieved');
+            }
+            error_log("✅ Player successfully created and retrieved");
         }
-        
-        // Get the newly created player
-        $player = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
-        if ($player['code'] !== 200 || empty($player['data'])) {
-            throw new Exception('Player account created but could not be retrieved');
+    } else {
+        error_log("✅ Player already exists, skipping creation");
+        // Update wallet_address if it's different or missing
+        $existingPlayerData = $player['data'][0];
+        if (empty($existingPlayerData['wallet_address']) || $existingPlayerData['wallet_address'] !== $wallet_address) {
+            error_log("🔍 Updating wallet_address for existing player: old=" . ($existingPlayerData['wallet_address'] ?? 'null') . ", new=$wallet_address");
+            $updateWallet = supabaseQuery('leaderboard', 'PATCH', [
+                'wallet_address' => $wallet_address
+            ], '?telegram_id=eq.' . intval($telegram_id));
+            if ($updateWallet['code'] >= 200 && $updateWallet['code'] < 300) {
+                error_log("✅ Wallet address updated successfully");
+            } else {
+                error_log("⚠️ Failed to update wallet_address: code={$updateWallet['code']}");
+            }
         }
     }
     
