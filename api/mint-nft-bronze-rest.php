@@ -338,13 +338,21 @@ try {
         'p_is_active' => $nftData['is_active']
     ];
     
+    error_log("🔍 Attempting RPC function call with data: " . json_encode($rpcData, JSON_NUMERIC_CHECK));
+    
     // Try RPC function first (if it exists)
     $createNFT = supabaseQuery('rpc/insert_user_nft', 'POST', $rpcData);
     
-    // If RPC function doesn't exist (404), fallback to direct POST
+    error_log("🔍 RPC function response: code=" . $createNFT['code'] . ", data=" . json_encode($createNFT['data'] ?? []));
+    
+    // If RPC function doesn't exist (404) or returns error, try alternative approaches
     if ($createNFT['code'] === 404) {
-        error_log("⚠️ RPC function insert_user_nft not found, using direct POST");
+        error_log("⚠️ RPC function insert_user_nft not found (404), using direct POST");
         // Use manual JSON construction to ensure correct type
+        $createNFT = supabaseQueryManual('user_nfts', 'POST', $manualJson);
+    } elseif ($createNFT['code'] >= 400 && $createNFT['code'] < 500) {
+        // RPC function exists but returned error - might be type issue
+        error_log("⚠️ RPC function returned error, trying direct POST as fallback");
         $createNFT = supabaseQueryManual('user_nfts', 'POST', $manualJson);
     }
     
