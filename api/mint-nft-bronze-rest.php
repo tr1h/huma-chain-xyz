@@ -96,17 +96,18 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
 }
 
 // Helper function for Supabase REST API with manual JSON (bypasses json_encode)
+// CRITICAL: Use minimal headers to avoid PostgREST type interpretation issues
 function supabaseQueryManual($endpoint, $method = 'POST', $jsonString = null, $filters = '') {
     global $supabaseUrl, $supabaseKey;
     
     $url = $supabaseUrl . '/rest/v1/' . $endpoint . $filters;
+    // Minimal headers - remove Accept-Profile and complex Accept headers
+    // These might cause PostgREST to misinterpret types
     $headers = [
         'apikey: ' . $supabaseKey,
         'Authorization: Bearer ' . $supabaseKey,
         'Content-Type: application/json',
-        'Prefer: return=representation,resolution=merge-duplicates',
-        'Accept: application/vnd.pgjson.object+json',
-        'Accept-Profile: public'
+        'Prefer: return=representation'
     ];
     
     $ch = curl_init($url);
@@ -116,18 +117,31 @@ function supabaseQueryManual($endpoint, $method = 'POST', $jsonString = null, $f
     
     if ($jsonString) {
         error_log("🔍 Manual JSON being sent to Supabase: " . substr($jsonString, 0, 500));
+        // Verify telegram_id is a number in the JSON string
+        if (preg_match('/"telegram_id"\s*:\s*"?(\d+)"?/', $jsonString, $matches)) {
+            if (strpos($jsonString, '"telegram_id":"') !== false) {
+                error_log("❌ ERROR: telegram_id is quoted in manual JSON! This should not happen!");
+            } else {
+                error_log("✅ Verified: telegram_id is a number in manual JSON: " . $matches[1]);
+            }
+        }
         curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonString);
     }
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
+    
+    if ($curlError) {
+        error_log("❌ cURL error: " . $curlError);
+    }
     
     $responseData = json_decode($response, true);
     
     // Debug: Log response if error
     if ($httpCode >= 400) {
-        error_log("🔍 Supabase error response: " . $response);
+        error_log("🔍 Supabase error response (code $httpCode): " . $response);
     }
     
     return ['code' => $httpCode, 'data' => $responseData];
@@ -310,8 +324,29 @@ try {
         error_log("⚠️ WARNING: telegram_id is quoted in JSON! Should be number for BIGINT!");
     }
     
-    // Use manual JSON construction to ensure correct type
-    $createNFT = supabaseQueryManual('user_nfts', 'POST', $manualJson);
+    // CRITICAL FIX: Use RPC function to bypass PostgREST type interpretation issues
+    // The RPC function explicitly casts telegram_id to BIGINT in PostgreSQL
+    // This is the most reliable way to handle BIGINT columns in PostgREST
+    $rpcData = [
+        'p_telegram_id' => $telegram_id_final, // ✅ Send as integer
+        'p_nft_design_id' => $design_id_int,
+        'p_nft_mint_address' => $nftData['nft_mint_address'],
+        'p_tier_name' => $nftData['tier_name'],
+        'p_rarity' => $nftData['rarity'],
+        'p_earning_multiplier' => $nftData['earning_multiplier'],
+        'p_purchase_price_tama' => $nftData['purchase_price_tama'],
+        'p_is_active' => $nftData['is_active']
+    ];
+    
+    // Try RPC function first (if it exists)
+    $createNFT = supabaseQuery('rpc/insert_user_nft', 'POST', $rpcData);
+    
+    // If RPC function doesn't exist (404), fallback to direct POST
+    if ($createNFT['code'] === 404) {
+        error_log("⚠️ RPC function insert_user_nft not found, using direct POST");
+        // Use manual JSON construction to ensure correct type
+        $createNFT = supabaseQueryManual('user_nfts', 'POST', $manualJson);
+    }
     
     if ($createNFT['code'] < 200 || $createNFT['code'] >= 300) {
         $errorDetails = json_encode($createNFT['data'] ?? ['no_data' => true]);
