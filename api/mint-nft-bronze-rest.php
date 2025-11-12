@@ -95,6 +95,44 @@ function supabaseQuery($endpoint, $method = 'GET', $data = null, $filters = '') 
     return ['code' => $httpCode, 'data' => $responseData];
 }
 
+// Helper function for Supabase REST API with manual JSON (bypasses json_encode)
+function supabaseQueryManual($endpoint, $method = 'POST', $jsonString = null, $filters = '') {
+    global $supabaseUrl, $supabaseKey;
+    
+    $url = $supabaseUrl . '/rest/v1/' . $endpoint . $filters;
+    $headers = [
+        'apikey: ' . $supabaseKey,
+        'Authorization: Bearer ' . $supabaseKey,
+        'Content-Type: application/json',
+        'Prefer: return=representation,resolution=merge-duplicates',
+        'Accept: application/vnd.pgjson.object+json',
+        'Accept-Profile: public'
+    ];
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    
+    if ($jsonString) {
+        error_log("🔍 Manual JSON being sent to Supabase: " . substr($jsonString, 0, 500));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonString);
+    }
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    $responseData = json_decode($response, true);
+    
+    // Debug: Log response if error
+    if ($httpCode >= 400) {
+        error_log("🔍 Supabase error response: " . $response);
+    }
+    
+    return ['code' => $httpCode, 'data' => $responseData];
+}
+
 try {
     // Get POST data
     $json = file_get_contents('php://input');
@@ -221,14 +259,24 @@ try {
     // PostgREST does NOT auto-cast strings to bigint - must send as JSON number
     $design_id_int = (int)$randomDesign['id']; // ✅ Design ID is integer
     
+    // CRITICAL: Ensure telegram_id is a pure integer, not a string representation
+    // PHP may sometimes keep it as a string even after (int) cast in some edge cases
+    $telegram_id_final = intval($telegram_id);
+    if (!is_int($telegram_id_final) && !is_numeric($telegram_id_final)) {
+        throw new Exception("Invalid telegram_id format: " . var_export($telegram_id, true));
+    }
+    // Force to integer type explicitly
+    $telegram_id_final = (int)$telegram_id_final;
+    
     // Debug: Log the types to ensure correct format
-    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id) . ", value=" . $telegram_id);
+    error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_final) . ", value=" . $telegram_id_final);
     error_log("🔍 Debug: design_id type=" . gettype($design_id_int) . ", value=" . $design_id_int);
     
+    // Build array with explicit integer types
     $nftData = [
-        'telegram_id' => $telegram_id, // ✅ Send as INTEGER (will be JSON number for BIGINT column)
+        'telegram_id' => $telegram_id_final, // ✅ Explicitly INTEGER (will be JSON number for BIGINT column)
         'nft_design_id' => $design_id_int, // ✅ Send as integer
-        'nft_mint_address' => 'pending_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
+        'nft_mint_address' => 'pending_' . $telegram_id_final . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
         'rarity' => 'Common', // ✅ Required field: Bronze = Common
         'earning_multiplier' => 2.0, // ✅ Correct field name
@@ -236,18 +284,34 @@ try {
         'is_active' => true
     ];
     
-    // Debug: Log the JSON that will be sent (with JSON_NUMERIC_CHECK in supabaseQuery)
+    // CRITICAL: Manually construct JSON to ensure telegram_id is a number, not a string
+    // This bypasses any potential PHP json_encode quirks with bigint
+    // Use json_encode for strings to properly escape, but keep numbers as-is
+    $jsonParts = [];
+    $jsonParts[] = '"telegram_id":' . $telegram_id_final; // ✅ Direct number, no quotes
+    $jsonParts[] = '"nft_design_id":' . $design_id_int;
+    $jsonParts[] = '"nft_mint_address":' . json_encode($nftData['nft_mint_address']);
+    $jsonParts[] = '"tier_name":' . json_encode($nftData['tier_name']);
+    $jsonParts[] = '"rarity":' . json_encode($nftData['rarity']);
+    $jsonParts[] = '"earning_multiplier":' . $nftData['earning_multiplier'];
+    $jsonParts[] = '"purchase_price_tama":' . $nftData['purchase_price_tama'];
+    $jsonParts[] = '"is_active":' . ($nftData['is_active'] ? 'true' : 'false');
+    $manualJson = '{' . implode(',', $jsonParts) . '}';
+    
+    // Debug: Log both JSON encodings
     $jsonDebug = json_encode($nftData, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
-    error_log("🔍 Debug: JSON to send: " . $jsonDebug);
+    error_log("🔍 Debug: JSON (json_encode): " . $jsonDebug);
+    error_log("🔍 Debug: JSON (manual): " . $manualJson);
     
     // Verify telegram_id appears as NUMBER in JSON (not quoted) - required for BIGINT
-    if (strpos($jsonDebug, '"telegram_id":') !== false && strpos($jsonDebug, '"telegram_id":"') === false) {
+    if (strpos($manualJson, '"telegram_id":') !== false && strpos($manualJson, '"telegram_id":"') === false) {
         error_log("✅ telegram_id is encoded as NUMBER in JSON (correct for BIGINT column)");
     } else {
         error_log("⚠️ WARNING: telegram_id is quoted in JSON! Should be number for BIGINT!");
     }
     
-    $createNFT = supabaseQuery('user_nfts', 'POST', $nftData);
+    // Use manual JSON construction to ensure correct type
+    $createNFT = supabaseQueryManual('user_nfts', 'POST', $manualJson);
     
     if ($createNFT['code'] < 200 || $createNFT['code'] >= 300) {
         $errorDetails = json_encode($createNFT['data'] ?? ['no_data' => true]);
