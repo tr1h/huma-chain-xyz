@@ -17,26 +17,14 @@ CREATE OR REPLACE FUNCTION insert_user_nft(
     p_purchase_price_tama INTEGER,
     p_is_active BOOLEAN DEFAULT true
 )
-RETURNS TABLE(
-    id INTEGER,
-    telegram_id BIGINT,
-    nft_design_id INTEGER,
-    nft_mint_address TEXT,
-    tier_name TEXT,
-    rarity TEXT,
-    earning_multiplier NUMERIC,
-    purchase_price_tama INTEGER,
-    is_active BOOLEAN,
-    minted_at TIMESTAMPTZ
-) 
+RETURNS SETOF user_nfts  -- Return the table type directly, avoiding type mismatch
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
-DECLARE
-    v_result RECORD;
 BEGIN
     -- Cast TEXT telegram_id to BIGINT inside function
     -- This bypasses PostgREST's incorrect type handling
+    RETURN QUERY
     INSERT INTO user_nfts (
         telegram_id,
         nft_design_id,
@@ -57,9 +45,7 @@ BEGIN
         p_purchase_price_tama,
         p_is_active
     )
-    RETURNING * INTO v_result;
-    
-    RETURN QUERY SELECT * FROM user_nfts WHERE id = v_result.id;
+    RETURNING *;
 END;
 $$;
 
