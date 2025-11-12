@@ -112,14 +112,12 @@ try {
     }
     
     if ($player['code'] !== 200 || empty($player['data'])) {
-        // Auto-create player in leaderboard table with default values
+        // Auto-create player in leaderboard table with default values (same as TAMA minting)
         error_log("🔍 Step 3: Player not found, creating new player: telegram_id=$telegram_id, wallet=$wallet_address");
-        $username = $telegram_id < 1000000000 ? 'wallet_' . substr($wallet_address, 0, 8) : 'user_' . $telegram_id;
+        // Create player with minimal fields first (same as TAMA minting)
         $playerData = [
             'telegram_id' => (int)$telegram_id, // ✅ Cast to integer - PHP will encode as JSON number
-            'tama' => 0,  // leaderboard uses 'tama', not 'tama_balance'
-            'username' => $username,
-            'wallet_address' => $wallet_address
+            'tama' => 0  // leaderboard uses 'tama', not 'tama_balance'
         ];
         error_log("🔍 Player data to create: " . json_encode($playerData));
         $newPlayer = supabaseQuery('leaderboard', 'POST', $playerData);
@@ -153,6 +151,17 @@ try {
                 throw new Exception('Player account created but could not be retrieved');
             }
             error_log("✅ Player successfully created and retrieved");
+            
+            // Update wallet_address after creation (separate update to avoid issues)
+            error_log("🔍 Step 5: Updating wallet_address for newly created player");
+            $updateWallet = supabaseQuery('leaderboard', 'PATCH', [
+                'wallet_address' => $wallet_address
+            ], '?telegram_id=eq.' . intval($telegram_id));
+            if ($updateWallet['code'] >= 200 && $updateWallet['code'] < 300) {
+                error_log("✅ Wallet address updated successfully");
+            } else {
+                error_log("⚠️ Failed to update wallet_address: code={$updateWallet['code']}, but continuing...");
+            }
         }
     } else {
         error_log("✅ Player already exists, skipping creation");
@@ -195,7 +204,8 @@ try {
     }
 
     $randomDesign = $availableDesigns[array_rand($availableDesigns)];
-    error_log("🎨 Selected design: id={$randomDesign['id']}, design_number={$randomDesign['design_number'] ?? 'N/A'}");
+    $designNumber = $randomDesign['design_number'] ?? 'N/A';
+    error_log("🎨 Selected design: id={$randomDesign['id']}, design_number={$designNumber}");
 
     // 3. Create NFT record using RPC function (same as TAMA minting for consistency)
     $nftMintAddress = 'bronze_sol_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'];
@@ -390,7 +400,8 @@ try {
         error_log("⚠️ Failed to update player with wallet: code={$updatePlayerBoost['code']}");
     }
 
-    error_log("✅ Bronze SOL NFT minted: ID=$nft_id, Design=#{$randomDesign['design_number'] ?? 'N/A'}, Price=$price_sol SOL");
+    $finalDesignNumber = $randomDesign['design_number'] ?? 'N/A';
+    error_log("✅ Bronze SOL NFT minted: ID=$nft_id, Design=#$finalDesignNumber, Price=$price_sol SOL");
 
     echo json_encode([
         'success' => true,
