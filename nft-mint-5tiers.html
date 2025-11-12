@@ -1091,28 +1091,71 @@
                 const randomDesign = designs[Math.floor(Math.random() * designs.length)];
                 console.log('🎨 Selected design:', randomDesign);
                 
-                // 4. Create NFT record in user_nfts table
+                // 4. Create NFT record using RPC function (bypasses type issues)
                 const nftMintAddress = `bronze_${Number(TELEGRAM_USER_ID)}_${Date.now()}_${randomDesign.id}`;
                 
-                const { data: nftData, error: nftError } = await supabase
-                    .from('user_nfts')
-                    .insert({
-                        telegram_id: Number(TELEGRAM_USER_ID), // ✅ Force to Number
-                        nft_design_id: randomDesign.id,
-                        nft_mint_address: nftMintAddress,
-                        tier_name: 'Bronze',
-                        rarity: 'Common',
-                        earning_multiplier: 2.0,
-                        purchase_price_tama: 5000,
-                        is_active: true
-                    })
-                    .select()
-                    .single();
+                // CRITICAL: Use RPC function to ensure proper BIGINT casting
+                const telegramIdInt = parseInt(TELEGRAM_USER_ID, 10);
+                if (isNaN(telegramIdInt)) {
+                    throw new Error('Invalid telegram_id');
+                }
+                
+                console.log('🔍 Calling RPC function with telegram_id:', telegramIdInt, 'type:', typeof telegramIdInt);
+                
+                // Try RPC function first (if it exists)
+                let nftData = null;
+                let nftError = null;
+                
+                const { data: rpcData, error: rpcError } = await supabase.rpc('insert_user_nft', {
+                    p_telegram_id: telegramIdInt, // ✅ RPC function will cast to BIGINT
+                    p_nft_design_id: randomDesign.id,
+                    p_nft_mint_address: nftMintAddress,
+                    p_tier_name: 'Bronze',
+                    p_rarity: 'Common',
+                    p_earning_multiplier: 2.0,
+                    p_purchase_price_tama: 5000,
+                    p_is_active: true
+                });
+                
+                if (rpcError) {
+                    nftError = rpcError;
+                } else {
+                    // RPC function returns array, get first element
+                    nftData = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+                }
+                
+                // If RPC function doesn't exist (404) or returns error, try direct insert
+                if (rpcError && (rpcError.code === '42883' || rpcError.message?.includes('function') || rpcError.message?.includes('does not exist'))) {
+                    console.log('⚠️ RPC function not found, trying direct insert...');
+                    
+                    // Fallback: Direct insert (may still have type issues)
+                    const { data: directData, error: directError } = await supabase
+                        .from('user_nfts')
+                        .insert({
+                            telegram_id: telegramIdInt,
+                            nft_design_id: randomDesign.id,
+                            nft_mint_address: nftMintAddress,
+                            tier_name: 'Bronze',
+                            rarity: 'Common',
+                            earning_multiplier: 2.0,
+                            purchase_price_tama: 5000,
+                            is_active: true
+                        })
+                        .select()
+                        .single();
+                    
+                    if (directError) {
+                        nftError = directError;
+                    } else {
+                        nftData = directData;
+                        nftError = null;
+                    }
+                }
                 
                 if (nftError) {
                     console.error('❌ NFT creation error:', nftError);
                     // Rollback TAMA deduction
-                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', telegramIdInt);
                     throw new Error('Failed to create NFT: ' + nftError.message);
                 }
                 
