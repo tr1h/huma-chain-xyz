@@ -94,7 +94,7 @@ try {
     error_log("🟫⚡ Bronze SOL mint request: user=$telegram_id, wallet=$wallet_address, price=$price_sol SOL");
     
     // 1. Check if player exists by wallet_address first (for direct link users)
-    $playerByWallet = supabaseQuery('players', 'GET', null, '?wallet_address=eq.' . $wallet_address . '&select=*');
+    $playerByWallet = supabaseQuery('leaderboard', 'GET', null, '?wallet_address=eq.' . $wallet_address . '&select=*');
     
     // If player found by wallet, use their telegram_id
     if ($playerByWallet['code'] === 200 && !empty($playerByWallet['data'])) {
@@ -103,42 +103,47 @@ try {
         error_log("✅ Found existing player by wallet_address: telegram_id=$telegram_id");
         $player = $playerByWallet;
     } else {
-        // Check player exists by telegram_id
-        $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+        // Check player exists by telegram_id in leaderboard table
+        $player = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
     }
     
     if ($player['code'] !== 200 || empty($player['data'])) {
-        // Auto-create player with default values (without level/xp if not in schema)
+        // Auto-create player in leaderboard table with default values
         $username = $telegram_id < 1000000000 ? 'wallet_' . substr($wallet_address, 0, 8) : 'user_' . $telegram_id;
-        $newPlayer = supabaseQuery('players', 'POST', [
-            'telegram_id' => (string)$telegram_id, // ✅ Cast to STRING (players.telegram_id is TEXT)
-            'tama_balance' => 0,
+        $newPlayer = supabaseQuery('leaderboard', 'POST', [
+            'telegram_id' => (int)$telegram_id, // ✅ Cast to integer - PHP will encode as JSON number
+            'tama' => 0,  // leaderboard uses 'tama', not 'tama_balance'
             'username' => $username,
             'wallet_address' => $wallet_address
         ]);
         
         if ($newPlayer['code'] < 200 || $newPlayer['code'] >= 300) {
-            error_log("❌ Failed to create player: code={$newPlayer['code']}, data=" . json_encode($newPlayer['data']));
+            $errorDetails = json_encode($newPlayer['data'] ?? ['no_data' => true]);
+            error_log("❌ Failed to create player in leaderboard: code={$newPlayer['code']}, data={$errorDetails}");
             throw new Exception('Failed to create player account');
         }
         
         // Get the newly created player
-        $player = supabaseQuery('players', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&select=*');
+        $player = supabaseQuery('leaderboard', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&select=*');
         if ($player['code'] !== 200 || empty($player['data'])) {
             throw new Exception('Player account created but could not be retrieved');
         }
     }
     
-    // 2. Get random Bronze design
-    $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_id=eq.1&rarity_id=eq.1&select=*');
+    // 2. Get random Bronze design (use tier_name like TAMA minting for consistency)
+    $designs = supabaseQuery('nft_designs', 'GET', null, '?tier_name=eq.Bronze&is_minted=eq.false&select=*&limit=100');
 
     if ($designs['code'] !== 200 || empty($designs['data'])) {
-        throw new Exception('No Bronze designs available');
+        error_log("❌ No Bronze designs found in nft_designs table!");
+        error_log("   Query used: tier_name=eq.Bronze&is_minted=eq.false");
+        throw new Exception('No Bronze designs available. Please contact support to add NFT designs to the database.');
     }
     
-    // Filter out designs already owned by the user
-    $userNfts = supabaseQuery('user_nfts', 'GET', null, '?telegram_id=eq.' . $telegram_id . '&is_active=eq.TRUE&select=design_id');
-    $ownedDesignIds = array_column($userNfts['data'] ?? [], 'design_id');
+    error_log("✅ Found " . count($designs['data']) . " Bronze design(s)");
+    
+    // Filter out designs already owned by the user (use nft_design_id, not design_id)
+    $userNfts = supabaseQuery('user_nfts', 'GET', null, '?telegram_id=eq.' . intval($telegram_id) . '&is_active=eq.true&select=nft_design_id');
+    $ownedDesignIds = array_column($userNfts['data'] ?? [], 'nft_design_id');
     
     $availableDesigns = array_filter($designs['data'], function($design) use ($ownedDesignIds) {
         return !in_array($design['id'], $ownedDesignIds);
@@ -148,37 +153,89 @@ try {
         throw new Exception('No unique Bronze designs available for this player.');
     }
 
-    $randomIndex = array_rand($availableDesigns);
-    $design = $availableDesigns[$randomIndex];
+    $randomDesign = $availableDesigns[array_rand($availableDesigns)];
+    error_log("🎨 Selected design: id={$randomDesign['id']}, design_number={$randomDesign['design_number'] ?? 'N/A'}");
 
-    // 3. Insert into user_nfts
-    $SOL_USD_RATE = 164.07; // Hardcoded for now
+    // 3. Create NFT record using RPC function (same as TAMA minting for consistency)
+    $nftMintAddress = 'bronze_sol_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'];
+    
+    // Use RPC function to create NFT (bypasses PostgREST type issues)
+    $rpcUrl = SUPABASE_URL . '/rest/v1/rpc/insert_user_nft';
+    $rpcData = [
+        'p_telegram_id' => (string)$telegram_id, // ✅ RPC function accepts TEXT and casts to BIGINT
+        'p_nft_design_id' => (int)$randomDesign['id'],
+        'p_nft_mint_address' => $nftMintAddress,
+        'p_tier_name' => 'Bronze',
+        'p_rarity' => 'Common',
+        'p_earning_multiplier' => 2.0,
+        'p_purchase_price_tama' => 0, // SOL payment, no TAMA
+        'p_is_active' => true
+    ];
+    
+    $rpcHeaders = [
+        'apikey: ' . SUPABASE_KEY,
+        'Authorization: Bearer ' . SUPABASE_KEY,
+        'Content-Type: application/json',
+        'Prefer: return=representation'
+    ];
+    
+    $ch = curl_init($rpcUrl);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $rpcHeaders);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($rpcData));
+    
+    $rpcResponse = curl_exec($ch);
+    $rpcHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($rpcHttpCode < 200 || $rpcHttpCode >= 300) {
+        $errorData = json_decode($rpcResponse, true);
+        error_log("❌ RPC function failed: code={$rpcHttpCode}, data=" . json_encode($errorData));
+        throw new Exception('Failed to create NFT record: ' . ($errorData['message'] ?? 'Unknown error'));
+    }
+    
+    $rpcResult = json_decode($rpcResponse, true);
+    $nftData = is_array($rpcResult) && isset($rpcResult[0]) ? $rpcResult[0] : $rpcResult;
+    $nft_id = $nftData['id'] ?? null;
+    
+    if (!$nft_id) {
+        throw new Exception('NFT created but ID not returned');
+    }
+    
+    // 4. Update NFT with SOL payment details (if these fields exist in schema)
+    $SOL_USD_RATE = 164.07;
     $price_usd = $price_sol * $SOL_USD_RATE;
-
-    $insertNft = supabaseQuery('user_nfts', 'POST', [
-        'telegram_id' => (string)$telegram_id, // ✅ Cast to STRING (user_nfts.telegram_id is TEXT)
+    
+    $updateNft = supabaseQuery('user_nfts', 'PATCH', [
         'wallet_address' => $wallet_address,
-        'tier_id' => 1,
-        'tier_name' => 'Bronze',
-        'rarity_id' => 1,
-        'design_id' => $design['id'],
-        'design_number' => $design['design_number'],
-        'design_theme' => $design['theme'],
-        'design_variant' => $design['variant'],
-        'boost_multiplier' => 2.0,
         'price_paid_sol' => $price_sol,
         'price_paid_usd' => round($price_usd, 2),
-        'payment_type' => 'SOL',
-        'is_active' => true
-    ]);
-
-    if ($insertNft['code'] !== 201 || empty($insertNft['data'])) {
-        error_log("❌ Failed to insert NFT: code={$insertNft['code']}, data=" . json_encode($insertNft['data']));
-        throw new Exception('Failed to mint NFT.');
+        'payment_type' => 'SOL'
+    ], '?id=eq.' . $nft_id);
+    
+    if ($updateNft['code'] >= 200 && $updateNft['code'] < 300) {
+        error_log("✅ NFT updated with SOL payment details: nft_id=$nft_id");
+    } else {
+        error_log("⚠️ Failed to update NFT with SOL details: code={$updateNft['code']}");
+        // Don't throw - NFT is already created, this is just metadata
     }
-    $nft_id = $insertNft['data'][0]['id'];
+    
+    // Mark design as minted (same as TAMA minting)
+    $markMinted = supabaseQuery('nft_designs', 'PATCH', [
+        'is_minted' => true,
+        'minted_by' => intval($telegram_id),
+        'minted_at' => date('Y-m-d\TH:i:s.u\Z')
+    ], '?id=eq.' . $randomDesign['id']);
+    
+    if ($markMinted['code'] >= 200 && $markMinted['code'] < 300) {
+        error_log("✅ Design marked as minted: design_id={$randomDesign['id']}");
+    } else {
+        error_log("⚠️ Failed to mark design as minted: code={$markMinted['code']}");
+        // Don't throw - NFT is already created, this is just metadata
+    }
 
-    // 4. Update minted count for Bronze_SOL tier
+    // 5. Update minted count for Bronze_SOL tier
     $bonding = supabaseQuery('nft_bonding_state', 'GET', null, '?tier_name=eq.Bronze_SOL&payment_type=eq.SOL&select=*');
     if ($bonding['code'] !== 200 || empty($bonding['data'])) {
         // Create Bronze_SOL tier if not exists
@@ -273,17 +330,17 @@ try {
         }
     }
 
-    // 6. Apply boost to user and ensure wallet_address is saved
+    // 6. Apply boost to user and ensure wallet_address is saved in leaderboard
     $updateData = [
         'nft_boost_multiplier' => 2.0,
         'wallet_address' => $wallet_address // ✅ Always save wallet_address after mint
     ];
     
     $updatePlayerBoost = supabaseQuery(
-        'players',
+        'leaderboard',
         'PATCH',
         $updateData,
-        '?telegram_id=eq.' . $telegram_id
+        '?telegram_id=eq.' . intval($telegram_id) // ✅ Convert to integer
     );
     
     if ($updatePlayerBoost['code'] >= 200 && $updatePlayerBoost['code'] < 300) {
@@ -292,14 +349,14 @@ try {
         error_log("⚠️ Failed to update player with wallet: code={$updatePlayerBoost['code']}");
     }
 
-    error_log("✅ Bronze SOL NFT minted: ID=$nft_id, Design=#{$design['design_number']}, Price=$price_sol SOL");
+    error_log("✅ Bronze SOL NFT minted: ID=$nft_id, Design=#{$randomDesign['design_number'] ?? 'N/A'}, Price=$price_sol SOL");
 
     echo json_encode([
         'success' => true,
         'nft_id' => $nft_id,
-        'design_number' => $design['design_number'],
-        'design_theme' => $design['theme'],
-        'design_variant' => $design['variant'],
+        'design_number' => $randomDesign['design_number'] ?? null,
+        'design_theme' => $randomDesign['design_theme'] ?? null,
+        'design_variant' => $randomDesign['design_variant'] ?? null,
         'boost_multiplier' => 2.0,
         'price_sol' => $price_sol,
         'price_usd' => round($price_usd, 2),
