@@ -262,6 +262,8 @@ try {
     
     $randomDesign = $designs['data'][array_rand($designs['data'])];
     
+    error_log("🔍 BEFORE STEP 1: About to create NFT record, randomDesign id=" . $randomDesign['id']);
+    
     // 5. Create NFT record
     // Use correct field names from user_nfts table schema:
     // - nft_design_id (not design_id)
