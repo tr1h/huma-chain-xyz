@@ -1102,52 +1102,25 @@
                 
                 console.log('🔍 Creating NFT with telegram_id:', telegramIdInt, 'type:', typeof telegramIdInt);
                 
-                // CRITICAL: Use direct REST API call with manual JSON to ensure telegram_id is a NUMBER
-                // Supabase JS Client may convert numbers to strings, so we use fetch directly
-                const SUPABASE_REST_URL = `${SUPABASE_URL}/rest/v1/user_nfts`;
-                const SUPABASE_ANON_KEY = SUPABASE_KEY;
+                // Use Supabase JS Client (same as old working nft-mint.html)
+                // Supabase Client handles type casting automatically
+                const { data: nftData, error: nftError } = await supabase
+                    .from('user_nfts')
+                    .insert({
+                        telegram_id: telegramIdInt,
+                        nft_design_id: randomDesign.id,
+                        nft_mint_address: nftMintAddress,
+                        tier_name: 'Bronze',
+                        rarity: 'Common',
+                        earning_multiplier: 2.0,
+                        purchase_price_tama: 5000,
+                        is_active: true
+                    })
+                    .select()
+                    .single();
                 
-                const nftPayload = {
-                    telegram_id: telegramIdInt, // ✅ Explicitly integer
-                    nft_design_id: randomDesign.id,
-                    nft_mint_address: nftMintAddress,
-                    tier_name: 'Bronze',
-                    rarity: 'Common',
-                    earning_multiplier: 2.0,
-                    purchase_price_tama: 5000,
-                    is_active: true
-                };
-                
-                console.log('🔍 NFT payload:', JSON.stringify(nftPayload));
-                
-                // Use fetch directly to ensure JSON numbers stay as numbers
-                const response = await fetch(SUPABASE_REST_URL + '?select=*', {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify(nftPayload) // JSON.stringify will keep numbers as numbers
-                });
-                
-                let nftData = null;
-                let nftError = null;
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('❌ REST API error:', response.status, errorText);
-                    try {
-                        nftError = JSON.parse(errorText);
-                    } catch {
-                        nftError = { message: errorText, code: response.status };
-                    }
-                } else {
-                    const result = await response.json();
-                    // Supabase returns array for POST with select
-                    nftData = Array.isArray(result) ? result[0] : result;
-                    console.log('✅ NFT created via REST API:', nftData);
+                if (nftData) {
+                    console.log('✅ NFT created:', nftData);
                 }
                 
                 if (nftError) {
