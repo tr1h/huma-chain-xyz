@@ -1102,25 +1102,23 @@
                 
                 console.log('🔍 Creating NFT with telegram_id:', telegramIdInt, 'type:', typeof telegramIdInt);
                 
-                // Use Supabase JS Client (same as old working nft-mint.html)
-                // Supabase Client handles type casting automatically
-                const { data: nftData, error: nftError } = await supabase
-                    .from('user_nfts')
-                    .insert({
-                        telegram_id: telegramIdInt,
-                        nft_design_id: randomDesign.id,
-                        nft_mint_address: nftMintAddress,
-                        tier_name: 'Bronze',
-                        rarity: 'Common',
-                        earning_multiplier: 2.0,
-                        purchase_price_tama: 5000,
-                        is_active: true
-                    })
-                    .select()
-                    .single();
+                // Use RPC function (bypasses PostgREST type conversion issues)
+                const { data: rpcResult, error: nftError } = await supabase.rpc('insert_user_nft', {
+                    p_telegram_id: telegramIdInt,
+                    p_nft_design_id: randomDesign.id,
+                    p_nft_mint_address: nftMintAddress,
+                    p_tier_name: 'Bronze',
+                    p_rarity: 'Common',
+                    p_earning_multiplier: 2.0,
+                    p_purchase_price_tama: 5000,
+                    p_is_active: true
+                });
+                
+                // RPC function returns array
+                const nftData = Array.isArray(rpcResult) && rpcResult.length > 0 ? rpcResult[0] : rpcResult;
                 
                 if (nftData) {
-                    console.log('✅ NFT created:', nftData);
+                    console.log('✅ NFT created via RPC:', nftData);
                 }
                 
                 if (nftError) {
