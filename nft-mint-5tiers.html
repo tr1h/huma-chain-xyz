@@ -1117,6 +1117,23 @@
                 }
                 
                 console.log('✅ NFT created:', nftData);
+                
+                // 5. Mark design as minted
+                const { error: markMintedError } = await supabase
+                    .from('nft_designs')
+                    .update({
+                        is_minted: true,
+                        minted_by: Number(TELEGRAM_USER_ID),
+                        minted_at: new Date().toISOString()
+                    })
+                    .eq('id', randomDesign.id);
+                
+                if (markMintedError) {
+                    console.warn('⚠️ Failed to mark design as minted:', markMintedError);
+                    // Don't throw - NFT is already created, this is just metadata
+                } else {
+                    console.log('✅ Design marked as minted');
+                }
 
                 // Remove loading
                 document.getElementById('loading-spinner')?.remove();
