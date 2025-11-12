@@ -1092,19 +1092,17 @@
                 console.log('🎨 Selected design:', randomDesign);
                 
                 // 4. Create NFT record using RPC function (bypasses type issues)
-                const nftMintAddress = `bronze_${Number(TELEGRAM_USER_ID)}_${Date.now()}_${randomDesign.id}`;
+                const nftMintAddress = `bronze_${TELEGRAM_USER_ID}_${Date.now()}_${randomDesign.id}`;
                 
-                // CRITICAL: Use RPC function to ensure proper BIGINT casting
-                const telegramIdInt = parseInt(TELEGRAM_USER_ID, 10);
-                if (isNaN(telegramIdInt)) {
-                    throw new Error('Invalid telegram_id');
-                }
+                // CRITICAL: Send telegram_id as STRING to RPC function
+                // The RPC function accepts TEXT and casts to BIGINT internally
+                // This completely bypasses PostgREST's type conversion issues
+                const telegramIdString = String(TELEGRAM_USER_ID);
+                console.log('🔍 Creating NFT with telegram_id as STRING:', telegramIdString, 'type:', typeof telegramIdString);
                 
-                console.log('🔍 Creating NFT with telegram_id:', telegramIdInt, 'type:', typeof telegramIdInt);
-                
-                // Use RPC function (bypasses PostgREST type conversion issues)
+                // Use RPC function with TEXT parameter (bypasses PostgREST type conversion issues)
                 const { data: rpcResult, error: nftError } = await supabase.rpc('insert_user_nft', {
-                    p_telegram_id: telegramIdInt,
+                    p_telegram_id: telegramIdString,  // Send as STRING, RPC function will cast to BIGINT
                     p_nft_design_id: randomDesign.id,
                     p_nft_mint_address: nftMintAddress,
                     p_tier_name: 'Bronze',
@@ -1124,7 +1122,7 @@
                 if (nftError) {
                     console.error('❌ NFT creation error:', nftError);
                     // Rollback TAMA deduction
-                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', telegramIdInt);
+                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
                     throw new Error('Failed to create NFT: ' + nftError.message);
                 }
                 

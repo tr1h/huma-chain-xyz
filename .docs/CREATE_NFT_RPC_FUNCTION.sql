@@ -2,8 +2,13 @@
 -- This bypasses PostgREST's type interpretation issues with BIGINT
 -- Run this in Supabase SQL Editor
 
+-- Drop old function first
+DROP FUNCTION IF EXISTS insert_user_nft(bigint,integer,text,text,text,numeric,integer,boolean);
+
+-- Create function that accepts TEXT for telegram_id and casts it to BIGINT
+-- This completely bypasses PostgREST's type conversion issues
 CREATE OR REPLACE FUNCTION insert_user_nft(
-    p_telegram_id BIGINT,
+    p_telegram_id TEXT,  -- Changed from BIGINT to TEXT to bypass PostgREST type issues
     p_nft_design_id INTEGER,
     p_nft_mint_address TEXT,
     p_tier_name TEXT,
@@ -30,8 +35,8 @@ AS $$
 DECLARE
     v_result RECORD;
 BEGIN
-    -- Explicitly cast telegram_id to BIGINT (even though parameter is already BIGINT)
-    -- This ensures PostgreSQL handles it correctly
+    -- Cast TEXT telegram_id to BIGINT inside function
+    -- This bypasses PostgREST's incorrect type handling
     INSERT INTO user_nfts (
         telegram_id,
         nft_design_id,
@@ -43,7 +48,7 @@ BEGIN
         is_active
     )
     VALUES (
-        p_telegram_id::BIGINT,  -- Explicit cast to BIGINT
+        p_telegram_id::BIGINT,  -- Explicit cast from TEXT to BIGINT
         p_nft_design_id,
         p_nft_mint_address,
         p_tier_name,
