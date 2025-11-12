@@ -1075,12 +1075,12 @@
                 
                 console.log('✅ Deducted 5000 TAMA, new balance:', newTama);
                 
-                // 3. Get random Bronze design
+                // 3. Get random Bronze design (only unminted ones)
                 const { data: designs, error: designError } = await supabase
                     .from('nft_designs')
                     .select('*')
                     .eq('tier_name', 'Bronze')
-                    .eq('is_active', true);
+                    .eq('is_minted', false);
                 
                 if (designError || !designs || designs.length === 0) {
                     // Rollback TAMA deduction
