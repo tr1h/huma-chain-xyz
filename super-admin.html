@@ -1451,20 +1451,61 @@
             try {
                 console.log('💎 Loading NFT 5-Tier stats...');
                 
-                // Fetch bonding state from API
-                const response = await fetch('/api/get-nft-prices.php');
+                // Fetch bonding state directly from Supabase
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/nft_bonding_state?select=*&order=tier_name`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
                 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch NFT prices: ${response.status}`);
                 }
 
-                const data = await response.json();
+                const tiers = await response.json();
                 
-                if (!data.success || !data.tiers) {
-                    throw new Error('Invalid response from API');
+                if (!tiers || tiers.length === 0) {
+                    console.warn('⚠️ No NFT bonding state found. Table might not be initialized.');
+                    // Don't show error, just return silently
+                    return;
                 }
 
-                console.log('✅ Loaded tier stats:', data.tiers);
+                console.log('✅ Loaded tier stats:', tiers);
+                
+                // Transform data to match expected format
+                const data = {
+                    success: true,
+                    tiers: tiers.map(tier => {
+                        const next_price = parseFloat(tier.current_price) + parseFloat(tier.increment_per_mint || 0);
+                        const available = tier.max_supply - tier.minted_count;
+                        const minted_percentage = (tier.minted_count / tier.max_supply * 100);
+                        
+                        // Calculate earning multiplier
+                        let earning_multiplier = 2.0;
+                        if (tier.tier_name === 'Bronze') earning_multiplier = 2.0;
+                        else if (tier.tier_name === 'Silver') earning_multiplier = 2.3;
+                        else if (tier.tier_name === 'Gold') earning_multiplier = 2.7;
+                        else if (tier.tier_name === 'Platinum') earning_multiplier = 3.5;
+                        else if (tier.tier_name === 'Diamond') earning_multiplier = 5.0;
+                        
+                        return {
+                            tier_name: tier.tier_name,
+                            payment_type: tier.payment_type,
+                            current_price: parseFloat(tier.current_price),
+                            next_price: next_price,
+                            minted_count: parseInt(tier.minted_count || 0),
+                            max_supply: parseInt(tier.max_supply),
+                            available: available,
+                            minted_percentage: minted_percentage,
+                            start_price: parseFloat(tier.start_price || 0),
+                            end_price: parseFloat(tier.end_price || 0),
+                            increment_per_mint: parseFloat(tier.increment_per_mint || 0),
+                            earning_multiplier: earning_multiplier,
+                            is_active: tier.is_active !== false
+                        };
+                    })
+                };
 
                 const SOL_USD_RATE = 164.07;
                 let totalMinted = 0;
@@ -1517,7 +1558,8 @@
 
             } catch (error) {
                 console.error('❌ Error loading NFT tier stats:', error);
-                alert('Failed to load NFT tier stats. Make sure database is set up!');
+                // Don't show alert - just log error (non-critical feature)
+                console.warn('⚠️ NFT tier stats not available. This is normal if nft_bonding_state table is not set up yet.');
             }
         }
 
