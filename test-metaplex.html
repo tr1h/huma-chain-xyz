@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Metaplex SDK</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -90,8 +91,10 @@
             script.src = 'https://cdn.jsdelivr.net/npm/@metaplex-foundation/js@3.0.0/dist/index.umd.js';
             script.onerror = function() {
                 console.error('❌ All Metaplex CDN sources failed. Metaplex SDK may not be available via CDN.');
-                console.warn('💡 Solution: Use backend API for on-chain minting (already implemented!)');
+                console.warn('✅ Backend API is already set up and working!');
                 console.warn('💡 Backend API: https://api.solanatamagotchi.com/api/mint-nft-onchain');
+                console.warn('💡 Frontend automatically uses backend API (see mint.html)');
+                console.warn('💡 This is expected - Metaplex SDK requires bundling, CDN does not work');
             };
             document.head.appendChild(script);
         }
