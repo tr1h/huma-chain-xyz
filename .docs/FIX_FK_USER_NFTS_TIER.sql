@@ -14,30 +14,38 @@ SELECT EXISTS (
 ) as table_exists;
 
 -- ========================================
--- STEP 2: Create nft_tiers table if it doesn't exist
+-- STEP 2: Check existing table structure
 -- ========================================
 
+-- Check what columns exist in nft_tiers
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_schema = 'public' 
+  AND table_name = 'nft_tiers'
+ORDER BY ordinal_position;
+
+-- ========================================
+-- STEP 3: Create nft_tiers table if it doesn't exist (minimal structure)
+-- ========================================
+
+-- Create table with only tier_name (PRIMARY KEY) - simplest structure
 CREATE TABLE IF NOT EXISTS nft_tiers (
-    tier_name TEXT PRIMARY KEY,
-    display_name TEXT NOT NULL,
-    min_multiplier DECIMAL(3,1) NOT NULL,
-    max_multiplier DECIMAL(3,1) NOT NULL,
-    max_supply INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
+    tier_name TEXT PRIMARY KEY
 );
 
 -- ========================================
--- STEP 3: Insert all valid tiers
+-- STEP 4: Insert all valid tiers (only tier_name)
 -- ========================================
 
 -- Insert tiers (ON CONFLICT DO NOTHING to avoid duplicates)
-INSERT INTO nft_tiers (tier_name, display_name, min_multiplier, max_multiplier, max_supply)
+-- Using only tier_name column (minimal requirement for foreign key)
+INSERT INTO nft_tiers (tier_name)
 VALUES 
-    ('Bronze', 'Bronze', 2.0, 2.0, 4500),
-    ('Silver', 'Silver', 2.3, 3.5, 350),
-    ('Gold', 'Gold', 2.7, 4.0, 130),
-    ('Platinum', 'Platinum', 3.5, 5.0, 18),
-    ('Diamond', 'Diamond', 5.0, 6.0, 2)
+    ('Bronze'),
+    ('Silver'),
+    ('Gold'),
+    ('Platinum'),
+    ('Diamond')
 ON CONFLICT (tier_name) DO NOTHING;
 
 -- ========================================
