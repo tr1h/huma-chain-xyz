@@ -302,7 +302,12 @@
             
             <!-- Articles List -->
             <div class="panel-section articles-list">
-                <h2>📝 Articles List</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📝 Articles List</h2>
+                    <button onclick="initializeSampleArticles(); loadArticles(); showAlert('Sample articles initialized!', 'success');" class="btn btn-secondary btn-small">
+                        🔄 Initialize Sample Articles
+                    </button>
+                </div>
                 <div id="articles-container">
                     <p style="opacity: 0.7; text-align: center; padding: 40px;">
                         Loading articles...
@@ -313,8 +318,257 @@
     </div>
     
     <script>
+        // Initialize sample articles if localStorage is empty
+        function initializeSampleArticles() {
+            const existing = JSON.parse(localStorage.getItem('blog_articles') || '[]');
+            if (existing.length > 0) return; // Already has articles
+            
+            const sampleArticles = [
+                {
+                    id: '1',
+                    title: "How to Earn Crypto Playing Games in 2025: Complete Guide",
+                    slug: "how-to-earn-crypto-playing-games",
+                    category: "Guide",
+                    description: "Discover the best Play-to-Earn games, learn how to start earning crypto without investment, and find out which blockchain is best for gaming.",
+                    keywords: "earn crypto playing games, play to earn crypto, free crypto games, p2e games",
+                    content: `<h2>What is Play-to-Earn?</h2>
+<p>Play-to-Earn (P2E) is a gaming model where players can earn real cryptocurrency or NFTs by playing games. Unlike traditional games, P2E games reward players for their time and skill.</p>
+
+<h2>Top Play-to-Earn Games in 2025</h2>
+<p>Here are some of the best P2E games you can start playing today:</p>
+<ul>
+<li><strong>Solana Tamagotchi</strong> - Free-to-play pet game on Solana</li>
+<li>Axie Infinity - Battle and breed creatures</li>
+<li>The Sandbox - Virtual world building</li>
+<li>Decentraland - Virtual reality platform</li>
+</ul>
+
+<h2>How to Get Started</h2>
+<p>Starting with P2E games is easier than you think:</p>
+<ol>
+<li>Choose a game that fits your interests</li>
+<li>Create an account (usually free)</li>
+<li>Start playing and earning</li>
+<li>Withdraw your earnings to your wallet</li>
+</ol>
+
+<h2>Conclusion</h2>
+<p>Play-to-Earn gaming is revolutionizing how we think about gaming and earning. Start with free games like Solana Tamagotchi to get familiar with the concept!</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                },
+                {
+                    id: '2',
+                    title: "Solana vs Ethereum for Gaming: Which Blockchain is Better?",
+                    slug: "solana-vs-ethereum-gaming",
+                    category: "Comparison",
+                    description: "Compare transaction speed, fees, and ecosystem of Solana and Ethereum for blockchain gaming. Find out which network offers the best experience.",
+                    keywords: "solana vs ethereum, solana gaming, blockchain games comparison, ethereum gaming",
+                    content: `<h2>Transaction Speed</h2>
+<p><strong>Solana:</strong> Can process up to 65,000 transactions per second with sub-second finality.</p>
+<p><strong>Ethereum:</strong> Processes about 15-30 transactions per second, with 12-15 second block times.</p>
+<p><strong>Winner:</strong> Solana for speed ⚡</p>
+
+<h2>Transaction Fees</h2>
+<p><strong>Solana:</strong> Average fee is $0.00025 per transaction - extremely cheap!</p>
+<p><strong>Ethereum:</strong> Gas fees can range from $1 to $50+ depending on network congestion.</p>
+<p><strong>Winner:</strong> Solana for low fees 💰</p>
+
+<h2>Gaming Ecosystem</h2>
+<p><strong>Solana:</strong> Growing gaming ecosystem with projects like Star Atlas, Solana Tamagotchi, and more.</p>
+<p><strong>Ethereum:</strong> Established ecosystem with Axie Infinity, The Sandbox, Decentraland.</p>
+<p><strong>Winner:</strong> Ethereum for maturity, but Solana is catching up fast 🚀</p>
+
+<h2>Conclusion</h2>
+<p>For gaming, Solana offers better speed and lower fees, making it ideal for frequent in-game transactions. Ethereum has a more established ecosystem but higher costs.</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                },
+                {
+                    id: '3',
+                    title: "Top 10 Free Play-to-Earn Games in 2025 (No Investment Required)",
+                    slug: "top-10-free-play-to-earn-games-2025",
+                    category: "Guide",
+                    description: "Discover the best free Play-to-Earn games where you can start earning crypto without any initial investment. Complete list with reviews and comparisons.",
+                    keywords: "free play to earn games, no investment crypto games, best p2e games, free crypto games",
+                    content: `<h2>Best Free P2E Games 2025</h2>
+<p>Here are the top 10 free Play-to-Earn games you can start playing today without any investment:</p>
+
+<h3>1. Solana Tamagotchi</h3>
+<p>Free-to-play pet game on Solana. Earn TAMA tokens by caring for your virtual pet. No initial investment required!</p>
+
+<h3>2. Alien Worlds</h3>
+<p>Mine Trilium (TLM) tokens by exploring planets. Completely free to start.</p>
+
+<h3>3. Splinterlands</h3>
+<p>Free-to-play trading card game. Earn DEC tokens through battles.</p>
+
+<h3>4. Thetan Arena</h3>
+<p>Free MOBA game where you can earn THG tokens.</p>
+
+<h3>5. Gods Unchained</h3>
+<p>Free trading card game on Ethereum. Earn cards and trade them.</p>
+
+<h2>How to Choose</h2>
+<p>When choosing a free P2E game, consider:</p>
+<ul>
+<li>Earning potential</li>
+<li>Time investment required</li>
+<li>Gameplay enjoyment</li>
+<li>Blockchain network (fees matter!)</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>Free P2E games are a great way to get started in crypto gaming without risk. Start with Solana Tamagotchi for the easiest entry!</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                },
+                {
+                    id: '4',
+                    title: "How to Mint NFT Pets: Complete Guide to Solana Tamagotchi NFTs",
+                    slug: "how-to-mint-nft-pets-solana-tamagotchi",
+                    category: "Guide",
+                    description: "Learn how to mint NFT pets in Solana Tamagotchi. Understand the 5 tiers (Bronze to Diamond), benefits, and how to maximize your earning boost.",
+                    keywords: "mint nft pets, solana nft minting, tamagotchi nft guide, nft minting guide",
+                    content: `<h2>What are NFT Pets?</h2>
+<p>NFT Pets in Solana Tamagotchi are unique digital collectibles that give you permanent earning boosts. Each NFT is stored on the Solana blockchain and belongs to you.</p>
+
+<h2>The 5 NFT Tiers</h2>
+<h3>🥉 Bronze NFT</h3>
+<ul>
+<li>Price: 5,000 TAMA or 0.15 SOL</li>
+<li>Earning Boost: 2.0x</li>
+<li>Daily Reward: +50 TAMA/day</li>
+<li>Supply: 4,500 available</li>
+</ul>
+
+<h3>🥈 Silver NFT</h3>
+<ul>
+<li>Price: 1 SOL</li>
+<li>Earning Boost: 2.3x</li>
+<li>Daily Reward: +150 TAMA/day</li>
+<li>Supply: 350 available</li>
+</ul>
+
+<h3>🥇 Gold NFT</h3>
+<ul>
+<li>Price: 3 SOL</li>
+<li>Earning Boost: 2.7x</li>
+<li>Daily Reward: +500 TAMA/day</li>
+<li>Supply: 130 available</li>
+</ul>
+
+<h3>💎 Platinum NFT</h3>
+<ul>
+<li>Price: 10 SOL</li>
+<li>Earning Boost: 3.5x</li>
+<li>Daily Reward: +2000 TAMA/day</li>
+<li>Supply: Only 18!</li>
+</ul>
+
+<h3>🔷 Diamond NFT</h3>
+<ul>
+<li>Price: 50 SOL</li>
+<li>Earning Boost: 5.0x (Maximum!)</li>
+<li>Daily Reward: +10000 TAMA/day</li>
+<li>Supply: ONLY 2 EXIST!</li>
+</ul>
+
+<h2>How to Mint</h2>
+<ol>
+<li>Go to <a href="/mint.html" style="color: #FFB703;">Mint Page</a></li>
+<li>Connect your Phantom wallet</li>
+<li>Choose your tier</li>
+<li>Pay with TAMA or SOL</li>
+<li>Receive your NFT instantly!</li>
+</ol>
+
+<h2>Benefits of NFT Pets</h2>
+<ul>
+<li>Permanent earning boost</li>
+<li>Daily TAMA rewards</li>
+<li>Tradeable on secondary markets (coming soon)</li>
+<li>Unique collectible</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>Minting an NFT pet is the best way to maximize your earnings in Solana Tamagotchi. Start with Bronze if you're new, or go for higher tiers for maximum rewards!</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                },
+                {
+                    id: '5',
+                    title: "TAMA Token Explained: Everything You Need to Know",
+                    slug: "tama-token-explained",
+                    category: "News",
+                    description: "Complete guide to TAMA token: tokenomics, distribution, how to earn, and how to withdraw. Everything about the Solana Tamagotchi native token.",
+                    keywords: "tama token, solana token, crypto token guide, tama tokenomics",
+                    content: `<h2>What is TAMA Token?</h2>
+<p>TAMA is the native token of Solana Tamagotchi, an SPL token on the Solana blockchain. It's used for in-game transactions, rewards, and NFT minting.</p>
+
+<h2>Token Details</h2>
+<ul>
+<li><strong>Name:</strong> Solana Tamagotchi</li>
+<li><strong>Symbol:</strong> TAMA</li>
+<li><strong>Total Supply:</strong> 1,000,000,000 TAMA</li>
+<li><strong>Network:</strong> Solana Devnet (Mainnet Q1 2026)</li>
+<li><strong>Mint Address:</strong> Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY</li>
+</ul>
+
+<h2>Tokenomics</h2>
+<h3>Distribution:</h3>
+<ul>
+<li>40% - Play-to-Earn Pool (400M TAMA)</li>
+<li>20% - Team (200M TAMA, locked 4 years)</li>
+<li>15% - Marketing (150M TAMA)</li>
+<li>10% - Liquidity (100M TAMA, locked)</li>
+<li>10% - Community (100M TAMA)</li>
+<li>5% - Reserve (50M TAMA, locked)</li>
+</ul>
+
+<h2>How to Earn TAMA</h2>
+<ul>
+<li>Daily login: +25 TAMA</li>
+<li>Feed pet: +5 TAMA</li>
+<li>Play with pet: +10 TAMA</li>
+<li>Train pet: +15 TAMA</li>
+<li>Level up: +50 TAMA</li>
+<li>Referrals: +100 TAMA per friend</li>
+</ul>
+
+<h2>How to Withdraw</h2>
+<ol>
+<li>Connect Phantom wallet</li>
+<li>Click "Withdraw to Blockchain"</li>
+<li>Enter amount (minimum 100 TAMA)</li>
+<li>Confirm transaction</li>
+<li>Wait for confirmation</li>
+</ol>
+
+<h2>Future Plans</h2>
+<p>TAMA will be listed on DEXs (Raydium, Jupiter) after Mainnet launch in Q1 2026. You'll be able to trade TAMA for SOL and other tokens!</p>
+
+<h2>Conclusion</h2>
+<p>TAMA is the heart of Solana Tamagotchi's economy. Start earning today and be part of the growing community!</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                }
+            ];
+            
+            localStorage.setItem('blog_articles', JSON.stringify(sampleArticles));
+            return sampleArticles;
+        }
+        
         // Load articles from localStorage (or Supabase in future)
         function loadArticles() {
+            // Initialize sample articles if empty
+            initializeSampleArticles();
+            
             const articles = JSON.parse(localStorage.getItem('blog_articles') || '[]');
             const container = document.getElementById('articles-container');
             
@@ -323,19 +577,35 @@
                 return;
             }
             
-            container.innerHTML = articles.map((article, index) => `
+            // Sort articles: published first, then by date
+            const sortedArticles = [...articles].sort((a, b) => {
+                if (a.status === 'published' && b.status !== 'published') return -1;
+                if (a.status !== 'published' && b.status === 'published') return 1;
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+            
+            container.innerHTML = sortedArticles.map((article, index) => {
+                const originalIndex = articles.findIndex(a => a.id === article.id);
+                const date = article.createdAt ? new Date(article.createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                }) : 'No date';
+                
+                return `
                 <div class="article-item">
                     <div class="article-item-info">
                         <h3>${article.title} <span class="status-badge status-${article.status}">${article.status}</span></h3>
-                        <p>${article.category} • ${new Date(article.createdAt).toLocaleDateString()}</p>
+                        <p>${article.category} • ${date}</p>
                     </div>
                     <div class="article-item-actions">
-                        <button class="btn btn-secondary btn-small" onclick="editArticle(${index})">✏️ Edit</button>
-                        <button class="btn btn-secondary btn-small" onclick="deleteArticle(${index})">🗑️ Delete</button>
+                        <button class="btn btn-secondary btn-small" onclick="editArticle(${originalIndex})">✏️ Edit</button>
+                        <button class="btn btn-secondary btn-small" onclick="deleteArticle(${originalIndex})">🗑️ Delete</button>
                         <button class="btn btn-primary btn-small" onclick="viewArticle('${article.slug}')">👁️ View</button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
         
         // Save article
