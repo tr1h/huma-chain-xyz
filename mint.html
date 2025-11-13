@@ -1427,6 +1427,11 @@
                         explorerLink = `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`;
                     }
                     
+                    // ⚠️ NOTE: On-chain minting requires backend API
+                    // Currently NFT is created in database (off-chain)
+                    // For on-chain mint, we need to call backend API with Metaplex SDK
+                    // This will be implemented later when we have NFT images ready
+                    
                     showNotification('success', `🎉 ${tierName} NFT Minted!`, message, explorerLink);
                     
                     // Reload prices and balance (balance might have changed)

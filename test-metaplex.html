@@ -75,8 +75,20 @@
     <!-- Solana Web3.js -->
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     
-    <!-- Metaplex SDK -->
-    <script src="https://unpkg.com/@metaplex-foundation/js@latest/dist/index.umd.js"></script>
+    <!-- Metaplex SDK - Try multiple CDN sources -->
+    <script src="https://unpkg.com/@metaplex-foundation/js@3.0.0/dist/index.umd.js" onerror="loadMetaplexFallback()"></script>
+    <script>
+        function loadMetaplexFallback() {
+            console.warn('⚠️ Primary Metaplex CDN failed, trying alternative...');
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@metaplex-foundation/js@3.0.0/dist/index.umd.js';
+            script.onerror = function() {
+                console.error('❌ All Metaplex CDN sources failed. Metaplex SDK may not be available via CDN.');
+                console.warn('💡 Consider using npm install @metaplex-foundation/js and bundling');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
     
     <!-- Metaplex Minter Module -->
     <script src="js/metaplex-mint.js"></script>
@@ -101,11 +113,12 @@
             }
 
             // Check Metaplex SDK
-            if (typeof window.Metaplex !== 'undefined') {
+            if (typeof window.Metaplex !== 'undefined' && window.Metaplex !== null) {
                 html += '<div class="status success">✅ Metaplex SDK loaded</div>';
                 console.log('Metaplex:', window.Metaplex);
             } else {
-                html += '<div class="status error">❌ Metaplex SDK NOT loaded</div>';
+                html += '<div class="status error">❌ Metaplex SDK NOT loaded<br><small>⚠️ Metaplex JS SDK requires bundling (npm install). CDN version may not work.</small></div>';
+                html += '<div class="status info">💡 Solution: Use backend API for on-chain minting (recommended)</div>';
             }
 
             // Check MetaplexMinter class
@@ -151,9 +164,18 @@
                     throw new Error('Connect wallet first!');
                 }
 
-                if (!window.Metaplex) {
-                    throw new Error('Metaplex SDK not loaded!');
+                // Wait a bit for Metaplex to load if it's still loading
+                let attempts = 0;
+                while (!window.Metaplex && attempts < 10) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
                 }
+
+                if (!window.Metaplex) {
+                    throw new Error('Metaplex SDK not loaded! Check console for CDN errors. Metaplex JS SDK may require bundling (npm install).');
+                }
+
+                console.log('✅ Metaplex SDK found:', window.Metaplex);
 
                 // Create connection
                 const { Connection, PublicKey } = window.solanaWeb3;
