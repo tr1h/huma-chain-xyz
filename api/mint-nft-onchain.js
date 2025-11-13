@@ -4,8 +4,9 @@
  */
 
 const { Metaplex, keypairIdentity, bundlrStorage } = require('@metaplex-foundation/js');
-const { Connection, Keypair, clusterApiUrl } = require('@solana/web3.js');
+const { Connection, Keypair, clusterApiUrl, PublicKey } = require('@solana/web3.js');
 const bs58 = require('bs58');
+const fetch = require('node-fetch');
 
 // Supabase config
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
@@ -131,6 +132,9 @@ async function mintOnChainNFT(req, res) {
 
         console.log('🎨 Creating NFT on-chain...');
 
+        // Get creator wallet (Treasury Main)
+        const creatorWallet = new PublicKey('6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM');
+        
         // Mint NFT
         const { nft } = await metaplex.nfts().create({
             uri: uri,
@@ -138,9 +142,11 @@ async function mintOnChainNFT(req, res) {
             symbol: metadata.symbol,
             sellerFeeBasisPoints: 500, // 5% royalty
             creators: [{
-                address: metaplex.identity().publicKey,
+                address: creatorWallet, // Treasury Main for royalties
                 share: 100
-            }]
+            }],
+            updateAuthority: metaplex.identity().publicKey,
+            mintAuthority: metaplex.identity().publicKey
         });
 
         const mintAddress = nft.address.toString();
