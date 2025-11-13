@@ -44,6 +44,14 @@
   <priority>0.7</priority>
 </url>
 
+<!-- Blog -->
+<url>
+  <loc>https://solanatamagotchi.com/blog/</loc>
+  <lastmod>2025-11-13</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.8</priority>
+</url>
+
 <!-- Telegram Game -->
 <url>
   <loc>https://solanatamagotchi.com/telegram-game.html</loc>
