@@ -51,7 +51,7 @@
 - **CTA:** Попробуйте Solana Tamagotchi бесплатно
 
 #### 4. **"Top 10 Free Play-to-Earn Games in 2025 (No Investment Required)"**
-- **URL:** `/blog/top-10-free-play-to-earn-games-2024`
+- **URL:** `/blog/top-10-free-play-to-earn-games-2025`
 - **Keywords:** free play to earn games, no investment crypto games, best p2e games
 - **Word count:** 3000-3500 слов
 - **Sections:**
