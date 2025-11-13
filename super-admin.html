@@ -1200,9 +1200,90 @@
                 // Load NFT Holders
                 loadNFTHolders();
                 
+                // Load Site Visits
+                loadSiteVisits();
+                
             } catch (error) {
                 console.error('Error loading data:', error);
                 alert('Failed to load data from database. Check console for details.');
+            }
+        }
+        
+        // Load Site Visits Statistics
+        async function loadSiteVisits() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                
+                // Get total visits
+                const totalResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?select=id`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const totalData = await totalResponse.json();
+                const totalVisits = totalData?.length || 0;
+                
+                // Get today's visits
+                const todayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${today}&select=id`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const todayData = await todayResponse.json();
+                const todayVisits = todayData?.length || 0;
+                
+                // Get yesterday's visits
+                const yesterdayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${yesterday}&select=id`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const yesterdayData = await yesterdayResponse.json();
+                const yesterdayVisits = yesterdayData?.length || 0;
+                
+                // Get unique visitors (by session_id)
+                const uniqueResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?select=session_id`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const uniqueData = await uniqueResponse.json();
+                const uniqueSessions = new Set(uniqueData?.map(v => v.session_id) || []).size;
+                
+                // Get unique visitors today
+                const uniqueTodayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${today}&select=session_id`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const uniqueTodayData = await uniqueTodayResponse.json();
+                const uniqueTodaySessions = new Set(uniqueTodayData?.map(v => v.session_id) || []).size;
+                
+                // Update UI
+                document.getElementById('total-visits').textContent = totalVisits.toLocaleString();
+                document.getElementById('visits-change').textContent = `+${todayVisits} today`;
+                document.getElementById('visits-change').className = 'stat-change ' + (todayVisits > yesterdayVisits ? 'positive' : (todayVisits < yesterdayVisits ? 'negative' : ''));
+                
+                document.getElementById('unique-visitors').textContent = uniqueSessions.toLocaleString();
+                document.getElementById('visitors-change').textContent = `Today: ${uniqueTodaySessions}`;
+                
+                console.log('✅ Site visits loaded:', {
+                    total: totalVisits,
+                    today: todayVisits,
+                    unique: uniqueSessions,
+                    uniqueToday: uniqueTodaySessions
+                });
+                
+            } catch (error) {
+                console.error('Error loading site visits:', error);
+                document.getElementById('total-visits').textContent = 'Error';
+                document.getElementById('unique-visitors').textContent = 'Error';
             }
         }
 
