@@ -95,3 +95,25 @@ These are most engaging for social media:
 - Gaming aesthetic
 - Perfect for Twitter/X format
 
+---
+
+## 🌟 BEST PROMPT FOR DOMAIN PURCHASE ANNOUNCEMENT:
+
+**For emphasizing official domain purchase:**
+
+```
+A professional, cinematic reveal of an official website domain certificate or badge displaying "solanatamagotchi.com" with a golden checkmark and "VERIFIED" seal. A sleek, modern website interface appears behind it showing the Solana Tamagotchi game dashboard. A cute Tamagotchi pet mascot appears in the corner with a proud, confident expression. Solana blockchain network visualization pulses in the background. The text "OFFICIAL DOMAIN" appears above the domain name with elegant typography. Smooth camera zoom in, professional lighting, purple and gold color scheme. Clean, corporate gaming aesthetic. 16:9 aspect ratio, high quality, cinematic presentation.
+```
+
+**Alternative (more celebratory):**
+
+```
+An animated scene showing a golden key unlocking a glowing website interface displaying "solanatamagotchi.com" with a "VERIFIED" badge. Confetti and sparkles celebrate the moment. A cute Tamagotchi pet character appears and celebrates with joy. Solana blockchain elements and TAMA tokens float around. The text "OFFICIAL DOMAIN LAUNCHED" appears with smooth animation. Professional yet playful, vibrant colors (purple, gold, green), energetic mood. 16:9 aspect ratio, high quality.
+```
+
+**Simple and direct:**
+
+```
+A clean, professional announcement card with the text "WE'VE GOT OUR OWN DOMAIN!" at the top in bold letters. Below, the domain "solanatamagotchi.com" appears prominently with a golden underline. A minimalist Tamagotchi pet mascot on the side. Solana blockchain network visualization in the background. Smooth fade-in animation, professional design, purple and gold color scheme. Corporate gaming aesthetic. 16:9 aspect ratio, high quality.
+```
+
