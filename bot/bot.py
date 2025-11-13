@@ -48,7 +48,7 @@ bot = telebot.TeleBot(TOKEN)
 
 # URLs
 GAME_URL = os.getenv('GAME_URL', 'https://solanatamagotchi.com/tamagotchi-game.html?v=20251113')  # Telegram Mini App URL
-MINT_URL = os.getenv('MINT_URL', 'https://solanatamagotchi.com/nft-mint-5tiers.html')  # Mint URL
+MINT_URL = os.getenv('MINT_URL', 'https://solanatamagotchi.com/mint.html')  # Mint URL
 CHANNEL_USERNAME = os.getenv('CHANNEL_USERNAME', '@GotchiGame')  # Channel username for posting
 
 # Menu button text (bottom menu button label)

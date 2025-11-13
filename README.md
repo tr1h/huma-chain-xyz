@@ -297,7 +297,7 @@ SUPABASE_KEY=your_supabase_anon_key
 2. GitHub Actions auto-deploys
 3. **Live URLs:**
    - 🎮 **Game:** https://solanatamagotchi.com/tamagotchi-game.html
-   - 🎨 **Mint NFT:** https://solanatamagotchi.com/nft-mint-5tiers.html
+   - 🎨 **Mint NFT:** https://solanatamagotchi.com/mint.html
    - 📊 **Tokenomics Dashboard:** https://solanatamagotchi.com/admin-tokenomics.html
    - 🏆 **Super Admin:** https://solanatamagotchi.com/super-admin.html
    - 🔗 **Referral:** https://solanatamagotchi.com/referral.html

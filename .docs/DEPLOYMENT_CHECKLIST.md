@@ -58,7 +58,7 @@
 Update bot service environment variables:
 ```bash
 GAME_URL=https://solanatamagotchi.com/tamagotchi-game.html?v=20251113
-MINT_URL=https://solanatamagotchi.com/nft-mint-5tiers.html
+MINT_URL=https://solanatamagotchi.com/mint.html
 TAMA_API_BASE=https://api.solanatamagotchi.com/api/tama
 ```
 
@@ -117,7 +117,7 @@ Based on `.docs/SEO_SEMANTIC_CORE.md`:
 ### ✅ Live URLs
 - 🏠 **Homepage:** https://solanatamagotchi.com/
 - 🎮 **Game:** https://solanatamagotchi.com/tamagotchi-game.html
-- 💎 **Mint NFT:** https://solanatamagotchi.com/nft-mint-5tiers.html
+- 💎 **Mint NFT:** https://solanatamagotchi.com/mint.html
 - 🔗 **API:** https://api.solanatamagotchi.com/api/tama
 - 🤖 **Telegram Bot:** https://t.me/GotchiGameBot
 

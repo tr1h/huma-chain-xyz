@@ -2,14 +2,1533 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=nft-mint-5tiers.html">
-    <script>
-        // Immediate redirect
-        window.location.href = 'nft-mint-5tiers.html' + window.location.search;
-    </script>
-    <title>Redirecting to NFT Mint...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>Mint NFT Pet - Solana Tamagotchi | Earn 2-3x TAMA Boost</title>
+    <meta name="title" content="Mint NFT Pet - Solana Tamagotchi | Earn 2-3x TAMA Boost">
+    <meta name="description" content="Mint your NFT Tamagotchi pet and earn 2-3x TAMA boost! 🐾 Choose from Bronze (2,500 TAMA/0.1 SOL), Silver (0.15 SOL), or Gold (0.3 SOL) tiers. Powered by Solana blockchain.">
+    <meta name="keywords" content="mint nft, solana nft mint, tamagotchi nft, buy nft pet, nft minting, solana nft, tama token, nft boost, crypto nft, blockchain pets">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://solanatamagotchi.com/mint.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://solanatamagotchi.com/mint.html">
+    <meta property="og:title" content="Mint NFT Pet - Get 2-3x TAMA Earning Boost 🚀">
+    <meta property="og:description" content="Mint your unique NFT Tamagotchi pet on Solana! Earn up to 3x TAMA rewards. Bronze from 2,500 TAMA, Silver/Gold in SOL. Limited supply!">
+    <meta property="og:image" content="https://solanatamagotchi.com/nft-preview.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://solanatamagotchi.com/mint.html">
+    <meta property="twitter:title" content="Mint NFT Pet - Get 2-3x TAMA Earning Boost 🚀">
+    <meta property="twitter:description" content="Mint your unique NFT Tamagotchi pet on Solana! Earn up to 3x TAMA rewards.">
+    <meta property="twitter:image" content="https://solanatamagotchi.com/nft-preview.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        /* HEADER - EPIC STYLE */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+        .header h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #FFD700, #FF6B35, #8AC926);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .header .subtitle {
+            font-size: 12px;
+            color: #8AC926;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        /* WALLET SECTION */
+        .wallet-section {
+            background: rgba(138, 201, 38, 0.1);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .wallet-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .wallet-info div {
+            font-size: 10px;
+            color: #8AC926;
+        }
+        .btn-connect {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: #1d3557;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(138, 201, 38, 0.6);
+        }
+        
+        /* TIER GRID - EPIC CARDS */
+        .tier-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        .tier-card {
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.05), rgba(29, 53, 87, 0.1));
+            backdrop-filter: blur(20px);
+            border: 3px solid;
+            border-radius: 20px;
+            padding: 25px 20px;
+            width: 260px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.4s;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .tier-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(138, 201, 38, 0.4);
+        }
+        .tier-card.bronze { border-color: #CD7F32; }
+        .tier-card.silver { border-color: #C0C0C0; }
+        .tier-card.gold { border-color: #FFD700; }
+        .tier-card.platinum { border-color: #E5E4E2; }
+        .tier-card.diamond { border-color: #B9F2FF; }
+        
+        .fomo-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #FF006E, #FF4500);
+            color: white;
+            font-size: 9px;
+            padding: 6px 10px;
+            border-radius: 15px;
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+        .tier-icon {
+            font-size: 50px;
+            text-align: center;
+            margin: 10px 0;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+        }
+        .tier-name {
+            font-size: 16px;
+            text-align: center;
+            margin: 8px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            line-height: 1.4;
+            word-wrap: break-word;
+            min-height: 2.8em;
+        }
+        .tier-supply {
+            font-size: 9px;
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            min-height: 2.8em;
+        }
+        .tier-price {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 4px 0 15px 0;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+        }
+        .tier-price .main-price {
+            font-size: 22px;
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 8px;
+            white-space: nowrap;
+        }
+        .tier-price .usd-price {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-bottom: 6px;
+        }
+        .tier-price .next-price {
+            font-size: 10px;
+            opacity: 0.75;
+        }
+        .tier-boost {
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 11px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+        .passive-income {
+            font-size: 11px;
+            color: #8AC926;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8AC926, #FFD700);
+            transition: width 0.5s;
+        }
+        .tier-minted-count {
+            font-size: 10px;
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+        .mint-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: #1d3557;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: auto;
+        }
+        .mint-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(138, 201, 38, 0.6);
+        }
+        .bronze-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: auto;
+        }
+        .bronze-btn {
+            padding: 12px;
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: #1d3557;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        .bronze-btn.sol {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Custom Confirmation Modal */
+        .confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+        .confirm-modal.hidden {
+            display: none;
+        }
+        .confirm-modal-content {
+            background: linear-gradient(135deg, #1D3557, #457B9D);
+            border: 4px solid #FFCA3A;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .confirm-modal-content h3 {
+            font-size: 18px;
+            color: #FFCA3A;
+            margin: 0 0 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .confirm-modal-content p {
+            font-size: 14px;
+            color: #F1FAEE;
+            margin: 0 0 30px 0;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        .confirm-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .confirm-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .confirm-ok {
+            background: linear-gradient(135deg, #8AC926, #FFD700);
+            color: #1d3557;
+        }
+        .confirm-ok:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(138, 201, 38, 0.6);
+        }
+        .confirm-cancel {
+            background: rgba(255, 202, 58, 0.1);
+            border: 2px solid #FFCA3A;
+            color: #FFCA3A;
+        }
+        .confirm-cancel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 202, 58, 0.5);
+            background: rgba(255, 202, 58, 0.2);
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #8AC926;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Beautiful Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: linear-gradient(135deg, #1D3557, #457B9D);
+            border: 3px solid;
+            border-radius: 15px;
+            padding: 20px 25px;
+            min-width: 320px;
+            max-width: 450px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: toastSlideIn 0.4s ease, toastFadeOut 0.3s ease 4.7s forwards;
+            pointer-events: auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .toast::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8AC926, #FFD700, #FF6B35);
+            animation: toastProgress 5s linear forwards;
+        }
+        .toast.success {
+            border-color: #8AC926;
+        }
+        .toast.error {
+            border-color: #FF006E;
+        }
+        .toast.warning {
+            border-color: #FFCA3A;
+        }
+        .toast.info {
+            border-color: #457B9D;
+        }
+        .toast-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .toast-icon {
+            font-size: 24px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        .toast-title {
+            flex: 1;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .toast-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .toast-close:hover {
+            color: #fff;
+            transform: scale(1.1);
+        }
+        .toast-message {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #F1FAEE;
+            white-space: pre-line;
+            word-wrap: break-word;
+        }
+        .toast-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #8AC926;
+            text-decoration: underline;
+            font-size: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .toast-link:hover {
+            color: #FFD700;
+        }
+        @keyframes toastSlideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes toastFadeOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        @keyframes toastProgress {
+            from {
+                width: 100%;
+            }
+            to {
+                width: 0%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to <a href="nft-mint-5tiers.html">NFT Mint page</a>...</p>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 MINT YOUR NFT PET</h1>
+            <div class="subtitle">5 TIERS | BONDING CURVE | FIXED BOOSTS</div>
+        </div>
+        
+        <div class="wallet-section">
+            <div class="wallet-info">
+                <div>👛 <span id="wallet-status">Connect Wallet</span></div>
+                <div>SOL: <span id="sol-balance">0</span></div>
+                <div>TAMA: <span id="tama-balance">Loading...</span></div>
+            </div>
+            <button class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+        </div>
+        
+        <div class="tier-grid">
+            <!-- Bronze Card -->
+            <div class="tier-card bronze">
+                <div class="tier-icon">🟫</div>
+                <div class="tier-name">BRONZE</div>
+                <div class="tier-supply">Common · 4,500 available</div>
+                <div class="tier-price">
+                    <div class="main-price">5000 TAMA</div>
+                    <div class="usd-price">$25</div>
+                    <div class="next-price">or 0.15 SOL</div>
+                </div>
+                <div class="tier-boost">×2.0 EARNING</div>
+                <div class="passive-income">🎁 +50 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 4500</div>
+                <div class="bronze-buttons">
+                    <button class="bronze-btn" onclick="mintBronze()">FREE</button>
+                    <button class="bronze-btn sol" onclick="mintBronzeSOL()">0.15 SOL</button>
+                </div>
+            </div>
+            
+            <!-- Silver Card -->
+            <div class="tier-card silver">
+                <div class="fomo-badge">🔥 PRICE ↑</div>
+                <div class="tier-icon">🥈</div>
+                <div class="tier-name">SILVER</div>
+                <div class="tier-supply">Uncommon · 350 available</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-silver-sol">1</span> SOL</div>
+                    <div class="usd-price">$<span id="price-silver-usd">164</span></div>
+                    <div class="next-price">Next: <span id="next-silver">1.01</span> SOL (+0.6%)</div>
+                </div>
+                <div class="tier-boost">×2.3 EARNING</div>
+                <div class="passive-income">🎁 +150 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 350</div>
+                <button class="mint-btn" onclick="mintSOL('Silver')">💎 MINT SILVER</button>
+            </div>
+            
+            <!-- Gold Card -->
+            <div class="tier-card gold">
+                <div class="fomo-badge">🔥 PRICE ↑</div>
+                <div class="tier-icon">🥇</div>
+                <div class="tier-name">GOLD</div>
+                <div class="tier-supply">Rare · 130 available</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-gold-sol">3</span> SOL</div>
+                    <div class="usd-price">$<span id="price-gold-usd">492</span></div>
+                    <div class="next-price">Next: <span id="next-gold">3.05</span> SOL (+1.8%)</div>
+                </div>
+                <div class="tier-boost">×2.7 EARNING</div>
+                <div class="passive-income">🎁 +500 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 130</div>
+                <button class="mint-btn" onclick="mintSOL('Gold')">🏆 MINT GOLD</button>
+            </div>
+            
+            <!-- Platinum Card -->
+            <div class="tier-card platinum">
+                <div class="fomo-badge">🔥 RARE!</div>
+                <div class="tier-icon">💎</div>
+                <div class="tier-name">PLATINUM</div>
+                <div class="tier-supply">Epic · Only 18!</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-platinum-sol">10</span> SOL</div>
+                    <div class="usd-price">$<span id="price-platinum-usd">1,641</span></div>
+                    <div class="next-price">Next: <span id="next-platinum">11.11</span> SOL (+11%)</div>
+                </div>
+                <div class="tier-boost">×3.5 EARNING</div>
+                <div class="passive-income">🎁 +2000 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 18</div>
+                <button class="mint-btn" onclick="mintSOL('Platinum')">⚡ MINT PLATINUM</button>
+            </div>
+            
+            <!-- Diamond Card -->
+            <div class="tier-card diamond">
+                <div class="fomo-badge">⚠️ ONLY 2!</div>
+                <div class="tier-icon">🔷</div>
+                <div class="tier-name">DIAMOND</div>
+                <div class="tier-supply">Legendary · ONLY 2 EXIST!</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-diamond-sol">50</span> SOL</div>
+                    <div class="usd-price">$<span id="price-diamond-usd">8,204</span></div>
+                    <div class="next-price">Next: <span id="next-diamond">100</span> SOL (+100%)</div>
+                </div>
+                <div class="tier-boost">×5.0 MAXIMUM!</div>
+                <div class="passive-income">🎁 +10000 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: 0 / 2</div>
+                <button class="mint-btn" onclick="mintSOL('Diamond')">👑 MINT DIAMOND</button>
+            </div>
+        </div>
+        
+        <!-- Custom Confirmation Modal -->
+        <div id="confirm-modal" class="confirm-modal hidden">
+            <div class="confirm-modal-content">
+                <h3 id="confirm-title">Подтвердите действие</h3>
+                <p id="confirm-message"></p>
+                <div class="confirm-buttons">
+                    <button id="confirm-ok" class="confirm-btn confirm-ok">✅ OK</button>
+                    <button id="confirm-cancel" class="confirm-btn confirm-cancel">❌ Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ==============================================
+        // CONFIG
+        // ==============================================
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // API Base URL
+        const TAMA_API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8002/api/tama'
+            : 'https://api.solanatamagotchi.com/api/tama';
+
+        const SOL_USD_RATE = 164.07; // 1 SOL = $164.07
+        const TELEGRAM_USER_ID = getTelegramUserId();
+
+        // Treasury Wallet Addresses (Devnet)
+        const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+        const TREASURY_LIQUIDITY = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+        const TREASURY_TEAM = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
+
+        // State
+        let walletConnected = false;
+        let walletAddress = null;
+        let tamaBalance = 0;
+
+        // ==============================================
+        // BEAUTIFUL NOTIFICATIONS
+        // ==============================================
+        function showNotification(type, title, message, link = null) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            // SECURITY: Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            const safeTitle = escapeHtml(title);
+            const safeMessage = escapeHtml(message);
+            
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                    <span class="toast-title">${safeTitle}</span>
+                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+                <div class="toast-message">${safeMessage}</div>
+                ${link ? `<a href="${escapeHtml(link)}" target="_blank" class="toast-link">🔗 View on Explorer →</a>` : ''}
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.animation = 'toastFadeOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // ==============================================
+        // UTILITY FUNCTIONS
+        // ==============================================
+        function getTelegramUserId() {
+            // Try to get from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('user_id')) {
+                return parseInt(urlParams.get('user_id'));
+            }
+            
+            // Try Telegram WebApp API
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) {
+                    return user.id;
+                }
+            }
+            
+            // Fallback for testing
+            return 123456789;
+        }
+
+        function goToMyNFTs() {
+            window.location.href = `my-nfts.html?user_id=${TELEGRAM_USER_ID}`;
+        }
+
+        function updateWalletUI() {
+            if (walletConnected && walletAddress) {
+                const walletAddressEl = document.getElementById('wallet-address');
+                const connectWalletEl = document.getElementById('connect-wallet');
+                const walletInfoEl = document.getElementById('wallet-info');
+                
+                if (walletAddressEl) {
+                    walletAddressEl.textContent = 
+                        walletAddress.substring(0, 4) + '...' + walletAddress.substring(walletAddress.length - 4);
+                }
+                
+                if (connectWalletEl) {
+                    connectWalletEl.textContent = '✅ Connected';
+                }
+                
+                if (walletInfoEl) {
+                    walletInfoEl.style.display = 'block';
+                }
+                
+                // Update SOL balance
+                if (window.solana && window.solana.publicKey) {
+                    const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
+                    connection.getBalance(window.solana.publicKey).then(balance => {
+                        const walletBalanceEl = document.getElementById('wallet-balance');
+                        if (walletBalanceEl) {
+                            walletBalanceEl.textContent = (balance / 1e9).toFixed(4);
+                        }
+                    }).catch(err => {
+                        console.warn('⚠️ Failed to get SOL balance:', err);
+                    });
+                }
+            }
+        }
+
+        // ==============================================
+        // WALLET FUNCTIONS
+        // ==============================================
+        async function connectWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    showNotification('error', 'Wallet Required', 'Please install Phantom wallet to continue!');
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+
+                const resp = await window.solana.connect();
+                walletAddress = resp.publicKey.toString();
+                walletConnected = true;
+
+                // Save wallet address to localStorage for persistence
+                localStorage.setItem('phantom_wallet_address', walletAddress);
+                console.log('✅ Wallet address saved to localStorage:', walletAddress);
+
+                // Save wallet address to database
+                try {
+                    const saveWalletUrl = `${TAMA_API_BASE}/update-wallet`;
+                    const saveWalletResponse = await fetch(saveWalletUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            telegram_id: TELEGRAM_USER_ID,
+                            wallet_address: walletAddress
+                        })
+                    });
+                    
+                    if (saveWalletResponse.ok) {
+                        const saveResult = await saveWalletResponse.json();
+                        console.log('✅ Wallet address saved to database:', saveResult);
+                    } else {
+                        console.warn('⚠️ Failed to save wallet to database:', saveWalletResponse.status);
+                    }
+                } catch (err) {
+                    console.warn('⚠️ Error saving wallet to database:', err);
+                }
+
+                document.getElementById('wallet-status').textContent = 
+                    walletAddress.substring(0, 4) + '...' + walletAddress.substring(walletAddress.length - 4);
+                
+                document.querySelector('.btn-connect').textContent = '✅ Connected';
+
+                // Get SOL balance
+                const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
+                const balance = await connection.getBalance(resp.publicKey);
+                document.getElementById('sol-balance').textContent = (balance / 1e9).toFixed(4);
+
+                console.log('✅ Wallet connected:', walletAddress);
+                showNotification('success', 'Wallet Connected', `Connected: ${walletAddress.substring(0, 4)}...${walletAddress.substring(walletAddress.length - 4)}`);
+            } catch (err) {
+                console.error('❌ Wallet connection failed:', err);
+                showNotification('error', 'Connection Failed', 'Failed to connect wallet. Please try again.');
+            }
+        }
+
+        // ==============================================
+        // LOAD PRICES & STATS
+        // ==============================================
+        async function loadPricesAndStats() {
+            try {
+                console.log('📊 Loading prices and stats...');
+
+                // Get bonding state
+                const { data: bondingData, error: bondingError } = await supabase
+                    .from('nft_bonding_state')
+                    .select('*');
+
+                if (bondingError) {
+                    console.error('❌ Error loading bonding state:', bondingError);
+                    return;
+                }
+
+                console.log('✅ Bonding state loaded:', bondingData);
+
+                // Update UI for each tier
+                bondingData.forEach(tier => {
+                    updateTierUI(tier);
+                });
+
+                // Get TAMA balance
+                await loadTAMABalance();
+
+            } catch (err) {
+                console.error('❌ Error loading prices:', err);
+            }
+        }
+
+        function updateTierUI(tier) {
+            const tierName = tier.tier_name.toLowerCase();
+            
+            // Special handling for Bronze_SOL (fixed price, update USD only)
+            if (tierName === 'bronze_sol') {
+                // Fixed price 0.15 SOL - update USD price only
+                const bronzeUsdSpan = document.getElementById('price-bronze-usd');
+                if (bronzeUsdSpan) {
+                    bronzeUsdSpan.textContent = Math.round(0.15 * SOL_USD_RATE);
+                }
+                return;
+            }
+            
+            // Update minted count
+            const mintedSpan = document.getElementById(`minted-${tierName}`);
+            if (mintedSpan) mintedSpan.textContent = tier.minted_count;
+
+            // Update max supply
+            const maxSpan = document.getElementById(`max-${tierName}`);
+            if (maxSpan) maxSpan.textContent = tier.max_supply;
+
+            // Update progress bar
+            const progressFill = document.querySelector(`#progress-${tierName}`);
+            if (progressFill) {
+                const percentage = (tier.minted_count / tier.max_supply) * 100;
+                progressFill.style.width = percentage + '%';
+            }
+
+            // Update prices for SOL tiers
+            if (tier.payment_type === 'SOL') {
+                // Helper: format SOL price (remove .00 for whole numbers)
+                const formatSOL = (num) => {
+                    return num % 1 === 0 ? num.toString() : num.toFixed(2);
+                };
+                
+                const solSpan = document.getElementById(`price-${tierName}-sol`);
+                if (solSpan) solSpan.textContent = formatSOL(parseFloat(tier.current_price));
+
+                const usdSpan = document.getElementById(`price-${tierName}-usd`);
+                if (usdSpan) {
+                    const usdPrice = parseFloat(tier.current_price) * SOL_USD_RATE;
+                    usdSpan.textContent = Math.round(usdPrice).toLocaleString();
+                }
+
+                const nextSpan = document.getElementById(`next-${tierName}`);
+                if (nextSpan) {
+                    const nextPrice = parseFloat(tier.current_price) + parseFloat(tier.increment_per_mint);
+                    nextSpan.textContent = formatSOL(nextPrice);
+                }
+            }
+        }
+
+        async function loadTAMABalance() {
+            try {
+                // Try to get balance from URL parameter first
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlTama = urlParams.get('tama');
+                if (urlTama) {
+                    tamaBalance = parseInt(urlTama) || 0;
+                    document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
+                    console.log('✅ TAMA balance from URL:', tamaBalance);
+                    return;
+                }
+
+                // Use API endpoint to get balance
+                if (!TELEGRAM_USER_ID) {
+                    console.warn('⚠️ No Telegram User ID, setting balance to 0');
+                    tamaBalance = 0;
+                    document.getElementById('tama-balance').textContent = '0';
+                    return;
+                }
+
+                const apiUrl = `${TAMA_API_BASE}/balance?telegram_id=${TELEGRAM_USER_ID}`;
+                console.log('📡 Loading TAMA balance from API:', apiUrl);
+
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    tamaBalance = result.database_tama || result.total_tama || 0;
+                    document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
+                    console.log('✅ TAMA balance loaded from API:', tamaBalance);
+                } else {
+                    console.warn('⚠️ API returned error:', result.error);
+                    tamaBalance = 0;
+                    document.getElementById('tama-balance').textContent = '0';
+                }
+            } catch (err) {
+                console.error('❌ Error loading TAMA balance:', err);
+                tamaBalance = 0;
+                document.getElementById('tama-balance').textContent = '0';
+            }
+        }
+
+        // ==============================================
+        // SOL DISTRIBUTION FUNCTION
+        // ==============================================
+        async function createAndSendDistributionTransaction(priceSOL) {
+            try {
+                const { Transaction, SystemProgram, PublicKey, Connection } = solanaWeb3;
+                const connection = new Connection('https://api.devnet.solana.com');
+                
+                // Create transaction with 3 transfers
+                const transaction = new Transaction();
+                
+                // Transfer 1: 50% to Treasury Main
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_MAIN),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.50)
+                    })
+                );
+                
+                // Transfer 2: 30% to Treasury Liquidity
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_LIQUIDITY),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.30)
+                    })
+                );
+                
+                // Transfer 3: 20% to Treasury Team
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_TEAM),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.20)
+                    })
+                );
+                
+                // Get recent blockhash and set fee payer
+                const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+                transaction.recentBlockhash = blockhash;
+                transaction.lastValidBlockHeight = lastValidBlockHeight;
+                transaction.feePayer = new PublicKey(walletAddress);
+                
+                console.log('💰 Creating SOL distribution transaction...');
+                console.log(`  🏦 Treasury Main: ${(priceSOL * 0.50).toFixed(6)} SOL (50%)`);
+                console.log(`  💧 Treasury Liquidity: ${(priceSOL * 0.30).toFixed(6)} SOL (30%)`);
+                console.log(`  👥 Treasury Team: ${(priceSOL * 0.20).toFixed(6)} SOL (20%)`);
+                
+                // Request signature from Phantom
+                const signed = await window.solana.signAndSendTransaction(transaction);
+                
+                // Wait for confirmation
+                await connection.confirmTransaction(signed, 'confirmed');
+                
+                // Extract signature from response (Phantom returns {signature: '...', publicKey: '...'})
+                const signature = typeof signed === 'string' ? signed : (signed.signature || signed);
+                
+                console.log('✅ SOL distribution transaction confirmed:', signature);
+                const explorerUrl = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+                console.log(`🔗 View on Explorer: ${explorerUrl}`);
+                
+                return signature;
+                
+            } catch (err) {
+                console.error('❌ Distribution transaction failed:', err);
+                throw new Error('Failed to create distribution transaction: ' + err.message);
+            }
+        }
+
+        // ==============================================
+        // MINT FUNCTIONS
+        // ==============================================
+        async function mintBronze() {
+            try {
+                console.log('🟫 Minting Bronze NFT...');
+
+                // Check if user came from game (has telegram_id)
+                if (!TELEGRAM_USER_ID || TELEGRAM_USER_ID === 123456789) {
+                    showNotification('warning', 'Game Required', 
+                        'To mint with TAMA, you need to play the game first!\n\n' +
+                        '🎮 Go to Telegram bot and play the game\n' +
+                        '💰 Earn TAMA tokens\n' +
+                        '🔗 Then come back here to mint NFT\n\n' +
+                        '💡 Or mint with SOL instead (no game required)!'
+                    );
+                    return;
+                }
+
+                // Check TAMA balance
+                if (tamaBalance < 5000) {
+                    showNotification('error', 'Insufficient Balance', `You need 5,000 TAMA to mint Bronze NFT.\n\nYour balance: ${tamaBalance.toLocaleString()} TAMA`);
+                    return;
+                }
+
+                // Custom confirmation modal
+                const confirmed = await showConfirmModal(
+                    'Mint Bronze NFT',
+                    'Mint Bronze NFT for 5,000 TAMA?\n\nYou will get ×2.0 earning boost!'
+                );
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                // Show loading
+                const spinner = document.createElement('div');
+                spinner.className = 'spinner';
+                spinner.id = 'loading-spinner';
+                document.querySelector('.container').appendChild(spinner);
+
+                // ============================================
+                // DIRECT SUPABASE APPROACH (bypasses PHP API)
+                // ============================================
+                console.log('📊 Checking balance from leaderboard...');
+                
+                // 1. Get current TAMA balance from leaderboard
+                const { data: leaderboardData, error: leaderboardError } = await supabase
+                    .from('leaderboard')
+                    .select('tama')
+                    .eq('telegram_id', Number(TELEGRAM_USER_ID))
+                    .single();
+                
+                if (leaderboardError || !leaderboardData) {
+                    throw new Error('Could not fetch TAMA balance. Please try again.');
+                }
+                
+                const currentTama = leaderboardData.tama || 0;
+                if (currentTama < 5000) {
+                    throw new Error(`Insufficient TAMA balance. You have ${currentTama}, need 5000.`);
+                }
+                
+                console.log('💰 Current TAMA balance:', currentTama);
+                
+                // 2. Deduct 5000 TAMA from leaderboard
+                const newTama = currentTama - 5000;
+                const { error: updateError } = await supabase
+                    .from('leaderboard')
+                    .update({ tama: newTama })
+                    .eq('telegram_id', Number(TELEGRAM_USER_ID));
+                
+                if (updateError) {
+                    throw new Error('Failed to deduct TAMA: ' + updateError.message);
+                }
+                
+                console.log('✅ Deducted 5000 TAMA, new balance:', newTama);
+                
+                // 3. Get random Bronze design (only unminted ones)
+                const { data: designs, error: designError } = await supabase
+                    .from('nft_designs')
+                    .select('*')
+                    .eq('tier_name', 'Bronze')
+                    .eq('is_minted', false);
+                
+                if (designError || !designs || designs.length === 0) {
+                    // Rollback TAMA deduction
+                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    throw new Error('No Bronze NFT designs available');
+                }
+                
+                const randomDesign = designs[Math.floor(Math.random() * designs.length)];
+                console.log('🎨 Selected design:', randomDesign);
+                
+                // 4. Create NFT record using RPC function (bypasses type issues)
+                const nftMintAddress = `bronze_${TELEGRAM_USER_ID}_${Date.now()}_${randomDesign.id}`;
+                
+                // CRITICAL: Send telegram_id as STRING to RPC function
+                // The RPC function accepts TEXT and casts to BIGINT internally
+                // This completely bypasses PostgREST's type conversion issues
+                const telegramIdString = String(TELEGRAM_USER_ID);
+                console.log('🔍 Creating NFT with telegram_id as STRING:', telegramIdString, 'type:', typeof telegramIdString);
+                
+                // Use RPC function with TEXT parameter (bypasses PostgREST type conversion issues)
+                const { data: rpcResult, error: nftError } = await supabase.rpc('insert_user_nft', {
+                    p_telegram_id: telegramIdString,  // Send as STRING, RPC function will cast to BIGINT
+                    p_nft_design_id: randomDesign.id,
+                    p_nft_mint_address: nftMintAddress,
+                    p_tier_name: 'Bronze',
+                    p_rarity: 'Common',
+                    p_earning_multiplier: 2.0,
+                    p_purchase_price_tama: 5000,
+                    p_is_active: true
+                });
+                
+                // RPC function returns array
+                const nftData = Array.isArray(rpcResult) && rpcResult.length > 0 ? rpcResult[0] : rpcResult;
+                
+                if (nftData) {
+                    console.log('✅ NFT created via RPC:', nftData);
+                }
+                
+                if (nftError) {
+                    console.error('❌ NFT creation error:', nftError);
+                    // Rollback TAMA deduction
+                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    throw new Error('Failed to create NFT: ' + nftError.message);
+                }
+                
+                console.log('✅ NFT created:', nftData);
+                
+                // 5. Mark design as minted
+                const { error: markMintedError } = await supabase
+                    .from('nft_designs')
+                    .update({
+                        is_minted: true,
+                        minted_by: Number(TELEGRAM_USER_ID),
+                        minted_at: new Date().toISOString()
+                    })
+                    .eq('id', randomDesign.id);
+                
+                if (markMintedError) {
+                    console.warn('⚠️ Failed to mark design as minted:', markMintedError);
+                    // Don't throw - NFT is already created, this is just metadata
+                } else {
+                    console.log('✅ Design marked as minted');
+                }
+
+                // Remove loading
+                document.getElementById('loading-spinner')?.remove();
+
+                showNotification('success', '🎉 NFT Minted!', 
+                    `Bronze NFT minted successfully!\n\n` +
+                    `Design: #${randomDesign.design_number}\n` +
+                    `Boost: ×2.0\n` +
+                    `Theme: ${randomDesign.design_theme}\n` +
+                    `Variant: ${randomDesign.design_variant}`
+                );
+                
+                // Reload prices & balance
+                await loadPricesAndStats();
+                await loadTAMABalance();
+
+            } catch (err) {
+                console.error('❌ Mint Bronze failed:', err);
+                showNotification('error', 'Mint Failed', err.message || 'Failed to mint Bronze NFT. Please try again.');
+                document.getElementById('loading-spinner')?.remove();
+            }
+        }
+
+        async function mintBronzeSOL() {
+            try {
+                console.log('⚡ Minting Bronze NFT (SOL Express)...');
+
+                if (!walletConnected) {
+                    showNotification('warning', 'Wallet Required', 'Please connect your wallet first to mint with SOL!');
+                    return;
+                }
+
+                // Fixed price: 0.15 SOL
+                const bronzeSolPrice = 0.15;
+                const priceUSD = (bronzeSolPrice * SOL_USD_RATE).toFixed(2);
+
+                // Custom confirmation modal
+                const confirmed = await showConfirmModal(
+                    'Mint Bronze NFT (Express)',
+                    `Mint Bronze NFT (Express) for ${bronzeSolPrice} SOL ($${priceUSD})?\n\n⚡ Skip the wait - instant mint!\n✅ Same ×2.0 boost as TAMA version\n💎 Fixed price - no FOMO stress!\n🎁 +50 TAMA passive income daily!`
+                );
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                // Show loading
+                const spinner = document.createElement('div');
+                spinner.className = 'spinner';
+                spinner.id = 'loading-spinner';
+                document.querySelector('.container').appendChild(spinner);
+
+                // Create and send SOL distribution transaction
+                let transactionSignature = null;
+                try {
+                    transactionSignature = await createAndSendDistributionTransaction(bronzeSolPrice);
+                    console.log('✅ Distribution transaction completed:', transactionSignature);
+                } catch (distError) {
+                    console.error('⚠️ Distribution transaction failed, but continuing with mint:', distError);
+                    // Continue with mint even if distribution fails (user can manually distribute later)
+                }
+
+                // Call API - use absolute path for GitHub Pages (REST API version)
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'api/mint-nft-bronze-sol-rest.php'
+                    : 'https://api.solanatamagotchi.com/api/mint-nft-bronze-sol-rest.php';
+                
+                console.log('📡 Calling API:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: (TELEGRAM_USER_ID && TELEGRAM_USER_ID !== 123456789) ? TELEGRAM_USER_ID : null, // Send null if no real telegram_id
+                        wallet_address: walletAddress,
+                        price_sol: bronzeSolPrice,
+                        transaction_signature: transactionSignature // ✅ Send transaction signature!
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', response.status, errorText);
+                    throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+                }
+
+                const result = await response.json();
+
+                // Remove loading
+                document.getElementById('loading-spinner')?.remove();
+
+                if (result.success) {
+                    let message = `Bronze NFT #${result.design_number} minted!\n\n` +
+                        `Boost: ×2.0 earning\n` +
+                        `Passive: +50 TAMA/day\n` +
+                        `Price: ${result.price_sol} SOL ($${(result.price_sol * SOL_USD_RATE).toFixed(2)})\n` +
+                        `Theme: ${result.design_theme}\n` +
+                        `Variant: ${result.design_variant}\n\n` +
+                        `💎 Fixed price - always 0.15 SOL!`;
+                    
+                    let explorerLink = null;
+                    if (result.distribution_logged && transactionSignature) {
+                        message += `\n\n💰 SOL Distribution logged!`;
+                        explorerLink = `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`;
+                    }
+                    
+                    showNotification('success', '🎉 Express Mint Success!', message, explorerLink);
+                    
+                    // Reload prices & balance
+                    await loadPricesAndStats();
+                    await loadTAMABalance(); // Update TAMA balance (might have passive income)
+                } else {
+                    showNotification('error', 'Mint Failed', result.error || 'Unknown error occurred');
+                }
+
+            } catch (err) {
+                console.error('❌ Mint Bronze SOL failed:', err);
+                showNotification('error', 'Mint Failed', err.message || 'Failed to mint Bronze NFT (SOL). Please try again.');
+                document.getElementById('loading-spinner')?.remove();
+            }
+        }
+
+        async function mintSOL(tierName) {
+            try {
+                console.log(`💎 Minting ${tierName} NFT...`);
+
+                if (!walletConnected) {
+                    showNotification('warning', 'Wallet Required', 'Please connect your wallet first to mint with SOL!');
+                    return;
+                }
+                
+                // For SOL minting, telegram_id is optional (can create temporary player)
+                // But show info if no telegram_id
+                if (!TELEGRAM_USER_ID || TELEGRAM_USER_ID === 123456789) {
+                    const confirmed = await showConfirmModal(
+                        'Direct Mint (No Game Account)',
+                        'You are minting without a game account.\n\n' +
+                        '✅ NFT will be minted successfully\n' +
+                        '💾 Wallet address will be saved\n' +
+                        '🔗 Later you can link this wallet to your Telegram account via bot\n\n' +
+                        'Continue with mint?'
+                    );
+                    if (!confirmed) {
+                        return;
+                    }
+                }
+
+                // Get current price
+                const { data: tierData, error } = await supabase
+                    .from('nft_bonding_state')
+                    .select('current_price')
+                    .eq('tier_name', tierName)
+                    .single();
+
+                if (error || !tierData) {
+                    showNotification('error', 'Price Error', 'Failed to get current price. Please refresh and try again.');
+                    return;
+                }
+
+                const price = parseFloat(tierData.current_price);
+                const priceUSD = (price * SOL_USD_RATE).toFixed(2);
+
+                const boostMap = {
+                    'Silver': 2.3,
+                    'Gold': 2.7,
+                    'Platinum': 3.5,
+                    'Diamond': 5.0
+                };
+
+                // Custom confirmation modal
+                const confirmed = await showConfirmModal(
+                    `Mint ${tierName} NFT`,
+                    `Mint ${tierName} NFT for ${price} SOL ($${priceUSD})?\n\nYou will get ×${boostMap[tierName]} earning boost!`
+                );
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                // Show loading
+                const spinner = document.createElement('div');
+                spinner.className = 'spinner';
+                spinner.id = 'loading-spinner';
+                document.querySelector('.container').appendChild(spinner);
+
+                // Create and send SOL distribution transaction
+                let transactionSignature = null;
+                try {
+                    transactionSignature = await createAndSendDistributionTransaction(price);
+                    console.log('✅ Distribution transaction completed:', transactionSignature);
+                } catch (distError) {
+                    console.error('⚠️ Distribution transaction failed, but continuing with mint:', distError);
+                    // Continue with mint even if distribution fails (user can manually distribute later)
+                }
+
+                // Call API - use absolute path for GitHub Pages (REST API version)
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'api/mint-nft-sol-rest.php'
+                    : 'https://api.solanatamagotchi.com/api/mint-nft-sol-rest.php';
+                
+                console.log('📡 Calling API:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: (TELEGRAM_USER_ID && TELEGRAM_USER_ID !== 123456789) ? TELEGRAM_USER_ID : null, // Send null if no real telegram_id
+                        wallet_address: walletAddress,
+                        tier_name: tierName,
+                        price_sol: price,
+                        transaction_signature: transactionSignature // ✅ Send transaction signature!
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', response.status, errorText);
+                    throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+                }
+
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('❌ API returned non-JSON:', text.substring(0, 500));
+                    throw new Error(`API returned HTML instead of JSON. Status: ${response.status}. Check server logs.`);
+                }
+
+                const result = await response.json();
+
+                // Remove loading
+                document.getElementById('loading-spinner')?.remove();
+
+                if (result.success) {
+                    let message = `${tierName} NFT #${result.design_number} minted!\n\n` +
+                        `Boost: ×${boostMap[tierName]}\n` +
+                        `Price: ${price} SOL\n` +
+                        `Theme: ${result.design_theme}\n` +
+                        `Variant: ${result.design_variant}`;
+                    
+                    let explorerLink = null;
+                    if (result.distribution_logged && transactionSignature) {
+                        message += `\n\n💰 SOL Distribution logged!`;
+                        explorerLink = `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`;
+                    }
+                    
+                    showNotification('success', `🎉 ${tierName} NFT Minted!`, message, explorerLink);
+                    
+                    // Reload prices and balance (balance might have changed)
+                    await loadPricesAndStats();
+                    await loadTAMABalance(); // Update TAMA balance after mint
+                } else {
+                    showNotification('error', 'Mint Failed', result.error || 'Unknown error occurred');
+                }
+
+            } catch (err) {
+                console.error(`❌ Mint ${tierName} failed:`, err);
+                const errorMsg = err.message || 'Unknown error';
+                showNotification('error', 'Mint Failed', `Failed to mint ${tierName} NFT!\n\n${errorMsg}`);
+                document.getElementById('loading-spinner')?.remove();
+            }
+        }
+
+        // ==============================================
+        // CUSTOM CONFIRMATION MODAL
+        // ==============================================
+        function showConfirmModal(title, message) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirm-modal');
+                const titleEl = document.getElementById('confirm-title');
+                const messageEl = document.getElementById('confirm-message');
+                const okBtn = document.getElementById('confirm-ok');
+                const cancelBtn = document.getElementById('confirm-cancel');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                modal.classList.remove('hidden');
+                
+                const cleanup = () => {
+                    modal.classList.add('hidden');
+                    okBtn.onclick = null;
+                    cancelBtn.onclick = null;
+                    modal.onclick = null;
+                };
+                
+                okBtn.onclick = () => {
+                    cleanup();
+                    resolve(true);
+                };
+                
+                cancelBtn.onclick = () => {
+                    cleanup();
+                    resolve(false);
+                };
+                
+                // Close on background click
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        cleanup();
+                        resolve(false);
+                    }
+                };
+            });
+        }
+
+        // ==============================================
+        // INIT
+        // ==============================================
+        window.addEventListener('load', async () => {
+            console.log('🚀 NFT Mint Page loaded');
+            console.log('👤 Telegram User ID:', TELEGRAM_USER_ID);
+
+            // Restore wallet connection if exists
+            try {
+                const savedWallet = localStorage.getItem('phantom_wallet_address');
+                if (savedWallet && window.solana && window.solana.isPhantom) {
+                    try {
+                        const resp = await window.solana.connect({ onlyIfTrusted: true });
+                        if (resp && resp.publicKey) {
+                            walletAddress = resp.publicKey.toString();
+                            walletConnected = true;
+                            console.log('✅ Wallet auto-connected:', walletAddress);
+                            
+                            // Save wallet address to database on auto-connect
+                            try {
+                                const saveWalletUrl = `${TAMA_API_BASE}/update-wallet`;
+                                const saveWalletResponse = await fetch(saveWalletUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        telegram_id: TELEGRAM_USER_ID,
+                                        wallet_address: walletAddress
+                                    })
+                                });
+                                
+                                if (saveWalletResponse.ok) {
+                                    const saveResult = await saveWalletResponse.json();
+                                    console.log('✅ Wallet address saved to database (auto-connect):', saveResult);
+                                }
+                            } catch (err) {
+                                console.warn('⚠️ Error saving wallet to database (auto-connect):', err);
+                            }
+                            
+                            updateWalletUI();
+                        }
+                    } catch (err) {
+                        console.log('ℹ️ Wallet not auto-connected (user needs to connect manually)');
+                    }
+                }
+            } catch (err) {
+                console.warn('⚠️ Failed to restore wallet:', err);
+            }
+
+            await loadPricesAndStats();
+            await loadTAMABalance(); // 🔥 FIX: Load TAMA balance!
+
+            // Auto-refresh prices every 10 seconds
+            setInterval(loadPricesAndStats, 10000);
+            
+            // Auto-refresh balance every 30 seconds (in case user earned TAMA in game)
+            setInterval(loadTAMABalance, 30000);
+        });
+    </script>
 </body>
 </html>
+
