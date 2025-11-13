@@ -1427,12 +1427,23 @@
                         explorerLink = `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`;
                     }
                     
-                    // ⚠️ NOTE: On-chain minting requires backend API
-                    // Currently NFT is created in database (off-chain)
-                    // For on-chain mint, we need to call backend API with Metaplex SDK
-                    // This will be implemented later when we have NFT images ready
-                    
                     showNotification('success', `🎉 ${tierName} NFT Minted!`, message, explorerLink);
+                    
+                    // 💎 Mint on-chain NFT (async, don't block UI)
+                    if (result.nft_id) {
+                        mintOnChainNFTAsync({
+                            nft_id: result.nft_id,
+                            tier: tierName,
+                            rarity: result.rarity,
+                            multiplier: result.earning_multiplier,
+                            design_number: result.design_number,
+                            telegram_id: TELEGRAM_USER_ID,
+                            wallet_address: walletAddress
+                        }).catch(err => {
+                            console.warn('⚠️ On-chain mint failed (non-critical):', err);
+                            // Don't show error to user - off-chain NFT already works
+                        });
+                    }
                     
                     // Reload prices and balance (balance might have changed)
                     await loadPricesAndStats();
@@ -1449,6 +1460,76 @@
             }
         }
 
+        // ==============================================
+        // ON-CHAIN NFT MINTING
+        // ==============================================
+        async function mintOnChainNFTAsync({ nft_id, tier, rarity, multiplier, design_number, telegram_id, wallet_address }) {
+            try {
+                console.log('💎 Starting on-chain NFT mint...', { nft_id, tier, rarity });
+                
+                // Get NFT image URL
+                const imageUrl = getNFTImageUrl(tier, rarity);
+                
+                // Determine backend URL
+                const onchainApiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3001/api/mint-nft-onchain'
+                    : 'https://api.solanatamagotchi.com/api/mint-nft-onchain';
+                
+                console.log('📡 Calling on-chain mint API:', onchainApiUrl);
+                
+                const response = await fetch(onchainApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nft_id: nft_id,
+                        tier: tier,
+                        rarity: rarity,
+                        multiplier: multiplier,
+                        imageUrl: imageUrl,
+                        telegramId: telegram_id,
+                        walletAddress: wallet_address,
+                        design_number: design_number
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`On-chain mint API error: ${response.status} - ${errorText.substring(0, 200)}`);
+                }
+                
+                const onchainResult = await response.json();
+                
+                if (onchainResult.success) {
+                    console.log('✅ On-chain NFT minted successfully!');
+                    console.log('📍 Mint Address:', onchainResult.mintAddress);
+                    console.log('🔗 Explorer:', onchainResult.explorerUrl);
+                    
+                    // Show success notification
+                    showNotification('success', '🎨 On-Chain NFT Minted!', 
+                        `Your ${tier} NFT is now on Solana blockchain!\n\n` +
+                        `Mint Address: ${onchainResult.mintAddress.substring(0, 8)}...${onchainResult.mintAddress.substring(onchainResult.mintAddress.length - 8)}\n\n` +
+                        `View in Phantom Wallet or Solana Explorer!`,
+                        onchainResult.explorerUrl
+                    );
+                } else {
+                    throw new Error(onchainResult.error || 'On-chain mint failed');
+                }
+                
+            } catch (error) {
+                console.error('❌ On-chain mint error:', error);
+                // Don't throw - off-chain NFT already works
+                // Just log for debugging
+            }
+        }
+        
+        // Helper function to get NFT image URL
+        function getNFTImageUrl(tier, rarity) {
+            // Base URL for NFT images
+            const baseUrl = 'https://solanatamagotchi.com/nft-assets';
+            // Format: /tier/rarity.png (e.g., /bronze/common.png)
+            return `${baseUrl}/${tier.toLowerCase()}/${rarity.toLowerCase()}.png`;
+        }
+        
         // ==============================================
         // CUSTOM CONFIRMATION MODAL
         // ==============================================

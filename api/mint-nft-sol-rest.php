@@ -350,8 +350,10 @@ try {
     
     error_log("✅ $tier_name NFT minted: Design=#$designNumber ($rarity), User=$telegram_id, Price=$price_sol SOL, Multiplier={$earning_multiplier}x");
     
-    echo json_encode([
+    // Prepare response data
+    $responseData = [
         'success' => true,
+        'nft_id' => $nft_id, // ✅ Add nft_id for on-chain minting
         'design_number' => $designNumber,
         'rarity' => $rarity,
         'earning_multiplier' => $earning_multiplier,
@@ -361,7 +363,20 @@ try {
         'minted_count' => $newMinted,
         'max_supply' => $maxSupply,
         'message' => "$tier_name NFT ($rarity) minted successfully!"
-    ]);
+    ];
+    
+    // Try to mint on-chain NFT (async, don't block response)
+    // This will be called by frontend after receiving this response
+    // Or we can do it here, but it might timeout
+    $onchainMintUrl = getenv('ONCHAIN_MINT_URL') ?: 'http://localhost:3001/api/mint-nft-onchain';
+    $imageUrl = getenv('NFT_IMAGE_BASE_URL') ?: 'https://solanatamagotchi.com/nft-assets';
+    $nftImageUrl = $imageUrl . '/' . strtolower($tier_name) . '/' . strtolower($rarity) . '.png';
+    
+    // Log on-chain mint attempt (will be called by frontend)
+    error_log("💡 On-chain mint available: nft_id=$nft_id, imageUrl=$nftImageUrl");
+    error_log("💡 Frontend should call: $onchainMintUrl with nft_id, tier, rarity, multiplier, imageUrl");
+    
+    echo json_encode($responseData);
     
 } catch (Exception $e) {
     error_log("❌ SOL mint error: " . $e->getMessage());

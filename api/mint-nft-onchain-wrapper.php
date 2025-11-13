@@ -26,7 +26,10 @@ try {
     $data = json_decode($json, true);
     
     // Node.js backend URL (can be same Render.com service or different)
-    $nodeBackendUrl = getenv('NODE_BACKEND_URL') ?: 'http://localhost:3001/api/mint-nft-onchain';
+    // For production, use Render.com service URL
+    // For local dev, use localhost
+    $nodeBackendUrl = getenv('NODE_BACKEND_URL') ?: 
+        (getenv('RENDER') ? 'https://solanatamagotchi-onchain.onrender.com/api/mint-nft-onchain' : 'http://localhost:3001/api/mint-nft-onchain');
     
     error_log("🔗 Calling Node.js backend: $nodeBackendUrl");
     
