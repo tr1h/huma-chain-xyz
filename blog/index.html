@@ -273,66 +273,8 @@
         
         <!-- Blog Grid -->
         <div class="blog-grid" id="articles-grid">
-            <!-- Articles will be loaded here -->
-            <div class="blog-card">
-                <span class="category">Guide</span>
-                <h2><a href="/blog/how-to-play-solana-tamagotchi-guide.html">How to Play Solana Tamagotchi: Complete Beginner's Guide 2025</a></h2>
-                <p class="excerpt">Learn everything you need to know to start playing Solana Tamagotchi. Step-by-step tutorial for beginners, earning strategies, and tips to maximize your TAMA rewards.</p>
-                <div class="meta">
-                    <span>📅 Coming Soon</span>
-                    <a href="/blog/how-to-play-solana-tamagotchi-guide.html" class="read-more">Read More →</a>
-                </div>
-            </div>
-            
-            <div class="blog-card">
-                <span class="category">Guide</span>
-                <h2><a href="/blog/how-to-earn-crypto-playing-games.html">How to Earn Crypto Playing Games in 2025: Complete Guide</a></h2>
-                <p class="excerpt">Discover the best Play-to-Earn games, learn how to start earning crypto without investment, and find out which blockchain is best for gaming.</p>
-                <div class="meta">
-                    <span>📅 Coming Soon</span>
-                    <a href="/blog/how-to-earn-crypto-playing-games.html" class="read-more">Read More →</a>
-                </div>
-            </div>
-            
-            <div class="blog-card">
-                <span class="category">Comparison</span>
-                <h2><a href="/blog/solana-vs-ethereum-gaming.html">Solana vs Ethereum for Gaming: Which Blockchain is Better?</a></h2>
-                <p class="excerpt">Compare transaction speed, fees, and ecosystem of Solana and Ethereum for blockchain gaming. Find out which network offers the best experience.</p>
-                <div class="meta">
-                    <span>📅 Coming Soon</span>
-                    <a href="/blog/solana-vs-ethereum-gaming.html" class="read-more">Read More →</a>
-                </div>
-            </div>
-            
-            <div class="blog-card">
-                <span class="category">Guide</span>
-                <h2><a href="/blog/top-10-free-play-to-earn-games-2025.html">Top 10 Free Play-to-Earn Games in 2025 (No Investment Required)</a></h2>
-                <p class="excerpt">Discover the best free Play-to-Earn games where you can start earning crypto without any initial investment. Complete list with reviews and comparisons.</p>
-                <div class="meta">
-                    <span>📅 Coming Soon</span>
-                    <a href="/blog/top-10-free-play-to-earn-games-2025.html" class="read-more">Read More →</a>
-                </div>
-            </div>
-            
-            <div class="blog-card">
-                <span class="category">Guide</span>
-                <h2><a href="/blog/how-to-mint-nft-pets-solana-tamagotchi.html">How to Mint NFT Pets: Complete Guide to Solana Tamagotchi NFTs</a></h2>
-                <p class="excerpt">Learn how to mint NFT pets in Solana Tamagotchi. Understand the 5 tiers (Bronze to Diamond), benefits, and how to maximize your earning boost.</p>
-                <div class="meta">
-                    <span>📅 Coming Soon</span>
-                    <a href="/blog/how-to-mint-nft-pets-solana-tamagotchi.html" class="read-more">Read More →</a>
-                </div>
-            </div>
-            
-            <div class="blog-card">
-                <span class="category">News</span>
-                <h2><a href="/blog/tama-token-explained.html">TAMA Token Explained: Everything You Need to Know</a></h2>
-                <p class="excerpt">Complete guide to TAMA token: tokenomics, distribution, how to earn, and how to withdraw. Everything about the Solana Tamagotchi native token.</p>
-                <div class="meta">
-                    <span>📅 Coming Soon</span>
-                    <a href="/blog/tama-token-explained.html" class="read-more">Read More →</a>
-                </div>
-            </div>
+            <!-- Articles will be loaded dynamically -->
+            <p style="text-align: center; padding: 40px; opacity: 0.7;">Loading articles...</p>
         </div>
         
         <!-- Coming Soon Message -->
@@ -366,49 +308,15 @@
             // Try to load from localStorage first
             const savedArticles = JSON.parse(localStorage.getItem('blog_articles') || '[]');
             
-            // Hardcoded articles (fallback)
+            // Hardcoded articles (fallback) - only published ones
             const hardcodedArticles = [
                 {
                     title: "How to Play Solana Tamagotchi: Complete Beginner's Guide 2025",
                     slug: "how-to-play-solana-tamagotchi-guide",
                     category: "Guide",
                     excerpt: "Learn everything you need to know to start playing Solana Tamagotchi. Step-by-step tutorial for beginners, earning strategies, and tips to maximize your TAMA rewards.",
-                    status: "published"
-                },
-                {
-                    title: "How to Earn Crypto Playing Games in 2025: Complete Guide",
-                    slug: "how-to-earn-crypto-playing-games",
-                    category: "Guide",
-                    excerpt: "Discover the best Play-to-Earn games, learn how to start earning crypto without investment, and find out which blockchain is best for gaming.",
-                    status: "published"
-                },
-                {
-                    title: "Solana vs Ethereum for Gaming: Which Blockchain is Better?",
-                    slug: "solana-vs-ethereum-gaming",
-                    category: "Comparison",
-                    excerpt: "Compare transaction speed, fees, and ecosystem of Solana and Ethereum for blockchain gaming. Find out which network offers the best experience.",
-                    status: "published"
-                },
-                {
-                    title: "Top 10 Free Play-to-Earn Games in 2025 (No Investment Required)",
-                    slug: "top-10-free-play-to-earn-games-2025",
-                    category: "Guide",
-                    excerpt: "Discover the best free Play-to-Earn games where you can start earning crypto without any initial investment. Complete list with reviews and comparisons.",
-                    status: "draft"
-                },
-                {
-                    title: "How to Mint NFT Pets: Complete Guide to Solana Tamagotchi NFTs",
-                    slug: "how-to-mint-nft-pets-solana-tamagotchi",
-                    category: "Guide",
-                    excerpt: "Learn how to mint NFT pets in Solana Tamagotchi. Understand the 5 tiers (Bronze to Diamond), benefits, and how to maximize your earning boost.",
-                    status: "draft"
-                },
-                {
-                    title: "TAMA Token Explained: Everything You Need to Know",
-                    slug: "tama-token-explained",
-                    category: "News",
-                    excerpt: "Complete guide to TAMA token: tokenomics, distribution, how to earn, and how to withdraw. Everything about the Solana Tamagotchi native token.",
-                    status: "draft"
+                    status: "published",
+                    createdAt: "2025-11-13T00:00:00Z"
                 }
             ];
             
@@ -430,17 +338,29 @@
                 return;
             }
             
-            articlesGrid.innerHTML = publishedArticles.map(article => `
+            articlesGrid.innerHTML = publishedArticles.map(article => {
+                const date = article.createdAt ? new Date(article.createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                }) : new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                return `
                 <div class="blog-card">
                     <span class="category">${article.category}</span>
                     <h2><a href="/blog/${article.slug}.html">${article.title}</a></h2>
                     <p class="excerpt">${article.excerpt}</p>
                     <div class="meta">
-                        <span>📅 ${new Date(article.createdAt || Date.now()).toLocaleDateString()}</span>
+                        <span>📅 ${date}</span>
                         <a href="/blog/${article.slug}.html" class="read-more">Read More →</a>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
         
         // Category filtering
