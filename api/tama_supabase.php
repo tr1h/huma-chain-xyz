@@ -2493,15 +2493,117 @@ function handleSendSol($url, $key) {
     try {
         $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
         
-        // Путь к keypair файлу отправителя
-        $fromKeypairPath = __DIR__ . '/../' . $fromKeypairFile;
+        // На Render.com keypairs хранятся в environment variables, не в файлах
+        // load_keypairs.php уже создал файлы из env vars, проверим их сначала
+        
+        // Маппинг keypair файлов к environment variables и путям
+        $keypairPaths = [
+            'payer-keypair.json' => [
+                'env' => 'SOLANA_PAYER_KEYPAIR',
+                'load_keypairs_path' => '/app/payer-keypair.json',
+                'local_path' => __DIR__ . '/../payer-keypair.json'
+            ],
+            'p2e-pool-keypair.json' => [
+                'env' => 'SOLANA_P2E_POOL_KEYPAIR',
+                'load_keypairs_path' => '/app/p2e-pool-keypair.json',
+                'local_path' => __DIR__ . '/../p2e-pool-keypair.json'
+            ],
+            'team-wallet-keypair.json' => [
+                'env' => 'SOLANA_TEAM_KEYPAIR',
+                'load_keypairs_path' => '/app/team-wallet-keypair.json',
+                'local_path' => __DIR__ . '/../team-wallet-keypair.json'
+            ],
+            'marketing-wallet-keypair.json' => [
+                'env' => 'SOLANA_MARKETING_KEYPAIR',
+                'load_keypairs_path' => '/app/marketing-wallet-keypair.json',
+                'local_path' => __DIR__ . '/../marketing-wallet-keypair.json'
+            ],
+            'liquidity-pool-keypair.json' => [
+                'env' => 'SOLANA_LIQUIDITY_KEYPAIR',
+                'load_keypairs_path' => '/app/liquidity-pool-keypair.json',
+                'local_path' => __DIR__ . '/../liquidity-pool-keypair.json'
+            ],
+            'treasury-main-v2-keypair.json' => [
+                'env' => 'SOLANA_TREASURY_MAIN_KEYPAIR',
+                'load_keypairs_path' => '/app/treasury-main-v2-keypair.json',
+                'local_path' => __DIR__ . '/../treasury-main-v2-keypair.json'
+            ],
+            'treasury-liquidity-v2-keypair.json' => [
+                'env' => 'SOLANA_TREASURY_LIQUIDITY_KEYPAIR',
+                'load_keypairs_path' => '/app/treasury-liquidity-v2-keypair.json',
+                'local_path' => __DIR__ . '/../treasury-liquidity-v2-keypair.json'
+            ],
+            'treasury-team-v2-keypair.json' => [
+                'env' => 'SOLANA_TREASURY_TEAM_KEYPAIR',
+                'load_keypairs_path' => '/app/treasury-team-v2-keypair.json',
+                'local_path' => __DIR__ . '/../treasury-team-v2-keypair.json'
+            ]
+        ];
+        
+        $keypairInfo = $keypairPaths[$fromKeypairFile] ?? null;
+        $fromKeypairPath = null;
+        
+        if ($keypairInfo) {
+            // 1. Проверить файл, созданный load_keypairs.php (для Railway/Render)
+            if (file_exists($keypairInfo['load_keypairs_path'])) {
+                $fromKeypairPath = $keypairInfo['load_keypairs_path'];
+                error_log("✅ Found keypair file from load_keypairs.php: " . $fromKeypairPath);
+            }
+            // 2. Проверить локальный файл
+            elseif (file_exists($keypairInfo['local_path'])) {
+                $fromKeypairPath = $keypairInfo['local_path'];
+                error_log("✅ Found local keypair file: " . $fromKeypairPath);
+            }
+            // 3. Попробовать создать из env var (если load_keypairs.php еще не отработал)
+            else {
+                $envVar = $keypairInfo['env'];
+                $keypairJson = getenv($envVar) ?: ($_ENV[$envVar] ?? null);
+                if ($keypairJson) {
+                    error_log("✅ Found keypair in environment variable: $envVar");
+                    // Проверить формат - должен быть JSON массив для solana CLI
+                    if (strpos($keypairJson, '[') === 0 && json_decode($keypairJson) !== null) {
+                        // Это JSON массив - создать временный файл
+                        $tempDir = sys_get_temp_dir();
+                        $fromKeypairPath = $tempDir . '/' . $fromKeypairFile;
+                        file_put_contents($fromKeypairPath, $keypairJson);
+                        chmod($fromKeypairPath, 0400); // Read-only for security
+                        error_log("✅ Created temporary keypair file from env var: " . $fromKeypairPath);
+                    } else {
+                        // Это base58 или другой формат - solana CLI требует JSON массив
+                        error_log("⚠️ Keypair in env var is not JSON array format (base58?), cannot use for solana CLI");
+                        http_response_code(500);
+                        echo json_encode([
+                            'error' => 'Keypair format not supported for SOL transfer',
+                            'details' => 'SOL transfer requires JSON array format. The keypair in ' . $envVar . ' appears to be base58 format. Please convert to JSON array format or use a keypair file.',
+                            'env_var' => $envVar,
+                            'file' => $fromKeypairFile,
+                            'hint' => 'For Node.js (base58): Use SOLANA_PAYER_KEYPAIR with base58. For PHP/solana CLI (JSON array): Use keypair file or JSON array in env var.'
+                        ]);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // 4. Fallback: проверить стандартный путь
+        if (!$fromKeypairPath || !file_exists($fromKeypairPath)) {
+            $fromKeypairPath = __DIR__ . '/../' . $fromKeypairFile;
+        }
         
         if (!file_exists($fromKeypairPath)) {
             http_response_code(500);
+            $envVar = $keypairInfo['env'] ?? 'N/A';
+            error_log("❌ Keypair not found: file=$fromKeypairFile, tried paths: " . json_encode([
+                'load_keypairs' => $keypairInfo['load_keypairs_path'] ?? 'N/A',
+                'local' => $keypairInfo['local_path'] ?? 'N/A',
+                'fallback' => $fromKeypairPath,
+                'env_var' => $envVar
+            ]));
             echo json_encode([
                 'error' => 'From keypair not found',
-                'path' => $fromKeypairPath,
-                'file' => $fromKeypairFile
+                'file' => $fromKeypairFile,
+                'env_var' => $envVar,
+                'hint' => 'On Render.com, keypairs are stored in environment variables. Please set ' . $envVar . ' environment variable with JSON array format (not base58).'
             ]);
             return;
         }
