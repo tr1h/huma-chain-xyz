@@ -279,6 +279,16 @@
             color: #fff;
         }
 
+        .type-nft-tama {
+            background: #ec4899;
+            color: #fff;
+        }
+
+        .type-nft-sol {
+            background: #f59e0b;
+            color: #fff;
+        }
+
         .amount-positive {
             color: #10b981;
             font-weight: bold;
@@ -477,6 +487,10 @@
                 <div class="stat-value" id="total-spent">0 TAMA</div>
             </div>
             <div class="stat-card">
+                <div class="stat-label">NFT Mints</div>
+                <div class="stat-value" id="nft-mints">0</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-label">Net Flow</div>
                 <div class="stat-value" id="net-flow">0 TAMA</div>
             </div>
@@ -497,6 +511,7 @@
                     <option value="">All Types</option>
                     <option value="earn">Earn</option>
                     <option value="spend">Spend</option>
+                    <option value="nft">NFT Mint</option>
                     <option value="level_up">Level Up</option>
                     <option value="quest">Quest</option>
                     <option value="referral">Referral</option>
@@ -651,11 +666,20 @@
                         totalCount = payload.count;
                     }
                 }
-                console.log(`✅ Loaded page ${currentPage}: ${allTransactions.length} transactions (Total: ~${totalCount})`);
+                console.log(`✅ Loaded page ${currentPage}: ${allTransactions.length} TAMA transactions (Total: ~${totalCount})`);
                 
                 // Load users data (only on full load, not on updates)
                 if (!updateOnly) {
                     await loadUsersData();
+                    
+                    // Load and merge NFT mints
+                    const nftMints = await loadNFTMints();
+                    if (nftMints && nftMints.length > 0) {
+                        console.log(`✅ Merging ${nftMints.length} NFT mints with TAMA transactions`);
+                        allTransactions = [...allTransactions, ...nftMints];
+                        // Sort by date descending
+                        allTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    }
                 }
                 
                 updateStats();
@@ -691,6 +715,52 @@
             }
         }
 
+        async function loadNFTMints() {
+            try {
+                // Load NFT mints directly from user_nfts table
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*&order=minted_at.desc&limit=1000`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    const nftMints = await response.json();
+                    console.log('✅ Loaded NFT mints:', nftMints.length);
+                    
+                    // Convert NFT mints to transaction format
+                    return nftMints.map(nft => {
+                        const paymentType = nft.payment_type || (nft.purchase_price_tama > 0 ? 'TAMA' : 'SOL');
+                        const amount = paymentType === 'TAMA' ? nft.purchase_price_tama : nft.price_paid_sol;
+                        
+                        return {
+                            created_at: nft.minted_at,
+                            user_id: String(nft.telegram_id),
+                            username: allUsers[nft.telegram_id]?.telegram_username || '',
+                            type: `nft_mint_${paymentType.toLowerCase()}`,
+                            amount: amount || 0,
+                            balance_after: 0, // Not applicable for NFT mints
+                            balance_before: 0,
+                            metadata: {
+                                tier_name: nft.tier_name,
+                                rarity: nft.rarity,
+                                earning_multiplier: nft.earning_multiplier,
+                                nft_mint_address: nft.nft_mint_address,
+                                payment_type: paymentType,
+                                price_sol: nft.price_paid_sol,
+                                price_usd: nft.price_paid_usd,
+                                nft_id: nft.id
+                            }
+                        };
+                    });
+                }
+            } catch (error) {
+                console.error('⚠️ Error loading NFT mints:', error);
+            }
+            return [];
+        }
+
         function updateStats() {
             // Ensure allTransactions is always an array
             if (!Array.isArray(allTransactions)) {
@@ -706,12 +776,14 @@
                 .filter(t => t.type.startsWith('spend') || t.type === 'nft_mint' || t.type === 'nft_mint_sol' || t.type === 'nft_mint_onchain' || t.type.startsWith('burn'))
                 .reduce((sum, t) => sum + (t.amount || 0), 0);
 
+            const nftMintCount = allTransactions.filter(t => t.type.includes('nft_mint')).length;
             const uniqueUsers = new Set(allTransactions.map(t => t.user_id)).size;
 
             // Show total count from database, not just current page
             document.getElementById('total-transactions').textContent = totalCount.toLocaleString();
             document.getElementById('total-earned').textContent = Math.round(totalEarned).toLocaleString() + ' TAMA';
             document.getElementById('total-spent').textContent = Math.round(totalSpent).toLocaleString() + ' TAMA';
+            document.getElementById('nft-mints').textContent = nftMintCount.toLocaleString();
             document.getElementById('net-flow').textContent = Math.round(totalEarned - totalSpent).toLocaleString() + ' TAMA';
             document.getElementById('active-users').textContent = uniqueUsers;
             
@@ -737,8 +809,9 @@
                 const isSOL = t.type.includes('_sol') || (t.metadata && typeof t.metadata === 'string' && t.metadata.includes('"payment_method":"SOL"'));
                 
                 const typeClass = t.type.startsWith('earn') ? 'type-earn' : 
+                                 t.type === 'nft_mint_tama' ? 'type-nft-tama' :
+                                 t.type === 'nft_mint_sol' ? 'type-nft-sol' :
                                  t.type === 'nft_mint' ? 'type-spend' :
-                                 t.type === 'nft_mint_sol' ? 'type-sol' :
                                  t.type === 'nft_mint_onchain' ? 'type-spend' : // On-chain mint
                                  t.type.startsWith('burn') ? 'type-burn' :
                                  t.type === 'treasury_income_from_nft' ? 'type-treasury' :
@@ -758,7 +831,13 @@
                 const amountPrefix = isBurn ? '🔥 ' : (isEarn ? '+' : '-');
                 const currency = isSOL ? ' SOL' : ' TAMA';
                 
-                const metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
+                // Format metadata: NFT mints show tier, rarity, boost
+                let metadata = '';
+                if (t.type.includes('nft_mint') && t.metadata && typeof t.metadata === 'object') {
+                    metadata = `${t.metadata.tier_name || ''} ${t.metadata.rarity || ''} (${t.metadata.earning_multiplier || 1}x)`;
+                } else {
+                    metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
+                }
                 const username = t.username || t.user_id;
                 
                 return `
@@ -887,7 +966,10 @@
                 if (userFilter && !t.user_id.toLowerCase().includes(userFilter) && !(t.username || '').toLowerCase().includes(userFilter)) {
                     return false;
                 }
-                if (typeFilter && !t.type.includes(typeFilter)) {
+                // Handle NFT filter separately
+                if (typeFilter === 'nft' && !t.type.includes('nft_mint')) {
+                    return false;
+                } else if (typeFilter && typeFilter !== 'nft' && !t.type.includes(typeFilter)) {
                     return false;
                 }
                 if (dateFrom && new Date(t.created_at) < new Date(dateFrom)) {
