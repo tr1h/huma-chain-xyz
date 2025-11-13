@@ -1331,7 +1331,7 @@ def send_referral(message):
         pending_count = 0
     
     # Create super short beautiful referral link with preview (using query parameters for GitHub Pages)
-    short_link = f"https://tr1h.github.io/solana-tamagotchi/s.html?ref={ref_code}&v=30"
+    short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}&v=30"
     
     text = f"""
 🔗 <b>Your Personal Referral Link:</b>
@@ -1429,7 +1429,7 @@ def send_group_welcome(message):
 🚀 <b>Get Started (Pre-Launch):</b>
 <b>Get referral link:</b> Message @{BOT_USERNAME}
 <b>Start earning TAMA:</b> Share your referral link now!
-<b>Join waitlist:</b> <a href="https://tr1h.github.io/solana-tamagotchi/?v=6">Landing Page</a>
+<b>Website:</b> <a href="https://solanatamagotchi.com">solanatamagotchi.com</a>
 <b>Use /help</b> for bot commands
 
 💰 <b>Earn TAMA Tokens:</b>
@@ -1467,7 +1467,7 @@ Use `/leaderboard` in the bot to see top referrers!
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("🤖 Message Bot", url=f"https://t.me/{BOT_USERNAME}"),
-        types.InlineKeyboardButton("📋 Join Waitlist", url="https://tr1h.github.io/solana-tamagotchi/?v=6")
+            types.InlineKeyboardButton("🌐 Website", url="https://solanatamagotchi.com")
     )
     keyboard.row(
         types.InlineKeyboardButton("🏅 Leaderboard", callback_data="leaderboard"),
@@ -1500,7 +1500,7 @@ def send_game(message):
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("🤖 Get Referral Link", url=f"https://t.me/{BOT_USERNAME}"),
-        types.InlineKeyboardButton("📋 Join Waitlist", url="https://tr1h.github.io/solana-tamagotchi/?v=6")
+            types.InlineKeyboardButton("🌐 Website", url="https://solanatamagotchi.com")
     )
     
     bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
@@ -1526,7 +1526,7 @@ def send_mint(message):
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("🤖 Get Referral Link", url=f"https://t.me/{BOT_USERNAME}"),
-        types.InlineKeyboardButton("📋 Join Waitlist", url="https://tr1h.github.io/solana-tamagotchi/?v=6")
+            types.InlineKeyboardButton("🌐 Website", url="https://solanatamagotchi.com")
     )
     
     bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
@@ -1683,13 +1683,13 @@ def send_top_players(message):
                 types.InlineKeyboardButton("📲 Open in Telegram", url=f"https://t.me/{BOT_USERNAME}?start=play")
             )
             keyboard.row(
-                types.InlineKeyboardButton("🌐 Open Web", url="https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html")
+                types.InlineKeyboardButton("🌐 Open Web", url="https://solanatamagotchi.com/tamagotchi-game.html")
             )
         else:
             # In private: WebApp + web URL
             # Play Game shown via bottom menu button; omit duplicate inline button
             keyboard.row(
-                types.InlineKeyboardButton("🌐 Open Web", url="https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html")
+                types.InlineKeyboardButton("🌐 Open Web", url="https://solanatamagotchi.com/tamagotchi-game.html")
             )
         
         bot.reply_to(message, text, parse_mode='HTML', reply_markup=keyboard)
@@ -2661,56 +2661,96 @@ def show_quests(message):
 # Welcome new members
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new_member(message):
-    for new_member in message.new_chat_members:
-        welcome_text = f"""🎮 Welcome to Solana Tamagotchi Community, {new_member.first_name}!
+    """Welcome new members to the group"""
+    try:
+        # Skip if bot itself joined
+        for new_member in message.new_chat_members:
+            if new_member.id == bot.get_me().id:
+                print(f"✅ Bot joined group {message.chat.id}")
+                continue
+            
+            # Skip if it's not a group/supergroup
+            if message.chat.type not in ['group', 'supergroup']:
+                continue
+            
+            # Get user's first name (escape for HTML)
+            first_name = new_member.first_name or "Friend"
+            username = f"@{new_member.username}" if new_member.username else first_name
+            
+            welcome_text = f"""🎮 <b>Welcome to Solana Tamagotchi Community, {first_name}!</b> 👋
 
-🐾 What's this about?
-<b>Play-to-Earn NFT pet game</b> on Solana blockchain <i>(Coming Soon!)</i>
-<b>Mint unique pets</b> and earn TAMA tokens <i>(Pre-launch)</i>
-<b>Multi-level referral system</b> (1,000+500 TAMA per friend!)
-<b>Daily rewards & achievements</b> <i>(Coming Soon)</i>
-<b>Community-driven gameplay</b>
+🐾 <b>What's this about?</b>
+• <b>Play-to-Earn NFT pet game</b> on Solana blockchain
+• <b>Mint unique pets</b> and earn TAMA tokens
+• <b>5 NFT tiers</b> (Bronze → Diamond) with earning boosts
+• <b>Multi-level referral system</b> (1,000+500 TAMA per friend!)
+• <b>Daily rewards & achievements</b>
+• <b>100% Free to Play</b> - No investment required!
 
-🚀 Get Started (Pre-Launch):
-<b>Get referral link:</b> Message @{BOT_USERNAME}
-<b>Start earning TAMA:</b> Share your referral link now!
-<b>Join waitlist:</b> <a href="https://tr1h.github.io/solana-tamagotchi/?v=6">Landing Page</a>
-<b>Use /help</b> for bot commands
+🚀 <b>Get Started:</b>
+1️⃣ Message <b>@{BOT_USERNAME}</b> and click <b>/start</b>
+2️⃣ Play the game and earn TAMA tokens
+3️⃣ Mint NFT pets for 2-5x earning boost
+4️⃣ Invite friends and earn referral rewards!
 
-💰 Earn TAMA Tokens:
-<b>1,000 TAMA</b> for each friend you refer
-<b>500 TAMA</b> for Level 2 referrals
-<b>Milestone bonuses</b> up to 100,000 TAMA!
+💰 <b>Earn TAMA Tokens:</b>
+• <b>Daily Login:</b> +25 TAMA
+• <b>Feed/Play/Train:</b> +5 to +15 TAMA
+• <b>Level Up:</b> +50 TAMA
+• <b>Referrals:</b> +1,000 TAMA per friend
+• <b>NFT Boost:</b> Up to 5x multiplier!
 
-📢 Stay Updated:
-<b>Twitter:</b> @GotchiGame
-<b>News:</b> @gotchigamechat
-<b>Bot:</b> @{BOT_USERNAME}
-<b>Community:</b> This group!
+🎨 <b>Mint NFT Pets:</b>
+• 🥉 <b>Bronze:</b> 5,000 TAMA or 0.15 SOL (2.0x boost)
+• 🥈 <b>Silver:</b> 1 SOL (2.3x boost)
+• 🥇 <b>Gold:</b> 3 SOL (2.7x boost)
+• 💎 <b>Platinum:</b> 10 SOL (3.5x boost)
+• 🔷 <b>Diamond:</b> 50 SOL (5.0x boost!)
 
-🚀 Coming Soon:
-<b>Game Launch:</b> Coming Soon
-<b>NFT Minting:</b> After game launch
+📢 <b>Stay Updated:</b>
+• <b>Website:</b> <a href="https://solanatamagotchi.com">solanatamagotchi.com</a>
+• <b>Twitter:</b> @GotchiGame
+• <b>Bot:</b> @{BOT_USERNAME}
+• <b>Community:</b> This group!
 
-Let's build the biggest Tamagotchi community on Solana! ⭐
+📋 <b>Useful Commands:</b>
+• <b>/start</b> - Start playing
+• <b>/help</b> - Bot commands
+• <b>/leaderboard</b> - Top players
+• <b>/code</b> - Get referral link
 
-<i>Start earning TAMA today - no wallet needed to begin!</i> 🚀"""
-        
-        # Create welcome keyboard
-        keyboard = types.InlineKeyboardMarkup()
-        keyboard.row(
-            types.InlineKeyboardButton("🤖 Message Bot", url=f"https://t.me/{BOT_USERNAME}"),
-            types.InlineKeyboardButton("📋 Join Waitlist", url="https://tr1h.github.io/solana-tamagotchi/?v=6")
-        )
-        keyboard.row(
-            types.InlineKeyboardButton("🏅 Leaderboard", callback_data="leaderboard"),
-            types.InlineKeyboardButton("📊 My Stats", callback_data="my_stats")
-        )
-        keyboard.row(
-            types.InlineKeyboardButton("🔗 Get Referral Link", callback_data="get_referral")
-        )
-        
-        bot.send_message(message.chat.id, welcome_text, parse_mode='HTML', reply_markup=keyboard)
+<i>Let's build the biggest Tamagotchi community on Solana! ⭐</i>
+
+<i>Start earning TAMA today - no wallet needed to begin! 🚀</i>"""
+            
+            # Create welcome keyboard
+            keyboard = types.InlineKeyboardMarkup()
+            keyboard.row(
+                types.InlineKeyboardButton("🎮 Play Game", url=f"https://t.me/{BOT_USERNAME}?start=play"),
+                types.InlineKeyboardButton("💎 Mint NFT", url="https://solanatamagotchi.com/mint.html")
+            )
+            keyboard.row(
+                types.InlineKeyboardButton("🌐 Website", url="https://solanatamagotchi.com"),
+                types.InlineKeyboardButton("📚 Blog", url="https://solanatamagotchi.com/blog/")
+            )
+            keyboard.row(
+                types.InlineKeyboardButton("🤖 Message Bot", url=f"https://t.me/{BOT_USERNAME}")
+            )
+            
+            # Send welcome message
+            bot.send_message(
+                message.chat.id, 
+                welcome_text, 
+                parse_mode='HTML', 
+                reply_markup=keyboard,
+                disable_web_page_preview=False
+            )
+            
+            print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
+            
+    except Exception as e:
+        print(f"❌ Error welcoming new member: {e}")
+        logging.error(f"Error in welcome_new_member: {e}", exc_info=True)
 
 # Daily stats post
 def post_daily_stats():
@@ -3039,7 +3079,7 @@ def handle_callback(call):
         
         # Generate referral code
         ref_code = generate_referral_code(telegram_id)
-        short_link = f"https://tr1h.github.io/solana-tamagotchi/s.html?ref={ref_code}&v=30"
+        short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}&v=30"
         
         # Get referral stats
         try:
@@ -3911,7 +3951,7 @@ Please try again later!
     
     elif call.data.startswith("qr_"):
         ref_code = call.data[3:]
-        short_link = f"https://tr1h.github.io/solana-tamagotchi/s.html?ref={ref_code}&v=30"
+        short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}&v=30"
         
         # Generate QR code
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
