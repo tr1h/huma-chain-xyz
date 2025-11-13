@@ -700,20 +700,20 @@
             <h2 class="section-title">📊 LIVE STATS</h2>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-number" id="landing-players">0</div>
-                    <div class="stat-label">Players Online</div>
+                    <div class="stat-number" id="landing-total-players">Loading...</div>
+                    <div class="stat-label">Total Players</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">5</div>
-                    <div class="stat-label">Pet Types</div>
+                    <div class="stat-number" id="landing-nfts-minted">Loading...</div>
+                    <div class="stat-label">NFTs Minted</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">15+</div>
-                    <div class="stat-label">Achievements</div>
+                    <div class="stat-number" id="landing-tama-distributed">Loading...</div>
+                    <div class="stat-label">TAMA Distributed</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">0.1</div>
-                    <div class="stat-label">SOL to Start</div>
+                    <div class="stat-number" id="landing-active-wallets">Loading...</div>
+                    <div class="stat-label">Active Wallets</div>
                 </div>
             </div>
         </section>
@@ -1490,9 +1490,112 @@
             }
         }
         
+        // ==============================================
+        // LOAD LIVE STATS
+        // ==============================================
+        async function loadLiveStats() {
+            try {
+                // Supabase configuration
+                const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+                
+                console.log('📊 Loading LIVE STATS...');
+                
+                // 1. Total Players (from leaderboard)
+                const playersResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=telegram_id`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const players = await playersResponse.json();
+                const totalPlayers = players?.length || 0;
+                
+                // 2. NFTs Minted (from user_nfts where is_active = true)
+                const nftsResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=id&is_active=eq.true`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const nfts = await nftsResponse.json();
+                const nftsMinted = nfts?.length || 0;
+                
+                // 3. Total TAMA Distributed (from transactions - SUM of positive amounts)
+                const transactionsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&amount=gt.0`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const transactions = await transactionsResponse.json();
+                const totalTAMA = transactions?.reduce((sum, t) => sum + (parseInt(t.amount) || 0), 0) || 0;
+                
+                // 4. Active Wallets (unique wallet_address from leaderboard where wallet_address is not null)
+                const walletsResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=wallet_address&wallet_address=not.is.null`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const wallets = await walletsResponse.json();
+                const uniqueWallets = new Set(wallets?.map(w => w.wallet_address).filter(Boolean) || []).size;
+                
+                // Update UI
+                const updateElement = (id, value, format = 'number') => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        if (format === 'number') {
+                            el.textContent = value.toLocaleString();
+                        } else if (format === 'tama') {
+                            // Format TAMA: 1.2M, 500K, etc.
+                            if (value >= 1000000) {
+                                el.textContent = (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                el.textContent = (value / 1000).toFixed(1) + 'K';
+                            } else {
+                                el.textContent = value.toLocaleString();
+                            }
+                        } else {
+                            el.textContent = value;
+                        }
+                    }
+                };
+                
+                updateElement('landing-total-players', totalPlayers);
+                updateElement('landing-nfts-minted', nftsMinted);
+                updateElement('landing-tama-distributed', totalTAMA, 'tama');
+                updateElement('landing-active-wallets', uniqueWallets);
+                
+                console.log('✅ LIVE STATS loaded:', {
+                    players: totalPlayers,
+                    nfts: nftsMinted,
+                    tama: totalTAMA,
+                    wallets: uniqueWallets
+                });
+                
+            } catch (error) {
+                console.error('❌ Error loading LIVE STATS:', error);
+                // Show fallback values
+                const updateElement = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                };
+                updateElement('landing-total-players', '0');
+                updateElement('landing-nfts-minted', '0');
+                updateElement('landing-tama-distributed', '0');
+                updateElement('landing-active-wallets', '0');
+            }
+        }
+        
         // Add event listener for TAMA history button and hover
         document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ Page loaded - using stub modules');
+            
+            // Load LIVE STATS
+            loadLiveStats();
+            // Refresh every 30 seconds
+            setInterval(loadLiveStats, 30000);
             
             // Hide loading screen after a short delay
             setTimeout(() => {
