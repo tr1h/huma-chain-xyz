@@ -1473,24 +1473,37 @@
 
                 console.log('✅ Loaded tier stats:', tiers);
                 
-                // Transform data to match expected format
+                // Filter and transform data to match expected format
+                // Filter out Bronze_SOL (we only show Bronze TAMA in UI)
+                const filteredTiers = tiers.filter(tier => {
+                    // Only show standard tiers: Bronze (TAMA), Silver, Gold, Platinum, Diamond
+                    const standardTiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+                    // For Bronze, only show TAMA payment type (exclude Bronze_SOL)
+                    if (tier.tier_name === 'Bronze' || tier.tier_name === 'Bronze_SOL') {
+                        return tier.payment_type === 'TAMA' && tier.tier_name === 'Bronze';
+                    }
+                    return standardTiers.includes(tier.tier_name);
+                });
+                
                 const data = {
                     success: true,
-                    tiers: tiers.map(tier => {
+                    tiers: filteredTiers.map(tier => {
+                        // Normalize tier name (Bronze_SOL -> Bronze)
+                        const normalizedTierName = tier.tier_name.replace('_SOL', '');
                         const next_price = parseFloat(tier.current_price) + parseFloat(tier.increment_per_mint || 0);
                         const available = tier.max_supply - tier.minted_count;
                         const minted_percentage = (tier.minted_count / tier.max_supply * 100);
                         
                         // Calculate earning multiplier
                         let earning_multiplier = 2.0;
-                        if (tier.tier_name === 'Bronze') earning_multiplier = 2.0;
-                        else if (tier.tier_name === 'Silver') earning_multiplier = 2.3;
-                        else if (tier.tier_name === 'Gold') earning_multiplier = 2.7;
-                        else if (tier.tier_name === 'Platinum') earning_multiplier = 3.5;
-                        else if (tier.tier_name === 'Diamond') earning_multiplier = 5.0;
+                        if (normalizedTierName === 'Bronze') earning_multiplier = 2.0;
+                        else if (normalizedTierName === 'Silver') earning_multiplier = 2.3;
+                        else if (normalizedTierName === 'Gold') earning_multiplier = 2.7;
+                        else if (normalizedTierName === 'Platinum') earning_multiplier = 3.5;
+                        else if (normalizedTierName === 'Diamond') earning_multiplier = 5.0;
                         
                         return {
-                            tier_name: tier.tier_name,
+                            tier_name: normalizedTierName,
                             payment_type: tier.payment_type,
                             current_price: parseFloat(tier.current_price),
                             next_price: next_price,
