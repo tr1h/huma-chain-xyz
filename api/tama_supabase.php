@@ -263,11 +263,12 @@ switch ($path) {
         break;
         
     case '/send-sol':
+        error_log("✅ /send-sol endpoint called, method=$method");
         if ($method === 'POST') {
             handleSendSol($supabaseUrl, $supabaseKey);
         } else {
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode(['error' => 'Method not allowed', 'method' => $method, 'expected' => 'POST']);
         }
         break;
         
@@ -2468,7 +2469,9 @@ function handleSend($url, $key) {
  * Использует solana transfer CLI
  */
 function handleSendSol($url, $key) {
+    error_log("🚀 handleSendSol() called");
     $input = json_decode(file_get_contents('php://input'), true);
+    error_log("📦 handleSendSol() input: " . json_encode($input));
     
     $fromWallet = $input['from_wallet'] ?? null;
     $fromKeypairFile = $input['from_keypair_file'] ?? null;
