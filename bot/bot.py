@@ -4524,7 +4524,7 @@ if __name__ == '__main__':
     
     # Keep-Alive function (prevents Render Free tier from sleeping)
     def keep_alive_ping():
-        """Ping bot and API every 5 minutes to prevent sleep"""
+        """Ping bot, API, and Node.js on-chain service every 5 minutes to prevent sleep"""
         while True:
             try:
                 time.sleep(300)  # 5 minutes
@@ -4551,6 +4551,17 @@ if __name__ == '__main__':
                         print(f"⚠️ Keep-Alive: API ping returned {api_response.status_code}")
                 except Exception as e:
                     print(f"❌ Keep-Alive: API ping failed: {e}")
+                
+                # Ping Node.js on-chain minting service health endpoint
+                try:
+                    onchain_url = "https://solanatamagotchi-onchain.onrender.com/health"
+                    onchain_response = requests.get(onchain_url, timeout=10)
+                    if onchain_response.status_code == 200:
+                        print(f"✅ Keep-Alive: On-Chain Service pinged successfully")
+                    else:
+                        print(f"⚠️ Keep-Alive: On-Chain Service ping returned {onchain_response.status_code}")
+                except Exception as e:
+                    print(f"❌ Keep-Alive: On-Chain Service ping failed: {e}")
                     
             except Exception as e:
                 print(f"❌ Keep-Alive thread error: {e}")

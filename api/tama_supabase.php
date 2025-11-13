@@ -262,6 +262,15 @@ switch ($path) {
         }
         break;
         
+    case '/send-sol':
+        if ($method === 'POST') {
+            handleSendSol($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     case '/economy/apply':
         if ($method === 'POST') {
             handleEconomyApply($supabaseUrl, $supabaseKey);
@@ -285,12 +294,13 @@ switch ($path) {
         ob_clean();
         header('Content-Type: application/json');
         http_response_code(404);
+        error_log("❌ Endpoint not found: path=$path, method=$method, REQUEST_URI=" . ($_SERVER['REQUEST_URI'] ?? 'N/A'));
         echo json_encode([
             'success' => false,
             'error' => 'Endpoint not found',
             'path' => $path,
             'method' => $method,
-            'available_endpoints' => ['/balance', '/add', '/spend', '/mint-nft', '/stats', '/leaderboard', '/update-wallet', '/test']
+            'available_endpoints' => ['/balance', '/add', '/spend', '/mint-nft', '/stats', '/leaderboard', '/update-wallet', '/test', '/send', '/send-sol', '/distribute', '/mint']
         ]);
         exit();
 }
@@ -2443,6 +2453,221 @@ function handleSend($url, $key) {
             'from_wallet' => $fromWallet,
             'to_wallet' => $toWallet,
             'amount' => $amount,
+            'signature' => $signature,
+            'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Отправить SOL с кошелька на другой адрес
+ * Использует solana transfer CLI
+ */
+function handleSendSol($url, $key) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $fromWallet = $input['from_wallet'] ?? null;
+    $fromKeypairFile = $input['from_keypair_file'] ?? null;
+    $toWallet = $input['to_wallet'] ?? null;
+    $amount = $input['amount'] ?? null; // Amount in SOL (not lamports)
+    
+    if (!$fromWallet || !$fromKeypairFile || !$toWallet || !$amount) {
+        http_response_code(400);
+        echo json_encode(['error' => 'from_wallet, from_keypair_file, to_wallet, and amount are required']);
+        return;
+    }
+    
+    if ($amount < 0.0001) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Amount must be at least 0.0001 SOL']);
+        return;
+    }
+    
+    try {
+        $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
+        
+        // Путь к keypair файлу отправителя
+        $fromKeypairPath = __DIR__ . '/../' . $fromKeypairFile;
+        
+        if (!file_exists($fromKeypairPath)) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'From keypair not found',
+                'path' => $fromKeypairPath,
+                'file' => $fromKeypairFile
+            ]);
+            return;
+        }
+        
+        // Проверить, установлен ли solana CLI
+        $solanaCheck = shell_exec('solana --version 2>&1');
+        if (strpos($solanaCheck, 'solana-cli') === false) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Solana CLI not found',
+                'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools'
+            ]);
+            return;
+        }
+        
+        // Выполнить solana transfer
+        // solana transfer принимает amount в SOL (автоматически конвертирует в lamports)
+        $cmd = [
+            'solana',
+            'transfer',
+            $toWallet,
+            (string)$amount,  // Amount in SOL
+            '--from', $fromKeypairPath,
+            '--url', $rpcUrl,
+            '--output', 'json',
+            '--fee-payer', $fromKeypairPath  // Fee payer is the same as sender
+        ];
+        
+        $descriptorspec = [
+            0 => ['pipe', 'r'],  // stdin
+            1 => ['pipe', 'w'],  // stdout
+            2 => ['pipe', 'w']   // stderr
+        ];
+        
+        // Форматируем команду для Windows
+        $cmdString = '';
+        foreach ($cmd as $arg) {
+            if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0 || strpos($arg, '.json') !== false) {
+                $cmdString .= escapeshellarg($arg) . ' ';
+            } else {
+                $cmdString .= $arg . ' ';
+            }
+        }
+        $cmdString = trim($cmdString);
+        
+        // Увеличиваем время выполнения
+        set_time_limit(120);
+        
+        $process = proc_open($cmdString, $descriptorspec, $pipes);
+        
+        if (!is_resource($process)) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Failed to start solana transfer process',
+                'command' => $cmdString
+            ]);
+            return;
+        }
+        
+        fclose($pipes[0]);
+        
+        // Читаем вывод с таймаутом
+        $stdout = '';
+        $stderr = '';
+        $startTime = time();
+        $timeout = 90;
+        
+        while (true) {
+            $status = proc_get_status($process);
+            
+            if ($status === false) {
+                break;
+            }
+            
+            if ($status['running'] === false) {
+                // Процесс завершился, читаем оставшиеся данные
+                $stdout .= stream_get_contents($pipes[1]);
+                $stderr .= stream_get_contents($pipes[2]);
+                break;
+            }
+            
+            // Проверяем таймаут
+            if (time() - $startTime > $timeout) {
+                proc_terminate($process);
+                proc_close($process);
+                http_response_code(500);
+                echo json_encode([
+                    'error' => 'Transaction timeout',
+                    'timeout' => $timeout
+                ]);
+                return;
+            }
+            
+            // Неблокирующее чтение
+            $read = [$pipes[1], $pipes[2]];
+            $write = null;
+            $except = null;
+            $changed = stream_select($read, $write, $except, 1);
+            
+            if ($changed > 0) {
+                foreach ($read as $stream) {
+                    if ($stream === $pipes[1]) {
+                        $stdout .= stream_get_contents($stream);
+                    } elseif ($stream === $pipes[2]) {
+                        $stderr .= stream_get_contents($stream);
+                    }
+                }
+            }
+            
+            usleep(100000); // 100ms
+        }
+        
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $returnCode = proc_close($process);
+        
+        if ($returnCode !== 0) {
+            http_response_code(500);
+            
+            // Парсим более детальную информацию об ошибке
+            $errorMessage = 'SOL transfer failed';
+            if (strpos($stderr, 'InsufficientFunds') !== false || strpos($stderr, 'insufficient') !== false) {
+                $errorMessage = 'Insufficient SOL balance in source wallet';
+            } elseif (strpos($stderr, 'AccountNotFound') !== false) {
+                $errorMessage = 'Source wallet account not found';
+            } elseif (strpos($stderr, 'Invalid') !== false) {
+                $errorMessage = 'Invalid wallet address';
+            }
+            
+            echo json_encode([
+                'error' => $errorMessage,
+                'return_code' => $returnCode,
+                'stderr' => trim($stderr),
+                'stdout' => trim($stdout),
+                'command' => $cmdString,
+                'from_wallet' => $fromWallet,
+                'from_keypair_file' => $fromKeypairFile,
+                'from_keypair_path' => $fromKeypairPath
+            ]);
+            return;
+        }
+        
+        // Парсим результат
+        $result = json_decode($stdout, true);
+        $signature = $result['signature'] ?? null;
+        
+        if (!$signature) {
+            // Попробуем извлечь signature из текстового вывода
+            if (preg_match('/Signature:\s*([A-Za-z0-9]{64,128})/', $stdout, $matches)) {
+                $signature = $matches[1];
+            } else {
+                http_response_code(500);
+                echo json_encode([
+                    'error' => 'Transaction signature not found',
+                    'stdout' => $stdout,
+                    'stderr' => $stderr
+                ]);
+                return;
+            }
+        }
+        
+        // Успешно!
+        echo json_encode([
+            'success' => true,
+            'message' => 'SOL sent successfully',
+            'from_wallet' => $fromWallet,
+            'to_wallet' => $toWallet,
+            'amount' => $amount,
+            'amount_lamports' => $amount * 1e9,
             'signature' => $signature,
             'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
         ]);
