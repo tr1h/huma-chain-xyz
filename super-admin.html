@@ -1516,22 +1516,34 @@
                 data.tiers.forEach(tier => {
                     const tierName = tier.tier_name.toLowerCase();
                     
+                    // Safely update elements (check if they exist)
+                    const updateElement = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el) el.textContent = value;
+                    };
+                    
+                    const updateElementStyle = (id, prop, value) => {
+                        const el = document.getElementById(id);
+                        if (el) el.style[prop] = value;
+                    };
+                    
                     // Update minted count
-                    document.getElementById(`${tierName}-minted`).textContent = tier.minted_count;
-                    document.getElementById(`${tierName}-max`).textContent = tier.max_supply;
-                    document.getElementById(`${tierName}-available`).textContent = tier.available;
+                    updateElement(`${tierName}-minted`, tier.minted_count);
+                    updateElement(`${tierName}-max`, tier.max_supply);
+                    updateElement(`${tierName}-available`, tier.available);
                     
                     // Update percentage
                     const percentage = tier.minted_percentage;
-                    document.getElementById(`${tierName}-percent`).textContent = percentage.toFixed(1);
-                    document.getElementById(`${tierName}-progress`).style.width = percentage + '%';
+                    updateElement(`${tierName}-percent`, percentage.toFixed(1));
+                    updateElementStyle(`${tierName}-progress`, 'width', percentage + '%');
                     
                     // Update prices
                     if (tier.payment_type === 'TAMA') {
-                        document.getElementById(`${tierName}-price`).textContent = tier.current_price.toLocaleString();
+                        updateElement(`${tierName}-price`, tier.current_price.toLocaleString());
                     } else {
-                        document.getElementById(`${tierName}-price`).textContent = tier.current_price.toFixed(2);
-                        document.getElementById(`${tierName}-next`).textContent = tier.next_price.toFixed(2);
+                        updateElement(`${tierName}-price`, tier.current_price.toFixed(2));
+                        const nextEl = document.getElementById(`${tierName}-next`);
+                        if (nextEl) nextEl.textContent = tier.next_price.toFixed(2);
                         
                         // Calculate revenue for this tier (only SOL tiers)
                         // Simple estimate: minted_count * average_price
@@ -1545,13 +1557,18 @@
                     totalAvailable += tier.available;
                 });
 
-                // Update total stats
-                document.getElementById('total-minted').textContent = totalMinted.toLocaleString();
-                document.getElementById('total-available').textContent = totalAvailable.toLocaleString();
-                document.getElementById('total-revenue').textContent = '$' + Math.round(totalRevenue).toLocaleString();
+                // Update total stats (safely)
+                const updateTotalElement = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                };
+                
+                updateTotalElement('total-minted', totalMinted.toLocaleString());
+                updateTotalElement('total-available', totalAvailable.toLocaleString());
+                updateTotalElement('total-revenue', '$' + Math.round(totalRevenue).toLocaleString());
                 
                 const totalPercent = (totalMinted / 5000 * 100).toFixed(1);
-                document.getElementById('total-percent').textContent = totalPercent;
+                updateTotalElement('total-percent', totalPercent);
 
                 console.log(`✅ Total minted: ${totalMinted} / 5,000 (${totalPercent}%)`);
                 console.log(`✅ Total SOL revenue: $${Math.round(totalRevenue)}`);
