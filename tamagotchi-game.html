@@ -4224,7 +4224,7 @@
             // NEW: Daily Pool / Halving System ⏰
             dailyEarned: 0,              // TAMA earned today
             lastResetDate: null,          // Last date when daily limit reset
-            personalDailyLimit: 10000     // Personal daily earning limit (10K TAMA)
+            personalDailyLimit: 999999999     // Personal daily earning limit (removed - unlimited)
         };
 
         // Auto-save variables
@@ -4284,7 +4284,7 @@
                 
                 // Update personal daily limit based on current halving period
                 const poolInfo = getCurrentDailyPool();
-                gameState.personalDailyLimit = Math.min(poolInfo.dailyPool, 10000); // Cap at 10K for single player
+                gameState.personalDailyLimit = poolInfo.dailyPool; // Use full daily pool (no personal cap)
                 
                 console.log('📊 Daily Pool Info:', poolInfo);
                 console.log('💰 Personal Daily Limit:', gameState.personalDailyLimit, 'TAMA');
