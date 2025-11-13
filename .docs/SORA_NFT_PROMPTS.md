@@ -22,7 +22,8 @@
 
 ### Common (40% chance)
 ```
-A cute pixel art Tamagotchi pet in Bronze tier style. Simple brown and copper color scheme. Round, chubby body with big expressive eyes. Small wings or simple accessories. Kawaii style, retro 90s Tamagotchi aesthetic. Transparent background. 512x512 pixels. Clean, simple design suitable for a common rarity NFT. Soft lighting, friendly expression.
+
+
 ```
 
 ### Uncommon (30% chance)

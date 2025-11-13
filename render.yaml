@@ -64,3 +64,26 @@ services:
       - key: SUPABASE_KEY
         sync: false
 
+  # On-Chain NFT Minting Service (Node.js)
+  - type: web
+    name: solanatamagotchi-onchain
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start:onchain
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "3001"
+      - key: SOLANA_NETWORK
+        value: devnet
+      - key: SOLANA_PAYER_KEYPAIR
+        sync: false
+      - key: SUPABASE_URL
+        value: https://zfrazyupameidxpjihrh.supabase.co
+      - key: SUPABASE_KEY
+        sync: false
+      - key: NFT_IMAGE_BASE_URL
+        value: https://solanatamagotchi.com/nft-assets
+
