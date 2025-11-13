@@ -2677,51 +2677,63 @@ def welcome_new_member(message):
             first_name = new_member.first_name or "Friend"
             username = f"@{new_member.username}" if new_member.username else first_name
             
-            welcome_text = f"""🎮 <b>Добро пожаловать в Solana Tamagotchi, {first_name}!</b> 👋
+            welcome_text = f"""🎮 <b>Welcome to Solana Tamagotchi Community, {first_name}!</b> 👋
 
-🐾 <b>Что это за проект?</b>
-• <b>Play-to-Earn игра</b> с NFT питомцами на блокчейне Solana
-• <b>Минт уникальных NFT</b> и заработок токенов TAMA
-• <b>5 уровней NFT</b> (Bronze → Diamond) с бустами дохода
-• <b>Многоуровневая реферальная система</b> (1,000+500 TAMA за друга!)
-• <b>Ежедневные награды и достижения</b>
-• <b>100% Бесплатно</b> - Начинай без вложений!
+We're excited to have you here! This is the official community for Solana Tamagotchi - a free-to-play NFT pet game where you can earn real TAMA tokens on Solana blockchain.
 
-🚀 <b>Как начать:</b>
-1️⃣ Напиши <b>@{BOT_USERNAME}</b> и нажми <b>/start</b>
-2️⃣ Играй и зарабатывай токены TAMA
-3️⃣ Минть NFT питомцев для буста дохода 2-5x
-4️⃣ Приглашай друзей и получай реферальные награды!
+🐾 <b>What is Solana Tamagotchi?</b>
+• <b>Play-to-Earn NFT pet game</b> - Care for virtual pets and earn crypto
+• <b>5 NFT tiers</b> (Bronze → Diamond) with 2x to 5x earning multipliers
+• <b>100% Free to Play</b> - Start earning without any investment
+• <b>Multi-level referrals</b> - Earn 1,000 TAMA per friend + bonuses
+• <b>Daily rewards</b> - Login bonuses, quests, and achievements
 
-💰 <b>Как заработать TAMA:</b>
-• <b>Ежедневный вход:</b> +25 TAMA
-• <b>Кормление/Игры/Тренировка:</b> +5 до +15 TAMA
-• <b>Повышение уровня:</b> +50 TAMA
-• <b>Рефералы:</b> +1,000 TAMA за каждого друга
-• <b>NFT Буст:</b> До 5x множитель дохода!
+🚀 <b>Quick Start Guide:</b>
+1️⃣ Open <b>@{BOT_USERNAME}</b> and send <b>/start</b>
+2️⃣ Create your first pet and start playing
+3️⃣ Complete daily activities to earn TAMA tokens
+4️⃣ Mint NFT pets to boost your earnings (2-5x multiplier!)
+5️⃣ Invite friends and earn referral rewards
 
-🎨 <b>Минт NFT питомцев:</b>
-• 🥉 <b>Bronze:</b> 5,000 TAMA или 0.15 SOL (2.0x буст)
-• 🥈 <b>Silver:</b> 1 SOL (2.3x буст)
-• 🥇 <b>Gold:</b> 3 SOL (2.7x буст)
-• 💎 <b>Platinum:</b> 10 SOL (3.5x буст)
-• 🔷 <b>Diamond:</b> 50 SOL (5.0x буст!)
+💰 <b>How to Earn TAMA:</b>
+• <b>Daily Login:</b> +25 TAMA every 24 hours
+• <b>Feed Pet:</b> +5 TAMA per feed
+• <b>Play with Pet:</b> +10 TAMA per session
+• <b>Train Pet:</b> +15 TAMA per training
+• <b>Level Up:</b> +50 TAMA bonus
+• <b>Referrals:</b> +1,000 TAMA per friend invited
+• <b>NFT Boost:</b> Multiply all earnings by 2x to 5x!
 
-📢 <b>Полезные ссылки:</b>
-• <b>Сайт:</b> <a href="https://solanatamagotchi.com">solanatamagotchi.com</a>
-• <b>Twitter:</b> @GotchiGame
-• <b>Бот:</b> @{BOT_USERNAME}
-• <b>Сообщество:</b> Эта группа!
+🎨 <b>NFT Tiers & Prices:</b>
+• 🥉 <b>Bronze:</b> 5,000 TAMA or 0.15 SOL → 2.0x boost
+• 🥈 <b>Silver:</b> 1 SOL → 2.3x boost
+• 🥇 <b>Gold:</b> 3 SOL → 2.7x boost
+• 💎 <b>Platinum:</b> 10 SOL → 3.5x boost
+• 🔷 <b>Diamond:</b> 50 SOL → 5.0x boost (MAX!)
 
-📋 <b>Основные команды:</b>
-• <b>/start</b> - Начать игру
-• <b>/help</b> - Список команд
-• <b>/leaderboard</b> - Топ игроков
-• <b>/code</b> - Получить реферальную ссылку
+📢 <b>Stay Connected:</b>
+• <b>🌐 Website:</b> <a href="https://solanatamagotchi.com">solanatamagotchi.com</a>
+• <b>🐦 Twitter:</b> @GotchiGame
+• <b>🤖 Bot:</b> @{BOT_USERNAME}
+• <b>💬 Community:</b> This group!
 
-<i>Давай построим самое большое Tamagotchi сообщество на Solana! ⭐</i>
+📋 <b>Bot Commands:</b>
+• <b>/start</b> - Start playing the game
+• <b>/help</b> - View all available commands
+• <b>/leaderboard</b> - See top players
+• <b>/code</b> - Get your referral link
+• <b>/balance</b> - Check your TAMA balance
 
-<i>Начни зарабатывать TAMA уже сегодня - кошелек не нужен для старта! 🚀</i>"""
+💡 <b>Pro Tips:</b>
+• Play daily to maximize your TAMA earnings
+• Complete all daily activities (feed, play, train)
+• Invite friends to unlock milestone bonuses
+• Consider minting a Bronze NFT for 2x earning boost
+• Check the blog for guides and strategies
+
+<i>Let's build the biggest Tamagotchi community on Solana together! ⭐</i>
+
+<i>Start earning TAMA today - no wallet needed to begin! 🚀</i>"""
             
             # Create welcome keyboard
             keyboard = types.InlineKeyboardMarkup()
