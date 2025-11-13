@@ -1,251 +1,224 @@
-# 🚀 On-Chain Mint Setup - Complete Guide
+# 🚀 On-Chain NFT Minting Setup
 
-## 📋 Overview
+## Создано
 
-Backend API для создания настоящих on-chain NFT через Metaplex SDK.
+### 1. Backend API (Node.js)
+- `api/mint-nft-onchain.js` - Основная логика минта через Metaplex SDK
+- `api/nft-onchain-server.js` - Express server (standalone)
+- `api/mint-nft-onchain-wrapper.php` - PHP wrapper для вызова Node.js
+
+### 2. Обновлен `package.json`
+- Добавлен `@metaplex-foundation/js`
+- Обновлен `@solana/web3.js` до совместимой версии
+- Добавлен `bs58` для декодирования ключей
 
 ---
 
-## ✅ Шаг 1: Установить зависимости
+## Установка зависимостей
 
 ```bash
 cd C:\goooog
-npm install @metaplex-foundation/js@^0.20.1 @solana/web3.js@^1.95.0
+npm install
 ```
 
-**Важно:** Используем `@solana/web3.js@^1.95.0` (не 2.0.0), так как Metaplex SDK 0.20.x совместим с 1.x.
+Это установит:
+- `@metaplex-foundation/js@^0.20.1`
+- `@solana/web3.js@^1.95.3`
+- `bs58@^5.0.0`
 
 ---
 
-## ✅ Шаг 2: Настроить environment variables на Render.com
+## Настройка Render.com
 
-### 2.1 Перейти в Render.com
+### Вариант 1: Добавить в существующий PHP API
 
-https://dashboard.render.com/
+1. Откройте Render.com Dashboard
+2. Перейдите в ваш API service
+3. Добавьте environment variables:
 
-### 2.2 Выбрать API service
-
-Найдите ваш API service (например, `huma-chain-xyz-api`)
-
-### 2.3 Добавить environment variables
-
-В разделе **Environment** добавьте:
-
-```bash
-# Solana Payer Keypair (для минта NFT)
-SOLANA_PAYER_KEYPAIR=[YOUR_PAYER_KEYPAIR_ARRAY]
-
-# Treasury Wallet (для royalties)
-TREASURY_WALLET=6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM
-
-# Solana RPC URL
-SOLANA_RPC_URL=https://api.devnet.solana.com
-
-# Supabase (уже должны быть)
-SUPABASE_URL=https://zfrazyupameidxpjihrh.supabase.co
-SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+SOLANA_PAYER_KEYPAIR=<base58_private_key>
+SOLANA_NETWORK=devnet
+NODE_BACKEND_URL=http://localhost:3001/api/mint-nft-onchain
 ```
 
-### 2.4 Получить SOLANA_PAYER_KEYPAIR
-
-#### Вариант А: Использовать существующий keypair
-
-```bash
-# Читаем payer-keypair.json
-cat payer-keypair.json
-
-# Копируем весь массив и вставляем в Render
-# Например: [123,45,67,89,...]
-```
-
-#### Вариант Б: Создать новый keypair
-
-```bash
-# Установить Solana CLI
-npm install -g @solana/cli
-
-# Создать новый keypair
-solana-keygen new --outfile new-payer-keypair.json
-
-# Скопировать pubkey
-solana-keygen pubkey new-payer-keypair.json
-
-# Получить SOL из faucet (devnet)
-solana airdrop 2 YOUR_PUBKEY --url devnet
-
-# Прочитать keypair
-cat new-payer-keypair.json
-```
-
----
-
-## ✅ Шаг 3: Обновить Render.com deploy
-
-### 3.1 Создать/обновить `render.yaml`
+4. Обновите `render.yaml`:
 
 ```yaml
 services:
-  # Существующий PHP API service
   - type: web
-    name: huma-chain-xyz-api
-    runtime: php
-    # ... existing config ...
-
-  # Новый Node.js service для on-chain mint
-  - type: web
-    name: nft-onchain-api
-    runtime: node
+    name: solanatamagotchi-api
+    env: node
     buildCommand: npm install
-    startCommand: npm run start:onchain
+    startCommand: node api/nft-onchain-server.js
     envVars:
       - key: SOLANA_PAYER_KEYPAIR
         sync: false
-      - key: TREASURY_WALLET
-        value: 6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM
-      - key: SOLANA_RPC_URL
-        value: https://api.devnet.solana.com
+      - key: SOLANA_NETWORK
+        value: devnet
       - key: SUPABASE_URL
-        sync: false
+        value: https://zfrazyupameidxpjihrh.supabase.co
       - key: SUPABASE_KEY
         sync: false
 ```
 
-### 3.2 Deploy
+### Вариант 2: Отдельный Node.js service
 
-```bash
-git add .
-git commit -m "Add on-chain NFT minting API"
-git push origin main
-```
-
-Render.com автоматически задеплоит новый service.
+Создать новый service на Render.com:
+- Name: `solanatamagotchi-nft-mint`
+- Environment: `Node`
+- Build Command: `npm install`
+- Start Command: `node api/nft-onchain-server.js`
+- Port: `3001`
 
 ---
 
-## ✅ Шаг 4: Интегрировать в `mint.html`
+## Получение SOLANA_PAYER_KEYPAIR
 
-### 4.1 Добавить функцию вызова on-chain mint
+### Способ 1: Из существующего keypair
 
-В `mint.html` в функции `mintSOL()` после успешного API вызова:
+```bash
+# Если у вас есть payer-keypair.json
+node -e "const fs = require('fs'); const bs58 = require('bs58'); const keypair = JSON.parse(fs.readFileSync('payer-keypair.json')); console.log(bs58.encode(Buffer.from(keypair)));"
+```
+
+### Способ 2: Создать новый keypair
+
+```bash
+# Создать новый
+npm install -g @solana/web3.js
+node -e "const {Keypair} = require('@solana/web3.js'); const bs58 = require('bs58'); const kp = Keypair.generate(); console.log('Public Key:', kp.publicKey.toString()); console.log('Private Key (base58):', bs58.encode(kp.secretKey));"
+```
+
+### Способ 3: Использовать Treasury Main
+
+```bash
+# Если treasury-main-keypair.json существует
+node -e "const fs = require('fs'); const bs58 = require('bs58'); const keypair = JSON.parse(fs.readFileSync('treasury-main-keypair.json')); console.log(bs58.encode(Buffer.from(keypair)));"
+```
+
+---
+
+## Интеграция в mint.html
+
+Добавьте после успешного off-chain минта:
 
 ```javascript
-if (result.success) {
-    // Existing code...
-    
-    // ✅ NEW: Call on-chain mint API
+// In mintSOL() function, after result.success
+if (result.success && result.nft_id) {
     try {
         console.log('💎 Calling on-chain mint API...');
         
-        const onchainResponse = await fetch('https://nft-onchain-api.onrender.com/api/mint-nft-onchain', {
+        // Get NFT image URL (replace with actual implementation)
+        const imageUrl = `https://solanatamagotchi.com/nft-assets/${tierName.toLowerCase()}/${result.rarity.toLowerCase()}.png`;
+        
+        // Call on-chain mint API
+        const onchainResponse = await fetch('https://api.solanatamagotchi.com/api/mint-nft-onchain-wrapper.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                nft_id: result.nft_id || null,  // ID from user_nfts
+                nft_id: result.nft_id,
                 tier: tierName,
                 rarity: result.rarity,
                 multiplier: result.earning_multiplier,
-                telegram_id: TELEGRAM_USER_ID,
-                wallet_address: walletAddress
+                imageUrl: imageUrl,
+                telegramId: TELEGRAM_USER_ID,
+                walletAddress: walletAddress,
+                design_number: result.design_number
             })
         });
         
-        if (onchainResponse.ok) {
-            const onchainResult = await onchainResponse.json();
-            if (onchainResult.success) {
-                console.log('✅ On-chain NFT minted:', onchainResult.mintAddress);
-                message += `\n\n🎨 On-chain NFT: ${onchainResult.mintAddress.substring(0, 8)}...`;
-                explorerLink = onchainResult.explorerUrl;
-            }
+        const onchainResult = await onchainResponse.json();
+        
+        if (onchainResult.success) {
+            console.log('✅ On-chain NFT minted:', onchainResult.mintAddress);
+            message += `\n\n🎨 On-chain mint: ${onchainResult.mintAddress.substring(0, 8)}...`;
+            explorerLink = onchainResult.explorerUrl;
         } else {
-            console.warn('⚠️  On-chain mint failed (non-critical):', await onchainResponse.text());
+            console.warn('⚠️ On-chain mint failed, but off-chain NFT created');
         }
     } catch (onchainError) {
-        console.warn('⚠️  On-chain mint error (non-critical):', onchainError);
-        // Don't fail if on-chain mint fails
+        console.error('❌ On-chain mint error (non-critical):', onchainError);
+        // Don't throw - off-chain NFT is already created
     }
-    
-    showNotification('success', `🎉 ${tierName} NFT Minted!`, message, explorerLink);
-    // ...
 }
 ```
 
 ---
 
-## ✅ Шаг 5: Тестирование
+## Тестирование
 
-### 5.1 Проверить endpoint
-
-```bash
-curl https://nft-onchain-api.onrender.com/health
-# Должно вернуть: {"status":"ok","service":"NFT On-Chain Minting API","timestamp":"..."}
-```
-
-### 5.2 Тестовый минт
+### 1. Локальное тестирование
 
 ```bash
-curl -X POST https://nft-onchain-api.onrender.com/api/mint-nft-onchain \
+# Terminal 1: Start Node.js server
+cd C:\goooog
+node api/nft-onchain-server.js
+
+# Terminal 2: Test endpoint
+curl -X POST http://localhost:3001/api/mint-nft-onchain \
   -H "Content-Type: application/json" \
   -d '{
+    "nft_id": 1,
     "tier": "Bronze",
     "rarity": "Common",
     "multiplier": 2.0,
-    "wallet_address": "AX4vtEbDEjRxibdPX7fcCB8Nq8VxF82PLWzHHusXJFk3"
+    "imageUrl": "https://via.placeholder.com/512",
+    "telegramId": "123456789",
+    "walletAddress": "...",
+    "design_number": "BRZ001"
   }'
 ```
 
-### 5.3 Проверить в Solana Explorer
+### 2. Health check
 
-Откройте полученный `mintAddress` в Explorer:
-```
-https://explorer.solana.com/address/MINT_ADDRESS?cluster=devnet
+```bash
+curl http://localhost:3001/api/mint-nft-onchain/health
 ```
 
 ---
 
-## 📊 Стоимость
+## Стоимость
 
 **Devnet:**
 - Mint NFT: ~0.01 SOL (бесплатно через faucet)
-- Metadata storage (Arweave): Бесплатно через Bundlr devnet
+- Metadata storage (Arweave devnet): Бесплатно
 
 **Mainnet:**
 - Mint NFT: ~0.01-0.02 SOL (~$1.50-3.00)
-- Metadata storage: ~$0.01-0.05
+- Metadata storage (Arweave): ~$0.01-0.05
 
 ---
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Ошибка: "SOLANA_PAYER_KEYPAIR not set"
+- Добавьте environment variable в Render.com
 
-Проверьте, что environment variable добавлена в Render.com.
+### Ошибка: "Failed to upload metadata"
+- Проверьте интернет соединение
+- Проверьте, что imageUrl доступен
+- Увеличьте timeout (60 секунд)
 
 ### Ошибка: "Insufficient funds"
-
-Пополните payer wallet SOL из faucet:
-```bash
-solana airdrop 2 YOUR_PAYER_PUBKEY --url devnet
-```
-
-### Ошибка: "Metadata upload failed"
-
-Bundlr может быть недоступен. Попробуйте позже или используйте другой storage provider.
+- Devnet: Получите SOL из faucet
+- Mainnet: Пополните payer wallet
 
 ---
 
-## 🚀 Готово!
+## Следующие шаги
 
-После выполнения всех шагов:
-- ✅ NFT будут минтится on-chain через Metaplex
-- ✅ `nft_mint_address` будет обновляться в базе
-- ✅ NFT будут видны в Phantom Wallet
-- ✅ Можно будет продавать на Magic Eden
+1. ✅ Установить зависимости: `npm install`
+2. ✅ Получить `SOLANA_PAYER_KEYPAIR` (base58)
+3. ✅ Добавить environment variable в Render.com
+4. ✅ Деплой на Render.com
+5. ✅ Протестировать endpoint
+6. ✅ Интегрировать в `mint.html`
+7. ✅ Загрузить изображения NFT
+8. ✅ Протестировать полный flow
 
 ---
 
-## 📚 Полезные ссылки
+## Готово к использованию!
 
-- [Metaplex JS SDK Docs](https://docs.metaplex.com/js/)
-- [Render.com Docs](https://render.com/docs)
-- [Solana CLI Docs](https://docs.solana.com/cli)
-
+После установки зависимостей и настройки Render.com, on-chain минт будет работать автоматически.
