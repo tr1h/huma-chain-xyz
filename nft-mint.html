@@ -600,7 +600,7 @@
                     
                     // Update via API (same as game) to prevent conflicts
                     // skip_transaction_log: true - we'll log nft_mint_onchain manually
-                    const TAMA_API_BASE = 'https://huma-chain-xyz.onrender.com/api/tama';
+                    const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
                     const updateResponse = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -645,7 +645,7 @@
                     console.log('🔗 Calling on-chain distribution API...');
                     
                     try {
-                        const TAMA_API_BASE = 'https://huma-chain-xyz.onrender.com/api/tama';
+                        const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
                         const onchainResponse = await fetch(`${TAMA_API_BASE}/nft/mint-bronze-onchain`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },

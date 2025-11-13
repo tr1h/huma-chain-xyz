@@ -47,8 +47,8 @@ BOT_USERNAME = os.getenv('BOT_USERNAME', 'GotchiGameBot')
 bot = telebot.TeleBot(TOKEN)
 
 # URLs
-GAME_URL = os.getenv('GAME_URL', 'https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html?v=20251108')  # Telegram Mini App URL
-MINT_URL = os.getenv('MINT_URL', 'https://tr1h.github.io/huma-chain-xyz/')  # Mint URL
+GAME_URL = os.getenv('GAME_URL', 'https://solanatamagotchi.com/tamagotchi-game.html?v=20251113')  # Telegram Mini App URL
+MINT_URL = os.getenv('MINT_URL', 'https://solanatamagotchi.com/nft-mint-5tiers.html')  # Mint URL
 CHANNEL_USERNAME = os.getenv('CHANNEL_USERNAME', '@GotchiGame')  # Channel username for posting
 
 # Menu button text (bottom menu button label)
@@ -74,8 +74,8 @@ ADMIN_IDS = [int(x) for x in os.getenv('ADMIN_IDS', '7401131043').split(',') if 
 # Group IDs that are exempt from anti-spam
 EXEMPT_GROUP_IDS = [int(x) for x in os.getenv('EXEMPT_GROUP_IDS', '-1002938566588').split(',') if x.strip()]  # @gotchigamechat group ID
 
-# TAMA API Configuration (UPDATED TO RENDER)
-TAMA_API_BASE = os.getenv('TAMA_API_BASE', "https://huma-chain-xyz.onrender.com/api/tama")
+# TAMA API Configuration (UPDATED TO CUSTOM DOMAIN)
+TAMA_API_BASE = os.getenv('TAMA_API_BASE', "https://api.solanatamagotchi.com/api/tama")
 
 def is_api_available():
     """Check if TAMA API is available"""

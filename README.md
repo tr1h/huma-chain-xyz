@@ -88,7 +88,7 @@
 5. Start earning TAMA tokens!
 
 **🌐 Or play directly in browser:**
-- https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html
+- https://solanatamagotchi.com/tamagotchi-game.html
 
 ### **For Developers:**
 
@@ -283,7 +283,7 @@ TAMA_MINT_ADDRESS=Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY
 ```env
 TELEGRAM_BOT_TOKEN=your_bot_token
 BOT_USERNAME=GotchiGameBot
-GAME_URL=https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html
+GAME_URL=https://solanatamagotchi.com/tamagotchi-game.html
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_anon_key
 ```
@@ -296,12 +296,12 @@ SUPABASE_KEY=your_supabase_anon_key
 1. Push to `main` branch
 2. GitHub Actions auto-deploys
 3. **Live URLs:**
-   - 🎮 **Game:** https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html
-   - 🎨 **Mint NFT:** https://tr1h.github.io/huma-chain-xyz/mint.html
-   - 📊 **Tokenomics Dashboard:** https://tr1h.github.io/huma-chain-xyz/admin-tokenomics.html
-   - 🏆 **Super Admin:** https://tr1h.github.io/huma-chain-xyz/super-admin.html
-   - 🔗 **Referral:** https://tr1h.github.io/huma-chain-xyz/referral.html
-   - 🏠 **Landing:** https://tr1h.github.io/huma-chain-xyz/
+   - 🎮 **Game:** https://solanatamagotchi.com/tamagotchi-game.html
+   - 🎨 **Mint NFT:** https://solanatamagotchi.com/nft-mint-5tiers.html
+   - 📊 **Tokenomics Dashboard:** https://solanatamagotchi.com/admin-tokenomics.html
+   - 🏆 **Super Admin:** https://solanatamagotchi.com/super-admin.html
+   - 🔗 **Referral:** https://solanatamagotchi.com/referral.html
+   - 🏠 **Landing:** https://solanatamagotchi.com/
 
 ### **Backend (PHP API):**
 ```bash
@@ -325,7 +325,7 @@ cd api
 
 ### **Backend API (Render):**
 
-**Live API:** https://huma-chain-xyz.onrender.com/api/tama
+**Live API:** https://api.solanatamagotchi.com/api/tama
 
 **Deployment:**
 1. Connect GitHub repo to Render
@@ -357,10 +357,10 @@ SOLANA_P2E_POOL_KEYPAIR={"keypair":"json"}
 ```env
 TELEGRAM_BOT_TOKEN=your_bot_token
 BOT_USERNAME=GotchiGameBot
-GAME_URL=https://tr1h.github.io/huma-chain-xyz/tamagotchi-game.html?v=20251108
-RENDER_EXTERNAL_HOSTNAME=huma-chain-xyz-bot.onrender.com
+GAME_URL=https://solanatamagotchi.com/tamagotchi-game.html?v=20251113
+RENDER_EXTERNAL_HOSTNAME=bot.solanatamagotchi.com
 RENDER=true  # Enables Keep-Alive
-TAMA_API_BASE=https://huma-chain-xyz.onrender.com/api/tama
+TAMA_API_BASE=https://api.solanatamagotchi.com/api/tama
 SUPABASE_URL=your_url
 SUPABASE_KEY=your_anon_key
 ```

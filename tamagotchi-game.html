@@ -7,7 +7,29 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Solana Tamagotchi v1.9.0</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Play Solana Tamagotchi - Earn TAMA Tokens | Free Crypto Game</title>
+    <meta name="title" content="Play Solana Tamagotchi - Earn TAMA Tokens | Free Crypto Game">
+    <meta name="description" content="Free Tamagotchi game on Solana! 🐾 Care for your pet, earn TAMA tokens, complete quests, and withdraw to wallet. Play in Telegram or browser. Join 1000+ players earning crypto!">
+    <meta name="keywords" content="tamagotchi game, play to earn game, earn crypto free, tama token, solana game, telegram game, crypto pets, free crypto game, blockchain game, earn playing">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://solanatamagotchi.com/tamagotchi-game.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://solanatamagotchi.com/tamagotchi-game.html">
+    <meta property="og:title" content="Play Solana Tamagotchi - Earn Real TAMA Crypto! 🐾">
+    <meta property="og:description" content="Free-to-play Tamagotchi game with real crypto rewards! Feed, play, level up your pet and earn TAMA tokens on Solana blockchain.">
+    <meta property="og:image" content="https://solanatamagotchi.com/game-preview.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://solanatamagotchi.com/tamagotchi-game.html">
+    <meta property="twitter:title" content="Play Solana Tamagotchi - Earn Real TAMA Crypto! 🐾">
+    <meta property="twitter:description" content="Free-to-play Tamagotchi game with real crypto rewards on Solana!">
+    <meta property="twitter:image" content="https://solanatamagotchi.com/game-preview.png">
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* CSS Variables for Themes 🎨 */
@@ -8922,7 +8944,7 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
         
         // API Configuration (UPDATED TO RENDER)
-        const TAMA_API_BASE = 'https://huma-chain-xyz.onrender.com/api/tama';
+        const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
 
         // Fetch user's rank even if not in top 50
         async function fetchUserRank(telegramId) {
@@ -9754,7 +9776,7 @@
                     }
                     
                     // Build URL with all important data
-                    const nftUrl = `https://tr1h.github.io/huma-chain-xyz/nft-mint-5tiers.html?user_id=${userIdStr}&tama=${tamaBalance}&level=${level}&xp=${xp}`;
+                    const nftUrl = `https://solanatamagotchi.com/nft-mint-5tiers.html?user_id=${userIdStr}&tama=${tamaBalance}&level=${level}&xp=${xp}`;
                     
                     if (window.Telegram && window.Telegram.WebApp) {
                         // In Telegram, open external link

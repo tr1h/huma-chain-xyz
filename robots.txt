@@ -1,0 +1,28 @@
+# robots.txt for solanatamagotchi.com
+# Play-to-Earn Tamagotchi Game on Solana
+
+User-agent: *
+Allow: /
+
+# Priority pages
+Allow: /tamagotchi-game.html
+Allow: /nft-mint-5tiers.html
+Allow: /index.html
+Allow: /referral.html
+
+# Admin pages (optional - block if you want)
+Disallow: /admin-*.html
+Disallow: /super-admin.html
+Disallow: /transactions-admin.html
+Disallow: /wallet-admin.html
+Disallow: /economy-admin.html
+
+# API endpoints
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://solanatamagotchi.com/sitemap.xml
+
+# Crawl-delay for bots
+Crawl-delay: 1
+
