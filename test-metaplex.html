@@ -75,8 +75,7 @@
     <!-- Solana Web3.js -->
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     
-    <!-- Metaplex SDK - Try multiple CDN sources -->
-    <script src="https://unpkg.com/@metaplex-foundation/js@3.0.0/dist/index.umd.js" onerror="loadMetaplexFallback()"></script>
+    <!-- Define fallback function BEFORE using it -->
     <script>
         function loadMetaplexFallback() {
             console.warn('⚠️ Primary Metaplex CDN failed, trying alternative...');
@@ -84,11 +83,15 @@
             script.src = 'https://cdn.jsdelivr.net/npm/@metaplex-foundation/js@3.0.0/dist/index.umd.js';
             script.onerror = function() {
                 console.error('❌ All Metaplex CDN sources failed. Metaplex SDK may not be available via CDN.');
-                console.warn('💡 Consider using npm install @metaplex-foundation/js and bundling');
+                console.warn('💡 Solution: Use backend API for on-chain minting (already implemented!)');
+                console.warn('💡 Backend API: https://api.solanatamagotchi.com/api/mint-nft-onchain');
             };
             document.head.appendChild(script);
         }
     </script>
+    
+    <!-- Metaplex SDK - Try multiple CDN sources -->
+    <script src="https://unpkg.com/@metaplex-foundation/js@3.0.0/dist/index.umd.js" onerror="loadMetaplexFallback()"></script>
     
     <!-- Metaplex Minter Module -->
     <script src="js/metaplex-mint.js"></script>
@@ -117,8 +120,10 @@
                 html += '<div class="status success">✅ Metaplex SDK loaded</div>';
                 console.log('Metaplex:', window.Metaplex);
             } else {
-                html += '<div class="status error">❌ Metaplex SDK NOT loaded<br><small>⚠️ Metaplex JS SDK requires bundling (npm install). CDN version may not work.</small></div>';
-                html += '<div class="status info">💡 Solution: Use backend API for on-chain minting (recommended)</div>';
+                html += '<div class="status error">❌ Metaplex SDK NOT loaded<br><small>⚠️ Metaplex JS SDK requires bundling (npm install). CDN version does not work.</small></div>';
+                html += '<div class="status info">✅ <strong>Backend API is already set up!</strong><br>';
+                html += '📍 Endpoint: <code>https://api.solanatamagotchi.com/api/mint-nft-onchain</code><br>';
+                html += '💡 Frontend automatically uses backend API (see mint.html)</div>';
             }
 
             // Check MetaplexMinter class
@@ -172,7 +177,7 @@
                 }
 
                 if (!window.Metaplex) {
-                    throw new Error('Metaplex SDK not loaded! Check console for CDN errors. Metaplex JS SDK may require bundling (npm install).');
+                    throw new Error('Metaplex SDK not loaded! CDN version does not work. Use backend API instead: https://api.solanatamagotchi.com/api/mint-nft-onchain');
                 }
 
                 console.log('✅ Metaplex SDK found:', window.Metaplex);
