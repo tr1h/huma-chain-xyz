@@ -123,6 +123,284 @@
             box-shadow: 0 5px 20px rgba(156, 39, 176, 0.6);
         }
         
+        /* COLLECTION STATS */
+        .collection-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(29, 53, 87, 0.8), rgba(69, 123, 157, 0.4));
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #8AC926;
+            box-shadow: 0 10px 30px rgba(138, 201, 38, 0.4);
+        }
+        
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            color: #8AC926;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+        
+        /* MAIN CONTENT WRAPPER */
+        .main-content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        /* RECENT MINTS SIDEBAR */
+        .recent-mints-sidebar {
+            background: linear-gradient(135deg, rgba(29, 53, 87, 0.6), rgba(69, 123, 157, 0.3));
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            animation: slideInRight 0.8s ease;
+        }
+        
+        .sidebar-title {
+            font-size: 14px;
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(138, 201, 38, 0.3);
+        }
+        
+        .recent-mints-list {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .recent-mints-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .recent-mints-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        
+        .recent-mints-list::-webkit-scrollbar-thumb {
+            background: rgba(138, 201, 38, 0.5);
+            border-radius: 3px;
+        }
+        
+        .mint-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(138, 201, 38, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            animation: fadeInUp 0.5s ease;
+            transition: all 0.3s;
+        }
+        
+        .mint-item:hover {
+            transform: translateX(5px);
+            border-color: #8AC926;
+            background: rgba(138, 201, 38, 0.1);
+        }
+        
+        .mint-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .mint-tier-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .mint-tier-badge.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); }
+        .mint-tier-badge.silver { background: linear-gradient(135deg, #C0C0C0, #808080); }
+        .mint-tier-badge.gold { background: linear-gradient(135deg, #FFD700, #FFA500); }
+        .mint-tier-badge.platinum { background: linear-gradient(135deg, #E5E4E2, #00CED1); }
+        .mint-tier-badge.diamond { background: linear-gradient(135deg, #B9F2FF, #00A8CC); }
+        
+        .mint-time {
+            font-size: 8px;
+            color: #999;
+        }
+        
+        .mint-user {
+            font-size: 10px;
+            color: #8AC926;
+            margin-bottom: 5px;
+        }
+        
+        .mint-details {
+            font-size: 9px;
+            color: #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .sidebar-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(138, 201, 38, 0.3);
+            text-align: center;
+            font-size: 9px;
+            color: #8AC926;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .loading-mints {
+            text-align: center;
+            color: #999;
+            font-size: 10px;
+            padding: 20px;
+        }
+        
+        /* FAQ SECTION */
+        .faq-section {
+            background: linear-gradient(135deg, rgba(29, 53, 87, 0.6), rgba(69, 123, 157, 0.3));
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease;
+        }
+        
+        .faq-title {
+            font-size: 20px;
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+        }
+        
+        .faq-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(138, 201, 38, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .faq-item:hover {
+            border-color: #8AC926;
+        }
+        
+        .faq-question {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #FFD700;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .faq-question:hover {
+            background: rgba(138, 201, 38, 0.1);
+        }
+        
+        .faq-toggle {
+            font-size: 24px;
+            color: #8AC926;
+            transition: transform 0.3s;
+        }
+        
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 20px;
+            font-size: 10px;
+            color: #ccc;
+            line-height: 1.8;
+            font-family: Arial, sans-serif;
+            transition: all 0.4s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 0 20px 20px 20px;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
         /* NFT BENEFITS SECTION */
         .nft-benefits-section {
             background: linear-gradient(135deg, rgba(138, 201, 38, 0.05), rgba(255, 215, 0, 0.05));
@@ -682,6 +960,18 @@
         }
         
         /* MOBILE RESPONSIVE */
+        @media (max-width: 1200px) {
+            .main-content-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .recent-mints-sidebar {
+                position: relative;
+                top: 0;
+                max-width: 100%;
+            }
+        }
+        
         @media (max-width: 768px) {
             .header h1 { font-size: 20px; }
             .header .subtitle { font-size: 10px; }
@@ -699,6 +989,27 @@
             .btn-connect, .btn-my-nfts {
                 width: 100%;
                 padding: 15px;
+            }
+            
+            .collection-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-icon {
+                font-size: 28px;
+            }
+            
+            .stat-value {
+                font-size: 18px;
+            }
+            
+            .stat-label {
+                font-size: 9px;
             }
             
             .nft-benefits-section {
@@ -762,6 +1073,27 @@
             .tier-card {
                 min-width: 280px;
             }
+            
+            .faq-section {
+                padding: 20px 15px;
+            }
+            
+            .faq-title {
+                font-size: 16px;
+            }
+            
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .faq-question {
+                font-size: 10px;
+                padding: 15px;
+            }
+            
+            .faq-answer {
+                font-size: 9px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -771,6 +1103,10 @@
             
             .header h1 {
                 font-size: 16px;
+            }
+            
+            .collection-stats {
+                grid-template-columns: 1fr;
             }
             
             .calculator-grid {
@@ -804,7 +1140,34 @@
             </div>
         </div>
         
-        <div class="tier-grid">
+        <!-- COLLECTION STATS -->
+        <div class="collection-stats">
+            <div class="stat-card">
+                <div class="stat-icon">🎨</div>
+                <div class="stat-value" id="total-minted">0</div>
+                <div class="stat-label">NFTs Minted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" id="unique-holders">0</div>
+                <div class="stat-label">Happy Owners</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="total-volume">0 SOL</div>
+                <div class="stat-label">Total Volume</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="floor-price">0.15 SOL</div>
+                <div class="stat-label">Floor Price</div>
+            </div>
+        </div>
+        
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="main-content-wrapper">
+            <!-- LEFT: NFT CARDS -->
+            <div class="tier-grid">
             <!-- Bronze Card -->
             <div class="tier-card bronze">
                 <div class="tier-icon">🟫</div>
@@ -897,6 +1260,19 @@
                 <button class="mint-btn" onclick="mintSOL('Diamond')">👑 MINT DIAMOND</button>
             </div>
         </div>
+        
+            <!-- RIGHT: LIVE RECENT MINTS -->
+            <div class="recent-mints-sidebar">
+                <h3 class="sidebar-title">🔥 LIVE ACTIVITY</h3>
+                <div id="recent-mints-list" class="recent-mints-list">
+                    <div class="loading-mints">Loading recent mints...</div>
+                </div>
+                <div class="sidebar-footer">
+                    <div class="pulse-dot"></div>
+                    <span>Live updates every 10s</span>
+                </div>
+            </div>
+        </div> <!-- END main-content-wrapper -->
         
         <!-- NFT BENEFITS SECTION -->
         <div class="nft-benefits-section">
@@ -998,6 +1374,106 @@
                 </div>
                 <div class="calc-note">
                     * Calculations based on passive earnings only. With x2-x5 boost multiplier your earnings will be even higher! 🚀
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ SECTION -->
+        <div class="faq-section">
+            <h2 class="faq-title">❓ FREQUENTLY ASKED QUESTIONS</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>🎨 What do I get when I mint an NFT?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        You get a unique NFT Tamagotchi pet stored on Solana blockchain! It includes:
+                        <br>• <strong>Passive Income</strong> - earn 50-10,000 TAMA daily automatically
+                        <br>• <strong>Earning Boost</strong> - multiply your game rewards by 2x-5x
+                        <br>• <strong>Real Ownership</strong> - fully yours, tradeable on marketplaces
+                        <br>• <strong>Unique Design</strong> - one of 5000 unique pets with different rarities
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>👛 What wallet do I need?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        You need <strong>Phantom Wallet</strong> (recommended) or any Solana-compatible wallet.
+                        <br>• Click "Connect Wallet" button above
+                        <br>• Make sure you're on <strong>Devnet</strong> network
+                        <br>• Have at least 0.2 SOL for gas fees + mint price
+                        <br><br>
+                        📲 <a href="https://phantom.app/" target="_blank" style="color: #8AC926;">Download Phantom Wallet →</a>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>💰 How does the earning boost work?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Your NFT multiplies ALL your earnings in the game:
+                        <br>• <strong>Without NFT:</strong> Click = +1 TAMA
+                        <br>• <strong>With Silver NFT (×2.3):</strong> Click = +2.3 TAMA
+                        <br>• <strong>With Diamond NFT (×5.0):</strong> Click = +5 TAMA
+                        <br><br>
+                        Plus you get passive income every day even when you're not playing! 🚀
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>🔄 Can I sell or trade my NFT?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! Your NFT is <strong>100% yours</strong> and lives on Solana blockchain:
+                        <br>• Trade on marketplaces like Magic Eden
+                        <br>• Transfer to another wallet
+                        <br>• Sell to other players
+                        <br>• Keep forever - it's immutable and can't be taken away
+                        <br><br>
+                        ⚠️ Note: Selling removes your in-game boost until you buy another NFT
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>📈 Why do prices increase?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        We use a <strong>Bonding Curve</strong> mechanism:
+                        <br>• Each mint increases the price for the next buyer
+                        <br>• Early buyers get the best prices! 🎯
+                        <br>• Silver: +0.6% per mint
+                        <br>• Gold: +1.8% per mint
+                        <br>• Diamond: +100% per mint (only 2 exist!)
+                        <br><br>
+                        This creates natural scarcity and rewards early supporters 🚀
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>⚡ How long does minting take?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>Bronze (TAMA payment):</strong> Instant! ⚡
+                        <br>• Uses off-chain system for speed
+                        <br>• Your boost activates immediately
+                        <br><br>
+                        <strong>Silver/Gold/Platinum/Diamond (SOL payment):</strong>
+                        <br>• 30-60 seconds to mint on Solana blockchain
+                        <br>• 100% real on-chain NFT with provable ownership
+                        <br>• View your NFT on Solana Explorer after mint
+                    </div>
                 </div>
             </div>
         </div>
@@ -2065,9 +2541,151 @@
         // ==============================================
         // INIT
         // ==============================================
+        // ==============================================
+        // COLLECTION STATS
+        // ==============================================
+        async function loadCollectionStats() {
+            try {
+                // Fetch all NFTs
+                const { data: allNFTs, error } = await supabase
+                    .from('user_nfts')
+                    .select('*')
+                    .eq('is_active', true);
+
+                if (error) throw error;
+
+                // Calculate stats
+                const totalMinted = allNFTs.length;
+                const uniqueHolders = new Set(allNFTs.map(nft => nft.telegram_id)).size;
+                
+                // Calculate total volume (sum of all SOL payments)
+                let totalVolume = 0;
+                allNFTs.forEach(nft => {
+                    // Check if it's a real on-chain NFT (has valid mint address)
+                    if (nft.nft_mint_address && nft.nft_mint_address.length > 30) {
+                        // Extract price from tier
+                        if (nft.tier_name === 'Silver') totalVolume += 1.0;
+                        else if (nft.tier_name === 'Gold') totalVolume += 3.0;
+                        else if (nft.tier_name === 'Platinum') totalVolume += 10.0;
+                        else if (nft.tier_name === 'Diamond') totalVolume += 50.0;
+                    }
+                });
+
+                // Update UI
+                document.getElementById('total-minted').textContent = totalMinted;
+                document.getElementById('unique-holders').textContent = uniqueHolders;
+                document.getElementById('total-volume').textContent = totalVolume.toFixed(1) + ' SOL';
+                
+                console.log('✅ Collection stats loaded:', { totalMinted, uniqueHolders, totalVolume });
+            } catch (error) {
+                console.error('❌ Failed to load collection stats:', error);
+            }
+        }
+
+        // ==============================================
+        // RECENT MINTS
+        // ==============================================
+        async function loadRecentMints() {
+            try {
+                const { data: recentNFTs, error } = await supabase
+                    .from('user_nfts')
+                    .select(`
+                        *,
+                        leaderboard:telegram_id (
+                            telegram_username
+                        )
+                    `)
+                    .eq('is_active', true)
+                    .order('minted_at', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+
+                const listEl = document.getElementById('recent-mints-list');
+                if (!recentNFTs || recentNFTs.length === 0) {
+                    listEl.innerHTML = '<div class="loading-mints">No mints yet. Be the first! 🚀</div>';
+                    return;
+                }
+
+                listEl.innerHTML = '';
+                recentNFTs.forEach(nft => {
+                    const timeAgo = getTimeAgo(nft.minted_at);
+                    const username = nft.leaderboard?.[0]?.telegram_username || 'Anonymous';
+                    const tierClass = nft.tier_name.toLowerCase();
+                    
+                    // Check if real on-chain NFT
+                    const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
+                    const onChainBadge = isOnChain ? ' 🔗' : '';
+                    
+                    const mintItem = document.createElement('div');
+                    mintItem.className = 'mint-item';
+                    mintItem.innerHTML = `
+                        <div class="mint-item-header">
+                            <span class="mint-tier-badge ${tierClass}">${nft.tier_name}${onChainBadge}</span>
+                            <span class="mint-time">${timeAgo}</span>
+                        </div>
+                        <div class="mint-user">@${username}</div>
+                        <div class="mint-details">
+                            <span>${nft.rarity || 'Common'}</span>
+                            <span>×${nft.earning_multiplier || '2.0'} boost</span>
+                        </div>
+                    `;
+                    listEl.appendChild(mintItem);
+                });
+
+                console.log('✅ Recent mints loaded:', recentNFTs.length);
+            } catch (error) {
+                console.error('❌ Failed to load recent mints:', error);
+                const listEl = document.getElementById('recent-mints-list');
+                listEl.innerHTML = '<div class="loading-mints">Failed to load activity</div>';
+            }
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const mintTime = new Date(timestamp);
+            const diffMs = now - mintTime;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            return `${diffDays}d ago`;
+        }
+
+        // Auto-refresh recent mints every 10 seconds
+        setInterval(() => {
+            loadRecentMints();
+            loadCollectionStats();
+        }, 10000);
+
+        // ==============================================
+        // FAQ TOGGLE
+        // ==============================================
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const isActive = faqItem.classList.contains('active');
+            
+            // Close all FAQ items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Toggle current item
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        }
+
         window.addEventListener('load', async () => {
             console.log('🚀 NFT Mint Page loaded');
             console.log('👤 Telegram User ID:', TELEGRAM_USER_ID);
+
+            // Load initial data
+            loadCollectionStats();
+            loadRecentMints();
 
             // Restore wallet connection if exists
             try {
