@@ -10,7 +10,9 @@ const fetch = require('node-fetch');
 
 // Supabase config
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+// Use SERVICE_ROLE_KEY for database updates (bypasses RLS)
+// Falls back to regular SUPABASE_KEY if SERVICE_ROLE_KEY not set
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
 
 // Solana connection
 const SOLANA_NETWORK = process.env.SOLANA_NETWORK || 'devnet';
@@ -215,6 +217,9 @@ async function mintOnChainNFT(req, res) {
 
         // Update nft_mint_address in Supabase
         console.log('💾 Updating NFT mint address in database...');
+        console.log(`   NFT ID: ${nft_id}`);
+        console.log(`   Mint Address: ${mintAddress}`);
+        console.log(`   Metadata URI: ${uri}`);
         
         const updateResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?id=eq.${nft_id}`, {
             method: 'PATCH',
@@ -231,9 +236,16 @@ async function mintOnChainNFT(req, res) {
         });
 
         if (!updateResponse.ok) {
-            console.warn('⚠️ Failed to update NFT mint address in database');
+            const errorText = await updateResponse.text();
+            console.error('❌ Failed to update NFT mint address in database!');
+            console.error(`   Status: ${updateResponse.status}`);
+            console.error(`   Response: ${errorText}`);
+            console.error('   This NFT is minted on-chain but database is not updated!');
+            console.error('   Please add SUPABASE_SERVICE_ROLE_KEY to Render Environment Variables');
         } else {
-            console.log('✅ NFT mint address updated in database');
+            const updatedData = await updateResponse.json();
+            console.log('✅ NFT mint address updated in database successfully!');
+            console.log(`   Updated record:`, updatedData);
         }
 
         // Return success
