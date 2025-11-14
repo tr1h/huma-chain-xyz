@@ -24,7 +24,7 @@ const connection = new Connection(
 /**
  * Initialize Metaplex with payer keypair
  */
-function initMetaplex() {
+async function initMetaplex() {
     try {
         // Get payer keypair from environment
         const payerSecretKey = process.env.SOLANA_PAYER_KEYPAIR;
@@ -115,7 +115,7 @@ async function mintOnChainNFT(req, res) {
         }
 
         // Initialize Metaplex
-        const metaplex = initMetaplex();
+        const metaplex = await initMetaplex();
 
         // Create metadata
         const metadata = {
