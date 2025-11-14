@@ -173,18 +173,20 @@ async function mintOnChainNFT(req, res) {
         // Get creator wallet (Treasury Main)
         const creatorWallet = new PublicKey('6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM');
         
-        // Mint NFT
+        // Mint NFT - simplified parameters for Metaplex SDK
         const { nft } = await metaplex.nfts().create({
             uri: uri,
             name: metadata.name,
             symbol: metadata.symbol,
             sellerFeeBasisPoints: 500, // 5% royalty
-            creators: [{
-                address: creatorWallet, // Treasury Main for royalties
-                share: 100
-            }],
-            updateAuthority: metaplex.identity().publicKey,
-            mintAuthority: metaplex.identity().publicKey
+            creators: [
+                {
+                    address: creatorWallet,
+                    share: 100,
+                    verified: false // Will be verified later by creator signature
+                }
+            ]
+            // updateAuthority and mintAuthority default to payer (metaplex.identity())
         });
 
         const mintAddress = nft.address.toString();
