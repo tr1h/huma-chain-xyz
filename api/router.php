@@ -3,6 +3,34 @@
 // Routes /api/tama/* requests to tama_supabase.php
 // Routes /api/mint-nft-onchain to mint-nft-onchain-wrapper.php
 
+// CORS headers MUST be set before any routing
+$allowedOrigins = [
+    'https://solanatamagotchi.com',
+    'https://www.solanatamagotchi.com',
+    'http://localhost',
+    'http://localhost:3000',
+    '*'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
+if (in_array($origin, $allowedOrigins) || in_array('*', $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . ($origin === '*' ? '*' : $origin));
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+
+header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin');
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Max-Age: 86400'); // 24 hours
+
+// Handle OPTIONS preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    header('Content-Length: 0');
+    exit();
+}
+
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Route /api/tama/* to tama_supabase.php
