@@ -70,16 +70,17 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%);
             color: #333;
             min-height: 100vh;
         }
 
         /* Header */
         .header {
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -155,10 +156,11 @@
             display: flex;
             gap: 10px;
             margin-bottom: 30px;
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             padding: 15px;
             border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid rgba(102, 126, 234, 0.1);
             overflow-x: auto;
         }
 
@@ -212,14 +214,15 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .stat-card::before {
@@ -269,11 +272,12 @@
 
         /* Table */
         .data-table {
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             margin-bottom: 30px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .table-header {
@@ -370,10 +374,11 @@
         }
 
         .chart-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .chart-card h3 {
@@ -390,9 +395,11 @@
 
         .project-card {
             flex: 1;
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             border-radius: 15px;
             padding: 20px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             cursor: pointer;
             transition: all 0.3s;
             border: 3px solid transparent;
