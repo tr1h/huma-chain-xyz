@@ -10,8 +10,7 @@
     "dev:onchain": "nodemon api/server-onchain.js"
   },
   "dependencies": {
-    "@metaplex-foundation/js": "^0.28.0",
-    "@metaplex-foundation/js-plugin-bundlr-storage": "^0.28.0",
+    "@metaplex-foundation/js": "^0.20.1",
     "@solana/web3.js": "^1.95.0",
     "@streamflow/stream": "^9.3.0",
     "bs58": "^5.0.0",
@@ -21,6 +20,17 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "overrides": {
+    "form-data": "4.0.4",
+    "ws": "^8.18.3",
+    "@ethersproject/providers": {
+      "ws": "7.5.10"
+    },
+    "@irys/sdk": {
+      "aptos": "1.21.0",
+      "ws": "7.5.10"
+    }
   },
   "keywords": [
     "solana",

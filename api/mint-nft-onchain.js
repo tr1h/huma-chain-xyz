@@ -3,8 +3,7 @@
  * Node.js backend endpoint for creating real Solana NFTs
  */
 
-const { Metaplex, keypairIdentity } = require('@metaplex-foundation/js');
-const { bundlrStorage } = require('@metaplex-foundation/js-plugin-bundlr-storage');
+const { Metaplex, keypairIdentity, bundlrStorage } = require('@metaplex-foundation/js');
 const { Connection, Keypair, clusterApiUrl, PublicKey } = require('@solana/web3.js');
 const bs58 = require('bs58');
 const fetch = require('node-fetch');
