@@ -3,7 +3,7 @@
  * Node.js backend endpoint for creating real Solana NFTs
  */
 
-const { Metaplex, keypairIdentity, bundlrStorage } = require('@metaplex-foundation/js');
+const { Metaplex, keypairIdentity } = require('@metaplex-foundation/js');
 const { Connection, Keypair, clusterApiUrl, PublicKey } = require('@solana/web3.js');
 const bs58 = require('bs58');
 const fetch = require('node-fetch');
@@ -40,28 +40,16 @@ function initMetaplex() {
         console.log('✅ Payer loaded:', payer.publicKey.toString());
 
         // Initialize Metaplex
-        // Note: bundlrStorage might need different syntax in v0.20.1
-        let metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
+        // For now, use default storage (Metaplex will handle it)
+        // bundlrStorage requires separate package or newer version
+        const metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
         
-        // Try to use bundlrStorage if available
-        try {
-            if (typeof bundlrStorage === 'function') {
-                metaplex = metaplex.use(bundlrStorage({
-                    address: SOLANA_NETWORK === 'mainnet' 
-                        ? 'https://node1.bundlr.network' 
-                        : 'https://devnet.bundlr.network',
-                    providerUrl: SOLANA_NETWORK === 'mainnet'
-                        ? clusterApiUrl('mainnet-beta')
-                        : clusterApiUrl('devnet'),
-                    timeout: 60000,
-                }));
-            } else {
-                console.warn('⚠️ bundlrStorage not available, using default storage');
-            }
-        } catch (error) {
-            console.warn('⚠️ Failed to initialize bundlrStorage:', error.message);
-            // Continue without bundlrStorage - will use default storage
-        }
+        // Note: For Arweave upload, you may need to:
+        // 1. Install @metaplex-foundation/js-plugin-bundlr-storage
+        // 2. Or use irysStorage (new name for Bundlr)
+        // 3. Or use nftStorage plugin
+        // For now, using default storage which may require manual Arweave upload
+        console.log('✅ Metaplex initialized (using default storage)');
 
         return metaplex;
     } catch (error) {
