@@ -4,15 +4,29 @@
  * NO DATABASE PASSWORD NEEDED!
  */
 
+// CORS Configuration - MUST BE FIRST (before any output!)
+$allowedOrigins = [
+    'https://solanatamagotchi.com',
+    'https://www.solanatamagotchi.com',
+    'https://tr1h.github.io',
+    'http://localhost',
+    'http://localhost:3000',
+    'http://127.0.0.1',
+    '*'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
+if (in_array($origin, $allowedOrigins) || in_array('*', $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . ($origin === '*' ? '*' : $origin));
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin');
-
-// Additional CORS headers for safety
-if (isset($_SERVER['HTTP_ORIGIN'])) {
-    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-}
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Max-Age: 86400'); // 24 hours
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
