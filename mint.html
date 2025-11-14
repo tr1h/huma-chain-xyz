@@ -1477,23 +1477,31 @@
                     
                     console.log('📡 Calling on-chain mint API:', onchainApiUrl);
                     
-                    const response = await fetch(onchainApiUrl, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            nft_id: nft_id,
-                            tier: tier,
-                            rarity: rarity,
-                            multiplier: multiplier,
-                            imageUrl: imageUrl,
-                            telegramId: telegram_id,
-                            walletAddress: wallet_address,
-                            design_number: design_number
-                        })
-                    });
+                    // Create AbortController for timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+                    
+                    try {
+                        const response = await fetch(onchainApiUrl, {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                nft_id: nft_id,
+                                tier: tier,
+                                rarity: rarity,
+                                multiplier: multiplier,
+                                imageUrl: imageUrl,
+                                telegramId: telegram_id,
+                                walletAddress: wallet_address,
+                                design_number: design_number
+                            }),
+                            signal: controller.signal
+                        });
+                        
+                        clearTimeout(timeoutId);
                     
                     if (!response.ok) {
                         const errorText = await response.text();
@@ -1525,13 +1533,23 @@
                         throw new Error(onchainResult.error || 'On-chain mint failed');
                     }
                     
+                    } catch (fetchError) {
+                        clearTimeout(timeoutId);
+                        if (fetchError.name === 'AbortError') {
+                            throw new Error('On-chain mint request timed out (took longer than 2 minutes). The NFT may still be processing on the server.');
+                        }
+                        throw fetchError;
+                    }
                 } catch (error) {
                     console.error('❌ On-chain mint error:', error);
                     // Show warning but don't block - off-chain NFT already works
                     if (error.message && error.message.includes('CORS')) {
                         console.warn('⚠️ On-chain minting is not available on production yet. Off-chain NFT is still valid!');
+                    } else if (error.message && error.message.includes('timeout')) {
+                        console.warn('⚠️ On-chain mint is taking longer than expected. The NFT may still be processing on the server. Off-chain NFT is still valid!');
                     } else {
                         console.warn('⚠️ On-chain mint failed (non-critical). Off-chain NFT is still valid!');
+                        console.warn('Error details:', error.message);
                     }
                     // Don't throw - off-chain NFT already works
                 }
