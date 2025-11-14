@@ -804,6 +804,100 @@
             </div>
         </div>
         
+        <div class="tier-grid">
+            <!-- Bronze Card -->
+            <div class="tier-card bronze">
+                <div class="tier-icon">🟫</div>
+                <div class="tier-name">BRONZE</div>
+                <div class="tier-supply">Common · 4,500 available</div>
+                <div class="tier-price">
+                    <div class="main-price">5000 TAMA</div>
+                    <div class="usd-price">$25</div>
+                    <div class="next-price">or 0.15 SOL</div>
+                </div>
+                <div class="tier-boost">×2.0 EARNING</div>
+                <div class="passive-income">🎁 +50 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill bronze" id="progress-bronze" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span></div>
+                <div class="bronze-buttons">
+                    <button class="bronze-btn" onclick="mintBronze()">FREE</button>
+                    <button class="bronze-btn sol" onclick="mintBronzeSOL()">0.15 SOL</button>
+                </div>
+            </div>
+            
+            <!-- Silver Card -->
+            <div class="tier-card silver">
+                <div class="fomo-badge">🔥 PRICE ↑</div>
+                <div class="tier-icon">🥈</div>
+                <div class="tier-name">SILVER</div>
+                <div class="tier-supply">Uncommon · 350 available</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-silver-sol">1</span> SOL</div>
+                    <div class="usd-price">$<span id="price-silver-usd">164</span></div>
+                    <div class="next-price">Next: <span id="next-silver">1.01</span> SOL (+0.6%)</div>
+                </div>
+                <div class="tier-boost">×2.3 EARNING</div>
+                <div class="passive-income">🎁 +150 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill silver" id="progress-silver" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: <span id="minted-silver">0</span> / <span id="max-silver">350</span></div>
+                <button class="mint-btn" onclick="mintSOL('Silver')">💎 MINT SILVER</button>
+            </div>
+            
+            <!-- Gold Card -->
+            <div class="tier-card gold">
+                <div class="fomo-badge">🔥 PRICE ↑</div>
+                <div class="tier-icon">🥇</div>
+                <div class="tier-name">GOLD</div>
+                <div class="tier-supply">Rare · 130 available</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-gold-sol">3</span> SOL</div>
+                    <div class="usd-price">$<span id="price-gold-usd">492</span></div>
+                    <div class="next-price">Next: <span id="next-gold">3.05</span> SOL (+1.8%)</div>
+                </div>
+                <div class="tier-boost">×2.7 EARNING</div>
+                <div class="passive-income">🎁 +500 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill gold" id="progress-gold" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: <span id="minted-gold">0</span> / <span id="max-gold">130</span></div>
+                <button class="mint-btn" onclick="mintSOL('Gold')">🏆 MINT GOLD</button>
+            </div>
+            
+            <!-- Platinum Card -->
+            <div class="tier-card platinum">
+                <div class="fomo-badge">🔥 RARE!</div>
+                <div class="tier-icon">💎</div>
+                <div class="tier-name">PLATINUM</div>
+                <div class="tier-supply">Epic · Only 18!</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-platinum-sol">10</span> SOL</div>
+                    <div class="usd-price">$<span id="price-platinum-usd">1,641</span></div>
+                    <div class="next-price">Next: <span id="next-platinum">11.11</span> SOL (+11%)</div>
+                </div>
+                <div class="tier-boost">×3.5 EARNING</div>
+                <div class="passive-income">🎁 +2000 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill platinum" id="progress-platinum" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: <span id="minted-platinum">0</span> / <span id="max-platinum">18</span></div>
+                <button class="mint-btn" onclick="mintSOL('Platinum')">⚡ MINT PLATINUM</button>
+            </div>
+            
+            <!-- Diamond Card -->
+            <div class="tier-card diamond">
+                <div class="fomo-badge">⚠️ ONLY 2!</div>
+                <div class="tier-icon">🔷</div>
+                <div class="tier-name">DIAMOND</div>
+                <div class="tier-supply">Legendary · ONLY 2 EXIST!</div>
+                <div class="tier-price">
+                    <div class="main-price"><span id="price-diamond-sol">50</span> SOL</div>
+                    <div class="usd-price">$<span id="price-diamond-usd">8,204</span></div>
+                    <div class="next-price">Next: <span id="next-diamond">100</span> SOL (+100%)</div>
+                </div>
+                <div class="tier-boost">×5.0 MAXIMUM!</div>
+                <div class="passive-income">🎁 +10000 TAMA/day</div>
+                <div class="progress-bar"><div class="progress-fill diamond" id="progress-diamond" style="width: 0%"></div></div>
+                <div class="tier-minted-count">Minted: <span id="minted-diamond">0</span> / <span id="max-diamond">2</span></div>
+                <button class="mint-btn" onclick="mintSOL('Diamond')">👑 MINT DIAMOND</button>
+            </div>
+        </div>
+        
         <!-- NFT BENEFITS SECTION -->
         <div class="nft-benefits-section">
             <div class="benefits-header">
@@ -905,100 +999,6 @@
                 <div class="calc-note">
                     * Calculations based on passive earnings only. With x2-x5 boost multiplier your earnings will be even higher! 🚀
                 </div>
-            </div>
-        </div>
-        
-        <div class="tier-grid">
-            <!-- Bronze Card -->
-            <div class="tier-card bronze">
-                <div class="tier-icon">🟫</div>
-                <div class="tier-name">BRONZE</div>
-                <div class="tier-supply">Common · 4,500 available</div>
-                <div class="tier-price">
-                    <div class="main-price">5000 TAMA</div>
-                    <div class="usd-price">$25</div>
-                    <div class="next-price">or 0.15 SOL</div>
-                </div>
-                <div class="tier-boost">×2.0 EARNING</div>
-                <div class="passive-income">🎁 +50 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill bronze" id="progress-bronze" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span></div>
-                <div class="bronze-buttons">
-                    <button class="bronze-btn" onclick="mintBronze()">FREE</button>
-                    <button class="bronze-btn sol" onclick="mintBronzeSOL()">0.15 SOL</button>
-                </div>
-            </div>
-            
-            <!-- Silver Card -->
-            <div class="tier-card silver">
-                <div class="fomo-badge">🔥 PRICE ↑</div>
-                <div class="tier-icon">🥈</div>
-                <div class="tier-name">SILVER</div>
-                <div class="tier-supply">Uncommon · 350 available</div>
-                <div class="tier-price">
-                    <div class="main-price"><span id="price-silver-sol">1</span> SOL</div>
-                    <div class="usd-price">$<span id="price-silver-usd">164</span></div>
-                    <div class="next-price">Next: <span id="next-silver">1.01</span> SOL (+0.6%)</div>
-                </div>
-                <div class="tier-boost">×2.3 EARNING</div>
-                <div class="passive-income">🎁 +150 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill silver" id="progress-silver" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: <span id="minted-silver">0</span> / <span id="max-silver">350</span></div>
-                <button class="mint-btn" onclick="mintSOL('Silver')">💎 MINT SILVER</button>
-            </div>
-            
-            <!-- Gold Card -->
-            <div class="tier-card gold">
-                <div class="fomo-badge">🔥 PRICE ↑</div>
-                <div class="tier-icon">🥇</div>
-                <div class="tier-name">GOLD</div>
-                <div class="tier-supply">Rare · 130 available</div>
-                <div class="tier-price">
-                    <div class="main-price"><span id="price-gold-sol">3</span> SOL</div>
-                    <div class="usd-price">$<span id="price-gold-usd">492</span></div>
-                    <div class="next-price">Next: <span id="next-gold">3.05</span> SOL (+1.8%)</div>
-                </div>
-                <div class="tier-boost">×2.7 EARNING</div>
-                <div class="passive-income">🎁 +500 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill gold" id="progress-gold" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: <span id="minted-gold">0</span> / <span id="max-gold">130</span></div>
-                <button class="mint-btn" onclick="mintSOL('Gold')">🏆 MINT GOLD</button>
-            </div>
-            
-            <!-- Platinum Card -->
-            <div class="tier-card platinum">
-                <div class="fomo-badge">🔥 RARE!</div>
-                <div class="tier-icon">💎</div>
-                <div class="tier-name">PLATINUM</div>
-                <div class="tier-supply">Epic · Only 18!</div>
-                <div class="tier-price">
-                    <div class="main-price"><span id="price-platinum-sol">10</span> SOL</div>
-                    <div class="usd-price">$<span id="price-platinum-usd">1,641</span></div>
-                    <div class="next-price">Next: <span id="next-platinum">11.11</span> SOL (+11%)</div>
-                </div>
-                <div class="tier-boost">×3.5 EARNING</div>
-                <div class="passive-income">🎁 +2000 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill platinum" id="progress-platinum" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: <span id="minted-platinum">0</span> / <span id="max-platinum">18</span></div>
-                <button class="mint-btn" onclick="mintSOL('Platinum')">⚡ MINT PLATINUM</button>
-            </div>
-            
-            <!-- Diamond Card -->
-            <div class="tier-card diamond">
-                <div class="fomo-badge">⚠️ ONLY 2!</div>
-                <div class="tier-icon">🔷</div>
-                <div class="tier-name">DIAMOND</div>
-                <div class="tier-supply">Legendary · ONLY 2 EXIST!</div>
-                <div class="tier-price">
-                    <div class="main-price"><span id="price-diamond-sol">50</span> SOL</div>
-                    <div class="usd-price">$<span id="price-diamond-usd">8,204</span></div>
-                    <div class="next-price">Next: <span id="next-diamond">100</span> SOL (+100%)</div>
-                </div>
-                <div class="tier-boost">×5.0 MAXIMUM!</div>
-                <div class="passive-income">🎁 +10000 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill diamond" id="progress-diamond" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: <span id="minted-diamond">0</span> / <span id="max-diamond">2</span></div>
-                <button class="mint-btn" onclick="mintSOL('Diamond')">👑 MINT DIAMOND</button>
             </div>
         </div>
         
