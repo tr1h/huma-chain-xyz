@@ -24,7 +24,10 @@ RUN echo 'RewriteEngine On\n\
 RewriteBase /api\n\
 RewriteCond %{REQUEST_FILENAME} !-f\n\
 RewriteCond %{REQUEST_FILENAME} !-d\n\
-RewriteRule ^tama(/.*)?$ tama_supabase.php [QSA,L]' > /app/api/.htaccess
+RewriteRule ^tama(/.*)?$ tama_supabase.php [QSA,L]\n\
+RewriteCond %{REQUEST_URI} ^/api/mint-nft-onchain\n\
+RewriteCond %{REQUEST_FILENAME} !-f\n\
+RewriteRule ^mint-nft-onchain$ mint-nft-onchain-wrapper.php [QSA,L]' > /app/api/.htaccess
 
 # Configure Apache with proper routing
 RUN echo '<VirtualHost *:80>\n\
@@ -47,6 +50,10 @@ RUN echo '<VirtualHost *:80>\n\
     RewriteCond %{REQUEST_URI} !tama_supabase\.php$\n\
     RewriteCond %{REQUEST_FILENAME} !-f\n\
     RewriteRule ^/api/tama(.*)$ /api/tama_supabase.php [QSA,L]\n\
+    # Fallback: Route /api/mint-nft-onchain to mint-nft-onchain-wrapper.php\n\
+    RewriteCond %{REQUEST_URI} ^/api/mint-nft-onchain\n\
+    RewriteCond %{REQUEST_FILENAME} !-f\n\
+    RewriteRule ^/api/mint-nft-onchain$ /api/mint-nft-onchain-wrapper.php [QSA,L]\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 # Create startup script
