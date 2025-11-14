@@ -460,6 +460,36 @@
         .badge.danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
         .badge.info { background: rgba(102, 126, 234, 0.2); color: var(--primary); }
 
+        /* Progress Bar Styles (Unified with mint.html) */
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        /* Tier-specific progress bar gradients */
+        .progress-fill.bronze {
+            background: linear-gradient(90deg, #CD7F32, #FFB703);
+        }
+        .progress-fill.silver {
+            background: linear-gradient(90deg, #C0C0C0, #E5E5E5);
+        }
+        .progress-fill.gold {
+            background: linear-gradient(90deg, #FFD700, #FFED4E);
+        }
+        .progress-fill.platinum {
+            background: linear-gradient(90deg, #E5E4E2, #FFFFFF);
+        }
+        .progress-fill.diamond {
+            background: linear-gradient(90deg, #B9F2FF, #00D9FF);
+        }
+
         /* Admin Actions Panel */
         .admin-actions {
             background: #ffffff;
@@ -728,8 +758,8 @@
                         </div>
                         
                         <div style="margin: 15px 0;">
-                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="bronze-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #CD7F32, #FFB703); transition: width 0.5s;"></div>
+                            <div class="progress-bar">
+                                <div id="bronze-progress" class="progress-fill bronze" style="width: 0%;"></div>
                             </div>
                             <div style="font-size: 11px; margin-top: 5px;">
                                 Minted: <span id="bronze-minted">0</span> / <span id="bronze-max">4,500</span>
@@ -753,8 +783,8 @@
                         </div>
                         
                         <div style="margin: 15px 0;">
-                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="silver-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #C0C0C0, #E5E5E5); transition: width 0.5s;"></div>
+                            <div class="progress-bar">
+                                <div id="silver-progress" class="progress-fill silver" style="width: 0%;"></div>
                             </div>
                             <div style="font-size: 11px; margin-top: 5px;">
                                 Minted: <span id="silver-minted">0</span> / <span id="silver-max">350</span>
@@ -778,8 +808,8 @@
                         </div>
                         
                         <div style="margin: 15px 0;">
-                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="gold-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #FFD700, #FFED4E); transition: width 0.5s;"></div>
+                            <div class="progress-bar">
+                                <div id="gold-progress" class="progress-fill gold" style="width: 0%;"></div>
                             </div>
                             <div style="font-size: 11px; margin-top: 5px;">
                                 Minted: <span id="gold-minted">0</span> / <span id="gold-max">130</span>
@@ -803,8 +833,8 @@
                         </div>
                         
                         <div style="margin: 15px 0;">
-                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="platinum-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #E5E4E2, #FFFFFF); transition: width 0.5s;"></div>
+                            <div class="progress-bar">
+                                <div id="platinum-progress" class="progress-fill platinum" style="width: 0%;"></div>
                             </div>
                             <div style="font-size: 11px; margin-top: 5px;">
                                 Minted: <span id="platinum-minted">0</span> / <span id="platinum-max">18</span>
@@ -828,8 +858,8 @@
                         </div>
                         
                         <div style="margin: 15px 0;">
-                            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="diamond-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #B9F2FF, #00D9FF); transition: width 0.5s;"></div>
+                            <div class="progress-bar">
+                                <div id="diamond-progress" class="progress-fill diamond" style="width: 0%;"></div>
                             </div>
                             <div style="font-size: 11px; margin-top: 5px;">
                                 Minted: <span id="diamond-minted">0</span> / <span id="diamond-max">2</span>

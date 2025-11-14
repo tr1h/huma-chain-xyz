@@ -221,15 +221,30 @@
         .progress-bar {
             width: 100%;
             height: 12px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 6px;
             margin: 10px 0;
             overflow: hidden;
         }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #8AC926, #FFD700);
-            transition: width 0.5s;
+            transition: width 0.5s ease;
+        }
+        /* Tier-specific progress bar gradients */
+        .progress-fill.bronze {
+            background: linear-gradient(90deg, #CD7F32, #FFB703);
+        }
+        .progress-fill.silver {
+            background: linear-gradient(90deg, #C0C0C0, #E5E5E5);
+        }
+        .progress-fill.gold {
+            background: linear-gradient(90deg, #FFD700, #FFED4E);
+        }
+        .progress-fill.platinum {
+            background: linear-gradient(90deg, #E5E4E2, #FFFFFF);
+        }
+        .progress-fill.diamond {
+            background: linear-gradient(90deg, #B9F2FF, #00D9FF);
         }
         .tier-minted-count {
             font-size: 10px;
@@ -538,7 +553,7 @@
                 </div>
                 <div class="tier-boost">×2.0 EARNING</div>
                 <div class="passive-income">🎁 +50 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-bar"><div class="progress-fill bronze" id="progress-bronze" style="width: 0%"></div></div>
                 <div class="tier-minted-count">Minted: 0 / 4500</div>
                 <div class="bronze-buttons">
                     <button class="bronze-btn" onclick="mintBronze()">FREE</button>
@@ -559,7 +574,7 @@
                 </div>
                 <div class="tier-boost">×2.3 EARNING</div>
                 <div class="passive-income">🎁 +150 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-bar"><div class="progress-fill silver" id="progress-silver" style="width: 0%"></div></div>
                 <div class="tier-minted-count">Minted: 0 / 350</div>
                 <button class="mint-btn" onclick="mintSOL('Silver')">💎 MINT SILVER</button>
             </div>
@@ -577,7 +592,7 @@
                 </div>
                 <div class="tier-boost">×2.7 EARNING</div>
                 <div class="passive-income">🎁 +500 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-bar"><div class="progress-fill gold" id="progress-gold" style="width: 0%"></div></div>
                 <div class="tier-minted-count">Minted: 0 / 130</div>
                 <button class="mint-btn" onclick="mintSOL('Gold')">🏆 MINT GOLD</button>
             </div>
@@ -595,7 +610,7 @@
                 </div>
                 <div class="tier-boost">×3.5 EARNING</div>
                 <div class="passive-income">🎁 +2000 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-bar"><div class="progress-fill platinum" id="progress-platinum" style="width: 0%"></div></div>
                 <div class="tier-minted-count">Minted: 0 / 18</div>
                 <button class="mint-btn" onclick="mintSOL('Platinum')">⚡ MINT PLATINUM</button>
             </div>
@@ -613,7 +628,7 @@
                 </div>
                 <div class="tier-boost">×5.0 MAXIMUM!</div>
                 <div class="passive-income">🎁 +10000 TAMA/day</div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-bar"><div class="progress-fill diamond" id="progress-diamond" style="width: 0%"></div></div>
                 <div class="tier-minted-count">Minted: 0 / 2</div>
                 <button class="mint-btn" onclick="mintSOL('Diamond')">👑 MINT DIAMOND</button>
             </div>
