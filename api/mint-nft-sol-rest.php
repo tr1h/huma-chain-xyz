@@ -339,7 +339,114 @@ try {
         // Don't throw - NFT is already created
     }
     
-    // 10. Apply boost to user and ensure wallet_address is saved in leaderboard (if player exists)
+    // 10. Log transactions (NFT mint + SOL distribution)
+    error_log("📝 Creating transaction records...");
+    
+    // Calculate TAMA equivalent for transaction display (1 SOL ≈ 32,800 TAMA)
+    $TAMA_PER_SOL = 32800;
+    $tamaEquivalent = $price_sol * $TAMA_PER_SOL;
+    
+    // Get current user balance for transaction
+    $currentBalance = 0;
+    if ($playerExists && isset($playerData['tama'])) {
+        $currentBalance = floatval($playerData['tama']);
+    }
+    
+    // 10.1. Create NFT mint transaction (main purchase record)
+    $mintTransaction = supabaseQuery('transactions', 'POST', [
+        'user_id' => strval($telegram_id),
+        'username' => $playerData['telegram_username'] ?? 'Unknown',
+        'type' => 'nft_mint_sol',
+        'amount' => -$price_sol, // ✅ Negative amount (SOL spent)
+        'balance_before' => $currentBalance,
+        'balance_after' => $currentBalance, // TAMA balance unchanged
+        'metadata' => json_encode([
+            'tier' => $tier_name,
+            'rarity' => $rarity,
+            'nft_id' => $nft_id,
+            'design_number' => $designNumber,
+            'payment_method' => 'SOL',
+            'price_sol' => $price_sol,
+            'price_usd' => round($price_usd, 2),
+            'tama_equivalent' => round($tamaEquivalent),
+            'earning_multiplier' => $earning_multiplier,
+            'wallet_address' => $wallet_address,
+            'minted_at' => date('Y-m-d H:i:s')
+        ])
+    ]);
+    
+    if ($mintTransaction['code'] >= 200 && $mintTransaction['code'] < 300) {
+        error_log("✅ NFT mint transaction logged: $tier_name, -$price_sol SOL");
+    } else {
+        error_log("⚠️ Failed to log NFT mint transaction: code={$mintTransaction['code']}");
+    }
+    
+    // 10.2. Log SOL distribution transactions (50% Main, 30% Liquidity, 20% Team)
+    // These show where the SOL payment went
+    
+    // Treasury Main (50%)
+    $mainAmount = $price_sol * 0.50;
+    $mainTx = supabaseQuery('transactions', 'POST', [
+        'user_id' => '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM', // Treasury Main
+        'username' => '🏦 Treasury Main',
+        'type' => 'nft_revenue_main',
+        'amount' => $mainAmount, // ✅ Positive (income)
+        'balance_before' => 0,
+        'balance_after' => 0,
+        'metadata' => json_encode([
+            'source' => 'nft_mint_sol',
+            'tier' => $tier_name,
+            'rarity' => $rarity,
+            'buyer' => $telegram_id,
+            'percentage' => 50,
+            'total_price_sol' => $price_sol,
+            'amount_sol' => $mainAmount
+        ])
+    ]);
+    
+    // Treasury Liquidity (30%)
+    $liquidityAmount = $price_sol * 0.30;
+    $liquidityTx = supabaseQuery('transactions', 'POST', [
+        'user_id' => 'FFM3AaQEYQVPVcWqHwm7AXGXS6BjzvZ8S4EhxLKQfCuA', // Treasury Liquidity
+        'username' => '💧 Treasury Liquidity',
+        'type' => 'nft_revenue_liquidity',
+        'amount' => $liquidityAmount,
+        'balance_before' => 0,
+        'balance_after' => 0,
+        'metadata' => json_encode([
+            'source' => 'nft_mint_sol',
+            'tier' => $tier_name,
+            'rarity' => $rarity,
+            'buyer' => $telegram_id,
+            'percentage' => 30,
+            'total_price_sol' => $price_sol,
+            'amount_sol' => $liquidityAmount
+        ])
+    ]);
+    
+    // Treasury Team (20%)
+    $teamAmount = $price_sol * 0.20;
+    $teamTx = supabaseQuery('transactions', 'POST', [
+        'user_id' => 'BmP4EJjWETjxE9ALZ7sTNMkAYkh5vTbbUBHuq5FVQUWk', // Treasury Team
+        'username' => '👥 Treasury Team',
+        'type' => 'nft_revenue_team',
+        'amount' => $teamAmount,
+        'balance_before' => 0,
+        'balance_after' => 0,
+        'metadata' => json_encode([
+            'source' => 'nft_mint_sol',
+            'tier' => $tier_name,
+            'rarity' => $rarity,
+            'buyer' => $telegram_id,
+            'percentage' => 20,
+            'total_price_sol' => $price_sol,
+            'amount_sol' => $teamAmount
+        ])
+    ]);
+    
+    error_log("✅ SOL distribution transactions logged: Main=$mainAmount, Liquidity=$liquidityAmount, Team=$teamAmount");
+    
+    // 11. Apply boost to user and ensure wallet_address is saved in leaderboard (if player exists)
     if ($playerExists) {
         $updateData = [
             'nft_boost_multiplier' => $earning_multiplier,
