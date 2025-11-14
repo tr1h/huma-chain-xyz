@@ -30,20 +30,6 @@ AddDefaultCharset UTF-8
 # Disable directory listing
 Options -Indexes
 
-# CORS Headers for Apache (backup if PHP headers fail)
-<IfModule mod_headers.c>
-    # Handle preflight OPTIONS requests
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin"
-    Header always set Access-Control-Allow-Credentials "true"
-    Header always set Access-Control-Max-Age "86400"
-</IfModule>
-
-# Handle OPTIONS preflight requests (before routing)
-RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.*)$ $1 [R=200,L]
-
-# CORS headers are also handled in PHP (api/tama_supabase.php, api/mint-nft-onchain-wrapper.php)
-# Apache headers serve as backup
+# CORS headers are handled in PHP (api/tama_supabase.php, api/mint-nft-onchain-wrapper.php)
+# Do NOT set CORS headers in Apache to avoid duplicate headers conflict
 

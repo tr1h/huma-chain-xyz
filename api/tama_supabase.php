@@ -14,6 +14,8 @@ ob_start();
 
 // CORS Configuration - MUST BE FIRST (before any output!)
 $allowedOrigins = [
+    'https://solanatamagotchi.com',
+    'https://www.solanatamagotchi.com',
     'https://tr1h.github.io',
     'http://localhost',
     'http://localhost:3000',
