@@ -107,6 +107,166 @@
             box-shadow: 0 5px 20px rgba(138, 201, 38, 0.6);
         }
         
+        .btn-my-nfts {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #9C27B0, #E91E63);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-my-nfts:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(156, 39, 176, 0.6);
+        }
+        
+        /* NFT BENEFITS SECTION */
+        .nft-benefits-section {
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.05), rgba(255, 215, 0, 0.05));
+            border: 2px solid rgba(138, 201, 38, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease;
+        }
+        
+        .benefits-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .benefits-header h2 {
+            font-size: 20px;
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+        
+        .benefits-subtitle {
+            font-size: 11px;
+            color: #8AC926;
+            opacity: 0.9;
+            font-family: Arial, sans-serif;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .benefit-card {
+            background: rgba(29, 53, 87, 0.5);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            border-color: #8AC926;
+            box-shadow: 0 10px 30px rgba(138, 201, 38, 0.3);
+        }
+        
+        .benefit-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .benefit-title {
+            font-size: 12px;
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        
+        .benefit-description {
+            font-size: 9px;
+            color: #ccc;
+            margin-bottom: 15px;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+        }
+        
+        .benefit-amount {
+            font-size: 11px;
+            color: #8AC926;
+            font-weight: bold;
+        }
+        
+        /* EARNINGS CALCULATOR */
+        .earnings-calculator {
+            background: rgba(29, 53, 87, 0.7);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .earnings-calculator h3 {
+            text-align: center;
+            font-size: 16px;
+            color: #FFD700;
+            margin-bottom: 25px;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .calc-tier {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(138, 201, 38, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .calc-tier-name {
+            font-size: 12px;
+            color: #FFD700;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(138, 201, 38, 0.3);
+        }
+        
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 9px;
+            color: #ccc;
+        }
+        
+        .calc-row strong {
+            color: #fff;
+            font-size: 10px;
+        }
+        
+        .calc-row .highlight {
+            color: #8AC926;
+        }
+        
+        .calc-row .success {
+            color: #4CAF50;
+        }
+        
+        .calc-note {
+            text-align: center;
+            font-size: 8px;
+            color: #999;
+            margin-top: 15px;
+            font-family: Arial, sans-serif;
+            font-style: italic;
+        }
+        
         /* TIER GRID - EPIC CARDS */
         .tier-grid {
             display: flex;
@@ -520,6 +680,107 @@
                 width: 0%;
             }
         }
+        
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 20px; }
+            .header .subtitle { font-size: 10px; }
+            
+            .wallet-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .wallet-info {
+                justify-content: space-around;
+                width: 100%;
+            }
+            
+            .btn-connect, .btn-my-nfts {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .nft-benefits-section {
+                padding: 20px 15px;
+            }
+            
+            .benefits-header h2 {
+                font-size: 16px;
+            }
+            
+            .benefits-subtitle {
+                font-size: 10px;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .benefit-icon {
+                font-size: 40px;
+            }
+            
+            .benefit-title {
+                font-size: 11px;
+            }
+            
+            .benefit-description {
+                font-size: 8px;
+            }
+            
+            .earnings-calculator {
+                padding: 20px 15px;
+            }
+            
+            .earnings-calculator h3 {
+                font-size: 14px;
+            }
+            
+            .calculator-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            
+            .calc-tier-name {
+                font-size: 11px;
+            }
+            
+            .calc-row {
+                font-size: 8px;
+            }
+            
+            .calc-row strong {
+                font-size: 9px;
+            }
+            
+            .calc-note {
+                font-size: 7px;
+            }
+            
+            .tier-card {
+                min-width: 280px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 16px;
+            }
+            
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tier-card {
+                min-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -537,7 +798,114 @@
                 <div>SOL: <span id="sol-balance">0</span></div>
                 <div>TAMA: <span id="tama-balance">Loading...</span></div>
             </div>
-            <button class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+                <button class="btn-my-nfts" onclick="viewMyNFTs()">🖼️ MY NFTs</button>
+            </div>
+        </div>
+        
+        <!-- NFT BENEFITS SECTION -->
+        <div class="nft-benefits-section">
+            <div class="benefits-header">
+                <h2>💎 WHY MINT NFT?</h2>
+                <p class="benefits-subtitle">Your NFT is not just art - it's a money-making machine! 🚀</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">💰</div>
+                    <div class="benefit-title">PASSIVE INCOME</div>
+                    <div class="benefit-description">Earn TAMA tokens every day automatically!</div>
+                    <div class="benefit-amount">+50 to +10,000 TAMA/day</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <div class="benefit-title">EARNING BOOST</div>
+                    <div class="benefit-description">Multiply your click rewards in the game!</div>
+                    <div class="benefit-amount">×2.0 to ×5.0 Multiplier</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📈</div>
+                    <div class="benefit-title">PRICE GROWTH</div>
+                    <div class="benefit-description">Bonding curve = price increases with demand!</div>
+                    <div class="benefit-amount">+0.6% to +100% per mint</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔗</div>
+                    <div class="benefit-title">REAL ON-CHAIN</div>
+                    <div class="benefit-description">Your NFT lives on Solana blockchain forever!</div>
+                    <div class="benefit-amount">Trade on marketplaces</div>
+                </div>
+            </div>
+            
+            <!-- EARNINGS CALCULATOR -->
+            <div class="earnings-calculator">
+                <h3>💸 EARNINGS CALCULATOR</h3>
+                <div class="calculator-grid">
+                    <div class="calc-tier">
+                        <div class="calc-tier-name">🥉 Bronze</div>
+                        <div class="calc-row">
+                            <span>Daily:</span>
+                            <strong>+50 TAMA</strong>
+                        </div>
+                        <div class="calc-row">
+                            <span>Monthly:</span>
+                            <strong class="highlight">+1,500 TAMA</strong>
+                        </div>
+                        <div class="calc-row">
+                            <span>ROI:</span>
+                            <strong class="success">~10 days</strong>
+                        </div>
+                    </div>
+                    <div class="calc-tier">
+                        <div class="calc-tier-name">🥈 Silver</div>
+                        <div class="calc-row">
+                            <span>Daily:</span>
+                            <strong>+150 TAMA</strong>
+                        </div>
+                        <div class="calc-row">
+                            <span>Monthly:</span>
+                            <strong class="highlight">+4,500 TAMA</strong>
+                        </div>
+                        <div class="calc-row">
+                            <span>ROI:</span>
+                            <strong class="success">~7 days</strong>
+                        </div>
+                    </div>
+                    <div class="calc-tier">
+                        <div class="calc-tier-name">🥇 Gold</div>
+                        <div class="calc-row">
+                            <span>Daily:</span>
+                            <strong>+500 TAMA</strong>
+                        </div>
+                        <div class="calc-row">
+                            <span>Monthly:</span>
+                            <strong class="highlight">+15,000 TAMA</strong>
+                        </div>
+                        <div class="calc-row">
+                            <span>ROI:</span>
+                            <strong class="success">~6 days</strong>
+                        </div>
+                    </div>
+                    <div class="calc-tier">
+                        <div class="calc-tier-name">💎 Diamond</div>
+                        <div class="calc-row">
+                            <span>Daily:</span>
+                            <strong>+10,000 TAMA</strong>
+                        </div>
+                        <div class="calc-row">
+                            <span>Monthly:</span>
+                            <strong class="highlight">+300,000 TAMA</strong>
+                        </div>
+                        <div class="calc-row">
+                            <span>ROI:</span>
+                            <strong class="success">~5 days</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="calc-note">
+                    * Calculations based on passive earnings only. With x2-x5 boost multiplier your earnings will be even higher! 🚀
+                </div>
+            </div>
         </div>
         
         <div class="tier-grid">
@@ -554,7 +922,7 @@
                 <div class="tier-boost">×2.0 EARNING</div>
                 <div class="passive-income">🎁 +50 TAMA/day</div>
                 <div class="progress-bar"><div class="progress-fill bronze" id="progress-bronze" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: 0 / 4500</div>
+                <div class="tier-minted-count">Minted: <span id="minted-bronze">0</span> / <span id="max-bronze">4500</span></div>
                 <div class="bronze-buttons">
                     <button class="bronze-btn" onclick="mintBronze()">FREE</button>
                     <button class="bronze-btn sol" onclick="mintBronzeSOL()">0.15 SOL</button>
@@ -575,7 +943,7 @@
                 <div class="tier-boost">×2.3 EARNING</div>
                 <div class="passive-income">🎁 +150 TAMA/day</div>
                 <div class="progress-bar"><div class="progress-fill silver" id="progress-silver" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: 0 / 350</div>
+                <div class="tier-minted-count">Minted: <span id="minted-silver">0</span> / <span id="max-silver">350</span></div>
                 <button class="mint-btn" onclick="mintSOL('Silver')">💎 MINT SILVER</button>
             </div>
             
@@ -593,7 +961,7 @@
                 <div class="tier-boost">×2.7 EARNING</div>
                 <div class="passive-income">🎁 +500 TAMA/day</div>
                 <div class="progress-bar"><div class="progress-fill gold" id="progress-gold" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: 0 / 130</div>
+                <div class="tier-minted-count">Minted: <span id="minted-gold">0</span> / <span id="max-gold">130</span></div>
                 <button class="mint-btn" onclick="mintSOL('Gold')">🏆 MINT GOLD</button>
             </div>
             
@@ -611,7 +979,7 @@
                 <div class="tier-boost">×3.5 EARNING</div>
                 <div class="passive-income">🎁 +2000 TAMA/day</div>
                 <div class="progress-bar"><div class="progress-fill platinum" id="progress-platinum" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: 0 / 18</div>
+                <div class="tier-minted-count">Minted: <span id="minted-platinum">0</span> / <span id="max-platinum">18</span></div>
                 <button class="mint-btn" onclick="mintSOL('Platinum')">⚡ MINT PLATINUM</button>
             </div>
             
@@ -629,7 +997,7 @@
                 <div class="tier-boost">×5.0 MAXIMUM!</div>
                 <div class="passive-income">🎁 +10000 TAMA/day</div>
                 <div class="progress-bar"><div class="progress-fill diamond" id="progress-diamond" style="width: 0%"></div></div>
-                <div class="tier-minted-count">Minted: 0 / 2</div>
+                <div class="tier-minted-count">Minted: <span id="minted-diamond">0</span> / <span id="max-diamond">2</span></div>
                 <button class="mint-btn" onclick="mintSOL('Diamond')">👑 MINT DIAMOND</button>
             </div>
         </div>
@@ -793,6 +1161,18 @@
         // ==============================================
         // WALLET FUNCTIONS
         // ==============================================
+        
+        // Navigate to My NFTs page
+        function viewMyNFTs() {
+            // If wallet connected, pass wallet address as parameter
+            if (window.walletConnected && window.walletAddress) {
+                window.location.href = `my-nfts.html?wallet=${window.walletAddress}`;
+            } else {
+                // Otherwise just open the page (user can connect there)
+                window.location.href = 'my-nfts.html';
+            }
+        }
+        
         async function connectWallet() {
             try {
                 if (!window.solana || !window.solana.isPhantom) {
@@ -883,6 +1263,24 @@
 
         function updateTierUI(tier) {
             const tierName = tier.tier_name.toLowerCase();
+            
+            // Special handling for Bronze (TAMA) - fixed price 5000 TAMA
+            if (tierName === 'bronze') {
+                // Fixed price 5000 TAMA - update minted count only
+                const mintedSpan = document.getElementById('minted-bronze');
+                if (mintedSpan) mintedSpan.textContent = tier.minted_count;
+                
+                const maxSpan = document.getElementById('max-bronze');
+                if (maxSpan) maxSpan.textContent = tier.max_supply;
+                
+                // Update progress bar
+                const progressFill = document.querySelector('#progress-bronze');
+                if (progressFill) {
+                    const percentage = (tier.minted_count / tier.max_supply) * 100;
+                    progressFill.style.width = percentage + '%';
+                }
+                return;
+            }
             
             // Special handling for Bronze_SOL (fixed price, update USD only)
             if (tierName === 'bronze_sol') {
@@ -1195,6 +1593,32 @@
                     // Don't throw - NFT is already created, this is just metadata
                 } else {
                     console.log('✅ Design marked as minted');
+                }
+                
+                // 6. Update bonding state minted_count
+                console.log('📊 Updating bonding state minted_count...');
+                const { data: bondingData, error: bondingError } = await supabase
+                    .from('nft_bonding_state')
+                    .select('minted_count')
+                    .eq('tier_name', 'Bronze')
+                    .eq('payment_type', 'TAMA')
+                    .single();
+                
+                if (bondingError) {
+                    console.warn('⚠️ Failed to get bonding state:', bondingError);
+                } else {
+                    const currentMinted = bondingData.minted_count || 0;
+                    const { error: updateBondingError } = await supabase
+                        .from('nft_bonding_state')
+                        .update({ minted_count: currentMinted + 1 })
+                        .eq('tier_name', 'Bronze')
+                        .eq('payment_type', 'TAMA');
+                    
+                    if (updateBondingError) {
+                        console.warn('⚠️ Failed to update bonding state:', updateBondingError);
+                    } else {
+                        console.log(`✅ Bonding state updated: minted_count = ${currentMinted + 1}`);
+                    }
                 }
 
                 // Remove loading
