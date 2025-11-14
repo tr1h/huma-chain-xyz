@@ -196,6 +196,23 @@ async function mintOnChainNFT(req, res) {
         console.log('📍 Mint Address:', mintAddress);
         console.log('🔗 Explorer:', explorerUrl);
 
+        // ==========================================
+        // REVOKE AUTHORITIES (Make NFT truly unique and immutable)
+        // ==========================================
+        console.log('🔒 Revoking Mint and Freeze authorities...');
+        try {
+            await metaplex.nfts().update({
+                nftOrSft: nft,
+                mintAuthority: null,    // ❌ Revoke: No one can mint duplicates
+                freezeAuthority: null   // ❌ Revoke: No one can freeze the NFT
+            });
+            console.log('✅ Authorities revoked! NFT is now truly unique and immutable.');
+        } catch (revokeError) {
+            console.warn('⚠️ Failed to revoke authorities:', revokeError.message);
+            console.warn('   NFT is still functional, but authorities remain active.');
+            // Don't throw - NFT is already created, this is just a security enhancement
+        }
+
         // Update nft_mint_address in Supabase
         console.log('💾 Updating NFT mint address in database...');
         
