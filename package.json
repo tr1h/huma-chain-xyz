@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@metaplex-foundation/js": "^0.28.0",
+    "@metaplex-foundation/js-plugin-bundlr-storage": "^0.28.0",
     "@solana/web3.js": "^1.95.0",
     "@streamflow/stream": "^9.3.0",
     "bs58": "^5.0.0",

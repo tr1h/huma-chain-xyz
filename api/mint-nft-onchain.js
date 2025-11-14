@@ -4,6 +4,7 @@
  */
 
 const { Metaplex, keypairIdentity } = require('@metaplex-foundation/js');
+const { bundlrStorage } = require('@metaplex-foundation/js-plugin-bundlr-storage');
 const { Connection, Keypair, clusterApiUrl, PublicKey } = require('@solana/web3.js');
 const bs58 = require('bs58');
 const fetch = require('node-fetch');
@@ -39,17 +40,20 @@ function initMetaplex() {
 
         console.log('✅ Payer loaded:', payer.publicKey.toString());
 
-        // Initialize Metaplex
-        // For now, use default storage (Metaplex will handle it)
-        // bundlrStorage requires separate package or newer version
-        const metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
+        // Initialize Metaplex with Bundlr storage for Arweave uploads
+        const metaplex = Metaplex.make(connection)
+            .use(keypairIdentity(payer))
+            .use(bundlrStorage({
+                address: SOLANA_NETWORK === 'mainnet' 
+                    ? 'https://node1.bundlr.network' 
+                    : 'https://devnet.bundlr.network',
+                providerUrl: SOLANA_NETWORK === 'mainnet'
+                    ? clusterApiUrl('mainnet-beta')
+                    : clusterApiUrl('devnet'),
+                timeout: 60000,
+            }));
         
-        // Note: For Arweave upload, you may need to:
-        // 1. Install @metaplex-foundation/js-plugin-bundlr-storage
-        // 2. Or use irysStorage (new name for Bundlr)
-        // 3. Or use nftStorage plugin
-        // For now, using default storage which may require manual Arweave upload
-        console.log('✅ Metaplex initialized (using default storage)');
+        console.log('✅ Metaplex initialized with Bundlr storage');
 
         return metaplex;
     } catch (error) {
