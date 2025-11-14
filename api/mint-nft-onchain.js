@@ -40,20 +40,40 @@ function initMetaplex() {
 
         console.log('✅ Payer loaded:', payer.publicKey.toString());
 
-        // Initialize Metaplex with Bundlr storage for Arweave uploads
-        const metaplex = Metaplex.make(connection)
-            .use(keypairIdentity(payer))
-            .use(bundlrStorage({
-                address: SOLANA_NETWORK === 'mainnet' 
-                    ? 'https://node1.bundlr.network' 
-                    : 'https://devnet.bundlr.network',
-                providerUrl: SOLANA_NETWORK === 'mainnet'
-                    ? clusterApiUrl('mainnet-beta')
-                    : clusterApiUrl('devnet'),
-                timeout: 60000,
-            }));
+        // Check payer balance (need SOL for Arweave fees)
+        const balance = await connection.getBalance(payer.publicKey);
+        const balanceSOL = balance / 1e9;
+        console.log(`💰 Payer balance: ${balanceSOL} SOL`);
         
-        console.log('✅ Metaplex initialized with Bundlr storage');
+        if (balanceSOL < 0.01) {
+            throw new Error(`Insufficient SOL balance for Arweave upload. Payer needs at least 0.01 SOL, but has ${balanceSOL} SOL. Please fund the payer keypair.`);
+        }
+
+        // Initialize Metaplex with Bundlr storage for Arweave uploads
+        let metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
+        
+        // Try to use bundlrStorage if available
+        try {
+            if (typeof bundlrStorage === 'function') {
+                metaplex = metaplex.use(bundlrStorage({
+                    address: SOLANA_NETWORK === 'mainnet' 
+                        ? 'https://node1.bundlr.network' 
+                        : 'https://devnet.bundlr.network',
+                    providerUrl: SOLANA_NETWORK === 'mainnet'
+                        ? clusterApiUrl('mainnet-beta')
+                        : clusterApiUrl('devnet'),
+                    timeout: 60000,
+                }));
+                console.log('✅ Metaplex initialized with Bundlr storage');
+            } else {
+                console.warn('⚠️ bundlrStorage not available, using default storage');
+                console.warn('⚠️ This may cause issues with Arweave uploads');
+            }
+        } catch (storageError) {
+            console.warn('⚠️ Failed to initialize bundlrStorage:', storageError.message);
+            console.warn('⚠️ Using default storage (may not work for Arweave)');
+            // Continue with default storage
+        }
 
         return metaplex;
     } catch (error) {
@@ -128,10 +148,22 @@ async function mintOnChainNFT(req, res) {
         };
 
         console.log('📤 Uploading metadata to Arweave...');
+        console.log('⏳ This may take 30-60 seconds...');
 
         // Upload metadata to Arweave
-        const { uri } = await metaplex.nfts().uploadMetadata(metadata);
-        console.log('✅ Metadata uploaded:', uri);
+        let uri;
+        try {
+            const uploadResult = await metaplex.nfts().uploadMetadata(metadata);
+            uri = uploadResult.uri;
+            console.log('✅ Metadata uploaded:', uri);
+        } catch (uploadError) {
+            console.error('❌ Metadata upload failed:', uploadError);
+            // If upload fails, try to continue with image URL as fallback
+            if (uploadError.message && uploadError.message.includes('funding')) {
+                throw new Error('Failed to upload metadata: Insufficient SOL for Arweave storage fees. Please fund the payer keypair with at least 0.01 SOL.');
+            }
+            throw new Error(`Failed to upload metadata: ${uploadError.message}`);
+        }
 
         console.log('🎨 Creating NFT on-chain...');
 

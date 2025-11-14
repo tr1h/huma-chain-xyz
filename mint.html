@@ -1431,6 +1431,15 @@
                     
                     // 💎 Mint on-chain NFT (async, don't block UI)
                     if (result.nft_id) {
+                        // Show loading indicator for on-chain minting
+                        showNotification('info', '⏳ Creating On-Chain NFT...', 
+                            'Your NFT is being created on Solana blockchain.\n\n' +
+                            'This may take 30-60 seconds...\n\n' +
+                            '⏳ Uploading metadata to Arweave...\n' +
+                            '⏳ Minting NFT on blockchain...\n' +
+                            '⏳ Please wait...'
+                        );
+                        
                         mintOnChainNFTAsync({
                             nft_id: result.nft_id,
                             tier: tierName,
@@ -1526,7 +1535,7 @@
                         showNotification('success', '🎨 On-Chain NFT Minted!', 
                             `Your ${tier} NFT is now on Solana blockchain!\n\n` +
                             `Mint Address: ${onchainResult.mintAddress.substring(0, 8)}...${onchainResult.mintAddress.substring(onchainResult.mintAddress.length - 8)}\n\n` +
-                            `View in Phantom Wallet or Solana Explorer!`,
+                            `✅ View in Phantom Wallet or Solana Explorer!`,
                             onchainResult.explorerUrl
                         );
                     } else {
@@ -1543,14 +1552,23 @@
                 } catch (error) {
                     console.error('❌ On-chain mint error:', error);
                     // Show warning but don't block - off-chain NFT already works
+                    let errorMessage = 'On-chain mint failed (non-critical). Off-chain NFT is still valid!';
+                    
                     if (error.message && error.message.includes('CORS')) {
-                        console.warn('⚠️ On-chain minting is not available on production yet. Off-chain NFT is still valid!');
+                        errorMessage = 'On-chain minting is not available on production yet. Off-chain NFT is still valid!';
                     } else if (error.message && error.message.includes('timeout')) {
-                        console.warn('⚠️ On-chain mint is taking longer than expected. The NFT may still be processing on the server. Off-chain NFT is still valid!');
-                    } else {
-                        console.warn('⚠️ On-chain mint failed (non-critical). Off-chain NFT is still valid!');
-                        console.warn('Error details:', error.message);
+                        errorMessage = 'On-chain mint is taking longer than expected. The NFT may still be processing on the server. Off-chain NFT is still valid!';
+                    } else if (error.message && error.message.includes('Insufficient SOL')) {
+                        errorMessage = 'On-chain mint failed: Server needs SOL for Arweave storage. Off-chain NFT is still valid!';
+                    } else if (error.message && error.message.includes('funding')) {
+                        errorMessage = 'On-chain mint failed: Server needs SOL for Arweave storage. Off-chain NFT is still valid!';
                     }
+                    
+                    // Show notification to user
+                    showNotification('warning', '⚠️ On-Chain Mint Delayed', errorMessage);
+                    
+                    console.warn('⚠️', errorMessage);
+                    console.warn('Error details:', error.message);
                     // Don't throw - off-chain NFT already works
                 }
             }
