@@ -670,19 +670,72 @@
             `;
             
             try {
-                const { data: nfts, error } = await supabase
+                // Get all NFTs (we'll filter by ownership later)
+                const { data: allNfts, error } = await supabase
                     .from('user_nfts')
                     .select('*')
-                    .eq('wallet_address', walletAddress)
                     .eq('is_active', true)
                     .order('minted_at', { ascending: false });
                 
                 if (error) throw error;
                 
+                // Filter NFTs that belong to this wallet
+                // Method 1: Check if telegram_id matches (if user linked wallet)
+                const { data: linkedUser } = await supabase
+                    .from('leaderboard')
+                    .select('telegram_id, wallet_address')
+                    .eq('wallet_address', walletAddress)
+                    .single();
+                
+                let nfts = [];
+                
+                if (linkedUser) {
+                    // User has linked wallet - show their NFTs by telegram_id
+                    console.log('✅ Found linked Telegram account:', linkedUser.telegram_id);
+                    nfts = allNfts.filter(nft => nft.telegram_id === linkedUser.telegram_id);
+                } else {
+                    // No linked account - show only real on-chain NFTs
+                    console.log('⚠️ No linked Telegram account. Showing all real on-chain NFTs for demo.');
+                    nfts = allNfts.filter(nft => 
+                        nft.nft_mint_address && 
+                        nft.nft_mint_address.length > 30 && 
+                        !nft.nft_mint_address.includes('_')
+                    );
+                    
+                    if (nfts.length === 0) {
+                        showLinkWalletMessage(walletAddress);
+                        return;
+                    }
+                }
+                
                 displayNFTs(nfts, 0);
             } catch (error) {
                 showError('Failed to load NFTs: ' + error.message);
             }
+        }
+        
+        // Show message about linking wallet
+        function showLinkWalletMessage(walletAddress) {
+            document.getElementById('stats-bar').style.display = 'none';
+            document.getElementById('nft-container').innerHTML = `
+                <div class="empty-state">
+                    <h2>🔗</h2>
+                    <p><strong>Wallet Not Linked</strong></p>
+                    <p>To view your NFTs by wallet, you need to:</p>
+                    <ol style="text-align: left; max-width: 500px; margin: 20px auto; line-height: 2;">
+                        <li>Open <a href="tamagotchi-game.html" target="_blank" style="color: #8AC926; font-weight: bold;">Solana Tamagotchi Game</a></li>
+                        <li>Connect this wallet in the game</li>
+                        <li>Your wallet will be linked to your Telegram account</li>
+                        <li>Then you can view all your NFTs here!</li>
+                    </ol>
+                    <p style="font-size: 14px; color: #999; margin-top: 30px;">
+                        Your wallet: <code style="background: #f5f5f5; padding: 5px 10px; border-radius: 5px; font-family: monospace;">${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}</code>
+                    </p>
+                    <a href="tamagotchi-game.html" class="mint-btn" style="margin-top: 20px;">
+                        🎮 Open Game & Link Wallet
+                    </a>
+                </div>
+            `;
         }
         
         // Display NFTs
