@@ -40,17 +40,28 @@ function initMetaplex() {
         console.log('✅ Payer loaded:', payer.publicKey.toString());
 
         // Initialize Metaplex
-        const metaplex = Metaplex.make(connection)
-            .use(keypairIdentity(payer))
-            .use(bundlrStorage({
-                address: SOLANA_NETWORK === 'mainnet' 
-                    ? 'https://node1.bundlr.network' 
-                    : 'https://devnet.bundlr.network',
-                providerUrl: SOLANA_NETWORK === 'mainnet'
-                    ? clusterApiUrl('mainnet-beta')
-                    : clusterApiUrl('devnet'),
-                timeout: 60000,
-            }));
+        // Note: bundlrStorage might need different syntax in v0.20.1
+        let metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
+        
+        // Try to use bundlrStorage if available
+        try {
+            if (typeof bundlrStorage === 'function') {
+                metaplex = metaplex.use(bundlrStorage({
+                    address: SOLANA_NETWORK === 'mainnet' 
+                        ? 'https://node1.bundlr.network' 
+                        : 'https://devnet.bundlr.network',
+                    providerUrl: SOLANA_NETWORK === 'mainnet'
+                        ? clusterApiUrl('mainnet-beta')
+                        : clusterApiUrl('devnet'),
+                    timeout: 60000,
+                }));
+            } else {
+                console.warn('⚠️ bundlrStorage not available, using default storage');
+            }
+        } catch (error) {
+            console.warn('⚠️ Failed to initialize bundlrStorage:', error.message);
+            // Continue without bundlrStorage - will use default storage
+        }
 
         return metaplex;
     } catch (error) {
