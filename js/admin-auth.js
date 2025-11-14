@@ -123,14 +123,21 @@
             return;
         }
         
-        // Получить пароль из конфигурации
+        // Получить пароль из конфигурации (множественные источники)
         const adminPassword = (typeof ADMIN_PASSWORD !== 'undefined' ? ADMIN_PASSWORD : null) || 
-                             (typeof window.ADMIN_PASSWORD !== 'undefined' ? window.ADMIN_PASSWORD : null);
+                             (typeof window.ADMIN_PASSWORD !== 'undefined' ? window.ADMIN_PASSWORD : null) ||
+                             (document.querySelector('meta[name="admin-password"]')?.content) ||
+                             null;
         const adminPasswordHash = (typeof ADMIN_PASSWORD_HASH !== 'undefined' ? ADMIN_PASSWORD_HASH : null) || 
-                                  (typeof window.ADMIN_PASSWORD_HASH !== 'undefined' ? window.ADMIN_PASSWORD_HASH : null);
+                                  (typeof window.ADMIN_PASSWORD_HASH !== 'undefined' ? window.ADMIN_PASSWORD_HASH : null) ||
+                                  (document.querySelector('meta[name="admin-password-hash"]')?.content) ||
+                                  null;
         
         if (!adminPassword && !adminPasswordHash) {
-            if (errorDiv) errorDiv.textContent = 'Error: Password not configured! Please create admin-password.js';
+            if (errorDiv) {
+                errorDiv.textContent = 'Error: Password not configured! Please create admin-password.js or set meta tag';
+                errorDiv.innerHTML += '<br><small style="color: #666;">For production: Add &lt;meta name="admin-password" content="YOUR_PASSWORD"&gt; in &lt;head&gt;</small>';
+            }
             return;
         }
         
