@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+.docs/FULL_PROJECT_PROMPT.md<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1796,11 +1796,19 @@
                         <td><span style="background: ${rarityColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${nft.rarity}</span></td>
                         <td style="font-weight: bold; color: ${tierColor};">×${nft.earning_multiplier || 2.0}</td>
                         <td>
-                            <a href="https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet" target="_blank" 
-                               style="color: #9C27B0; text-decoration: none; font-family: monospace; font-size: 12px;"
-                               title="${nft.nft_mint_address}">
-                                ${shortMint} 🔗
-                            </a>
+                            ${nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_') ? `
+                                <a href="https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet" target="_blank" 
+                                   style="color: #9C27B0; text-decoration: none; font-family: monospace; font-size: 12px;"
+                                   title="${nft.nft_mint_address}">
+                                    ${shortMint} 🔗
+                                </a>
+                                <span style="display: block; font-size: 10px; color: #4CAF50; margin-top: 2px;">✅ Real On-Chain</span>
+                            ` : `
+                                <span style="color: #666; font-family: monospace; font-size: 12px;" title="${nft.nft_mint_address}">
+                                    ${shortMint}
+                                </span>
+                                <span style="display: block; font-size: 10px; color: #FF9800; margin-top: 2px;">⚠️ Off-Chain Only</span>
+                            `}
                         </td>
                         <td style="font-size: 12px; color: #666;">${mintedDate}</td>
                         <td>${statusBadge}</td>
