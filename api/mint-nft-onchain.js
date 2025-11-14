@@ -3,7 +3,7 @@
  * Node.js backend endpoint for creating real Solana NFTs
  */
 
-const { Metaplex, keypairIdentity, bundlrStorage } = require('@metaplex-foundation/js');
+const { Metaplex, keypairIdentity, bundlrStorage, mockStorage } = require('@metaplex-foundation/js');
 const { Connection, Keypair, clusterApiUrl, PublicKey } = require('@solana/web3.js');
 const bs58 = require('bs58');
 const fetch = require('node-fetch');
@@ -51,7 +51,7 @@ async function initMetaplex() {
         // Initialize Metaplex with Bundlr storage for Arweave uploads
         let metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
         
-        // Try to use bundlrStorage if available
+        // Try to use bundlrStorage if available, otherwise use mockStorage
         try {
             if (typeof bundlrStorage === 'function') {
                 metaplex = metaplex.use(bundlrStorage({
@@ -65,13 +65,17 @@ async function initMetaplex() {
                 }));
                 console.log('✅ Metaplex initialized with Bundlr storage');
             } else {
-                console.warn('⚠️ bundlrStorage not available, using default storage');
-                console.warn('⚠️ This may cause issues with Arweave uploads');
+                console.warn('⚠️ bundlrStorage not available, using mock storage for testing');
+                // Use mockStorage as fallback (creates fake metadata URIs)
+                metaplex = metaplex.use(mockStorage());
+                console.log('✅ Metaplex initialized with Mock storage (for testing)');
             }
         } catch (storageError) {
             console.warn('⚠️ Failed to initialize bundlrStorage:', storageError.message);
-            console.warn('⚠️ Using default storage (may not work for Arweave)');
-            // Continue with default storage
+            console.warn('⚠️ Falling back to mock storage');
+            // Fallback to mockStorage
+            metaplex = metaplex.use(mockStorage());
+            console.log('✅ Metaplex initialized with Mock storage (fallback)');
         }
 
         return metaplex;

@@ -14,6 +14,13 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// Increase timeout for Arweave uploads (3 minutes)
+app.use((req, res, next) => {
+    req.setTimeout(180000); // 3 minutes
+    res.setTimeout(180000); // 3 minutes
+    next();
+});
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({
