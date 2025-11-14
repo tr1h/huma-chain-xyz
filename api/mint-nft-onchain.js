@@ -230,8 +230,8 @@ async function mintOnChainNFT(req, res) {
                 'Prefer': 'return=representation'
             },
             body: JSON.stringify({
-                nft_mint_address: mintAddress,
-                metadata_uri: uri
+                nft_mint_address: mintAddress
+                // metadata_uri field doesn't exist in user_nfts table, removed
             })
         });
 
