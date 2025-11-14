@@ -75,6 +75,75 @@
             min-height: 100vh;
         }
 
+        /* Admin Login Screen */
+        #adminLoginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-container h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        #adminPasswordInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        #adminPasswordInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #5568d3;
+        }
+
+        #adminLoginError {
+            color: red;
+            margin-top: 15px;
+            min-height: 20px;
+            font-size: 14px;
+        }
+
         /* Header */
         .header {
             background: #ffffff;
@@ -568,6 +637,22 @@
     </style>
 </head>
 <body>
+    <!-- Admin Login Screen -->
+    <div id="adminLoginScreen">
+        <div class="login-container">
+            <h2>🔐 Admin Access</h2>
+            <input 
+                type="password" 
+                id="adminPasswordInput" 
+                placeholder="Enter password"
+            >
+            <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
+            <div id="adminLoginError"></div>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until authenticated) -->
+    <div id="adminContent" style="display: none;">
     <!-- Logo 🎨 -->
     <a href="index.html" class="game-logo" title="Back to Home">
         <img src="logo.png" alt="Solana Tamagotchi">
@@ -1894,6 +1979,11 @@
         // Initial load
         window.addEventListener('DOMContentLoaded', loadData);
     </script>
+    </div> <!-- End of adminContent -->
+
+    <!-- Admin Authentication -->
+    <script src="admin-password.js"></script>
+    <script src="js/admin-auth.js"></script>
 </body>
 </html>
 

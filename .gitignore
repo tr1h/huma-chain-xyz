@@ -81,4 +81,5 @@ credentials.json
 # Admin panels with passwords (local only)
 wallet-admin.html  # ПРИВАТНЫЙ! Только локально, НЕ в Git!
 wallet-admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
+admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
 *.password.js
