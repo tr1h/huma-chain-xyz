@@ -699,21 +699,47 @@
         <section class="stats-section">
             <h2 class="section-title">📊 LIVE STATS</h2>
             <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number" id="landing-total-players">Loading...</div>
-                    <div class="stat-label">Total Players</div>
+                <div class="stat-card stat-card-players">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="landing-total-players">0</div>
+                        <div class="stat-label">Total Players</div>
+                        <div class="stat-subtitle">Growing community</div>
+                    </div>
+                    <div class="stat-pulse"></div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="landing-nfts-minted">Loading...</div>
-                    <div class="stat-label">NFTs Minted</div>
+                <div class="stat-card stat-card-nfts">
+                    <div class="stat-icon">🎨</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="landing-nfts-minted">0</div>
+                        <div class="stat-label">NFTs Minted</div>
+                        <div class="stat-subtitle">Unique pets</div>
+                    </div>
+                    <div class="stat-pulse"></div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="landing-tama-distributed">Loading...</div>
-                    <div class="stat-label">TAMA Distributed</div>
+                <div class="stat-card stat-card-tama">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="landing-tama-distributed">0</div>
+                        <div class="stat-label">TAMA Distributed</div>
+                        <div class="stat-subtitle">Earned by players</div>
+                    </div>
+                    <div class="stat-pulse"></div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="landing-active-wallets">Loading...</div>
-                    <div class="stat-label">Active Wallets</div>
+                <div class="stat-card stat-card-wallets">
+                    <div class="stat-icon">👛</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="landing-active-wallets">0</div>
+                        <div class="stat-label">Active Wallets</div>
+                        <div class="stat-subtitle">Connected users</div>
+                    </div>
+                    <div class="stat-pulse"></div>
+                </div>
+            </div>
+            <div class="stats-footer">
+                <div class="live-indicator">
+                    <span class="pulse-dot"></span>
+                    <span>Live data • Updates every 30s</span>
                 </div>
             </div>
         </section>
@@ -1493,6 +1519,51 @@
         // ==============================================
         // LOAD LIVE STATS
         // ==============================================
+        
+        // Format number helper (shared)
+        function formatStatNumber(value, format = 'number') {
+            if (format === 'tama') {
+                if (value >= 1000000) {
+                    return (value / 1000000).toFixed(1) + 'M';
+                } else if (value >= 1000) {
+                    return (value / 1000).toFixed(1) + 'K';
+                } else {
+                    return value.toLocaleString();
+                }
+            } else {
+                return value.toLocaleString();
+            }
+        }
+        
+        // Animate number counter (shared)
+        function animateStatNumber(element, startValue, endValue, format = 'number', duration = 1500) {
+            if (!element) return;
+            
+            const startTime = performance.now();
+            const start = startValue || 0;
+            const end = endValue;
+            const range = end - start;
+            
+            const animate = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function (ease-out)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (range * easeOut));
+                
+                element.textContent = formatStatNumber(current, format);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    element.textContent = formatStatNumber(end, format);
+                }
+            };
+            
+            requestAnimationFrame(animate);
+        }
+        
         async function loadLiveStats() {
             try {
                 // Supabase configuration
@@ -1541,31 +1612,49 @@
                 const wallets = await walletsResponse.json();
                 const uniqueWallets = new Set(wallets?.map(w => w.wallet_address).filter(Boolean) || []).size;
                 
-                // Update UI
-                const updateElement = (id, value, format = 'number') => {
+                // Get current displayed values (for smooth animation)
+                const getCurrentValue = (id) => {
                     const el = document.getElementById(id);
-                    if (el) {
-                        if (format === 'number') {
-                            el.textContent = value.toLocaleString();
-                        } else if (format === 'tama') {
-                            // Format TAMA: 1.2M, 500K, etc.
-                            if (value >= 1000000) {
-                                el.textContent = (value / 1000000).toFixed(1) + 'M';
-                            } else if (value >= 1000) {
-                                el.textContent = (value / 1000).toFixed(1) + 'K';
-                            } else {
-                                el.textContent = value.toLocaleString();
-                            }
-                        } else {
-                            el.textContent = value;
-                        }
+                    if (!el) return 0;
+                    const text = el.textContent.replace(/[^0-9.]/g, '');
+                    if (!text) return 0;
+                    if (el.textContent.includes('M')) {
+                        return parseFloat(text) * 1000000;
+                    } else if (el.textContent.includes('K')) {
+                        return parseFloat(text) * 1000;
+                    } else {
+                        return parseInt(text) || 0;
                     }
                 };
                 
-                updateElement('landing-total-players', totalPlayers);
-                updateElement('landing-nfts-minted', nftsMinted);
-                updateElement('landing-tama-distributed', totalTAMA, 'tama');
-                updateElement('landing-active-wallets', uniqueWallets);
+                // Animate updates
+                animateStatNumber(
+                    document.getElementById('landing-total-players'),
+                    getCurrentValue('landing-total-players'),
+                    totalPlayers,
+                    'number'
+                );
+                
+                animateStatNumber(
+                    document.getElementById('landing-nfts-minted'),
+                    getCurrentValue('landing-nfts-minted'),
+                    nftsMinted,
+                    'number'
+                );
+                
+                animateStatNumber(
+                    document.getElementById('landing-tama-distributed'),
+                    getCurrentValue('landing-tama-distributed'),
+                    totalTAMA,
+                    'tama'
+                );
+                
+                animateStatNumber(
+                    document.getElementById('landing-active-wallets'),
+                    getCurrentValue('landing-active-wallets'),
+                    uniqueWallets,
+                    'number'
+                );
                 
                 console.log('✅ LIVE STATS loaded:', {
                     players: totalPlayers,
@@ -1576,15 +1665,25 @@
                 
             } catch (error) {
                 console.error('❌ Error loading LIVE STATS:', error);
-                // Show fallback values
-                const updateElement = (id, value) => {
+                // Show fallback values with animation
+                const getCurrentValue = (id) => {
                     const el = document.getElementById(id);
-                    if (el) el.textContent = value;
+                    if (!el) return 0;
+                    const text = el.textContent.replace(/[^0-9.]/g, '');
+                    if (!text) return 0;
+                    if (el.textContent.includes('M')) {
+                        return parseFloat(text) * 1000000;
+                    } else if (el.textContent.includes('K')) {
+                        return parseFloat(text) * 1000;
+                    } else {
+                        return parseInt(text) || 0;
+                    }
                 };
-                updateElement('landing-total-players', '0');
-                updateElement('landing-nfts-minted', '0');
-                updateElement('landing-tama-distributed', '0');
-                updateElement('landing-active-wallets', '0');
+                
+                animateStatNumber(document.getElementById('landing-total-players'), getCurrentValue('landing-total-players'), 0, 'number', 800);
+                animateStatNumber(document.getElementById('landing-nfts-minted'), getCurrentValue('landing-nfts-minted'), 0, 'number', 800);
+                animateStatNumber(document.getElementById('landing-tama-distributed'), getCurrentValue('landing-tama-distributed'), 0, 'tama', 800);
+                animateStatNumber(document.getElementById('landing-active-wallets'), getCurrentValue('landing-active-wallets'), 0, 'number', 800);
             }
         }
         
