@@ -166,24 +166,14 @@
             opacity: 0.9;
         }
         
-        /* MAIN CONTENT WRAPPER */
-        .main-content-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-        
-        /* RECENT MINTS SIDEBAR */
-        .recent-mints-sidebar {
+        /* RECENT MINTS SECTION */
+        .recent-mints-section {
             background: linear-gradient(135deg, rgba(29, 53, 87, 0.6), rgba(69, 123, 157, 0.3));
             border: 2px solid rgba(138, 201, 38, 0.3);
             border-radius: 20px;
-            padding: 20px;
-            height: fit-content;
-            position: sticky;
-            top: 20px;
-            animation: slideInRight 0.8s ease;
+            padding: 30px;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease;
         }
         
         .sidebar-title {
@@ -196,38 +186,24 @@
         }
         
         .recent-mints-list {
-            max-height: 600px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        
-        .recent-mints-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .recent-mints-list::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
-        }
-        
-        .recent-mints-list::-webkit-scrollbar-thumb {
-            background: rgba(138, 201, 38, 0.5);
-            border-radius: 3px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
         }
         
         .mint-item {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(138, 201, 38, 0.2);
             border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 10px;
+            padding: 15px;
             animation: fadeInUp 0.5s ease;
             transition: all 0.3s;
         }
         
         .mint-item:hover {
-            transform: translateX(5px);
+            transform: translateY(-5px);
             border-color: #8AC926;
+            box-shadow: 0 10px 30px rgba(138, 201, 38, 0.3);
             background: rgba(138, 201, 38, 0.1);
         }
         
@@ -296,6 +272,7 @@
         }
         
         .loading-mints {
+            grid-column: 1 / -1;
             text-align: center;
             color: #999;
             font-size: 10px;
@@ -960,18 +937,6 @@
         }
         
         /* MOBILE RESPONSIVE */
-        @media (max-width: 1200px) {
-            .main-content-wrapper {
-                grid-template-columns: 1fr;
-            }
-            
-            .recent-mints-sidebar {
-                position: relative;
-                top: 0;
-                max-width: 100%;
-            }
-        }
-        
         @media (max-width: 768px) {
             .header h1 { font-size: 20px; }
             .header .subtitle { font-size: 10px; }
@@ -1010,6 +975,11 @@
             
             .stat-label {
                 font-size: 9px;
+            }
+            
+            .recent-mints-list {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 10px;
             }
             
             .nft-benefits-section {
@@ -1109,6 +1079,10 @@
                 grid-template-columns: 1fr;
             }
             
+            .recent-mints-list {
+                grid-template-columns: 1fr;
+            }
+            
             .calculator-grid {
                 grid-template-columns: 1fr;
             }
@@ -1140,34 +1114,8 @@
             </div>
         </div>
         
-        <!-- COLLECTION STATS -->
-        <div class="collection-stats">
-            <div class="stat-card">
-                <div class="stat-icon">🎨</div>
-                <div class="stat-value" id="total-minted">0</div>
-                <div class="stat-label">NFTs Minted</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">👥</div>
-                <div class="stat-value" id="unique-holders">0</div>
-                <div class="stat-label">Happy Owners</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">💰</div>
-                <div class="stat-value" id="total-volume">0 SOL</div>
-                <div class="stat-label">Total Volume</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🔥</div>
-                <div class="stat-value" id="floor-price">0.15 SOL</div>
-                <div class="stat-label">Floor Price</div>
-            </div>
-        </div>
-        
-        <!-- MAIN CONTENT WRAPPER -->
-        <div class="main-content-wrapper">
-            <!-- LEFT: NFT CARDS -->
-            <div class="tier-grid">
+        <!-- NFT CARDS - ГЛАВНОЕ ПЕРВЫМ! -->
+        <div class="tier-grid">
             <!-- Bronze Card -->
             <div class="tier-card bronze">
                 <div class="tier-icon">🟫</div>
@@ -1261,18 +1209,41 @@
             </div>
         </div>
         
-            <!-- RIGHT: LIVE RECENT MINTS -->
-            <div class="recent-mints-sidebar">
-                <h3 class="sidebar-title">🔥 LIVE ACTIVITY</h3>
-                <div id="recent-mints-list" class="recent-mints-list">
-                    <div class="loading-mints">Loading recent mints...</div>
-                </div>
-                <div class="sidebar-footer">
-                    <div class="pulse-dot"></div>
-                    <span>Live updates every 10s</span>
-                </div>
+        <!-- COLLECTION STATS -->
+        <div class="collection-stats">
+            <div class="stat-card">
+                <div class="stat-icon">🎨</div>
+                <div class="stat-value" id="total-minted">0</div>
+                <div class="stat-label">NFTs Minted</div>
             </div>
-        </div> <!-- END main-content-wrapper -->
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" id="unique-holders">0</div>
+                <div class="stat-label">Happy Owners</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="total-volume">0 SOL</div>
+                <div class="stat-label">Total Volume</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="floor-price">0.15 SOL</div>
+                <div class="stat-label">Floor Price</div>
+            </div>
+        </div>
+        
+        <!-- LIVE RECENT MINTS -->
+        <div class="recent-mints-section">
+            <h3 class="sidebar-title">🔥 LIVE ACTIVITY</h3>
+            <div id="recent-mints-list" class="recent-mints-list">
+                <div class="loading-mints">Loading recent mints...</div>
+            </div>
+            <div class="sidebar-footer">
+                <div class="pulse-dot"></div>
+                <span>Live updates every 10s</span>
+            </div>
+        </div>
         
         <!-- NFT BENEFITS SECTION -->
         <div class="nft-benefits-section">
