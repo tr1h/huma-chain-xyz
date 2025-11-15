@@ -217,6 +217,42 @@
         }
         .container { max-width: 1400px; margin: 0 auto; }
         
+        /* LOGO - LEFT SIDE */
+        .game-logo {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 10000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .game-logo:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .game-logo img {
+            height: 70px;
+            width: auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .game-logo {
+                top: 10px;
+                left: 10px;
+            }
+
+            .game-logo img {
+                height: 50px;
+            }
+        }
+        
         /* HEADER - EPIC STYLE */
         .header {
             text-align: center;
@@ -1264,6 +1300,11 @@
     </style>
 </head>
 <body>
+    <!-- Logo - Left Side -->
+    <a href="index.html" class="game-logo" title="Back to Home">
+        <img src="logo.png" alt="Solana Tamagotchi">
+    </a>
+    
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
     
@@ -1656,7 +1697,8 @@
             ? 'http://localhost:8002/api/tama'
             : 'https://api.solanatamagotchi.com/api/tama';
 
-        const SOL_USD_RATE = 164.07; // 1 SOL = $164.07
+        // Load SOL/USD rate from cache or use default
+        let SOL_USD_RATE = parseFloat(localStorage.getItem('sol_usd_rate')) || 164.07;
         const TELEGRAM_USER_ID = getTelegramUserId();
 
         // Treasury Wallet Addresses (Devnet)
@@ -1741,6 +1783,81 @@
 
         function goToMyNFTs() {
             window.location.href = `my-nfts.html?user_id=${TELEGRAM_USER_ID}`;
+        }
+
+        // ==============================================
+        // SOL/USD PRICE FETCHING
+        // ==============================================
+        async function fetchSOLPrice() {
+            try {
+                // Try CoinGecko API (free, no API key needed)
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.solana && data.solana.usd) {
+                        const newRate = data.solana.usd;
+                        if (newRate > 0 && newRate < 10000) { // Sanity check
+                            SOL_USD_RATE = newRate;
+                            localStorage.setItem('sol_usd_rate', newRate.toString());
+                            console.log(`✅ SOL/USD rate updated: $${SOL_USD_RATE.toFixed(2)}`);
+                            // Update all USD prices
+                            updateAllUSDPrices();
+                            return true;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to fetch SOL price from CoinGecko:', error);
+            }
+
+            // Fallback: Try alternative API (Binance)
+            try {
+                const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.price) {
+                        const newRate = parseFloat(data.price);
+                        if (newRate > 0 && newRate < 10000) {
+                            SOL_USD_RATE = newRate;
+                            localStorage.setItem('sol_usd_rate', newRate.toString());
+                            console.log(`✅ SOL/USD rate updated (Binance): $${SOL_USD_RATE.toFixed(2)}`);
+                            updateAllUSDPrices();
+                            return true;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to fetch SOL price from Binance:', error);
+            }
+
+            console.warn('⚠️ Using default SOL/USD rate:', SOL_USD_RATE);
+            return false;
+        }
+
+        function updateAllUSDPrices() {
+            // Update Bronze USD price
+            const bronzeUsdSpan = document.getElementById('price-bronze-usd');
+            if (bronzeUsdSpan) {
+                bronzeUsdSpan.textContent = Math.round(0.15 * SOL_USD_RATE);
+            }
+
+            // Update all tier USD prices
+            const tierNames = ['silver', 'gold', 'platinum', 'diamond'];
+            tierNames.forEach(tierName => {
+                const solSpan = document.getElementById(`price-${tierName}-sol`);
+                const usdSpan = document.getElementById(`price-${tierName}-usd`);
+                
+                if (solSpan && usdSpan) {
+                    const solPrice = parseFloat(solSpan.textContent);
+                    if (!isNaN(solPrice) && solPrice > 0) {
+                        const usdPrice = solPrice * SOL_USD_RATE;
+                        usdSpan.textContent = Math.round(usdPrice).toLocaleString();
+                    }
+                }
+            });
+
+            // Also update in confirmation modals if they're open
+            // This will be handled when modals are shown
         }
 
         function updateWalletUI() {
@@ -1874,6 +1991,9 @@
 
                 // Get TAMA balance
                 await loadTAMABalance();
+                
+                // Update all USD prices with current SOL/USD rate
+                updateAllUSDPrices();
 
             } catch (err) {
                 console.error('❌ Error loading prices:', err);
@@ -2959,6 +3079,8 @@
                 console.warn('⚠️ Failed to restore wallet:', err);
             }
 
+            // Fetch SOL/USD price first, then load prices
+            await fetchSOLPrice();
             await loadPricesAndStats();
             await loadTAMABalance(); // 🔥 FIX: Load TAMA balance!
 
@@ -2967,6 +3089,9 @@
             
             // Auto-refresh balance every 30 seconds (in case user earned TAMA in game)
             setInterval(loadTAMABalance, 30000);
+            
+            // Update SOL/USD rate every 60 seconds (less frequent to avoid rate limits)
+            setInterval(fetchSOLPrice, 60000);
         });
     </script>
 </body>
