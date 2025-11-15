@@ -327,6 +327,7 @@
 .stat-content {
     position: relative;
     z-index: 2;
+    overflow: hidden;
 }
 
 .stat-number {
@@ -672,11 +673,15 @@
    ============================================ */
 
 .stat-chart {
-    width: 100%;
-    height: 60px;
+    width: 100% !important;
+    height: 60px !important;
+    max-height: 60px !important;
     margin-top: 15px;
     opacity: 0.8;
     transition: opacity 0.3s;
+    display: block;
+    overflow: hidden;
+    position: relative;
 }
 
 .stat-card:hover .stat-chart {
@@ -685,7 +690,8 @@
 
 @media (max-width: 768px) {
     .stat-chart {
-        height: 50px;
+        height: 50px !important;
+        max-height: 50px !important;
         margin-top: 10px;
     }
 }

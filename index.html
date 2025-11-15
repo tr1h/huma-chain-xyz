@@ -1603,13 +1603,27 @@
             const chartOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0
+                    }
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: { enabled: false }
                 },
                 scales: {
-                    x: { display: false },
-                    y: { display: false }
+                    x: { 
+                        display: false,
+                        grid: { display: false }
+                    },
+                    y: { 
+                        display: false,
+                        grid: { display: false }
+                    }
                 },
                 elements: {
                     point: { radius: 0 },
@@ -1628,6 +1642,10 @@
             // Players chart
             const playersCtx = document.getElementById('chart-players');
             if (playersCtx && typeof Chart !== 'undefined') {
+                // Set explicit canvas size
+                playersCtx.style.width = '100%';
+                playersCtx.style.height = '60px';
+                playersCtx.style.maxHeight = '60px';
                 statCharts.players = new Chart(playersCtx, {
                     type: 'line',
                     data: {
@@ -1646,6 +1664,9 @@
             // NFTs chart
             const nftsCtx = document.getElementById('chart-nfts');
             if (nftsCtx && typeof Chart !== 'undefined') {
+                nftsCtx.style.width = '100%';
+                nftsCtx.style.height = '60px';
+                nftsCtx.style.maxHeight = '60px';
                 statCharts.nfts = new Chart(nftsCtx, {
                     type: 'line',
                     data: {
@@ -1664,6 +1685,9 @@
             // TAMA chart
             const tamaCtx = document.getElementById('chart-tama');
             if (tamaCtx && typeof Chart !== 'undefined') {
+                tamaCtx.style.width = '100%';
+                tamaCtx.style.height = '60px';
+                tamaCtx.style.maxHeight = '60px';
                 statCharts.tama = new Chart(tamaCtx, {
                     type: 'line',
                     data: {
@@ -1682,6 +1706,9 @@
             // Wallets chart
             const walletsCtx = document.getElementById('chart-wallets');
             if (walletsCtx && typeof Chart !== 'undefined') {
+                walletsCtx.style.width = '100%';
+                walletsCtx.style.height = '60px';
+                walletsCtx.style.maxHeight = '60px';
                 statCharts.wallets = new Chart(walletsCtx, {
                     type: 'line',
                     data: {
