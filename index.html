@@ -43,6 +43,9 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
+    <!-- Chart.js for Live Stats -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
     <!-- Styles -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/mobile.css">
@@ -337,7 +340,21 @@
         <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-content">
-                <div style="max-width: 400px; width: 80%; margin: 0 auto 30px; font-size: 120px; text-align: center;">🐾</div>
+                <!-- Animated Pet -->
+                <div class="animated-pet-container">
+                    <div class="animated-pet">
+                        <div class="pet-body">🐾</div>
+                        <div class="pet-eyes">
+                            <span class="eye left-eye"></span>
+                            <span class="eye right-eye"></span>
+                        </div>
+                        <div class="pet-sparkles">
+                            <span class="sparkle sparkle-1">✨</span>
+                            <span class="sparkle sparkle-2">⭐</span>
+                            <span class="sparkle sparkle-3">💫</span>
+                        </div>
+                    </div>
+                </div>
                 <h1 style="font-size: 2.5em; margin: 20px 0; color: #FFCA3A;">SOLANA TAMAGOTCHI</h1>
                 <p class="hero-subtitle">The Ultimate Blockchain Pet Game on Solana! Play, Earn & Collect NFT Pets 🚀</p>
                 <div class="hero-buttons" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
@@ -746,6 +763,7 @@
                         <div class="stat-number" id="landing-total-players">0</div>
                         <div class="stat-label">Total Players</div>
                         <div class="stat-subtitle">Growing community</div>
+                        <canvas id="chart-players" class="stat-chart"></canvas>
                     </div>
                     <div class="stat-pulse"></div>
                 </div>
@@ -755,6 +773,7 @@
                         <div class="stat-number" id="landing-nfts-minted">0</div>
                         <div class="stat-label">NFTs Minted</div>
                         <div class="stat-subtitle">Unique pets</div>
+                        <canvas id="chart-nfts" class="stat-chart"></canvas>
                     </div>
                     <div class="stat-pulse"></div>
                 </div>
@@ -764,6 +783,7 @@
                         <div class="stat-number" id="landing-tama-distributed">0</div>
                         <div class="stat-label">TAMA Distributed</div>
                         <div class="stat-subtitle">Earned by players</div>
+                        <canvas id="chart-tama" class="stat-chart"></canvas>
                     </div>
                     <div class="stat-pulse"></div>
                 </div>
@@ -773,6 +793,7 @@
                         <div class="stat-number" id="landing-active-wallets">0</div>
                         <div class="stat-label">Active Wallets</div>
                         <div class="stat-subtitle">Connected users</div>
+                        <canvas id="chart-wallets" class="stat-chart"></canvas>
                     </div>
                     <div class="stat-pulse"></div>
                 </div>
@@ -1561,6 +1582,137 @@
         // LOAD LIVE STATS
         // ==============================================
         
+        // Chart instances storage
+        const statCharts = {
+            players: null,
+            nfts: null,
+            tama: null,
+            wallets: null
+        };
+        
+        // Historical data storage (last 10 data points)
+        const statHistory = {
+            players: [],
+            nfts: [],
+            tama: [],
+            wallets: []
+        };
+        
+        // Initialize charts
+        function initStatCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                },
+                elements: {
+                    point: { radius: 0 },
+                    line: { 
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }
+                },
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                }
+            };
+            
+            // Players chart
+            const playersCtx = document.getElementById('chart-players');
+            if (playersCtx && typeof Chart !== 'undefined') {
+                statCharts.players = new Chart(playersCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: '#1982C4',
+                            backgroundColor: 'rgba(25, 130, 196, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+            
+            // NFTs chart
+            const nftsCtx = document.getElementById('chart-nfts');
+            if (nftsCtx && typeof Chart !== 'undefined') {
+                statCharts.nfts = new Chart(nftsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: '#FFCA3A',
+                            backgroundColor: 'rgba(255, 202, 58, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+            
+            // TAMA chart
+            const tamaCtx = document.getElementById('chart-tama');
+            if (tamaCtx && typeof Chart !== 'undefined') {
+                statCharts.tama = new Chart(tamaCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: '#8AC926',
+                            backgroundColor: 'rgba(138, 201, 38, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+            
+            // Wallets chart
+            const walletsCtx = document.getElementById('chart-wallets');
+            if (walletsCtx && typeof Chart !== 'undefined') {
+                statCharts.wallets = new Chart(walletsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: '#9C27B0',
+                            backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+        }
+        
+        // Update chart with new data point
+        function updateChart(chartName, value) {
+            if (!statCharts[chartName]) return;
+            
+            // Add to history (keep last 10)
+            statHistory[chartName].push(value);
+            if (statHistory[chartName].length > 10) {
+                statHistory[chartName].shift();
+            }
+            
+            // Update chart
+            statCharts[chartName].data.datasets[0].data = [...statHistory[chartName]];
+            statCharts[chartName].update('none'); // 'none' = no animation for smooth updates
+        }
+        
         // Format number helper (shared)
         function formatStatNumber(value, format = 'number') {
             if (format === 'tama') {
@@ -1697,6 +1849,12 @@
                     'number'
                 );
                 
+                // Update charts with new data
+                updateChart('players', totalPlayers);
+                updateChart('nfts', nftsMinted);
+                updateChart('tama', totalTAMA);
+                updateChart('wallets', uniqueWallets);
+                
                 console.log('✅ LIVE STATS loaded:', {
                     players: totalPlayers,
                     nfts: nftsMinted,
@@ -1731,6 +1889,11 @@
         // Add event listener for TAMA history button and hover
         document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ Page loaded - using stub modules');
+            
+            // Initialize charts for Live Stats
+            setTimeout(() => {
+                initStatCharts();
+            }, 500); // Wait a bit for Chart.js to load
             
             // Load LIVE STATS
             loadLiveStats();
