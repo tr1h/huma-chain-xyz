@@ -903,6 +903,118 @@ function handleLeaderboardUpsert($url, $key) {
             $username = $getResult['data'][0]['telegram_username'] ?? $user_id;
             $tamaDiff = (int)$tama - $oldTama;
             
+            // 🛡️ SECURITY: Validate TAMA balance changes to prevent cheating
+            // Maximum increase per request: 10,000 TAMA (reasonable limit for legitimate gameplay)
+            // BUT: Allow admin fixes (skip_transaction_log = true) to bypass this limit
+            $MAX_INCREASE_PER_REQUEST = 10000;
+            
+            if ($tamaDiff > $MAX_INCREASE_PER_REQUEST && !$skip_transaction_log) {
+                // Suspicious: too large increase! (but allow admin fixes)
+                error_log("🚨 SECURITY ALERT: User {$user_id} ({$username}) attempted suspicious TAMA increase: {$oldTama} → {$tama} (diff: {$tamaDiff} TAMA)");
+                
+                // Reject the update and return error
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Invalid balance update: increase too large',
+                    'details' => "Maximum increase per request: {$MAX_INCREASE_PER_REQUEST} TAMA"
+                ]);
+                return;
+            }
+            
+            // Log admin fixes (large changes with skip_transaction_log)
+            if (abs($tamaDiff) > 1000 && $skip_transaction_log) {
+                error_log("🔧 ADMIN FIX: User {$user_id} ({$username}) balance adjusted: {$oldTama} → {$tama} (diff: {$tamaDiff} TAMA)");
+            }
+            
+            // Check for suspicious negative balance (should not happen in normal gameplay)
+            if ((int)$tama < 0) {
+                error_log("🚨 SECURITY ALERT: User {$user_id} ({$username}) attempted negative balance: {$tama}");
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Invalid balance: cannot be negative'
+                ]);
+                return;
+            }
+            
+            // Log suspicious patterns (large increases even if under limit)
+            if ($tamaDiff > 1000) {
+                error_log("⚠️ WARNING: Large TAMA increase detected for user {$user_id} ({$username}): +{$tamaDiff} TAMA (from {$oldTama} to {$tama})");
+            }
+            
+            // 🛡️ SECURITY: Check daily earning limit on server (CRITICAL!)
+            // Client-side checks can be bypassed, so we MUST check on server
+            if ($tamaDiff > 0 && !$skip_transaction_log) {
+                try {
+                    // Get today's date in UTC
+                    $today = date('Y-m-d');
+                    $todayStart = $today . 'T00:00:00Z';
+                    $tomorrowStart = date('Y-m-d', strtotime('+1 day')) . 'T00:00:00Z';
+                    
+                    // Query today's earning transactions for this user
+                    // Note: Supabase PostgREST requires special syntax for date ranges
+                    $todayTxResult = supabaseRequest($url, $key, 'GET', 'transactions', [
+                        'select' => 'amount',
+                        'user_id' => 'eq.' . $user_id,
+                        'type' => 'eq.earn_click',
+                        'created_at' => 'gte.' . $todayStart
+                    ]);
+                    
+                    // Calculate total earned today from transactions
+                    $totalEarnedToday = 0;
+                    if (!empty($todayTxResult['data'])) {
+                        foreach ($todayTxResult['data'] as $tx) {
+                            $txDate = substr($tx['created_at'] ?? '', 0, 10);
+                            if ($txDate === $today) {
+                                $totalEarnedToday += abs((int)($tx['amount'] ?? 0));
+                            }
+                        }
+                    }
+                    
+                    // Add current request amount
+                    $totalEarnedToday += $tamaDiff;
+                    
+                    // Daily limit: 10,000 TAMA per day
+                    $DAILY_LIMIT = 10000;
+                    
+                    if ($totalEarnedToday > $DAILY_LIMIT) {
+                        error_log("🚨 SECURITY ALERT: User {$user_id} ({$username}) exceeded daily limit: {$totalEarnedToday} / {$DAILY_LIMIT} TAMA");
+                        
+                        // Cap the increase to stay within daily limit
+                        $allowedIncrease = max(0, $DAILY_LIMIT - ($totalEarnedToday - $tamaDiff));
+                        
+                        if ($allowedIncrease < $tamaDiff) {
+                            // Reject the excess
+                            http_response_code(400);
+                            echo json_encode([
+                                'success' => false,
+                                'error' => 'Daily earning limit exceeded',
+                                'details' => "You've earned {$totalEarnedToday} TAMA today. Daily limit: {$DAILY_LIMIT} TAMA. Allowed increase: {$allowedIncrease} TAMA"
+                            ]);
+                            return;
+                        } else {
+                            // Adjust to allowed amount
+                            $tama = $oldTama + $allowedIncrease;
+                            $tamaDiff = $allowedIncrease;
+                            error_log("⚠️ Capped TAMA increase to daily limit: {$allowedIncrease} TAMA (requested: {$tamaDiff})");
+                        }
+                    }
+                } catch (Exception $e) {
+                    // If transaction table query fails, log but continue (don't block legitimate users)
+                    error_log("⚠️ Could not check daily limit: " . $e->getMessage());
+                    // Still enforce per-request limit as fallback
+                }
+            }
+            
+            // 🛡️ SECURITY: Additional validation for large increases
+            // Note: Daily limit check is handled above, but we also enforce per-request limits here
+            // Maximum increase per request is already enforced above (10,000 TAMA)
+            // This prevents users from manipulating client-side code to send huge balance updates
+            
+            // ⚠️ IMPORTANT: Update tama in updateData if it was adjusted by daily limit check
+            $updateData['tama'] = (int)$tama;
+            
             // ⚠️ DEBUG: Log what we're about to UPDATE
             error_log("🔄 UPDATE data: " . json_encode($updateData));
             
@@ -1125,8 +1237,42 @@ function handleWithdrawalRequest($url, $key) {
         // ИЗМЕНЕНО: Теперь используем P2E Pool вместо mint authority
         $tamaMint = getenv('TAMA_MINT_ADDRESS');
         $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
-        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: __DIR__ . '/../payer-keypair.json';
-        $p2ePoolKeypair = getenv('SOLANA_P2E_POOL_KEYPAIR_PATH') ?: __DIR__ . '/../p2e-pool-keypair.json';
+        
+        // Try multiple paths for payer keypair (with fallbacks)
+        $payerKeypair = null;
+        $possiblePayerPaths = [
+            getenv('SOLANA_PAYER_KEYPAIR_PATH'),  // From environment variable
+            __DIR__ . '/../payer-keypair.json',    // Relative to api/ directory
+            __DIR__ . '/payer-keypair.json',       // In api/ directory
+            '/app/payer-keypair.json',              // Absolute path (Render/Docker)
+            '/app/api/payer-keypair.json',         // Alternative absolute path
+            dirname(__DIR__) . '/payer-keypair.json', // Parent directory
+        ];
+        
+        foreach ($possiblePayerPaths as $path) {
+            if ($path && file_exists($path)) {
+                $payerKeypair = $path;
+                break;
+            }
+        }
+        
+        // Try multiple paths for P2E Pool keypair (with fallbacks)
+        $p2ePoolKeypair = null;
+        $possibleP2EPaths = [
+            getenv('SOLANA_P2E_POOL_KEYPAIR_PATH'),  // From environment variable
+            __DIR__ . '/../p2e-pool-keypair.json',    // Relative to api/ directory
+            __DIR__ . '/p2e-pool-keypair.json',      // In api/ directory
+            '/app/p2e-pool-keypair.json',             // Absolute path (Render/Docker)
+            '/app/api/p2e-pool-keypair.json',         // Alternative absolute path
+            dirname(__DIR__) . '/p2e-pool-keypair.json', // Parent directory
+        ];
+        
+        foreach ($possibleP2EPaths as $path) {
+            if ($path && file_exists($path)) {
+                $p2ePoolKeypair = $path;
+                break;
+            }
+        }
         
         // P2E Pool Address: HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw
         $p2ePoolAddress = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
@@ -1137,20 +1283,33 @@ function handleWithdrawalRequest($url, $key) {
             return;
         }
         
-        if (!file_exists($payerKeypair)) {
+        if (!$payerKeypair) {
             http_response_code(500);
-            echo json_encode(['error' => 'Payer keypair not found: ' . $payerKeypair]);
-            return;
-        }
-        
-        if (!file_exists($p2ePoolKeypair)) {
-            http_response_code(500);
+            $triedPaths = array_filter($possiblePayerPaths);
+            error_log('❌ Payer keypair not found. Tried paths: ' . implode(', ', $triedPaths));
             echo json_encode([
-                'error' => 'P2E Pool keypair not found: ' . $p2ePoolKeypair,
-                'details' => 'P2E Pool keypair is required for withdrawals. Please ensure p2e-pool-keypair.json exists.'
+                'error' => 'Payer keypair not found',
+                'details' => 'Tried paths: ' . implode(', ', array_filter($possiblePayerPaths)),
+                'hint' => 'Please set SOLANA_PAYER_KEYPAIR_PATH environment variable or place payer-keypair.json in project root'
             ]);
             return;
         }
+        
+        if (!$p2ePoolKeypair) {
+            http_response_code(500);
+            $triedPaths = array_filter($possibleP2EPaths);
+            error_log('❌ P2E Pool keypair not found. Tried paths: ' . implode(', ', $triedPaths));
+            echo json_encode([
+                'error' => 'P2E Pool keypair not found',
+                'details' => 'Tried paths: ' . implode(', ', array_filter($possibleP2EPaths)),
+                'hint' => 'Please set SOLANA_P2E_POOL_KEYPAIR_PATH environment variable or place p2e-pool-keypair.json in project root'
+            ]);
+            return;
+        }
+        
+        error_log("✅ Using keypairs for withdrawal:");
+        error_log("  Payer: {$payerKeypair}");
+        error_log("  P2E Pool: {$p2ePoolKeypair}");
         
         // ВАЖНО: Теперь используем P2E Pool как источник токенов
         // Токены переводятся из P2E Pool, а не минтится новые
