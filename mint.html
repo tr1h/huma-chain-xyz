@@ -1412,9 +1412,9 @@
             </div>
             <div class="sidebar-footer">
                 <div class="pulse-dot"></div>
-                <span>Live updates every 10s</span>
+                <span>Live updates every 30s</span>
             </div>
-        </div>
+        </section>
         
         <!-- NFT BENEFITS SECTION -->
         <section class="nft-benefits-section" aria-label="NFT Benefits and Earnings">
@@ -2792,14 +2792,10 @@
         // ==============================================
         async function loadRecentMints() {
             try {
+                // Fetch recent NFTs
                 const { data: recentNFTs, error } = await supabase
                     .from('user_nfts')
-                    .select(`
-                        *,
-                        leaderboard:telegram_id (
-                            telegram_username
-                        )
-                    `)
+                    .select('*')
                     .eq('is_active', true)
                     .order('minted_at', { ascending: false })
                     .limit(10);
@@ -2812,10 +2808,27 @@
                     return;
                 }
 
+                // Fetch usernames from leaderboard separately
+                const telegramIds = [...new Set(recentNFTs.map(nft => nft.telegram_id))];
+                const usernameMap = new Map();
+                
+                if (telegramIds.length > 0) {
+                    const { data: users, error: usersError } = await supabase
+                        .from('leaderboard')
+                        .select('telegram_id, telegram_username')
+                        .in('telegram_id', telegramIds);
+                    
+                    if (!usersError && users) {
+                        users.forEach(user => {
+                            usernameMap.set(user.telegram_id, user.telegram_username || 'Anonymous');
+                        });
+                    }
+                }
+
                 listEl.innerHTML = '';
                 recentNFTs.forEach(nft => {
                     const timeAgo = getTimeAgo(nft.minted_at);
-                    const username = nft.leaderboard?.[0]?.telegram_username || 'Anonymous';
+                    const username = usernameMap.get(nft.telegram_id) || `User ${String(nft.telegram_id).substring(0, 6)}`;
                     const tierClass = nft.tier_name.toLowerCase();
                     
                     // Check if real on-chain NFT
@@ -2842,7 +2855,9 @@
             } catch (error) {
                 console.error('❌ Failed to load recent mints:', error);
                 const listEl = document.getElementById('recent-mints-list');
-                listEl.innerHTML = '<div class="loading-mints">Failed to load activity</div>';
+                if (listEl) {
+                    listEl.innerHTML = '<div class="loading-mints">Failed to load activity. Please refresh.</div>';
+                }
             }
         }
 
@@ -2860,11 +2875,22 @@
             return `${diffDays}d ago`;
         }
 
-        // Auto-refresh recent mints every 10 seconds
-        setInterval(() => {
-            loadRecentMints();
-            loadCollectionStats();
-        }, 10000);
+        // Auto-refresh recent mints every 30 seconds (only if page is visible)
+        let refreshInterval = setInterval(() => {
+            // Only refresh if page is visible (not in background tab)
+            if (!document.hidden) {
+                loadRecentMints();
+                loadCollectionStats();
+            }
+        }, 30000); // 30 seconds instead of 10
+        
+        // Also refresh when page becomes visible again
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                loadRecentMints();
+                loadCollectionStats();
+            }
+        });
 
         // ==============================================
         // FAQ TOGGLE
