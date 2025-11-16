@@ -2562,6 +2562,34 @@
                 // Mark balance as modified to force API fetch on next loadTAMABalance()
                 balanceModified = true;
                 
+                // ✅ Record transaction with balance_after (for admin panel)
+                try {
+                    const { error: txError } = await supabase
+                        .from('transactions')
+                        .insert({
+                            user_id: String(TELEGRAM_USER_ID),
+                            type: 'nft_mint_tama',
+                            amount: 5000,
+                            balance_before: currentTama,
+                            balance_after: newTama,
+                            metadata: {
+                                tier: 'Bronze',
+                                rarity: 'Common',
+                                payment_type: 'TAMA'
+                            }
+                        });
+                    
+                    if (txError) {
+                        console.warn('⚠️ Failed to record transaction:', txError);
+                        // Don't throw - not critical
+                    } else {
+                        console.log('✅ Transaction recorded with balance_after:', newTama);
+                    }
+                } catch (txRecordError) {
+                    console.warn('⚠️ Transaction recording error:', txRecordError);
+                    // Don't throw - not critical
+                }
+                
                 // 3. Get random Bronze design (only unminted ones)
                 updateLoadingProgress('🎨 Selecting NFT design...');
                 const { data: designs, error: designError } = await supabase
