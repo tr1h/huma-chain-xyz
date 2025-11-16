@@ -939,6 +939,15 @@ function handleLeaderboardUpsert($url, $key) {
             $username = $getResult['data'][0]['telegram_username'] ?? $user_id;
             $tamaDiff = (int)$tama - $oldTama;
             
+            // 🛡️ SECURITY: Prevent rollback of TAMA balance from stale data
+            // If incoming TAMA is less than current (negative diff), don't update TAMA
+            // UNLESS it's an admin operation (skip_transaction_log = true)
+            if ($tamaDiff < 0 && !$skip_transaction_log) {
+                error_log("⚠️ BALANCE PROTECTION: Rejected stale TAMA update for user {$user_id}: {$oldTama} → {$tama} (diff: {$tamaDiff}). Keeping current balance.");
+                // Remove TAMA from update data to prevent rollback
+                unset($updateData['tama']);
+            }
+            
             // 🛡️ SECURITY: Validate TAMA balance changes to prevent cheating
             // Maximum increase per request: 10,000 TAMA (reasonable limit for legitimate gameplay)
             // BUT: Allow admin fixes (skip_transaction_log = true) to bypass this limit
