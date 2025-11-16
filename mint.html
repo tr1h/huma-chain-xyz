@@ -973,6 +973,32 @@
             text-align: center;
             box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
             animation: modalSlideIn 0.3s ease;
+            position: relative;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #FFCA3A;
+            color: #FFCA3A;
+            font-size: 24px;
+            font-weight: bold;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            line-height: 1;
+            padding: 0;
+        }
+        .modal-close-btn:hover {
+            background: #FFCA3A;
+            color: #1D3557;
+            transform: rotate(90deg);
         }
         @keyframes modalSlideIn {
             from {
@@ -1739,11 +1765,6 @@
                         <br>• Gives: 1 SOL per request
                         <br>• Simple and quick
                         <br><br>
-                        <strong>⚡ QuickNode Faucet</strong>
-                        <br>• <a href="https://faucet.quicknode.com/solana/devnet" target="_blank" style="color: #8AC926;">https://faucet.quicknode.com/solana/devnet</a>
-                        <br>• Gives: 0.5-2 SOL
-                        <br>• Requires Discord connection
-                        <br><br>
                         💡 <strong>Tip:</strong> You'll need at least <strong>0.5 SOL</strong> for minting + gas fees. Click the <strong>"🚰 Get Test SOL"</strong> button above for quick access!
                     </div>
                 </div>
@@ -1754,6 +1775,7 @@
     <!-- Custom Confirmation Modal -->
         <div id="confirm-modal" class="confirm-modal hidden">
             <div class="confirm-modal-content">
+                <button class="modal-close-btn" onclick="document.getElementById('confirm-modal').classList.add('hidden')">×</button>
                 <h3 id="confirm-title">Подтвердите действие</h3>
                 <p id="confirm-message"></p>
                 <div class="confirm-buttons">
@@ -2012,12 +2034,6 @@
                     url: 'https://solfaucet.com/',
                     amount: '1 SOL',
                     emoji: '💧'
-                },
-                {
-                    name: 'QuickNode Faucet',
-                    url: 'https://faucet.quicknode.com/solana/devnet',
-                    amount: '0.5-2 SOL',
-                    emoji: '⚡'
                 }
             ];
             
