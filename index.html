@@ -367,9 +367,23 @@
                     <button onclick="window.location.href='blog/'" class="btn-connect" style="background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%); font-size: 16px;">
                         📚 Blog
                     </button>
-                    <button id="landing-connect-btn" class="btn-secondary" style="font-size: 16px;">
-                        👛 Connect Wallet
-                    </button>
+                    <!-- Wallet Connection Section -->
+                    <div id="landing-wallet-container">
+                        <!-- Not Connected State -->
+                        <button id="landing-connect-btn" class="btn-secondary" style="font-size: 16px;">
+                            👛 Connect Wallet
+                        </button>
+                        
+                        <!-- Connected State (hidden by default) -->
+                        <div id="landing-wallet-info" style="display: none; background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(76, 175, 80, 0.2)); padding: 15px 25px; border-radius: 12px; border: 2px solid #8AC926; backdrop-filter: blur(10px); font-family: 'Press Start 2P', cursive; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 20px rgba(138, 201, 38, 0.3);">
+                            <div style="font-size: 10px; color: #8AC926; margin-bottom: 5px;">✅ CONNECTED</div>
+                            <div id="landing-wallet-address" style="font-size: 14px; color: #FFCA3A; margin-bottom: 8px;"></div>
+                            <div style="display: flex; gap: 15px; font-size: 12px; color: #F5F5F5;">
+                                <span id="landing-wallet-sol">0 SOL</span>
+                                <span id="landing-wallet-tama">0 TAMA</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div style="margin-top: 25px; font-size: 14px; color: rgba(241, 250, 238, 0.8);">
                     <span style="margin: 0 15px;">✅ 100% Free to Play</span>
@@ -1642,7 +1656,9 @@
             // Players chart
             const playersCtx = document.getElementById('chart-players');
             if (playersCtx && typeof Chart !== 'undefined') {
-                // Set explicit canvas size
+                // Set explicit canvas size (both attributes and styles)
+                playersCtx.width = playersCtx.parentElement.offsetWidth;
+                playersCtx.height = 60;
                 playersCtx.style.width = '100%';
                 playersCtx.style.height = '60px';
                 playersCtx.style.maxHeight = '60px';
@@ -1664,6 +1680,8 @@
             // NFTs chart
             const nftsCtx = document.getElementById('chart-nfts');
             if (nftsCtx && typeof Chart !== 'undefined') {
+                nftsCtx.width = nftsCtx.parentElement.offsetWidth;
+                nftsCtx.height = 60;
                 nftsCtx.style.width = '100%';
                 nftsCtx.style.height = '60px';
                 nftsCtx.style.maxHeight = '60px';
@@ -1685,6 +1703,8 @@
             // TAMA chart
             const tamaCtx = document.getElementById('chart-tama');
             if (tamaCtx && typeof Chart !== 'undefined') {
+                tamaCtx.width = tamaCtx.parentElement.offsetWidth;
+                tamaCtx.height = 60;
                 tamaCtx.style.width = '100%';
                 tamaCtx.style.height = '60px';
                 tamaCtx.style.maxHeight = '60px';
@@ -1706,6 +1726,8 @@
             // Wallets chart
             const walletsCtx = document.getElementById('chart-wallets');
             if (walletsCtx && typeof Chart !== 'undefined') {
+                walletsCtx.width = walletsCtx.parentElement.offsetWidth;
+                walletsCtx.height = 60;
                 walletsCtx.style.width = '100%';
                 walletsCtx.style.height = '60px';
                 walletsCtx.style.maxHeight = '60px';
@@ -1724,6 +1746,24 @@
                 });
             }
         }
+        
+        // Handle window resize to prevent chart stretching
+        window.addEventListener('resize', () => {
+            ['chart-players', 'chart-nfts', 'chart-tama', 'chart-wallets'].forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    canvas.width = canvas.parentElement.offsetWidth;
+                    canvas.height = 60;
+                    canvas.style.height = '60px';
+                    canvas.style.maxHeight = '60px';
+                }
+            });
+            
+            // Redraw all charts
+            Object.values(statCharts).forEach(chart => {
+                if (chart) chart.resize();
+            });
+        });
         
         // Update chart with new data point
         function updateChart(chartName, value) {
@@ -1914,8 +1954,102 @@
         }
         
         // Add event listener for TAMA history button and hover
+        // ============================================
+        // LANDING PAGE WALLET CONNECTION
+        // ============================================
+        
+        let landingWalletConnected = false;
+        
+        async function updateLandingWalletUI() {
+            const connectBtn = document.getElementById('landing-connect-btn');
+            const walletInfo = document.getElementById('landing-wallet-info');
+            
+            if (!connectBtn || !walletInfo) return;
+            
+            if (landingWalletConnected && window.solana && window.solana.isConnected) {
+                try {
+                    const publicKey = window.solana.publicKey.toString();
+                    const shortAddress = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
+                    
+                    // Update UI
+                    connectBtn.style.display = 'none';
+                    walletInfo.style.display = 'block';
+                    document.getElementById('landing-wallet-address').textContent = shortAddress;
+                    
+                    // Get SOL balance
+                    const connection = new window.solanaWeb3.Connection(
+                        'https://api.devnet.solana.com',
+                        'confirmed'
+                    );
+                    const balance = await connection.getBalance(window.solana.publicKey);
+                    const solBalance = (balance / 1e9).toFixed(4);
+                    document.getElementById('landing-wallet-sol').textContent = `${solBalance} SOL`;
+                    
+                    // Get TAMA balance (if available)
+                    if (window.SimpleTAMASystem) {
+                        const tamaBalance = await window.SimpleTAMASystem.getBalance(publicKey);
+                        document.getElementById('landing-wallet-tama').textContent = `${tamaBalance} TAMA`;
+                    } else {
+                        document.getElementById('landing-wallet-tama').textContent = '0 TAMA';
+                    }
+                    
+                    // Add click handler to navigate to NFT page
+                    walletInfo.onclick = () => {
+                        window.location.href = 'my-nfts.html';
+                    };
+                    
+                    console.log('✅ Landing wallet UI updated');
+                } catch (error) {
+                    console.error('❌ Error updating landing wallet UI:', error);
+                }
+            } else {
+                // Not connected
+                connectBtn.style.display = 'block';
+                walletInfo.style.display = 'none';
+            }
+        }
+        
+        async function connectLandingWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('❌ Phantom Wallet not found!\n\nPlease install Phantom Wallet extension:\nhttps://phantom.app/');
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+                
+                console.log('🔄 Connecting landing wallet...');
+                const resp = await window.solana.connect();
+                landingWalletConnected = true;
+                console.log('✅ Landing wallet connected:', resp.publicKey.toString());
+                
+                await updateLandingWalletUI();
+            } catch (error) {
+                console.error('❌ Landing wallet connection failed:', error);
+                alert('Failed to connect wallet: ' + error.message);
+            }
+        }
+        
+        // Check if wallet is already connected on page load
+        async function checkLandingWalletConnection() {
+            if (window.solana && window.solana.isConnected) {
+                landingWalletConnected = true;
+                await updateLandingWalletUI();
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ Page loaded - using stub modules');
+            
+            // Initialize landing wallet connection
+            const landingConnectBtn = document.getElementById('landing-connect-btn');
+            if (landingConnectBtn) {
+                landingConnectBtn.addEventListener('click', connectLandingWallet);
+            }
+            
+            // Check if wallet is already connected
+            setTimeout(() => {
+                checkLandingWalletConnection();
+            }, 500);
             
             // Initialize charts for Live Stats
             setTimeout(() => {

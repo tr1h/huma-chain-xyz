@@ -48,6 +48,18 @@ elseif (preg_match('#^/api/mint-nft-onchain#', $uri)) {
     require __DIR__ . '/mint-nft-onchain-wrapper.php';
     exit;
 }
+// Route /api/analyze-user to analyze-user.php
+elseif (preg_match('#^/api/analyze-user#', $uri)) {
+    chdir(__DIR__);
+    require __DIR__ . '/analyze-user.php';
+    exit;
+}
+// Route /api/check-duplicate-transactions to check-duplicate-transactions.php
+elseif (preg_match('#^/api/check-duplicate-transactions#', $uri)) {
+    chdir(__DIR__);
+    require __DIR__ . '/check-duplicate-transactions.php';
+    exit;
+}
 else {
     // Serve static files or return 404
     if (file_exists(__DIR__ . $uri)) {

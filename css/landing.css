@@ -328,6 +328,7 @@
     position: relative;
     z-index: 2;
     overflow: hidden;
+    max-height: 200px;
 }
 
 .stat-number {
@@ -679,9 +680,16 @@
     margin-top: 15px;
     opacity: 0.8;
     transition: opacity 0.3s;
-    display: block;
-    overflow: hidden;
+    display: block !important;
+    overflow: hidden !important;
     position: relative;
+}
+
+.stat-chart canvas {
+    width: 100% !important;
+    height: 60px !important;
+    max-height: 60px !important;
+    display: block !important;
 }
 
 .stat-card:hover .stat-chart {

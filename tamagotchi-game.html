@@ -5738,17 +5738,20 @@
                                 const currentTama = currentBalanceData && currentBalanceData.length > 0 ? (currentBalanceData[0].tama || 0) : 0;
                                 const newTama = currentTama + 1000;
                                 
-                                // Update referrer's TAMA
-                                const updateResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${referrerId}`, {
-                                    method: 'PATCH',
+                                // 🛡️ SECURITY: Use API instead of direct Supabase access to prevent cheating
+                                const updateResponse = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                                    method: 'POST',
                                     headers: {
-                                        'apikey': SUPABASE_ANON_KEY,
-                                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                                        'Content-Type': 'application/json',
-                                        'Prefer': 'return=minimal'
+                                        'Content-Type': 'application/json'
                                     },
                                     body: JSON.stringify({
-                                        tama: newTama
+                                        user_id: referrerId,
+                                        tama: newTama,
+                                        level: referrerData.level || 1,
+                                        xp: referrerData.xp || 0,
+                                        pet_name: referrerData.pet_name || 'Gotchi',
+                                        pet_type: referrerData.pet_type || 'kawai',
+                                        skip_transaction_log: true // We'll log referral bonus separately
                                     })
                                 });
                                 

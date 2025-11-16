@@ -129,3 +129,7 @@ if (result.success) {
 - ✅ Использовать Metaplex SDK на сервере (Node.js)
 - ✅ Интегрировать в `mint.html`
 
+
+
+
+

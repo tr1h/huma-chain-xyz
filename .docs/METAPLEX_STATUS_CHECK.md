@@ -194,3 +194,7 @@ console.log('🔗 Explorer:', result.explorerUrl);
 
 **Метод `mintNFT()` создаст НАСТОЯЩИЙ on-chain NFT на Solana!**
 
+
+
+
+

@@ -126,3 +126,7 @@ curl http://localhost:3001/health
 3. ✅ Попробуйте заминтить NFT на `mint.html`
 4. ✅ NFT появится на Solana blockchain!
 
+
+
+
+

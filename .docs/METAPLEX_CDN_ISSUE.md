@@ -43,3 +43,7 @@ npm install @metaplex-foundation/js @solana/web3.js
 - Использовать Metaplex SDK на сервере
 - Обновить `nft_mint_address` после минта
 
+
+
+
+

@@ -84,3 +84,5 @@ Solana Tamagotchi Team
 - Consider negotiating if rates are high
 
 
+
+

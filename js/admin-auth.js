@@ -123,20 +123,23 @@
             return;
         }
         
-        // Получить пароль из конфигурации (множественные источники)
-        const adminPassword = (typeof ADMIN_PASSWORD !== 'undefined' ? ADMIN_PASSWORD : null) || 
-                             (typeof window.ADMIN_PASSWORD !== 'undefined' ? window.ADMIN_PASSWORD : null) ||
-                             (document.querySelector('meta[name="admin-password"]')?.content) ||
-                             null;
+        // ⚠️ БЕЗОПАСНОСТЬ: Используем только хеш пароля, НЕ открытый пароль!
+        // Получить хеш пароля из конфигурации (множественные источники)
         const adminPasswordHash = (typeof ADMIN_PASSWORD_HASH !== 'undefined' ? ADMIN_PASSWORD_HASH : null) || 
                                   (typeof window.ADMIN_PASSWORD_HASH !== 'undefined' ? window.ADMIN_PASSWORD_HASH : null) ||
                                   (document.querySelector('meta[name="admin-password-hash"]')?.content) ||
                                   null;
         
+        // Для локальной разработки: можно использовать открытый пароль из admin-password.js
+        // НО НЕ ИЗ META-ТЕГА! (meta-тег виден всем в исходниках HTML)
+        const adminPassword = (typeof ADMIN_PASSWORD !== 'undefined' ? ADMIN_PASSWORD : null) || 
+                             (typeof window.ADMIN_PASSWORD !== 'undefined' ? window.ADMIN_PASSWORD : null) ||
+                             null; // ⚠️ НЕ читаем из meta-тега!
+        
         if (!adminPassword && !adminPasswordHash) {
             if (errorDiv) {
-                errorDiv.textContent = 'Error: Password not configured! Please create admin-password.js or set meta tag';
-                errorDiv.innerHTML += '<br><small style="color: #666;">For production: Add &lt;meta name="admin-password" content="YOUR_PASSWORD"&gt; in &lt;head&gt;</small>';
+                errorDiv.textContent = 'Error: Password not configured!';
+                errorDiv.innerHTML += '<br><small style="color: #666;">For local dev: Create admin-password.js<br>For production: Add &lt;meta name="admin-password-hash" content="SHA256_HASH"&gt; in &lt;head&gt;</small>';
             }
             return;
         }
@@ -145,7 +148,7 @@
         
         // Проверка пароля
         if (adminPasswordHash && adminPasswordHash !== '') {
-            // Использовать хеш
+            // Использовать хеш (безопаснее)
             try {
                 const hash = await sha256(password);
                 isValid = hash === adminPasswordHash;
@@ -154,7 +157,7 @@
                 isValid = false;
             }
         } else if (adminPassword) {
-            // Прямое сравнение
+            // Прямое сравнение (только для локальной разработки из admin-password.js)
             isValid = password === adminPassword;
         }
         

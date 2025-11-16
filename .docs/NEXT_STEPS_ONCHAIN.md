@@ -139,3 +139,7 @@ node -e "const {Keypair}=require('@solana/web3.js'); const bs58=require('bs58');
 
 🎉 **После этого ваши NFT будут настоящими on-chain NFT на Solana!**
 
+
+
+
+

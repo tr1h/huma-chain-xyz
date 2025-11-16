@@ -75,3 +75,7 @@ console.log('   3. Get SOL for payer keypair (Devnet faucet: https://faucet.sola
 console.log('   4. Start server: npm run start:onchain');
 console.log('   5. Test: curl http://localhost:3001/health\n');
 
+
+
+
+

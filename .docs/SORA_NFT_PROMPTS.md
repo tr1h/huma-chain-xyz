@@ -195,3 +195,7 @@ A cute pixel art Tamagotchi pet in Diamond tier style. Brilliant diamond and cya
 4. Platinum (5 изображений)
 5. Diamond (2 изображения - только Epic и Legendary)
 
+
+
+
+

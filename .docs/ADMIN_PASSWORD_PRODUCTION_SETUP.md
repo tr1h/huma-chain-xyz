@@ -91,3 +91,5 @@ window.ADMIN_PASSWORD = 'Humanis9';
 - После настройки на продакшене - измени пароль на более сложный!
 - Не коммить `admin-password.js` в Git (он уже в .gitignore)
 
+
+

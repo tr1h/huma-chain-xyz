@@ -95,3 +95,8 @@ FROM user_nfts
 WHERE is_active = true
 GROUP BY tier_name;
 
+
+
+
+
+

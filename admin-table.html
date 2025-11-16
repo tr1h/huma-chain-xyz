@@ -344,6 +344,7 @@
         // Supabase configuration (FIXED URL)
         const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
 
         let allUsersData = [];
 
@@ -417,7 +418,7 @@
                 document.getElementById('totalClicks').textContent = clicksData.length || 0;
 
                 // ✅ NEW: Load transactions for accurate wrong balance count
-                const transactionsStatsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=user_id,type,amount`, {
+                const transactionsStatsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=user_id,type,amount,balance_after,created_at`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -430,15 +431,36 @@
                 let wrongCount = 0;
                 leaderboardData.forEach(user => {
                     const userTransactions = transactionsStatsData.filter(t => String(t.user_id) === String(user.telegram_id));
-                    let shouldBeTama = 0;
                     
-                    userTransactions.forEach(transaction => {
-                        if (['earn_click', 'quest_complete', 'achievement_bonus', 'referral_bonus', 'daily_reward'].includes(transaction.type)) {
-                            shouldBeTama += transaction.amount || 0;
-                        } else if (['spend_feed', 'spend_play', 'spend_heal', 'spend_game', 'nft_mint_onchain', 'withdrawal'].includes(transaction.type)) {
-                            shouldBeTama -= Math.abs(transaction.amount || 0);
+                    // Use balance_after from last transaction (most accurate)
+                    let shouldBeTama = null; // null = not calculated yet
+                    if (userTransactions.length > 0) {
+                        const sortedTx = [...userTransactions].sort((a, b) => 
+                            new Date(b.created_at || 0) - new Date(a.created_at || 0)
+                        );
+                        const lastTx = sortedTx[0];
+                        // Use balance_after if it exists (even if 0, that's valid!)
+                        if (lastTx.balance_after !== null && lastTx.balance_after !== undefined) {
+                            shouldBeTama = lastTx.balance_after;
                         }
-                    });
+                    }
+                    
+                    // Fallback: calculate from scratch if balance_after not available
+                    if (shouldBeTama === null && userTransactions.length > 0) {
+                        shouldBeTama = 0;
+                        userTransactions.forEach(transaction => {
+                            if (['earn_click', 'quest_complete', 'achievement_bonus', 'referral_bonus', 'daily_reward'].includes(transaction.type)) {
+                                shouldBeTama += transaction.amount || 0;
+                            } else if (['spend_feed', 'spend_play', 'spend_heal', 'spend_game', 'nft_mint_onchain', 'withdrawal'].includes(transaction.type)) {
+                                shouldBeTama -= Math.abs(transaction.amount || 0);
+                            }
+                        });
+                    }
+                    
+                    // If no transactions, balance should be 0
+                    if (shouldBeTama === null) {
+                        shouldBeTama = 0;
+                    }
                     
                     shouldBeTama = Math.max(0, Math.round(shouldBeTama));
                     const difference = Math.abs(user.tama - shouldBeTama);
@@ -487,7 +509,7 @@
                 const pendingData = await pendingResponse.json();
                 
                 // ✅ NEW: Load transactions data to calculate correct balances
-                const transactionsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=user_id,type,amount`, {
+                const transactionsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=user_id,type,amount,balance_after,created_at`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -508,18 +530,40 @@
                     
                     // ✅ NEW: Calculate correct balance from transactions
                     const userTransactions = transactionsData.filter(t => String(t.user_id) === String(user.telegram_id));
-                    let shouldBeTama = 0;
                     
-                    userTransactions.forEach(transaction => {
-                        // Earn types (positive)
-                        if (['earn_click', 'quest_complete', 'achievement_bonus', 'referral_bonus', 'daily_reward'].includes(transaction.type)) {
-                            shouldBeTama += transaction.amount || 0;
+                    // Method 1: Use balance_after from last transaction (most accurate)
+                    let shouldBeTama = null; // null = not calculated yet
+                    if (userTransactions.length > 0) {
+                        // Sort by date descending to get latest transaction
+                        const sortedTx = [...userTransactions].sort((a, b) => 
+                            new Date(b.created_at || 0) - new Date(a.created_at || 0)
+                        );
+                        const lastTx = sortedTx[0];
+                        // Use balance_after if it exists (even if 0, that's valid!)
+                        if (lastTx.balance_after !== null && lastTx.balance_after !== undefined) {
+                            shouldBeTama = lastTx.balance_after;
                         }
-                        // Spend types (negative)
-                        else if (['spend_feed', 'spend_play', 'spend_heal', 'spend_game', 'nft_mint_onchain', 'withdrawal'].includes(transaction.type)) {
-                            shouldBeTama -= Math.abs(transaction.amount || 0);
-                        }
-                    });
+                    }
+                    
+                    // Method 2: Calculate from scratch (fallback if balance_after not available)
+                    if (shouldBeTama === null && userTransactions.length > 0) {
+                        shouldBeTama = 0;
+                        userTransactions.forEach(transaction => {
+                            // Earn types (positive)
+                            if (['earn_click', 'quest_complete', 'achievement_bonus', 'referral_bonus', 'daily_reward'].includes(transaction.type)) {
+                                shouldBeTama += transaction.amount || 0;
+                            }
+                            // Spend types (negative)
+                            else if (['spend_feed', 'spend_play', 'spend_heal', 'spend_game', 'nft_mint_onchain', 'withdrawal'].includes(transaction.type)) {
+                                shouldBeTama -= Math.abs(transaction.amount || 0);
+                            }
+                        });
+                    }
+                    
+                    // If no transactions, balance should be 0
+                    if (shouldBeTama === null) {
+                        shouldBeTama = 0;
+                    }
                     
                     shouldBeTama = Math.max(0, Math.round(shouldBeTama)); // Round and ensure non-negative
                     const difference = user.tama - shouldBeTama;
@@ -577,16 +621,20 @@
             if (!confirm(message)) return;
             
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
-                    method: 'PATCH',
+                // 🛡️ SECURITY: Use API instead of direct Supabase access
+                const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                    method: 'POST',
                     headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        tama: user.should_be_tama
+                        user_id: telegramId,
+                        tama: user.should_be_tama,
+                        level: user.level || 1,
+                        xp: user.xp || 0,
+                        pet_name: user.pet_name || 'Gotchi',
+                        pet_type: user.pet_type || 'kawai',
+                        skip_transaction_log: true // Admin fix, don't log as transaction
                     })
                 });
 
@@ -622,16 +670,20 @@
             
             for (const user of wrongUsers) {
                 try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${user.telegram_id}`, {
-                        method: 'PATCH',
+                    // 🛡️ SECURITY: Use API instead of direct Supabase access
+                    const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                        method: 'POST',
                         headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            tama: user.should_be_tama
+                            user_id: user.telegram_id,
+                            tama: user.should_be_tama,
+                            level: user.level || 1,
+                            xp: user.xp || 0,
+                            pet_name: user.pet_name || 'Gotchi',
+                            pet_type: user.pet_type || 'kawai',
+                            skip_transaction_log: true // Admin fix, don't log as transaction
                         })
                     });
                     
