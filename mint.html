@@ -1194,6 +1194,22 @@
             }
         }
         
+        /* PROGRESS SPINNER */
+        .progress-spinner {
+            border: 6px solid rgba(255, 202, 58, 0.2);
+            border-top: 6px solid #FFCA3A;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
         /* MOBILE RESPONSIVE */
         @media (max-width: 768px) {
             .header h1 { font-size: 20px; }
@@ -1871,6 +1887,74 @@
         }
 
         // ==============================================
+        // LOADING PROGRESS INDICATOR
+        // ==============================================
+        function showLoadingProgress(title, subtitle = '') {
+            // Create progress modal
+            let progressModal = document.getElementById('progress-modal');
+            if (!progressModal) {
+                progressModal = document.createElement('div');
+                progressModal.id = 'progress-modal';
+                progressModal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.85);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 99999;
+                    backdrop-filter: blur(10px);
+                `;
+                
+                progressModal.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #1D3557, #457B9D);
+                                border: 4px solid #FFCA3A;
+                                border-radius: 20px;
+                                padding: 40px;
+                                text-align: center;
+                                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                                max-width: 400px;
+                                width: 90%;">
+                        <div class="progress-spinner" style="margin: 0 auto 20px; width: 60px; height: 60px;"></div>
+                        <h3 id="progress-title" style="color: #FFCA3A; font-size: 20px; margin: 0 0 10px 0; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">${title}</h3>
+                        <p id="progress-subtitle" style="color: #F1FAEE; font-size: 14px; margin: 0 0 20px 0; line-height: 1.6;">${subtitle}</p>
+                        <div id="progress-steps" style="text-align: left; color: #8AC926; font-size: 13px; line-height: 1.8;"></div>
+                    </div>
+                `;
+                
+                document.body.appendChild(progressModal);
+            }
+            
+            progressModal.style.display = 'flex';
+            document.getElementById('progress-title').textContent = title;
+            document.getElementById('progress-subtitle').textContent = subtitle;
+            document.getElementById('progress-steps').innerHTML = '';
+        }
+        
+        function updateLoadingProgress(step) {
+            const stepsContainer = document.getElementById('progress-steps');
+            if (stepsContainer) {
+                const stepEl = document.createElement('div');
+                stepEl.innerHTML = `✓ ${step}`;
+                stepEl.style.cssText = 'margin: 5px 0; opacity: 0; animation: fadeIn 0.5s forwards;';
+                stepsContainer.appendChild(stepEl);
+                
+                // Auto-scroll to bottom
+                stepsContainer.scrollTop = stepsContainer.scrollHeight;
+            }
+        }
+        
+        function hideLoadingProgress() {
+            const progressModal = document.getElementById('progress-modal');
+            if (progressModal) {
+                progressModal.style.display = 'none';
+            }
+        }
+
+        // ==============================================
         // UTILITY FUNCTIONS
         // ==============================================
         function getTelegramUserId() {
@@ -2434,15 +2518,13 @@
                     return;
                 }
 
-                // Show loading
-                const spinner = document.createElement('div');
-                spinner.className = 'spinner';
-                spinner.id = 'loading-spinner';
-                document.querySelector('.container').appendChild(spinner);
+                // Show loading with progress indicator
+                showLoadingProgress('🎨 Minting Bronze NFT...', 'Please wait, this may take 30-60 seconds');
 
                 // ============================================
                 // DIRECT SUPABASE APPROACH (bypasses PHP API)
                 // ============================================
+                updateLoadingProgress('💰 Checking TAMA balance...');
                 console.log('📊 Checking balance from leaderboard...');
                 
                 // 1. Get current TAMA balance from leaderboard
@@ -2464,6 +2546,7 @@
                 console.log('💰 Current TAMA balance:', currentTama);
                 
                 // 2. Deduct 5000 TAMA from leaderboard
+                updateLoadingProgress('💳 Deducting 5000 TAMA...');
                 const newTama = currentTama - 5000;
                 const { error: updateError } = await supabase
                     .from('leaderboard')
@@ -2480,6 +2563,7 @@
                 balanceModified = true;
                 
                 // 3. Get random Bronze design (only unminted ones)
+                updateLoadingProgress('🎨 Selecting NFT design...');
                 const { data: designs, error: designError } = await supabase
                     .from('nft_designs')
                     .select('*')
@@ -2496,6 +2580,7 @@
                 console.log('🎨 Selected design:', randomDesign);
                 
                 // 4. Create NFT record using RPC function (bypasses type issues)
+                updateLoadingProgress('💾 Creating NFT record...');
                 const nftMintAddress = `bronze_${TELEGRAM_USER_ID}_${Date.now()}_${randomDesign.id}`;
                 
                 // CRITICAL: Send telegram_id as STRING to RPC function
@@ -2534,6 +2619,7 @@
                 
                 // 🔥 NEW: Mint real on-chain NFT (same as SOL mint)
                 if (nftData && nftData.id) {
+                    updateLoadingProgress('💎 Creating on-chain NFT...');
                     console.log('💎 Starting on-chain NFT mint for Bronze TAMA purchase...');
                     
                     try {
@@ -2542,6 +2628,7 @@
                             ? 'http://localhost:3001/api/mint-nft-onchain'
                             : 'https://api.solanatamagotchi.com/api/mint-nft-onchain';
                         
+                        updateLoadingProgress('🌐 Uploading metadata to blockchain...');
                         console.log('📡 Calling on-chain mint API:', onchainApiUrl);
                         
                         const onchainResponse = await fetch(onchainApiUrl, {
@@ -2565,15 +2652,18 @@
                         const onchainResult = await onchainResponse.json();
                         
                         if (onchainResult.success && onchainResult.mintAddress) {
+                            updateLoadingProgress('🎉 On-chain NFT created!');
                             console.log('✅ On-chain NFT minted successfully!');
                             console.log('📍 Mint Address:', onchainResult.mintAddress);
                             console.log('🔗 Explorer:', `https://explorer.solana.com/address/${onchainResult.mintAddress}?cluster=devnet`);
                         } else {
+                            updateLoadingProgress('⚠️ On-chain mint failed, but NFT is saved');
                             console.error('❌ On-chain mint failed:', onchainResult.error);
                             // Don't throw - database record is already created
                             // User will see "Off-Chain Only" badge but NFT is still functional
                         }
                     } catch (onchainError) {
+                        updateLoadingProgress('⚠️ On-chain mint error, but NFT is saved');
                         console.error('❌ On-chain mint error:', onchainError);
                         // Don't throw - database record is already created
                         // User will see "Off-Chain Only" badge but NFT is still functional
@@ -2624,15 +2714,17 @@
                 }
 
                 // Remove loading
-                document.getElementById('loading-spinner')?.remove();
-
-                showNotification('success', '🎉 NFT Minted!', 
-                    `Bronze NFT minted successfully!\n\n` +
-                    `Design: #${randomDesign.design_number}\n` +
-                    `Boost: ×2.0\n` +
-                    `Theme: ${randomDesign.design_theme}\n` +
-                    `Variant: ${randomDesign.design_variant}`
-                );
+                updateLoadingProgress('✅ NFT minted successfully!');
+                setTimeout(() => {
+                    hideLoadingProgress();
+                    showNotification('success', '🎉 NFT Minted!', 
+                        `Bronze NFT minted successfully!\n\n` +
+                        `Design: #${randomDesign.design_number}\n` +
+                        `Boost: ×2.0\n` +
+                        `Theme: ${randomDesign.design_theme}\n` +
+                        `Variant: ${randomDesign.design_variant}`
+                    );
+                }, 1000);
                 
                 // Reload prices & balance
                 await loadPricesAndStats();
@@ -2640,8 +2732,8 @@
 
             } catch (err) {
                 console.error('❌ Mint Bronze failed:', err);
+                hideLoadingProgress();
                 showNotification('error', 'Mint Failed', err.message || 'Failed to mint Bronze NFT. Please try again.');
-                document.getElementById('loading-spinner')?.remove();
             }
         }
 
