@@ -358,6 +358,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 5px;
             padding: 10px 20px;
             background: rgba(255, 255, 255, 0.05);
@@ -365,20 +366,45 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 1px solid transparent;
+            min-width: 100px;
+            font-family: inherit;
+            color: inherit;
+            text-align: center;
         }
         
-        .stat-item:hover {
+        .stat-item.like-btn {
+            border: none;
+            outline: none;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        .stat-item.like-btn * {
+            pointer-events: none;
+        }
+        
+        .stat-item:hover,
+        .stat-item.like-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
         
-        .stat-item.liked {
+        .stat-item.liked,
+        .stat-item.like-btn.liked {
             background: rgba(255, 20, 147, 0.2);
             border-color: #ff1493;
         }
         
         .stat-icon {
             font-size: 1.5em;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
         }
         
         .stat-value {
