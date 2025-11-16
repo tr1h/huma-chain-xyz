@@ -2486,8 +2486,18 @@
         // ==============================================
         // MINT FUNCTIONS
         // ==============================================
+        // Prevent double-click / double-call protection
+        let isMintingBronze = false;
+        
         async function mintBronze() {
+            // 🛡️ PROTECTION: Prevent double-call
+            if (isMintingBronze) {
+                console.warn('⚠️ Mint already in progress, ignoring duplicate call');
+                return;
+            }
+            
             try {
+                isMintingBronze = true;
                 console.log('🟫 Minting Bronze NFT...');
 
                 // Check if user came from game (has telegram_id)
@@ -2706,33 +2716,50 @@
                 }
                 
                 // ✅ Record transaction with balance_after (for admin panel)
+                // 🛡️ PROTECTION: Check for duplicate transaction first
                 try {
-                    const { error: txError } = await supabase
-                        .from('transactions')
-                        .insert({
-                            user_id: String(TELEGRAM_USER_ID),
-                            type: 'nft_mint_tama',
-                            amount: 5000,
-                            balance_before: currentTama,
-                            balance_after: newTama,
-                            metadata: {
-                                tier: 'Bronze',
-                                rarity: 'Common',
-                                payment_type: 'TAMA',
-                                distribution: {
-                                    burn: burnAmount,
-                                    treasury: treasuryAmount,
-                                    pool: poolAmount
-                                },
-                                onchain_transfers: onchainTransfers // Include blockchain signatures
-                            }
-                        });
+                    const transactionId = `nft_mint_${TELEGRAM_USER_ID}_${Date.now()}`;
                     
-                    if (txError) {
-                        console.warn('⚠️ Failed to record transaction:', txError);
-                        // Don't throw - not critical
+                    // Check if similar transaction exists in last 5 seconds (prevent duplicates)
+                    const { data: recentTx } = await supabase
+                        .from('transactions')
+                        .select('id')
+                        .eq('user_id', String(TELEGRAM_USER_ID))
+                        .eq('type', 'nft_mint_tama')
+                        .gte('created_at', new Date(Date.now() - 5000).toISOString())
+                        .limit(1);
+                    
+                    if (recentTx && recentTx.length > 0) {
+                        console.warn('⚠️ Duplicate transaction detected, skipping insert');
                     } else {
-                        console.log('✅ Transaction recorded with balance_after:', newTama);
+                        const { error: txError } = await supabase
+                            .from('transactions')
+                            .insert({
+                                user_id: String(TELEGRAM_USER_ID),
+                                type: 'nft_mint_tama',
+                                amount: 5000,
+                                balance_before: currentTama,
+                                balance_after: newTama,
+                                metadata: {
+                                    tier: 'Bronze',
+                                    rarity: 'Common',
+                                    payment_type: 'TAMA',
+                                    transaction_id: transactionId, // Unique ID for deduplication
+                                    distribution: {
+                                        burn: burnAmount,
+                                        treasury: treasuryAmount,
+                                        pool: poolAmount
+                                    },
+                                    onchain_transfers: onchainTransfers // Include blockchain signatures
+                                }
+                            });
+                        
+                        if (txError) {
+                            console.warn('⚠️ Failed to record transaction:', txError);
+                            // Don't throw - not critical
+                        } else {
+                            console.log('✅ Transaction recorded with balance_after:', newTama);
+                        }
                     }
                 } catch (txRecordError) {
                     console.warn('⚠️ Transaction recording error:', txRecordError);
@@ -2906,11 +2933,17 @@
                 // Reload prices & balance
                 await loadPricesAndStats();
                 await loadTAMABalance();
+                
+                // Reset flag on success
+                isMintingBronze = false;
 
             } catch (err) {
                 console.error('❌ Mint Bronze failed:', err);
                 hideLoadingProgress();
                 showNotification('error', 'Mint Failed', err.message || 'Failed to mint Bronze NFT. Please try again.');
+                
+                // Reset flag on error
+                isMintingBronze = false;
             }
         }
 
