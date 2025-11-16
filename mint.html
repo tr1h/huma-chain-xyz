@@ -2687,8 +2687,10 @@
                         // Show notification with explorer link
                         if (transferResult.transfers && transferResult.transfers.length > 0) {
                             const firstTx = transferResult.transfers[0];
+                            // Convert from raw units (with decimals) to TAMA
+                            const tamaAmount = (transferResult.total_transferred / 1e9).toLocaleString('en-US', { maximumFractionDigits: 2 });
                             showNotification('success', 'On-Chain Transfers Complete', 
-                                `${transferResult.total_transferred} TAMA transferred on Solana blockchain`, 
+                                `${tamaAmount} TAMA transferred on Solana blockchain`, 
                                 firstTx.explorer);
                         }
                     } else {
