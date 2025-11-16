@@ -2508,6 +2508,54 @@
                 
                 console.log('✅ NFT created:', nftData);
                 
+                // 🔥 NEW: Mint real on-chain NFT (same as SOL mint)
+                if (nftData && nftData.id) {
+                    console.log('💎 Starting on-chain NFT mint for Bronze TAMA purchase...');
+                    
+                    try {
+                        // Determine backend URL
+                        const onchainApiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                            ? 'http://localhost:3001/api/mint-nft-onchain'
+                            : 'https://api.solanatamagotchi.com/api/mint-nft-onchain';
+                        
+                        console.log('📡 Calling on-chain mint API:', onchainApiUrl);
+                        
+                        const onchainResponse = await fetch(onchainApiUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                nft_id: nftData.id,
+                                tier: 'Bronze',
+                                rarity: 'Common',
+                                design_number: randomDesign.design_number,
+                                imageUrl: getNFTImageUrl('Bronze', 'Common')
+                            })
+                        });
+                        
+                        if (!onchainResponse.ok) {
+                            throw new Error(`HTTP error! status: ${onchainResponse.status}`);
+                        }
+                        
+                        const onchainResult = await onchainResponse.json();
+                        
+                        if (onchainResult.success && onchainResult.mintAddress) {
+                            console.log('✅ On-chain NFT minted successfully!');
+                            console.log('📍 Mint Address:', onchainResult.mintAddress);
+                            console.log('🔗 Explorer:', `https://explorer.solana.com/address/${onchainResult.mintAddress}?cluster=devnet`);
+                        } else {
+                            console.error('❌ On-chain mint failed:', onchainResult.error);
+                            // Don't throw - database record is already created
+                            // User will see "Off-Chain Only" badge but NFT is still functional
+                        }
+                    } catch (onchainError) {
+                        console.error('❌ On-chain mint error:', onchainError);
+                        // Don't throw - database record is already created
+                        // User will see "Off-Chain Only" badge but NFT is still functional
+                    }
+                }
+                
                 // 5. Mark design as minted
                 const { error: markMintedError } = await supabase
                     .from('nft_designs')
