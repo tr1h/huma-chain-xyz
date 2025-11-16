@@ -3494,9 +3494,12 @@ Please check if the API server is running on `localhost:8002`
         username = call.from_user.username or call.from_user.first_name
         
         try:
-            # Get user's TAMA balance
-            leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
-            tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
+            # Get user's TAMA balance, level, and XP (all at once for efficiency)
+            leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
+            user_data = leaderboard_response.data[0] if leaderboard_response.data else {}
+            tama_balance = user_data.get('tama', 0)
+            level = user_data.get('level', 1)
+            xp = user_data.get('xp', 0)
             
             tama_cost = 5000
             can_afford_tama = tama_balance >= tama_cost
@@ -3525,10 +3528,9 @@ All NFTs give you earning bonuses when playing!
 💰 *Click the button below to mint!*
             """
             
-            # Create mint URL with user data
-            # Using nft-mint-5tiers.html (NEW 5-tier system with bonding curve!)
-            # TAMA balance загружается напрямую из базы данных (real-time)
-            mint_url = f"{MINT_URL}nft-mint-5tiers.html?user_id={telegram_id}"
+            # Create mint URL with FRESH user data (tama, level, xp)
+            # ✅ Now passes actual TAMA balance to website!
+            mint_url = f"{MINT_URL}?user_id={telegram_id}&tama={tama_balance}&level={level}&xp={xp}"
             
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
