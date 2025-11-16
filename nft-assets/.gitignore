@@ -1,0 +1,23 @@
+# NFT Assets - Don't commit images to Git
+# Images should be uploaded to IPFS/NFT.Storage
+
+# Ignore all image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+
+# Ignore IPFS upload results (contains CIDs, can be committed if needed)
+# ipfs-urls.json
+
+# Ignore node_modules if running upload script
+node_modules/
+package-lock.json
+
+# Keep README and upload script
+!README.md
+!upload-to-ipfs.js
+!.gitignore
+

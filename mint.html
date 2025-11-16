@@ -2753,10 +2753,62 @@
         
         // Helper function to get NFT image URL
         function getNFTImageUrl(tier, rarity) {
-            // Base URL for NFT images
-            const baseUrl = 'https://solanatamagotchi.com/nft-assets';
-            // Format: /tier/rarity.png (e.g., /bronze/common.png)
-            return `${baseUrl}/${tier.toLowerCase()}/${rarity.toLowerCase()}.png`;
+            // 🎨 Placeholder images (replace with IPFS URLs later)
+            // See nft-assets/README.md for instructions on uploading to IPFS
+            
+            const tierColors = {
+                bronze: 'CD7F32',  // Bronze color
+                silver: 'C0C0C0',  // Silver color  
+                gold: 'FFD700',    // Gold color
+                diamond: '00BFFF'  // Diamond blue
+            };
+            
+            const tierEmojis = {
+                bronze: '🥉',
+                silver: '🥈',
+                gold: '🥇',
+                diamond: '💎'
+            };
+            
+            const color = tierColors[tier.toLowerCase()] || 'CCCCCC';
+            const emoji = tierEmojis[tier.toLowerCase()] || '🎮';
+            const text = `${emoji}+${tier}+${rarity}`;
+            
+            // Using placeholder.com for temporary NFT images
+            // TODO: Replace with real IPFS URLs after uploading images to NFT.Storage
+            return `https://via.placeholder.com/1000x1000/${color}/FFFFFF?text=${encodeURIComponent(text)}`;
+            
+            /* 
+            // 🎯 When you have real images on IPFS, replace above with:
+            const NFT_IMAGES = {
+                bronze: {
+                    common: 'https://ipfs.io/ipfs/bafybei...',
+                    uncommon: 'https://ipfs.io/ipfs/bafybei...',
+                    rare: 'https://ipfs.io/ipfs/bafybei...',
+                    epic: 'https://ipfs.io/ipfs/bafybei...'
+                },
+                silver: {
+                    uncommon: 'https://ipfs.io/ipfs/bafybei...',
+                    rare: 'https://ipfs.io/ipfs/bafybei...',
+                    epic: 'https://ipfs.io/ipfs/bafybei...',
+                    legendary: 'https://ipfs.io/ipfs/bafybei...'
+                },
+                gold: {
+                    common: 'https://ipfs.io/ipfs/bafybei...',
+                    uncommon: 'https://ipfs.io/ipfs/bafybei...',
+                    rare: 'https://ipfs.io/ipfs/bafybei...',
+                    epic: 'https://ipfs.io/ipfs/bafybei...'
+                },
+                diamond: {
+                    rare: 'https://ipfs.io/ipfs/bafybei...',
+                    epic: 'https://ipfs.io/ipfs/bafybei...',
+                    legendary: 'https://ipfs.io/ipfs/bafybei...',
+                    mythical: 'https://ipfs.io/ipfs/bafybei...'
+                }
+            };
+            return NFT_IMAGES[tier.toLowerCase()]?.[rarity.toLowerCase()] 
+                || 'https://via.placeholder.com/1000x1000.png?text=NFT';
+            */
         }
         
         // ==============================================
