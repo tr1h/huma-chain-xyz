@@ -2261,19 +2261,24 @@
             }
         }
 
+        // Flag to track if balance was modified (mint/withdrawal)
+        let balanceModified = false;
+
         async function loadTAMABalance() {
             try {
-                // Try to get balance from URL parameter first
+                // If balance was modified (after mint/withdrawal), always fetch from API
+                // Otherwise, use URL parameter on first load for faster UX
                 const urlParams = new URLSearchParams(window.location.search);
                 const urlTama = urlParams.get('tama');
-                if (urlTama) {
+                
+                if (urlTama && !balanceModified) {
                     tamaBalance = parseInt(urlTama) || 0;
                     document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
-                    console.log('✅ TAMA balance from URL:', tamaBalance);
+                    console.log('✅ TAMA balance from URL (first load):', tamaBalance);
                     return;
                 }
 
-                // Use API endpoint to get balance
+                // Use API endpoint to get balance (after modifications or if no URL param)
                 if (!TELEGRAM_USER_ID) {
                     console.warn('⚠️ No Telegram User ID, setting balance to 0');
                     tamaBalance = 0;
@@ -2454,6 +2459,9 @@
                 }
                 
                 console.log('✅ Deducted 5000 TAMA, new balance:', newTama);
+                
+                // Mark balance as modified to force API fetch on next loadTAMABalance()
+                balanceModified = true;
                 
                 // 3. Get random Bronze design (only unminted ones)
                 const { data: designs, error: designError } = await supabase
