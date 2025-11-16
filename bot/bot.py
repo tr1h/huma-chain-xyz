@@ -762,11 +762,27 @@ def send_welcome(message):
     streak_days = daily_rewards.get_streak(telegram_id)
     can_claim, _ = daily_rewards.can_claim(telegram_id)
     
+    # ✅ FETCH FRESH TAMA BALANCE (in case user minted NFT on website)
+    try:
+        leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
+        user_data = leaderboard_response.data[0] if leaderboard_response.data else {}
+        tama_balance = user_data.get('tama', 0)
+        level = user_data.get('level', 1)
+        xp = user_data.get('xp', 0)
+        
+        # Show balance in welcome message
+        balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
+    except Exception as e:
+        print(f"⚠️ Failed to fetch balance in send_welcome: {e}")
+        balance_text = "💰 *Your Balance:* Loading..."
+    
     welcome_text = f"""
 🎮 *Welcome to Solana Tamagotchi!*
 
 *The ultimate Play-to-Earn NFT pet game on Solana!*
 🚀 *Currently in pre-launch phase - building our community!*
+
+{balance_text}
 
 ⭐ *What you can do RIGHT NOW:*
 • 🎁 **Daily Rewards** - Claim your daily TAMA! (Streak: {streak_days} days)
