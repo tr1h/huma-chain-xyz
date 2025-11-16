@@ -12,6 +12,7 @@ const {
 const {
     getOrCreateAssociatedTokenAccount,
     createTransferInstruction,
+    createBurnInstruction,
     TOKEN_PROGRAM_ID
 } = require('@solana/spl-token');
 
@@ -85,41 +86,59 @@ async function executeTAMATransfer(req, res) {
         for (const dist of distributions) {
             let { to, amount: transferAmount, label } = dist;
 
-            // Handle BURN: replace with Incinerator address
-            if (to === 'BURN') {
-                to = INCINERATOR_ADDRESS;
-                console.log(`🔥 Burn ${transferAmount} TAMA → Incinerator`);
-            }
-
+            // Handle BURN: use burn instruction instead of transfer
+            const isBurn = (to === 'BURN');
+            
             if (!to || transferAmount <= 0) {
                 errors.push(`Invalid distribution: ${label}`);
                 continue;
             }
 
             try {
-                // Get or create destination token account
-                const destinationPubkey = new PublicKey(to);
-                const destinationTokenAccount = await getOrCreateAssociatedTokenAccount(
-                    connection,
-                    p2eKeypair,
-                    mintAddress,
-                    destinationPubkey
-                );
+                let transaction;
+                let signature;
 
-                // Create transfer instruction
-                const transaction = new Transaction().add(
-                    createTransferInstruction(
-                        p2eTokenAccount.address,
-                        destinationTokenAccount.address,
-                        p2eKeypair.publicKey,
-                        transferAmount,
-                        [],
-                        TOKEN_PROGRAM_ID
-                    )
-                );
+                if (isBurn) {
+                    // 🔥 BURN: Destroy tokens permanently
+                    console.log(`🔥 Burning ${transferAmount} TAMA (destroying forever)`);
+                    
+                    transaction = new Transaction().add(
+                        createBurnInstruction(
+                            p2eTokenAccount.address,  // Token account to burn from
+                            mintAddress,              // Mint address
+                            p2eKeypair.publicKey,     // Owner of token account
+                            transferAmount,           // Amount to burn
+                            [],                       // Additional signers
+                            TOKEN_PROGRAM_ID
+                        )
+                    );
+                } else {
+                    // 💎 TRANSFER: Send to destination
+                    console.log(`💎 Transferring ${transferAmount} TAMA → ${to}`);
+                    
+                    // Get or create destination token account
+                    const destinationPubkey = new PublicKey(to);
+                    const destinationTokenAccount = await getOrCreateAssociatedTokenAccount(
+                        connection,
+                        p2eKeypair,
+                        mintAddress,
+                        destinationPubkey
+                    );
+
+                    transaction = new Transaction().add(
+                        createTransferInstruction(
+                            p2eTokenAccount.address,
+                            destinationTokenAccount.address,
+                            p2eKeypair.publicKey,
+                            transferAmount,
+                            [],
+                            TOKEN_PROGRAM_ID
+                        )
+                    );
+                }
 
                 // Send transaction
-                const signature = await connection.sendTransaction(
+                signature = await connection.sendTransaction(
                     transaction,
                     [p2eKeypair],
                     { skipPreflight: false, preflightCommitment: 'confirmed' }
@@ -132,13 +151,13 @@ async function executeTAMATransfer(req, res) {
                 
                 results.push({
                     label,
-                    to,
+                    to: isBurn ? 'BURNED (destroyed)' : to,
                     amount: transferAmount,
                     signature,
                     explorer: explorerUrl
                 });
 
-                console.log(`✅ ${label}: ${transferAmount} TAMA → ${to}`);
+                console.log(`✅ ${label}: ${transferAmount} TAMA ${isBurn ? '(BURNED)' : '→ ' + to}`);
                 console.log(`   Signature: ${signature}`);
 
             } catch (err) {
