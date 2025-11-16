@@ -329,6 +329,32 @@
             box-shadow: 0 5px 20px rgba(156, 39, 176, 0.6);
         }
         
+        .btn-faucet {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: pulse-glow 2s infinite;
+        }
+        .btn-faucet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.6), 0 0 30px rgba(255, 215, 0, 0.4);
+            border-color: #FFA500;
+        }
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            }
+        }
+        
         /* COLLECTION STATS */
         .collection-stats {
             display: grid;
@@ -1300,6 +1326,41 @@
     </style>
 </head>
 <body>
+    <!-- Devnet Notice Banner -->
+    <div id="devnet-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                color: white; 
+                padding: 12px 20px; 
+                text-align: center; 
+                font-family: 'Press Start 2P', cursive; 
+                font-size: 11px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                position: relative;
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;">
+        <span>⚠️ TESTNET MODE (Devnet)</span>
+        <span style="color: #FFD700;">|</span>
+        <span>Need test SOL?</span>
+        <a href="https://faucet.solana.com/" target="_blank" 
+           style="color: #FFD700; 
+                  text-decoration: none;
+                  padding: 6px 12px;
+                  background: rgba(255, 215, 0, 0.2);
+                  border-radius: 6px;
+                  border: 1px solid #FFD700;
+                  transition: all 0.3s;
+                  display: inline-block;"
+           onmouseover="this.style.background='rgba(255, 215, 0, 0.4)'"
+           onmouseout="this.style.background='rgba(255, 215, 0, 0.2)'">
+            🚰 Get Free SOL
+        </a>
+        <span style="color: #FFD700;">|</span>
+        <span style="color: #A8D5FF;">Mint NFTs for testing</span>
+    </div>
+    
     <!-- Logo - Left Side -->
     <a href="index.html" class="game-logo" title="Back to Home">
         <img src="logo.png" alt="Solana Tamagotchi">
@@ -1322,6 +1383,7 @@
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+                <button class="btn-faucet" onclick="openFaucet()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: 2px solid #FFD700;">🚰 Get Test SOL</button>
                 <button class="btn-my-nfts" onclick="viewMyNFTs()">🖼️ MY NFTs</button>
             </div>
         </section>
@@ -1658,6 +1720,33 @@
                         <br>• View your NFT on Solana Explorer after mint
                     </div>
                 </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>🚰 Where can I get test SOL for Devnet?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        This is a <strong>testnet (Devnet)</strong> deployment for testing. Get free test SOL from these faucets:
+                        <br><br>
+                        <strong>🌊 Official Solana Faucet</strong>
+                        <br>• <a href="https://faucet.solana.com/" target="_blank" style="color: #8AC926;">https://faucet.solana.com/</a>
+                        <br>• Gives: 1-2 SOL per request
+                        <br>• Fast and reliable
+                        <br><br>
+                        <strong>💧 SolFaucet</strong>
+                        <br>• <a href="https://solfaucet.com/" target="_blank" style="color: #8AC926;">https://solfaucet.com/</a>
+                        <br>• Gives: 1 SOL per request
+                        <br>• Simple and quick
+                        <br><br>
+                        <strong>⚡ QuickNode Faucet</strong>
+                        <br>• <a href="https://faucet.quicknode.com/solana/devnet" target="_blank" style="color: #8AC926;">https://faucet.quicknode.com/solana/devnet</a>
+                        <br>• Gives: 0.5-2 SOL
+                        <br>• Requires Discord connection
+                        <br><br>
+                        💡 <strong>Tip:</strong> You'll need at least <strong>0.5 SOL</strong> for minting + gas fees. Click the <strong>"🚰 Get Test SOL"</strong> button above for quick access!
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -1909,6 +1998,86 @@
             }
         }
         
+        // Open Solana Devnet Faucet
+        function openFaucet() {
+            const faucetOptions = [
+                {
+                    name: 'Official Solana Faucet',
+                    url: 'https://faucet.solana.com/',
+                    amount: '1-2 SOL',
+                    emoji: '🌊'
+                },
+                {
+                    name: 'SolFaucet',
+                    url: 'https://solfaucet.com/',
+                    amount: '1 SOL',
+                    emoji: '💧'
+                },
+                {
+                    name: 'QuickNode Faucet',
+                    url: 'https://faucet.quicknode.com/solana/devnet',
+                    amount: '0.5-2 SOL',
+                    emoji: '⚡'
+                }
+            ];
+            
+            // Show modal with faucet options
+            showCustomModal(
+                '🚰 Get Test SOL for Devnet',
+                `
+                <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+                    <p style="margin-bottom: 15px; text-align: center; color: #666;">
+                        Choose a faucet to get free test SOL for minting NFTs on Devnet:
+                    </p>
+                    ${faucetOptions.map(faucet => `
+                        <div style="background: #f8f9fa; 
+                                    padding: 15px; 
+                                    margin-bottom: 10px; 
+                                    border-radius: 8px; 
+                                    border: 2px solid #e9ecef;
+                                    cursor: pointer;
+                                    transition: all 0.3s;"
+                             onclick="window.open('${faucet.url}', '_blank'); document.getElementById('confirm-modal').classList.add('hidden');"
+                             onmouseover="this.style.borderColor='#667eea'; this.style.background='#f0f4ff';"
+                             onmouseout="this.style.borderColor='#e9ecef'; this.style.background='#f8f9fa';">
+                            <div style="font-weight: bold; color: #333; margin-bottom: 5px;">
+                                ${faucet.emoji} ${faucet.name}
+                            </div>
+                            <div style="color: #666; font-size: 12px;">
+                                Gives: ${faucet.amount}
+                            </div>
+                        </div>
+                    `).join('')}
+                    <p style="margin-top: 15px; text-align: center; color: #999; font-size: 12px;">
+                        💡 Tip: You'll need at least 0.5 SOL for minting + gas fees
+                    </p>
+                </div>
+                `
+            );
+        }
+        
+        // Show custom modal (for faucet list)
+        function showCustomModal(title, htmlContent) {
+            const modal = document.getElementById('confirm-modal');
+            const titleEl = document.getElementById('confirm-title');
+            const messageEl = document.getElementById('confirm-message');
+            
+            titleEl.textContent = title;
+            messageEl.innerHTML = htmlContent;
+            modal.classList.remove('hidden');
+            
+            // Hide OK button, only show Cancel (Close)
+            const okBtn = document.getElementById('confirm-ok');
+            const cancelBtn = document.getElementById('confirm-cancel');
+            okBtn.style.display = 'none';
+            cancelBtn.textContent = 'Close';
+            cancelBtn.onclick = () => {
+                modal.classList.add('hidden');
+                okBtn.style.display = 'inline-block';
+                cancelBtn.textContent = 'Отмена';
+            };
+        }
+        
         async function connectWallet() {
             try {
                 if (!window.solana || !window.solana.isPhantom) {
@@ -1955,10 +2124,32 @@
                 // Get SOL balance
                 const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
                 const balance = await connection.getBalance(resp.publicKey);
-                document.getElementById('sol-balance').textContent = (balance / 1e9).toFixed(4);
+                const solBalance = balance / 1e9;
+                document.getElementById('sol-balance').textContent = solBalance.toFixed(4);
 
                 console.log('✅ Wallet connected:', walletAddress);
-                showNotification('success', 'Wallet Connected', `Connected: ${walletAddress.substring(0, 4)}...${walletAddress.substring(walletAddress.length - 4)}`);
+                console.log('💰 SOL balance:', solBalance.toFixed(4), 'SOL');
+                
+                // Check if balance is low
+                if (solBalance < 0.5) {
+                    showNotification('warning', 'Low SOL Balance', `You have ${solBalance.toFixed(4)} SOL. You may need more for minting + gas fees. Click "🚰 Get Test SOL" button above!`);
+                    
+                    // Show faucet modal after 2 seconds if balance is very low
+                    if (solBalance < 0.1) {
+                        setTimeout(() => {
+                            showConfirmModal(
+                                '💰 Low Balance Detected',
+                                `Your wallet has only ${solBalance.toFixed(4)} SOL.\n\nYou need at least 0.5 SOL for minting NFTs.\n\nWould you like to get free test SOL from faucet?`
+                            ).then(confirmed => {
+                                if (confirmed) {
+                                    openFaucet();
+                                }
+                            });
+                        }, 2000);
+                    }
+                } else {
+                    showNotification('success', 'Wallet Connected', `Connected: ${walletAddress.substring(0, 4)}...${walletAddress.substring(walletAddress.length - 4)}`);
+                }
             } catch (err) {
                 console.error('❌ Wallet connection failed:', err);
                 showNotification('error', 'Connection Failed', 'Failed to connect wallet. Please try again.');
