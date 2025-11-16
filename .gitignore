@@ -83,3 +83,4 @@ wallet-admin.html  # ПРИВАТНЫЙ! Только локально, НЕ в 
 wallet-admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
 admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
 *.password.js
+ADMIN_PASSWORDS.txt  # ПРИВАТНЫЙ! Пароли от админок
