@@ -343,6 +343,129 @@
                 height: 50px;
             }
         }
+        
+        /* Engagement Stats */
+        .engagement-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .stat-item.liked {
+            background: rgba(255, 20, 147, 0.2);
+            border-color: #ff1493;
+        }
+        
+        .stat-icon {
+            font-size: 1.5em;
+        }
+        
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #FFD700;
+        }
+        
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Comments Section */
+        .comments-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 40px;
+            margin-top: 40px;
+        }
+        
+        .comment-form {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+        
+        .comment-form input,
+        .comment-form textarea {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .comment-form input::placeholder,
+        .comment-form textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .comment-item {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 3px solid #FFB703;
+        }
+        
+        .comment-author {
+            font-weight: 700;
+            color: #FFD700;
+            margin-bottom: 8px;
+        }
+        
+        .comment-author::before {
+            content: "👤 ";
+        }
+        
+        .comment-text {
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .comment-date {
+            font-size: 0.85em;
+            opacity: 0.6;
+        }
+        
+        @media (max-width: 768px) {
+            .engagement-stats {
+                gap: 15px;
+            }
+            
+            .stat-item {
+                padding: 8px 15px;
+            }
+            
+            .stat-value {
+                font-size: 1.1em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -377,6 +500,25 @@
                 <span>📅 November 13, 2025</span>
                 <span>⏱️ 10 min read</span>
                 <span>👤 Solana Tamagotchi Team</span>
+            </div>
+            
+            <!-- Engagement Stats -->
+            <div class="engagement-stats" id="engagement-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">👁️</span>
+                    <span class="stat-value" id="views-count">-</span>
+                    <span class="stat-label">views</span>
+                </div>
+                <button class="stat-item like-btn" id="like-btn" onclick="toggleLike()">
+                    <span class="stat-icon">🤍</span>
+                    <span class="stat-value" id="likes-count">-</span>
+                    <span class="stat-label">likes</span>
+                </button>
+                <div class="stat-item">
+                    <span class="stat-icon">💬</span>
+                    <span class="stat-value" id="comments-count">-</span>
+                    <span class="stat-label">comments</span>
+                </div>
             </div>
         </div>
         
@@ -598,6 +740,23 @@
             </div>
         </div>
         
+        <!-- Comments Section -->
+        <div class="comments-section" id="comments-section">
+            <h2 style="color: #FFB703; margin-bottom: 20px;">💬 Comments</h2>
+            
+            <!-- Comment Form -->
+            <div class="comment-form">
+                <input type="text" id="comment-author" placeholder="Your name (optional)" maxlength="50" style="width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #fff;">
+                <textarea id="comment-text" placeholder="Write a comment..." rows="4" maxlength="2000" style="width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #fff; resize: vertical;"></textarea>
+                <button onclick="submitComment()" class="cta-button" style="margin-top: 0;">Post Comment</button>
+            </div>
+            
+            <!-- Comments List -->
+            <div class="comments-list" id="comments-list">
+                <p style="text-align: center; opacity: 0.7; padding: 40px;">Loading comments...</p>
+            </div>
+        </div>
+        
         <!-- Footer -->
         <div class="article-footer">
             <p>© 2025 Solana Tamagotchi. All rights reserved.</p>
@@ -608,6 +767,174 @@
             </p>
         </div>
     </div>
+    
+    <script>
+        // Article ID for storage
+        const ARTICLE_ID = 'how-to-play-solana-tamagotchi-guide';
+        
+        // Load engagement stats
+        function loadEngagementStats() {
+            // Load from localStorage
+            const stored = JSON.parse(localStorage.getItem(`article_${ARTICLE_ID}`) || '{}');
+            
+            // Views - increment on each page load
+            let views = parseInt(stored.views || 0);
+            views++;
+            stored.views = views;
+            
+            // Likes
+            const likes = parseInt(stored.likes || 0);
+            const userLiked = stored.userLiked || false;
+            
+            // Comments count
+            const comments = JSON.parse(localStorage.getItem(`comments_${ARTICLE_ID}`) || '[]');
+            const commentsCount = comments.length;
+            
+            // Update UI
+            document.getElementById('views-count').textContent = formatNumber(views);
+            document.getElementById('likes-count').textContent = formatNumber(likes);
+            document.getElementById('comments-count').textContent = formatNumber(commentsCount);
+            
+            // Update like button state
+            const likeBtn = document.getElementById('like-btn');
+            if (userLiked) {
+                likeBtn.classList.add('liked');
+                likeBtn.querySelector('.stat-icon').textContent = '❤️';
+            }
+            
+            // Save updated views
+            localStorage.setItem(`article_${ARTICLE_ID}`, JSON.stringify(stored));
+        }
+        
+        // Toggle like
+        function toggleLike() {
+            const stored = JSON.parse(localStorage.getItem(`article_${ARTICLE_ID}`) || '{}');
+            let likes = parseInt(stored.likes || 0);
+            const userLiked = stored.userLiked || false;
+            const likeBtn = document.getElementById('like-btn');
+            
+            if (userLiked) {
+                // Unlike
+                likes = Math.max(0, likes - 1);
+                stored.userLiked = false;
+                likeBtn.classList.remove('liked');
+                likeBtn.querySelector('.stat-icon').textContent = '🤍';
+            } else {
+                // Like
+                likes++;
+                stored.userLiked = true;
+                likeBtn.classList.add('liked');
+                likeBtn.querySelector('.stat-icon').textContent = '❤️';
+            }
+            
+            stored.likes = likes;
+            localStorage.setItem(`article_${ARTICLE_ID}`, JSON.stringify(stored));
+            document.getElementById('likes-count').textContent = formatNumber(likes);
+        }
+        
+        // Submit comment
+        function submitComment() {
+            const authorInput = document.getElementById('comment-author');
+            const textInput = document.getElementById('comment-text');
+            
+            const author = authorInput.value.trim() || 'Anonymous';
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                alert('Please write a comment!');
+                return;
+            }
+            
+            if (text.length > 2000) {
+                alert('Comment is too long! Maximum 2000 characters.');
+                return;
+            }
+            
+            // Create comment
+            const comment = {
+                id: Date.now(),
+                author: author,
+                text: text,
+                date: new Date().toISOString()
+            };
+            
+            // Load existing comments
+            const comments = JSON.parse(localStorage.getItem(`comments_${ARTICLE_ID}`) || '[]');
+            comments.unshift(comment); // Add to beginning
+            
+            // Save comments
+            localStorage.setItem(`comments_${ARTICLE_ID}`, JSON.stringify(comments));
+            
+            // Clear form
+            authorInput.value = '';
+            textInput.value = '';
+            
+            // Reload comments
+            loadComments();
+            
+            // Update comments count
+            const stored = JSON.parse(localStorage.getItem(`article_${ARTICLE_ID}`) || '{}');
+            document.getElementById('comments-count').textContent = formatNumber(comments.length);
+        }
+        
+        // Load comments
+        function loadComments() {
+            const comments = JSON.parse(localStorage.getItem(`comments_${ARTICLE_ID}`) || '[]');
+            const commentsList = document.getElementById('comments-list');
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7; padding: 40px;">No comments yet. Be the first to comment! 💬</p>';
+                return;
+            }
+            
+            commentsList.innerHTML = comments.map(comment => {
+                const date = new Date(comment.date);
+                const dateStr = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                return `
+                    <div class="comment-item">
+                        <div class="comment-author">${escapeHtml(comment.author)}</div>
+                        <div class="comment-text">${escapeHtml(comment.text)}</div>
+                        <div class="comment-date">${dateStr}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Format number with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+        
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Allow Enter key to submit comment (Ctrl+Enter)
+        document.addEventListener('DOMContentLoaded', function() {
+            const textInput = document.getElementById('comment-text');
+            if (textInput) {
+                textInput.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        submitComment();
+                    }
+                });
+            }
+            
+            // Load everything on page load
+            loadEngagementStats();
+            loadComments();
+        });
+    </script>
 </body>
 </html>
 
