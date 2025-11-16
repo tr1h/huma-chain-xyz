@@ -2648,6 +2648,62 @@
                     // Don't throw - not critical, mint can continue
                 }
                 
+                // ============================================
+                // 🔗 ON-CHAIN SPL TOKEN TRANSFERS (Real blockchain transactions!)
+                // ============================================
+                updateLoadingProgress('🔗 Executing on-chain TAMA transfers...');
+                
+                let onchainTransfers = null;
+                try {
+                    const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+                    const P2E_POOL = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
+                    
+                    const transferResponse = await fetch('https://api.solanatamagotchi.com/api/tama-transfer.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: TAMA_AMOUNT,
+                            distributions: [
+                                { to: 'BURN', amount: burnAmount, label: '🔥 Burn' },
+                                { to: TREASURY_MAIN, amount: treasuryAmount, label: '💎 Treasury' },
+                                { to: P2E_POOL, amount: poolAmount, label: '🎮 P2E Pool' }
+                            ]
+                        })
+                    });
+                    
+                    if (transferResponse.ok) {
+                        const transferResult = await transferResponse.json();
+                        console.log('✅ On-chain TAMA transfers successful:', transferResult);
+                        onchainTransfers = transferResult.transfers; // Save for transaction record
+                        
+                        // Log each transfer signature
+                        if (transferResult.transfers) {
+                            transferResult.transfers.forEach(tx => {
+                                console.log(`  ${tx.label}: ${tx.amount} TAMA`);
+                                console.log(`  📍 Signature: ${tx.signature}`);
+                                console.log(`  🔗 ${tx.explorer}`);
+                            });
+                        }
+                        
+                        // Show notification with explorer link
+                        if (transferResult.transfers && transferResult.transfers.length > 0) {
+                            const firstTx = transferResult.transfers[0];
+                            showNotification('success', 'On-Chain Transfers Complete', 
+                                `${transferResult.total_transferred} TAMA transferred on Solana blockchain`, 
+                                firstTx.explorer);
+                        }
+                    } else {
+                        const errorData = await transferResponse.json();
+                        console.warn('⚠️ On-chain transfer failed:', errorData);
+                        showNotification('warning', 'On-Chain Transfer Issue', 
+                            'NFT minted, but some on-chain transfers may have failed. Check admin panel.');
+                    }
+                } catch (onchainError) {
+                    console.error('❌ On-chain transfer error:', onchainError);
+                    showNotification('warning', 'On-Chain Transfer Error', 
+                        'NFT minted successfully, but on-chain transfers failed. Contact support.');
+                }
+                
                 // ✅ Record transaction with balance_after (for admin panel)
                 try {
                     const { error: txError } = await supabase
@@ -2666,7 +2722,8 @@
                                     burn: burnAmount,
                                     treasury: treasuryAmount,
                                     pool: poolAmount
-                                }
+                                },
+                                onchain_transfers: onchainTransfers // Include blockchain signatures
                             }
                         });
                     
