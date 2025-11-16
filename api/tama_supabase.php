@@ -56,12 +56,48 @@ if (ob_get_level() > 0) {
 
 header('Content-Type: application/json');
 
-// Настройки Supabase REST API
-$supabaseUrl = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
-$supabaseKey = getenv('SUPABASE_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+// ============================================
+// 🔒 SECURITY: Load from environment variables
+// ============================================
+require_once __DIR__ . '/security.php';
 
-// Константы TAMA токена
-define('TAMA_MINT_ADDRESS', 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY');
+// Set security headers
+setSecurityHeaders();
+
+// Настройки Supabase REST API (NO HARDCODED VALUES!)
+$supabaseUrl = getenv('SUPABASE_URL');
+$supabaseKey = getenv('SUPABASE_KEY');
+
+// Validate required variables
+if (!$supabaseUrl || !$supabaseKey) {
+    error_log('❌ CRITICAL: SUPABASE_URL and SUPABASE_KEY must be set in environment!');
+    returnError('Server configuration error', 500);
+}
+
+// Константы TAMA токена (from environment)
+$tamaMintAddress = getenv('TAMA_MINT_ADDRESS');
+if (!$tamaMintAddress) {
+    error_log('❌ CRITICAL: TAMA_MINT_ADDRESS must be set in environment!');
+    returnError('Server configuration error', 500);
+}
+define('TAMA_MINT_ADDRESS', $tamaMintAddress);
+
+// ============================================
+// 🛡️ RATE LIMITING
+// ============================================
+$clientIP = getClientIP();
+$rateLimitPerMinute = (int)(getenv('RATE_LIMIT_PER_MINUTE') ?: 100);
+
+// Check rate limit (except for OPTIONS preflight requests)
+if ($_SERVER['REQUEST_METHOD'] !== 'OPTIONS') {
+    if (!checkRateLimit($clientIP, $rateLimitPerMinute, 60)) {
+        logSecurityEvent('rate_limit', 'Rate limit exceeded', [
+            'ip' => $clientIP,
+            'limit' => $rateLimitPerMinute
+        ]);
+        returnError('Rate limit exceeded. Please try again later.', 429);
+    }
+}
 define('TAMA_DECIMALS', 9);
 
 // Получить метод и путь
@@ -1186,6 +1222,7 @@ function handleTransactionsList($url, $key) {
 
 /**
  * Обработка запроса на вывод (withdrawal request)
+ * 🔒 SECURITY: Enhanced with validation, rate limiting, and cooldown
  */
 function handleWithdrawalRequest($url, $key) {
     $input = json_decode(file_get_contents('php://input'), true);
@@ -1193,17 +1230,115 @@ function handleWithdrawalRequest($url, $key) {
     $telegram_id = $input['telegram_id'] ?? null;
     $wallet_address = $input['wallet_address'] ?? null;
     $amount = $input['amount'] ?? null;
+    $captcha_token = $input['captcha_token'] ?? null; // Optional CAPTCHA
+    
+    // ============================================
+    // 🛡️ STEP 1: INPUT VALIDATION
+    // ============================================
     
     if (!$telegram_id || !$wallet_address || !$amount) {
-        http_response_code(400);
-        echo json_encode(['error' => 'telegram_id, wallet_address, and amount are required']);
-        return;
+        logSecurityEvent('invalid_input', 'Withdrawal missing required fields', [
+            'has_telegram_id' => !empty($telegram_id),
+            'has_wallet' => !empty($wallet_address),
+            'has_amount' => !empty($amount)
+        ]);
+        returnError('telegram_id, wallet_address, and amount are required', 400);
+    }
+    
+    // Validate Telegram ID
+    $telegram_id = validateTelegramId($telegram_id);
+    if ($telegram_id === false) {
+        logSecurityEvent('invalid_input', 'Invalid Telegram ID', [
+            'provided_id' => $input['telegram_id'] ?? 'null'
+        ]);
+        returnError('Invalid telegram_id format', 400);
+    }
+    
+    // Validate Solana wallet address
+    if (!validateSolanaAddress($wallet_address)) {
+        logSecurityEvent('invalid_input', 'Invalid Solana address', [
+            'provided_address' => $wallet_address,
+            'telegram_id' => $telegram_id
+        ]);
+        returnError('Invalid Solana wallet address format', 400);
+    }
+    
+    // Validate amount
+    $amount = validateTamaAmount($amount);
+    if ($amount === false) {
+        logSecurityEvent('invalid_input', 'Invalid withdrawal amount', [
+            'provided_amount' => $input['amount'] ?? 'null',
+            'telegram_id' => $telegram_id
+        ]);
+        returnError('Invalid amount format', 400);
     }
     
     if ($amount < 1000) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Minimum withdrawal is 1,000 TAMA']);
-        return;
+        returnError('Minimum withdrawal is 1,000 TAMA', 400);
+    }
+    
+    // ============================================
+    // 🛡️ STEP 2: COOLDOWN CHECK (1 withdrawal per hour)
+    // ============================================
+    
+    $cooldownSeconds = (int)(getenv('WITHDRAWAL_COOLDOWN') ?: 3600); // 1 hour default
+    
+    if (!checkWithdrawalCooldown($telegram_id, $cooldownSeconds)) {
+        logSecurityEvent('cooldown', 'Withdrawal cooldown active', [
+            'telegram_id' => $telegram_id,
+            'wallet' => $wallet_address
+        ]);
+        returnError('Please wait before making another withdrawal. Cooldown: 1 hour.', 429, [
+            'cooldown_seconds' => $cooldownSeconds,
+            'retry_after' => $cooldownSeconds
+        ]);
+    }
+    
+    // ============================================
+    // 🛡️ STEP 3: CAPTCHA VERIFICATION (Optional)
+    // ============================================
+    
+    $captchaEnabled = getenv('WITHDRAWAL_CAPTCHA_ENABLED') === 'true';
+    
+    if ($captchaEnabled && !$captcha_token) {
+        returnError('CAPTCHA verification required', 400, [
+            'captcha_required' => true
+        ]);
+    }
+    
+    if ($captchaEnabled && $captcha_token) {
+        // Verify reCAPTCHA token
+        $recaptchaSecret = getenv('RECAPTCHA_SECRET_KEY');
+        if ($recaptchaSecret) {
+            $verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+            $verifyData = [
+                'secret' => $recaptchaSecret,
+                'response' => $captcha_token,
+                'remoteip' => getClientIP()
+            ];
+            
+            $options = [
+                'http' => [
+                    'method' => 'POST',
+                    'header' => 'Content-Type: application/x-www-form-urlencoded',
+                    'content' => http_build_query($verifyData)
+                ]
+            ];
+            
+            $context = stream_context_create($options);
+            $verifyResponse = @file_get_contents($verifyUrl, false, $context);
+            
+            if ($verifyResponse) {
+                $verifyResult = json_decode($verifyResponse, true);
+                if (!$verifyResult['success']) {
+                    logSecurityEvent('captcha_failed', 'CAPTCHA verification failed', [
+                        'telegram_id' => $telegram_id,
+                        'error_codes' => $verifyResult['error-codes'] ?? []
+                    ]);
+                    returnError('CAPTCHA verification failed', 400);
+                }
+            }
+        }
     }
     
     try {
@@ -1350,18 +1485,27 @@ function handleWithdrawalRequest($url, $key) {
             2 => ['pipe', 'w']   // stderr
         ];
         
-        // Используем правильный формат команды для Windows
-        // Важно: для Windows нужно правильно экранировать пути с пробелами
+        // 🔒 SECURITY: Properly escape ALL command arguments
+        // ALWAYS use escapeshellarg() for user-provided data to prevent command injection
         $cmdString = '';
         foreach ($cmd as $arg) {
-            // Если аргумент содержит пробелы или это путь, экранируем
-            if (strpos($arg, ' ') !== false || strpos($arg, '--') === 0 || strpos($arg, '.json') !== false) {
-                $cmdString .= escapeshellarg($arg) . ' ';
-            } else {
+            // Escape all arguments EXCEPT base command 'spl-token' and subcommands
+            if ($arg === 'spl-token' || $arg === 'transfer') {
                 $cmdString .= $arg . ' ';
+            } else {
+                // Escape EVERYTHING else (addresses, paths, URLs, amounts)
+                $cmdString .= escapeshellarg($arg) . ' ';
             }
         }
         $cmdString = trim($cmdString);
+        
+        // Log command execution for audit (without sensitive keypair paths)
+        error_log('🔐 Executing withdrawal: ' . json_encode([
+            'telegram_id' => $telegram_id,
+            'wallet' => substr($wallet_address, 0, 8) . '...' . substr($wallet_address, -8),
+            'amount' => $amountSent,
+            'fee' => $fee
+        ]));
         
         // Увеличиваем время выполнения для spl-token (может быть долго)
         set_time_limit(120); // 2 минуты максимум
