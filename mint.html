@@ -3093,10 +3093,28 @@
                 const totalMinted = allNFTs.length;
                 const uniqueHolders = new Set(allNFTs.map(nft => nft.telegram_id)).size;
                 
-                // Calculate total volume using REAL prices from database
+                // ✅ Calculate total volume from ACTUAL TRANSACTIONS (not current prices)
                 let totalVolume = 0;
                 let solPrices = []; // For floor price calculation
                 
+                // Count volume from transactions (real money paid)
+                if (transactions && !txError) {
+                    transactions.forEach(tx => {
+                        try {
+                            const metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
+                            if (metadata && metadata.price_sol) {
+                                const price = parseFloat(metadata.price_sol);
+                                if (price > 0) {
+                                    totalVolume += price; // Sum of all purchases
+                                }
+                            }
+                        } catch (e) {
+                            // Skip invalid metadata
+                        }
+                    });
+                }
+                
+                // Calculate floor price from current NFT prices
                 allNFTs.forEach(nft => {
                     let price = 0;
                     
@@ -3121,7 +3139,6 @@
                     }
                     
                     if (price > 0) {
-                        totalVolume += price;
                         solPrices.push(price);
                     }
                 });
@@ -3171,19 +3188,21 @@
                     return;
                 }
 
-                // Fetch usernames from leaderboard separately
+                // ✅ Fetch wallet addresses from leaderboard (instead of usernames)
                 const telegramIds = [...new Set(recentNFTs.map(nft => nft.telegram_id))];
-                const usernameMap = new Map();
+                const walletMap = new Map();
                 
                 if (telegramIds.length > 0) {
                     const { data: users, error: usersError } = await supabase
                         .from('leaderboard')
-                        .select('telegram_id, telegram_username')
+                        .select('telegram_id, wallet_address')
                         .in('telegram_id', telegramIds);
                     
                     if (!usersError && users) {
                         users.forEach(user => {
-                            usernameMap.set(user.telegram_id, user.telegram_username || 'Anonymous');
+                            if (user.wallet_address) {
+                                walletMap.set(user.telegram_id, user.wallet_address);
+                            }
                         });
                     }
                 }
@@ -3191,7 +3210,18 @@
                 listEl.innerHTML = '';
                 recentNFTs.forEach(nft => {
                     const timeAgo = getTimeAgo(nft.minted_at);
-                    const username = usernameMap.get(nft.telegram_id) || `User ${String(nft.telegram_id).substring(0, 6)}`;
+                    
+                    // ✅ Show wallet address instead of username (more unique)
+                    let displayAddress = '';
+                    const wallet = walletMap.get(nft.telegram_id);
+                    if (wallet) {
+                        // Show first 4 and last 4 characters: "AX4v...JFk3"
+                        displayAddress = `${wallet.substring(0, 4)}...${wallet.substring(wallet.length - 4)}`;
+                    } else {
+                        // Fallback: use telegram_id
+                        displayAddress = `User${String(nft.telegram_id).substring(0, 6)}`;
+                    }
+                    
                     const tierClass = nft.tier_name.toLowerCase();
                     
                     // Check if real on-chain NFT
@@ -3205,7 +3235,7 @@
                             <span class="mint-tier-badge ${tierClass}">${nft.tier_name}${onChainBadge}</span>
                             <span class="mint-time">${timeAgo}</span>
                         </div>
-                        <div class="mint-user">@${username}</div>
+                        <div class="mint-user">🔑 ${displayAddress}</div>
                         <div class="mint-details">
                             <span>${nft.rarity || 'Common'}</span>
                             <span>×${nft.earning_multiplier || '2.0'} boost</span>
