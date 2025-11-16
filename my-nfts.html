@@ -603,25 +603,63 @@
             'Legendary': '#FF9800'
         };
         
-        // Initialize
+        // Initialize with Smart Auto-Detect
         async function init() {
-            console.log('🚀 Initializing My NFTs page...');
+            console.log('🚀 Initializing My NFTs page with Smart Auto-Detect...');
             
-            // Check if opened from Telegram
+            // Show brief loading state during auto-detect
+            document.getElementById('nft-container').innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top: 20px; color: #666;">Checking for connected accounts...</p>
+                </div>
+            `;
+            
+            // STEP 1: Check if opened from Telegram (highest priority)
             if (telegramUserId) {
                 console.log('📱 Telegram User ID detected:', telegramUserId);
+                console.log('✅ Auto-connecting via Telegram (no login screen needed)');
                 await loginViaTelegramAuto(telegramUserId);
-            } else {
-                // Show login options
-                document.getElementById('login-section').style.display = 'block';
-                document.getElementById('nft-container').innerHTML = `
-                    <div class="empty-state">
-                        <h2>👋</h2>
-                        <p>Welcome to Solana Tamagotchi NFT Gallery!</p>
-                        <p style="font-size: 16px; color: #999;">Please connect your account to view your NFTs</p>
-                    </div>
-                `;
+                return; // Skip login screen
             }
+            
+            // STEP 2: Check if Phantom Wallet is already connected
+            if (window.solana && window.solana.isPhantom) {
+                try {
+                    // Try to silently connect if already authorized
+                    const response = await window.solana.connect({ onlyIfTrusted: true });
+                    if (response && response.publicKey) {
+                        console.log('👛 Phantom Wallet already connected:', response.publicKey.toString());
+                        console.log('✅ Auto-connecting via Phantom (no login screen needed)');
+                        
+                        const walletAddress = response.publicKey.toString();
+                        currentWallet = walletAddress;
+                        connectionType = 'wallet';
+                        
+                        document.getElementById('login-section').style.display = 'none';
+                        document.getElementById('user-info').style.display = 'flex';
+                        document.getElementById('connected-as').textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}`;
+                        document.getElementById('connection-type').textContent = '👛 Phantom Wallet';
+                        
+                        await loadNFTsByWallet(walletAddress);
+                        return; // Skip login screen
+                    }
+                } catch (err) {
+                    // Wallet not connected yet or user denied, continue to login screen
+                    console.log('ℹ️ Phantom not auto-connected:', err.message);
+                }
+            }
+            
+            // STEP 3: Nothing detected - show login options
+            console.log('👋 New user - showing login options');
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('nft-container').innerHTML = `
+                <div class="empty-state">
+                    <h2>👋</h2>
+                    <p>Welcome to Solana Tamagotchi NFT Gallery!</p>
+                    <p style="font-size: 16px; color: #999;">Please connect your account to view your NFTs</p>
+                </div>
+            `;
         }
         
         // Login via Telegram (auto)
