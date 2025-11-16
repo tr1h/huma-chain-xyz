@@ -79,6 +79,11 @@ async function executeTAMATransfer(req, res) {
 
         console.log('💎 P2E Pool Token Account:', p2eTokenAccount.address.toString());
 
+        // Get token decimals
+        const mintInfo = await connection.getParsedAccountInfo(mintAddress);
+        const decimals = mintInfo?.value?.data?.parsed?.info?.decimals ?? 9;
+        console.log(`💎 TAMA Token decimals: ${decimals}`);
+
         // Execute transfers
         const results = [];
         const errors = [];
@@ -93,6 +98,11 @@ async function executeTAMATransfer(req, res) {
                 errors.push(`Invalid distribution: ${label}`);
                 continue;
             }
+
+            // Convert amount to raw units (multiply by 10^decimals)
+            const rawAmount = transferAmount * Math.pow(10, decimals);
+            console.log(`💰 Converting ${transferAmount} TAMA → ${rawAmount} raw units (decimals: ${decimals})`);
+            transferAmount = rawAmount;
 
             try {
                 let transaction;
