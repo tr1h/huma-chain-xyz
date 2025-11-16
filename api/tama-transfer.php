@@ -104,10 +104,10 @@ foreach ($distributions as $dist) {
         continue;
     }
     
-    // Skip burn for now (need special handling)
+    // Handle BURN: send to Solana Incinerator address
     if ($to === 'BURN') {
-        error_log("🔥 Burn: {$transferAmount} TAMA (skipped - not implemented yet)");
-        continue;
+        $to = '1nc1nerator11111111111111111111111111111111'; // Official Solana burn address
+        error_log("🔥 Burn: {$transferAmount} TAMA → Incinerator address");
     }
     
     // Execute SPL token transfer
