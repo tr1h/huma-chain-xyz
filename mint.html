@@ -2821,7 +2821,7 @@
                             .insert({
                                 user_id: String(TELEGRAM_USER_ID),
                                 type: 'nft_mint_tama',
-                                amount: 5000,
+                                amount: -5000, // ✅ NEGATIVE: User SPENDS TAMA to mint NFT
                                 balance_before: currentTama,
                                 balance_after: newTama,
                                 metadata: {
