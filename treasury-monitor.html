@@ -690,6 +690,10 @@
         const PAGE_SIZE = 50;
         let autoUpdateInterval;
 
+        // TAMA Mint Address
+        const TAMA_MINT = 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY';
+        const TAMA_DECIMALS = 9;
+
         // Get SOL balance from Solana RPC
         async function getSolBalance(address) {
             try {
@@ -718,36 +722,82 @@
             }
         }
 
+        // Get TAMA token balance from Solana RPC
+        async function getTamaBalance(address) {
+            try {
+                const response = await fetch(SOLANA_RPC, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getTokenAccountsByOwner',
+                        params: [
+                            address,
+                            { mint: TAMA_MINT },
+                            { encoding: 'jsonParsed' }
+                        ]
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result && data.result.value && data.result.value.length > 0) {
+                        const tokenAccount = data.result.value[0];
+                        // Get token amount from parsed data
+                        const amount = tokenAccount?.account?.data?.parsed?.info?.tokenAmount?.amount;
+                        
+                        if (amount && parseInt(amount) > 0) {
+                            // Convert from raw units to TAMA (divide by 10^decimals)
+                            return parseInt(amount) / Math.pow(10, TAMA_DECIMALS);
+                        }
+                    }
+                }
+                return 0;
+            } catch (error) {
+                console.error(`Failed to get TAMA balance for ${address}:`, error);
+                return 0;
+            }
+        }
+
         async function loadWalletBalances() {
             try {
-                // Load balances directly from Supabase leaderboard table
-                // Treasury balance
+                // Load balances directly from Supabase leaderboard table + blockchain check
+                // Treasury balance (from DB + blockchain verification)
                 const treasuryResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?wallet_address=eq.${TREASURY_MAIN}&select=tama`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 });
+                let treasuryBalance = 0;
                 if (treasuryResponse.ok) {
                     const treasuryData = await treasuryResponse.json();
-                    const balance = treasuryData[0]?.tama || 0;
-                    document.getElementById('treasury-balance').textContent = 
-                        Math.round(balance).toLocaleString() + ' TAMA';
+                    treasuryBalance = treasuryData[0]?.tama || 0;
                 }
+                // Also check blockchain for TAMA (in case there's more on-chain)
+                const treasuryBlockchainTama = await getTamaBalance(TREASURY_MAIN);
+                const treasuryTotalTama = Math.max(treasuryBalance, treasuryBlockchainTama);
+                document.getElementById('treasury-balance').textContent = 
+                    Math.round(treasuryTotalTama).toLocaleString() + ' TAMA';
 
-                // P2E Pool balance
+                // P2E Pool balance (from DB + blockchain verification)
                 const p2eResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?wallet_address=eq.${P2E_POOL}&select=tama`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 });
+                let p2eBalance = 0;
                 if (p2eResponse.ok) {
                     const p2eData = await p2eResponse.json();
-                    const balance = p2eData[0]?.tama || 0;
-                    document.getElementById('p2e-balance').textContent = 
-                        Math.round(balance).toLocaleString() + ' TAMA';
+                    p2eBalance = p2eData[0]?.tama || 0;
                 }
+                // Also check blockchain for TAMA (in case there's more on-chain)
+                const p2eBlockchainTama = await getTamaBalance(P2E_POOL);
+                const p2eTotalTama = Math.max(p2eBalance, p2eBlockchainTama);
+                document.getElementById('p2e-balance').textContent = 
+                    Math.round(p2eTotalTama).toLocaleString() + ' TAMA';
 
                 // Calculate total burned (from transactions)
                 const burnResponse = await fetch(`${TAMA_API_BASE}/transactions/list?limit=1000`);
@@ -761,18 +811,33 @@
                     document.getElementById('burn-total').textContent = '0 TAMA';
                 }
 
-                // Load SOL balances from Solana Devnet
+                // Load SOL and TAMA balances from Solana Devnet
+                // Treasury Main (SOL + TAMA)
                 const treasurySolBalance = await getSolBalance(TREASURY_MAIN);
-                document.getElementById('sol-treasury-balance').textContent = 
-                    treasurySolBalance.toFixed(4) + ' SOL';
+                const treasuryTamaBalance = await getTamaBalance(TREASURY_MAIN);
+                let treasuryText = treasurySolBalance.toFixed(4) + ' SOL';
+                if (treasuryTamaBalance > 0) {
+                    treasuryText += ' + ' + Math.round(treasuryTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('sol-treasury-balance').textContent = treasuryText;
                 
+                // Liquidity Pool (SOL + TAMA)
                 const liquiditySolBalance = await getSolBalance(LIQUIDITY_POOL);
-                document.getElementById('liquidity-balance').textContent = 
-                    liquiditySolBalance.toFixed(4) + ' SOL';
+                const liquidityTamaBalance = await getTamaBalance(LIQUIDITY_POOL);
+                let liquidityText = liquiditySolBalance.toFixed(4) + ' SOL';
+                if (liquidityTamaBalance > 0) {
+                    liquidityText += ' + ' + Math.round(liquidityTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('liquidity-balance').textContent = liquidityText;
                 
+                // Team Wallet (SOL + TAMA)
                 const teamSolBalance = await getSolBalance(TEAM_WALLET);
-                document.getElementById('team-balance').textContent = 
-                    teamSolBalance.toFixed(4) + ' SOL';
+                const teamTamaBalance = await getTamaBalance(TEAM_WALLET);
+                let teamText = teamSolBalance.toFixed(4) + ' SOL';
+                if (teamTamaBalance > 0) {
+                    teamText += ' + ' + Math.round(teamTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('team-balance').textContent = teamText;
 
                 console.log('✅ Wallet balances loaded');
             } catch (error) {
