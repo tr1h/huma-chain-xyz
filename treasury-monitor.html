@@ -847,51 +847,21 @@
 
         async function loadWalletBalances() {
             try {
-                // Load balances directly from Supabase leaderboard table + blockchain check
-                // Treasury balance (from DB + blockchain verification)
-                const treasuryResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?wallet_address=eq.${TREASURY_MAIN}&select=tama`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                let treasuryBalance = 0;
-                if (treasuryResponse.ok) {
-                    const treasuryData = await treasuryResponse.json();
-                    treasuryBalance = treasuryData[0]?.tama || 0;
-                }
-                // Also check blockchain for TAMA (in case there's more on-chain)
-                const treasuryBlockchainTama = await getTamaBalance(TREASURY_MAIN);
-                const treasuryTotalTama = Math.max(treasuryBalance, treasuryBlockchainTama);
-                
-                // Also get SOL balance for Treasury Main
+                // Load balances directly from BLOCKCHAIN (source of truth)
+                // Treasury Main V2 - get SOL and TAMA from blockchain
                 const treasuryMainSol = await getSolBalance(TREASURY_MAIN);
                 const treasuryMainTama = await getTamaBalance(TREASURY_MAIN);
-                const treasuryMainTamaTotal = Math.max(treasuryBalance, treasuryMainTama);
                 
-                let treasuryMainText = Math.round(treasuryMainTamaTotal).toLocaleString() + ' TAMA';
+                let treasuryMainText = Math.round(treasuryMainTama).toLocaleString() + ' TAMA';
                 if (treasuryMainSol > 0) {
                     treasuryMainText += ' + ' + treasuryMainSol.toFixed(4) + ' SOL';
                 }
                 document.getElementById('treasury-balance').textContent = treasuryMainText;
 
-                // P2E Pool balance (from DB + blockchain verification)
-                const p2eResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?wallet_address=eq.${P2E_POOL}&select=tama`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                let p2eBalance = 0;
-                if (p2eResponse.ok) {
-                    const p2eData = await p2eResponse.json();
-                    p2eBalance = p2eData[0]?.tama || 0;
-                }
-                // Also check blockchain for TAMA (in case there's more on-chain)
+                // P2E Pool balance (from BLOCKCHAIN - source of truth)
                 const p2eBlockchainTama = await getTamaBalance(P2E_POOL);
-                const p2eTotalTama = Math.max(p2eBalance, p2eBlockchainTama);
                 document.getElementById('p2e-balance').textContent = 
-                    Math.round(p2eTotalTama).toLocaleString() + ' TAMA';
+                    Math.round(p2eBlockchainTama).toLocaleString() + ' TAMA';
 
                 // Calculate total burned (from transactions)
                 const burnResponse = await fetch(`${TAMA_API_BASE}/transactions/list?limit=1000`);
