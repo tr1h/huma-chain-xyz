@@ -2627,6 +2627,28 @@
                     }
                     console.log('✅ Treasury TAMA added');
                     
+                    // 2.1. Record Treasury transaction
+                    try {
+                        await supabase.from('transactions').insert({
+                            user_id: TREASURY_MAIN,
+                            username: '💰 Treasury Main V2',
+                            type: 'treasury_income_from_nft',
+                            amount: treasuryAmount, // ✅ POSITIVE: Treasury receives TAMA
+                            balance_before: treasuryData?.tama || 0,
+                            balance_after: (treasuryData?.tama || 0) + treasuryAmount,
+                            metadata: {
+                                reason: 'nft_mint_bronze',
+                                from_user: String(TELEGRAM_USER_ID),
+                                tier: 'Bronze',
+                                treasury_percentage: 30,
+                                onchain_signature: null // Will be updated after on-chain transfer
+                            }
+                        });
+                        console.log('✅ Treasury transaction recorded');
+                    } catch (treasuryTxError) {
+                        console.warn('⚠️ Failed to record Treasury transaction:', treasuryTxError);
+                    }
+                    
                     // 3. Add TAMA to P2E Pool
                     const P2E_POOL = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
                     const { data: poolData } = await supabase
@@ -2652,6 +2674,28 @@
                         });
                     }
                     console.log('✅ P2E Pool TAMA added');
+                    
+                    // 3.1. Record P2E Pool transaction
+                    try {
+                        await supabase.from('transactions').insert({
+                            user_id: P2E_POOL,
+                            username: '🎮 P2E Pool',
+                            type: 'p2e_pool_refund_from_nft',
+                            amount: poolAmount, // ✅ POSITIVE: P2E Pool receives TAMA
+                            balance_before: poolData?.tama || 0,
+                            balance_after: (poolData?.tama || 0) + poolAmount,
+                            metadata: {
+                                reason: 'nft_mint_bronze',
+                                from_user: String(TELEGRAM_USER_ID),
+                                tier: 'Bronze',
+                                p2e_pool_percentage: 30,
+                                note: 'TAMA remain in P2E Pool (no on-chain transfer)'
+                            }
+                        });
+                        console.log('✅ P2E Pool transaction recorded');
+                    } catch (p2eTxError) {
+                        console.warn('⚠️ Failed to record P2E Pool transaction:', p2eTxError);
+                    }
                     
                 } catch (distributionError) {
                     console.warn('⚠️ TAMA distribution error:', distributionError);
@@ -2691,6 +2735,46 @@
                                 console.log(`  ${tx.label}: ${tx.amount} TAMA`);
                                 console.log(`  📍 Signature: ${tx.signature}`);
                                 console.log(`  🔗 ${tx.explorer}`);
+                                
+                                // Update Treasury transaction with on-chain signature
+                                if (tx.label === '💎 Treasury' && tx.signature) {
+                                    const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+                                    // Find the most recent Treasury transaction for this user
+                                    supabase.from('transactions')
+                                        .select('id')
+                                        .eq('user_id', TREASURY_MAIN)
+                                        .eq('type', 'treasury_income_from_nft')
+                                        .order('created_at', { ascending: false })
+                                        .limit(1)
+                                        .single()
+                                        .then(({ data: treasuryTx, error: selectError }) => {
+                                            if (selectError || !treasuryTx) {
+                                                console.warn('⚠️ Treasury transaction not found for update:', selectError);
+                                                return;
+                                            }
+                                            
+                                            // Update with signature
+                                            supabase.from('transactions')
+                                                .update({
+                                                    metadata: {
+                                                        reason: 'nft_mint_bronze',
+                                                        from_user: String(TELEGRAM_USER_ID),
+                                                        tier: 'Bronze',
+                                                        treasury_percentage: 30,
+                                                        onchain_signature: tx.signature,
+                                                        explorer: tx.explorer
+                                                    }
+                                                })
+                                                .eq('id', treasuryTx.id)
+                                                .then(({ error: updateError }) => {
+                                                    if (updateError) {
+                                                        console.warn('⚠️ Failed to update Treasury transaction signature:', updateError);
+                                                    } else {
+                                                        console.log('✅ Treasury transaction updated with on-chain signature');
+                                                    }
+                                                });
+                                        });
+                                }
                             });
                         }
                         
