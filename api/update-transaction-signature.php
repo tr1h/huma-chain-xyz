@@ -22,8 +22,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Load environment
-require_once __DIR__ . '/config/supabase.php';
+// Supabase configuration
+$supabaseUrl = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
+$supabaseServiceKey = getenv('SUPABASE_SERVICE_KEY');
+
+if (!$supabaseServiceKey) {
+    error_log("❌ SUPABASE_SERVICE_KEY not set!");
+    http_response_code(500);
+    echo json_encode(['error' => 'Server configuration error']);
+    exit;
+}
 
 // Get request body
 $json = file_get_contents('php://input');
@@ -48,15 +56,30 @@ if (!$transactionId || !$signature) {
 
 try {
     // Get current transaction to preserve existing metadata
-    $currentTx = supabaseQuery('transactions', 'GET', null, "id=eq.{$transactionId}");
+    $ch = curl_init("{$supabaseUrl}/rest/v1/transactions?id=eq.{$transactionId}&select=*");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: {$supabaseServiceKey}",
+        "Authorization: Bearer {$supabaseServiceKey}",
+        "Content-Type: application/json"
+    ]);
     
-    if (!$currentTx || count($currentTx) === 0) {
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) {
+        throw new Exception("Failed to fetch transaction: HTTP {$httpCode}");
+    }
+    
+    $transactions = json_decode($response, true);
+    if (!$transactions || count($transactions) === 0) {
         http_response_code(404);
         echo json_encode(['error' => 'Transaction not found']);
         exit;
     }
     
-    $tx = $currentTx[0];
+    $tx = $transactions[0];
     $existingMetadata = $tx['metadata'] ?? [];
     
     // If metadata is JSON string, parse it
@@ -72,12 +95,23 @@ try {
     ]);
     
     // Update transaction
-    $result = supabaseQuery('transactions', 'PATCH', [
-        'metadata' => $updatedMetadata
-    ], "id=eq.{$transactionId}");
+    $ch = curl_init("{$supabaseUrl}/rest/v1/transactions?id=eq.{$transactionId}");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['metadata' => $updatedMetadata]));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: {$supabaseServiceKey}",
+        "Authorization: Bearer {$supabaseServiceKey}",
+        "Content-Type: application/json",
+        "Prefer: return=representation"
+    ]);
     
-    if ($result === false) {
-        throw new Exception('Failed to update transaction');
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200 && $httpCode !== 204) {
+        throw new Exception("Failed to update transaction: HTTP {$httpCode}");
     }
     
     error_log("✅ Updated transaction {$transactionId} with signature: {$signature}");
