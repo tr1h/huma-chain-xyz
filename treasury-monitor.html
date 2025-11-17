@@ -537,7 +537,7 @@
                        target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;">
                         6rY5...6dNpFM 🔗
                     </a>
-                    <div class="wallet-recent">30% from NFT mints (TAMA)</div>
+                    <div class="wallet-recent">30% TAMA from NFT mints + 50% SOL from NFT sales</div>
                 </div>
 
                 <div class="wallet-card p2e" onclick="showWalletDetails('p2e')">
@@ -565,21 +565,6 @@
                     </div>
                     <div class="wallet-address">Permanent destruction</div>
                     <div class="wallet-recent">40% from NFT mints (TAMA) - burned forever</div>
-                </div>
-
-                <div class="wallet-card sol-treasury">
-                    <div class="wallet-header">
-                        <div>
-                            <div class="wallet-name">💰 SOL Treasury (Main 50%)</div>
-                            <div class="wallet-balance" id="sol-treasury-balance">Loading...</div>
-                        </div>
-                        <div class="wallet-icon">◎</div>
-                    </div>
-                    <a href="https://solscan.io/account/6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM?cluster=devnet" 
-                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;">
-                        6rY5...6dNpFM 🔗
-                    </a>
-                    <div class="wallet-recent">50% SOL from NFT sales (Silver/Gold)</div>
                 </div>
 
                 <div class="wallet-card sol-treasury">
@@ -878,8 +863,17 @@
                 // Also check blockchain for TAMA (in case there's more on-chain)
                 const treasuryBlockchainTama = await getTamaBalance(TREASURY_MAIN);
                 const treasuryTotalTama = Math.max(treasuryBalance, treasuryBlockchainTama);
-                document.getElementById('treasury-balance').textContent = 
-                    Math.round(treasuryTotalTama).toLocaleString() + ' TAMA';
+                
+                // Also get SOL balance for Treasury Main
+                const treasuryMainSol = await getSolBalance(TREASURY_MAIN);
+                const treasuryMainTama = await getTamaBalance(TREASURY_MAIN);
+                const treasuryMainTamaTotal = Math.max(treasuryBalance, treasuryMainTama);
+                
+                let treasuryMainText = Math.round(treasuryMainTamaTotal).toLocaleString() + ' TAMA';
+                if (treasuryMainSol > 0) {
+                    treasuryMainText += ' + ' + treasuryMainSol.toFixed(4) + ' SOL';
+                }
+                document.getElementById('treasury-balance').textContent = treasuryMainText;
 
                 // P2E Pool balance (from DB + blockchain verification)
                 const p2eResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?wallet_address=eq.${P2E_POOL}&select=tama`, {
@@ -912,15 +906,6 @@
                 }
 
                 // Load SOL and TAMA balances from Solana Devnet
-                // Treasury Main (SOL + TAMA)
-                const treasurySolBalance = await getSolBalance(TREASURY_MAIN);
-                const treasuryTamaBalance = await getTamaBalance(TREASURY_MAIN);
-                let treasuryText = treasurySolBalance.toFixed(4) + ' SOL';
-                if (treasuryTamaBalance > 0) {
-                    treasuryText += ' + ' + Math.round(treasuryTamaBalance).toLocaleString() + ' TAMA';
-                }
-                document.getElementById('sol-treasury-balance').textContent = treasuryText;
-                
                 // Liquidity Pool (SOL + TAMA)
                 const liquiditySolBalance = await getSolBalance(LIQUIDITY_POOL);
                 const liquidityTamaBalance = await getTamaBalance(LIQUIDITY_POOL);
@@ -991,7 +976,6 @@
                 document.getElementById('treasury-balance').textContent = 'Error';
                 document.getElementById('p2e-balance').textContent = 'Error';
                 document.getElementById('burn-total').textContent = 'Error';
-                document.getElementById('sol-treasury-balance').textContent = 'Error';
                 document.getElementById('liquidity-balance').textContent = 'Error';
                 document.getElementById('team-balance').textContent = 'Error';
             }
