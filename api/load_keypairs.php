@@ -12,9 +12,10 @@ ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
 function loadKeypairsFromEnv() {
+    // Use /tmp/ for writable directory in Render.com containers
     $keyPairs = [
-        'SOLANA_PAYER_KEYPAIR' => '/app/payer-keypair.json',
-        'SOLANA_P2E_POOL_KEYPAIR' => '/app/p2e-pool-keypair.json'
+        'SOLANA_PAYER_KEYPAIR' => '/tmp/payer-keypair.json',
+        'SOLANA_P2E_POOL_KEYPAIR' => '/tmp/p2e-pool-keypair.json'
     ];
     
     foreach ($keyPairs as $envVar => $filePath) {

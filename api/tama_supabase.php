@@ -1386,10 +1386,9 @@ function handleWithdrawalRequest($url, $key) {
         $payerKeypair = null;
         $possiblePayerPaths = [
             getenv('SOLANA_PAYER_KEYPAIR_PATH'),  // From environment variable
+            '/tmp/payer-keypair.json',             // Writable path (Render/Docker)
             __DIR__ . '/../payer-keypair.json',    // Relative to api/ directory
             __DIR__ . '/payer-keypair.json',       // In api/ directory
-            '/app/payer-keypair.json',              // Absolute path (Render/Docker)
-            '/app/api/payer-keypair.json',         // Alternative absolute path
             dirname(__DIR__) . '/payer-keypair.json', // Parent directory
         ];
         
@@ -1404,10 +1403,9 @@ function handleWithdrawalRequest($url, $key) {
         $p2ePoolKeypair = null;
         $possibleP2EPaths = [
             getenv('SOLANA_P2E_POOL_KEYPAIR_PATH'),  // From environment variable
+            '/tmp/p2e-pool-keypair.json',             // Writable path (Render/Docker)
             __DIR__ . '/../p2e-pool-keypair.json',    // Relative to api/ directory
             __DIR__ . '/p2e-pool-keypair.json',      // In api/ directory
-            '/app/p2e-pool-keypair.json',             // Absolute path (Render/Docker)
-            '/app/api/p2e-pool-keypair.json',         // Alternative absolute path
             dirname(__DIR__) . '/p2e-pool-keypair.json', // Parent directory
         ];
         
@@ -2000,11 +1998,11 @@ function handleBronzeNFTOnChain($url, $key) {
         $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
         $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
         
-        // Keypair paths - check both /app/ and fallback
-        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: '/app/payer-keypair.json';
-        $p2ePoolKeypair = getenv('SOLANA_P2E_POOL_KEYPAIR_PATH') ?: '/app/p2e-pool-keypair.json';
+        // Keypair paths - check /tmp/ first (writable in containers)
+        $payerKeypair = getenv('SOLANA_PAYER_KEYPAIR_PATH') ?: '/tmp/payer-keypair.json';
+        $p2ePoolKeypair = getenv('SOLANA_P2E_POOL_KEYPAIR_PATH') ?: '/tmp/p2e-pool-keypair.json';
         
-        // Try /app/ first, then fallback to relative path
+        // Try /tmp/ first, then fallback to relative path
         if (!file_exists($payerKeypair)) {
             $payerKeypair = __DIR__ . '/../payer-keypair.json';
         }
@@ -2814,42 +2812,42 @@ function handleSendSol($url, $key) {
         $keypairPaths = [
             'payer-keypair.json' => [
                 'env' => 'SOLANA_PAYER_KEYPAIR',
-                'load_keypairs_path' => '/app/payer-keypair.json',
+                'load_keypairs_path' => '/tmp/payer-keypair.json',
                 'local_path' => __DIR__ . '/../payer-keypair.json'
             ],
             'p2e-pool-keypair.json' => [
                 'env' => 'SOLANA_P2E_POOL_KEYPAIR',
-                'load_keypairs_path' => '/app/p2e-pool-keypair.json',
+                'load_keypairs_path' => '/tmp/p2e-pool-keypair.json',
                 'local_path' => __DIR__ . '/../p2e-pool-keypair.json'
             ],
             'team-wallet-keypair.json' => [
                 'env' => 'SOLANA_TEAM_KEYPAIR',
-                'load_keypairs_path' => '/app/team-wallet-keypair.json',
+                'load_keypairs_path' => '/tmp/team-wallet-keypair.json',
                 'local_path' => __DIR__ . '/../team-wallet-keypair.json'
             ],
             'marketing-wallet-keypair.json' => [
                 'env' => 'SOLANA_MARKETING_KEYPAIR',
-                'load_keypairs_path' => '/app/marketing-wallet-keypair.json',
+                'load_keypairs_path' => '/tmp/marketing-wallet-keypair.json',
                 'local_path' => __DIR__ . '/../marketing-wallet-keypair.json'
             ],
             'liquidity-pool-keypair.json' => [
                 'env' => 'SOLANA_LIQUIDITY_KEYPAIR',
-                'load_keypairs_path' => '/app/liquidity-pool-keypair.json',
+                'load_keypairs_path' => '/tmp/liquidity-pool-keypair.json',
                 'local_path' => __DIR__ . '/../liquidity-pool-keypair.json'
             ],
             'treasury-main-v2-keypair.json' => [
                 'env' => 'SOLANA_TREASURY_MAIN_KEYPAIR',
-                'load_keypairs_path' => '/app/treasury-main-v2-keypair.json',
+                'load_keypairs_path' => '/tmp/treasury-main-v2-keypair.json',
                 'local_path' => __DIR__ . '/../treasury-main-v2-keypair.json'
             ],
             'treasury-liquidity-v2-keypair.json' => [
                 'env' => 'SOLANA_TREASURY_LIQUIDITY_KEYPAIR',
-                'load_keypairs_path' => '/app/treasury-liquidity-v2-keypair.json',
+                'load_keypairs_path' => '/tmp/treasury-liquidity-v2-keypair.json',
                 'local_path' => __DIR__ . '/../treasury-liquidity-v2-keypair.json'
             ],
             'treasury-team-v2-keypair.json' => [
                 'env' => 'SOLANA_TREASURY_TEAM_KEYPAIR',
-                'load_keypairs_path' => '/app/treasury-team-v2-keypair.json',
+                'load_keypairs_path' => '/tmp/treasury-team-v2-keypair.json',
                 'local_path' => __DIR__ . '/../treasury-team-v2-keypair.json'
             ]
         ];

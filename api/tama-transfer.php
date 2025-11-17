@@ -57,7 +57,7 @@ if (!is_array($distributions) || empty($distributions)) {
 
 // Load P2E Pool keypair
 $keypairPaths = [
-    '/app/p2e-pool-keypair.json',
+    '/tmp/p2e-pool-keypair.json',  // Writable path (Render/Docker)
     __DIR__ . '/../p2e-pool-keypair.json',
     __DIR__ . '/p2e-pool-keypair.json'
 ];
