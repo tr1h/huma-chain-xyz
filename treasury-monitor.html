@@ -567,7 +567,7 @@
                     <div class="wallet-recent">40% from NFT mints (TAMA) - burned forever</div>
                 </div>
 
-                <div class="wallet-card sol-treasury">
+                <div class="wallet-card sol-treasury" onclick="showWalletDetails('liquidity')">
                     <div class="wallet-header">
                         <div>
                             <div class="wallet-name">💧 Liquidity Pool (30%)</div>
@@ -576,13 +576,13 @@
                         <div class="wallet-icon">💧</div>
                     </div>
                     <a href="https://solscan.io/account/5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z?cluster=devnet" 
-                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;">
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
                         5kHA...3o36z 🔗
                     </a>
                     <div class="wallet-recent">30% SOL for DEX liquidity (Raydium/Jupiter)</div>
                 </div>
 
-                <div class="wallet-card sol-treasury">
+                <div class="wallet-card sol-treasury" onclick="showWalletDetails('team')">
                     <div class="wallet-header">
                         <div>
                             <div class="wallet-name">👥 Team Wallet (20%)</div>
@@ -591,7 +591,7 @@
                         <div class="wallet-icon">👥</div>
                     </div>
                     <a href="https://solscan.io/account/AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR?cluster=devnet" 
-                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;">
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
                         AQr5...kWXVR 🔗
                     </a>
                     <div class="wallet-recent">20% SOL for team compensation</div>
@@ -1193,6 +1193,8 @@
                 'treasury': '💰 Treasury Main V2 - All Transactions',
                 'p2e': '🎮 P2E Pool - All Transactions',
                 'burn': '🔥 Burn - All Transactions',
+                'liquidity': '💧 Liquidity Pool - All Transactions',
+                'team': '👥 Team Wallet - All Transactions',
                 'marketing': '📢 Marketing - All Transactions',
                 'community': '🌐 Community - All Transactions',
                 'reserve': '🏦 Reserve - All Transactions',
@@ -1220,6 +1222,16 @@
                     t.user_id === BURN_ADDRESS || 
                     t.user_id === 'SYSTEM_BURN' ||
                     (t.type && t.type.includes('burn'))
+                );
+            } else if (walletType === 'liquidity') {
+                walletTransactions = allTransactions.filter(t => 
+                    t.user_id === LIQUIDITY_POOL || 
+                    (t.type && t.type.includes('liquidity'))
+                );
+            } else if (walletType === 'team') {
+                walletTransactions = allTransactions.filter(t => 
+                    t.user_id === TEAM_WALLET || 
+                    (t.type && t.type.includes('team') && !t.type.includes('treasury_team'))
                 );
             } else if (walletType === 'marketing') {
                 walletTransactions = allTransactions.filter(t => 
