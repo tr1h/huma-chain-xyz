@@ -132,16 +132,23 @@ async function updateBurnSignatures() {
                     updated_at: new Date().toISOString()
                 };
                 
-                const { error: updateError } = await supabase
+                console.log(`   📝 Updating with metadata:`, JSON.stringify(updatedMetadata, null, 2));
+                
+                const { data: updateResult, error: updateError } = await supabase
                     .from('transactions')
                     .update({ metadata: updatedMetadata })
-                    .eq('id', tx.id);
+                    .eq('id', tx.id)
+                    .select();
                 
                 if (updateError) {
                     console.error(`   ❌ Failed to update: ${updateError.message}`);
                     failed++;
+                } else if (!updateResult || updateResult.length === 0) {
+                    console.error(`   ❌ Update returned no rows - transaction not found or not updated`);
+                    failed++;
                 } else {
                     console.log(`   ✅ Updated with signature: ${signature.substring(0, 20)}...`);
+                    console.log(`   ✅ Verified - new metadata has onchain_signature: ${updateResult[0].metadata.onchain_signature ? 'YES' : 'NO'}`);
                     updated++;
                 }
             } else {

@@ -2752,25 +2752,27 @@
                                                 return;
                                             }
                                             
-                                            // Update with signature
-                                            supabase.from('transactions')
-                                                .update({
-                                                    metadata: {
-                                                        reason: 'nft_mint_bronze',
-                                                        from_user: String(TELEGRAM_USER_ID),
-                                                        burn_percentage: 40,
-                                                        onchain_signature: tx.signature,
-                                                        explorer: tx.explorer
-                                                    }
+                                            // Update with signature via PHP API (has server-side permissions)
+                                            fetch('https://api.solanatamagotchi.com/api/update-transaction-signature.php', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    transaction_id: burnTx.id,
+                                                    signature: tx.signature,
+                                                    explorer: tx.explorer
                                                 })
-                                                .eq('id', burnTx.id)
-                                                .then(({ error: updateError }) => {
-                                                    if (updateError) {
-                                                        console.warn('⚠️ Failed to update Burn transaction signature:', updateError);
-                                                    } else {
-                                                        console.log('✅ Burn transaction updated with on-chain signature');
-                                                    }
-                                                });
+                                            })
+                                            .then(res => res.json())
+                                            .then(result => {
+                                                if (result.success) {
+                                                    console.log('✅ Burn transaction updated with on-chain signature');
+                                                } else {
+                                                    console.warn('⚠️ Failed to update Burn transaction:', result.error);
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.warn('⚠️ Error updating Burn transaction signature:', err);
+                                            });
                                         });
                                 }
                                 
@@ -2791,26 +2793,27 @@
                                                 return;
                                             }
                                             
-                                            // Update with signature
-                                            supabase.from('transactions')
-                                                .update({
-                                                    metadata: {
-                                                        reason: 'nft_mint_bronze',
-                                                        from_user: String(TELEGRAM_USER_ID),
-                                                        tier: 'Bronze',
-                                                        treasury_percentage: 30,
-                                                        onchain_signature: tx.signature,
-                                                        explorer: tx.explorer
-                                                    }
+                                            // Update with signature via PHP API (has server-side permissions)
+                                            fetch('https://api.solanatamagotchi.com/api/update-transaction-signature.php', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    transaction_id: treasuryTx.id,
+                                                    signature: tx.signature,
+                                                    explorer: tx.explorer
                                                 })
-                                                .eq('id', treasuryTx.id)
-                                                .then(({ error: updateError }) => {
-                                                    if (updateError) {
-                                                        console.warn('⚠️ Failed to update Treasury transaction signature:', updateError);
-                                                    } else {
-                                                        console.log('✅ Treasury transaction updated with on-chain signature');
-                                                    }
-                                                });
+                                            })
+                                            .then(res => res.json())
+                                            .then(result => {
+                                                if (result.success) {
+                                                    console.log('✅ Treasury transaction updated with on-chain signature');
+                                                } else {
+                                                    console.warn('⚠️ Failed to update Treasury transaction:', result.error);
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.warn('⚠️ Error updating Treasury transaction signature:', err);
+                                            });
                                         });
                                 }
                             });
