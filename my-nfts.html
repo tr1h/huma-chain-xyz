@@ -749,17 +749,9 @@
             `;
             
             try {
-                // Get all NFTs (we'll filter by ownership later)
-                const { data: allNfts, error } = await supabase
-                    .from('user_nfts')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('minted_at', { ascending: false });
+                console.log('🔍 Loading NFTs for wallet:', walletAddress);
                 
-                if (error) throw error;
-                
-                // Filter NFTs that belong to this wallet
-                // Method 1: Check if telegram_id matches (if user linked wallet)
+                // Method 1: Check if wallet is linked to Telegram account
                 const { data: linkedUser } = await supabase
                     .from('leaderboard')
                     .select('telegram_id, wallet_address')
@@ -768,19 +760,68 @@
                 
                 let nfts = [];
                 
-                if (linkedUser) {
+                if (linkedUser && linkedUser.telegram_id) {
                     // User has linked wallet - show their NFTs by telegram_id
                     console.log('✅ Found linked Telegram account:', linkedUser.telegram_id);
-                    nfts = allNfts.filter(nft => nft.telegram_id === linkedUser.telegram_id);
-                } else {
-                    // No linked account - show only real on-chain NFTs
-                    console.log('⚠️ No linked Telegram account. Showing all real on-chain NFTs for demo.');
-                    nfts = allNfts.filter(nft => 
-                        nft.nft_mint_address && 
-                        nft.nft_mint_address.length > 30 && 
-                        !nft.nft_mint_address.includes('_')
-                    );
                     
+                    const { data: telegramNfts, error } = await supabase
+                        .from('user_nfts')
+                        .select('*')
+                        .eq('telegram_id', linkedUser.telegram_id)
+                        .eq('is_active', true)
+                        .order('minted_at', { ascending: false});
+                    
+                    if (error) throw error;
+                    nfts = telegramNfts || [];
+                    
+                } else {
+                    // Method 2: No linked account - find NFTs minted directly with this wallet (telegram_id = null)
+                    console.log('⚠️ No linked Telegram account. Searching for NFTs minted with this wallet...');
+                    
+                    // Query NFTs with NULL telegram_id but matching wallet_address
+                    // Since Supabase doesn't support direct wallet_address query in user_nfts,
+                    // we'll check transactions table for SOL purchases with this wallet
+                    const { data: solTransactions } = await supabase
+                        .from('transactions')
+                        .select('metadata')
+                        .eq('type', 'nft_mint_sol')
+                        .order('created_at', { ascending: false });
+                    
+                    // Find NFT IDs from transactions metadata
+                    const nftIds = [];
+                    if (solTransactions) {
+                        solTransactions.forEach(tx => {
+                            if (tx.metadata && typeof tx.metadata === 'object') {
+                                const metadata = tx.metadata;
+                                if (metadata.wallet_address === walletAddress && metadata.nft_id) {
+                                    nftIds.push(metadata.nft_id);
+                                }
+                            } else if (typeof tx.metadata === 'string') {
+                                try {
+                                    const metadata = JSON.parse(tx.metadata);
+                                    if (metadata.wallet_address === walletAddress && metadata.nft_id) {
+                                        nftIds.push(metadata.nft_id);
+                                    }
+                                } catch (e) {}
+                            }
+                        });
+                    }
+                    
+                    // Fetch NFTs by IDs
+                    if (nftIds.length > 0) {
+                        const { data: walletNfts, error } = await supabase
+                            .from('user_nfts')
+                            .select('*')
+                            .in('id', nftIds)
+                            .eq('is_active', true)
+                            .order('minted_at', { ascending: false });
+                        
+                        if (error) throw error;
+                        nfts = walletNfts || [];
+                        console.log(`✅ Found ${nfts.length} NFTs minted with this wallet`);
+                    }
+                    
+                    // If still no NFTs found, show help message
                     if (nfts.length === 0) {
                         showLinkWalletMessage(walletAddress);
                         return;
