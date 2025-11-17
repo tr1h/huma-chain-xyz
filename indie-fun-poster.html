@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solana Tamagotchi Poster</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #05050c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .poster {
+            width: 1920px;
+            height: 1080px;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 221, 136, 0.35), transparent 45%),
+                        radial-gradient(circle at 80% 10%, rgba(131, 56, 236, 0.45), transparent 55%),
+                        linear-gradient(135deg, #070b20 0%, #080526 35%, #170041 100%);
+            border-radius: 32px;
+            padding: 80px 100px;
+            display: grid;
+            grid-template-columns: 1.2fr 1.8fr;
+            gap: 60px;
+            color: #fff;
+            position: relative;
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.8);
+        }
+
+        .badge {
+            position: absolute;
+            top: 40px;
+            right: 80px;
+            background: rgba(26, 255, 173, 0.15);
+            border: 1px solid rgba(26, 255, 173, 0.5);
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-size: 22px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .left h1 {
+            font-size: 82px;
+            font-weight: 700;
+            line-height: 1.05;
+            color: #ffe47a;
+            margin-bottom: 24px;
+        }
+
+        .left p {
+            font-size: 26px;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 240px;
+            margin-bottom: 30px;
+        }
+
+        .tags {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .right {
+            position: relative;
+        }
+
+        .screen-main {
+            width: 100%;
+            height: 560px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #19213d, #090d24);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .tiers {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .tier {
+            border-radius: 18px;
+            padding: 18px;
+            text-align: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            line-height: 1.2;
+        }
+
+        .tier span {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .tier.bronze { background: linear-gradient(145deg, #a04b1a, #c2702c); }
+        .tier.silver { background: linear-gradient(145deg, #7f8ea3, #b7c4d6); }
+        .tier.gold { background: linear-gradient(145deg, #c89d0c, #ffd358); }
+        .tier.platinum { background: linear-gradient(145deg, #5cd9c7, #a7f5e9); color: #03251c;}
+        .tier.diamond { background: linear-gradient(145deg, #6c63ff, #b46bff); }
+
+        .notif {
+            padding: 20px 24px;
+            border-radius: 18px;
+            background: rgba(8, 255, 181, 0.1);
+            border: 1px solid rgba(8, 255, 181, 0.4);
+            font-size: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .notif span {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        .stats-bar {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            padding: 18px 22px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 42px;
+            margin-bottom: 4px;
+            color: #ffb347;
+        }
+
+        .stat-card span {
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        .mini-screen {
+            position: absolute;
+            bottom: -60px;
+            right: 40px;
+            width: 420px;
+            border-radius: 18px;
+            padding: 18px 22px;
+            background: rgba(9, 13, 36, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .mini-screen h4 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #80ffdb;
+        }
+
+        .mini-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 50px;
+            left: 100px;
+            right: 100px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 26px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="poster">
+        <div class="badge">LIVE ON SOLANA</div>
+        <div class="left">
+            <img src="logo.png" alt="Solana Tamagotchi" class="logo">
+            <h1>Raise. Earn.<br>Burn.</h1>
+            <p>
+                Free-to-Play Web + Telegram P2E game.<br>
+                Mint NFT pets with bonding curve pricing and<br>
+                automatic 40/30/30 on-chain distribution.
+            </p>
+            <div class="tags">
+                <div class="tag">🐾 100% Free Start • Telegram Bot</div>
+                <div class="tag">🔥 Every Mint: 40% Burn • 30% Treasury • 30% P2E Pool</div>
+                <div class="tag">💎 Metaplex NFTs • +50→10,000 TAMA/day boosts</div>
+            </div>
+        </div>
+
+        <div class="right">
+            <div class="screen-main">
+                <div class="notif">
+                    ✅ On-Chain Transfers Complete<br>
+                    3,500 TAMA transferred on Solana blockchain
+                    <span>Signature: 5LE8W5uN8Y...  •  View on Explorer</span>
+                </div>
+                <div class="tiers">
+                    <div class="tier bronze">Bronze<span>2.0× Boost</span></div>
+                    <div class="tier silver">Silver<span>2.3× Boost</span></div>
+                    <div class="tier gold">Gold<span>2.7× Boost</span></div>
+                    <div class="tier platinum">Platinum<span>3.5× Boost</span></div>
+                    <div class="tier diamond">Diamond<span>5.0× Boost</span></div>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-card">
+                        <h3>23</h3>
+                        <span>NFTs Minted</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>7.2 SOL</h3>
+                        <span>Total Volume</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>0.11 SOL</h3>
+                        <span>Floor Price</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-screen">
+                <h4>Live TAMA Flow</h4>
+                <div class="mini-row"><span>🔥 Burn</span><strong>-2,000 TAMA</strong></div>
+                <div class="mini-row"><span>💎 Treasury</span><strong>-1,500 TAMA</strong></div>
+                <div class="mini-row"><span>🎮 P2E Pool</span><strong>-1,500 TAMA</strong></div>
+                <div class="mini-row" style="margin-top:12px;"><span>👤 Player</span><strong>+1.187 TAMA</strong></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>Play in Telegram + Web • Instant Withdraw • Live Monitor</div>
+            <div>Mainnet Launch Q1 2026</div>
+        </div>
+    </div>
+</body>
+</html>
+
