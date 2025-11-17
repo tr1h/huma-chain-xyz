@@ -822,7 +822,7 @@
                             user_id: String(nft.telegram_id),
                             username: allUsers[nft.telegram_id]?.telegram_username || '',
                             type: `nft_mint_${paymentType.toLowerCase()}`,
-                            amount: amount || 0,
+                            amount: -(amount || 0), // ✅ NEGATIVE: NFT mint is a SPEND (user pays TAMA/SOL)
                             balance_after: 0, // Not applicable for NFT mints
                             balance_before: 0,
                             metadata: {
@@ -851,24 +851,56 @@
                 allTransactions = [];
             }
             
-            const totalEarned = allTransactions
-                .filter(t => t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus' || t.type === 'achievement_bonus' || t.type === 'treasury_income_from_nft' || t.type === 'treasury_income_from_nft_sol' || t.type === 'treasury_liquidity_income_from_nft_sol' || t.type === 'treasury_team_income_from_nft_sol' || t.type === 'treasury_income_from_nft_onchain' || t.type === 'p2e_pool_refund_from_nft' || t.type === 'p2e_pool_refund_from_nft_onchain')
-                .reduce((sum, t) => sum + (t.amount || 0), 0);
-
-            const totalSpent = allTransactions
-                .filter(t => t.type.startsWith('spend') || t.type === 'nft_mint' || t.type === 'nft_mint_sol' || t.type === 'nft_mint_onchain' || t.type.startsWith('burn'))
-                .reduce((sum, t) => sum + (t.amount || 0), 0);
-
-            const nftMintCount = allTransactions.filter(t => t.type.includes('nft_mint')).length;
+            // ✅ CORRECTED LOGIC: Calculate by sign of amount, not by type
+            let totalEarned = 0;
+            let totalSpent = 0;
+            let nftMintCount = 0;
+            let burnCount = 0;
+            
+            allTransactions.forEach(t => {
+                const amount = t.amount || 0;
+                
+                // Count NFT mints
+                if (t.type.includes('nft_mint')) {
+                    nftMintCount++;
+                }
+                
+                // Count burns separately
+                if (t.type.includes('burn')) {
+                    burnCount++;
+                }
+                
+                // ✅ EARN: Positive amounts (user gained TAMA)
+                if (amount > 0) {
+                    totalEarned += amount;
+                }
+                // ✅ SPEND: Negative amounts (user lost TAMA)
+                else if (amount < 0) {
+                    totalSpent += Math.abs(amount); // Convert to positive for display
+                }
+            });
+            
             const uniqueUsers = new Set(allTransactions.map(t => t.user_id)).size;
+            const netFlow = totalEarned - totalSpent;
 
             // Show total count from database, not just current page
             document.getElementById('total-transactions').textContent = totalCount.toLocaleString();
             document.getElementById('total-earned').textContent = Math.round(totalEarned).toLocaleString() + ' TAMA';
             document.getElementById('total-spent').textContent = Math.round(totalSpent).toLocaleString() + ' TAMA';
             document.getElementById('nft-mints').textContent = nftMintCount.toLocaleString();
-            document.getElementById('net-flow').textContent = Math.round(totalEarned - totalSpent).toLocaleString() + ' TAMA';
+            document.getElementById('net-flow').textContent = Math.round(netFlow).toLocaleString() + ' TAMA';
             document.getElementById('active-users').textContent = uniqueUsers;
+            
+            // 📊 Console stats for debugging
+            console.log('📊 STATS UPDATE:', {
+                totalTransactions: totalCount,
+                totalEarned: Math.round(totalEarned),
+                totalSpent: Math.round(totalSpent),
+                nftMints: nftMintCount,
+                burns: burnCount,
+                netFlow: Math.round(netFlow),
+                activeUsers: uniqueUsers
+            });
             
             // Update pagination info
             updatePaginationInfo();
@@ -884,34 +916,48 @@
 
             tbody.innerHTML = transactions.map(t => {
                 const date = new Date(t.created_at).toLocaleString();
+                const amount = t.amount || 0;
                 
-                // Categorize transactions
-                const isEarn = t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus' || t.type === 'achievement_bonus' || t.type === 'treasury_income_from_nft' || t.type === 'treasury_income_from_nft_sol' || t.type === 'treasury_liquidity_income_from_nft_sol' || t.type === 'treasury_team_income_from_nft_sol' || t.type === 'p2e_pool_refund_from_nft' || t.type === 'treasury_income_from_nft_onchain' || t.type === 'p2e_pool_refund_from_nft_onchain';
-                const isSpend = t.type.startsWith('spend') || t.type === 'nft_mint' || t.type === 'nft_mint_sol' || t.type === 'nft_mint_onchain';
-                const isBurn = t.type.startsWith('burn');
+                // ✅ CORRECTED: Determine by SIGN, not by type
+                const isBurn = t.type.includes('burn');
                 const isSOL = t.type.includes('_sol') || (t.metadata && typeof t.metadata === 'string' && t.metadata.includes('"payment_method":"SOL"'));
                 
+                // Type badge color
                 const typeClass = t.type.startsWith('earn') ? 'type-earn' : 
                                  t.type === 'nft_mint_tama' ? 'type-nft-tama' :
                                  t.type === 'nft_mint_sol' ? 'type-nft-sol' :
                                  t.type === 'nft_mint' ? 'type-spend' :
-                                 t.type === 'nft_mint_onchain' ? 'type-spend' : // On-chain mint
+                                 t.type === 'nft_mint_onchain' ? 'type-spend' :
                                  t.type.startsWith('burn') ? 'type-burn' :
                                  t.type === 'treasury_income_from_nft' ? 'type-treasury' :
                                  t.type === 'treasury_income_from_nft_sol' ? 'type-treasury-sol' :
                                  t.type === 'treasury_liquidity_income_from_nft_sol' ? 'type-treasury-sol' :
                                  t.type === 'treasury_team_income_from_nft_sol' ? 'type-treasury-sol' :
-                                 t.type === 'treasury_income_from_nft_onchain' ? 'type-treasury-onchain' :
+                                 t.type === 'treasury_income_from_nft_onchain' ? 'type-treasury' :
                                  t.type === 'p2e_pool_refund_from_nft' ? 'type-p2e' :
-                                 t.type === 'p2e_pool_refund_from_nft_onchain' ? 'type-p2e-onchain' :
-                                 isSpend ? 'type-spend' :
+                                 t.type === 'p2e_pool_refund_from_nft_onchain' ? 'type-p2e' :
+                                 t.type.startsWith('spend') ? 'type-spend' :
                                  t.type === 'level_up' ? 'type-level' :
                                  t.type === 'quest_complete' ? 'type-quest' :
                                  t.type === 'referral_bonus' ? 'type-referral' :
                                  t.type === 'achievement_bonus' ? 'type-earn' : 'type-earn';
                 
-                const amountClass = isBurn ? 'amount-burn' : (isEarn ? 'amount-positive' : 'amount-negative');
-                const amountPrefix = isBurn ? '🔥 ' : (isEarn ? '+' : '-');
+                // ✅ Amount color & prefix BY SIGN
+                let amountClass, amountPrefix, displayAmount;
+                if (isBurn) {
+                    amountClass = 'amount-burn';
+                    amountPrefix = '🔥 ';
+                    displayAmount = Math.abs(amount);
+                } else if (amount > 0) {
+                    amountClass = 'amount-positive';
+                    amountPrefix = '+';
+                    displayAmount = amount;
+                } else {
+                    amountClass = 'amount-negative';
+                    amountPrefix = '-';
+                    displayAmount = Math.abs(amount);
+                }
+                
                 const currency = isSOL ? ' SOL' : ' TAMA';
                 
                 // Format metadata: NFT mints show tier, rarity, boost
@@ -928,7 +974,7 @@
                         <td>${date}</td>
                         <td><strong>${username}</strong></td>
                         <td><span class="type-badge ${typeClass}">${t.type}</span></td>
-                        <td class="${amountClass}">${amountPrefix}${Math.round(t.amount * 100) / 100}${currency}</td>
+                        <td class="${amountClass}">${amountPrefix}${Math.round(displayAmount * 100) / 100}${currency}</td>
                         <td>${Math.round(t.balance_after || 0).toLocaleString()}</td>
                         <td style="font-size: 11px; opacity: 0.7;">${metadata}</td>
                     </tr>
@@ -952,13 +998,18 @@
                     ? allTransactions.filter(t => t.user_id === userId)
                     : [];
                 
-                const totalEarned = userTransactions
-                    .filter(t => t.type.startsWith('earn') || t.type === 'level_up' || t.type === 'quest_complete' || t.type === 'referral_bonus' || t.type === 'achievement_bonus')
-                    .reduce((sum, t) => sum + (t.amount || 0), 0);
+                // ✅ CORRECTED: Calculate by SIGN, not by type
+                let totalEarned = 0;
+                let totalSpent = 0;
                 
-                const totalSpent = userTransactions
-                    .filter(t => t.type.startsWith('spend') || t.type === 'nft_mint' || t.type === 'nft_mint_sol' || t.type === 'nft_mint_onchain')
-                    .reduce((sum, t) => sum + (t.amount || 0), 0);
+                userTransactions.forEach(t => {
+                    const amount = t.amount || 0;
+                    if (amount > 0) {
+                        totalEarned += amount;
+                    } else if (amount < 0) {
+                        totalSpent += Math.abs(amount);
+                    }
+                });
 
                 content.innerHTML = `
                     <div class="user-info">
@@ -1007,9 +1058,12 @@
                     <div class="transaction-list">
                         <h3 style="margin-bottom: 15px;">📜 Recent Transactions (Last 10)</h3>
                         ${userTransactions.slice(0, 10).map(t => {
-                            const isEarn = t.type.startsWith('earn') || t.type === 'level_up';
-                            const color = isEarn ? '#10b981' : '#ef4444';
-                            const prefix = isEarn ? '+' : '-';
+                            const amount = t.amount || 0;
+                            // ✅ CORRECTED: Color by SIGN, not by type
+                            const isBurn = t.type.includes('burn');
+                            const color = isBurn ? '#ff6b35' : (amount > 0 ? '#10b981' : '#ef4444');
+                            const prefix = isBurn ? '🔥 ' : (amount > 0 ? '+' : '-');
+                            const displayAmount = Math.abs(amount);
                             return `
                                 <div class="transaction-item">
                                     <div>
@@ -1017,7 +1071,7 @@
                                         <div style="font-size: 11px; opacity: 0.7;">${new Date(t.created_at).toLocaleString()}</div>
                                     </div>
                                     <div style="font-size: 18px; font-weight: bold; color: ${color};">
-                                        ${prefix}${Math.round(t.amount * 100) / 100}
+                                        ${prefix}${Math.round(displayAmount * 100) / 100}
                                     </div>
                                 </div>
                             `;
