@@ -83,7 +83,7 @@
                     .from('user_nfts')
                     .select('*')
                     .eq('telegram_id', userId)
-                    .order('created_at', { ascending: false });
+                    .order('minted_at', { ascending: false });
                 
                 if (error) {
                     addOutput('❌ Error querying user_nfts:', error, true);
@@ -101,7 +101,7 @@
                     .select('*')
                     .eq('telegram_id', userId)
                     .eq('is_active', true)
-                    .order('created_at', { ascending: false });
+                    .order('minted_at', { ascending: false });
                 
                 if (error) {
                     addOutput('❌ Error querying user_nfts (is_active=true):', error, true);
@@ -136,8 +136,8 @@
             try {
                 const { data, error } = await supabase
                     .from('user_nfts')
-                    .select('id, telegram_id, nft_mint_address, is_active, created_at')
-                    .order('created_at', { ascending: false })
+                    .select('id, telegram_id, nft_mint_address, is_active, minted_at')
+                    .order('minted_at', { ascending: false })
                     .limit(10);
                 
                 if (error) {
