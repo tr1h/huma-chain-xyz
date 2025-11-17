@@ -595,20 +595,33 @@
 
         async function loadWalletBalances() {
             try {
-                // Load Treasury balance
-                const treasuryResponse = await fetch(`${TAMA_API_BASE}/balance?wallet_address=${TREASURY_MAIN}`);
+                // Load balances directly from Supabase leaderboard table
+                // Treasury balance
+                const treasuryResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?wallet_address=eq.${TREASURY_MAIN}&select=tama`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
                 if (treasuryResponse.ok) {
                     const treasuryData = await treasuryResponse.json();
+                    const balance = treasuryData[0]?.tama || 0;
                     document.getElementById('treasury-balance').textContent = 
-                        Math.round(treasuryData.tama || 0).toLocaleString() + ' TAMA';
+                        Math.round(balance).toLocaleString() + ' TAMA';
                 }
 
-                // Load P2E Pool balance
-                const p2eResponse = await fetch(`${TAMA_API_BASE}/balance?wallet_address=${P2E_POOL}`);
+                // P2E Pool balance
+                const p2eResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?wallet_address=eq.${P2E_POOL}&select=tama`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
                 if (p2eResponse.ok) {
                     const p2eData = await p2eResponse.json();
+                    const balance = p2eData[0]?.tama || 0;
                     document.getElementById('p2e-balance').textContent = 
-                        Math.round(p2eData.tama || 0).toLocaleString() + ' TAMA';
+                        Math.round(balance).toLocaleString() + ' TAMA';
                 }
 
                 // Calculate total burned (from transactions)
@@ -619,11 +632,25 @@
                     const totalBurned = burnTransactions.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
                     document.getElementById('burn-total').textContent = 
                         Math.round(totalBurned).toLocaleString() + ' TAMA';
+                } else {
+                    document.getElementById('burn-total').textContent = '0 TAMA';
                 }
+
+                // Set placeholder values for SOL wallets (Devnet - no real SOL yet)
+                document.getElementById('sol-treasury-balance').textContent = '0 SOL';
+                document.getElementById('liquidity-balance').textContent = '0 SOL';
+                document.getElementById('team-balance').textContent = '0 SOL';
 
                 console.log('✅ Wallet balances loaded');
             } catch (error) {
                 console.error('❌ Error loading wallet balances:', error);
+                // Set error state
+                document.getElementById('treasury-balance').textContent = 'Error';
+                document.getElementById('p2e-balance').textContent = 'Error';
+                document.getElementById('burn-total').textContent = 'Error';
+                document.getElementById('sol-treasury-balance').textContent = 'Error';
+                document.getElementById('liquidity-balance').textContent = 'Error';
+                document.getElementById('team-balance').textContent = 'Error';
             }
         }
 
