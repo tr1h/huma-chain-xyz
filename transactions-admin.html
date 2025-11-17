@@ -972,11 +972,22 @@
                 
                 // Explorer link (from metadata) - using Solscan
                 let explorerLink = '-';
-                if (t.metadata && typeof t.metadata === 'object' && t.metadata.onchain_signature) {
-                    explorerLink = `<a href="https://solscan.io/tx/${t.metadata.onchain_signature}?cluster=devnet" 
-                                      target="_blank" class="explorer-link" onclick="event.stopPropagation();">View 🔗</a>`;
-                } else if (t.metadata && typeof t.metadata === 'object' && t.metadata.transaction_signature) {
-                    explorerLink = `<a href="https://solscan.io/tx/${t.metadata.transaction_signature}?cluster=devnet" 
+                let signature = null;
+                
+                if (t.metadata && typeof t.metadata === 'object') {
+                    signature = t.metadata.onchain_signature || t.metadata.transaction_signature;
+                } else if (typeof t.metadata === 'string') {
+                    // Try to parse JSON string
+                    try {
+                        const parsed = JSON.parse(t.metadata);
+                        signature = parsed.onchain_signature || parsed.transaction_signature;
+                    } catch (e) {
+                        // Invalid JSON, keep null
+                    }
+                }
+                
+                if (signature) {
+                    explorerLink = `<a href="https://solscan.io/tx/${signature}?cluster=devnet" 
                                       target="_blank" class="explorer-link" onclick="event.stopPropagation();">View 🔗</a>`;
                 }
                 
