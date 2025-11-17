@@ -622,11 +622,12 @@
                         <th>Amount</th>
                         <th>Balance</th>
                         <th>Details</th>
+                        <th>Explorer</th>
                     </tr>
                 </thead>
                 <tbody id="transactions-body">
                     <tr>
-                        <td colspan="6" class="loading">⏳ Loading transactions...</td>
+                        <td colspan="7" class="loading">⏳ Loading transactions...</td>
                     </tr>
                 </tbody>
             </table>
@@ -910,7 +911,7 @@
             const tbody = document.getElementById('transactions-body');
             
             if (transactions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="loading">No transactions found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="loading">No transactions found</td></tr>';
                 return;
             }
 
@@ -969,6 +970,16 @@
                 }
                 const username = t.username || t.user_id;
                 
+                // Explorer link (from metadata) - using Solscan
+                let explorerLink = '-';
+                if (t.metadata && typeof t.metadata === 'object' && t.metadata.onchain_signature) {
+                    explorerLink = `<a href="https://solscan.io/tx/${t.metadata.onchain_signature}?cluster=devnet" 
+                                      target="_blank" class="explorer-link" onclick="event.stopPropagation();">View 🔗</a>`;
+                } else if (t.metadata && typeof t.metadata === 'object' && t.metadata.transaction_signature) {
+                    explorerLink = `<a href="https://solscan.io/tx/${t.metadata.transaction_signature}?cluster=devnet" 
+                                      target="_blank" class="explorer-link" onclick="event.stopPropagation();">View 🔗</a>`;
+                }
+                
                 return `
                     <tr onclick="showUserDetails('${t.user_id}')">
                         <td>${date}</td>
@@ -977,6 +988,7 @@
                         <td class="${amountClass}">${amountPrefix}${Math.round(displayAmount * 100) / 100}${currency}</td>
                         <td>${Math.round(t.balance_after || 0).toLocaleString()}</td>
                         <td style="font-size: 11px; opacity: 0.7;">${metadata}</td>
+                        <td>${explorerLink}</td>
                     </tr>
                 `;
             }).join('');

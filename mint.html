@@ -2736,6 +2736,44 @@
                                 console.log(`  📍 Signature: ${tx.signature}`);
                                 console.log(`  🔗 ${tx.explorer}`);
                                 
+                                // Update Burn transaction with on-chain signature
+                                if (tx.label === '🔥 Burn' && tx.signature) {
+                                    // Find the most recent Burn transaction for this user
+                                    supabase.from('transactions')
+                                        .select('id')
+                                        .eq('user_id', 'SYSTEM_BURN')
+                                        .eq('type', 'tama_burn')
+                                        .order('created_at', { ascending: false })
+                                        .limit(1)
+                                        .single()
+                                        .then(({ data: burnTx, error: selectError }) => {
+                                            if (selectError || !burnTx) {
+                                                console.warn('⚠️ Burn transaction not found for update:', selectError);
+                                                return;
+                                            }
+                                            
+                                            // Update with signature
+                                            supabase.from('transactions')
+                                                .update({
+                                                    metadata: {
+                                                        reason: 'nft_mint_bronze',
+                                                        from_user: String(TELEGRAM_USER_ID),
+                                                        burn_percentage: 40,
+                                                        onchain_signature: tx.signature,
+                                                        explorer: tx.explorer
+                                                    }
+                                                })
+                                                .eq('id', burnTx.id)
+                                                .then(({ error: updateError }) => {
+                                                    if (updateError) {
+                                                        console.warn('⚠️ Failed to update Burn transaction signature:', updateError);
+                                                    } else {
+                                                        console.log('✅ Burn transaction updated with on-chain signature');
+                                                    }
+                                                });
+                                        });
+                                }
+                                
                                 // Update Treasury transaction with on-chain signature
                                 if (tx.label === '💎 Treasury' && tx.signature) {
                                     const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
