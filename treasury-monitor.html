@@ -187,6 +187,26 @@
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         }
 
+        .wallet-card.marketing {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        }
+
+        .wallet-card.community {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+        }
+
+        .wallet-card.reserve {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
+
+        .wallet-card.treasury-liquidity {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+
+        .wallet-card.treasury-team {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
         .wallet-header {
             display: flex;
             justify-content: space-between;
@@ -591,6 +611,81 @@
                     </a>
                     <div class="wallet-recent">20% SOL for team compensation</div>
                 </div>
+
+                <div class="wallet-card marketing" onclick="showWalletDetails('marketing')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">📢 Marketing</div>
+                            <div class="wallet-balance" id="marketing-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">📢</div>
+                    </div>
+                    <a href="https://solscan.io/account/2eryce7DH7mqDCPegTb696FjXReA5qmx9xfCKH5UneeF?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        2ery...neeF 🔗
+                    </a>
+                    <div class="wallet-recent">Marketing & partnerships (15%)</div>
+                </div>
+
+                <div class="wallet-card community" onclick="showWalletDetails('community')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">🌐 Community</div>
+                            <div class="wallet-balance" id="community-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">🌐</div>
+                    </div>
+                    <a href="https://solscan.io/account/9X1DYKzHiYP4V2UuVNGbU42DQkd8ST1nPwbJDuFQY3T?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        9X1D...QY3T 🔗
+                    </a>
+                    <div class="wallet-recent">Community rewards & airdrops (10%)</div>
+                </div>
+
+                <div class="wallet-card reserve" onclick="showWalletDetails('reserve')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">🏦 Reserve</div>
+                            <div class="wallet-balance" id="reserve-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">🏦</div>
+                    </div>
+                    <a href="https://solscan.io/account/8cDHbeHcuspjGKXofYzApCCBrAVenSHPy2UAPU1iCEj6?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        8cDH...CEj6 🔗
+                    </a>
+                    <div class="wallet-recent">Reserve fund for emergencies (5%)</div>
+                </div>
+
+                <div class="wallet-card treasury-liquidity" onclick="showWalletDetails('treasury-liquidity')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">💧 Treasury Liquidity V2</div>
+                            <div class="wallet-balance" id="treasury-liquidity-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">💹</div>
+                    </div>
+                    <a href="https://solscan.io/account/CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        CeeK...avGk1 🔗
+                    </a>
+                    <div class="wallet-recent">DEX Liquidity Pool (SOL Silver/Gold: 30%)</div>
+                </div>
+
+                <div class="wallet-card treasury-team" onclick="showWalletDetails('treasury-team')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">👥 Treasury Team V2</div>
+                            <div class="wallet-balance" id="treasury-team-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">💼</div>
+                    </div>
+                    <a href="https://solscan.io/account/Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        Amy5...7Ua8 🔗
+                    </a>
+                    <div class="wallet-recent">Team Operations (SOL Silver/Gold: 20%)</div>
+                </div>
             </div>
 
             <!-- Filters -->
@@ -683,6 +778,11 @@
         const BURN_ADDRESS = 'BURN_ADDRESS';
         const LIQUIDITY_POOL = '5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z';
         const TEAM_WALLET = 'AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR';
+        const MARKETING_WALLET = '2eryce7DH7mqDCPegTb696FjXReA5qmx9xfCKH5UneeF';
+        const COMMUNITY_WALLET = '9X1DYKzHiYP4V2UuVNGbU42DQkd8ST1nPwbJDuFQY3T';
+        const RESERVE_WALLET = '8cDHbeHcuspjGKXofYzApCCBrAVenSHPy2UAPU1iCEj6';
+        const TREASURY_LIQUIDITY = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+        const TREASURY_TEAM = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
         const SOLANA_RPC = 'https://api.devnet.solana.com';
         
         let allTransactions = [];
@@ -838,6 +938,51 @@
                     teamText += ' + ' + Math.round(teamTamaBalance).toLocaleString() + ' TAMA';
                 }
                 document.getElementById('team-balance').textContent = teamText;
+
+                // Marketing Wallet (SOL + TAMA)
+                const marketingSolBalance = await getSolBalance(MARKETING_WALLET);
+                const marketingTamaBalance = await getTamaBalance(MARKETING_WALLET);
+                let marketingText = marketingSolBalance.toFixed(4) + ' SOL';
+                if (marketingTamaBalance > 0) {
+                    marketingText += ' + ' + Math.round(marketingTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('marketing-balance').textContent = marketingText;
+
+                // Community Wallet (SOL + TAMA)
+                const communitySolBalance = await getSolBalance(COMMUNITY_WALLET);
+                const communityTamaBalance = await getTamaBalance(COMMUNITY_WALLET);
+                let communityText = communitySolBalance.toFixed(4) + ' SOL';
+                if (communityTamaBalance > 0) {
+                    communityText += ' + ' + Math.round(communityTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('community-balance').textContent = communityText;
+
+                // Reserve Wallet (SOL + TAMA)
+                const reserveSolBalance = await getSolBalance(RESERVE_WALLET);
+                const reserveTamaBalance = await getTamaBalance(RESERVE_WALLET);
+                let reserveText = reserveSolBalance.toFixed(4) + ' SOL';
+                if (reserveTamaBalance > 0) {
+                    reserveText += ' + ' + Math.round(reserveTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('reserve-balance').textContent = reserveText;
+
+                // Treasury Liquidity V2 (SOL + TAMA)
+                const treasuryLiquiditySolBalance = await getSolBalance(TREASURY_LIQUIDITY);
+                const treasuryLiquidityTamaBalance = await getTamaBalance(TREASURY_LIQUIDITY);
+                let treasuryLiquidityText = treasuryLiquiditySolBalance.toFixed(4) + ' SOL';
+                if (treasuryLiquidityTamaBalance > 0) {
+                    treasuryLiquidityText += ' + ' + Math.round(treasuryLiquidityTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('treasury-liquidity-balance').textContent = treasuryLiquidityText;
+
+                // Treasury Team V2 (SOL + TAMA)
+                const treasuryTeamSolBalance = await getSolBalance(TREASURY_TEAM);
+                const treasuryTeamTamaBalance = await getTamaBalance(TREASURY_TEAM);
+                let treasuryTeamText = treasuryTeamSolBalance.toFixed(4) + ' SOL';
+                if (treasuryTeamTamaBalance > 0) {
+                    treasuryTeamText += ' + ' + Math.round(treasuryTeamTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('treasury-team-balance').textContent = treasuryTeamText;
 
                 console.log('✅ Wallet balances loaded');
             } catch (error) {
@@ -1074,7 +1219,12 @@
             const titles = {
                 'treasury': '💰 Treasury Main V2 - All Transactions',
                 'p2e': '🎮 P2E Pool - All Transactions',
-                'burn': '🔥 Burn - All Transactions'
+                'burn': '🔥 Burn - All Transactions',
+                'marketing': '📢 Marketing - All Transactions',
+                'community': '🌐 Community - All Transactions',
+                'reserve': '🏦 Reserve - All Transactions',
+                'treasury-liquidity': '💧 Treasury Liquidity V2 - All Transactions',
+                'treasury-team': '👥 Treasury Team V2 - All Transactions'
             };
             
             title.textContent = titles[walletType] || '💰 Wallet Transactions';
@@ -1097,6 +1247,31 @@
                     t.user_id === BURN_ADDRESS || 
                     t.user_id === 'SYSTEM_BURN' ||
                     (t.type && t.type.includes('burn'))
+                );
+            } else if (walletType === 'marketing') {
+                walletTransactions = allTransactions.filter(t => 
+                    t.user_id === MARKETING_WALLET || 
+                    (t.type && t.type.includes('marketing'))
+                );
+            } else if (walletType === 'community') {
+                walletTransactions = allTransactions.filter(t => 
+                    t.user_id === COMMUNITY_WALLET || 
+                    (t.type && t.type.includes('community'))
+                );
+            } else if (walletType === 'reserve') {
+                walletTransactions = allTransactions.filter(t => 
+                    t.user_id === RESERVE_WALLET || 
+                    (t.type && t.type.includes('reserve'))
+                );
+            } else if (walletType === 'treasury-liquidity') {
+                walletTransactions = allTransactions.filter(t => 
+                    t.user_id === TREASURY_LIQUIDITY || 
+                    (t.type && t.type.includes('liquidity'))
+                );
+            } else if (walletType === 'treasury-team') {
+                walletTransactions = allTransactions.filter(t => 
+                    t.user_id === TREASURY_TEAM || 
+                    (t.type && t.type.includes('team'))
                 );
             }
             
