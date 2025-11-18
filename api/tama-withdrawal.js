@@ -21,7 +21,7 @@ const bs58 = require('bs58');
 
 // Конфигурация
 const RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
-const TAMA_MINT = process.env.TAMA_MINT_ADDRESS || 'CbWmbAKNEaVx2dKfBfz9VqyC7YWBd2iWvqWaZMsaC6jr';
+const TAMA_MINT = process.env.TAMA_MINT_ADDRESS || 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY';
 const P2E_POOL = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
 
 async function executeWithdrawal(req, res) {

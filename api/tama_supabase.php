@@ -1399,9 +1399,10 @@ function handleWithdrawalRequest($url, $key) {
         $withdrawalApiUrl = getenv('ONCHAIN_API_URL') ?: 'https://solanatamagotchi-onchain.onrender.com';
         $withdrawalEndpoint = $withdrawalApiUrl . '/api/tama-withdrawal';
         
+        // ВАЖНО: Отправляем полную сумму, Node.js API сам вычтет комиссию 5%
         $postData = json_encode([
             'wallet_address' => $wallet_address,
-            'amount' => $amountSent,
+            'amount' => $amount, // Полная сумма, не amountSent!
             'telegram_id' => $telegram_id
         ]);
         
@@ -1441,9 +1442,11 @@ function handleWithdrawalRequest($url, $key) {
             return;
         }
         
-        // Get transaction signature from Node.js API response
+        // Get transaction signature and amounts from Node.js API response
         $txSignature = $withdrawalResult['signature'];
         $explorerUrl = $withdrawalResult['explorer'];
+        $amountSentFromAPI = $withdrawalResult['amount_sent'] ?? $amountSent; // Используем из API, fallback на локальный расчет
+        $feeFromAPI = $withdrawalResult['fee'] ?? $fee; // Используем из API, fallback на локальный расчет
         
         // Обновить баланс в Supabase
         $currentTotalWithdrawn = (int)($getResult['data'][0]['total_withdrawn'] ?? 0);
@@ -1451,7 +1454,7 @@ function handleWithdrawalRequest($url, $key) {
             'telegram_id' => 'eq.' . $telegram_id
         ], [
             'tama' => $newBalance,
-            'total_withdrawn' => $currentTotalWithdrawn + $amountSent // Используем amount_sent (после fee)
+            'total_withdrawn' => $currentTotalWithdrawn + $amountSentFromAPI // Используем amount_sent из API (после fee)
         ]);
         
         // Сохранить withdrawal в таблицу (если есть tama_economy или withdrawals)
@@ -1459,9 +1462,9 @@ function handleWithdrawalRequest($url, $key) {
             supabaseRequest($url, $key, 'POST', 'tama_economy', [], [
                 'telegram_id' => $telegram_id,
                 'transaction_type' => 'withdrawal',
-                'amount' => -$amount, // Negative for withdrawal
-                'amount_sent' => $amountSent, // Net amount after fee
-                'fee' => $fee,
+                'amount' => -$amount, // Negative for withdrawal (полная сумма)
+                'amount_sent' => $amountSentFromAPI, // Net amount after fee (из API)
+                'fee' => $feeFromAPI, // Fee из API
                 'signature' => $txSignature,
                 'wallet_address' => $wallet_address,
                 'source' => 'p2e_pool', // Указываем что токены из P2E Pool

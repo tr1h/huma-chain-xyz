@@ -17,7 +17,7 @@ const bs58 = require('bs58');
 
 // Configuration
 const RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
-const TAMA_MINT = process.env.TAMA_MINT_ADDRESS || 'CbWmbAKNEaVx2dKfBfz9VqyC7YWBd2iWvqWaZMsaC6jr';
+const TAMA_MINT = process.env.TAMA_MINT_ADDRESS || 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY';
 
 async function initializeP2EPool() {
     try {
