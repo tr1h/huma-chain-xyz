@@ -973,35 +973,66 @@
                 console.log('📦 API Response:', payload);
                 
                 if (payload && payload.data && Array.isArray(payload.data)) {
+                    // Debug: Log first few transactions to see structure
+                    if (payload.data.length > 0) {
+                        console.log('🔍 Sample transactions (first 5):', payload.data.slice(0, 5).map(t => ({
+                            id: t.id,
+                            user_id: t.user_id,
+                            type: t.type,
+                            amount: t.amount
+                        })));
+                        console.log('🔍 Expected addresses:', {
+                            TREASURY_MAIN,
+                            P2E_POOL,
+                            BURN_ADDRESS
+                        });
+                    }
+                    
                     // Filter only project transactions (expanded to include all types)
                     allTransactions = payload.data.filter(t => {
-                        // Include by user_id
-                        if (t.user_id === TREASURY_MAIN || 
-                            t.user_id === P2E_POOL || 
-                            t.user_id === BURN_ADDRESS ||
-                            t.user_id === 'SYSTEM_BURN') {
+                        // Convert user_id to string for comparison (in case it's a number)
+                        const userId = String(t.user_id || '');
+                        
+                        // Include by user_id (exact match)
+                        if (userId === TREASURY_MAIN || 
+                            userId === P2E_POOL || 
+                            userId === BURN_ADDRESS ||
+                            userId === 'SYSTEM_BURN') {
                             return true;
                         }
                         
-                        // Include by type (expanded list)
-                        if (t.type && (
-                            t.type.includes('treasury') || 
-                            t.type.includes('p2e_pool') || 
-                            t.type.includes('burn') ||
-                            t.type.includes('tama_burn') ||
-                            t.type.includes('treasury_income') ||
-                            t.type.includes('p2e') ||
-                            t.type.includes('sol_income') ||
-                            t.type.includes('liquidity') ||
-                            t.type.includes('team')
+                        // Include by type (expanded list) - case insensitive
+                        const typeStr = String(t.type || '').toLowerCase();
+                        if (typeStr && (
+                            typeStr.includes('treasury') || 
+                            typeStr.includes('p2e_pool') || 
+                            typeStr.includes('p2e') ||
+                            typeStr.includes('burn') ||
+                            typeStr.includes('tama_burn') ||
+                            typeStr.includes('treasury_income') ||
+                            typeStr.includes('sol_income') ||
+                            typeStr.includes('liquidity') ||
+                            typeStr.includes('team') ||
+                            typeStr.includes('nft_mint') // NFT mints also relevant
                         )) {
                             return true;
+                        }
+                        
+                        // Check metadata for project-related info
+                        if (t.metadata) {
+                            const metadataStr = JSON.stringify(t.metadata).toLowerCase();
+                            if (metadataStr.includes('treasury') || 
+                                metadataStr.includes('p2e') ||
+                                metadataStr.includes('burn') ||
+                                metadataStr.includes('pool')) {
+                                return true;
+                            }
                         }
                         
                         return false;
                     });
                     
-                    console.log(`✅ Loaded ${allTransactions.length} project transactions from API`);
+                    console.log(`✅ Loaded ${allTransactions.length} project transactions from API (filtered from ${payload.data.length} total)`);
                     renderTransactions(allTransactions);
                     updateLastUpdateTime();
                 } else {
@@ -1025,27 +1056,45 @@
                         const supabaseData = await supabaseResponse.json();
                         console.log(`📦 Supabase returned ${supabaseData.length} transactions`);
                         
-                        // Filter project transactions
+                        // Filter project transactions (same logic as API)
                         allTransactions = (Array.isArray(supabaseData) ? supabaseData : []).filter(t => {
-                            if (t.user_id === TREASURY_MAIN || 
-                                t.user_id === P2E_POOL || 
-                                t.user_id === BURN_ADDRESS ||
-                                t.user_id === 'SYSTEM_BURN') {
+                            // Convert user_id to string for comparison
+                            const userId = String(t.user_id || '');
+                            
+                            // Include by user_id (exact match)
+                            if (userId === TREASURY_MAIN || 
+                                userId === P2E_POOL || 
+                                userId === BURN_ADDRESS ||
+                                userId === 'SYSTEM_BURN') {
                                 return true;
                             }
                             
-                            if (t.type && (
-                                t.type.includes('treasury') || 
-                                t.type.includes('p2e_pool') || 
-                                t.type.includes('burn') ||
-                                t.type.includes('tama_burn') ||
-                                t.type.includes('treasury_income') ||
-                                t.type.includes('p2e') ||
-                                t.type.includes('sol_income') ||
-                                t.type.includes('liquidity') ||
-                                t.type.includes('team')
+                            // Include by type (case insensitive)
+                            const typeStr = String(t.type || '').toLowerCase();
+                            if (typeStr && (
+                                typeStr.includes('treasury') || 
+                                typeStr.includes('p2e_pool') || 
+                                typeStr.includes('p2e') ||
+                                typeStr.includes('burn') ||
+                                typeStr.includes('tama_burn') ||
+                                typeStr.includes('treasury_income') ||
+                                typeStr.includes('sol_income') ||
+                                typeStr.includes('liquidity') ||
+                                typeStr.includes('team') ||
+                                typeStr.includes('nft_mint')
                             )) {
                                 return true;
+                            }
+                            
+                            // Check metadata
+                            if (t.metadata) {
+                                const metadataStr = JSON.stringify(t.metadata).toLowerCase();
+                                if (metadataStr.includes('treasury') || 
+                                    metadataStr.includes('p2e') ||
+                                    metadataStr.includes('burn') ||
+                                    metadataStr.includes('pool')) {
+                                    return true;
+                                }
                             }
                             
                             return false;
