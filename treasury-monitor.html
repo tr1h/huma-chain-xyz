@@ -952,17 +952,29 @@
         }
 
         async function loadProjectTransactions() {
+            const tbody = document.getElementById('transactions-body');
+            
             try {
-                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=1000&order=created_at.desc`);
+                // Try API first
+                console.log(`📡 Fetching transactions from: ${TAMA_API_BASE}/transactions/list`);
+                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=1000&order=created_at.desc`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
                 
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status}`);
+                    console.warn(`⚠️ API returned ${response.status}, trying Supabase directly...`);
+                    throw new Error(`API error: ${response.status}`);
                 }
 
                 const payload = await response.json();
-                if (payload && payload.data) {
+                console.log('📦 API Response:', payload);
+                
+                if (payload && payload.data && Array.isArray(payload.data)) {
                     // Filter only project transactions (expanded to include all types)
-                    allTransactions = (Array.isArray(payload.data) ? payload.data : []).filter(t => {
+                    allTransactions = payload.data.filter(t => {
                         // Include by user_id
                         if (t.user_id === TREASURY_MAIN || 
                             t.user_id === P2E_POOL || 
@@ -989,19 +1001,74 @@
                         return false;
                     });
                     
-                    console.log(`✅ Loaded ${allTransactions.length} project transactions`);
+                    console.log(`✅ Loaded ${allTransactions.length} project transactions from API`);
                     renderTransactions(allTransactions);
                     updateLastUpdateTime();
                 } else {
-                    allTransactions = [];
+                    console.warn('⚠️ API returned invalid format, trying Supabase...');
+                    throw new Error('Invalid API response format');
                 }
             } catch (error) {
-                console.error('❌ Error loading transactions:', error);
-                document.getElementById('transactions-body').innerHTML = `
-                    <tr>
-                        <td colspan="6" class="loading">❌ Error: ${error.message}</td>
-                    </tr>
-                `;
+                console.error('❌ API Error:', error);
+                
+                // Fallback: Try Supabase directly
+                try {
+                    console.log('🔄 Trying Supabase directly...');
+                    const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&order=created_at.desc&limit=1000`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    
+                    if (supabaseResponse.ok) {
+                        const supabaseData = await supabaseResponse.json();
+                        console.log(`📦 Supabase returned ${supabaseData.length} transactions`);
+                        
+                        // Filter project transactions
+                        allTransactions = (Array.isArray(supabaseData) ? supabaseData : []).filter(t => {
+                            if (t.user_id === TREASURY_MAIN || 
+                                t.user_id === P2E_POOL || 
+                                t.user_id === BURN_ADDRESS ||
+                                t.user_id === 'SYSTEM_BURN') {
+                                return true;
+                            }
+                            
+                            if (t.type && (
+                                t.type.includes('treasury') || 
+                                t.type.includes('p2e_pool') || 
+                                t.type.includes('burn') ||
+                                t.type.includes('tama_burn') ||
+                                t.type.includes('treasury_income') ||
+                                t.type.includes('p2e') ||
+                                t.type.includes('sol_income') ||
+                                t.type.includes('liquidity') ||
+                                t.type.includes('team')
+                            )) {
+                                return true;
+                            }
+                            
+                            return false;
+                        });
+                        
+                        console.log(`✅ Loaded ${allTransactions.length} project transactions from Supabase`);
+                        renderTransactions(allTransactions);
+                        updateLastUpdateTime();
+                    } else {
+                        throw new Error(`Supabase error: ${supabaseResponse.status}`);
+                    }
+                } catch (supabaseError) {
+                    console.error('❌ Supabase Error:', supabaseError);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="loading">
+                                ❌ Error loading transactions: ${error.message}<br>
+                                <small>API: ${TAMA_API_BASE}/transactions/list</small><br>
+                                <small>Supabase fallback also failed</small>
+                            </td>
+                        </tr>
+                    `;
+                }
             }
         }
 
