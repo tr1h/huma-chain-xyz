@@ -2225,6 +2225,21 @@ def broadcast_message(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
+@bot.message_handler(commands=['testpost'])
+def test_post(message):
+    """Test auto-posting system - Admin only"""
+    if message.from_user.id not in ADMIN_IDS:
+        bot.reply_to(message, "❌ Admin only")
+        return
+    
+    try:
+        from auto_posting import AutoPoster
+        poster = AutoPoster(bot, CHANNEL_USERNAME)
+        poster.post_monday_gm()
+        bot.reply_to(message, "✅ Test post sent to channel!")
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error sending test post: {str(e)}")
+
 @bot.message_handler(commands=['tournament'])
 def start_tournament(message):
     """Start weekly tournament - Admin only"""
