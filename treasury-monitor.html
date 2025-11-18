@@ -6,6 +6,8 @@
     <title>💰 Treasury Monitor - Project Wallets</title>
     <!-- Admin Password -->
     <meta name="admin-password-hash" content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3">
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1341,70 +1343,141 @@
             
             title.textContent = titles[walletType] || '💰 Wallet Transactions';
             
-            // Filter transactions by wallet type
+            // Filter transactions by wallet type (improved with metadata check)
             let walletTransactions = [];
             
-            if (walletType === 'treasury') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === TREASURY_MAIN || 
-                    (t.type && t.type.includes('treasury_income'))
-                );
-            } else if (walletType === 'p2e') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === P2E_POOL || 
-                    (t.type && t.type.includes('p2e_pool'))
-                );
-            } else if (walletType === 'burn') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === BURN_ADDRESS || 
-                    t.user_id === 'SYSTEM_BURN' ||
-                    (t.type && t.type.includes('burn'))
-                );
-            } else if (walletType === 'liquidity') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === LIQUIDITY_POOL || 
-                    (t.type && t.type.includes('liquidity'))
-                );
-            } else if (walletType === 'team') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === TEAM_WALLET || 
-                    (t.type && t.type.includes('team') && !t.type.includes('treasury_team'))
-                );
-            } else if (walletType === 'marketing') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === MARKETING_WALLET || 
-                    (t.type && t.type.includes('marketing'))
-                );
-            } else if (walletType === 'community') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === COMMUNITY_WALLET || 
-                    (t.type && t.type.includes('community'))
-                );
-            } else if (walletType === 'reserve') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === RESERVE_WALLET || 
-                    (t.type && t.type.includes('reserve'))
-                );
-            } else if (walletType === 'treasury-liquidity') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === TREASURY_LIQUIDITY || 
-                    (t.type && t.type.includes('liquidity'))
-                );
-            } else if (walletType === 'treasury-team') {
-                walletTransactions = allTransactions.filter(t => 
-                    t.user_id === TREASURY_TEAM || 
-                    (t.type && t.type.includes('team'))
-                );
+            // Helper function to check metadata for wallet-related info
+            function checkMetadataForWallet(metadata, walletType) {
+                if (!metadata) return false;
+                try {
+                    const meta = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
+                    const metaStr = JSON.stringify(meta).toLowerCase();
+                    
+                    if (walletType === 'treasury') {
+                        return meta.distribution?.treasury || metaStr.includes('treasury');
+                    } else if (walletType === 'p2e') {
+                        return meta.distribution?.pool || metaStr.includes('p2e') || metaStr.includes('pool');
+                    } else if (walletType === 'burn') {
+                        return meta.distribution?.burn || metaStr.includes('burn');
+                    }
+                } catch (e) {
+                    return false;
+                }
+                return false;
             }
             
-            // Render transactions in modal
+            if (walletType === 'treasury') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === TREASURY_MAIN || 
+                           (t.type && t.type.includes('treasury_income')) ||
+                           checkMetadataForWallet(t.metadata, 'treasury');
+                });
+            } else if (walletType === 'p2e') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === P2E_POOL || 
+                           (t.type && t.type.includes('p2e_pool')) ||
+                           (t.type && t.type.includes('p2e')) ||
+                           checkMetadataForWallet(t.metadata, 'p2e');
+                });
+            } else if (walletType === 'burn') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === BURN_ADDRESS || 
+                           userId === 'SYSTEM_BURN' ||
+                           (t.type && t.type.includes('burn')) ||
+                           (t.type && t.type.includes('tama_burn')) ||
+                           checkMetadataForWallet(t.metadata, 'burn');
+                });
+            } else if (walletType === 'liquidity') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === LIQUIDITY_POOL || 
+                           (t.type && t.type.includes('liquidity'));
+                });
+            } else if (walletType === 'team') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === TEAM_WALLET || 
+                           (t.type && t.type.includes('team') && !t.type.includes('treasury_team'));
+                });
+            } else if (walletType === 'marketing') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === MARKETING_WALLET || 
+                           (t.type && t.type.includes('marketing'));
+                });
+            } else if (walletType === 'community') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === COMMUNITY_WALLET || 
+                           (t.type && t.type.includes('community'));
+                });
+            } else if (walletType === 'reserve') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === RESERVE_WALLET || 
+                           (t.type && t.type.includes('reserve'));
+                });
+            } else if (walletType === 'treasury-liquidity') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === TREASURY_LIQUIDITY || 
+                           (t.type && t.type.includes('liquidity'));
+                });
+            } else if (walletType === 'treasury-team') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '');
+                    return userId === TREASURY_TEAM || 
+                           (t.type && t.type.includes('team'));
+                });
+            }
+            
+            // Calculate statistics
+            const stats = calculateWalletStats(walletTransactions);
+            
+            // Render transactions in modal with stats and charts
             if (walletTransactions.length === 0) {
                 body.innerHTML = '<div class="loading">No transactions found for this wallet</div>';
             } else {
                 body.innerHTML = `
+                    <!-- Statistics Section -->
+                    <div style="margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="padding: 15px; background: rgba(102, 126, 234, 0.2); border-radius: 10px; border: 1px solid rgba(102, 126, 234, 0.3);">
+                            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total Transactions</div>
+                            <div style="font-size: 24px; font-weight: bold;">${stats.totalTransactions}</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(34, 197, 94, 0.2); border-radius: 10px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total Inflow</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #22c55e;">+${stats.totalInflow.toLocaleString()} ${stats.currency}</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(239, 68, 68, 0.2); border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total Outflow</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #ef4444;">-${stats.totalOutflow.toLocaleString()} ${stats.currency}</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(251, 191, 36, 0.2); border-radius: 10px; border: 1px solid rgba(251, 191, 36, 0.3);">
+                            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Net Balance</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #fbbf24;">${stats.netBalance >= 0 ? '+' : ''}${stats.netBalance.toLocaleString()} ${stats.currency}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts Section -->
+                    <div style="margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <h3 style="margin-bottom: 10px; font-size: 16px;">📊 Transactions by Type</h3>
+                            <canvas id="typeChart" style="max-height: 250px;"></canvas>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <h3 style="margin-bottom: 10px; font-size: 16px;">📈 Daily Activity (Last 30 Days)</h3>
+                            <canvas id="dailyChart" style="max-height: 250px;"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Transactions Table -->
                     <div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
                         <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">
-                            Total Transactions: ${walletTransactions.length}
+                            📋 Transaction History (${walletTransactions.length})
                         </div>
                     </div>
                     <div class="transactions-table">
@@ -1476,13 +1549,217 @@
                         </table>
                     </div>
                 `;
+                
+                // Render charts after HTML is inserted
+                setTimeout(() => {
+                    renderTypeChart(stats.typeDistribution);
+                    renderDailyChart(stats.dailyData);
+                }, 100);
             }
             
             modal.classList.add('show');
         }
+        
+        // Calculate wallet statistics
+        function calculateWalletStats(transactions) {
+            const stats = {
+                totalTransactions: transactions.length,
+                totalInflow: 0,
+                totalOutflow: 0,
+                netBalance: 0,
+                currency: 'TAMA',
+                typeDistribution: {},
+                dailyData: {}
+            };
+            
+            // Get last 30 days
+            const today = new Date();
+            const last30Days = [];
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                last30Days.push(dateStr);
+                stats.dailyData[dateStr] = { count: 0, amount: 0 };
+            }
+            
+            transactions.forEach(t => {
+                const amount = parseFloat(t.amount || 0);
+                
+                // Determine currency
+                if (t.type && t.type.includes('_sol')) {
+                    stats.currency = 'SOL';
+                }
+                
+                // Calculate inflow/outflow
+                if (amount > 0) {
+                    stats.totalInflow += amount;
+                } else {
+                    stats.totalOutflow += Math.abs(amount);
+                }
+                
+                // Type distribution
+                const type = t.type || 'unknown';
+                if (!stats.typeDistribution[type]) {
+                    stats.typeDistribution[type] = { count: 0, amount: 0 };
+                }
+                stats.typeDistribution[type].count++;
+                stats.typeDistribution[type].amount += Math.abs(amount);
+                
+                // Daily data
+                if (t.created_at) {
+                    const date = new Date(t.created_at).toISOString().split('T')[0];
+                    if (stats.dailyData[date]) {
+                        stats.dailyData[date].count++;
+                        stats.dailyData[date].amount += Math.abs(amount);
+                    }
+                }
+            });
+            
+            stats.netBalance = stats.totalInflow - stats.totalOutflow;
+            
+            return stats;
+        }
+        
+        // Render type distribution chart
+        function renderTypeChart(typeDistribution) {
+            const ctx = document.getElementById('typeChart');
+            if (!ctx) return;
+            
+            const labels = Object.keys(typeDistribution).slice(0, 10); // Top 10 types
+            const data = labels.map(type => typeDistribution[type].count);
+            
+            // Destroy old chart if exists
+            if (window.typeChartInstance) {
+                window.typeChartInstance.destroy();
+            }
+            
+            window.typeChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(251, 191, 36, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(14, 165, 233, 0.8)',
+                            'rgba(20, 184, 166, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(249, 115, 22, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#fff',
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Render daily activity chart
+        function renderDailyChart(dailyData) {
+            const ctx = document.getElementById('dailyChart');
+            if (!ctx) return;
+            
+            const labels = Object.keys(dailyData);
+            const counts = labels.map(date => dailyData[date].count);
+            const amounts = labels.map(date => dailyData[date].amount);
+            
+            // Destroy old chart if exists
+            if (window.dailyChartInstance) {
+                window.dailyChartInstance.destroy();
+            }
+            
+            window.dailyChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.map(d => {
+                        const date = new Date(d);
+                        return (date.getMonth() + 1) + '/' + date.getDate();
+                    }),
+                    datasets: [{
+                        label: 'Transactions',
+                        data: counts,
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Amount',
+                        data: amounts,
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: '#fff' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
 
         function closeWalletModal() {
-            document.getElementById('wallet-modal').classList.remove('show');
+            const modal = document.getElementById('wallet-modal');
+            modal.classList.remove('show');
+            
+            // Destroy charts to prevent memory leaks
+            const typeChartCanvas = document.getElementById('typeChart');
+            const dailyChartCanvas = document.getElementById('dailyChart');
+            if (typeChartCanvas && window.typeChartInstance) {
+                window.typeChartInstance.destroy();
+                window.typeChartInstance = null;
+            }
+            if (dailyChartCanvas && window.dailyChartInstance) {
+                window.dailyChartInstance.destroy();
+                window.dailyChartInstance = null;
+            }
         }
 
         // Close modal on background click
