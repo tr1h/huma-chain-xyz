@@ -9828,6 +9828,9 @@
 
                 console.log('✅ Wallet connected:', walletAddress);
 
+                // 🔗 NEW: Auto-link wallet to Telegram account
+                await linkWalletToTelegramAccount(walletAddress);
+
                 document.getElementById('wallet-connect-section').style.display = 'none';
                 document.getElementById('nft-collection').style.display = 'block';
                 document.getElementById('wallet-address-display').textContent = walletAddress.slice(0, 8) + '...' + walletAddress.slice(-4);
@@ -9837,6 +9840,141 @@
             } catch (err) {
                 console.error('❌ Wallet connection error:', err);
                 alert('Failed to connect wallet: ' + err.message);
+            }
+        }
+
+        // 🔗 Auto-link wallet to Telegram account and merge orphaned NFTs
+        async function linkWalletToTelegramAccount(walletAddress) {
+            const telegramId = window.TELEGRAM_USER_ID;
+            if (!telegramId) {
+                console.log('⚠️ No Telegram ID found, skipping wallet linking');
+                return;
+            }
+
+            try {
+                console.log('🔗 Linking wallet to Telegram account...', { walletAddress, telegramId });
+
+                // Step 1: Save wallet_address to leaderboard
+                const leaderboardResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        wallet_address: walletAddress
+                    })
+                });
+
+                if (leaderboardResponse.ok) {
+                    console.log('✅ Wallet address saved to leaderboard');
+                } else {
+                    console.warn('⚠️ Failed to save wallet_address to leaderboard:', await leaderboardResponse.text());
+                }
+
+                // Step 2: Find NFTs with this wallet_address but no telegram_id (orphaned NFTs)
+                // Method 1: Check user_nfts table directly (if wallet_address column exists)
+                let orphanedNftIds = [];
+                
+                try {
+                    const nftsResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?wallet_address=eq.${walletAddress}&telegram_id=is.null&select=id`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+
+                    if (nftsResponse.ok) {
+                        const nfts = await nftsResponse.json();
+                        orphanedNftIds = nfts.map(nft => nft.id);
+                        console.log(`✅ Found ${orphanedNftIds.length} orphaned NFT(s) in user_nfts table`);
+                    }
+                } catch (e) {
+                    console.log('⚠️ wallet_address column might not exist in user_nfts, trying transactions method...');
+                }
+
+                // Method 2: Also search transactions table for SOL mints with this wallet (backup method)
+                const transactionsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?type=eq.nft_mint_sol&select=metadata`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (transactionsResponse.ok) {
+                    const transactions = await transactionsResponse.json();
+                    const transactionNftIds = [];
+
+                    // Find NFT IDs from transactions with matching wallet_address
+                    transactions.forEach(tx => {
+                        let metadata = null;
+                        if (tx.metadata && typeof tx.metadata === 'object') {
+                            metadata = tx.metadata;
+                        } else if (typeof tx.metadata === 'string') {
+                            try {
+                                metadata = JSON.parse(tx.metadata);
+                            } catch (e) {
+                                return;
+                            }
+                        }
+
+                        if (metadata && metadata.wallet_address === walletAddress && metadata.nft_id) {
+                            transactionNftIds.push(metadata.nft_id);
+                        }
+                    });
+
+                    // Merge with existing IDs (avoid duplicates)
+                    transactionNftIds.forEach(id => {
+                        if (!orphanedNftIds.includes(id)) {
+                            orphanedNftIds.push(id);
+                        }
+                    });
+
+                    if (transactionNftIds.length > 0) {
+                        console.log(`✅ Found ${transactionNftIds.length} additional orphaned NFT(s) from transactions`);
+                    }
+                }
+
+                if (orphanedNftIds.length === 0) {
+                    console.log('✅ No orphaned NFTs found for this wallet');
+                    return;
+                }
+
+                console.log(`🔍 Found ${orphanedNftIds.length} orphaned NFT(s) to link:`, orphanedNftIds);
+
+                // Step 3: Update orphaned NFTs with telegram_id
+                for (const nftId of orphanedNftIds) {
+                    const updateResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?id=eq.${nftId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=representation'
+                        },
+                        body: JSON.stringify({
+                            telegram_id: telegramId
+                        })
+                    });
+
+                    if (updateResponse.ok) {
+                        console.log(`✅ Linked NFT #${nftId} to Telegram account`);
+                    } else {
+                        console.warn(`⚠️ Failed to link NFT #${nftId}:`, await updateResponse.text());
+                    }
+                }
+
+                // Step 4: Show success notification
+                if (orphanedNftIds.length > 0) {
+                    showMessage(`🎉 Linked ${orphanedNftIds.length} NFT(s) to your Telegram account!`);
+                    console.log(`✅ Successfully linked ${orphanedNftIds.length} orphaned NFT(s)`);
+                }
+
+            } catch (err) {
+                console.error('❌ Error linking wallet to Telegram account:', err);
+                // Don't show error to user - non-critical feature
             }
         }
 
