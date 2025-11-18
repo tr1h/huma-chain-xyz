@@ -1382,131 +1382,12 @@ function handleWithdrawalRequest($url, $key) {
         $tamaMint = getenv('TAMA_MINT_ADDRESS');
         $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
         
-        // Try multiple paths for payer keypair (with fallbacks)
-        $payerKeypair = null;
-        $possiblePayerPaths = [
-            getenv('SOLANA_PAYER_KEYPAIR_PATH'),  // From environment variable
-            '/tmp/payer-keypair.json',             // Writable path (Render/Docker)
-            __DIR__ . '/../payer-keypair.json',    // Relative to api/ directory
-            __DIR__ . '/payer-keypair.json',       // In api/ directory
-            dirname(__DIR__) . '/payer-keypair.json', // Parent directory
-        ];
-        
-        foreach ($possiblePayerPaths as $path) {
-            if ($path && file_exists($path)) {
-                $payerKeypair = $path;
-                break;
-            }
-        }
-        
-        // Try multiple paths for P2E Pool keypair (with fallbacks)
-        $p2ePoolKeypair = null;
-        $possibleP2EPaths = [
-            getenv('SOLANA_P2E_POOL_KEYPAIR_PATH'),  // From environment variable
-            '/tmp/p2e-pool-keypair.json',             // Writable path (Render/Docker)
-            __DIR__ . '/../p2e-pool-keypair.json',    // Relative to api/ directory
-            __DIR__ . '/p2e-pool-keypair.json',      // In api/ directory
-            dirname(__DIR__) . '/p2e-pool-keypair.json', // Parent directory
-        ];
-        
-        foreach ($possibleP2EPaths as $path) {
-            if ($path && file_exists($path)) {
-                $p2ePoolKeypair = $path;
-                break;
-            }
-        }
-        
-        // P2E Pool Address: HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw
-        $p2ePoolAddress = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
-        
-        if (!$tamaMint) {
-            http_response_code(500);
-            echo json_encode(['error' => 'TAMA_MINT_ADDRESS not configured']);
-            return;
-        }
-        
-        if (!$payerKeypair) {
-            http_response_code(500);
-            $triedPaths = array_filter($possiblePayerPaths);
-            error_log('❌ Payer keypair not found. Tried paths: ' . implode(', ', $triedPaths));
-            echo json_encode([
-                'error' => 'Payer keypair not found',
-                'details' => 'Tried paths: ' . implode(', ', array_filter($possiblePayerPaths)),
-                'hint' => 'Please set SOLANA_PAYER_KEYPAIR_PATH environment variable or place payer-keypair.json in project root'
-            ]);
-            return;
-        }
-        
-        if (!$p2ePoolKeypair) {
-            http_response_code(500);
-            $triedPaths = array_filter($possibleP2EPaths);
-            error_log('❌ P2E Pool keypair not found. Tried paths: ' . implode(', ', $triedPaths));
-            echo json_encode([
-                'error' => 'P2E Pool keypair not found',
-                'details' => 'Tried paths: ' . implode(', ', array_filter($possibleP2EPaths)),
-                'hint' => 'Please set SOLANA_P2E_POOL_KEYPAIR_PATH environment variable or place p2e-pool-keypair.json in project root'
-            ]);
-            return;
-        }
-        
-        error_log("✅ Using keypairs for withdrawal:");
-        error_log("  Payer: {$payerKeypair}");
-        error_log("  P2E Pool: {$p2ePoolKeypair}");
-        
+        // Withdrawal is now handled by Node.js API (no keypair paths needed in PHP)
         // ВАЖНО: Теперь используем P2E Pool как источник токенов
         // Токены переводятся из P2E Pool, а не минтится новые
         // Это правильная реализация согласно токеномике
         
-        // Выполнить spl-token transfer из P2E Pool
-        // Используем p2e-pool-keypair как owner (у него должны быть токены)
-        // Используем payer keypair как fee-payer (для оплаты комиссии)
-        $cmd = [
-            'spl-token',
-            'transfer',
-            $tamaMint,
-            (string)$amountSent,  // Amount after fee - spl-token сам конвертирует с учетом decimals (9)
-            $wallet_address,
-            '--fund-recipient',  // Create ATA if needed
-            '--allow-unfunded-recipient',  // Allow sending to unfunded addresses
-            '--fee-payer', $payerKeypair,  // Кто платит за транзакцию (SOL)
-            '--owner', $p2ePoolKeypair,  // Owner - P2E Pool (отсюда берутся токены)
-            '--url', $rpcUrl,
-            '--output', 'json'
-        ];
-        
-        // Проверить, установлен ли spl-token
-        $solanaCheck = shell_exec('solana --version 2>&1');
-        if (strpos($solanaCheck, 'solana-cli') === false) {
-            http_response_code(500);
-            echo json_encode([
-                'error' => 'Solana CLI not found',
-                'details' => 'Please install Solana CLI tools: https://docs.solana.com/cli/install-solana-cli-tools',
-                'check_output' => $splTokenCheck
-            ]);
-            return;
-        }
-        
-        $descriptorspec = [
-            0 => ['pipe', 'r'],  // stdin
-            1 => ['pipe', 'w'],  // stdout
-            2 => ['pipe', 'w']   // stderr
-        ];
-        
-        // 🔒 SECURITY: Properly escape ALL command arguments
-        // ALWAYS use escapeshellarg() for user-provided data to prevent command injection
-        $cmdString = '';
-        foreach ($cmd as $arg) {
-            // Escape all arguments EXCEPT base command 'spl-token' and subcommands
-            if ($arg === 'spl-token' || $arg === 'transfer') {
-                $cmdString .= $arg . ' ';
-            } else {
-                // Escape EVERYTHING else (addresses, paths, URLs, amounts)
-                $cmdString .= escapeshellarg($arg) . ' ';
-            }
-        }
-        $cmdString = trim($cmdString);
-        
-        // Log command execution for audit (without sensitive keypair paths)
+        // Log withdrawal execution for audit
         error_log('🔐 Executing withdrawal: ' . json_encode([
             'telegram_id' => $telegram_id,
             'wallet' => substr($wallet_address, 0, 8) . '...' . substr($wallet_address, -8),
@@ -1514,114 +1395,55 @@ function handleWithdrawalRequest($url, $key) {
             'fee' => $fee
         ]));
         
-        // Увеличиваем время выполнения для spl-token (может быть долго)
-        set_time_limit(120); // 2 минуты максимум
+        // Call Node.js API for withdrawal (replaces Solana CLI)
+        $withdrawalApiUrl = getenv('ONCHAIN_API_URL') ?: 'https://solanatamagotchi-onchain.onrender.com';
+        $withdrawalEndpoint = $withdrawalApiUrl . '/api/tama-withdrawal';
         
-        $process = proc_open($cmdString, $descriptorspec, $pipes);
+        $postData = json_encode([
+            'wallet_address' => $wallet_address,
+            'amount' => $amountSent,
+            'telegram_id' => $telegram_id
+        ]);
         
-        if (!is_resource($process)) {
+        $ch = curl_init($withdrawalEndpoint);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($postData)
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 90); // 90 seconds timeout
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        if ($curlError) {
             http_response_code(500);
             echo json_encode([
-                'error' => 'Failed to start spl-token process',
-                'command' => $cmdString
+                'error' => 'Failed to connect to withdrawal API',
+                'details' => $curlError
             ]);
             return;
         }
         
-        fclose($pipes[0]);
+        $withdrawalResult = json_decode($response, true);
         
-        // Читаем вывод с таймаутом (spl-token может выполняться долго)
-        $stdout = '';
-        $stderr = '';
-        $startTime = time();
-        $timeout = 90; // 90 секунд максимум
-        
-        while (true) {
-            $status = proc_get_status($process);
-            
-            // Проверяем, завершился ли процесс
-            if (!$status['running']) {
-                break;
-            }
-            
-            // Проверяем таймаут
-            if (time() - $startTime > $timeout) {
-                proc_terminate($process);
-                http_response_code(500);
-                echo json_encode([
-                    'error' => 'Solana transaction timeout',
-                    'details' => 'spl-token command took too long (>90 seconds)',
-                    'command' => $cmdString
-                ]);
-                return;
-            }
-            
-            // Читаем доступные данные
-            $read = [$pipes[1], $pipes[2]];
-            $write = null;
-            $except = null;
-            
-            if (stream_select($read, $write, $except, 1) > 0) {
-                foreach ($read as $pipe) {
-                    // Читаем только доступные данные (неблокирующий режим)
-                    stream_set_blocking($pipe, false);
-                    $data = fread($pipe, 8192); // Читаем до 8KB за раз
-                    if ($data !== false && $data !== '') {
-                        if ($pipe === $pipes[1]) {
-                            $stdout .= $data;
-                        } elseif ($pipe === $pipes[2]) {
-                            $stderr .= $data;
-                        }
-                    }
-                    stream_set_blocking($pipe, true);
-                }
-            }
-            
-            usleep(100000); // 0.1 секунды
-        }
-        
-        // Читаем оставшиеся данные
-        $stdout .= stream_get_contents($pipes[1]);
-        $stderr .= stream_get_contents($pipes[2]);
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-        
-        $returnCode = proc_close($process);
-        
-        // Логируем для отладки
-        error_log("spl-token command: " . $cmdString);
-        error_log("spl-token stdout: " . $stdout);
-        error_log("spl-token stderr: " . $stderr);
-        error_log("spl-token return code: " . $returnCode);
-        
-        if ($returnCode !== 0) {
+        if ($httpCode !== 200 || !$withdrawalResult || !$withdrawalResult['success']) {
             http_response_code(500);
             echo json_encode([
-                'error' => 'Solana transaction failed',
-                'details' => trim($stderr) ?: 'Unknown error',
-                'stdout' => trim($stdout),
-                'command' => $cmdString,
-                'return_code' => $returnCode
+                'error' => 'Withdrawal failed',
+                'details' => $withdrawalResult['error'] ?? 'Unknown error',
+                'api_response' => $withdrawalResult
             ]);
             return;
         }
         
-        // Парсим JSON ответ от spl-token
-        $txData = json_decode($stdout, true);
-        
-        if (!$txData || !isset($txData['signature'])) {
-            http_response_code(500);
-            echo json_encode([
-                'error' => 'Failed to parse transaction signature',
-                'output' => $stdout,
-                'stderr' => $stderr
-            ]);
-            return;
-        }
-        
-        $txSignature = $txData['signature'];
-        $cluster = strpos($rpcUrl, 'devnet') !== false ? 'devnet' : 'mainnet-beta';
-        $explorerUrl = 'https://explorer.solana.com/tx/' . $txSignature . '?cluster=' . $cluster;
+        // Get transaction signature from Node.js API response
+        $txSignature = $withdrawalResult['signature'];
+        $explorerUrl = $withdrawalResult['explorer'];
         
         // Обновить баланс в Supabase
         $currentTotalWithdrawn = (int)($getResult['data'][0]['total_withdrawn'] ?? 0);

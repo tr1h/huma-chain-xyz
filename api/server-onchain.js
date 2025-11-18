@@ -7,6 +7,7 @@ const express = require('express');
 const cors = require('cors');
 const { mintOnChainNFT } = require('./mint-nft-onchain');
 const { executeTAMATransfer } = require('./tama-transfer');
+const { executeWithdrawal } = require('./tama-withdrawal');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -51,6 +52,9 @@ app.post('/api/mint-nft-onchain', mintOnChainNFT);
 
 // TAMA token distribution endpoint
 app.post('/api/tama-transfer', executeTAMATransfer);
+
+// TAMA withdrawal endpoint
+app.post('/api/tama-withdrawal', executeWithdrawal);
 
 // Error handler
 app.use((err, req, res, next) => {
