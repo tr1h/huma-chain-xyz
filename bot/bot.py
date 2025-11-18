@@ -2775,13 +2775,13 @@ A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
             # Send welcome message
             try:
                 sent_message = bot.send_message(
-                    message.chat.id, 
-                    welcome_text, 
-                    parse_mode='HTML', 
-                    reply_markup=keyboard,
-                    disable_web_page_preview=False
-                )
-                print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
+                message.chat.id, 
+                welcome_text, 
+                parse_mode='HTML', 
+                reply_markup=keyboard,
+                disable_web_page_preview=False
+            )
+            print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
             except Exception as send_error:
                 error_msg = str(send_error)
                 if "not enough rights" in error_msg.lower() or "chat not found" in error_msg.lower():
@@ -3647,29 +3647,48 @@ The withdrawal feature requires the API server to be running.
                 explorer_url = withdrawal.get('explorer_url')
                 new_balance = withdrawal.get('new_balance', 0)
                 
+                # Calculate total withdrawn (approximate)
+                total_withdrawn = amount_sent + fee
+                
                 text = f"""
-✅ **WITHDRAWAL SUCCESSFUL!** ✅
+🎉 **WITHDRAWAL SUCCESSFUL!** 🎉
 
-💸 **Sent:** {amount_sent:,} TAMA
-💰 **Fee:** {fee:,} TAMA
-📊 **New Balance:** {new_balance:,} TAMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔗 **Transaction:**
-[View on Explorer]({explorer_url})
+💸 **Amount Sent:** `{amount_sent:,} TAMA`
+💰 **Network Fee:** `{fee:,} TAMA` (5%)
+📦 **Total Deducted:** `{total_withdrawn:,} TAMA`
 
-✅ **Status:** Completed
-⭐ **TAMA is now in your wallet!**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Thank you for playing! 🎮
+💼 **Your Wallet Balance:** `{new_balance:,} TAMA`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 **Blockchain Transaction:**
+[🔍 View on Solscan Explorer]({explorer_url})
+
+✅ **Status:** `Completed & Confirmed`
+⛓️ **Network:** Solana Devnet
+🎯 **Source:** P2E Pool
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⭐ **Your TAMA tokens are now in your wallet!**
+
+💡 **Tip:** You can use these tokens to mint NFTs or trade on DEX!
+
+Thank you for playing! 🎮✨
                 """
                 
                 keyboard = types.InlineKeyboardMarkup()
                 if explorer_url:
                     keyboard.row(
-                        types.InlineKeyboardButton("🔗 View Transaction", url=explorer_url)
+                        types.InlineKeyboardButton("🔍 View on Solscan", url=explorer_url)
                     )
                 keyboard.row(
                     types.InlineKeyboardButton("💰 Withdraw More", callback_data="withdraw_tama"),
+                    types.InlineKeyboardButton("🎨 Mint NFT", callback_data="mint_nft"),
                     types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
                 )
                 
