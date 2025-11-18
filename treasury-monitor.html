@@ -988,12 +988,13 @@
                         });
                     }
                     
-                    // Filter only project transactions (expanded to include all types)
+                    // Filter only project transactions
+                    // ВАЖНО: NFT mint транзакции содержат распределение по пулам в metadata
                     allTransactions = payload.data.filter(t => {
-                        // Convert user_id to string for comparison (in case it's a number)
+                        // Convert user_id to string for comparison
                         const userId = String(t.user_id || '');
                         
-                        // Include by user_id (exact match)
+                        // 1. Include by user_id (exact match) - direct pool transactions
                         if (userId === TREASURY_MAIN || 
                             userId === P2E_POOL || 
                             userId === BURN_ADDRESS ||
@@ -1001,31 +1002,43 @@
                             return true;
                         }
                         
-                        // Include by type (expanded list) - case insensitive
+                        // 2. Include by type (case insensitive) - все типы, связанные с пулами
                         const typeStr = String(t.type || '').toLowerCase();
-                        if (typeStr && (
-                            typeStr.includes('treasury') || 
-                            typeStr.includes('p2e_pool') || 
-                            typeStr.includes('p2e') ||
-                            typeStr.includes('burn') ||
-                            typeStr.includes('tama_burn') ||
-                            typeStr.includes('treasury_income') ||
-                            typeStr.includes('sol_income') ||
-                            typeStr.includes('liquidity') ||
-                            typeStr.includes('team') ||
-                            typeStr.includes('nft_mint') // NFT mints also relevant
-                        )) {
-                            return true;
+                        if (typeStr) {
+                            // NFT mint транзакции содержат распределение
+                            if (typeStr.includes('nft_mint')) {
+                                return true;
+                            }
+                            
+                            // Другие релевантные типы
+                            if (typeStr.includes('treasury') || 
+                                typeStr.includes('p2e') ||
+                                typeStr.includes('burn') ||
+                                typeStr.includes('tama_burn') ||
+                                typeStr.includes('sol_income') ||
+                                typeStr.includes('liquidity') ||
+                                typeStr.includes('team') ||
+                                typeStr.includes('withdrawal')) {
+                                return true;
+                            }
                         }
                         
-                        // Check metadata for project-related info
+                        // 3. Check metadata for distribution info
                         if (t.metadata) {
-                            const metadataStr = JSON.stringify(t.metadata).toLowerCase();
-                            if (metadataStr.includes('treasury') || 
-                                metadataStr.includes('p2e') ||
-                                metadataStr.includes('burn') ||
-                                metadataStr.includes('pool')) {
-                                return true;
+                            try {
+                                const metadata = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                                const metadataStr = JSON.stringify(metadata).toLowerCase();
+                                
+                                // Если в metadata есть distribution (распределение средств)
+                                if (metadata.distribution || 
+                                    metadataStr.includes('treasury') || 
+                                    metadataStr.includes('p2e') ||
+                                    metadataStr.includes('burn') ||
+                                    metadataStr.includes('pool')) {
+                                    return true;
+                                }
+                            } catch (e) {
+                                // Ignore JSON parse errors
                             }
                         }
                         
@@ -1058,10 +1071,9 @@
                         
                         // Filter project transactions (same logic as API)
                         allTransactions = (Array.isArray(supabaseData) ? supabaseData : []).filter(t => {
-                            // Convert user_id to string for comparison
                             const userId = String(t.user_id || '');
                             
-                            // Include by user_id (exact match)
+                            // 1. Include by user_id
                             if (userId === TREASURY_MAIN || 
                                 userId === P2E_POOL || 
                                 userId === BURN_ADDRESS ||
@@ -1069,31 +1081,40 @@
                                 return true;
                             }
                             
-                            // Include by type (case insensitive)
+                            // 2. Include by type
                             const typeStr = String(t.type || '').toLowerCase();
-                            if (typeStr && (
-                                typeStr.includes('treasury') || 
-                                typeStr.includes('p2e_pool') || 
-                                typeStr.includes('p2e') ||
-                                typeStr.includes('burn') ||
-                                typeStr.includes('tama_burn') ||
-                                typeStr.includes('treasury_income') ||
-                                typeStr.includes('sol_income') ||
-                                typeStr.includes('liquidity') ||
-                                typeStr.includes('team') ||
-                                typeStr.includes('nft_mint')
-                            )) {
-                                return true;
+                            if (typeStr) {
+                                if (typeStr.includes('nft_mint')) {
+                                    return true;
+                                }
+                                
+                                if (typeStr.includes('treasury') || 
+                                    typeStr.includes('p2e') ||
+                                    typeStr.includes('burn') ||
+                                    typeStr.includes('tama_burn') ||
+                                    typeStr.includes('sol_income') ||
+                                    typeStr.includes('liquidity') ||
+                                    typeStr.includes('team') ||
+                                    typeStr.includes('withdrawal')) {
+                                    return true;
+                                }
                             }
                             
-                            // Check metadata
+                            // 3. Check metadata
                             if (t.metadata) {
-                                const metadataStr = JSON.stringify(t.metadata).toLowerCase();
-                                if (metadataStr.includes('treasury') || 
-                                    metadataStr.includes('p2e') ||
-                                    metadataStr.includes('burn') ||
-                                    metadataStr.includes('pool')) {
-                                    return true;
+                                try {
+                                    const metadata = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                                    const metadataStr = JSON.stringify(metadata).toLowerCase();
+                                    
+                                    if (metadata.distribution || 
+                                        metadataStr.includes('treasury') || 
+                                        metadataStr.includes('p2e') ||
+                                        metadataStr.includes('burn') ||
+                                        metadataStr.includes('pool')) {
+                                        return true;
+                                    }
+                                } catch (e) {
+                                    // Ignore
                                 }
                             }
                             
