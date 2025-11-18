@@ -26,6 +26,9 @@ from gamification import (
 # Import NFT system
 from nft_system import NFTSystem
 
+# Import auto-posting system
+from auto_posting import setup_auto_posting
+
 # Load environment variables (optional .env)
 import codecs
 env_path = '../.env'
@@ -2946,8 +2949,14 @@ def post_daily_promo():
 
 # Schedule daily posts
 def run_schedule():
+    # Legacy daily posts (keep for compatibility)
     schedule.every().day.at("12:00").do(post_daily_stats)
     schedule.every().day.at("14:00").do(post_daily_promo)  # Promo post at 2 PM
+    
+    # Setup auto-posting system based on CONTENT_PLAN.md
+    print("📅 Setting up auto-posting schedule...")
+    setup_auto_posting(bot, CHANNEL_USERNAME)
+    print("✅ Auto-posting configured! Posts will be published automatically.")
     
     while True:
         schedule.run_pending()
