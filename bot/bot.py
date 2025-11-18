@@ -29,6 +29,14 @@ from nft_system import NFTSystem
 # Import auto-posting system
 from auto_posting import setup_auto_posting
 
+# Import Twitter posting system (optional)
+try:
+    from twitter_posting import setup_twitter_posting
+    TWITTER_ENABLED = True
+except ImportError:
+    TWITTER_ENABLED = False
+    print("⚠️ Twitter posting disabled (tweepy not installed)")
+
 # Load environment variables (optional .env)
 import codecs
 env_path = '../.env'
@@ -2971,7 +2979,18 @@ def run_schedule():
     # Setup auto-posting system based on CONTENT_PLAN.md
     print("📅 Setting up auto-posting schedule...")
     setup_auto_posting(bot, CHANNEL_USERNAME)
-    print("✅ Auto-posting configured! Posts will be published automatically.")
+    print("✅ Telegram auto-posting configured!")
+    
+    # Setup Twitter auto-posting (if enabled)
+    if TWITTER_ENABLED:
+        print("🐦 Setting up Twitter auto-posting...")
+        twitter_poster = setup_twitter_posting()
+        if twitter_poster:
+            print("✅ Twitter auto-posting configured!")
+        else:
+            print("⚠️ Twitter auto-posting disabled (no API credentials)")
+    
+    print("✅ All auto-posting systems ready!")
     
     while True:
         schedule.run_pending()
