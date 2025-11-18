@@ -121,25 +121,72 @@ async function executeWithdrawal(req, res) {
 
         console.log('📦 Getting token accounts...');
         
-        // P2E Pool source account
-        const sourceAccount = await getOrCreateAssociatedTokenAccount(
-            connection,
-            payerKeypair, // payer for fees
-            mintAddress,
-            p2ePoolKeypair.publicKey // owner
-        );
+        // Check payer SOL balance first
+        try {
+            const payerBalance = await connection.getBalance(payerKeypair.publicKey);
+            const payerSOL = payerBalance / 1e9;
+            console.log(`💰 Payer SOL balance: ${payerSOL.toFixed(4)} SOL`);
+            
+            if (payerSOL < 0.01) {
+                console.error(`❌ Insufficient SOL in payer account for fees`);
+                return res.status(500).json({
+                    success: false,
+                    error: 'Insufficient SOL for transaction fees. Please contact support.',
+                    details: {
+                        payer_balance: payerSOL,
+                        required: '~0.01 SOL'
+                    }
+                });
+            }
+        } catch (err) {
+            console.warn(`⚠️ Could not check payer balance: ${err.message}`);
+        }
+        
+        // P2E Pool source account (try to get or create)
+        let sourceAccount;
+        try {
+            sourceAccount = await getOrCreateAssociatedTokenAccount(
+                connection,
+                payerKeypair, // payer for fees
+                mintAddress,
+                p2ePoolKeypair.publicKey // owner
+            );
+            console.log(`  Source (P2E Pool): ${sourceAccount.address.toString()}`);
+        } catch (sourceError) {
+            console.error(`❌ Failed to get/create P2E Pool token account: ${sourceError.message}`);
+            return res.status(500).json({
+                success: false,
+                error: 'P2E Pool token account not found or could not be created.',
+                details: {
+                    p2e_pool: p2ePoolKeypair.publicKey.toString(),
+                    mint: mintAddress.toString(),
+                    error: sourceError.message,
+                    hint: 'P2E Pool may not have a token account yet. Please create it first or mint tokens to P2E Pool.'
+                }
+            });
+        }
 
-        console.log(`  Source (P2E Pool): ${sourceAccount.address.toString()}`);
-
-        // Recipient account
-        const destinationAccount = await getOrCreateAssociatedTokenAccount(
-            connection,
-            payerKeypair, // payer for fees
-            mintAddress,
-            recipientPubkey
-        );
-
-        console.log(`  Destination: ${destinationAccount.address.toString()}`);
+        // Recipient account (try to get or create)
+        let destinationAccount;
+        try {
+            destinationAccount = await getOrCreateAssociatedTokenAccount(
+                connection,
+                payerKeypair, // payer for fees
+                mintAddress,
+                recipientPubkey
+            );
+            console.log(`  Destination: ${destinationAccount.address.toString()}`);
+        } catch (destError) {
+            console.error(`❌ Failed to get/create recipient token account: ${destError.message}`);
+            return res.status(500).json({
+                success: false,
+                error: 'Could not create token account for recipient.',
+                details: {
+                    recipient: wallet_address,
+                    error: destError.message
+                }
+            });
+        }
 
         // Check P2E Pool balance
         const sourceBalance = await connection.getTokenAccountBalance(sourceAccount.address);
