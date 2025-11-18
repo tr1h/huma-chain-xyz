@@ -2705,77 +2705,58 @@ def show_quests(message):
 def welcome_new_member(message):
     """Welcome new members to the group"""
     try:
+        # Skip if it's not a group/supergroup
+        if message.chat.type not in ['group', 'supergroup']:
+            return
+        
+        # Log group info for debugging
+        print(f"📥 New member(s) joined group: {message.chat.id} ({message.chat.title})")
+        
         # Skip if bot itself joined
         for new_member in message.new_chat_members:
             if new_member.id == bot.get_me().id:
                 print(f"✅ Bot joined group {message.chat.id}")
                 continue
             
-            # Skip if it's not a group/supergroup
-            if message.chat.type not in ['group', 'supergroup']:
-                continue
-            
             # Get user's first name (escape for HTML)
             first_name = new_member.first_name or "Friend"
             username = f"@{new_member.username}" if new_member.username else first_name
             
-            welcome_text = f"""🎮 <b>Welcome to Solana Tamagotchi Community, {first_name}!</b> 👋
-
-We're excited to have you here! This is the official community for Solana Tamagotchi - a free-to-play NFT pet game where you can earn real TAMA tokens on Solana blockchain.
+            welcome_text = f"""🎉 <b>Welcome to Solana Tamagotchi Community, {first_name}!</b> 👋
 
 🐾 <b>What is Solana Tamagotchi?</b>
-• <b>Play-to-Earn NFT pet game</b> - Care for virtual pets and earn crypto
-• <b>5 NFT tiers</b> (Bronze → Diamond) with 2x to 5x earning multipliers
-• <b>100% Free to Play</b> - Start earning without any investment
-• <b>Multi-level referrals</b> - Earn 1,000 TAMA per friend + bonuses
-• <b>Daily rewards</b> - Login bonuses, quests, and achievements
+A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
+• 🎮 Care for virtual pets and earn real TAMA tokens
+• 🎨 Mint unique NFT pets (5 tiers: Bronze → Diamond)
+• 💰 Get 2x to 5x earning multipliers with NFTs
+• 🎁 Earn 1,000 TAMA per friend you invite
+• 🆓 <b>100% Free to Play</b> - No investment needed!
 
-🚀 <b>Quick Start Guide:</b>
+🚀 <b>Quick Start (3 steps):</b>
 1️⃣ Open <b>@{BOT_USERNAME}</b> and send <b>/start</b>
-2️⃣ Create your first pet and start playing
-3️⃣ Complete daily activities to earn TAMA tokens
-4️⃣ Mint NFT pets to boost your earnings (2-5x multiplier!)
-5️⃣ Invite friends and earn referral rewards
+2️⃣ Start playing and earn TAMA tokens
+3️⃣ Mint NFT pets to boost earnings (2-5x!)
 
 💰 <b>How to Earn TAMA:</b>
-• <b>Daily Login:</b> +25 TAMA every 24 hours
-• <b>Feed Pet:</b> +5 TAMA per feed
-• <b>Play with Pet:</b> +10 TAMA per session
-• <b>Train Pet:</b> +15 TAMA per training
-• <b>Level Up:</b> +50 TAMA bonus
-• <b>Referrals:</b> +1,000 TAMA per friend invited
-• <b>NFT Boost:</b> Multiply all earnings by 2x to 5x!
+• Daily Login: +25 TAMA
+• Feed/Play/Train: +5-15 TAMA each
+• Level Up: +50 TAMA bonus
+• Referrals: +1,000 TAMA per friend
+• NFT Boost: 2x-5x multiplier!
 
-🎨 <b>NFT Tiers & Prices:</b>
-• 🥉 <b>Bronze:</b> 5,000 TAMA or 0.15 SOL → 2.0x boost
-• 🥈 <b>Silver:</b> 1 SOL → 2.3x boost
-• 🥇 <b>Gold:</b> 3 SOL → 2.7x boost
-• 💎 <b>Platinum:</b> 10 SOL → 3.5x boost
-• 🔷 <b>Diamond:</b> 50 SOL → 5.0x boost (MAX!)
+🎨 <b>NFT Tiers:</b>
+🥉 Bronze: 5,000 TAMA → 2.0x boost
+🥈 Silver: 1 SOL → 2.3x boost
+🥇 Gold: 3 SOL → 2.7x boost
+💎 Platinum: 10 SOL → 3.5x boost
+🔷 Diamond: 50 SOL → 5.0x boost
 
-📢 <b>Stay Connected:</b>
-• <b>🌐 Website:</b> <a href="https://solanatamagotchi.com">solanatamagotchi.com</a>
-• <b>🐦 Twitter:</b> @GotchiGame
-• <b>🤖 Bot:</b> @{BOT_USERNAME}
-• <b>💬 Community:</b> This group!
+📢 <b>Links:</b>
+🌐 <a href="https://solanatamagotchi.com">Website</a> | 🐦 <a href="https://twitter.com/GotchiGame">Twitter</a> | 🤖 <a href="https://t.me/{BOT_USERNAME}">Bot</a>
 
-📋 <b>Bot Commands:</b>
-• <b>/start</b> - Start playing the game
-• <b>/help</b> - View all available commands
-• <b>/leaderboard</b> - See top players
-• <b>/code</b> - Get your referral link
-• <b>/balance</b> - Check your TAMA balance
+💡 <b>Pro Tip:</b> Play daily and invite friends to maximize earnings!
 
-💡 <b>Pro Tips:</b>
-• Play daily to maximize your TAMA earnings
-• Complete all daily activities (feed, play, train)
-• Invite friends to unlock milestone bonuses
-• Consider minting a Bronze NFT for 2x earning boost
-• Check the blog for guides and strategies
-
-<i>Let's build the biggest Tamagotchi community on Solana together! ⭐</i>
-
-<i>Start earning TAMA today - no wallet needed to begin! 🚀</i>"""
+<i>Let's build the biggest Tamagotchi community on Solana! ⭐</i>"""
             
             # Create welcome keyboard
             keyboard = types.InlineKeyboardMarkup()
@@ -2792,15 +2773,24 @@ We're excited to have you here! This is the official community for Solana Tamago
             )
             
             # Send welcome message
-            bot.send_message(
-                message.chat.id, 
-                welcome_text, 
-                parse_mode='HTML', 
-                reply_markup=keyboard,
-                disable_web_page_preview=False
-            )
-            
-            print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
+            try:
+                sent_message = bot.send_message(
+                    message.chat.id, 
+                    welcome_text, 
+                    parse_mode='HTML', 
+                    reply_markup=keyboard,
+                    disable_web_page_preview=False
+                )
+                print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
+            except Exception as send_error:
+                error_msg = str(send_error)
+                if "not enough rights" in error_msg.lower() or "chat not found" in error_msg.lower():
+                    print(f"⚠️ Bot doesn't have permission to send messages in group {message.chat.id}")
+                    print(f"   Error: {error_msg}")
+                    print(f"   Please make bot an admin with 'Send Messages' permission")
+                else:
+                    print(f"❌ Failed to send welcome message: {error_msg}")
+                raise  # Re-raise to be caught by outer exception handler
             
     except Exception as e:
         print(f"❌ Error welcoming new member: {e}")
