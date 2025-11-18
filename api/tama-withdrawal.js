@@ -96,8 +96,8 @@ async function executeWithdrawal(req, res) {
         }
 
         console.log('✅ Keypairs loaded');
-        console.log(`  Payer: ${payerKeypair.publicKey.toString()}`);
-        console.log(`  P2E Pool: ${p2ePoolKeypair.publicKey.toString()}`);
+        console.log(`  Payer (for fees): ${payerKeypair.publicKey.toString()}`);
+        console.log(`  P2E Pool (source): ${p2ePoolKeypair.publicKey.toString()}`);
 
         // Get token decimals
         const mintAddress = new PublicKey(TAMA_MINT);
