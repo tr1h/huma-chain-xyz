@@ -1623,37 +1623,52 @@
                                  t.type && t.type.includes('burn') ? 'type-burn' :
                                  t.type && t.type.includes('sol') ? 'type-sol' : 'type-treasury';
                 
-                // Amount display
+                // Amount display with arrows for incoming/outgoing
                 const isBurn = t.type && t.type.includes('burn');
-                let amountClass, amountPrefix, displayAmount;
+                const isOutgoing = amount < 0 || 
+                                  String(t.type || '').includes('withdrawal') || 
+                                  String(t.type || '').includes('spend') || 
+                                  String(t.type || '').includes('transfer_out');
+                let amountClass, amountPrefix, displayAmount, arrow;
                 if (isBurn) {
                     amountClass = 'amount-burn';
                     amountPrefix = '🔥 ';
                     displayAmount = Math.abs(amount);
-                } else if (amount > 0) {
+                    arrow = '';
+                } else if (isOutgoing) {
+                    amountClass = 'amount-negative';
+                    amountPrefix = '−';
+                    displayAmount = Math.abs(amount);
+                    arrow = ' 📤';
+                } else {
                     amountClass = 'amount-positive';
                     amountPrefix = '+';
-                    displayAmount = amount;
-                } else {
-                    amountClass = 'amount-negative';
-                    amountPrefix = '-';
                     displayAmount = Math.abs(amount);
+                    arrow = ' 📥';
                 }
                 
                 const currency = t.type && t.type.includes('_sol') ? ' SOL' : ' TAMA';
                 
-                // Source (from metadata)
+                // Source (from metadata) and destination wallet for withdrawals
                 let source = 'System';
+                let destinationWallet = null;
                 if (t.metadata && typeof t.metadata === 'object') {
                     source = t.metadata.reason || t.metadata.source || 'NFT Mint';
+                    destinationWallet = t.metadata.wallet_address || t.metadata.destination;
                 } else if (typeof t.metadata === 'string') {
                     // Try to parse JSON string
                     try {
                         const parsed = JSON.parse(t.metadata);
                         source = parsed.reason || parsed.source || 'NFT Mint';
+                        destinationWallet = parsed.wallet_address || parsed.destination;
                     } catch (e) {
                         // Invalid JSON, keep 'System'
                     }
+                }
+                
+                // Add destination wallet to source if exists (for withdrawals)
+                if (destinationWallet) {
+                    source += `<br><small style="opacity: 0.7;">→ ${destinationWallet.substring(0, 6)}...${destinationWallet.substring(destinationWallet.length - 4)}</small>`;
                 }
                 
                 // Explorer link (from metadata) - using Solscan
