@@ -6631,6 +6631,138 @@
             }, 100);
         }
         
+        // ===========================================
+        // 🔊 CASINO SOUND EFFECTS (Web Audio API)
+        // ===========================================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        
+        // Initialize audio context on first user interaction
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+        
+        const sounds = {
+            // Spinning sound - fast beeps (during spin)
+            spin: () => {
+                if (!audioCtx) return;
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.frequency.value = 800;
+                oscillator.type = 'square';
+                gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.08);
+            },
+            
+            // Reel stop sound - mechanical click
+            reelStop: () => {
+                if (!audioCtx) return;
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.frequency.value = 150;
+                oscillator.type = 'square';
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.05);
+            },
+            
+            // Win sound - rising cheerful tone
+            win: () => {
+                if (!audioCtx) return;
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            },
+            
+            // BIG WIN sound - multiple rising tones
+            bigWin: () => {
+                if (!audioCtx) return;
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const oscillator = audioCtx.createOscillator();
+                        const gainNode = audioCtx.createGain();
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioCtx.destination);
+                        oscillator.frequency.setValueAtTime(500 + (i * 150), audioCtx.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(800 + (i * 200), audioCtx.currentTime + 0.2);
+                        oscillator.type = 'sine';
+                        gainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        oscillator.start(audioCtx.currentTime);
+                        oscillator.stop(audioCtx.currentTime + 0.2);
+                    }, i * 100);
+                }
+            },
+            
+            // JACKPOT sound - cascade of tones (like slot machine jackpot!)
+            jackpot: () => {
+                if (!audioCtx) return;
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const oscillator = audioCtx.createOscillator();
+                        const gainNode = audioCtx.createGain();
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioCtx.destination);
+                        oscillator.frequency.value = 600 + (i * 150);
+                        oscillator.type = 'sine';
+                        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                        oscillator.start(audioCtx.currentTime);
+                        oscillator.stop(audioCtx.currentTime + 0.15);
+                    }, i * 80);
+                }
+            },
+            
+            // Loss sound - descending sad tone
+            loss: () => {
+                if (!audioCtx) return;
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            },
+            
+            // Wheel spinning sound - continuous whirr
+            wheelSpin: () => {
+                if (!audioCtx) return;
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.5);
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            }
+        };
+        
         // 🎰 SLOT MACHINE
         function spinSlots() {
             if (gameState.tama < 100) {
@@ -6765,6 +6897,8 @@
         
         // SPIN LOGIC
         document.getElementById('slots-spin-btn')?.addEventListener('click', () => {
+            initAudio(); // Initialize audio on first click
+            
             if (slotsState.spinning || gameState.tama < slotsState.betAmount) {
                 showMessage(`❌ Not enough TAMA! Need ${slotsState.betAmount} TAMA`);
                 return;
@@ -6784,6 +6918,8 @@
             
             let spins = 0;
             const interval = setInterval(() => {
+                // Play spin sound every 3rd spin
+                if (spins % 3 === 0) sounds.spin();
                 // Animation - random symbols while spinning
                 reels.forEach(reel => {
                     reel.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)].symbol;
@@ -6793,6 +6929,7 @@
                 
                 if (++spins === 20) {
                     clearInterval(interval);
+                    sounds.reelStop(); // Stop sound
                     
                     // Generate result with weighted probability
                     const result = Array.from({length: 5}, () => getWeightedSymbol());
@@ -6817,20 +6954,24 @@
                         reward = slotsState.betAmount * symbolData.payout * 2;
                         message = `🎰🎰🎰 MEGA JACKPOT! +${reward} TAMA! 🎰🎰🎰`;
                         slotsResult.style.color = '#fbbf24';
+                        sounds.jackpot(); // 🔊 JACKPOT SOUND!
                     } else if (maxCount === 4) {
                         // 4 MATCH - BIG WIN
                         reward = Math.floor(slotsState.betAmount * symbolData.payout * 1.5);
                         message = `⭐ BIG WIN! +${reward} TAMA!`;
                         slotsResult.style.color = '#10b981';
+                        sounds.bigWin(); // 🔊 BIG WIN SOUND!
                     } else if (maxCount === 3) {
                         // 3 MATCH - NICE WIN
                         reward = Math.floor(slotsState.betAmount * symbolData.payout);
                         message = `✨ Nice! +${reward} TAMA!`;
                         slotsResult.style.color = '#3b82f6';
+                        sounds.win(); // 🔊 WIN SOUND!
                     } else {
                         // NO WIN
                         message = `😔 Try again!`;
                         slotsResult.style.color = '#ef4444';
+                        sounds.loss(); // 🔊 LOSS SOUND
                     }
                     
                     // Update game state
@@ -6953,6 +7094,8 @@
             });
         });
         document.getElementById('wheel-spin-btn')?.addEventListener('click', () => {
+            initAudio(); // Initialize audio on first click
+            
             if (wheelState.spinning || gameState.tama < wheelState.betAmount) {
                 showMessage(`❌ Not enough TAMA! Need ${wheelState.betAmount} TAMA`);
                 return;
@@ -6973,6 +7116,9 @@
             const startTime = Date.now();
             const duration = 3000;
             
+            // Play wheel spinning sound continuously
+            let wheelSpinInterval = setInterval(() => sounds.wheelSpin(), 200);
+            
             function animateWheel() {
                 const elapsed = Date.now() - startTime;
                 const progress = Math.min(elapsed / duration, 1);
@@ -6983,6 +7129,8 @@
                 if (progress < 1) {
                     requestAnimationFrame(animateWheel);
                 } else {
+                    clearInterval(wheelSpinInterval); // Stop spinning sound
+                    sounds.reelStop(); // Stop sound
                     const normalizedRotation = wheelState.rotation % (Math.PI * 2);
                     const segmentIndex = Math.floor((8 - (normalizedRotation / (Math.PI * 2) * 8)) % 8);
                     const multiplier = wheelState.segments[segmentIndex].multiplier;
@@ -6999,22 +7147,27 @@
                         wheelState.losses++;
                     }
                     
-                    // Result message with colors
+                    // Result message with colors AND SOUNDS
                     if (multiplier >= 5) {
                         wheelResult.textContent = `🎰 MEGA WIN! ${multiplier}x = +${reward} TAMA!`;
                         wheelResult.style.color = '#fbbf24';
+                        sounds.jackpot(); // 🔊 JACKPOT!
                     } else if (multiplier >= 3) {
                         wheelResult.textContent = `⭐ BIG WIN! ${multiplier}x = +${reward} TAMA!`;
                         wheelResult.style.color = '#10b981';
+                        sounds.bigWin(); // 🔊 BIG WIN!
                     } else if (multiplier >= 2) {
                         wheelResult.textContent = `✨ Nice! ${multiplier}x = +${reward} TAMA!`;
                         wheelResult.style.color = '#3b82f6';
+                        sounds.win(); // 🔊 WIN!
                     } else if (multiplier === 1) {
                         wheelResult.textContent = `😐 Break Even! ${multiplier}x = ${reward} TAMA`;
                         wheelResult.style.color = '#6b7280';
+                        sounds.reelStop(); // 🔊 Neutral sound
                     } else {
                         wheelResult.textContent = `😔 ${multiplier}x = ${reward} TAMA (lost ${wheelState.betAmount - reward})`;
                         wheelResult.style.color = '#ef4444';
+                        sounds.loss(); // 🔊 LOSS
                     }
                     
                     if (reward > wheelState.betAmount && typeof logTransaction === 'function') {
