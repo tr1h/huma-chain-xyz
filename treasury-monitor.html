@@ -1930,7 +1930,7 @@
         document.getElementById('filter-date-to').addEventListener('change', filterTransactions);
 
         // Wallet Detail Modal Functions
-        function showWalletDetails(walletType) {
+        window.showWalletDetails = function(walletType) {
             const modal = document.getElementById('wallet-modal');
             const title = document.getElementById('wallet-modal-title');
             const body = document.getElementById('wallet-modal-body');
