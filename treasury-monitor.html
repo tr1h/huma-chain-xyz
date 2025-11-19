@@ -960,7 +960,7 @@
             try {
                 // Try API first
                 console.log(`📡 Fetching transactions from: ${TAMA_API_BASE}/transactions/list`);
-                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=1000&order=created_at.desc`, {
+                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=5000&order=created_at.desc`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -995,13 +995,21 @@
                     // ВАЖНО: NFT mint транзакции содержат распределение по пулам в metadata
                     allTransactions = payload.data.filter(t => {
                         // Convert user_id to string for comparison
-                        const userId = String(t.user_id || '');
+                        const userId = String(t.user_id || '').trim();
                         
                         // 1. Include by user_id (exact match) - direct pool transactions
+                        // Проверяем все проектные кошельки
                         if (userId === TREASURY_MAIN || 
                             userId === P2E_POOL || 
                             userId === BURN_ADDRESS ||
-                            userId === 'SYSTEM_BURN') {
+                            userId === 'SYSTEM_BURN' ||
+                            userId === LIQUIDITY_POOL ||
+                            userId === TEAM_WALLET ||
+                            userId === MARKETING_WALLET ||
+                            userId === COMMUNITY_WALLET ||
+                            userId === RESERVE_WALLET ||
+                            userId === TREASURY_LIQUIDITY ||
+                            userId === TREASURY_TEAM) {
                             return true;
                         }
                         
@@ -1009,11 +1017,13 @@
                         const typeStr = String(t.type || '').toLowerCase();
                         if (typeStr) {
                             // NFT mint транзакции содержат распределение
-                            if (typeStr.includes('nft_mint')) {
+                            if (typeStr.includes('nft_mint') || 
+                                typeStr.includes('mint_nft') ||
+                                typeStr.includes('nft_onchain')) {
                                 return true;
                             }
                             
-                            // Другие релевантные типы
+                            // Другие релевантные типы (расширенный список)
                             if (typeStr.includes('treasury') || 
                                 typeStr.includes('p2e') ||
                                 typeStr.includes('burn') ||
@@ -1021,7 +1031,11 @@
                                 typeStr.includes('sol_income') ||
                                 typeStr.includes('liquidity') ||
                                 typeStr.includes('team') ||
-                                typeStr.includes('withdrawal')) {
+                                typeStr.includes('withdrawal') ||
+                                typeStr.includes('refund') ||
+                                typeStr.includes('distribution') ||
+                                typeStr.includes('income') ||
+                                typeStr.includes('transfer')) {
                                 return true;
                             }
                         }
@@ -1034,14 +1048,22 @@
                                 
                                 // Если в metadata есть distribution (распределение средств)
                                 if (metadata.distribution || 
+                                    metadata.distribution?.treasury ||
+                                    metadata.distribution?.p2e_pool ||
+                                    metadata.distribution?.burn ||
+                                    metadata.distribution?.pool ||
                                     metadataStr.includes('treasury') || 
                                     metadataStr.includes('p2e') ||
                                     metadataStr.includes('burn') ||
-                                    metadataStr.includes('pool')) {
+                                    metadataStr.includes('pool') ||
+                                    metadataStr.includes('distribution') ||
+                                    metadataStr.includes('refund') ||
+                                    metadataStr.includes('income')) {
                                     return true;
                                 }
                             } catch (e) {
                                 // Ignore JSON parse errors
+                                console.warn('Failed to parse metadata:', e);
                             }
                         }
                         
@@ -1049,6 +1071,33 @@
                     });
                     
                     console.log(`✅ Loaded ${allTransactions.length} project transactions from API (filtered from ${payload.data.length} total)`);
+                    
+                    // Debug: Show transaction types distribution
+                    if (allTransactions.length > 0) {
+                        const typeCounts = {};
+                        allTransactions.forEach(t => {
+                            const type = t.type || 'unknown';
+                            typeCounts[type] = (typeCounts[type] || 0) + 1;
+                        });
+                        console.log('📊 Transaction types:', typeCounts);
+                        
+                        // Show user_id distribution
+                        const userIdCounts = {};
+                        allTransactions.forEach(t => {
+                            const uid = String(t.user_id || 'unknown').substring(0, 8);
+                            userIdCounts[uid] = (userIdCounts[uid] || 0) + 1;
+                        });
+                        console.log('👤 User IDs (first 8 chars):', userIdCounts);
+                    } else {
+                        console.warn('⚠️ No project transactions found! Check filtering logic.');
+                        console.log('🔍 Sample of all transactions (first 10):', payload.data.slice(0, 10).map(t => ({
+                            id: t.id,
+                            user_id: t.user_id,
+                            type: t.type,
+                            amount: t.amount
+                        })));
+                    }
+                    
                     filteredTransactions = [...allTransactions];
                     renderTransactions(filteredTransactions);
                     updateLastUpdateTime();
@@ -1062,7 +1111,7 @@
                 // Fallback: Try Supabase directly
                 try {
                     console.log('🔄 Trying Supabase directly...');
-                    const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&order=created_at.desc&limit=1000`, {
+                    const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&order=created_at.desc&limit=5000`, {
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
                             'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -1075,20 +1124,29 @@
                         
                         // Filter project transactions (same logic as API)
                         allTransactions = (Array.isArray(supabaseData) ? supabaseData : []).filter(t => {
-                            const userId = String(t.user_id || '');
+                            const userId = String(t.user_id || '').trim();
                             
-                            // 1. Include by user_id
+                            // 1. Include by user_id - все проектные кошельки
                             if (userId === TREASURY_MAIN || 
                                 userId === P2E_POOL || 
                                 userId === BURN_ADDRESS ||
-                                userId === 'SYSTEM_BURN') {
+                                userId === 'SYSTEM_BURN' ||
+                                userId === LIQUIDITY_POOL ||
+                                userId === TEAM_WALLET ||
+                                userId === MARKETING_WALLET ||
+                                userId === COMMUNITY_WALLET ||
+                                userId === RESERVE_WALLET ||
+                                userId === TREASURY_LIQUIDITY ||
+                                userId === TREASURY_TEAM) {
                                 return true;
                             }
                             
                             // 2. Include by type
                             const typeStr = String(t.type || '').toLowerCase();
                             if (typeStr) {
-                                if (typeStr.includes('nft_mint')) {
+                                if (typeStr.includes('nft_mint') || 
+                                    typeStr.includes('mint_nft') ||
+                                    typeStr.includes('nft_onchain')) {
                                     return true;
                                 }
                                 
@@ -1099,7 +1157,11 @@
                                     typeStr.includes('sol_income') ||
                                     typeStr.includes('liquidity') ||
                                     typeStr.includes('team') ||
-                                    typeStr.includes('withdrawal')) {
+                                    typeStr.includes('withdrawal') ||
+                                    typeStr.includes('refund') ||
+                                    typeStr.includes('distribution') ||
+                                    typeStr.includes('income') ||
+                                    typeStr.includes('transfer')) {
                                     return true;
                                 }
                             }
@@ -1111,10 +1173,17 @@
                                     const metadataStr = JSON.stringify(metadata).toLowerCase();
                                     
                                     if (metadata.distribution || 
+                                        metadata.distribution?.treasury ||
+                                        metadata.distribution?.p2e_pool ||
+                                        metadata.distribution?.burn ||
+                                        metadata.distribution?.pool ||
                                         metadataStr.includes('treasury') || 
                                         metadataStr.includes('p2e') ||
                                         metadataStr.includes('burn') ||
-                                        metadataStr.includes('pool')) {
+                                        metadataStr.includes('pool') ||
+                                        metadataStr.includes('distribution') ||
+                                        metadataStr.includes('refund') ||
+                                        metadataStr.includes('income')) {
                                         return true;
                                     }
                                 } catch (e) {
@@ -1126,6 +1195,19 @@
                         });
                         
                         console.log(`✅ Loaded ${allTransactions.length} project transactions from Supabase`);
+                        
+                        // Debug logging
+                        if (allTransactions.length > 0) {
+                            const typeCounts = {};
+                            allTransactions.forEach(t => {
+                                const type = t.type || 'unknown';
+                                typeCounts[type] = (typeCounts[type] || 0) + 1;
+                            });
+                            console.log('📊 Transaction types:', typeCounts);
+                        } else {
+                            console.warn('⚠️ No project transactions found in Supabase!');
+                        }
+                        
                         filteredTransactions = [...allTransactions];
                         renderTransactions(filteredTransactions);
                         updateLastUpdateTime();
@@ -1445,92 +1527,223 @@
                     const metaStr = JSON.stringify(meta).toLowerCase();
                     
                     if (walletType === 'treasury') {
-                        return meta.distribution?.treasury || metaStr.includes('treasury');
+                        // Check for treasury in distribution or metadata
+                        return (meta.distribution && (meta.distribution.treasury || meta.distribution.treasury_income)) ||
+                               metaStr.includes('treasury') ||
+                               meta.source === 'treasury' ||
+                               meta.source_address === TREASURY_MAIN;
                     } else if (walletType === 'p2e') {
-                        return meta.distribution?.pool || metaStr.includes('p2e') || metaStr.includes('pool');
+                        // Check for p2e pool in distribution or metadata
+                        return (meta.distribution && (meta.distribution.p2e_pool || meta.distribution.pool)) ||
+                               metaStr.includes('p2e') || 
+                               metaStr.includes('pool') ||
+                               meta.source === 'p2e_pool' ||
+                               meta.source_address === P2E_POOL;
                     } else if (walletType === 'burn') {
-                        return meta.distribution?.burn || metaStr.includes('burn');
+                        // Check for burn in distribution or metadata
+                        return (meta.distribution && meta.distribution.burn) ||
+                               metaStr.includes('burn') ||
+                               meta.source === 'burn';
+                    } else if (walletType === 'liquidity') {
+                        return metaStr.includes('liquidity') ||
+                               meta.source_address === LIQUIDITY_POOL ||
+                               meta.source_address === TREASURY_LIQUIDITY;
+                    } else if (walletType === 'team') {
+                        return metaStr.includes('team') ||
+                               meta.source_address === TEAM_WALLET ||
+                               meta.source_address === TREASURY_TEAM;
+                    } else if (walletType === 'marketing') {
+                        return metaStr.includes('marketing') ||
+                               meta.source_address === MARKETING_WALLET;
+                    } else if (walletType === 'community') {
+                        return metaStr.includes('community') ||
+                               meta.source_address === COMMUNITY_WALLET;
+                    } else if (walletType === 'reserve') {
+                        return metaStr.includes('reserve') ||
+                               meta.source_address === RESERVE_WALLET;
                     }
                 } catch (e) {
+                    console.warn('Error parsing metadata:', e);
                     return false;
                 }
                 return false;
             }
             
+            // Helper function to extract transactions from NFT mint distribution
+            function extractDistributionTransactions(transaction, walletType) {
+                if (!transaction.metadata) return null;
+                
+                try {
+                    const meta = typeof transaction.metadata === 'string' 
+                        ? JSON.parse(transaction.metadata) 
+                        : transaction.metadata;
+                    
+                    if (!meta.distribution) return null;
+                    
+                    const dist = meta.distribution;
+                    let amount = 0;
+                    
+                    if (walletType === 'treasury' && (dist.treasury || dist.treasury_income)) {
+                        amount = dist.treasury || dist.treasury_income || 0;
+                    } else if (walletType === 'p2e' && (dist.p2e_pool || dist.pool)) {
+                        amount = dist.p2e_pool || dist.pool || 0;
+                    } else if (walletType === 'burn' && dist.burn) {
+                        amount = dist.burn || 0;
+                    } else {
+                        return null;
+                    }
+                    
+                    if (amount > 0) {
+                        // Create a virtual transaction for this wallet from the distribution
+                        return {
+                            ...transaction,
+                            amount: amount,
+                            type: transaction.type + '_distribution',
+                            isDistribution: true
+                        };
+                    }
+                } catch (e) {
+                    console.warn('Error extracting distribution:', e);
+                }
+                
+                return null;
+            }
+            
+            // Filter transactions for this specific wallet
+            walletTransactions = [];
+            
             if (walletType === 'treasury') {
-                walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                // Direct transactions to treasury
+                const direct = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
                     return userId === TREASURY_MAIN || 
-                           (t.type && t.type.includes('treasury_income')) ||
+                           (t.type && (t.type.includes('treasury_income') || t.type.includes('treasury'))) ||
                            checkMetadataForWallet(t.metadata, 'treasury');
                 });
+                
+                // Extract treasury portion from NFT mint distributions
+                const fromDistributions = [];
+                allTransactions.forEach(t => {
+                    if (t.type && (t.type.includes('nft_mint') || t.type.includes('mint'))) {
+                        const distTx = extractDistributionTransactions(t, 'treasury');
+                        if (distTx) fromDistributions.push(distTx);
+                    }
+                });
+                
+                walletTransactions = [...direct, ...fromDistributions];
             } else if (walletType === 'p2e') {
-                walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                const direct = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
                     return userId === P2E_POOL || 
-                           (t.type && t.type.includes('p2e_pool')) ||
-                           (t.type && t.type.includes('p2e')) ||
+                           (t.type && (t.type.includes('p2e_pool') || t.type.includes('p2e') || t.type.includes('refund'))) ||
                            checkMetadataForWallet(t.metadata, 'p2e');
                 });
+                
+                const fromDistributions = [];
+                allTransactions.forEach(t => {
+                    if (t.type && (t.type.includes('nft_mint') || t.type.includes('mint'))) {
+                        const distTx = extractDistributionTransactions(t, 'p2e');
+                        if (distTx) fromDistributions.push(distTx);
+                    }
+                });
+                
+                walletTransactions = [...direct, ...fromDistributions];
             } else if (walletType === 'burn') {
-                walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                const direct = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
                     return userId === BURN_ADDRESS || 
                            userId === 'SYSTEM_BURN' ||
-                           (t.type && t.type.includes('burn')) ||
-                           (t.type && t.type.includes('tama_burn')) ||
+                           (t.type && (t.type.includes('burn') || t.type.includes('tama_burn'))) ||
                            checkMetadataForWallet(t.metadata, 'burn');
                 });
+                
+                const fromDistributions = [];
+                allTransactions.forEach(t => {
+                    if (t.type && (t.type.includes('nft_mint') || t.type.includes('mint'))) {
+                        const distTx = extractDistributionTransactions(t, 'burn');
+                        if (distTx) fromDistributions.push(distTx);
+                    }
+                });
+                
+                walletTransactions = [...direct, ...fromDistributions];
             } else if (walletType === 'liquidity') {
                 walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                    const userId = String(t.user_id || '').trim();
                     return userId === LIQUIDITY_POOL || 
-                           (t.type && t.type.includes('liquidity'));
+                           userId === TREASURY_LIQUIDITY ||
+                           (t.type && t.type.includes('liquidity')) ||
+                           checkMetadataForWallet(t.metadata, 'liquidity');
                 });
             } else if (walletType === 'team') {
                 walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                    const userId = String(t.user_id || '').trim();
                     return userId === TEAM_WALLET || 
-                           (t.type && t.type.includes('team') && !t.type.includes('treasury_team'));
+                           userId === TREASURY_TEAM ||
+                           (t.type && t.type.includes('team') && !t.type.includes('treasury_team')) ||
+                           checkMetadataForWallet(t.metadata, 'team');
                 });
             } else if (walletType === 'marketing') {
                 walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                    const userId = String(t.user_id || '').trim();
                     return userId === MARKETING_WALLET || 
-                           (t.type && t.type.includes('marketing'));
+                           (t.type && t.type.includes('marketing')) ||
+                           checkMetadataForWallet(t.metadata, 'marketing');
                 });
             } else if (walletType === 'community') {
                 walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                    const userId = String(t.user_id || '').trim();
                     return userId === COMMUNITY_WALLET || 
-                           (t.type && t.type.includes('community'));
+                           (t.type && t.type.includes('community')) ||
+                           checkMetadataForWallet(t.metadata, 'community');
                 });
             } else if (walletType === 'reserve') {
                 walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                    const userId = String(t.user_id || '').trim();
                     return userId === RESERVE_WALLET || 
-                           (t.type && t.type.includes('reserve'));
+                           (t.type && t.type.includes('reserve')) ||
+                           checkMetadataForWallet(t.metadata, 'reserve');
                 });
             } else if (walletType === 'treasury-liquidity') {
                 walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                    const userId = String(t.user_id || '').trim();
                     return userId === TREASURY_LIQUIDITY || 
-                           (t.type && t.type.includes('liquidity'));
+                           (t.type && t.type.includes('liquidity')) ||
+                           checkMetadataForWallet(t.metadata, 'liquidity');
                 });
             } else if (walletType === 'treasury-team') {
                 walletTransactions = allTransactions.filter(t => {
-                    const userId = String(t.user_id || '');
+                    const userId = String(t.user_id || '').trim();
                     return userId === TREASURY_TEAM || 
-                           (t.type && t.type.includes('team'));
+                           (t.type && t.type.includes('team')) ||
+                           checkMetadataForWallet(t.metadata, 'team');
                 });
             }
+            
+            // Sort by date (newest first)
+            walletTransactions.sort((a, b) => {
+                const dateA = new Date(a.created_at || 0);
+                const dateB = new Date(b.created_at || 0);
+                return dateB - dateA;
+            });
+            
+            console.log(`📊 Found ${walletTransactions.length} transactions for ${walletType} wallet`);
             
             // Calculate statistics
             const stats = calculateWalletStats(walletTransactions);
             
+            console.log(`📊 Wallet ${walletType}: ${walletTransactions.length} transactions, stats:`, stats);
+            
             // Render transactions in modal with stats and charts
             if (walletTransactions.length === 0) {
-                body.innerHTML = '<div class="loading">No transactions found for this wallet</div>';
+                body.innerHTML = `
+                    <div class="loading">
+                        <p>No transactions found for this wallet</p>
+                        <p style="font-size: 12px; opacity: 0.7; margin-top: 10px;">
+                            Total transactions in system: ${allTransactions.length}<br>
+                            Try checking the main table for all project transactions.
+                        </p>
+                    </div>
+                `;
             } else {
                 body.innerHTML = `
                     <!-- Statistics Section -->
