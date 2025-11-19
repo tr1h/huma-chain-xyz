@@ -10403,35 +10403,109 @@
         async function loadNFTCollection() {
             try {
                 const userId = window.TELEGRAM_USER_ID;
-                if (!userId) return;
+                if (!userId) {
+                    console.warn('⚠️ No user ID for NFT loading');
+                    const nftStats = document.getElementById('nft-stats');
+                    if (nftStats) nftStats.textContent = 'Please login to view NFTs';
+                    return;
+                }
 
-                // Load NFTs from Supabase
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}`, {
+                console.log('🔍 Loading NFTs for user:', userId);
+
+                // Load NFTs from user_nfts table with design info
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&select=*,nft_designs(image_url,tier_name,design_theme)&order=created_at.desc`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 });
 
+                if (!response.ok) {
+                    throw new Error('Failed to load NFTs: ' + response.statusText);
+                }
+
                 const nfts = await response.json();
                 const nftGrid = document.getElementById('nft-grid');
-                const nftCount = document.getElementById('nft-count');
+                const nftStats = document.getElementById('nft-stats');
+
+                console.log('📦 Loaded NFTs:', nfts);
+
+                if (!nftGrid || !nftStats) {
+                    console.error('❌ NFT elements not found in DOM');
+                    return;
+                }
 
                 if (nfts && nfts.length > 0) {
-                    nftCount.textContent = nfts.length;
-                    nftGrid.innerHTML = nfts.map(nft => `
-                        <div class="nft-card" style="border: 2px solid #8AC926; border-radius: 10px; padding: 10px; text-align: center;">
-                            <div style="font-size: 40px;">${getNFTEmoji(nft.pet_type)}</div>
-                            <div style="font-size: 12px; font-weight: bold;">${nft.pet_type}</div>
-                            <div style="font-size: 10px; color: #666;">${nft.rarity}</div>
+                    // Calculate stats
+                    const totalNFTs = nfts.length;
+                    const activeNFTs = nfts.filter(n => n.is_active).length;
+                    const totalBoost = nfts.reduce((sum, n) => sum + (parseFloat(n.earning_multiplier) || 0), 0);
+                    
+                    nftStats.innerHTML = `
+                        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 15px;">
+                            <div><strong>Total:</strong> ${totalNFTs} NFT${totalNFTs !== 1 ? 's' : ''}</div>
+                            <div><strong>Active:</strong> ${activeNFTs}</div>
+                            <div><strong>Total Boost:</strong> ${totalBoost.toFixed(1)}x</div>
                         </div>
-                    `).join('');
+                    `;
+
+                    // Render NFT cards
+                    nftGrid.innerHTML = nfts.map(nft => {
+                        const tier = nft.tier_name || 'Unknown';
+                        const rarity = nft.rarity || 'Common';
+                        const multiplier = parseFloat(nft.earning_multiplier) || 1;
+                        const imageUrl = nft.nft_designs?.image_url || `https://via.placeholder.com/200?text=${tier}`;
+                        const tierColors = {
+                            'Bronze': '#CD7F32',
+                            'Silver': '#C0C0C0',
+                            'Gold': '#FFD700',
+                            'Platinum': '#E5E4E2',
+                            'Diamond': '#B9F2FF'
+                        };
+                        const tierColor = tierColors[tier] || '#8AC926';
+                        
+                        return `
+                            <div class="nft-card" style="
+                                border: 3px solid ${tierColor}; 
+                                border-radius: 15px; 
+                                padding: 15px; 
+                                text-align: center;
+                                background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+                                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                                transition: transform 0.2s;
+                                cursor: pointer;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <img src="${imageUrl}" alt="${tier} NFT" style="
+                                    width: 100%; 
+                                    height: 150px; 
+                                    object-fit: contain; 
+                                    border-radius: 10px;
+                                    margin-bottom: 10px;
+                                    background: rgba(255,255,255,0.1);
+                                " onerror="this.src='https://via.placeholder.com/200?text=${tier}'">
+                                <div style="font-size: 14px; font-weight: bold; color: ${tierColor}; margin-bottom: 5px;">${tier}</div>
+                                <div style="font-size: 12px; color: #fff; margin-bottom: 5px;">${rarity}</div>
+                                <div style="font-size: 11px; color: #8AC926; margin-bottom: 5px;">⚡ ${multiplier}x Boost</div>
+                                ${nft.is_active ? '<div style="font-size: 10px; color: #10b981;">✅ Active</div>' : '<div style="font-size: 10px; color: #ef4444;">❌ Inactive</div>'}
+                            </div>
+                        `;
+                    }).join('');
                 } else {
-                    nftCount.textContent = '0';
-                    nftGrid.innerHTML = '<p style="text-align: center; color: #666;">No NFTs yet. Mint your first one!</p>';
+                    nftStats.textContent = 'No NFTs yet. Mint your first one!';
+                    nftGrid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: rgba(255,255,255,0.7);">
+                            <div style="font-size: 64px; margin-bottom: 20px;">🖼️</div>
+                            <p style="font-size: 18px; margin-bottom: 10px;">You don't have any NFTs yet!</p>
+                            <p style="font-size: 14px; opacity: 0.8;">Mint your first NFT pet to start earning boosts!</p>
+                        </div>
+                    `;
                 }
             } catch (err) {
                 console.error('❌ NFT load error:', err);
+                const nftStats = document.getElementById('nft-stats');
+                const nftGrid = document.getElementById('nft-grid');
+                if (nftStats) nftStats.textContent = 'Error loading NFTs: ' + err.message;
+                if (nftGrid) nftGrid.innerHTML = '<p style="text-align: center; color: #ef4444;">Failed to load NFTs. Please try again.</p>';
             }
         }
 
