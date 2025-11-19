@@ -1273,6 +1273,10 @@
         // Supabase Configuration
         const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+        
+        // Global data storage
+        let leaderboardData = [];
 
         // Tab Switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1314,6 +1318,9 @@
                 }
 
                 const players = await response.json();
+                
+                // Store data globally for editPlayer function
+                leaderboardData = players;
                 
                 // Update stats
                 updateStats(players);
