@@ -921,8 +921,8 @@
                 
                 return `
                     <div class="comment-item">
-                        <div class="comment-author">${escapeHtml(comment.author)}</div>
-                        <div class="comment-text">${escapeHtml(comment.text)}</div>
+                        <div class="comment-author">${escapeHtml(comment.author || comment.author_name || 'Anonymous')}</div>
+                        <div class="comment-text">${escapeHtml(comment.text || comment.comment_text || comment.content || '')}</div>
                         <div class="comment-date">${dateStr}</div>
                     </div>
                 `;
