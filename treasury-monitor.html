@@ -1693,11 +1693,11 @@
                 }
                 
                 return `
-                    <tr>
+                    <tr style="${isOutgoing && !isBurn ? 'background: rgba(239, 68, 68, 0.05);' : ''}">
                         <td>${date}</td>
                         <td><strong>${walletName}</strong></td>
                         <td><span class="type-badge ${typeClass}">${t.type}</span></td>
-                        <td class="${amountClass}">${amountPrefix}${Math.round(displayAmount * 100) / 100}${currency}</td>
+                        <td class="${amountClass}">${amountPrefix}${Math.round(displayAmount * 100) / 100}${currency}${arrow}</td>
                         <td>${source}</td>
                         <td>${explorerLink}</td>
                     </tr>
