@@ -2628,17 +2628,23 @@
                 
                 try {
                     // 1. Record BURN transaction
-                    await supabase.from('transactions').insert({
+                    // Save transaction ID for later signature update
+                    const { data: burnTx, error: burnTxError } = await supabase.from('transactions').insert({
                         user_id: 'SYSTEM_BURN',
                         type: 'tama_burn',
                         amount: burnAmount,
                         metadata: {
                             reason: 'nft_mint_bronze',
                             from_user: String(TELEGRAM_USER_ID),
-                            burn_percentage: 40
+                            burn_percentage: 40,
+                            onchain_signature: null // Will be updated after on-chain transfer
                         }
-                    });
-                    console.log('✅ Burn transaction recorded');
+                    }).select('id').single();
+                    
+                    if (!burnTxError && burnTx) {
+                        burnTransactionId = burnTx.id;
+                    }
+                    console.log('✅ Burn transaction recorded', burnTransactionId ? `(ID: ${burnTransactionId})` : '');
                     
                     // 2. Add TAMA to Treasury (use wallet address as ID)
                     const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
