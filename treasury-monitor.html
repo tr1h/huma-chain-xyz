@@ -993,23 +993,36 @@
                     
                     // Filter only project transactions
                     // ВАЖНО: NFT mint транзакции содержат распределение по пулам в metadata
+                    // Делаем фильтр более гибким - сначала собираем все потенциально релевантные
                     allTransactions = payload.data.filter(t => {
-                        // Convert user_id to string for comparison
+                        // Convert user_id to string for comparison (может быть число или строка)
                         const userId = String(t.user_id || '').trim();
+                        const userIdLower = userId.toLowerCase();
                         
                         // 1. Include by user_id (exact match) - direct pool transactions
-                        // Проверяем все проектные кошельки
+                        // Проверяем все проектные кошельки (case-insensitive)
                         if (userId === TREASURY_MAIN || 
+                            userIdLower === TREASURY_MAIN.toLowerCase() ||
                             userId === P2E_POOL || 
+                            userIdLower === P2E_POOL.toLowerCase() ||
                             userId === BURN_ADDRESS ||
+                            userIdLower === BURN_ADDRESS.toLowerCase() ||
                             userId === 'SYSTEM_BURN' ||
+                            userIdLower === 'system_burn' ||
                             userId === LIQUIDITY_POOL ||
+                            userIdLower === LIQUIDITY_POOL.toLowerCase() ||
                             userId === TEAM_WALLET ||
+                            userIdLower === TEAM_WALLET.toLowerCase() ||
                             userId === MARKETING_WALLET ||
+                            userIdLower === MARKETING_WALLET.toLowerCase() ||
                             userId === COMMUNITY_WALLET ||
+                            userIdLower === COMMUNITY_WALLET.toLowerCase() ||
                             userId === RESERVE_WALLET ||
+                            userIdLower === RESERVE_WALLET.toLowerCase() ||
                             userId === TREASURY_LIQUIDITY ||
-                            userId === TREASURY_TEAM) {
+                            userIdLower === TREASURY_LIQUIDITY.toLowerCase() ||
+                            userId === TREASURY_TEAM ||
+                            userIdLower === TREASURY_TEAM.toLowerCase()) {
                             return true;
                         }
                         
@@ -1017,9 +1030,8 @@
                         const typeStr = String(t.type || '').toLowerCase();
                         if (typeStr) {
                             // NFT mint транзакции содержат распределение
-                            if (typeStr.includes('nft_mint') || 
-                                typeStr.includes('mint_nft') ||
-                                typeStr.includes('nft_onchain')) {
+                            if (typeStr.includes('nft') || 
+                                typeStr.includes('mint')) {
                                 return true;
                             }
                             
@@ -1035,7 +1047,8 @@
                                 typeStr.includes('refund') ||
                                 typeStr.includes('distribution') ||
                                 typeStr.includes('income') ||
-                                typeStr.includes('transfer')) {
+                                typeStr.includes('transfer') ||
+                                typeStr.includes('onchain')) {
                                 return true;
                             }
                         }
@@ -1048,27 +1061,49 @@
                                 
                                 // Если в metadata есть distribution (распределение средств)
                                 if (metadata.distribution || 
-                                    metadata.distribution?.treasury ||
-                                    metadata.distribution?.p2e_pool ||
-                                    metadata.distribution?.burn ||
-                                    metadata.distribution?.pool ||
+                                    (metadata.distribution && (metadata.distribution.treasury || metadata.distribution.p2e_pool || metadata.distribution.burn || metadata.distribution.pool)) ||
                                     metadataStr.includes('treasury') || 
                                     metadataStr.includes('p2e') ||
                                     metadataStr.includes('burn') ||
                                     metadataStr.includes('pool') ||
                                     metadataStr.includes('distribution') ||
                                     metadataStr.includes('refund') ||
-                                    metadataStr.includes('income')) {
+                                    metadataStr.includes('income') ||
+                                    metadataStr.includes('onchain')) {
                                     return true;
                                 }
                             } catch (e) {
                                 // Ignore JSON parse errors
-                                console.warn('Failed to parse metadata:', e);
+                                // console.warn('Failed to parse metadata:', e);
                             }
+                        }
+                        
+                        // 4. Check username for project wallets
+                        const username = String(t.username || '').toLowerCase();
+                        if (username.includes('treasury') || 
+                            username.includes('p2e') ||
+                            username.includes('burn') ||
+                            username.includes('pool') ||
+                            username.includes('team') ||
+                            username.includes('liquidity')) {
+                            return true;
                         }
                         
                         return false;
                     });
+                    
+                    // Если не нашли проектные транзакции, показываем хотя бы NFT mint транзакции для отладки
+                    if (allTransactions.length === 0) {
+                        console.warn('⚠️ No project transactions found with strict filter. Trying relaxed filter...');
+                        const nftTransactions = payload.data.filter(t => {
+                            const type = String(t.type || '').toLowerCase();
+                            return type.includes('nft') || type.includes('mint');
+                        });
+                        if (nftTransactions.length > 0) {
+                            console.log(`📦 Found ${nftTransactions.length} NFT/mint transactions - using them for debugging`);
+                            allTransactions = nftTransactions;
+                        }
+                    }
                     
                     console.log(`✅ Loaded ${allTransactions.length} project transactions from API (filtered from ${payload.data.length} total)`);
                     
@@ -1093,9 +1128,41 @@
                         console.log('🔍 Sample of all transactions (first 10):', payload.data.slice(0, 10).map(t => ({
                             id: t.id,
                             user_id: t.user_id,
+                            user_id_type: typeof t.user_id,
+                            username: t.username,
                             type: t.type,
-                            amount: t.amount
+                            amount: t.amount,
+                            metadata: t.metadata ? (typeof t.metadata === 'string' ? 'string' : 'object') : null
                         })));
+                        
+                        // Show all unique types
+                        const allTypes = [...new Set(payload.data.map(t => t.type).filter(Boolean))];
+                        console.log('📋 All transaction types found:', allTypes);
+                        
+                        // Show all unique user_ids (first 20)
+                        const allUserIds = [...new Set(payload.data.map(t => String(t.user_id || 'null')).filter(id => id !== 'null'))].slice(0, 20);
+                        console.log('👤 Sample user_ids found:', allUserIds);
+                        
+                        // Try to find any transaction that might be project-related
+                        const potentialProjectTxs = payload.data.filter(t => {
+                            const type = String(t.type || '').toLowerCase();
+                            const userId = String(t.user_id || '');
+                            return type.includes('nft') || 
+                                   type.includes('mint') || 
+                                   type.includes('burn') ||
+                                   type.includes('treasury') ||
+                                   type.includes('p2e') ||
+                                   userId.length > 40; // Solana addresses are long
+                        });
+                        console.log(`🔍 Found ${potentialProjectTxs.length} potentially project-related transactions`);
+                        if (potentialProjectTxs.length > 0) {
+                            console.log('📊 Sample potential project transactions:', potentialProjectTxs.slice(0, 5).map(t => ({
+                                id: t.id,
+                                user_id: t.user_id,
+                                type: t.type,
+                                amount: t.amount
+                            })));
+                        }
                     }
                     
                     filteredTransactions = [...allTransactions];
@@ -1125,28 +1192,39 @@
                         // Filter project transactions (same logic as API)
                         allTransactions = (Array.isArray(supabaseData) ? supabaseData : []).filter(t => {
                             const userId = String(t.user_id || '').trim();
+                            const userIdLower = userId.toLowerCase();
                             
-                            // 1. Include by user_id - все проектные кошельки
+                            // 1. Include by user_id - все проектные кошельки (case-insensitive)
                             if (userId === TREASURY_MAIN || 
+                                userIdLower === TREASURY_MAIN.toLowerCase() ||
                                 userId === P2E_POOL || 
+                                userIdLower === P2E_POOL.toLowerCase() ||
                                 userId === BURN_ADDRESS ||
+                                userIdLower === BURN_ADDRESS.toLowerCase() ||
                                 userId === 'SYSTEM_BURN' ||
+                                userIdLower === 'system_burn' ||
                                 userId === LIQUIDITY_POOL ||
+                                userIdLower === LIQUIDITY_POOL.toLowerCase() ||
                                 userId === TEAM_WALLET ||
+                                userIdLower === TEAM_WALLET.toLowerCase() ||
                                 userId === MARKETING_WALLET ||
+                                userIdLower === MARKETING_WALLET.toLowerCase() ||
                                 userId === COMMUNITY_WALLET ||
+                                userIdLower === COMMUNITY_WALLET.toLowerCase() ||
                                 userId === RESERVE_WALLET ||
+                                userIdLower === RESERVE_WALLET.toLowerCase() ||
                                 userId === TREASURY_LIQUIDITY ||
-                                userId === TREASURY_TEAM) {
+                                userIdLower === TREASURY_LIQUIDITY.toLowerCase() ||
+                                userId === TREASURY_TEAM ||
+                                userIdLower === TREASURY_TEAM.toLowerCase()) {
                                 return true;
                             }
                             
                             // 2. Include by type
                             const typeStr = String(t.type || '').toLowerCase();
                             if (typeStr) {
-                                if (typeStr.includes('nft_mint') || 
-                                    typeStr.includes('mint_nft') ||
-                                    typeStr.includes('nft_onchain')) {
+                                if (typeStr.includes('nft') || 
+                                    typeStr.includes('mint')) {
                                     return true;
                                 }
                                 
@@ -1161,7 +1239,8 @@
                                     typeStr.includes('refund') ||
                                     typeStr.includes('distribution') ||
                                     typeStr.includes('income') ||
-                                    typeStr.includes('transfer')) {
+                                    typeStr.includes('transfer') ||
+                                    typeStr.includes('onchain')) {
                                     return true;
                                 }
                             }
@@ -1173,17 +1252,15 @@
                                     const metadataStr = JSON.stringify(metadata).toLowerCase();
                                     
                                     if (metadata.distribution || 
-                                        metadata.distribution?.treasury ||
-                                        metadata.distribution?.p2e_pool ||
-                                        metadata.distribution?.burn ||
-                                        metadata.distribution?.pool ||
+                                        (metadata.distribution && (metadata.distribution.treasury || metadata.distribution.p2e_pool || metadata.distribution.burn || metadata.distribution.pool)) ||
                                         metadataStr.includes('treasury') || 
                                         metadataStr.includes('p2e') ||
                                         metadataStr.includes('burn') ||
                                         metadataStr.includes('pool') ||
                                         metadataStr.includes('distribution') ||
                                         metadataStr.includes('refund') ||
-                                        metadataStr.includes('income')) {
+                                        metadataStr.includes('income') ||
+                                        metadataStr.includes('onchain')) {
                                         return true;
                                     }
                                 } catch (e) {
@@ -1191,8 +1268,31 @@
                                 }
                             }
                             
+                            // 4. Check username
+                            const username = String(t.username || '').toLowerCase();
+                            if (username.includes('treasury') || 
+                                username.includes('p2e') ||
+                                username.includes('burn') ||
+                                username.includes('pool') ||
+                                username.includes('team') ||
+                                username.includes('liquidity')) {
+                                return true;
+                            }
+                            
                             return false;
                         });
+                        
+                        // Если не нашли, показываем NFT транзакции
+                        if (allTransactions.length === 0) {
+                            const nftTransactions = supabaseData.filter(t => {
+                                const type = String(t.type || '').toLowerCase();
+                                return type.includes('nft') || type.includes('mint');
+                            });
+                            if (nftTransactions.length > 0) {
+                                console.log(`📦 Found ${nftTransactions.length} NFT/mint transactions - using them`);
+                                allTransactions = nftTransactions;
+                            }
+                        }
                         
                         console.log(`✅ Loaded ${allTransactions.length} project transactions from Supabase`);
                         
