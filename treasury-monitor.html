@@ -773,6 +773,7 @@
         const SOLANA_RPC = 'https://api.devnet.solana.com';
         
         let allTransactions = [];
+        let filteredTransactions = [];
         let currentPage = 1;
         const PAGE_SIZE = 50;
         let autoUpdateInterval;
@@ -1048,7 +1049,8 @@
                     });
                     
                     console.log(`✅ Loaded ${allTransactions.length} project transactions from API (filtered from ${payload.data.length} total)`);
-                    renderTransactions(allTransactions);
+                    filteredTransactions = [...allTransactions];
+                    renderTransactions(filteredTransactions);
                     updateLastUpdateTime();
                 } else {
                     console.warn('⚠️ API returned invalid format, trying Supabase...');
@@ -1124,7 +1126,8 @@
                         });
                         
                         console.log(`✅ Loaded ${allTransactions.length} project transactions from Supabase`);
-                        renderTransactions(allTransactions);
+                        filteredTransactions = [...allTransactions];
+                        renderTransactions(filteredTransactions);
                         updateLastUpdateTime();
                     } else {
                         throw new Error(`Supabase error: ${supabaseResponse.status}`);
@@ -1147,8 +1150,9 @@
         function renderTransactions(transactions) {
             const tbody = document.getElementById('transactions-body');
             
-            if (transactions.length === 0) {
+            if (!transactions || transactions.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="loading">No project transactions found</td></tr>';
+                updatePaginationInfo();
                 return;
             }
 
@@ -1157,10 +1161,18 @@
                 const amount = t.amount || 0;
                 
                 // Determine wallet name
-                let walletName = t.username || t.user_id;
-                if (t.user_id === TREASURY_MAIN) walletName = '💰 Treasury Main V2';
-                if (t.user_id === P2E_POOL) walletName = '🎮 P2E Pool';
-                if (t.user_id === BURN_ADDRESS || t.user_id === 'SYSTEM_BURN') walletName = '🔥 Burn';
+                let walletName = t.username || t.user_id || 'Unknown';
+                const userId = String(t.user_id || '');
+                if (userId === TREASURY_MAIN) walletName = '💰 Treasury Main V2';
+                else if (userId === P2E_POOL) walletName = '🎮 P2E Pool';
+                else if (userId === BURN_ADDRESS || userId === 'SYSTEM_BURN') walletName = '🔥 Burn';
+                else if (userId === LIQUIDITY_POOL) walletName = '💧 Liquidity Pool';
+                else if (userId === TEAM_WALLET) walletName = '👥 Team Wallet';
+                else if (userId === MARKETING_WALLET) walletName = '📢 Marketing';
+                else if (userId === COMMUNITY_WALLET) walletName = '🌐 Community';
+                else if (userId === RESERVE_WALLET) walletName = '🏦 Reserve';
+                else if (userId === TREASURY_LIQUIDITY) walletName = '💧 Treasury Liquidity V2';
+                else if (userId === TREASURY_TEAM) walletName = '👥 Treasury Team V2';
                 
                 // Type badge
                 const typeClass = t.type && t.type.includes('treasury') ? 'type-treasury' :
@@ -1238,14 +1250,15 @@
         }
 
         function updatePaginationInfo() {
-            const totalPages = Math.ceil(allTransactions.length / PAGE_SIZE);
+            const transactionsToShow = filteredTransactions.length > 0 ? filteredTransactions : allTransactions;
+            const totalPages = Math.ceil(transactionsToShow.length / PAGE_SIZE);
             const start = (currentPage - 1) * PAGE_SIZE + 1;
-            const end = Math.min(currentPage * PAGE_SIZE, allTransactions.length);
+            const end = Math.min(currentPage * PAGE_SIZE, transactionsToShow.length);
             
             document.getElementById('page-info').innerHTML = `
                 Page ${currentPage} of ${totalPages}<br>
                 <span style="font-size: 14px; opacity: 0.8;">
-                    Showing ${start.toLocaleString()} - ${end.toLocaleString()} of ${allTransactions.length.toLocaleString()}
+                    Showing ${start.toLocaleString()} - ${end.toLocaleString()} of ${transactionsToShow.length.toLocaleString()}
                 </span>
             `;
             
@@ -1262,13 +1275,14 @@
         }
 
         function changePage(direction) {
-            const totalPages = Math.ceil(allTransactions.length / PAGE_SIZE);
+            const transactionsToShow = filteredTransactions.length > 0 ? filteredTransactions : allTransactions;
+            const totalPages = Math.ceil(transactionsToShow.length / PAGE_SIZE);
             currentPage += direction;
             
             if (currentPage < 1) currentPage = 1;
             if (currentPage > totalPages) currentPage = totalPages;
             
-            renderTransactions(allTransactions);
+            renderTransactions(transactionsToShow);
         }
 
         function filterTransactions() {
@@ -1277,15 +1291,92 @@
             const dateFrom = document.getElementById('filter-date-from').value;
             const dateTo = document.getElementById('filter-date-to').value;
 
-            // Implementation of filters (similar to transactions-admin.html)
-            // For now, just reload
-            loadProjectTransactions();
+            // Apply filters to already loaded transactions
+            let filtered = [...allTransactions];
+
+            // Filter by wallet type
+            if (walletFilter) {
+                if (walletFilter === 'treasury') {
+                    filtered = filtered.filter(t => {
+                        const userId = String(t.user_id || '');
+                        return userId === TREASURY_MAIN || 
+                               (t.type && t.type.includes('treasury'));
+                    });
+                } else if (walletFilter === 'p2e') {
+                    filtered = filtered.filter(t => {
+                        const userId = String(t.user_id || '');
+                        return userId === P2E_POOL || 
+                               (t.type && t.type.includes('p2e'));
+                    });
+                } else if (walletFilter === 'burn') {
+                    filtered = filtered.filter(t => {
+                        const userId = String(t.user_id || '');
+                        return userId === BURN_ADDRESS || 
+                               userId === 'SYSTEM_BURN' ||
+                               (t.type && t.type.includes('burn'));
+                    });
+                } else if (walletFilter === 'sol') {
+                    filtered = filtered.filter(t => {
+                        const userId = String(t.user_id || '');
+                        return userId === LIQUIDITY_POOL || 
+                               userId === TEAM_WALLET ||
+                               userId === MARKETING_WALLET ||
+                               userId === COMMUNITY_WALLET ||
+                               userId === RESERVE_WALLET ||
+                               userId === TREASURY_LIQUIDITY ||
+                               userId === TREASURY_TEAM ||
+                               (t.type && t.type.includes('sol'));
+                    });
+                }
+            }
+
+            // Filter by transaction type
+            if (typeFilter) {
+                filtered = filtered.filter(t => {
+                    const typeStr = String(t.type || '').toLowerCase();
+                    if (typeFilter === 'treasury_income') {
+                        return typeStr.includes('treasury') || typeStr.includes('nft_mint');
+                    } else if (typeFilter === 'p2e_pool_refund') {
+                        return typeStr.includes('p2e') || typeStr.includes('withdrawal');
+                    } else if (typeFilter === 'burn') {
+                        return typeStr.includes('burn');
+                    } else if (typeFilter === 'sol_income') {
+                        return typeStr.includes('sol') || typeStr.includes('nft_mint_sol');
+                    }
+                    return true;
+                });
+            }
+
+            // Filter by date range
+            if (dateFrom) {
+                const fromDate = new Date(dateFrom);
+                fromDate.setHours(0, 0, 0, 0);
+                filtered = filtered.filter(t => {
+                    const txDate = new Date(t.created_at);
+                    return txDate >= fromDate;
+                });
+            }
+
+            if (dateTo) {
+                const toDate = new Date(dateTo);
+                toDate.setHours(23, 59, 59, 999);
+                filtered = filtered.filter(t => {
+                    const txDate = new Date(t.created_at);
+                    return txDate <= toDate;
+                });
+            }
+
+            // Reset to first page and render filtered results
+            filteredTransactions = filtered;
+            currentPage = 1;
+            renderTransactions(filteredTransactions);
         }
 
         function exportToCSV() {
+            const transactionsToExport = filteredTransactions.length > 0 ? filteredTransactions : allTransactions;
             const csv = [
                 ['Date', 'Wallet', 'Type', 'Amount', 'Source', 'Signature'],
-                ...allTransactions.map(t => [
+                ...transactionsToExport.map(t => [
                     new Date(t.created_at).toISOString(),
                     t.username || t.user_id,
                     t.type,
