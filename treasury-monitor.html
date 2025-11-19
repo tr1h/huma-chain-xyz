@@ -2094,8 +2094,10 @@
                 // INCOMING transactions to P2E Pool
                 const direct = allTransactions.filter(t => {
                     const userId = String(t.user_id || '').trim();
-                    return userId === P2E_POOL || 
-                           (t.type && (t.type.includes('p2e_pool') || t.type.includes('p2e') || t.type.includes('refund'))) ||
+                    const amount = parseFloat(t.amount || 0);
+                    // Only include positive amounts (incoming) or zero
+                    return (userId === P2E_POOL && amount >= 0) || 
+                           (t.type && (t.type.includes('p2e_pool') || t.type.includes('p2e') || t.type.includes('refund')) && amount >= 0) ||
                            checkMetadataForWallet(t.metadata, 'p2e');
                 });
                 
@@ -2109,15 +2111,32 @@
                 
                 // OUTGOING transactions from P2E Pool (withdrawals)
                 const outgoing = allTransactions.filter(t => {
-                    // Check if P2E Pool is the SOURCE of transaction
+                    const userId = String(t.user_id || '').trim();
+                    const amount = parseFloat(t.amount || 0);
+                    const typeStr = String(t.type || '').toLowerCase();
+                    
+                    // 1. Check by user_id = P2E_POOL with negative amount (direct withdrawal)
+                    if (userId === P2E_POOL && amount < 0) {
+                        return true;
+                    }
+                    
+                    // 2. Check by transaction type
+                    if (typeStr.includes('p2e_pool_withdrawal') || typeStr.includes('withdrawal')) {
+                        return true;
+                    }
+                    
+                    // 3. Check metadata for P2E Pool as source
                     if (t.metadata) {
                         try {
                             const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
-                            return meta.source === 'p2e_pool' || 
-                                   meta.source_address === P2E_POOL ||
-                                   (meta.source && String(meta.source).toLowerCase().includes('p2e'));
+                            if (meta.source === 'p2e_pool' || 
+                                meta.source_address === P2E_POOL ||
+                                (meta.source && String(meta.source).toLowerCase().includes('p2e'))) {
+                                return true;
+                            }
                         } catch (e) {}
                     }
+                    
                     return false;
                 });
                 
