@@ -455,9 +455,9 @@
             background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
             border-radius: 20px;
             padding: 30px;
-            max-width: 900px;
-            width: 90%;
-            max-height: 80vh;
+            max-width: 1800px;
+            width: 95%;
+            max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             border: 2px solid rgba(255,255,255,0.1);
@@ -2266,6 +2266,8 @@
                                                      t.type && t.type.includes('p2e') ? 'type-p2e' :
                                                      t.type && t.type.includes('burn') ? 'type-burn' : 'type-treasury';
                                     const isBurn = t.type && t.type.includes('burn');
+                                    const isOutgoing = amount < 0 || String(t.type || '').includes('withdrawal') || String(t.type || '').includes('spend') || String(t.type || '').includes('transfer_out');
+                                    
                                     let amountClass, amountPrefix, displayAmount;
                                     if (isBurn) {
                                         amountClass = 'amount-burn';
@@ -2281,36 +2283,55 @@
                                         displayAmount = Math.abs(amount);
                                     }
                                     const currency = t.type && t.type.includes('_sol') ? ' SOL' : ' TAMA';
+                                    const arrow = isOutgoing && !isBurn ? ' ↗' : '';
+                                    
                                     let source = 'System';
+                                    let destinationWallet = null;
                                     if (t.metadata && typeof t.metadata === 'object') {
-                                        source = t.metadata.reason || t.metadata.source || 'NFT Mint';
+                                        source = t.metadata.reason || t.metadata.source || t.metadata.action || 'NFT Mint';
+                                        destinationWallet = t.metadata.wallet_address || t.metadata.destination || t.metadata.to_address;
                                     } else if (typeof t.metadata === 'string') {
                                         try {
                                             const parsed = JSON.parse(t.metadata);
-                                            source = parsed.reason || parsed.source || 'NFT Mint';
+                                            source = parsed.reason || parsed.source || parsed.action || 'NFT Mint';
+                                            destinationWallet = parsed.wallet_address || parsed.destination || parsed.to_address;
                                         } catch (e) {
                                             // Invalid JSON, keep 'System'
                                         }
                                     }
+                                    
+                                    // Show destination for outgoing transactions
+                                    if (destinationWallet && isOutgoing) {
+                                        source += '<br><small style="opacity: 0.7;">→ ' + destinationWallet.substring(0, 6) + '...' + destinationWallet.substring(destinationWallet.length - 4) + '</small>';
+                                    }
+                                    
                                     let explorerLink = '-';
-                                    if (t.metadata && typeof t.metadata === 'object') {
-                                        const signature = t.metadata.onchain_signature || t.metadata.transaction_signature;
-                                        if (signature) {
-                                            explorerLink = '<a href="https://solscan.io/tx/' + signature + '?cluster=devnet" target="_blank" class="explorer-link">View 🔗</a>';
+                                    let signature = null;
+                                    
+                                    // Try to get signature from metadata
+                                    if (t.metadata) {
+                                        let meta = t.metadata;
+                                        if (typeof meta === 'string') {
+                                            try {
+                                                meta = JSON.parse(meta);
+                                            } catch (e) {}
                                         }
-                                    } else if (typeof t.metadata === 'string') {
-                                        // Try to parse JSON string
-                                        try {
-                                            const parsed = JSON.parse(t.metadata);
-                                            const signature = parsed.onchain_signature || parsed.transaction_signature;
-                                            if (signature) {
-                                                explorerLink = '<a href="https://solscan.io/tx/' + signature + '?cluster=devnet" target="_blank" class="explorer-link">View 🔗</a>';
-                                            }
-                                        } catch (e) {
-                                            // Invalid JSON, keep '-'
+                                        if (meta && typeof meta === 'object') {
+                                            signature = meta.onchain_signature || meta.transaction_signature || meta.signature || meta.tx_signature;
                                         }
                                     }
-                                    return '<tr><td>' + date + '</td><td><span class="type-badge ' + typeClass + '">' + t.type + '</span></td><td class="' + amountClass + '">' + amountPrefix + Math.round(displayAmount * 100) / 100 + currency + '</td><td>' + source + '</td><td>' + explorerLink + '</td></tr>';
+                                    
+                                    // Also check transaction_hash field directly
+                                    if (!signature && t.transaction_hash) {
+                                        signature = t.transaction_hash;
+                                    }
+                                    
+                                    if (signature) {
+                                        explorerLink = '<a href="https://solscan.io/tx/' + signature + '?cluster=devnet" target="_blank" class="explorer-link" style="color: #8AC926; text-decoration: underline;">View 🔗</a>';
+                                    }
+                                    
+                                    const rowStyle = isOutgoing && !isBurn ? 'style="background: rgba(239, 68, 68, 0.05);"' : '';
+                                    return '<tr ' + rowStyle + '><td>' + date + '</td><td><span class="type-badge ' + typeClass + '">' + t.type + '</span></td><td class="' + amountClass + '">' + amountPrefix + Math.round(displayAmount * 100) / 100 + currency + arrow + '</td><td>' + source + '</td><td>' + explorerLink + '</td></tr>';
                                 }).join('')}
                             </tbody>
                         </table>
@@ -2350,40 +2371,60 @@
                 stats.dailyData[dateStr] = { count: 0, amount: 0 };
             }
             
+            // First pass: determine primary currency (most common)
+            let tamaCount = 0, solCount = 0;
+            transactions.forEach(t => {
+                const type = String(t.type || '').toLowerCase();
+                if (type.includes('_sol') || type.includes('nft_mint_sol')) {
+                    solCount++;
+                } else {
+                    tamaCount++;
+                }
+            });
+            const primaryCurrency = solCount > tamaCount ? 'SOL' : 'TAMA';
+            stats.currency = primaryCurrency;
+            
+            // Second pass: calculate stats only for primary currency
             transactions.forEach(t => {
                 const amount = parseFloat(t.amount || 0);
+                const type = String(t.type || '').toLowerCase();
+                const isSolTx = type.includes('_sol') || type.includes('nft_mint_sol');
+                const currencyMatch = (primaryCurrency === 'SOL' && isSolTx) || (primaryCurrency === 'TAMA' && !isSolTx);
                 
-                // Determine currency
-                if (t.type && t.type.includes('_sol')) {
-                    stats.currency = 'SOL';
-                }
-                
-                // Calculate inflow/outflow
-                if (amount > 0) {
-                    stats.totalInflow += amount;
-                } else {
-                    stats.totalOutflow += Math.abs(amount);
-                }
-                
-                // Type distribution
-                const type = t.type || 'unknown';
-                if (!stats.typeDistribution[type]) {
-                    stats.typeDistribution[type] = { count: 0, amount: 0 };
-                }
-                stats.typeDistribution[type].count++;
-                stats.typeDistribution[type].amount += Math.abs(amount);
-                
-                // Daily data
-                if (t.created_at) {
-                    const date = new Date(t.created_at).toISOString().split('T')[0];
-                    if (stats.dailyData[date]) {
-                        stats.dailyData[date].count++;
-                        stats.dailyData[date].amount += Math.abs(amount);
+                // Only count transactions matching primary currency
+                if (currencyMatch) {
+                    // Calculate inflow/outflow
+                    if (amount > 0) {
+                        stats.totalInflow += amount;
+                    } else {
+                        stats.totalOutflow += Math.abs(amount);
+                    }
+                    
+                    // Type distribution
+                    const typeKey = t.type || 'unknown';
+                    if (!stats.typeDistribution[typeKey]) {
+                        stats.typeDistribution[typeKey] = { count: 0, amount: 0 };
+                    }
+                    stats.typeDistribution[typeKey].count++;
+                    stats.typeDistribution[typeKey].amount += Math.abs(amount);
+                    
+                    // Daily data
+                    if (t.created_at) {
+                        const date = new Date(t.created_at).toISOString().split('T')[0];
+                        if (stats.dailyData[date]) {
+                            stats.dailyData[date].count++;
+                            stats.dailyData[date].amount += Math.abs(amount);
+                        }
                     }
                 }
             });
             
             stats.netBalance = stats.totalInflow - stats.totalOutflow;
+            
+            // Round to reasonable precision
+            stats.totalInflow = Math.round(stats.totalInflow * 100) / 100;
+            stats.totalOutflow = Math.round(stats.totalOutflow * 100) / 100;
+            stats.netBalance = Math.round(stats.netBalance * 100) / 100;
             
             return stats;
         }
