@@ -1598,6 +1598,10 @@
             tbody.innerHTML = transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(t => {
                 const date = new Date(t.created_at).toLocaleString();
                 const amount = t.amount || 0;
+                const isOutgoing = amount < 0 || 
+                                  String(t.type || '').includes('withdrawal') || 
+                                  String(t.type || '').includes('spend') || 
+                                  String(t.type || '').includes('transfer_out');
                 
                 // Determine wallet name
                 let walletName = t.username || t.user_id || 'Unknown';
