@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💰 Treasury Monitor - Public Transparency Dashboard | Solana Tamagotchi</title>
     <meta name="description" content="Public transparency dashboard showing all project wallet transactions, TAMA distribution, and tokenomics. All transactions are on-chain and verifiable.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
     <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -892,24 +895,53 @@
 
         async function loadWalletBalances() {
             try {
-                // Load balances directly from BLOCKCHAIN (source of truth)
-                // Treasury Main V2 - get SOL and TAMA from blockchain
-                const treasuryMainSol = await getSolBalance(TREASURY_MAIN);
-                const treasuryMainTama = await getTamaBalance(TREASURY_MAIN);
+                console.log('🔄 Loading wallet balances (optimized parallel requests)...');
                 
+                // OPTIMIZATION: Load all balances in parallel instead of sequentially
+                // This reduces total loading time from ~18 seconds to ~3-5 seconds
+                const [
+                    treasuryMainSol, treasuryMainTama,
+                    p2eBlockchainTama,
+                    liquiditySolBalance, liquidityTamaBalance,
+                    teamSolBalance, teamTamaBalance,
+                    marketingSolBalance, marketingTamaBalance,
+                    communitySolBalance, communityTamaBalance,
+                    reserveSolBalance, reserveTamaBalance,
+                    treasuryLiquiditySolBalance, treasuryLiquidityTamaBalance,
+                    treasuryTeamSolBalance, treasuryTeamTamaBalance,
+                    burnResponse
+                ] = await Promise.all([
+                    getSolBalance(TREASURY_MAIN),
+                    getTamaBalance(TREASURY_MAIN),
+                    getTamaBalance(P2E_POOL),
+                    getSolBalance(LIQUIDITY_POOL),
+                    getTamaBalance(LIQUIDITY_POOL),
+                    getSolBalance(TEAM_WALLET),
+                    getTamaBalance(TEAM_WALLET),
+                    getSolBalance(MARKETING_WALLET),
+                    getTamaBalance(MARKETING_WALLET),
+                    getSolBalance(COMMUNITY_WALLET),
+                    getTamaBalance(COMMUNITY_WALLET),
+                    getSolBalance(RESERVE_WALLET),
+                    getTamaBalance(RESERVE_WALLET),
+                    getSolBalance(TREASURY_LIQUIDITY),
+                    getTamaBalance(TREASURY_LIQUIDITY),
+                    getSolBalance(TREASURY_TEAM),
+                    getTamaBalance(TREASURY_TEAM),
+                    fetch(`${TAMA_API_BASE}/transactions/list?limit=1000`)
+                ]);
+                
+                // Update UI with loaded balances
                 let treasuryMainText = Math.round(treasuryMainTama).toLocaleString() + ' TAMA';
                 if (treasuryMainSol > 0) {
                     treasuryMainText += ' + ' + treasuryMainSol.toFixed(4) + ' SOL';
                 }
                 document.getElementById('treasury-balance').textContent = treasuryMainText;
 
-                // P2E Pool balance (from BLOCKCHAIN - source of truth)
-                const p2eBlockchainTama = await getTamaBalance(P2E_POOL);
                 document.getElementById('p2e-balance').textContent = 
                     Math.round(p2eBlockchainTama).toLocaleString() + ' TAMA';
 
-                // Calculate total burned (from transactions)
-                const burnResponse = await fetch(`${TAMA_API_BASE}/transactions/list?limit=1000`);
+                // Calculate total burned
                 if (burnResponse.ok) {
                     const burnData = await burnResponse.json();
                     const burnTransactions = (burnData.data || []).filter(t => t.type && t.type.includes('burn'));
@@ -920,71 +952,50 @@
                     document.getElementById('burn-total').textContent = '0 TAMA';
                 }
 
-                // Load SOL and TAMA balances from Solana Devnet
-                // Liquidity Pool (SOL + TAMA)
-                const liquiditySolBalance = await getSolBalance(LIQUIDITY_POOL);
-                const liquidityTamaBalance = await getTamaBalance(LIQUIDITY_POOL);
+                // Update all wallet balances
                 let liquidityText = liquiditySolBalance.toFixed(4) + ' SOL';
                 if (liquidityTamaBalance > 0) {
                     liquidityText += ' + ' + Math.round(liquidityTamaBalance).toLocaleString() + ' TAMA';
                 }
                 document.getElementById('liquidity-balance').textContent = liquidityText;
                 
-                // Team Wallet (SOL + TAMA)
-                const teamSolBalance = await getSolBalance(TEAM_WALLET);
-                const teamTamaBalance = await getTamaBalance(TEAM_WALLET);
                 let teamText = teamSolBalance.toFixed(4) + ' SOL';
                 if (teamTamaBalance > 0) {
                     teamText += ' + ' + Math.round(teamTamaBalance).toLocaleString() + ' TAMA';
                 }
                 document.getElementById('team-balance').textContent = teamText;
 
-                // Marketing Wallet (SOL + TAMA)
-                const marketingSolBalance = await getSolBalance(MARKETING_WALLET);
-                const marketingTamaBalance = await getTamaBalance(MARKETING_WALLET);
                 let marketingText = marketingSolBalance.toFixed(4) + ' SOL';
                 if (marketingTamaBalance > 0) {
                     marketingText += ' + ' + Math.round(marketingTamaBalance).toLocaleString() + ' TAMA';
                 }
                 document.getElementById('marketing-balance').textContent = marketingText;
 
-                // Community Wallet (SOL + TAMA)
-                const communitySolBalance = await getSolBalance(COMMUNITY_WALLET);
-                const communityTamaBalance = await getTamaBalance(COMMUNITY_WALLET);
                 let communityText = communitySolBalance.toFixed(4) + ' SOL';
                 if (communityTamaBalance > 0) {
                     communityText += ' + ' + Math.round(communityTamaBalance).toLocaleString() + ' TAMA';
                 }
                 document.getElementById('community-balance').textContent = communityText;
 
-                // Reserve Wallet (SOL + TAMA)
-                const reserveSolBalance = await getSolBalance(RESERVE_WALLET);
-                const reserveTamaBalance = await getTamaBalance(RESERVE_WALLET);
                 let reserveText = reserveSolBalance.toFixed(4) + ' SOL';
                 if (reserveTamaBalance > 0) {
                     reserveText += ' + ' + Math.round(reserveTamaBalance).toLocaleString() + ' TAMA';
                 }
                 document.getElementById('reserve-balance').textContent = reserveText;
 
-                // Treasury Liquidity V2 (SOL + TAMA)
-                const treasuryLiquiditySolBalance = await getSolBalance(TREASURY_LIQUIDITY);
-                const treasuryLiquidityTamaBalance = await getTamaBalance(TREASURY_LIQUIDITY);
                 let treasuryLiquidityText = treasuryLiquiditySolBalance.toFixed(4) + ' SOL';
                 if (treasuryLiquidityTamaBalance > 0) {
                     treasuryLiquidityText += ' + ' + Math.round(treasuryLiquidityTamaBalance).toLocaleString() + ' TAMA';
                 }
                 document.getElementById('treasury-liquidity-balance').textContent = treasuryLiquidityText;
 
-                // Treasury Team V2 (SOL + TAMA)
-                const treasuryTeamSolBalance = await getSolBalance(TREASURY_TEAM);
-                const treasuryTeamTamaBalance = await getTamaBalance(TREASURY_TEAM);
                 let treasuryTeamText = treasuryTeamSolBalance.toFixed(4) + ' SOL';
                 if (treasuryTeamTamaBalance > 0) {
                     treasuryTeamText += ' + ' + Math.round(treasuryTeamTamaBalance).toLocaleString() + ' TAMA';
                 }
                 document.getElementById('treasury-team-balance').textContent = treasuryTeamText;
 
-                console.log('✅ Wallet balances loaded');
+                console.log('✅ Wallet balances loaded (optimized)');
             } catch (error) {
                 console.error('❌ Error loading wallet balances:', error);
                 // Set error state
@@ -1650,8 +1661,7 @@
                     arrow = ' 📥';
                 }
                 
-                // Determine currency: SOL for _sol, revenue, or liquidity/team income transactions
-                const typeStr = String(t.type || '').toLowerCase();
+                // Determine currency: SOL for _sol, revenue, or liquidity/team income transactions (reuse typeStr from above)
                 const currency = (typeStr.includes('_sol') || 
                                  typeStr.includes('nft_revenue') || 
                                  typeStr.includes('revenue') ||
@@ -2329,12 +2339,12 @@
                                         displayAmount = Math.abs(amount);
                                     }
                                     // Determine currency: SOL for _sol, revenue, or liquidity/team income transactions
-                const typeStr = String(t.type || '').toLowerCase();
-                const currency = (typeStr.includes('_sol') || 
-                                 typeStr.includes('nft_revenue') || 
-                                 typeStr.includes('revenue') ||
-                                 typeStr.includes('treasury_liquidity_income') ||
-                                 typeStr.includes('treasury_team_income')) ? ' SOL' : ' TAMA';
+                                    const txTypeStr = String(t.type || '').toLowerCase();
+                                    const currency = (txTypeStr.includes('_sol') ||
+                                 txTypeStr.includes('nft_revenue') ||
+                                 txTypeStr.includes('revenue') ||
+                                 txTypeStr.includes('treasury_liquidity_income') ||
+                                 txTypeStr.includes('treasury_team_income')) ? ' SOL' : ' TAMA';
                                     const arrow = isOutgoing && !isBurn ? ' ↗' : '';
                                     
                                     let source = 'System';
