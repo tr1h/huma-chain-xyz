@@ -4132,18 +4132,24 @@
                 <button class="close-btn" id="close-nft">✕</button>
             </div>
             <div class="referral-body">
-                <div class="wallet-connect" id="wallet-connect-section">
-                    <p style="text-align: center; margin: 20px 0;">Connect Phantom to view and mint NFTs</p>
-                    <button class="share-btn" id="connect-wallet-btn">👛 Connect Wallet</button>
+                <!-- NFT Collection Stats -->
+                <div class="referral-progress" style="margin-bottom: 20px;">
+                    <h4>📊 My NFT Collection</h4>
+                    <div class="referral-status" id="nft-stats">Loading...</div>
                 </div>
-                <div class="nft-collection" id="nft-collection" style="display: none;">
-                    <div class="referral-progress">
-                        <h4>📊 Wallet Info</h4>
-                        <div class="referral-status" id="wallet-address-display">Not connected</div>
-                        <div class="referral-status" id="wallet-balance-display">0 SOL</div>
+                
+                <!-- NFT Gallery -->
+                <div id="nft-collection" style="display: block;">
+                    <div id="nft-grid" class="nft-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin: 20px 0; max-height: 500px; overflow-y: auto; padding: 10px;"></div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="share-btn" id="mint-nft-btn" style="width: 100%; max-width: 400px;">✨ Mint New NFT Pet</button>
                     </div>
-                    <div id="nft-grid" class="nft-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin: 20px 0;"></div>
-                    <button class="share-btn" id="mint-nft-btn" style="width: 100%;">✨ Mint NFT Pet (1000 TAMA)</button>
+                </div>
+                
+                <!-- Wallet Connect (optional) -->
+                <div class="wallet-connect" id="wallet-connect-section" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.1);">
+                    <p style="text-align: center; margin: 10px 0; font-size: 14px; opacity: 0.8;">Connect Phantom to mint on-chain NFTs</p>
+                    <button class="share-btn" id="connect-wallet-btn" style="width: 100%; max-width: 300px;">👛 Connect Wallet</button>
                 </div>
             </div>
         </div>
@@ -10150,6 +10156,20 @@
 
             if (nftBtn) {
                 nftBtn.addEventListener('click', async () => {
+                    // Load NFT collection when opening modal
+                    await loadNFTCollection();
+                    nftModal.style.display = 'block';
+                });
+            }
+            
+            // Also load when modal is opened via other means
+            const originalShowModal = () => {
+                loadNFTCollection();
+            };
+            
+            // Mint button - navigate to mint page
+            if (mintNftBtn) {
+                mintNftBtn.addEventListener('click', async () => {
                     // Save current game state before navigating
                     const userId = window.TELEGRAM_USER_ID || 'guest';
                     const userIdStr = String(userId);
@@ -10201,10 +10221,6 @@
 
             if (connectWalletBtn) {
                 connectWalletBtn.addEventListener('click', connectPhantomWallet);
-            }
-
-            if (mintNftBtn) {
-                mintNftBtn.addEventListener('click', mintNewNFT);
             }
         }
 
