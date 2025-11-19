@@ -525,6 +525,39 @@
                 </div>
             </div>
 
+            <!-- Tokenomics Summary -->
+            <div style="background: rgba(102, 126, 234, 0.2); padding: 25px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(102, 126, 234, 0.3);">
+                <h2 style="margin-bottom: 20px; font-size: 24px; display: flex; align-items: center; gap: 10px;">
+                    📊 Tokenomics & Distribution Summary
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;" id="tokenomics-summary">
+                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total TAMA Distributed</div>
+                        <div style="font-size: 28px; font-weight: bold;" id="total-tama-distributed">Calculating...</div>
+                    </div>
+                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total SOL Distributed</div>
+                        <div style="font-size: 28px; font-weight: bold;" id="total-sol-distributed">Calculating...</div>
+                    </div>
+                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total Burned</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #ff6b35;" id="total-burned-summary">Calculating...</div>
+                    </div>
+                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">NFT Mints (Total)</div>
+                        <div style="font-size: 28px; font-weight: bold;" id="total-nft-mints">Calculating...</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">💰 Distribution Rules:</div>
+                    <div style="font-size: 13px; line-height: 1.8; opacity: 0.9;">
+                        <strong>TAMA NFT Mints:</strong> 40% Burn 🔥 | 30% Treasury 💰 | 30% P2E Pool 🎮<br>
+                        <strong>SOL NFT Mints:</strong> 50% Treasury Main 💰 | 30% Treasury Liquidity 💧 | 20% Treasury Team 👥<br>
+                        <strong>All transactions are on-chain and verifiable on Solscan</strong>
+                    </div>
+                </div>
+            </div>
+
             <!-- Wallet Cards -->
             <div class="wallets-grid" id="wallets-grid">
                 <div class="wallet-card treasury" onclick="showWalletDetails('treasury')">
@@ -1052,6 +1085,7 @@
                     allTransactions = uniqueTxs;
                     filteredTransactions = [...allTransactions];
                     renderTransactions(filteredTransactions);
+                    updateTokenomicsSummary(allTransactions);
                     updateLastUpdateTime();
                     return;
                 }
@@ -1340,6 +1374,7 @@
                     
                     filteredTransactions = [...allTransactions];
                     renderTransactions(filteredTransactions);
+                    updateTokenomicsSummary(allTransactions);
                     updateLastUpdateTime();
                 } else {
                     console.warn('⚠️ API returned invalid format, trying Supabase...');
@@ -1768,6 +1803,69 @@
 
         function updateLastUpdateTime() {
             document.getElementById('update-time').textContent = `Last updated: ${new Date().toLocaleString()}`;
+        }
+
+        function updateTokenomicsSummary(transactions) {
+            let totalTamaDistributed = 0;
+            let totalSolDistributed = 0;
+            let totalBurned = 0;
+            let nftMintCount = 0;
+            
+            transactions.forEach(tx => {
+                const type = String(tx.type || '').toLowerCase();
+                const amount = Math.abs(parseFloat(tx.amount || 0));
+                
+                // Count NFT mints
+                if (type.includes('nft_mint') || type.includes('mint_nft')) {
+                    nftMintCount++;
+                }
+                
+                // Calculate TAMA distribution
+                if (type.includes('treasury_income') || 
+                    type.includes('p2e_pool') || 
+                    type.includes('treasury_main') ||
+                    type.includes('treasury_liquidity') ||
+                    type.includes('treasury_team')) {
+                    // Check if it's TAMA or SOL
+                    if (type.includes('_sol') || type.includes('sol_')) {
+                        // SOL transaction - convert to TAMA equivalent (1 SOL = 32,800 TAMA)
+                        const solAmount = amount / 32800;
+                        totalSolDistributed += solAmount;
+                    } else {
+                        totalTamaDistributed += amount;
+                    }
+                }
+                
+                // Calculate burned
+                if (type.includes('burn') || 
+                    tx.user_id === BURN_ADDRESS || 
+                    tx.user_id === 'SYSTEM_BURN') {
+                    totalBurned += amount;
+                }
+                
+                // Check metadata for distribution
+                if (tx.metadata) {
+                    try {
+                        const meta = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
+                        if (meta.distribution) {
+                            if (meta.distribution.burn) totalBurned += Math.abs(parseFloat(meta.distribution.burn));
+                            if (meta.distribution.treasury) totalTamaDistributed += Math.abs(parseFloat(meta.distribution.treasury));
+                            if (meta.distribution.p2e_pool) totalTamaDistributed += Math.abs(parseFloat(meta.distribution.p2e_pool));
+                        }
+                    } catch(e) {}
+                }
+            });
+            
+            // Update UI
+            const totalTamaEl = document.getElementById('total-tama-distributed');
+            const totalSolEl = document.getElementById('total-sol-distributed');
+            const totalBurnedEl = document.getElementById('total-burned-summary');
+            const totalMintsEl = document.getElementById('total-nft-mints');
+            
+            if (totalTamaEl) totalTamaEl.textContent = Math.round(totalTamaDistributed).toLocaleString() + ' TAMA';
+            if (totalSolEl) totalSolEl.textContent = totalSolDistributed.toFixed(4) + ' SOL';
+            if (totalBurnedEl) totalBurnedEl.textContent = Math.round(totalBurned).toLocaleString() + ' TAMA';
+            if (totalMintsEl) totalMintsEl.textContent = nftMintCount.toLocaleString();
         }
 
         function startAutoUpdate() {
