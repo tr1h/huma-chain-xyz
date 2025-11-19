@@ -1,4 +1,4 @@
-.docs/FULL_PROJECT_PROMPT.md<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1906,11 +1906,90 @@
             alert(`Viewing player: ${telegramId}`);
         }
 
-        function editPlayer(telegramId) {
-            const newTama = prompt(`Enter new TAMA amount for player ${telegramId}:`);
-            if (newTama !== null) {
-                alert(`Would update player ${telegramId} TAMA to ${newTama}`);
-                // TODO: Implement actual update
+        async function editPlayer(telegramId) {
+            // Find player data
+            const player = leaderboardData.find(p => p.telegram_id === telegramId);
+            if (!player) {
+                alert('❌ Player not found!');
+                return;
+            }
+            
+            const currentTama = player.tama || 0;
+            const newTama = prompt(
+                `Enter new TAMA amount for ${player.telegram_username || telegramId}:\n\n` +
+                `Current balance: ${currentTama.toLocaleString()} TAMA`
+            );
+            
+            if (newTama === null || newTama.trim() === '') return;
+            
+            const tamaAmount = parseInt(newTama);
+            if (isNaN(tamaAmount) || tamaAmount < 0) {
+                alert('❌ Invalid amount! Please enter a positive number.');
+                return;
+            }
+            
+            if (!confirm(`⚠️ Set TAMA balance for ${player.telegram_username || telegramId}?\n\n` +
+                        `${currentTama.toLocaleString()} → ${tamaAmount.toLocaleString()} TAMA\n\n` +
+                        `This will update the database and log the transaction.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: String(telegramId),
+                        telegram_username: player.telegram_username,
+                        tama: tamaAmount,
+                        level: player.level || 1,
+                        xp: player.xp || 0,
+                        pet_name: player.pet_name || 'Gotchi',
+                        pet_type: player.pet_type || 'kawai',
+                        pet_data: player.pet_data,
+                        skip_transaction_log: true // Admin operation
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    alert(`✅ Balance updated successfully!\n\n` +
+                          `${player.telegram_username || telegramId}\n` +
+                          `${currentTama.toLocaleString()} → ${tamaAmount.toLocaleString()} TAMA`);
+                    
+                    // Log admin transaction
+                    await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({
+                            user_id: String(telegramId),
+                            username: player.telegram_username || String(telegramId),
+                            type: 'admin_balance_set',
+                            amount: tamaAmount - currentTama,
+                            balance_before: currentTama,
+                            balance_after: tamaAmount,
+                            metadata: JSON.stringify({
+                                source: 'admin_panel',
+                                admin_action: true,
+                                timestamp: new Date().toISOString()
+                            })
+                        })
+                    });
+                    
+                    // Refresh data
+                    loadData();
+                } else {
+                    alert(`❌ Error updating balance: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error updating TAMA:', error);
+                alert(`❌ Error updating balance: ${error.message}`);
             }
         }
 
