@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 Treasury Monitor - Project Wallets</title>
-    <!-- Admin Password -->
-    <meta name="admin-password-hash" content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3">
+    <title>💰 Treasury Monitor - Public Transparency Dashboard | Solana Tamagotchi</title>
+    <meta name="description" content="Public transparency dashboard showing all project wallet transactions, TAMA distribution, and tokenomics. All transactions are on-chain and verifiable.">
     <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -503,25 +502,35 @@
     <script src="js/admin-env.js"></script>
 </head>
 <body>
-    <!-- Admin Login Screen -->
-    <div id="adminLoginScreen">
-        <div class="login-container">
-            <h2>🔐 Treasury Access</h2>
-            <input type="password" id="adminPasswordInput" placeholder="Enter password">
-            <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
-            <div id="adminLoginError"></div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div id="adminContent" style="display: none;">
+    <!-- Main Content - Public Access -->
+    <div id="adminContent" style="display: block;">
         <div class="container">
             <div class="header">
-                <a href="super-admin.html" class="back-btn">⬅️ Back</a>
-                <h1>💰 Treasury Monitor - Project Wallets</h1>
+                <a href="index.html" class="back-btn">🏠 Home</a>
+                <div>
+                    <h1 style="margin-bottom: 5px;">💰 Treasury Monitor - Public Transparency Dashboard</h1>
+                    <div class="transparency-badge">
+                        🔓 Public Access • All transactions on-chain • Verifiable on Solscan
+                    </div>
+                </div>
                 <div class="live-indicator">
                     <div class="live-dot"></div>
                     <span>Live Updates</span>
+                </div>
+            </div>
+            
+            <!-- Public Notice -->
+            <div style="background: rgba(16, 185, 129, 0.2); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 2px solid rgba(16, 185, 129, 0.3);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <span style="font-size: 24px;">🔍</span>
+                    <h3 style="font-size: 18px; margin: 0;">100% Transparency & On-Chain Verification</h3>
+                </div>
+                <div style="font-size: 14px; line-height: 1.8; opacity: 0.9;">
+                    This dashboard provides <strong>complete transparency</strong> into our project's tokenomics and fund distribution. 
+                    Every transaction shown here is <strong>on-chain</strong> and can be verified on 
+                    <a href="https://solscan.io/?cluster=devnet" target="_blank" style="color: #60a5fa; text-decoration: underline;">Solscan</a>. 
+                    All wallet addresses are public, and all distribution rules are clearly displayed. 
+                    This is our commitment to <strong>transparency and trust</strong> in the Solana Tamagotchi ecosystem.
                 </div>
             </div>
 
@@ -2468,9 +2477,7 @@
         startAutoUpdate();
     </script>
 
-    <!-- Admin Authentication -->
-    <script src="admin-password.js"></script>
-    <script src="js/admin-auth.js"></script>
+    <!-- Public Access - No Authentication Required -->
 </body>
 </html>
 
