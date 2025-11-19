@@ -1518,6 +1518,7 @@
                         
                         filteredTransactions = [...allTransactions];
                         renderTransactions(filteredTransactions);
+                        updateTokenomicsSummary(allTransactions);
                         updateLastUpdateTime();
                     } else {
                         throw new Error(`Supabase error: ${supabaseResponse.status}`);
