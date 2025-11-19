@@ -1408,7 +1408,24 @@
             const tbody = document.getElementById('transactions-body');
             
             if (!transactions || transactions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="loading">No project transactions found</td></tr>';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="loading" style="text-align: center; padding: 40px;">
+                            <div style="font-size: 18px; margin-bottom: 10px;">📭 No project transactions found</div>
+                            <div style="font-size: 14px; opacity: 0.8; line-height: 1.6;">
+                                This is normal if:<br>
+                                • No NFT mints with distribution have been made yet<br>
+                                • No on-chain transfers to project wallets have occurred<br>
+                                • Transactions are in a different date range<br><br>
+                                <strong>Project wallet transactions will appear here when:</strong><br>
+                                • Users mint NFTs (Bronze/Silver/Gold) - distribution is logged<br>
+                                • SOL payments are made - 50% Main, 30% Liquidity, 20% Team<br>
+                                • TAMA tokens are distributed to Treasury/P2E Pool/Burn<br><br>
+                                <small style="opacity: 0.6;">Check console (F12) for detailed transaction analysis</small>
+                            </div>
+                        </td>
+                    </tr>
+                `;
                 updatePaginationInfo();
                 return;
             }
