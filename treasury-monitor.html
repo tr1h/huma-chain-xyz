@@ -1015,7 +1015,9 @@
                     COMMUNITY_WALLET,
                     RESERVE_WALLET,
                     TREASURY_LIQUIDITY,
-                    TREASURY_TEAM
+                    TREASURY_TEAM,
+                    'FFM3AaQEYQVPVcWqHwm7AXGXS6BjzvZ8S4EhxLKQfCuA', // Old Treasury Liquidity (used in mint-nft-sol-rest.php)
+                    'BmP4EJjWETjxE9ALZ7sTNMkAYkh5vTbbUBHuq5FVQUWk'  // Old Treasury Team (used in mint-nft-sol-rest.php)
                 ];
                 
                 // Запрашиваем транзакции для каждого кошелька
@@ -1028,6 +1030,9 @@
                     'treasury_main_income_from_nft_sol',
                     'treasury_liquidity_income_from_nft_sol',
                     'treasury_team_income_from_nft_sol',
+                    'nft_revenue_main', // ✅ New type from mint-nft-sol-rest.php
+                    'nft_revenue_liquidity', // ✅ New type from mint-nft-sol-rest.php
+                    'nft_revenue_team', // ✅ New type from mint-nft-sol-rest.php
                     'nft_mint',
                     'withdrawal',
                     'tama_burn',
@@ -2055,7 +2060,10 @@
                     const userId = String(t.user_id || '').trim();
                     const typeStr = String(t.type || '').toLowerCase();
                     return userId === TREASURY_MAIN || 
-                           (t.type && (t.type.includes('treasury_income') || t.type.includes('treasury') || typeStr.includes('nft_revenue_main'))) ||
+                           (t.type && (t.type.includes('treasury_income') || 
+                                      t.type.includes('treasury') || 
+                                      typeStr.includes('nft_revenue_main') ||
+                                      typeStr.includes('treasury_income_from_nft_sol'))) ||
                            checkMetadataForWallet(t.metadata, 'treasury');
                 });
                 
@@ -2174,7 +2182,11 @@
                     const userId = String(t.user_id || '').trim();
                     const typeStr = String(t.type || '').toLowerCase();
                     return userId === TREASURY_LIQUIDITY || 
-                           (t.type && (t.type.includes('liquidity') || typeStr.includes('nft_revenue_liquidity') || typeStr.includes('treasury_liquidity_income'))) ||
+                           userId === 'FFM3AaQEYQVPVcWqHwm7AXGXS6BjzvZ8S4EhxLKQfCuA' || // Old Treasury Liquidity address
+                           (t.type && (t.type.includes('liquidity') || 
+                                      typeStr.includes('nft_revenue_liquidity') || 
+                                      typeStr.includes('treasury_liquidity_income') ||
+                                      typeStr.includes('treasury_liquidity_income_from_nft_sol'))) ||
                            checkMetadataForWallet(t.metadata, 'liquidity');
                 });
             } else if (walletType === 'treasury-team') {
@@ -2182,7 +2194,11 @@
                     const userId = String(t.user_id || '').trim();
                     const typeStr = String(t.type || '').toLowerCase();
                     return userId === TREASURY_TEAM ||
-                           (t.type && (t.type.includes('team') || typeStr.includes('nft_revenue_team') || typeStr.includes('treasury_team_income'))) ||
+                           userId === 'BmP4EJjWETjxE9ALZ7sTNMkAYkh5vTbbUBHuq5FVQUWk' || // Old Treasury Team address
+                           (t.type && (t.type.includes('team') || 
+                                      typeStr.includes('nft_revenue_team') || 
+                                      typeStr.includes('treasury_team_income') ||
+                                      typeStr.includes('treasury_team_income_from_nft_sol'))) ||
                            checkMetadataForWallet(t.metadata, 'team');
                 });
             }
