@@ -1092,16 +1092,47 @@
                         return false;
                     });
                     
-                    // Если не нашли проектные транзакции, показываем хотя бы NFT mint транзакции для отладки
+                    // Если не нашли проектные транзакции, ищем NFT mint транзакции, которые могут содержать distribution в metadata
                     if (allTransactions.length === 0) {
-                        console.warn('⚠️ No project transactions found with strict filter. Trying relaxed filter...');
-                        const nftTransactions = payload.data.filter(t => {
+                        console.warn('⚠️ No project transactions found with strict filter. Trying to find NFT mint transactions with distribution...');
+                        
+                        // Ищем NFT mint транзакции, которые могут содержать distribution в metadata
+                        const nftWithDistribution = payload.data.filter(t => {
                             const type = String(t.type || '').toLowerCase();
-                            return type.includes('nft') || type.includes('mint');
+                            
+                            // Ищем NFT mint транзакции
+                            if (type.includes('nft') || type.includes('mint')) {
+                                // Проверяем metadata на наличие distribution
+                                if (t.metadata) {
+                                    try {
+                                        const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                                        const metaStr = JSON.stringify(meta).toLowerCase();
+                                        
+                                        // Если есть distribution или упоминание о распределении
+                                        if (meta.distribution || 
+                                            metaStr.includes('distribution') ||
+                                            metaStr.includes('treasury') ||
+                                            metaStr.includes('p2e') ||
+                                            metaStr.includes('burn') ||
+                                            metaStr.includes('onchain')) {
+                                            return true;
+                                        }
+                                    } catch(e) {}
+                                }
+                                
+                                // Или просто все NFT mint транзакции
+                                return true;
+                            }
+                            
+                            return false;
                         });
-                        if (nftTransactions.length > 0) {
-                            console.log(`📦 Found ${nftTransactions.length} NFT/mint transactions - using them for debugging`);
-                            allTransactions = nftTransactions;
+                        
+                        if (nftWithDistribution.length > 0) {
+                            console.log(`📦 Found ${nftWithDistribution.length} NFT/mint transactions - will extract distribution from metadata`);
+                            allTransactions = nftWithDistribution;
+                        } else {
+                            console.warn('⚠️ No NFT mint transactions found either. Database might not have project wallet transactions yet.');
+                            console.warn('💡 This is normal if no NFT mints with distribution have been made yet.');
                         }
                     }
                     
@@ -1143,16 +1174,59 @@
                         const allUserIds = [...new Set(payload.data.map(t => String(t.user_id || 'null')).filter(id => id !== 'null'))].slice(0, 20);
                         console.log('👤 Sample user_ids found:', allUserIds);
                         
+                        // Check if there are any transactions with metadata containing distribution
+                        const withMetadata = payload.data.filter(t => t.metadata).slice(0, 10);
+                        console.log('📦 Sample transactions with metadata:', withMetadata.map(t => {
+                            let meta = t.metadata;
+                            try {
+                                if (typeof meta === 'string') meta = JSON.parse(meta);
+                            } catch(e) {}
+                            return {
+                                id: t.id,
+                                type: t.type,
+                                user_id: t.user_id,
+                                has_distribution: meta && (meta.distribution || JSON.stringify(meta).toLowerCase().includes('distribution')),
+                                metadata_keys: meta && typeof meta === 'object' ? Object.keys(meta).slice(0, 5) : null
+                            };
+                        }));
+                        
                         // Try to find any transaction that might be project-related
                         const potentialProjectTxs = payload.data.filter(t => {
                             const type = String(t.type || '').toLowerCase();
                             const userId = String(t.user_id || '');
-                            return type.includes('nft') || 
-                                   type.includes('mint') || 
-                                   type.includes('burn') ||
-                                   type.includes('treasury') ||
-                                   type.includes('p2e') ||
-                                   userId.length > 40; // Solana addresses are long
+                            
+                            // Check type
+                            if (type.includes('nft') || 
+                                type.includes('mint') || 
+                                type.includes('burn') ||
+                                type.includes('treasury') ||
+                                type.includes('p2e') ||
+                                type.includes('onchain') ||
+                                type.includes('distribution')) {
+                                return true;
+                            }
+                            
+                            // Check user_id length (Solana addresses are 44 chars)
+                            if (userId.length > 40) {
+                                return true;
+                            }
+                            
+                            // Check metadata for distribution
+                            if (t.metadata) {
+                                try {
+                                    const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                                    const metaStr = JSON.stringify(meta).toLowerCase();
+                                    if (metaStr.includes('distribution') || 
+                                        metaStr.includes('treasury') ||
+                                        metaStr.includes('p2e') ||
+                                        metaStr.includes('burn') ||
+                                        meta.distribution) {
+                                        return true;
+                                    }
+                                } catch(e) {}
+                            }
+                            
+                            return false;
                         });
                         console.log(`🔍 Found ${potentialProjectTxs.length} potentially project-related transactions`);
                         if (potentialProjectTxs.length > 0) {
@@ -1160,7 +1234,8 @@
                                 id: t.id,
                                 user_id: t.user_id,
                                 type: t.type,
-                                amount: t.amount
+                                amount: t.amount,
+                                username: t.username
                             })));
                         }
                     }
