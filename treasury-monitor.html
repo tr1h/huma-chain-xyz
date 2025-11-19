@@ -2067,6 +2067,7 @@
                 
                 walletTransactions = [...direct, ...fromDistributions];
             } else if (walletType === 'p2e') {
+                // INCOMING transactions to P2E Pool
                 const direct = allTransactions.filter(t => {
                     const userId = String(t.user_id || '').trim();
                     return userId === P2E_POOL || 
@@ -2082,7 +2083,21 @@
                     }
                 });
                 
-                walletTransactions = [...direct, ...fromDistributions];
+                // OUTGOING transactions from P2E Pool (withdrawals)
+                const outgoing = allTransactions.filter(t => {
+                    // Check if P2E Pool is the SOURCE of transaction
+                    if (t.metadata) {
+                        try {
+                            const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                            return meta.source === 'p2e_pool' || 
+                                   meta.source_address === P2E_POOL ||
+                                   (meta.source && String(meta.source).toLowerCase().includes('p2e'));
+                        } catch (e) {}
+                    }
+                    return false;
+                });
+                
+                walletTransactions = [...direct, ...fromDistributions, ...outgoing];
             } else if (walletType === 'burn') {
                 const direct = allTransactions.filter(t => {
                     const userId = String(t.user_id || '').trim();
