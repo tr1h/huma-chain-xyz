@@ -1625,10 +1625,6 @@
                 
                 // Amount display with arrows for incoming/outgoing
                 const isBurn = t.type && t.type.includes('burn');
-                const isOutgoing = amount < 0 || 
-                                  String(t.type || '').includes('withdrawal') || 
-                                  String(t.type || '').includes('spend') || 
-                                  String(t.type || '').includes('transfer_out');
                 let amountClass, amountPrefix, displayAmount, arrow;
                 if (isBurn) {
                     amountClass = 'amount-burn';
