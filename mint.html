@@ -421,6 +421,29 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 15px;
+            min-height: 400px; /* Минимум 2 строки */
+            max-height: 600px; /* Максимум 3-4 строки */
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        /* Стили для скроллбара */
+        .recent-mints-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .recent-mints-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        
+        .recent-mints-list::-webkit-scrollbar-thumb {
+            background: rgba(138, 201, 38, 0.5);
+            border-radius: 3px;
+        }
+        
+        .recent-mints-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(138, 201, 38, 0.7);
         }
         
         .mint-item {
@@ -462,6 +485,22 @@
         .mint-time {
             font-size: 8px;
             color: #999;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .mint-explorer-link {
+            color: #8AC926 !important;
+            text-decoration: none;
+            font-size: 12px !important;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        
+        .mint-explorer-link:hover {
+            opacity: 1;
+            text-decoration: none;
         }
         
         .mint-user {
@@ -3721,6 +3760,47 @@
                         });
                     }
                 }
+                
+                // ✅ Fetch transaction signatures for NFTs (for explorer links)
+                const signatureMap = new Map();
+                
+                try {
+                    // Get signatures from transactions table for recent NFTs
+                    // Match by telegram_id and type nft_mint_sol or nft_mint
+                    const { data: transactions, error: txError } = await supabase
+                        .from('transactions')
+                        .select('metadata, type, user_id')
+                        .in('type', ['nft_mint_sol', 'nft_mint'])
+                        .in('user_id', telegramIds.map(id => String(id)))
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+                    
+                    if (!txError && transactions) {
+                        transactions.forEach(tx => {
+                            try {
+                                let metadata = tx.metadata;
+                                if (typeof metadata === 'string') {
+                                    metadata = JSON.parse(metadata);
+                                }
+                                
+                                if (metadata) {
+                                    const signature = metadata.onchain_signature || metadata.transaction_signature || metadata.signature;
+                                    const nftId = metadata.nft_id || metadata.design_number;
+                                    
+                                    if (signature && tx.user_id) {
+                                        // Map by user_id + nft_id if available, or just user_id
+                                        const key = nftId ? `${tx.user_id}_${nftId}` : tx.user_id;
+                                        signatureMap.set(key, signature);
+                                    }
+                                }
+                            } catch (e) {
+                                // Skip invalid metadata
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Failed to fetch transaction signatures:', e);
+                }
 
                 listEl.innerHTML = '';
                 recentNFTs.forEach(nft => {
@@ -3743,12 +3823,30 @@
                     const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
                     const onChainBadge = isOnChain ? ' 🔗' : '';
                     
+                    // Get explorer link
+                    let explorerLink = '';
+                    let explorerUrl = null;
+                    
+                    // Try to get signature from transactions (by user_id + nft_id or just user_id)
+                    const signatureKey1 = `${nft.telegram_id}_${nft.id}`;
+                    const signatureKey2 = String(nft.telegram_id);
+                    const signature = signatureMap.get(signatureKey1) || signatureMap.get(signatureKey2);
+                    
+                    if (signature) {
+                        explorerUrl = `https://solscan.io/tx/${signature}?cluster=devnet`;
+                        explorerLink = `<a href="${explorerUrl}" target="_blank" class="mint-explorer-link" title="View transaction on Solscan">📎</a>`;
+                    } else if (isOnChain && nft.nft_mint_address) {
+                        // Use NFT mint address for on-chain NFTs
+                        explorerUrl = `https://solscan.io/account/${nft.nft_mint_address}?cluster=devnet`;
+                        explorerLink = `<a href="${explorerUrl}" target="_blank" class="mint-explorer-link" title="View NFT on Solscan">📎</a>`;
+                    }
+                    
                     const mintItem = document.createElement('div');
                     mintItem.className = 'mint-item';
                     mintItem.innerHTML = `
                         <div class="mint-item-header">
                             <span class="mint-tier-badge ${tierClass}">${nft.tier_name}${onChainBadge}</span>
-                            <span class="mint-time">${timeAgo}</span>
+                            <span class="mint-time">${timeAgo}${explorerLink}</span>
                         </div>
                         <div class="mint-user">🔑 ${displayAddress}</div>
                         <div class="mint-details">
