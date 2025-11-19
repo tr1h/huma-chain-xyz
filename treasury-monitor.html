@@ -1650,7 +1650,13 @@
                     arrow = ' 📥';
                 }
                 
-                const currency = t.type && t.type.includes('_sol') ? ' SOL' : ' TAMA';
+                // Determine currency: SOL for _sol, revenue, or liquidity/team income transactions
+                const typeStr = String(t.type || '').toLowerCase();
+                const currency = (typeStr.includes('_sol') || 
+                                 typeStr.includes('nft_revenue') || 
+                                 typeStr.includes('revenue') ||
+                                 typeStr.includes('treasury_liquidity_income') ||
+                                 typeStr.includes('treasury_team_income')) ? ' SOL' : ' TAMA';
                 
                 // Source (from metadata) and destination wallet for withdrawals
                 let source = 'System';
@@ -2322,7 +2328,13 @@
                                         amountPrefix = '-';
                                         displayAmount = Math.abs(amount);
                                     }
-                                    const currency = t.type && t.type.includes('_sol') ? ' SOL' : ' TAMA';
+                                    // Determine currency: SOL for _sol, revenue, or liquidity/team income transactions
+                const typeStr = String(t.type || '').toLowerCase();
+                const currency = (typeStr.includes('_sol') || 
+                                 typeStr.includes('nft_revenue') || 
+                                 typeStr.includes('revenue') ||
+                                 typeStr.includes('treasury_liquidity_income') ||
+                                 typeStr.includes('treasury_team_income')) ? ' SOL' : ' TAMA';
                                     const arrow = isOutgoing && !isBurn ? ' ↗' : '';
                                     
                                     let source = 'System';
