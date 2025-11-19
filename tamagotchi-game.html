@@ -10412,8 +10412,8 @@
 
                 console.log('🔍 Loading NFTs for user:', userId);
 
-                // Load NFTs from user_nfts table with design info
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&select=*,nft_designs(image_url,tier_name,design_theme)&order=created_at.desc`, {
+                // Load NFTs from user_nfts table (simplified query)
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&order=created_at.desc`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -10421,7 +10421,9 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load NFTs: ' + response.statusText);
+                    const errorText = await response.text();
+                    console.error('❌ Supabase error response:', errorText);
+                    throw new Error('Failed to load NFTs: ' + response.statusText + ' - ' + errorText);
                 }
 
                 const nfts = await response.json();
@@ -10454,7 +10456,18 @@
                         const tier = nft.tier_name || 'Unknown';
                         const rarity = nft.rarity || 'Common';
                         const multiplier = parseFloat(nft.earning_multiplier) || 1;
-                        const imageUrl = nft.nft_designs?.image_url || `https://via.placeholder.com/200?text=${tier}`;
+                        
+                        // Generate image URL based on tier (since we don't have nft_designs join)
+                        // You can update this to fetch from nft_designs table separately if needed
+                        const tierImageMap = {
+                            'Bronze': 'https://solanatamagotchi.com/nft-assets/bronze/bronze-1.png',
+                            'Silver': 'https://solanatamagotchi.com/nft-assets/silver/silver-1.png',
+                            'Gold': 'https://solanatamagotchi.com/nft-assets/gold/gold-1.png',
+                            'Platinum': 'https://solanatamagotchi.com/nft-assets/platinum/platinum-1.png',
+                            'Diamond': 'https://solanatamagotchi.com/nft-assets/diamond/diamond-1.png'
+                        };
+                        const imageUrl = tierImageMap[tier] || `https://via.placeholder.com/200?text=${tier}`;
+                        
                         const tierColors = {
                             'Bronze': '#CD7F32',
                             'Silver': '#C0C0C0',
