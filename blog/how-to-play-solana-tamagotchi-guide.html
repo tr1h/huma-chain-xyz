@@ -582,14 +582,14 @@
                 <li>Press <strong>🎮 Play Game</strong> button</li>
             </ol>
             
-            <h3>Step 2: Create Your First Pet</h3>
+            <h3>Step 2: Customize Your Pet</h3>
             <p>
-                When you first open the game, you'll need to create a pet:
+                When you first open the game, you'll see your virtual pet:
             </p>
             <ul>
-                <li>Choose from 10 pet types: Cat, Dog, Dragon, Fox, Bear, Rabbit, Panda, Lion, Unicorn, or Wolf</li>
                 <li>Give your pet a unique name (up to 20 characters)</li>
                 <li>Your pet will start at Level 1 with full stats</li>
+                <li>You can change your pet's theme and appearance in settings</li>
             </ul>
             
             <h3>Step 3: Understand Your Pet's Stats</h3>
@@ -671,7 +671,7 @@
             <ol>
                 <li>Connect your Phantom wallet in the game</li>
                 <li>Click <strong>"Withdraw to Blockchain"</strong></li>
-                <li>Enter the amount (minimum: 100 TAMA)</li>
+                <li>Enter the amount (minimum: 1,000 TAMA)</li>
                 <li>Confirm the transaction</li>
                 <li>Wait for confirmation (usually 1-2 minutes)</li>
             </ol>
@@ -735,24 +735,6 @@
                 <a href="https://t.me/GotchiGameBot" target="_blank" class="cta-button">Play in Telegram Now →</a>
             </div>
             
-            <h2>📚 Related Guides</h2>
-            <ul style="list-style: none; padding: 0;">
-                <li style="margin-bottom: 15px;">
-                    <a href="/blog/how-to-earn-crypto-playing-games.html" style="color: #FFB703; text-decoration: none; font-weight: 600; display: block; padding: 15px; background: rgba(255, 183, 3, 0.1); border-radius: 10px; border-left: 4px solid #FFB703;">
-                        💰 How to Earn Crypto Playing Games in 2025
-                    </a>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <a href="/blog/how-to-mint-nft-pets-solana-tamagotchi.html" style="color: #FFB703; text-decoration: none; font-weight: 600; display: block; padding: 15px; background: rgba(255, 183, 3, 0.1); border-radius: 10px; border-left: 4px solid #FFB703;">
-                        💎 How to Mint NFT Pets: Complete Guide
-                    </a>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <a href="/blog/tama-token-explained.html" style="color: #FFB703; text-decoration: none; font-weight: 600; display: block; padding: 15px; background: rgba(255, 183, 3, 0.1); border-radius: 10px; border-left: 4px solid #FFB703;">
-                        🪙 TAMA Token Explained: Everything You Need to Know
-                    </a>
-                </li>
-            </ul>
             
             <!-- Internal Links for SEO -->
             <div style="margin-top: 40px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 10px;">
@@ -798,68 +780,74 @@
         // Article ID for storage
         const ARTICLE_ID = 'how-to-play-solana-tamagotchi-guide';
         
-        // Load engagement stats
-        function loadEngagementStats() {
-            // Load from localStorage
-            const stored = JSON.parse(localStorage.getItem(`article_${ARTICLE_ID}`) || '{}');
-            
-            // Views - increment on each page load
-            let views = parseInt(stored.views || 0);
-            views++;
-            stored.views = views;
-            
-            // Likes
-            const likes = parseInt(stored.likes || 0);
-            const userLiked = stored.userLiked || false;
-            
-            // Comments count
-            const comments = JSON.parse(localStorage.getItem(`comments_${ARTICLE_ID}`) || '[]');
-            const commentsCount = comments.length;
-            
-            // Update UI
-            document.getElementById('views-count').textContent = formatNumber(views);
-            document.getElementById('likes-count').textContent = formatNumber(likes);
-            document.getElementById('comments-count').textContent = formatNumber(commentsCount);
-            
-            // Update like button state
-            const likeBtn = document.getElementById('like-btn');
-            if (userLiked) {
-                likeBtn.classList.add('liked');
-                likeBtn.querySelector('.stat-icon').textContent = '❤️';
+        // Load engagement stats from API
+        async function loadEngagementStats() {
+            try {
+                // Track view via API
+                const viewResponse = await fetch('/api/blog-stats.php?slug=how-to-play-solana-tamagotchi-guide', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'view' })
+                });
+                
+                // Load stats from API
+                const statsResponse = await fetch('/api/blog-stats.php?slug=how-to-play-solana-tamagotchi-guide');
+                const stats = await statsResponse.json();
+                
+                // Update UI with real stats
+                document.getElementById('views-count').textContent = formatNumber(stats.views || 0);
+                document.getElementById('likes-count').textContent = formatNumber(stats.likes || 0);
+                document.getElementById('comments-count').textContent = formatNumber(stats.comments || 0);
+                
+                // Check if user liked (from localStorage for now)
+                const userLiked = localStorage.getItem(`liked_${ARTICLE_ID}`) === 'true';
+                const likeBtn = document.getElementById('like-btn');
+                if (userLiked) {
+                    likeBtn.classList.add('liked');
+                    likeBtn.querySelector('.stat-icon').textContent = '❤️';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                // Fallback to localStorage if API fails
+                const stored = JSON.parse(localStorage.getItem(`article_${ARTICLE_ID}`) || '{}');
+                document.getElementById('views-count').textContent = formatNumber(stored.views || 0);
+                document.getElementById('likes-count').textContent = formatNumber(stored.likes || 0);
+                document.getElementById('comments-count').textContent = formatNumber(stored.comments || 0);
             }
-            
-            // Save updated views
-            localStorage.setItem(`article_${ARTICLE_ID}`, JSON.stringify(stored));
         }
         
-        // Toggle like
-        function toggleLike() {
-            const stored = JSON.parse(localStorage.getItem(`article_${ARTICLE_ID}`) || '{}');
-            let likes = parseInt(stored.likes || 0);
-            const userLiked = stored.userLiked || false;
-            const likeBtn = document.getElementById('like-btn');
-            
-            if (userLiked) {
-                // Unlike
-                likes = Math.max(0, likes - 1);
-                stored.userLiked = false;
-                likeBtn.classList.remove('liked');
-                likeBtn.querySelector('.stat-icon').textContent = '🤍';
-            } else {
-                // Like
-                likes++;
-                stored.userLiked = true;
-                likeBtn.classList.add('liked');
-                likeBtn.querySelector('.stat-icon').textContent = '❤️';
+        // Toggle like via API
+        async function toggleLike() {
+            try {
+                const response = await fetch('/api/blog-stats.php?slug=how-to-play-solana-tamagotchi-guide', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'like' })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('likes-count').textContent = formatNumber(result.stats.likes || 0);
+                    const likeBtn = document.getElementById('like-btn');
+                    
+                    if (result.liked) {
+                        likeBtn.classList.add('liked');
+                        likeBtn.querySelector('.stat-icon').textContent = '❤️';
+                        localStorage.setItem(`liked_${ARTICLE_ID}`, 'true');
+                    } else {
+                        likeBtn.classList.remove('liked');
+                        likeBtn.querySelector('.stat-icon').textContent = '🤍';
+                        localStorage.removeItem(`liked_${ARTICLE_ID}`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+                alert('Failed to update like. Please try again.');
             }
-            
-            stored.likes = likes;
-            localStorage.setItem(`article_${ARTICLE_ID}`, JSON.stringify(stored));
-            document.getElementById('likes-count').textContent = formatNumber(likes);
         }
         
-        // Submit comment
-        function submitComment() {
+        // Submit comment via API
+        async function submitComment() {
             const authorInput = document.getElementById('comment-author');
             const textInput = document.getElementById('comment-text');
             
@@ -876,45 +864,53 @@
                 return;
             }
             
-            // Create comment
-            const comment = {
-                id: Date.now(),
-                author: author,
-                text: text,
-                date: new Date().toISOString()
-            };
-            
-            // Load existing comments
-            const comments = JSON.parse(localStorage.getItem(`comments_${ARTICLE_ID}`) || '[]');
-            comments.unshift(comment); // Add to beginning
-            
-            // Save comments
-            localStorage.setItem(`comments_${ARTICLE_ID}`, JSON.stringify(comments));
-            
-            // Clear form
-            authorInput.value = '';
-            textInput.value = '';
-            
-            // Reload comments
-            loadComments();
-            
-            // Update comments count
-            const stored = JSON.parse(localStorage.getItem(`article_${ARTICLE_ID}`) || '{}');
-            document.getElementById('comments-count').textContent = formatNumber(comments.length);
+            try {
+                const response = await fetch('/api/blog-stats.php?slug=how-to-play-solana-tamagotchi-guide', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'comment',
+                        author: author,
+                        comment: text
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Clear form
+                    authorInput.value = '';
+                    textInput.value = '';
+                    
+                    // Reload comments
+                    await loadComments();
+                    
+                    // Update comments count
+                    document.getElementById('comments-count').textContent = formatNumber(result.comments.length);
+                } else {
+                    alert('Failed to post comment. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error submitting comment:', error);
+                alert('Failed to post comment. Please try again.');
+            }
         }
         
-        // Load comments
-        function loadComments() {
-            const comments = JSON.parse(localStorage.getItem(`comments_${ARTICLE_ID}`) || '[]');
-            const commentsList = document.getElementById('comments-list');
-            
-            if (comments.length === 0) {
-                commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7; padding: 40px;">No comments yet. Be the first to comment! 💬</p>';
-                return;
-            }
-            
-            commentsList.innerHTML = comments.map(comment => {
-                const date = new Date(comment.date);
+        // Load comments from API
+        async function loadComments() {
+            try {
+                const response = await fetch('/api/blog-stats.php?slug=how-to-play-solana-tamagotchi-guide');
+                const stats = await response.json();
+                const comments = stats.comments || [];
+                const commentsList = document.getElementById('comments-list');
+                
+                if (comments.length === 0) {
+                    commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7; padding: 40px;">No comments yet. Be the first to comment! 💬</p>';
+                    return;
+                }
+                
+                commentsList.innerHTML = comments.map(comment => {
+                    const date = new Date(comment.created_at || comment.date);
                 const dateStr = date.toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'short', 
