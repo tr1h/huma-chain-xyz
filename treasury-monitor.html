@@ -2051,8 +2051,9 @@
                 // INCOMING: Direct transactions to treasury
                 const direct = allTransactions.filter(t => {
                     const userId = String(t.user_id || '').trim();
+                    const typeStr = String(t.type || '').toLowerCase();
                     return userId === TREASURY_MAIN || 
-                           (t.type && (t.type.includes('treasury_income') || t.type.includes('treasury'))) ||
+                           (t.type && (t.type.includes('treasury_income') || t.type.includes('treasury') || typeStr.includes('nft_revenue_main'))) ||
                            checkMetadataForWallet(t.metadata, 'treasury');
                 });
                 
@@ -2169,15 +2170,17 @@
             } else if (walletType === 'treasury-liquidity') {
                 walletTransactions = allTransactions.filter(t => {
                     const userId = String(t.user_id || '').trim();
+                    const typeStr = String(t.type || '').toLowerCase();
                     return userId === TREASURY_LIQUIDITY || 
-                           (t.type && t.type.includes('liquidity')) ||
+                           (t.type && (t.type.includes('liquidity') || typeStr.includes('nft_revenue_liquidity') || typeStr.includes('treasury_liquidity_income'))) ||
                            checkMetadataForWallet(t.metadata, 'liquidity');
                 });
             } else if (walletType === 'treasury-team') {
                 walletTransactions = allTransactions.filter(t => {
                     const userId = String(t.user_id || '').trim();
-                    return userId === TREASURY_TEAM || 
-                           (t.type && t.type.includes('team')) ||
+                    const typeStr = String(t.type || '').toLowerCase();
+                    return userId === TREASURY_TEAM ||
+                           (t.type && (t.type.includes('team') || typeStr.includes('nft_revenue_team') || typeStr.includes('treasury_team_income'))) ||
                            checkMetadataForWallet(t.metadata, 'team');
                 });
             }
