@@ -1477,31 +1477,45 @@ function handleWithdrawalRequest($url, $key) {
         
         // ✅ ВАЖНО: Сохранить withdrawal транзакцию в таблицу transactions для Treasury Monitor
         // Это расходная операция из P2E Pool
+        // 🛡️ ЗАЩИТА ОТ ДУБЛИКАТОВ: Проверяем, не существует ли уже транзакция с таким signature
         try {
             $P2E_POOL = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
-            supabaseRequest($url, $key, 'POST', 'transactions', [], [
-                'user_id' => $P2E_POOL, // P2E Pool - источник средств
-                'username' => '🎮 P2E Pool',
-                'type' => 'p2e_pool_withdrawal', // Тип транзакции
-                'amount' => -$amountSentFromAPI, // ✅ Отрицательная сумма (расход из пула)
-                'balance_before' => 0,
-                'balance_after' => 0,
-                'metadata' => json_encode([
-                    'source' => 'p2e_pool',
-                    'source_address' => $P2E_POOL,
-                    'destination' => $wallet_address,
-                    'destination_wallet' => $wallet_address,
-                    'withdrawal_amount' => $amountSentFromAPI, // Сумма после комиссии
-                    'fee' => $feeFromAPI,
-                    'total_amount' => $amount, // Полная сумма до комиссии
-                    'user_telegram_id' => $telegram_id,
-                    'onchain_signature' => $txSignature,
-                    'transaction_signature' => $txSignature,
-                    'explorer_url' => $explorerUrl,
-                    'reason' => 'User withdrawal'
-                ])
+            
+            // Проверка на дубликаты по signature в metadata
+            $checkDuplicate = supabaseRequest($url, $key, 'GET', 'transactions', [
+                'select' => 'id',
+                'type' => 'eq.p2e_pool_withdrawal',
+                'metadata->>transaction_signature' => 'eq.' . $txSignature,
+                'limit' => '1'
             ]);
-            error_log("✅ Withdrawal transaction logged in transactions table: -{$amountSentFromAPI} TAMA from P2E Pool");
+            
+            if (!empty($checkDuplicate['data']) && count($checkDuplicate['data']) > 0) {
+                error_log("⚠️ Withdrawal transaction already exists with signature {$txSignature}, skipping duplicate");
+            } else {
+                supabaseRequest($url, $key, 'POST', 'transactions', [], [
+                    'user_id' => $P2E_POOL, // P2E Pool - источник средств
+                    'username' => '🎮 P2E Pool',
+                    'type' => 'p2e_pool_withdrawal', // Тип транзакции
+                    'amount' => -$amountSentFromAPI, // ✅ Отрицательная сумма (расход из пула)
+                    'balance_before' => 0,
+                    'balance_after' => 0,
+                    'metadata' => json_encode([
+                        'source' => 'p2e_pool',
+                        'source_address' => $P2E_POOL,
+                        'destination' => $wallet_address,
+                        'destination_wallet' => $wallet_address,
+                        'withdrawal_amount' => $amountSentFromAPI, // Сумма после комиссии
+                        'fee' => $feeFromAPI,
+                        'total_amount' => $amount, // Полная сумма до комиссии
+                        'user_telegram_id' => $telegram_id,
+                        'onchain_signature' => $txSignature,
+                        'transaction_signature' => $txSignature,
+                        'explorer_url' => $explorerUrl,
+                        'reason' => 'User withdrawal'
+                    ])
+                ]);
+                error_log("✅ Withdrawal transaction logged in transactions table: -{$amountSentFromAPI} TAMA from P2E Pool");
+            }
         } catch (Exception $e) {
             error_log("⚠️ Failed to log withdrawal in transactions table: " . $e->getMessage());
             // Continue anyway - withdrawal already completed
