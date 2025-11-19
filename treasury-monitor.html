@@ -2048,7 +2048,7 @@
             walletTransactions = [];
             
             if (walletType === 'treasury') {
-                // Direct transactions to treasury
+                // INCOMING: Direct transactions to treasury
                 const direct = allTransactions.filter(t => {
                     const userId = String(t.user_id || '').trim();
                     return userId === TREASURY_MAIN || 
@@ -2056,7 +2056,7 @@
                            checkMetadataForWallet(t.metadata, 'treasury');
                 });
                 
-                // Extract treasury portion from NFT mint distributions
+                // INCOMING: Extract treasury portion from NFT mint distributions
                 const fromDistributions = [];
                 allTransactions.forEach(t => {
                     if (t.type && (t.type.includes('nft_mint') || t.type.includes('mint'))) {
@@ -2065,7 +2065,20 @@
                     }
                 });
                 
-                walletTransactions = [...direct, ...fromDistributions];
+                // OUTGOING: Withdrawals/transfers FROM treasury
+                const outgoing = allTransactions.filter(t => {
+                    if (t.metadata) {
+                        try {
+                            const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                            return meta.source === 'treasury' || 
+                                   meta.source_address === TREASURY_MAIN ||
+                                   (meta.source && String(meta.source).toLowerCase().includes('treasury'));
+                        } catch (e) {}
+                    }
+                    return false;
+                });
+                
+                walletTransactions = [...direct, ...fromDistributions, ...outgoing];
             } else if (walletType === 'p2e') {
                 // INCOMING transactions to P2E Pool
                 const direct = allTransactions.filter(t => {
