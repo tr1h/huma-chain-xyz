@@ -2626,6 +2626,10 @@
                 console.log(`  💎 Treasury: ${treasuryAmount} TAMA (30%)`);
                 console.log(`  🎮 P2E Pool: ${poolAmount} TAMA (30%)`);
                 
+                // Store transaction IDs for later signature updates
+                let burnTransactionId = null;
+                let treasuryTransactionId = null;
+                
                 try {
                     // 1. Record BURN transaction
                     // Save transaction ID for later signature update
