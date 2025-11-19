@@ -3513,7 +3513,18 @@
             
             <!-- 🎡 LUCKY WHEEL -->
             <div class="game-arena" id="wheel-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">🎡 Lucky Wheel</h3>
+                <!-- Fullscreen Toggle -->
+                <button id="wheel-fullscreen-btn" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 18px; z-index: 100;">⛶</button>
+                
+                <h3 style="text-align: center; margin-bottom: 10px;">🎡 Lucky Wheel</h3>
+                
+                <!-- Balance Display -->
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 10px 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                        <span style="font-size: 14px; color: rgba(255,255,255,0.8);">Your Balance:</span>
+                        <div id="wheel-balance-display" style="font-size: 24px; font-weight: bold; color: #fff; margin-top: 5px;">0 TAMA</div>
+                    </div>
+                </div>
                 
                 <!-- Bet Selection -->
                 <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
@@ -3531,6 +3542,13 @@
                         <!-- Arrow pointer -->
                         <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 40px; z-index: 10;">🔻</div>
                     </div>
+                </div>
+                
+                <!-- Win/Loss Stats -->
+                <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; font-size: 12px;">
+                    <div style="color: #10b981;">Wins: <span id="wheel-wins">0</span></div>
+                    <div style="color: #ef4444;">Losses: <span id="wheel-losses">0</span></div>
+                    <div style="color: #f59e0b;">Total Won: <span id="wheel-total-won">0</span> TAMA</div>
                 </div>
                 
                 <div style="text-align: center; font-size: 20px; margin: 20px 0; min-height: 60px; font-weight: bold;" id="wheel-result"></div>
@@ -6843,21 +6861,59 @@
         // Initialize slots balance on load
         setTimeout(() => updateSlotsBalance(), 100);
         
-        // 🎡 LUCKY WHEEL
-        let wheelState = { betAmount: 100, spinning: false, canvas: null, ctx: null, rotation: 0 };
+        // 🎡 LUCKY WHEEL - IMPROVED
+        let wheelState = { 
+            betAmount: 100, 
+            spinning: false, 
+            canvas: null, 
+            ctx: null, 
+            rotation: 0,
+            wins: 0,
+            losses: 0,
+            totalWon: 0,
+            isFullscreen: false
+        };
+        
+        // Update wheel balance display
+        function updateWheelBalance() {
+            document.getElementById('wheel-balance-display').textContent = `${gameState.tama.toLocaleString()} TAMA`;
+            document.getElementById('wheel-wins').textContent = wheelState.wins;
+            document.getElementById('wheel-losses').textContent = wheelState.losses;
+            document.getElementById('wheel-total-won').textContent = wheelState.totalWon.toLocaleString();
+        }
+        
+        // Fullscreen toggle
+        document.getElementById('wheel-fullscreen-btn')?.addEventListener('click', () => {
+            const arena = document.getElementById('wheel-arena');
+            if (!wheelState.isFullscreen) {
+                if (arena.requestFullscreen) arena.requestFullscreen();
+                else if (arena.webkitRequestFullscreen) arena.webkitRequestFullscreen();
+                else if (arena.msRequestFullscreen) arena.msRequestFullscreen();
+                wheelState.isFullscreen = true;
+                document.getElementById('wheel-fullscreen-btn').textContent = '✕';
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+                wheelState.isFullscreen = false;
+                document.getElementById('wheel-fullscreen-btn').textContent = '⛶';
+            }
+        });
+        
         function initWheel() {
             wheelState.canvas = document.getElementById('wheel-canvas');
             if (!wheelState.canvas) return;
             wheelState.ctx = wheelState.canvas.getContext('2d');
+            // IMPROVED SEGMENTS - NO LOSE! More fair RTP
             const segments = [
-                { multiplier: 10, color: '#ef4444', text: '10x' },
-                { multiplier: 0.5, color: '#6b7280', text: '0.5x' },
-                { multiplier: 2, color: '#10b981', text: '2x' },
-                { multiplier: 0, color: '#374151', text: 'LOSE' },
-                { multiplier: 3, color: '#3b82f6', text: '3x' },
-                { multiplier: 0.5, color: '#6b7280', text: '0.5x' },
-                { multiplier: 5, color: '#8b5cf6', text: '5x' },
-                { multiplier: 0, color: '#374151', text: 'LOSE' }
+                { multiplier: 10, color: '#ef4444', text: '10x' },    // Jackpot (rare)
+                { multiplier: 0.5, color: '#6b7280', text: '0.5x' },  // Half back
+                { multiplier: 2, color: '#10b981', text: '2x' },      // Double
+                { multiplier: 0.3, color: '#4b5563', text: '0.3x' },  // 30% back (instead of LOSE)
+                { multiplier: 3, color: '#3b82f6', text: '3x' },      // Triple
+                { multiplier: 0.5, color: '#6b7280', text: '0.5x' },  // Half back
+                { multiplier: 5, color: '#8b5cf6', text: '5x' },      // 5x win
+                { multiplier: 1, color: '#059669', text: '1x' }       // Break even (instead of LOSE)
             ];
             wheelState.segments = segments;
             const drawWheel = () => {
