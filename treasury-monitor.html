@@ -1194,7 +1194,8 @@
                         if (typeStr) {
                             // NFT mint транзакции содержат распределение
                             if (typeStr.includes('nft') || 
-                                typeStr.includes('mint')) {
+                                typeStr.includes('mint') ||
+                                typeStr.includes('revenue')) {
                                 return true;
                             }
                             
