@@ -1030,12 +1030,18 @@
                     'treasury_team_income_from_nft_sol',
                     'nft_mint',
                     'withdrawal',
-                    'tama_burn'
+                    'tama_burn',
+                    'spend_game',
+                    'transfer_out',
+                    'p2e_pool_withdrawal',
+                    'treasury_withdrawal',
+                    'admin_balance_set'
                 ];
                 
-                // Запрос 1: По адресам кошельков
+                // Запрос 1: По адресам кошельков (входящие и исходящие)
                 for (const walletId of projectWalletIds) {
                     try {
+                        // Fetch incoming transactions (user_id = wallet)
                         const walletResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&user_id=eq.${walletId}&order=created_at.desc&limit=1000`, {
                             headers: {
                                 'apikey': SUPABASE_ANON_KEY,
@@ -1047,6 +1053,22 @@
                             if (Array.isArray(walletData) && walletData.length > 0) {
                                 console.log(`✅ Found ${walletData.length} transactions for wallet ${walletId.substring(0, 8)}...`);
                                 allProjectTxs.push(...walletData);
+                            }
+                        }
+                        
+                        // НОВОЕ: Fetch outgoing transactions (metadata contains wallet as source)
+                        // Это покажет withdrawal, transfer_out и другие расходные операции
+                        const outgoingResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&metadata->>source_address=eq.${walletId}&order=created_at.desc&limit=1000`, {
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            }
+                        });
+                        if (outgoingResponse.ok) {
+                            const outgoingData = await outgoingResponse.json();
+                            if (Array.isArray(outgoingData) && outgoingData.length > 0) {
+                                console.log(`📤 Found ${outgoingData.length} outgoing transactions from ${walletId.substring(0, 8)}...`);
+                                allProjectTxs.push(...outgoingData);
                             }
                         }
                     } catch (e) {
