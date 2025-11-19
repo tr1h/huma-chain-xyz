@@ -10531,9 +10531,9 @@
 
                 console.log('🔍 Loading NFTs for user:', userId);
 
-                // Load NFTs from user_nfts table (simplified query)
-                // Note: user_nfts table might not have created_at, so order by id (descending = newest first)
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&order=id.desc&select=*`, {
+                // Load NFTs from user_nfts table with nft_designs join
+                // Try to get image_url from nft_designs table via foreign key
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&order=id.desc&select=*,nft_designs(image_url,design_theme,design_variant)`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -10541,16 +10541,64 @@
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('❌ Supabase error response:', errorText);
-                    throw new Error('Failed to load NFTs: ' + response.statusText + ' - ' + errorText);
+                    // Fallback: try without join if foreign key doesn't work
+                    console.warn('⚠️ Join query failed, trying simple query...');
+                    const simpleResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&order=id.desc&select=*`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    
+                    if (!simpleResponse.ok) {
+                        const errorText = await simpleResponse.text();
+                        console.error('❌ Supabase error response:', errorText);
+                        throw new Error('Failed to load NFTs: ' + simpleResponse.statusText + ' - ' + errorText);
+                    }
+                    
+                    var nfts = await simpleResponse.json();
+                } else {
+                    var nfts = await response.json();
                 }
-
-                const nfts = await response.json();
+                
                 const nftGrid = document.getElementById('nft-grid');
                 const nftStats = document.getElementById('nft-stats');
 
                 console.log('📦 Loaded NFTs:', nfts);
+                
+                // If we have nft_design_id but no image_url, fetch images separately
+                const nftsWithDesignIds = nfts.filter(n => n.nft_design_id && (!n.nft_designs || !n.nft_designs.image_url));
+                if (nftsWithDesignIds.length > 0) {
+                    console.log('🖼️ Fetching images for', nftsWithDesignIds.length, 'NFTs...');
+                    const designIds = [...new Set(nftsWithDesignIds.map(n => n.nft_design_id))];
+                    
+                    try {
+                        const designsResponse = await fetch(`${SUPABASE_URL}/rest/v1/nft_designs?id=in.(${designIds.join(',')})&select=id,image_url,design_theme,design_variant`, {
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            }
+                        });
+                        
+                        if (designsResponse.ok) {
+                            const designs = await designsResponse.json();
+                            const designMap = {};
+                            designs.forEach(d => {
+                                designMap[d.id] = d;
+                            });
+                            
+                            // Attach design data to NFTs
+                            nfts = nfts.map(nft => {
+                                if (nft.nft_design_id && designMap[nft.nft_design_id]) {
+                                    nft.nft_designs = designMap[nft.nft_design_id];
+                                }
+                                return nft;
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ Failed to fetch design images:', e);
+                    }
+                }
 
                 if (!nftGrid || !nftStats) {
                     console.error('❌ NFT elements not found in DOM');
@@ -10578,16 +10626,26 @@
                         const multiplier = parseFloat(nft.earning_multiplier) || 1;
                         const isActive = nft.is_active !== false; // Default to true
                         
-                        // Generate image URL based on tier (since we don't have nft_designs join)
-                        // You can update this to fetch from nft_designs table separately if needed
-                        const tierImageMap = {
-                            'Bronze': 'https://solanatamagotchi.com/nft-assets/bronze/bronze-1.png',
-                            'Silver': 'https://solanatamagotchi.com/nft-assets/silver/silver-1.png',
-                            'Gold': 'https://solanatamagotchi.com/nft-assets/gold/gold-1.png',
-                            'Platinum': 'https://solanatamagotchi.com/nft-assets/platinum/platinum-1.png',
-                            'Diamond': 'https://solanatamagotchi.com/nft-assets/diamond/diamond-1.png'
-                        };
-                        const imageUrl = tierImageMap[tier] || `https://via.placeholder.com/200?text=${tier}`;
+                        // Get image URL from nft_designs if available
+                        let imageUrl = null;
+                        if (nft.nft_designs && nft.nft_designs.image_url) {
+                            imageUrl = nft.nft_designs.image_url;
+                        } else if (nft.nft_design_id) {
+                            // If we have design_id but no image_url, use placeholder
+                            imageUrl = `https://via.placeholder.com/200?text=${tier}`;
+                        }
+                        
+                        // Fallback to tier-based static images if no design image
+                        if (!imageUrl) {
+                            const tierImageMap = {
+                                'Bronze': 'https://solanatamagotchi.com/nft-assets/bronze/bronze-1.png',
+                                'Silver': 'https://solanatamagotchi.com/nft-assets/silver/silver-1.png',
+                                'Gold': 'https://solanatamagotchi.com/nft-assets/gold/gold-1.png',
+                                'Platinum': 'https://solanatamagotchi.com/nft-assets/platinum/platinum-1.png',
+                                'Diamond': 'https://solanatamagotchi.com/nft-assets/diamond/diamond-1.png'
+                            };
+                            imageUrl = tierImageMap[tier] || `https://via.placeholder.com/200?text=${tier}`;
+                        }
                         
                         const tierColors = {
                             'Bronze': '#CD7F32',
