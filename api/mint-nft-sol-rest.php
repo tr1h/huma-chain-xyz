@@ -117,6 +117,7 @@ try {
     $wallet_address = $data['wallet_address'] ?? null;
     $tier_name = $data['tier_name'] ?? null;
     $price_sol = floatval($data['price_sol'] ?? 0);
+    $transaction_signature = $data['transaction_signature'] ?? null; // ✅ Get blockchain transaction signature
     
     if (!$wallet_address || !$tier_name || !$price_sol) {
         throw new Exception('Missing required fields: wallet_address, tier_name, price_sol');
@@ -353,6 +354,23 @@ try {
     }
     
     // 10.1. Create NFT mint transaction (main purchase record)
+    $mintMetadata = [
+        'tier' => $tier_name,
+        'rarity' => $rarity,
+        'nft_id' => $nft_id,
+        'design_number' => $designNumber,
+        'payment_method' => 'SOL',
+        'price_sol' => $price_sol,
+        'price_usd' => round($price_usd, 2),
+        'tama_equivalent' => round($tamaEquivalent),
+        'earning_multiplier' => $earning_multiplier,
+        'wallet_address' => $wallet_address,
+        'minted_at' => date('Y-m-d H:i:s')
+    ];
+    if ($transaction_signature) {
+        $mintMetadata['onchain_signature'] = $transaction_signature;
+        $mintMetadata['transaction_signature'] = $transaction_signature;
+    }
     $mintTransaction = supabaseQuery('transactions', 'POST', [
         'user_id' => strval($telegram_id),
         'username' => $playerData['telegram_username'] ?? 'Unknown',
@@ -360,19 +378,7 @@ try {
         'amount' => -$price_sol, // ✅ Negative amount (SOL spent)
         'balance_before' => $currentBalance,
         'balance_after' => $currentBalance, // TAMA balance unchanged
-        'metadata' => json_encode([
-            'tier' => $tier_name,
-            'rarity' => $rarity,
-            'nft_id' => $nft_id,
-            'design_number' => $designNumber,
-            'payment_method' => 'SOL',
-            'price_sol' => $price_sol,
-            'price_usd' => round($price_usd, 2),
-            'tama_equivalent' => round($tamaEquivalent),
-            'earning_multiplier' => $earning_multiplier,
-            'wallet_address' => $wallet_address,
-            'minted_at' => date('Y-m-d H:i:s')
-        ])
+        'metadata' => json_encode($mintMetadata)
     ]);
     
     if ($mintTransaction['code'] >= 200 && $mintTransaction['code'] < 300) {
@@ -386,6 +392,19 @@ try {
     
     // Treasury Main (50%)
     $mainAmount = $price_sol * 0.50;
+    $mainMetadata = [
+        'source' => 'nft_mint_sol',
+        'tier' => $tier_name,
+        'rarity' => $rarity,
+        'buyer' => $telegram_id,
+        'percentage' => 50,
+        'total_price_sol' => $price_sol,
+        'amount_sol' => $mainAmount
+    ];
+    if ($transaction_signature) {
+        $mainMetadata['onchain_signature'] = $transaction_signature;
+        $mainMetadata['transaction_signature'] = $transaction_signature;
+    }
     $mainTx = supabaseQuery('transactions', 'POST', [
         'user_id' => '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM', // Treasury Main
         'username' => '🏦 Treasury Main',
@@ -393,19 +412,24 @@ try {
         'amount' => $mainAmount, // ✅ Positive (income)
         'balance_before' => 0,
         'balance_after' => 0,
-        'metadata' => json_encode([
-            'source' => 'nft_mint_sol',
-            'tier' => $tier_name,
-            'rarity' => $rarity,
-            'buyer' => $telegram_id,
-            'percentage' => 50,
-            'total_price_sol' => $price_sol,
-            'amount_sol' => $mainAmount
-        ])
+        'metadata' => json_encode($mainMetadata)
     ]);
     
     // Treasury Liquidity (30%)
     $liquidityAmount = $price_sol * 0.30;
+    $liquidityMetadata = [
+        'source' => 'nft_mint_sol',
+        'tier' => $tier_name,
+        'rarity' => $rarity,
+        'buyer' => $telegram_id,
+        'percentage' => 30,
+        'total_price_sol' => $price_sol,
+        'amount_sol' => $liquidityAmount
+    ];
+    if ($transaction_signature) {
+        $liquidityMetadata['onchain_signature'] = $transaction_signature;
+        $liquidityMetadata['transaction_signature'] = $transaction_signature;
+    }
     $liquidityTx = supabaseQuery('transactions', 'POST', [
         'user_id' => 'FFM3AaQEYQVPVcWqHwm7AXGXS6BjzvZ8S4EhxLKQfCuA', // Treasury Liquidity
         'username' => '💧 Treasury Liquidity',
@@ -413,19 +437,24 @@ try {
         'amount' => $liquidityAmount,
         'balance_before' => 0,
         'balance_after' => 0,
-        'metadata' => json_encode([
-            'source' => 'nft_mint_sol',
-            'tier' => $tier_name,
-            'rarity' => $rarity,
-            'buyer' => $telegram_id,
-            'percentage' => 30,
-            'total_price_sol' => $price_sol,
-            'amount_sol' => $liquidityAmount
-        ])
+        'metadata' => json_encode($liquidityMetadata)
     ]);
     
     // Treasury Team (20%)
     $teamAmount = $price_sol * 0.20;
+    $teamMetadata = [
+        'source' => 'nft_mint_sol',
+        'tier' => $tier_name,
+        'rarity' => $rarity,
+        'buyer' => $telegram_id,
+        'percentage' => 20,
+        'total_price_sol' => $price_sol,
+        'amount_sol' => $teamAmount
+    ];
+    if ($transaction_signature) {
+        $teamMetadata['onchain_signature'] = $transaction_signature;
+        $teamMetadata['transaction_signature'] = $transaction_signature;
+    }
     $teamTx = supabaseQuery('transactions', 'POST', [
         'user_id' => 'BmP4EJjWETjxE9ALZ7sTNMkAYkh5vTbbUBHuq5FVQUWk', // Treasury Team
         'username' => '👥 Treasury Team',
@@ -433,15 +462,7 @@ try {
         'amount' => $teamAmount,
         'balance_before' => 0,
         'balance_after' => 0,
-        'metadata' => json_encode([
-            'source' => 'nft_mint_sol',
-            'tier' => $tier_name,
-            'rarity' => $rarity,
-            'buyer' => $telegram_id,
-            'percentage' => 20,
-            'total_price_sol' => $price_sol,
-            'amount_sol' => $teamAmount
-        ])
+        'metadata' => json_encode($teamMetadata)
     ]);
     
     error_log("✅ SOL distribution transactions logged: Main=$mainAmount, Liquidity=$liquidityAmount, Team=$teamAmount");
