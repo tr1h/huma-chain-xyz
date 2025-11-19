@@ -958,9 +958,107 @@
             const tbody = document.getElementById('transactions-body');
             
             try {
-                // Try API first
-                console.log(`📡 Fetching transactions from: ${TAMA_API_BASE}/transactions/list`);
-                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=5000&order=created_at.desc`, {
+                // Запрашиваем транзакции напрямую по адресам проектных кошельков
+                // Это гарантирует, что мы получим все транзакции, даже если их много
+                console.log(`📡 Fetching project wallet transactions from Supabase directly...`);
+                
+                const projectWalletIds = [
+                    TREASURY_MAIN,
+                    P2E_POOL,
+                    BURN_ADDRESS,
+                    'SYSTEM_BURN',
+                    LIQUIDITY_POOL,
+                    TEAM_WALLET,
+                    MARKETING_WALLET,
+                    COMMUNITY_WALLET,
+                    RESERVE_WALLET,
+                    TREASURY_LIQUIDITY,
+                    TREASURY_TEAM
+                ];
+                
+                // Запрашиваем транзакции для каждого кошелька
+                const allProjectTxs = [];
+                const projectTypes = [
+                    'burn_from_bronze_nft_onchain',
+                    'treasury_income_from_nft_onchain',
+                    'p2e_pool_refund_from_nft_onchain',
+                    'nft_mint_sol',
+                    'treasury_main_income_from_nft_sol',
+                    'treasury_liquidity_income_from_nft_sol',
+                    'treasury_team_income_from_nft_sol',
+                    'nft_mint',
+                    'withdrawal',
+                    'tama_burn'
+                ];
+                
+                // Запрос 1: По адресам кошельков
+                for (const walletId of projectWalletIds) {
+                    try {
+                        const walletResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&user_id=eq.${walletId}&order=created_at.desc&limit=1000`, {
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            }
+                        });
+                        if (walletResponse.ok) {
+                            const walletData = await walletResponse.json();
+                            if (Array.isArray(walletData) && walletData.length > 0) {
+                                console.log(`✅ Found ${walletData.length} transactions for wallet ${walletId.substring(0, 8)}...`);
+                                allProjectTxs.push(...walletData);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to fetch transactions for ${walletId}:`, e);
+                    }
+                }
+                
+                // Запрос 2: По типам транзакций
+                for (const txType of projectTypes) {
+                    try {
+                        const typeResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&type=eq.${txType}&order=created_at.desc&limit=1000`, {
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            }
+                        });
+                        if (typeResponse.ok) {
+                            const typeData = await typeResponse.json();
+                            if (Array.isArray(typeData) && typeData.length > 0) {
+                                console.log(`✅ Found ${typeData.length} transactions of type ${txType}`);
+                                allProjectTxs.push(...typeData);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to fetch transactions for type ${txType}:`, e);
+                    }
+                }
+                
+                // Удаляем дубликаты по id
+                const uniqueTxs = [];
+                const seenIds = new Set();
+                for (const tx of allProjectTxs) {
+                    if (!seenIds.has(tx.id)) {
+                        seenIds.add(tx.id);
+                        uniqueTxs.push(tx);
+                    }
+                }
+                
+                // Сортируем по дате (новые первые)
+                uniqueTxs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                console.log(`✅ Total unique project transactions: ${uniqueTxs.length}`);
+                
+                if (uniqueTxs.length > 0) {
+                    allTransactions = uniqueTxs;
+                    filteredTransactions = [...allTransactions];
+                    renderTransactions(filteredTransactions);
+                    updateLastUpdateTime();
+                    return;
+                }
+                
+                // Fallback: Try API with large limit
+                console.log(`📡 Fallback: Fetching transactions from: ${TAMA_API_BASE}/transactions/list`);
+                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=10000&order=created_at.desc`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
