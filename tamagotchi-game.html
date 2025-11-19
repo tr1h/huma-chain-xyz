@@ -3461,7 +3461,18 @@
             
             <!-- 🎰 SLOT MACHINE 2.0 -->
             <div class="game-arena" id="slots-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">🎰 Slot Machine 2.0</h3>
+                <!-- Fullscreen Toggle -->
+                <button id="slots-fullscreen-btn" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 18px; z-index: 100;">⛶</button>
+                
+                <h3 style="text-align: center; margin-bottom: 10px;">🎰 Slot Machine 2.0</h3>
+                
+                <!-- Balance Display -->
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                        <span style="font-size: 14px; color: rgba(255,255,255,0.8);">Your Balance:</span>
+                        <div id="slots-balance-display" style="font-size: 24px; font-weight: bold; color: #fff; margin-top: 5px;">0 TAMA</div>
+                    </div>
+                </div>
                 
                 <!-- Bet Selection -->
                 <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
@@ -3472,12 +3483,19 @@
                 </div>
                 
                 <!-- 5 Reels -->
-                <div style="display: flex; justify-content: center; gap: 10px; font-size: 48px; margin: 20px 0; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;" id="slots-display">
-                    <div class="slot-reel">🍒</div>
-                    <div class="slot-reel">🍒</div>
-                    <div class="slot-reel">🍒</div>
-                    <div class="slot-reel">🍒</div>
-                    <div class="slot-reel">🍒</div>
+                <div style="display: flex; justify-content: center; gap: 10px; font-size: 48px; margin: 20px 0; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; position: relative;" id="slots-display">
+                    <div class="slot-reel" style="transition: all 0.1s;">🍒</div>
+                    <div class="slot-reel" style="transition: all 0.1s;">🍒</div>
+                    <div class="slot-reel" style="transition: all 0.1s;">🍒</div>
+                    <div class="slot-reel" style="transition: all 0.1s;">🍒</div>
+                    <div class="slot-reel" style="transition: all 0.1s;">🍒</div>
+                </div>
+                
+                <!-- Win/Loss Stats -->
+                <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; font-size: 12px;">
+                    <div style="color: #10b981;">Wins: <span id="slots-wins">0</span></div>
+                    <div style="color: #ef4444;">Losses: <span id="slots-losses">0</span></div>
+                    <div style="color: #f59e0b;">Total Won: <span id="slots-total-won">0</span> TAMA</div>
                 </div>
                 
                 <div style="text-align: center; font-size: 18px; margin: 15px 0; min-height: 50px; font-weight: bold;" id="slots-result"></div>
@@ -6653,8 +6671,67 @@
         // OLD SLOT MACHINE ABOVE - KEEPING FOR COMPATIBILITY
         // NEW GAMES BELOW 🎰🎡🎲
         
-        // 🎰 SLOT MACHINE 2.0 - 5 REELS
-        let slotsState = { betAmount: 100, spinning: false };
+        // 🎰 SLOT MACHINE 2.0 - IMPROVED WITH RTP CONTROL
+        let slotsState = { 
+            betAmount: 100, 
+            spinning: false,
+            wins: 0,
+            losses: 0,
+            totalWon: 0,
+            isFullscreen: false
+        };
+        
+        // Symbol weights (lower weight = rarer = higher payout)
+        const slotSymbols = [
+            { symbol: '🍒', weight: 30, payout: 2 },
+            { symbol: '🍋', weight: 25, payout: 2 },
+            { symbol: '🍊', weight: 25, payout: 2 },
+            { symbol: '🍇', weight: 20, payout: 3 },
+            { symbol: '⭐', weight: 15, payout: 4 },
+            { symbol: '🔔', weight: 10, payout: 5 },
+            { symbol: '💰', weight: 8, payout: 6 },
+            { symbol: '💎', weight: 5, payout: 8 },
+            { symbol: '7️⃣', weight: 2, payout: 10 }
+        ];
+        
+        // Weighted random selection
+        function getWeightedSymbol() {
+            const totalWeight = slotSymbols.reduce((sum, s) => sum + s.weight, 0);
+            let random = Math.random() * totalWeight;
+            for (const sym of slotSymbols) {
+                if (random < sym.weight) return sym;
+                random -= sym.weight;
+            }
+            return slotSymbols[0];
+        }
+        
+        // Update slots balance display
+        function updateSlotsBalance() {
+            document.getElementById('slots-balance-display').textContent = `${gameState.tama.toLocaleString()} TAMA`;
+            document.getElementById('slots-wins').textContent = slotsState.wins;
+            document.getElementById('slots-losses').textContent = slotsState.losses;
+            document.getElementById('slots-total-won').textContent = slotsState.totalWon.toLocaleString();
+        }
+        
+        // Fullscreen toggle
+        document.getElementById('slots-fullscreen-btn')?.addEventListener('click', () => {
+            const arena = document.getElementById('slots-arena');
+            if (!slotsState.isFullscreen) {
+                if (arena.requestFullscreen) arena.requestFullscreen();
+                else if (arena.webkitRequestFullscreen) arena.webkitRequestFullscreen();
+                else if (arena.msRequestFullscreen) arena.msRequestFullscreen();
+                slotsState.isFullscreen = true;
+                document.getElementById('slots-fullscreen-btn').textContent = '✕';
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+                slotsState.isFullscreen = false;
+                document.getElementById('slots-fullscreen-btn').textContent = '⛶';
+            }
+        });
+        
+        // Bet selection
         document.querySelectorAll('.slots-bet-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 slotsState.betAmount = parseInt(btn.dataset.bet);
@@ -6662,55 +6739,104 @@
                 btn.style.opacity = '1';
             });
         });
+        
+        // SPIN LOGIC
         document.getElementById('slots-spin-btn')?.addEventListener('click', () => {
             if (slotsState.spinning || gameState.tama < slotsState.betAmount) {
                 showMessage(`❌ Not enough TAMA! Need ${slotsState.betAmount} TAMA`);
                 return;
             }
+            
             slotsState.spinning = true;
             gameState.tama -= slotsState.betAmount;
-            if (typeof logTransaction === 'function') logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_slots', -slotsState.betAmount, `Spent ${slotsState.betAmount} TAMA to play Slot Machine 2.0`, gameState);
+            if (typeof logTransaction === 'function') {
+                logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_slots', -slotsState.betAmount, `Spent ${slotsState.betAmount} TAMA to play Slot Machine 2.0`, gameState);
+            }
             updateUI();
+            updateSlotsBalance();
+            
             const reels = document.querySelectorAll('.slot-reel');
             const slotsResult = document.getElementById('slots-result');
-            const symbols = ['🍒', '🍋', '🍊', '🍇', '💎', '⭐', '7️⃣', '🔔', '💰'];
-            slotsResult.textContent = 'Spinning...';
+            slotsResult.textContent = '🎰 Spinning...';
+            
             let spins = 0;
             const interval = setInterval(() => {
-                reels.forEach(reel => reel.textContent = symbols[Math.floor(Math.random() * symbols.length)]);
+                // Animation - random symbols while spinning
+                reels.forEach(reel => {
+                    reel.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)].symbol;
+                    reel.style.transform = 'scale(1.2)';
+                    setTimeout(() => reel.style.transform = 'scale(1)', 50);
+                });
+                
                 if (++spins === 20) {
                     clearInterval(interval);
-                    const result = Array.from({length: 5}, () => symbols[Math.floor(Math.random() * symbols.length)]);
-                    reels.forEach((reel, i) => reel.textContent = result[i]);
+                    
+                    // Generate result with weighted probability
+                    const result = Array.from({length: 5}, () => getWeightedSymbol());
+                    reels.forEach((reel, i) => {
+                        reel.textContent = result[i].symbol;
+                        reel.style.transform = 'scale(1)';
+                    });
+                    
+                    // Calculate winnings
                     let reward = 0, message = '';
-                    if (result.every(s => s === result[0])) {
-                        reward = slotsState.betAmount * (result[0] === '7️⃣' ? 10 : result[0] === '💎' ? 8 : 5);
-                        message = `🎰 MEGA JACKPOT! +${reward} TAMA!`;
-                    } else if (result.filter(s => s === result[0]).length === 4 || result.filter(s => s === result[1]).length === 4) {
-                        reward = slotsState.betAmount * 4;
+                    const symbols = result.map(r => r.symbol);
+                    
+                    // Count occurrences of each symbol
+                    const counts = {};
+                    symbols.forEach(s => counts[s] = (counts[s] || 0) + 1);
+                    const maxCount = Math.max(...Object.values(counts));
+                    const winningSymbol = Object.keys(counts).find(s => counts[s] === maxCount);
+                    const symbolData = slotSymbols.find(s => s.symbol === winningSymbol);
+                    
+                    if (maxCount === 5) {
+                        // ALL 5 MATCH - MEGA JACKPOT!
+                        reward = slotsState.betAmount * symbolData.payout * 2;
+                        message = `🎰🎰🎰 MEGA JACKPOT! +${reward} TAMA! 🎰🎰🎰`;
+                        slotsResult.style.color = '#fbbf24';
+                    } else if (maxCount === 4) {
+                        // 4 MATCH - BIG WIN
+                        reward = Math.floor(slotsState.betAmount * symbolData.payout * 1.5);
                         message = `⭐ BIG WIN! +${reward} TAMA!`;
-                    } else if (result.filter(s => s === result[0]).length === 3 || result.filter(s => s === result[1]).length === 3 || result.filter(s => s === result[2]).length === 3) {
-                        reward = slotsState.betAmount * 2;
+                        slotsResult.style.color = '#10b981';
+                    } else if (maxCount === 3) {
+                        // 3 MATCH - NICE WIN
+                        reward = Math.floor(slotsState.betAmount * symbolData.payout);
                         message = `✨ Nice! +${reward} TAMA!`;
+                        slotsResult.style.color = '#3b82f6';
                     } else {
-                        const counts = {};
-                        result.forEach(s => counts[s] = (counts[s] || 0) + 1);
-                        if (Object.values(counts).some(c => c >= 3)) {
-                            reward = slotsState.betAmount;
-                            message = `💫 Match! +${reward} TAMA!`;
-                        } else message = `😔 Try again!`;
+                        // NO WIN
+                        message = `😔 Try again!`;
+                        slotsResult.style.color = '#ef4444';
                     }
+                    
+                    // Update game state
                     if (reward > 0) {
                         gameState.tama += reward;
-                        if (typeof logTransaction === 'function') logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_slots', reward, `Won ${reward} TAMA from Slot Machine 2.0`, gameState);
+                        slotsState.wins++;
+                        slotsState.totalWon += (reward - slotsState.betAmount);
+                        if (typeof logTransaction === 'function') {
+                            logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_slots', reward, `Won ${reward} TAMA from Slot Machine 2.0`, gameState);
+                        }
+                        // Win animation
+                        reels.forEach(reel => {
+                            reel.style.animation = 'pulse 0.5s ease-in-out 3';
+                        });
+                    } else {
+                        slotsState.losses++;
                     }
+                    
                     slotsResult.textContent = message;
                     updateUI();
+                    updateSlotsBalance();
                     triggerAutoSave();
                     slotsState.spinning = false;
                 }
             }, 80);
         });
+        
+        // Initialize slots balance on load
+        setTimeout(() => updateSlotsBalance(), 100);
         
         // 🎡 LUCKY WHEEL
         let wheelState = { betAmount: 100, spinning: false, canvas: null, ctx: null, rotation: 0 };
