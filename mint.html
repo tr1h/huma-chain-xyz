@@ -2666,9 +2666,10 @@
                     }
                     console.log('✅ Treasury TAMA added');
                     
-                    // 2.1. Record Treasury transaction
+                    // 2.1. Record Treasury transaction (save ID for later signature update)
+                    let treasuryTransactionId = null;
                     try {
-                        await supabase.from('transactions').insert({
+                        const { data: treasuryTx, error: treasuryTxError } = await supabase.from('transactions').insert({
                             user_id: TREASURY_MAIN,
                             username: '💰 Treasury Main V2',
                             type: 'treasury_income_from_nft',
@@ -2682,8 +2683,12 @@
                                 treasury_percentage: 30,
                                 onchain_signature: null // Will be updated after on-chain transfer
                             }
-                        });
-                        console.log('✅ Treasury transaction recorded');
+                        }).select('id').single();
+                        
+                        if (!treasuryTxError && treasuryTx) {
+                            treasuryTransactionId = treasuryTx.id;
+                        }
+                        console.log('✅ Treasury transaction recorded', treasuryTransactionId ? `(ID: ${treasuryTransactionId})` : '');
                     } catch (treasuryTxError) {
                         console.warn('⚠️ Failed to record Treasury transaction:', treasuryTxError);
                     }
@@ -2809,21 +2814,83 @@
                         
                         // Log each transfer signature and update database
                         if (transferResult.transfers) {
+                            // Store signatures for later use
+                            const signatures = {};
+                            
                             transferResult.transfers.forEach(tx => {
                                 console.log(`  ${tx.label}: ${tx.amount} TAMA`);
                                 console.log(`  📍 Signature: ${tx.signature}`);
                                 console.log(`  🔗 ${tx.explorer}`);
                                 
-                                // Update transactions with signatures using helper function
                                 if (tx.label === '🔥 Burn' && tx.signature) {
-                                    updateTransactionSignature('SYSTEM_BURN', 'tama_burn', tx.signature, tx.explorer);
+                                    signatures.burn = { signature: tx.signature, explorer: tx.explorer };
                                 }
                                 
                                 if (tx.label === '💎 Treasury' && tx.signature) {
-                                    const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
-                                    updateTransactionSignature(TREASURY_MAIN, 'treasury_income_from_nft', tx.signature, tx.explorer);
+                                    signatures.treasury = { signature: tx.signature, explorer: tx.explorer };
                                 }
                             });
+                            
+                            // Update transactions with signatures directly via Supabase (using saved IDs)
+                            if (signatures.burn && burnTransactionId) {
+                                try {
+                                    const { data: burnTx } = await supabase
+                                        .from('transactions')
+                                        .select('metadata')
+                                        .eq('id', burnTransactionId)
+                                        .single();
+                                    
+                                    if (burnTx) {
+                                        const metadata = typeof burnTx.metadata === 'string' ? JSON.parse(burnTx.metadata) : (burnTx.metadata || {});
+                                        metadata.onchain_signature = signatures.burn.signature;
+                                        metadata.transaction_signature = signatures.burn.signature;
+                                        metadata.explorer = signatures.burn.explorer;
+                                        
+                                        const { error: updateError } = await supabase
+                                            .from('transactions')
+                                            .update({ metadata: metadata })
+                                            .eq('id', burnTransactionId);
+                                        
+                                        if (!updateError) {
+                                            console.log('✅ Burn transaction updated with signature:', signatures.burn.signature);
+                                        } else {
+                                            console.warn('⚠️ Failed to update burn signature:', updateError);
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.warn('⚠️ Error updating burn signature:', e);
+                                }
+                            }
+                            
+                            if (signatures.treasury && treasuryTransactionId) {
+                                try {
+                                    const { data: treasuryTx } = await supabase
+                                        .from('transactions')
+                                        .select('metadata')
+                                        .eq('id', treasuryTransactionId)
+                                        .single();
+                                    
+                                    if (treasuryTx) {
+                                        const metadata = typeof treasuryTx.metadata === 'string' ? JSON.parse(treasuryTx.metadata) : (treasuryTx.metadata || {});
+                                        metadata.onchain_signature = signatures.treasury.signature;
+                                        metadata.transaction_signature = signatures.treasury.signature;
+                                        metadata.explorer = signatures.treasury.explorer;
+                                        
+                                        const { error: updateError } = await supabase
+                                            .from('transactions')
+                                            .update({ metadata: metadata })
+                                            .eq('id', treasuryTransactionId);
+                                        
+                                        if (!updateError) {
+                                            console.log('✅ Treasury transaction updated with signature:', signatures.treasury.signature);
+                                        } else {
+                                            console.warn('⚠️ Failed to update treasury signature:', updateError);
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.warn('⚠️ Error updating treasury signature:', e);
+                                }
+                            }
                         }
                         
                         // Show notification with explorer link
