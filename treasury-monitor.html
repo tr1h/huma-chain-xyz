@@ -1619,10 +1619,11 @@
                 else if (userId === TREASURY_TEAM) walletName = '👥 Treasury Team V2';
                 
                 // Type badge
-                const typeClass = t.type && t.type.includes('treasury') ? 'type-treasury' :
-                                 t.type && t.type.includes('p2e') ? 'type-p2e' :
-                                 t.type && t.type.includes('burn') ? 'type-burn' :
-                                 t.type && t.type.includes('sol') ? 'type-sol' : 'type-treasury';
+                const typeStr = String(t.type || '').toLowerCase();
+                const typeClass = typeStr.includes('treasury') || typeStr.includes('nft_revenue_main') ? 'type-treasury' :
+                                 typeStr.includes('p2e') ? 'type-p2e' :
+                                 typeStr.includes('burn') ? 'type-burn' :
+                                 typeStr.includes('sol') || typeStr.includes('liquidity') || typeStr.includes('team') || typeStr.includes('revenue') ? 'type-sol' : 'type-treasury';
                 
                 // Amount display with arrows for incoming/outgoing
                 const isBurn = t.type && t.type.includes('burn');
