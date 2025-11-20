@@ -3253,7 +3253,7 @@
             <button class="nav-btn leaderboard-btn" id="leaderboard-btn">🏆 Top</button>
             <button class="nav-btn referral-btn" id="referral-btn">🔗 My Link</button>
             <button class="nav-btn nft-btn" id="nft-btn">🖼️ NFT</button>
-            <button class="nav-btn withdraw-btn" id="withdraw-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold;">💸 Withdraw</button>
+            <button class="nav-btn withdraw-btn" id="withdraw-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold;">💸 Cash</button>
         </div>
 
         <!-- Pet Area -->
@@ -4771,6 +4771,14 @@
                 </div>
 
                 <div id="withdraw-status" style="margin-top: 20px; padding: 15px; border-radius: 10px; display: none;"></div>
+
+                <!-- Withdrawal History -->
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.1);">
+                    <h4 style="color: #8AC926; margin-bottom: 15px;">📜 Withdrawal History</h4>
+                    <div id="withdraw-history" style="max-height: 300px; overflow-y: auto;">
+                        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Loading history...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -11726,6 +11734,7 @@
             if (withdrawBtn && withdrawModal) {
                 withdrawBtn.addEventListener('click', async () => {
                     await loadWithdrawBalance();
+                    await loadWithdrawHistory();
                     withdrawModal.style.display = 'block';
                 });
             }
@@ -11842,11 +11851,96 @@
             }
         }
 
+        async function loadWithdrawHistory() {
+            try {
+                const userId = window.TELEGRAM_USER_ID;
+                if (!userId) return;
+
+                const historyDiv = document.getElementById('withdraw-history');
+                if (!historyDiv) return;
+
+                const response = await fetch(`${TAMA_API_BASE}/withdrawal/history?telegram_id=${userId}`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No withdrawal history</div>';
+                    return;
+                }
+
+                const result = await response.json();
+                const withdrawals = result.data || [];
+
+                if (withdrawals.length === 0) {
+                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No withdrawals yet</div>';
+                    return;
+                }
+
+                historyDiv.innerHTML = withdrawals.map(w => {
+                    const date = new Date(w.created_at || w.completed_at);
+                    const dateStr = date.toLocaleString('ru-RU', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    const amount = w.net_amount || (w.amount - (w.fee || 0));
+                    const status = w.status || 'completed';
+                    const signature = w.signature || w.tx_signature;
+                    
+                    return `
+                        <div style="padding: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(138, 201, 38, 0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <div style="font-weight: bold; color: #8AC926;">${formatNumber(amount)} TAMA</div>
+                                <div style="font-size: 12px; color: ${status === 'completed' ? '#10b981' : status === 'pending' ? '#fbbf24' : '#ef4444'};">
+                                    ${status === 'completed' ? '✅' : status === 'pending' ? '⏳' : '❌'} ${status}
+                                </div>
+                            </div>
+                            <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">
+                                ${dateStr}
+                            </div>
+                            ${signature ? `
+                                <div style="font-size: 11px; font-family: monospace; color: rgba(255,255,255,0.5); word-break: break-all; margin-top: 5px;">
+                                    <a href="https://solscan.io/tx/${signature}?cluster=devnet" target="_blank" style="color: #8AC926; text-decoration: none;">
+                                        🔗 ${signature.substring(0, 20)}...
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Failed to load withdrawal history:', err);
+                const historyDiv = document.getElementById('withdraw-history');
+                if (historyDiv) {
+                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Failed to load history</div>';
+                }
+            }
+        }
+
         function updateWithdrawSummary() {
             const amount = parseInt(document.getElementById('withdraw-amount-input').value) || 0;
             const wallet = withdrawWalletAddress || document.getElementById('withdraw-wallet-input').value.trim();
             const summaryDiv = document.getElementById('withdraw-summary');
             const confirmBtn = document.getElementById('confirm-withdraw-btn');
+            const balance = gameState.tama || 0;
+
+            // Проверка баланса
+            if (amount > balance) {
+                summaryDiv.style.display = 'block';
+                summaryDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                summaryDiv.style.border = '2px solid #ef4444';
+                summaryDiv.innerHTML = `
+                    <div style="color: #ef4444; font-weight: bold;">❌ Insufficient Balance!</div>
+                    <div style="margin-top: 5px; font-size: 14px;">You have: ${formatNumber(balance)} TAMA</div>
+                    <div style="font-size: 14px;">Requested: ${formatNumber(amount)} TAMA</div>
+                `;
+                confirmBtn.disabled = true;
+                return;
+            }
 
             if (amount >= 1000 && wallet && wallet.length >= 32) {
                 const fee = Math.floor(amount * 0.05);
@@ -11857,6 +11951,28 @@
                 document.getElementById('summary-receive').textContent = formatNumber(receive) + ' TAMA';
 
                 summaryDiv.style.display = 'block';
+                summaryDiv.style.background = 'rgba(255,255,255,0.05)';
+                summaryDiv.style.border = '2px solid rgba(138, 201, 38, 0.2)';
+                summaryDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Amount:</span>
+                        <span id="summary-amount" style="font-weight: bold;"></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #ef4444;">
+                        <span>Fee (5%):</span>
+                        <span id="summary-fee" style="font-weight: bold;"></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 18px; font-weight: bold; color: #8AC926;">
+                        <span>You will receive:</span>
+                        <span id="summary-receive"></span>
+                    </div>
+                `;
+                
+                // Update values
+                document.getElementById('summary-amount').textContent = formatNumber(amount) + ' TAMA';
+                document.getElementById('summary-fee').textContent = '-' + formatNumber(fee) + ' TAMA';
+                document.getElementById('summary-receive').textContent = formatNumber(receive) + ' TAMA';
+                
                 confirmBtn.disabled = false;
             } else {
                 summaryDiv.style.display = 'none';
@@ -11920,27 +12036,38 @@
 
                 if (result.success) {
                     // Success
+                    const netAmount = result.data?.net_amount || (amount - Math.floor(amount * 0.05));
+                    const signature = result.data?.signature;
+                    
                     statusDiv.style.background = 'rgba(16, 185, 129, 0.1)';
                     statusDiv.style.border = '2px solid #10b981';
                     statusDiv.style.color = '#10b981';
                     statusDiv.innerHTML = `
-                        <div style="font-weight: bold; margin-bottom: 10px;">✅ Withdrawal Successful!</div>
-                        <div style="font-size: 14px; margin-bottom: 5px;">Amount: ${formatNumber(result.data?.net_amount || (amount - Math.floor(amount * 0.05)))} TAMA</div>
-                        ${result.data?.signature ? `
-                            <div style="font-size: 12px; margin-top: 10px;">
-                                <a href="https://solscan.io/tx/${result.data.signature}?cluster=devnet" target="_blank" style="color: #8AC926;">
-                                    🔗 View Transaction
+                        <div style="font-weight: bold; margin-bottom: 10px; font-size: 18px;">✅ Withdrawal Successful!</div>
+                        <div style="font-size: 16px; margin-bottom: 10px;">💰 Sent: <strong>${formatNumber(netAmount)} TAMA</strong></div>
+                        <div style="font-size: 14px; margin-bottom: 10px; color: rgba(255,255,255,0.8);">
+                            Fee: ${formatNumber(Math.floor(amount * 0.05))} TAMA (5%)
+                        </div>
+                        ${signature ? `
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <a href="https://solscan.io/tx/${signature}?cluster=devnet" target="_blank" 
+                                   style="color: #8AC926; text-decoration: none; font-weight: bold; display: inline-block; padding: 8px 15px; background: rgba(138, 201, 38, 0.2); border-radius: 5px;">
+                                    🔗 View on Solscan
                                 </a>
                             </div>
                         ` : ''}
                     `;
 
+                    // Show success message in game
+                    showMessage(`✅ Withdrawal successful! ${formatNumber(netAmount)} TAMA sent to wallet!`);
+
                     // Update balance
                     gameState.tama -= amount;
                     updateUI();
                     await loadWithdrawBalance();
+                    await loadWithdrawHistory(); // Reload history
 
-                    // Reset form after 3 seconds
+                    // Reset form after 5 seconds
                     setTimeout(() => {
                         document.getElementById('withdraw-amount-input').value = '';
                         document.getElementById('withdraw-wallet-input').value = '';
@@ -11950,6 +12077,7 @@
                         document.getElementById('phantom-connected').style.display = 'none';
                         document.getElementById('withdraw-wallet-input').disabled = false;
                         statusDiv.style.display = 'none';
+                        updateWithdrawSummary();
                     }, 5000);
                 } else {
                     // Error
