@@ -1481,15 +1481,58 @@ function handleWithdrawalRequest($url, $key) {
         try {
             $P2E_POOL = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
             
-            // Проверка на дубликаты по signature в metadata
-            $checkDuplicate = supabaseRequest($url, $key, 'GET', 'transactions', [
-                'select' => 'id',
+            // 🛡️ УЛУЧШЕННАЯ ПРОВЕРКА НА ДУБЛИКАТЫ: Проверяем по нескольким полям
+            // 1. Проверка по transaction_signature в metadata
+            $checkDuplicate1 = supabaseRequest($url, $key, 'GET', 'transactions', [
+                'select' => 'id,metadata',
                 'type' => 'eq.p2e_pool_withdrawal',
                 'metadata->>transaction_signature' => 'eq.' . $txSignature,
                 'limit' => '1'
             ]);
             
-            if (!empty($checkDuplicate['data']) && count($checkDuplicate['data']) > 0) {
+            // 2. Проверка по onchain_signature в metadata (на случай если поле называется по-другому)
+            $checkDuplicate2 = supabaseRequest($url, $key, 'GET', 'transactions', [
+                'select' => 'id,metadata',
+                'type' => 'eq.p2e_pool_withdrawal',
+                'metadata->>onchain_signature' => 'eq.' . $txSignature,
+                'limit' => '1'
+            ]);
+            
+            // 3. Проверка по комбинации: type + amount + telegram_id + время в пределах 5 минут
+            // Это защита от дубликатов при повторных вызовах API
+            $fiveMinutesAgo = date('c', time() - 300); // 5 минут назад
+            $checkDuplicate3 = supabaseRequest($url, $key, 'GET', 'transactions', [
+                'select' => 'id,metadata',
+                'type' => 'eq.p2e_pool_withdrawal',
+                'amount' => 'eq.' . (-$amountSentFromAPI),
+                'metadata->>user_telegram_id' => 'eq.' . $telegram_id,
+                'created_at' => 'gte.' . $fiveMinutesAgo,
+                'limit' => '1'
+            ]);
+            
+            $isDuplicate = false;
+            if (!empty($checkDuplicate1['data']) && count($checkDuplicate1['data']) > 0) {
+                error_log("⚠️ Duplicate found: transaction with signature {$txSignature} already exists (check 1)");
+                $isDuplicate = true;
+            }
+            if (!empty($checkDuplicate2['data']) && count($checkDuplicate2['data']) > 0) {
+                error_log("⚠️ Duplicate found: transaction with onchain_signature {$txSignature} already exists (check 2)");
+                $isDuplicate = true;
+            }
+            if (!empty($checkDuplicate3['data']) && count($checkDuplicate3['data']) > 0) {
+                // Дополнительная проверка: убедимся, что это действительно та же транзакция
+                $existingTx = $checkDuplicate3['data'][0];
+                $existingMetadata = is_string($existingTx['metadata']) ? json_decode($existingTx['metadata'], true) : $existingTx['metadata'];
+                if (isset($existingMetadata['transaction_signature']) && $existingMetadata['transaction_signature'] === $txSignature) {
+                    error_log("⚠️ Duplicate found: same withdrawal transaction exists (check 3: signature match)");
+                    $isDuplicate = true;
+                } elseif (isset($existingMetadata['destination_wallet']) && $existingMetadata['destination_wallet'] === $wallet_address) {
+                    error_log("⚠️ Duplicate found: same withdrawal to same wallet exists (check 3: wallet match)");
+                    $isDuplicate = true;
+                }
+            }
+            
+            if ($isDuplicate) {
                 error_log("⚠️ Withdrawal transaction already exists with signature {$txSignature}, skipping duplicate");
             } else {
                 supabaseRequest($url, $key, 'POST', 'transactions', [], [
@@ -1514,7 +1557,7 @@ function handleWithdrawalRequest($url, $key) {
                         'reason' => 'User withdrawal'
                     ])
                 ]);
-                error_log("✅ Withdrawal transaction logged in transactions table: -{$amountSentFromAPI} TAMA from P2E Pool");
+                error_log("✅ Withdrawal transaction logged in transactions table: -{$amountSentFromAPI} TAMA from P2E Pool (signature: {$txSignature})");
             }
         } catch (Exception $e) {
             error_log("⚠️ Failed to log withdrawal in transactions table: " . $e->getMessage());
