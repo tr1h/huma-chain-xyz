@@ -11854,26 +11854,41 @@
         async function loadWithdrawHistory() {
             try {
                 const userId = window.TELEGRAM_USER_ID;
-                if (!userId) return;
+                if (!userId) {
+                    console.warn('No user ID for withdrawal history');
+                    return;
+                }
 
                 const historyDiv = document.getElementById('withdraw-history');
-                if (!historyDiv) return;
+                if (!historyDiv) {
+                    console.warn('Withdraw history div not found');
+                    return;
+                }
 
-                const response = await fetch(`${TAMA_API_BASE}/withdrawal/history?telegram_id=${userId}`, {
+                console.log('Loading withdrawal history for user:', userId);
+                const apiBase = TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
+                const response = await fetch(`${apiBase}/withdrawal/history?telegram_id=${userId}`, {
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
 
+                console.log('Withdrawal history response status:', response.status);
+
                 if (!response.ok) {
-                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No withdrawal history</div>';
+                    const errorText = await response.text();
+                    console.error('Withdrawal history error:', errorText);
+                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Failed to load history</div>';
                     return;
                 }
 
                 const result = await response.json();
-                const withdrawals = result.data || [];
+                console.log('Withdrawal history result:', result);
+                
+                // API возвращает { success: true, withdrawals: [...] }
+                const withdrawals = result.withdrawals || result.data || [];
 
-                if (withdrawals.length === 0) {
+                if (!Array.isArray(withdrawals) || withdrawals.length === 0) {
                     historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No withdrawals yet</div>';
                     return;
                 }
@@ -11887,7 +11902,8 @@
                         hour: '2-digit', 
                         minute: '2-digit' 
                     });
-                    const amount = w.net_amount || (w.amount - (w.fee || 0));
+                    // API возвращает amount_sent (уже с вычетом комиссии) или amount - fee
+                    const amount = w.amount_sent || w.net_amount || (Math.abs(w.amount || 0) - (w.fee || 0));
                     const status = w.status || 'completed';
                     const signature = w.signature || w.tx_signature;
                     

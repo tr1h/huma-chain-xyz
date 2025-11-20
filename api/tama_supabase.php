@@ -1594,33 +1594,89 @@ function handleWithdrawalHistory($url, $key) {
     }
     
     try {
-        // Попробовать получить из tama_economy
-        $result = supabaseRequest($url, $key, 'GET', 'tama_economy', [
-            'select' => '*',
-            'telegram_id' => 'eq.' . $telegram_id,
-            'transaction_type' => 'eq.withdrawal',
-            'order' => 'created_at.desc',
-            'limit' => '50'
-        ]);
-        
         $withdrawals = [];
-        if (!empty($result['data'])) {
-            foreach ($result['data'] as $tx) {
-                $withdrawals[] = [
-                    'amount_sent' => abs((int)($tx['amount'] ?? 0)) - (int)($tx['fee'] ?? 0),
-                    'amount' => abs((int)($tx['amount'] ?? 0)),
-                    'fee' => (int)($tx['fee'] ?? 0),
-                    'signature' => $tx['signature'] ?? null,
-                    'wallet_address' => $tx['wallet_address'] ?? null,
-                    'status' => $tx['status'] ?? 'completed',
-                    'created_at' => $tx['created_at'] ?? null
-                ];
+        
+        // 1. Попробовать получить из tama_economy (старая таблица)
+        try {
+            $result = supabaseRequest($url, $key, 'GET', 'tama_economy', [
+                'select' => '*',
+                'telegram_id' => 'eq.' . $telegram_id,
+                'transaction_type' => 'eq.withdrawal',
+                'order' => 'created_at.desc',
+                'limit' => '50'
+            ]);
+            
+            if (!empty($result['data'])) {
+                foreach ($result['data'] as $tx) {
+                    $withdrawals[] = [
+                        'amount_sent' => abs((int)($tx['amount'] ?? 0)) - (int)($tx['fee'] ?? 0),
+                        'amount' => abs((int)($tx['amount'] ?? 0)),
+                        'fee' => (int)($tx['fee'] ?? 0),
+                        'signature' => $tx['signature'] ?? null,
+                        'wallet_address' => $tx['wallet_address'] ?? null,
+                        'status' => $tx['status'] ?? 'completed',
+                        'created_at' => $tx['created_at'] ?? null
+                    ];
+                }
             }
+        } catch (Exception $e) {
+            error_log("Failed to load from tama_economy: " . $e->getMessage());
         }
+        
+        // 2. Получить из transactions (новая таблица) - p2e_pool_withdrawal
+        try {
+            $transactionsResult = supabaseRequest($url, $key, 'GET', 'transactions', [
+                'select' => '*',
+                'type' => 'eq.p2e_pool_withdrawal',
+                'metadata->>user_telegram_id' => 'eq.' . $telegram_id,
+                'order' => 'created_at.desc',
+                'limit' => '50'
+            ]);
+            
+            if (!empty($transactionsResult['data'])) {
+                foreach ($transactionsResult['data'] as $tx) {
+                    $metadata = is_string($tx['metadata']) ? json_decode($tx['metadata'], true) : ($tx['metadata'] ?? []);
+                    $amount = abs((int)($tx['amount'] ?? 0));
+                    $fee = (int)($metadata['fee'] ?? 0);
+                    $amountSent = (int)($metadata['withdrawal_amount'] ?? ($amount - $fee));
+                    
+                    // Проверяем, нет ли дубликата по signature
+                    $signature = $metadata['transaction_signature'] ?? $metadata['onchain_signature'] ?? null;
+                    $exists = false;
+                    foreach ($withdrawals as $w) {
+                        if ($w['signature'] === $signature) {
+                            $exists = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!$exists) {
+                        $withdrawals[] = [
+                            'amount_sent' => $amountSent,
+                            'amount' => $amount,
+                            'fee' => $fee,
+                            'signature' => $signature,
+                            'wallet_address' => $metadata['destination_wallet'] ?? $metadata['wallet_address'] ?? null,
+                            'status' => 'completed',
+                            'created_at' => $tx['created_at'] ?? null
+                        ];
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Failed to load from transactions: " . $e->getMessage());
+        }
+        
+        // Сортировать по дате (новые первые)
+        usort($withdrawals, function($a, $b) {
+            $dateA = strtotime($a['created_at'] ?? '1970-01-01');
+            $dateB = strtotime($b['created_at'] ?? '1970-01-01');
+            return $dateB - $dateA;
+        });
         
         echo json_encode([
             'success' => true,
-            'withdrawals' => $withdrawals
+            'withdrawals' => array_slice($withdrawals, 0, 50) // Ограничить до 50
         ]);
         
     } catch (Exception $e) {
