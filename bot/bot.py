@@ -2492,9 +2492,8 @@ def claim_daily_reward(message):
         success, streak_days, reward_amount = daily_rewards.claim_reward(telegram_id)
         
         if success:
-            # Add TAMA reward
-            tama_reward = min(reward_amount, 10000)  # Max 10,000 TAMA
-            add_tama_reward(telegram_id, tama_reward, "daily_reward")
+            # 💰 TAMA balance is already updated in claim_reward() function
+            # No need to call add_tama_reward() separately - it's handled in gamification.py
             
             # Check for streak milestones
             milestone_text = ""
@@ -4065,6 +4064,9 @@ Please try again later!
         success, streak_days, reward_amount = daily_rewards.claim_reward(telegram_id)
         
         if success:
+            # 💰 TAMA balance is already updated in claim_reward() function
+            # No need to call add_tama_reward() separately
+            
             milestone_text = ""
             if streak_days == 7:
                 milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
