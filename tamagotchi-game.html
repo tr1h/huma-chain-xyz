@@ -5846,10 +5846,12 @@
         // Old sendDataToBot function removed - using enhanced version below
 
         function showMessage(msg) {
-            messageDiv.textContent = msg;
-            messageDiv.classList.remove('message');
-            void messageDiv.offsetWidth; // Trigger reflow
-            messageDiv.classList.add('message');
+            if (messageDiv) {
+                messageDiv.textContent = msg;
+                messageDiv.classList.remove('message');
+                void messageDiv.offsetWidth; // Trigger reflow
+                messageDiv.classList.add('message');
+            }
         }
 
         // Passive stat decay - IMPROVED LOGIC
@@ -6363,6 +6365,10 @@
 
         // Initialize game
         async function initGame() {
+            // Declare cloudLoaded outside try-catch so it's accessible in catch block
+            let cloudLoaded = false;
+            let userId = null;
+            
             try {
                 // Debug: Log Telegram WebApp state
                 console.log('🔍 Telegram WebApp check:', {
@@ -6374,8 +6380,6 @@
                 });
                 
                 // Try to load from Supabase first (cloud save)
-                let cloudLoaded = false;
-                let userId = null;
                 
                 if (window.Telegram && window.Telegram.WebApp) {
                     // Method 1: Try initDataUnsafe.user
