@@ -5398,11 +5398,13 @@
         }
 
         // Pet Click
-        petArea.addEventListener('click', (e) => {
-            if (e.target.closest('.pet-emoji')) {
-                clickPet(e);
-            }
-        });
+        if (petArea) {
+            petArea.addEventListener('click', (e) => {
+                if (e.target.closest('.pet-emoji')) {
+                    clickPet(e);
+                }
+            });
+        }
 
         function clickPet(e) {
             const now = Date.now();
@@ -5751,7 +5753,8 @@
         }
 
         // Actions
-        feedBtn.addEventListener('click', () => {
+        if (feedBtn) {
+            feedBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(50);
             if (gameState.tama >= cost) {
                 const balanceBefore = gameState.tama;
@@ -5775,9 +5778,11 @@
             } else {
                 showMessage('❌ Not enough TAMA!');
             }
-        });
+            });
+        }
 
-        playBtn.addEventListener('click', () => {
+        if (playBtn) {
+            playBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(30);
             if (gameState.tama >= cost) {
                 const balanceBefore = gameState.tama;
@@ -5803,9 +5808,11 @@
             } else {
                 showMessage('❌ Not enough TAMA!');
             }
-        });
+            });
+        }
 
-        healBtn.addEventListener('click', () => {
+        if (healBtn) {
+            healBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(100);
             if (gameState.tama >= cost) {
                 const balanceBefore = gameState.tama;
@@ -5831,7 +5838,8 @@
             } else {
                 showMessage('❌ Not enough TAMA!');
             }
-        });
+            });
+        }
 
         // Manual save removed - using enhanced auto-save system
 
@@ -6006,20 +6014,30 @@
         }
 
         // Shop system
-        document.getElementById('shop-btn').addEventListener('click', () => {
-            document.getElementById('shop-modal').classList.add('active');
-        });
+        const shopBtn = document.getElementById('shop-btn');
+        const closeShop = document.getElementById('close-shop');
+        const shopModal = document.getElementById('shop-modal');
+        
+        if (shopBtn && shopModal) {
+            shopBtn.addEventListener('click', () => {
+                shopModal.classList.add('active');
+            });
+        }
 
-        document.getElementById('close-shop').addEventListener('click', () => {
-            document.getElementById('shop-modal').classList.remove('active');
-        });
+        if (closeShop && shopModal) {
+            closeShop.addEventListener('click', () => {
+                shopModal.classList.remove('active');
+            });
+        }
 
         // Close shop on background click
-        document.getElementById('shop-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'shop-modal') {
-                document.getElementById('shop-modal').classList.remove('active');
-            }
-        });
+        if (shopModal) {
+            shopModal.addEventListener('click', (e) => {
+                if (e.target.id === 'shop-modal') {
+                    shopModal.classList.remove('active');
+                }
+            });
+        }
 
         function buyItem(itemType, price) {
             // Check if player has enough TAMA
@@ -8686,7 +8704,9 @@
                 const startBtn = document.getElementById('platformer-start-btn-fs');
                 if (startBtn) {
                     startBtn.replaceWith(startBtn.cloneNode(true));
-                    document.getElementById('platformer-start-btn-fs').addEventListener('click', () => {
+                    const newStartBtn = document.getElementById('platformer-start-btn-fs');
+                    if (newStartBtn) {
+                        newStartBtn.addEventListener('click', () => {
                         if (gameState.tama < 100) {
                             showMessage('❌ Not enough TAMA! Need 100 TAMA');
                             return;
@@ -8707,7 +8727,8 @@
                         }
                         
                         platformerGame.start();
-                    });
+                        });
+                    }
                 }
             }
         }
