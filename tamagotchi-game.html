@@ -3218,6 +3218,7 @@
             <button class="nav-btn leaderboard-btn" id="leaderboard-btn">🏆 Top</button>
             <button class="nav-btn referral-btn" id="referral-btn">🔗 My Link</button>
             <button class="nav-btn nft-btn" id="nft-btn">🖼️ NFT</button>
+            <button class="nav-btn withdraw-btn" id="withdraw-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold;">💸 Withdraw</button>
         </div>
 
         <!-- Pet Area -->
@@ -4658,6 +4659,87 @@
         </div>
     </div>
 
+    <!-- Withdraw Modal -->
+    <div class="referral-modal" id="withdraw-modal" style="display: none;">
+        <div class="referral-content">
+            <div class="referral-header">
+                <h2>💸 Withdraw TAMA</h2>
+                <button class="close-btn" id="close-withdraw">✕</button>
+            </div>
+            <div class="referral-body">
+                <div class="referral-progress" style="margin-bottom: 20px;">
+                    <h4>💰 Your Balance</h4>
+                    <div id="withdraw-balance" style="font-size: 24px; font-weight: bold; color: #8AC926; margin-top: 10px;">Loading...</div>
+                </div>
+
+                <div id="withdraw-wallet-section" style="margin-bottom: 20px;">
+                    <h4 style="color: #8AC926; margin-bottom: 10px;">👛 Wallet Address</h4>
+                    
+                    <!-- Phantom Wallet Option -->
+                    <div id="phantom-connect-section" style="margin-bottom: 15px;">
+                        <button class="share-btn" id="connect-phantom-btn" style="width: 100%; margin-bottom: 10px;">
+                            👛 Connect Phantom Wallet
+                        </button>
+                        <div id="phantom-connected" style="display: none; padding: 15px; background: rgba(138, 201, 38, 0.1); border-radius: 10px; border: 2px solid #8AC926;">
+                            <div style="color: #8AC926; font-weight: bold; margin-bottom: 5px;">✅ Connected</div>
+                            <div id="phantom-address" style="font-family: monospace; font-size: 12px; word-break: break-all;"></div>
+                            <button id="disconnect-phantom" style="margin-top: 10px; padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Disconnect</button>
+                        </div>
+                    </div>
+
+                    <!-- Manual Input Option -->
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid rgba(255,255,255,0.1);">
+                        <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8);">Or enter wallet address manually:</label>
+                        <input type="text" id="withdraw-wallet-input" placeholder="Enter Solana wallet address..." 
+                               style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(138, 201, 38, 0.3); background: rgba(0,0,0,0.3); color: white; font-family: monospace; font-size: 14px;">
+                        <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.6);">
+                            💡 You can also open in browser for full Phantom support
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #8AC926; margin-bottom: 10px;">💵 Withdrawal Amount</h4>
+                    <input type="number" id="withdraw-amount-input" placeholder="Enter amount (min 1,000 TAMA)" 
+                           min="1000" step="1"
+                           style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(138, 201, 38, 0.3); background: rgba(0,0,0,0.3); color: white; font-size: 16px;">
+                    <div style="margin-top: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <button class="quick-amount-btn" data-amount="1000" style="padding: 8px 15px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 5px; color: #8AC926; cursor: pointer;">1K</button>
+                        <button class="quick-amount-btn" data-amount="5000" style="padding: 8px 15px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 5px; color: #8AC926; cursor: pointer;">5K</button>
+                        <button class="quick-amount-btn" data-amount="10000" style="padding: 8px 15px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 5px; color: #8AC926; cursor: pointer;">10K</button>
+                        <button class="quick-amount-btn" data-amount="max" style="padding: 8px 15px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 5px; color: #8AC926; cursor: pointer;">MAX</button>
+                    </div>
+                </div>
+
+                <div id="withdraw-summary" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 2px solid rgba(138, 201, 38, 0.2); margin-bottom: 20px; display: none;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Amount:</span>
+                        <span id="summary-amount" style="font-weight: bold;"></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #ef4444;">
+                        <span>Fee (5%):</span>
+                        <span id="summary-fee" style="font-weight: bold;"></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 18px; font-weight: bold; color: #8AC926;">
+                        <span>You will receive:</span>
+                        <span id="summary-receive"></span>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="share-btn" id="confirm-withdraw-btn" style="width: 100%; max-width: 400px; background: linear-gradient(135deg, #10b981, #059669); font-size: 18px; padding: 15px;" disabled>
+                        💸 Confirm Withdrawal
+                    </button>
+                    <button class="share-btn" id="open-browser-withdraw" style="width: 100%; max-width: 400px; margin-top: 10px; background: rgba(138, 201, 38, 0.2); border: 2px solid #8AC926; color: #8AC926; font-size: 14px; padding: 10px;">
+                        🌐 Open in Browser (Full Phantom Support)
+                    </button>
+                </div>
+
+                <div id="withdraw-status" style="margin-top: 20px; padding: 15px; border-radius: 10px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Achievement Popup -->
     <div class="achievement-popup" id="achievement-popup">
         <div class="achievement-title">🏆 Achievement Unlocked!</div>
@@ -5401,11 +5483,11 @@
 
         // Pet Click
         if (petArea) {
-            petArea.addEventListener('click', (e) => {
-                if (e.target.closest('.pet-emoji')) {
-                    clickPet(e);
-                }
-            });
+        petArea.addEventListener('click', (e) => {
+            if (e.target.closest('.pet-emoji')) {
+                clickPet(e);
+            }
+        });
         }
 
         function clickPet(e) {
@@ -5756,7 +5838,7 @@
 
         // Actions
         if (feedBtn) {
-            feedBtn.addEventListener('click', () => {
+        feedBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(50);
             if (gameState.tama >= cost) {
                 const balanceBefore = gameState.tama;
@@ -5780,11 +5862,11 @@
             } else {
                 showMessage('❌ Not enough TAMA!');
             }
-            });
+        });
         }
 
         if (playBtn) {
-            playBtn.addEventListener('click', () => {
+        playBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(30);
             if (gameState.tama >= cost) {
                 const balanceBefore = gameState.tama;
@@ -5810,11 +5892,11 @@
             } else {
                 showMessage('❌ Not enough TAMA!');
             }
-            });
+        });
         }
 
         if (healBtn) {
-            healBtn.addEventListener('click', () => {
+        healBtn.addEventListener('click', () => {
             const cost = getProgressivePrice(100);
             if (gameState.tama >= cost) {
                 const balanceBefore = gameState.tama;
@@ -5840,7 +5922,7 @@
             } else {
                 showMessage('❌ Not enough TAMA!');
             }
-            });
+        });
         }
 
         // Manual save removed - using enhanced auto-save system
@@ -5849,10 +5931,10 @@
 
         function showMessage(msg) {
             if (messageDiv) {
-                messageDiv.textContent = msg;
-                messageDiv.classList.remove('message');
-                void messageDiv.offsetWidth; // Trigger reflow
-                messageDiv.classList.add('message');
+            messageDiv.textContent = msg;
+            messageDiv.classList.remove('message');
+            void messageDiv.offsetWidth; // Trigger reflow
+            messageDiv.classList.add('message');
             }
         }
 
@@ -6037,10 +6119,10 @@
         // Close shop on background click
         if (shopModal) {
             shopModal.addEventListener('click', (e) => {
-                if (e.target.id === 'shop-modal') {
+            if (e.target.id === 'shop-modal') {
                     shopModal.classList.remove('active');
-                }
-            });
+            }
+        });
         }
 
         function buyItem(itemType, price) {
@@ -8733,7 +8815,7 @@
                         }
                         
                         platformerGame.start();
-                        });
+                    });
                     }
                 }
             }
@@ -10440,6 +10522,12 @@
             initNFTModal();
                     console.log('✅ NFT modal initialized');
                 }
+            
+            // Initialize Withdraw modal
+                if (typeof initWithdrawModal === 'function') {
+                    initWithdrawModal();
+                    console.log('✅ Withdraw modal initialized');
+                }
                 
                 console.log('🎉 All systems initialized successfully!');
                 
@@ -11580,6 +11668,276 @@
             } catch (err) {
                 console.error('❌ Error showing NFT detail:', err);
                 alert('Failed to load NFT details: ' + err.message);
+            }
+        }
+
+        // 💸 WITHDRAW MODAL INITIALIZATION
+        let withdrawWalletAddress = null;
+        let withdrawPhantomConnected = false;
+
+        function initWithdrawModal() {
+            const withdrawBtn = document.getElementById('withdraw-btn');
+            const withdrawModal = document.getElementById('withdraw-modal');
+            const closeWithdraw = document.getElementById('close-withdraw');
+            const connectPhantomBtn = document.getElementById('connect-phantom-btn');
+            const disconnectPhantomBtn = document.getElementById('disconnect-phantom');
+            const walletInput = document.getElementById('withdraw-wallet-input');
+            const amountInput = document.getElementById('withdraw-amount-input');
+            const confirmBtn = document.getElementById('confirm-withdraw-btn');
+            const openBrowserBtn = document.getElementById('open-browser-withdraw');
+            const quickAmountBtns = document.querySelectorAll('.quick-amount-btn');
+
+            // Open modal
+            if (withdrawBtn && withdrawModal) {
+                withdrawBtn.addEventListener('click', async () => {
+                    await loadWithdrawBalance();
+                    withdrawModal.style.display = 'block';
+                });
+            }
+
+            // Close modal
+            if (closeWithdraw && withdrawModal) {
+                closeWithdraw.addEventListener('click', () => {
+                    withdrawModal.style.display = 'none';
+                });
+            }
+
+            // Connect Phantom Wallet
+            if (connectPhantomBtn) {
+                connectPhantomBtn.addEventListener('click', async () => {
+                    try {
+                        if (!window.solana || !window.solana.isPhantom) {
+                            alert('⚠️ Phantom Wallet not found!\n\nPlease install Phantom wallet or enter address manually.');
+                            document.getElementById('open-browser-withdraw').style.display = 'block';
+                            return;
+                        }
+
+                        const resp = await window.solana.connect();
+                        withdrawWalletAddress = resp.publicKey.toString();
+                        withdrawPhantomConnected = true;
+
+                        document.getElementById('phantom-connect-section').style.display = 'none';
+                        document.getElementById('phantom-connected').style.display = 'block';
+                        document.getElementById('phantom-address').textContent = withdrawWalletAddress;
+                        walletInput.value = withdrawWalletAddress;
+                        walletInput.disabled = true;
+
+                        updateWithdrawSummary();
+                    } catch (err) {
+                        console.error('Phantom connection error:', err);
+                        if (err.code === 4001) {
+                            alert('❌ Connection cancelled by user');
+                        } else {
+                            alert('❌ Failed to connect Phantom: ' + err.message);
+                        }
+                    }
+                });
+            }
+
+            // Disconnect Phantom
+            if (disconnectPhantomBtn) {
+                disconnectPhantomBtn.addEventListener('click', () => {
+                    withdrawWalletAddress = null;
+                    withdrawPhantomConnected = false;
+                    document.getElementById('phantom-connect-section').style.display = 'block';
+                    document.getElementById('phantom-connected').style.display = 'none';
+                    walletInput.value = '';
+                    walletInput.disabled = false;
+                    updateWithdrawSummary();
+                });
+            }
+
+            // Wallet input change
+            if (walletInput) {
+                walletInput.addEventListener('input', () => {
+                    if (!withdrawPhantomConnected) {
+                        withdrawWalletAddress = walletInput.value.trim();
+                        updateWithdrawSummary();
+                    }
+                });
+            }
+
+            // Amount input change
+            if (amountInput) {
+                amountInput.addEventListener('input', updateWithdrawSummary);
+            }
+
+            // Quick amount buttons
+            quickAmountBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const amount = btn.dataset.amount;
+                    if (amount === 'max') {
+                        const balance = gameState.tama || 0;
+                        amountInput.value = Math.floor(balance);
+                    } else {
+                        amountInput.value = amount;
+                    }
+                    updateWithdrawSummary();
+                });
+            });
+
+            // Confirm withdrawal
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', async () => {
+                    await processWithdrawal();
+                });
+            }
+
+            // Open in browser
+            if (openBrowserBtn) {
+                openBrowserBtn.addEventListener('click', () => {
+                    const gameUrl = window.location.href;
+                    window.open(gameUrl, '_blank');
+                });
+            }
+
+            // Check if Phantom is available
+            if (window.solana && window.solana.isPhantom) {
+                connectPhantomBtn.style.display = 'block';
+            } else {
+                connectPhantomBtn.style.display = 'none';
+                document.getElementById('open-browser-withdraw').style.display = 'block';
+            }
+        }
+
+        async function loadWithdrawBalance() {
+            const balanceEl = document.getElementById('withdraw-balance');
+            if (balanceEl) {
+                balanceEl.textContent = formatNumber(gameState.tama || 0) + ' TAMA';
+            }
+        }
+
+        function updateWithdrawSummary() {
+            const amount = parseInt(document.getElementById('withdraw-amount-input').value) || 0;
+            const wallet = withdrawWalletAddress || document.getElementById('withdraw-wallet-input').value.trim();
+            const summaryDiv = document.getElementById('withdraw-summary');
+            const confirmBtn = document.getElementById('confirm-withdraw-btn');
+
+            if (amount >= 1000 && wallet && wallet.length >= 32) {
+                const fee = Math.floor(amount * 0.05);
+                const receive = amount - fee;
+
+                document.getElementById('summary-amount').textContent = formatNumber(amount) + ' TAMA';
+                document.getElementById('summary-fee').textContent = '-' + formatNumber(fee) + ' TAMA';
+                document.getElementById('summary-receive').textContent = formatNumber(receive) + ' TAMA';
+
+                summaryDiv.style.display = 'block';
+                confirmBtn.disabled = false;
+            } else {
+                summaryDiv.style.display = 'none';
+                confirmBtn.disabled = true;
+            }
+        }
+
+        async function processWithdrawal() {
+            try {
+                const amount = parseInt(document.getElementById('withdraw-amount-input').value);
+                const wallet = withdrawWalletAddress || document.getElementById('withdraw-wallet-input').value.trim();
+                const userId = window.TELEGRAM_USER_ID;
+
+                if (!userId) {
+                    alert('❌ User ID not found. Please login first.');
+                    return;
+                }
+
+                if (amount < 1000) {
+                    alert('❌ Minimum withdrawal is 1,000 TAMA');
+                    return;
+                }
+
+                if (!wallet || wallet.length < 32) {
+                    alert('❌ Invalid wallet address');
+                    return;
+                }
+
+                if (amount > gameState.tama) {
+                    alert(`❌ Insufficient balance! You have ${formatNumber(gameState.tama)} TAMA`);
+                    return;
+                }
+
+                // Disable button
+                const confirmBtn = document.getElementById('confirm-withdraw-btn');
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = '⏳ Processing...';
+
+                const statusDiv = document.getElementById('withdraw-status');
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = 'rgba(59, 130, 246, 0.1)';
+                statusDiv.style.border = '2px solid #3b82f6';
+                statusDiv.style.color = '#3b82f6';
+                statusDiv.innerHTML = '⏳ Processing withdrawal request...';
+
+                // Call API
+                const apiBase = window.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
+                const response = await fetch(`${apiBase}/withdrawal/request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        telegram_id: userId.toString(),
+                        wallet_address: wallet,
+                        amount: amount
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Success
+                    statusDiv.style.background = 'rgba(16, 185, 129, 0.1)';
+                    statusDiv.style.border = '2px solid #10b981';
+                    statusDiv.style.color = '#10b981';
+                    statusDiv.innerHTML = `
+                        <div style="font-weight: bold; margin-bottom: 10px;">✅ Withdrawal Successful!</div>
+                        <div style="font-size: 14px; margin-bottom: 5px;">Amount: ${formatNumber(result.data?.net_amount || (amount - Math.floor(amount * 0.05)))} TAMA</div>
+                        ${result.data?.signature ? `
+                            <div style="font-size: 12px; margin-top: 10px;">
+                                <a href="https://solscan.io/tx/${result.data.signature}?cluster=devnet" target="_blank" style="color: #8AC926;">
+                                    🔗 View Transaction
+                                </a>
+                            </div>
+                        ` : ''}
+                    `;
+
+                    // Update balance
+                    gameState.tama -= amount;
+                    updateUI();
+                    await loadWithdrawBalance();
+
+                    // Reset form after 3 seconds
+                    setTimeout(() => {
+                        document.getElementById('withdraw-amount-input').value = '';
+                        document.getElementById('withdraw-wallet-input').value = '';
+                        withdrawWalletAddress = null;
+                        withdrawPhantomConnected = false;
+                        document.getElementById('phantom-connect-section').style.display = 'block';
+                        document.getElementById('phantom-connected').style.display = 'none';
+                        document.getElementById('withdraw-wallet-input').disabled = false;
+                        statusDiv.style.display = 'none';
+                    }, 5000);
+                } else {
+                    // Error
+                    statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                    statusDiv.style.border = '2px solid #ef4444';
+                    statusDiv.style.color = '#ef4444';
+                    statusDiv.innerHTML = `❌ Error: ${result.error || 'Unknown error'}`;
+                }
+
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '💸 Confirm Withdrawal';
+            } catch (err) {
+                console.error('Withdrawal error:', err);
+                const statusDiv = document.getElementById('withdraw-status');
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                statusDiv.style.border = '2px solid #ef4444';
+                statusDiv.style.color = '#ef4444';
+                statusDiv.innerHTML = `❌ Error: ${err.message}`;
+
+                const confirmBtn = document.getElementById('confirm-withdraw-btn');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '💸 Confirm Withdrawal';
             }
         }
 
