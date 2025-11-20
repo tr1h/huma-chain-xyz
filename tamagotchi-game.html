@@ -2247,15 +2247,16 @@
         
         #nft-modal .referral-header {
             flex-shrink: 0;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid rgba(138, 201, 38, 0.3);
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(138, 201, 38, 0.3);
         }
         
         #nft-modal .referral-header h2 {
-            font-size: 32px;
+            font-size: 24px;
             color: #FFB703;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
         }
         
         #nft-modal .referral-body {
@@ -2267,21 +2268,21 @@
         
         #nft-modal .referral-progress {
             flex-shrink: 0;
-            margin-bottom: 30px;
-            padding: 20px;
+            margin-bottom: 10px;
+            padding: 10px 15px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
+            border-radius: 10px;
             border: 2px solid rgba(138, 201, 38, 0.2);
         }
         
         #nft-modal .referral-progress h4 {
-            font-size: 24px;
+            font-size: 16px;
             color: #8AC926;
-            margin-bottom: 15px;
+            margin: 0 0 8px 0;
         }
         
         #nft-modal #nft-stats {
-            font-size: 18px;
+            font-size: 14px;
             color: #fff;
         }
         
@@ -2295,39 +2296,40 @@
         #nft-modal #nft-grid {
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 15px;
             overflow-y: auto;
             min-height: 400px;
-            max-height: calc(100vh - 400px);
+            max-height: calc(100vh - 200px);
         }
         
         #nft-modal .nft-card {
             background: rgba(0, 0, 0, 0.4);
             border: 2px solid rgba(138, 201, 38, 0.3);
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 12px;
             text-align: center;
             transition: all 0.3s;
-            min-height: 250px;
+            min-height: 200px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            cursor: pointer;
         }
         
         #nft-modal .nft-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             border-color: #8AC926;
-            box-shadow: 0 10px 30px rgba(138, 201, 38, 0.4);
+            box-shadow: 0 8px 20px rgba(138, 201, 38, 0.4);
             background: rgba(138, 201, 38, 0.1);
         }
         
         #nft-modal .nft-card img {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             object-fit: contain;
-            margin: 0 auto 15px;
+            margin: 0 auto 10px;
         }
         
         #nft-modal #mint-nft-btn {
@@ -11406,6 +11408,188 @@
                 const nftGrid = document.getElementById('nft-grid');
                 if (nftStats) nftStats.textContent = 'Error loading NFTs: ' + err.message;
                 if (nftGrid) nftGrid.innerHTML = '<p style="text-align: center; color: #ef4444;">Failed to load NFTs. Please try again.</p>';
+            }
+        }
+
+        // 🎯 ДЕТАЛЬНЫЙ ПРОСМОТР NFT
+        async function showNFTDetail(nftId) {
+            try {
+                const nft = nftCollectionData[nftId];
+                if (!nft) {
+                    console.error('NFT not found:', nftId);
+                    return;
+                }
+
+                const tier = nft.tier_name || 'Unknown';
+                const rarity = nft.rarity || 'Common';
+                const multiplier = parseFloat(nft.earning_multiplier) || 1;
+                const isActive = nft.is_active !== false;
+                
+                // Get image URL
+                let imageUrl = null;
+                if (nft.nft_designs && nft.nft_designs.image_url) {
+                    imageUrl = nft.nft_designs.image_url;
+                } else {
+                    const tierImageMap = {
+                        'Bronze': 'https://solanatamagotchi.com/nft-assets/bronze/bronze-1.png',
+                        'Silver': 'https://solanatamagotchi.com/nft-assets/silver/silver-1.png',
+                        'Gold': 'https://solanatamagotchi.com/nft-assets/gold/gold-1.png',
+                        'Platinum': 'https://solanatamagotchi.com/nft-assets/platinum/platinum-1.png',
+                        'Diamond': 'https://solanatamagotchi.com/nft-assets/diamond/diamond-1.png'
+                    };
+                    imageUrl = tierImageMap[tier];
+                }
+                
+                const tierEmoji = {
+                    'Bronze': '🥉',
+                    'Silver': '🥈',
+                    'Gold': '🥇',
+                    'Platinum': '💎',
+                    'Diamond': '💠'
+                };
+                const emojiUrl = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || '🎮'}</text></svg>`;
+                if (!imageUrl) imageUrl = emojiUrl;
+                
+                const tierColors = {
+                    'Bronze': '#CD7F32',
+                    'Silver': '#C0C0C0',
+                    'Gold': '#FFD700',
+                    'Platinum': '#E5E4E2',
+                    'Diamond': '#B9F2FF'
+                };
+                const tierColor = tierColors[tier] || '#8AC926';
+                
+                // Загружаем информацию о транзакции минта
+                let mintTransaction = null;
+                let mintReason = 'Unknown';
+                try {
+                    const userId = window.TELEGRAM_USER_ID;
+                    if (userId) {
+                        const txResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?user_id=eq.${userId}&type=eq.nft_mint&metadata->>nft_id=eq.${nftId}&order=created_at.desc&limit=1`, {
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            }
+                        });
+                        
+                        if (txResponse.ok) {
+                            const transactions = await txResponse.json();
+                            if (transactions && transactions.length > 0) {
+                                mintTransaction = transactions[0];
+                                const metadata = typeof mintTransaction.metadata === 'string' 
+                                    ? JSON.parse(mintTransaction.metadata) 
+                                    : mintTransaction.metadata;
+                                
+                                // Определяем причину минта
+                                if (metadata.purchase_method === 'tama') {
+                                    mintReason = `Purchased with ${metadata.cost_tama || nft.purchase_price_tama || 0} TAMA`;
+                                } else if (metadata.purchase_method === 'sol') {
+                                    mintReason = `Purchased with ${metadata.cost_sol || nft.purchase_price_sol || 0} SOL`;
+                                } else if (metadata.reason) {
+                                    mintReason = metadata.reason;
+                                } else {
+                                    mintReason = nft.purchase_price_tama 
+                                        ? `Purchased with ${nft.purchase_price_tama} TAMA`
+                                        : nft.purchase_price_sol 
+                                            ? `Purchased with ${nft.purchase_price_sol} SOL`
+                                            : 'Minted';
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to load mint transaction:', e);
+                }
+                
+                // Форматируем дату
+                const mintDate = nft.minted_at 
+                    ? new Date(nft.minted_at).toLocaleString('ru-RU', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })
+                    : 'Unknown';
+                
+                // Проверяем on-chain статус
+                const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
+                const explorerLink = isOnChain 
+                    ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
+                    : null;
+                
+                // Формируем HTML
+                const detailHTML = `
+                    <div class="nft-detail-header">
+                        <div class="nft-detail-image">
+                            <img src="${imageUrl}" alt="${tier} NFT" onerror="this.src='${emojiUrl}'" style="border-color: ${tierColor};">
+                        </div>
+                        <div class="nft-detail-info">
+                            <div class="nft-detail-title" style="color: ${tierColor};">
+                                ${tier} NFT ${isOnChain ? '🔗' : ''}
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <span class="nft-detail-badge" style="background: ${tierColor}; color: #000;">
+                                    ${rarity}
+                                </span>
+                                <span class="nft-detail-badge" style="background: ${isActive ? '#10b981' : '#ef4444'}; color: #fff;">
+                                    ${isActive ? '✅ Active' : '❌ Inactive'}
+                                </span>
+                                ${isOnChain ? '<span class="nft-detail-badge" style="background: #8b5cf6; color: #fff;">🔗 On-Chain</span>' : ''}
+                            </div>
+                            <div class="nft-detail-stats">
+                                <div class="nft-detail-stat">
+                                    <div class="nft-detail-stat-label">⚡ Earning Boost</div>
+                                    <div style="font-size: 24px; font-weight: bold; color: #8AC926;">${multiplier}x</div>
+                                </div>
+                                <div class="nft-detail-stat">
+                                    <div class="nft-detail-stat-label">💰 Purchase Price</div>
+                                    <div style="font-size: 18px; font-weight: bold;">
+                                        ${nft.purchase_price_tama ? `${nft.purchase_price_tama} TAMA` : ''}
+                                        ${nft.purchase_price_sol ? `${nft.purchase_price_sol} SOL` : ''}
+                                        ${!nft.purchase_price_tama && !nft.purchase_price_sol ? 'Free' : ''}
+                                    </div>
+                                </div>
+                                <div class="nft-detail-stat">
+                                    <div class="nft-detail-stat-label">📅 Minted Date</div>
+                                    <div style="font-size: 14px;">${mintDate}</div>
+                                </div>
+                                ${explorerLink ? `
+                                <div class="nft-detail-stat">
+                                    <div class="nft-detail-stat-label">🔗 Blockchain</div>
+                                    <a href="${explorerLink}" target="_blank" style="color: #8AC926; text-decoration: none;">
+                                        View on Solscan →
+                                    </a>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(138, 201, 38, 0.2);">
+                        <h3 style="margin: 0 0 15px 0; color: #8AC926; font-size: 20px;">📝 Mint Information</h3>
+                        <div style="line-height: 1.8;">
+                            <div><strong>Reason:</strong> ${mintReason}</div>
+                            ${mintTransaction && mintTransaction.metadata ? `
+                                <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 5px; font-size: 12px; font-family: monospace;">
+                                    <strong>Transaction ID:</strong> ${mintTransaction.id}<br>
+                                    ${mintTransaction.metadata.transaction_signature ? `<strong>Signature:</strong> ${mintTransaction.metadata.transaction_signature.substring(0, 20)}...` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                const detailBody = document.getElementById('nft-detail-body');
+                const detailModal = document.getElementById('nft-detail-modal');
+                
+                if (detailBody && detailModal) {
+                    detailBody.innerHTML = detailHTML;
+                    detailModal.classList.add('show');
+                }
+            } catch (err) {
+                console.error('❌ Error showing NFT detail:', err);
+                alert('Failed to load NFT details: ' + err.message);
             }
         }
 
