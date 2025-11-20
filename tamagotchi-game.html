@@ -12469,9 +12469,9 @@
             const receive = amount - fee;
             
             // Update confirmation modal
-            document.getElementById('confirm-amount').textContent = formatNumber(amount) + ' TAMA';
-            document.getElementById('confirm-fee').textContent = '-' + formatNumber(fee) + ' TAMA';
-            document.getElementById('confirm-receive').textContent = formatNumber(receive) + ' TAMA';
+            document.getElementById('confirm-amount').textContent = formatNumber(amount);
+            document.getElementById('confirm-fee').textContent = formatNumber(fee);
+            document.getElementById('confirm-receive').textContent = formatNumber(receive);
             document.getElementById('confirm-wallet').textContent = wallet;
             
             // Show modal
