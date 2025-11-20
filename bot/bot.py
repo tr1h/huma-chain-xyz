@@ -2304,18 +2304,18 @@ def test_promo_post(message):
 🎮 What is it?
 • Virtual pet in Telegram
 • Earn TAMA tokens
-• Mini-games and adventures
+• Play games and adventures (in main game)
 • Evolution and customization
 
 💰 Earning:
 • Clicks = TAMA tokens
-• Mini-games = bonuses
+• Playing games = bonuses (in main game)
 • Referrals = 10% of income
 • Daily rewards
 
 🏅 Features:
 • 5 pet types
-• 5 mini-games
+• 5 games (in main game)
 • Achievement system
 • Leaderboard
 
@@ -2331,7 +2331,7 @@ def test_promo_post(message):
 
 📋 How to Earn:
 • Click your pet = Instant TAMA!
-• Play mini-games = Up to 500 TAMA!
+• Play games in main game = Up to 500 TAMA!
 • Daily rewards = Streak bonuses!
 • Refer friends = 1,000 TAMA per friend!
 • Complete quests = Extra bonuses!
@@ -2341,7 +2341,7 @@ def test_promo_post(message):
 • Level 2: 500 TAMA per sub-referral
 • Milestone bonuses up to 100,000 TAMA!
 
-🎮 5 Mini-Games Available:
+🎮 5 Games Available (in main game):
 • Guess Number • Trivia Quiz
 • Fortune Wheel • And more!
 
@@ -2371,7 +2371,7 @@ def test_promo_post(message):
 ✅ Free to start - no investment
 ✅ Fun pet game in Telegram
 ✅ Real earning opportunities
-✅ Daily rewards & mini-games
+✅ Daily rewards & games (in main game)
 
 ЁЯУИ Top referrers earning 100,000+ TAMA!
 
@@ -2394,7 +2394,7 @@ def test_promo_post(message):
 • Combo System - Click fast for bonuses!
 • Emotions - Happy, Sad, Hungry, Angry, Surprised
 
-📋 Mini-Games:
+📋 Games (in main game):
 • ЁЯО▓ Guess Number
 • ❓ Solana Quiz
 • 🎰 Fortune Wheel
@@ -2825,18 +2825,18 @@ def post_daily_promo():
 🎮 What is it?
 • Virtual pet in Telegram
 • Earn TAMA tokens
-• Mini-games and adventures
+• Play games and adventures (in main game)
 • Evolution and customization
 
 💰 Earning:
 • Clicks = TAMA tokens
-• Mini-games = bonuses
+• Playing games = bonuses (in main game)
 • Referrals = 10% of income
 • Daily rewards
 
 🏅 Features:
 • 5 pet types
-• 5 mini-games
+• 5 games (in main game)
 • Achievement system
 • Leaderboard
 
@@ -2852,7 +2852,7 @@ def post_daily_promo():
 
 📋 How to Earn:
 • Click your pet = Instant TAMA!
-• Play mini-games = Up to 500 TAMA!
+• Play games in main game = Up to 500 TAMA!
 • Daily rewards = Streak bonuses!
 • Refer friends = 1,000 TAMA per friend!
 • Complete quests = Extra bonuses!
@@ -2862,7 +2862,7 @@ def post_daily_promo():
 • Level 2: 500 TAMA per sub-referral
 • Milestone bonuses up to 100,000 TAMA!
 
-🎮 5 Mini-Games Available:
+🎮 5 Games Available (in main game):
 • Guess Number • Trivia Quiz
 • Fortune Wheel • And more!
 
@@ -2892,7 +2892,7 @@ def post_daily_promo():
 ✅ Free to start - no investment
 ✅ Fun pet game in Telegram
 ✅ Real earning opportunities
-✅ Daily rewards & mini-games
+✅ Daily rewards & games (in main game)
 
 ЁЯУИ Top referrers earning 100,000+ TAMA!
 
@@ -2915,7 +2915,7 @@ def post_daily_promo():
 • Combo System - Click fast for bonuses!
 • Emotions - Happy, Sad, Hungry, Angry, Surprised
 
-📋 Mini-Games:
+📋 Games (in main game):
 • ЁЯО▓ Guess Number
 • ❓ Solana Quiz
 • 🎰 Fortune Wheel
