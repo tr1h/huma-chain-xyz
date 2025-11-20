@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- VERSION: 1.8.5 | BUILD: 2025-10-26 22:15 | FIX: Really equal button sizes -->
+<!-- VERSION: 1.9.4 | BUILD: 2025-11-20 06:20 | FIX: petArea initialization fix -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -5353,7 +5353,8 @@
         }
 
         function createParticles(type, count) {
-            const petArea = document.getElementById('pet-area');
+            if (!petArea) petArea = document.getElementById('pet-area');
+            if (!petArea) return; // Safety check
             const petRect = petArea.getBoundingClientRect();
             const centerX = petRect.left + petRect.width / 2;
             const centerY = petRect.top + petRect.height / 2;
@@ -5397,12 +5398,7 @@
             }
         }
 
-        // Pet Click
-        petArea.addEventListener('click', (e) => {
-            if (e.target.closest('.pet-emoji')) {
-                clickPet(e);
-            }
-        });
+        // Pet Click - will be initialized in DOMContentLoaded
 
         function clickPet(e) {
             const now = Date.now();
@@ -10198,8 +10194,8 @@
         
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                console.log('%c🎮 GAME VERSION: 1.9.3 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
-                console.log('%c📅 BUILD: 2025-11-20 23:30 | FIX: Debug initialization', 'font-size: 14px; color: #ffff00;');
+                console.log('%c🎮 GAME VERSION: 1.9.4 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
+                console.log('%c📅 BUILD: 2025-11-20 06:20 | FIX: petArea initialization fix', 'font-size: 14px; color: #ffff00;');
                 console.log('✅ DOM loaded, initializing game...');
                 
                 // Check if critical elements exist
@@ -10208,6 +10204,30 @@
                     throw new Error('Game container not found!');
                 }
                 console.log('✅ Game container found');
+                
+                // Initialize DOM elements
+                petSprite = document.getElementById('pet-sprite');
+                petArea = document.getElementById('pet-area');
+                levelDisplay = document.getElementById('level-display');
+                tamaDisplay = document.getElementById('tama-display');
+                rankDisplay = document.getElementById('rank-display');
+                messageDiv = document.getElementById('message');
+                feedBtn = document.getElementById('feed-btn');
+                playBtn = document.getElementById('play-btn');
+                healBtn = document.getElementById('heal-btn');
+                console.log('✅ DOM elements initialized');
+                
+                // Initialize pet click handler
+                if (petArea) {
+                    petArea.addEventListener('click', (e) => {
+                        if (e.target.closest('.pet-emoji')) {
+                            clickPet(e);
+                        }
+                    });
+                    console.log('✅ Pet click handler initialized');
+                } else {
+                    console.error('❌ petArea not found!');
+                }
                 
                 // 🎨 Load NFT boost for user (after user ID is set)
                 setTimeout(() => {

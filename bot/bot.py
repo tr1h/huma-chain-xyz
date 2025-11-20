@@ -58,7 +58,7 @@ BOT_USERNAME = os.getenv('BOT_USERNAME', 'GotchiGameBot')
 bot = telebot.TeleBot(TOKEN)
 
 # URLs
-GAME_URL = os.getenv('GAME_URL', 'https://solanatamagotchi.com/tamagotchi-game.html?v=20251113')  # Telegram Mini App URL
+GAME_URL = os.getenv('GAME_URL', 'https://solanatamagotchi.com/tamagotchi-game.html?v=20251120')  # Telegram Mini App URL
 MINT_URL = os.getenv('MINT_URL', 'https://solanatamagotchi.com/mint.html')  # Mint URL
 CHANNEL_USERNAME = os.getenv('CHANNEL_USERNAME', '@GotchiGame')  # Channel username for posting
 
@@ -2775,13 +2775,13 @@ A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
             # Send welcome message
             try:
                 sent_message = bot.send_message(
-                    message.chat.id, 
-                    welcome_text, 
-                    parse_mode='HTML', 
-                    reply_markup=keyboard,
-                    disable_web_page_preview=False
-                )
-                print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
+                message.chat.id, 
+                welcome_text, 
+                parse_mode='HTML', 
+                reply_markup=keyboard,
+                disable_web_page_preview=False
+            )
+            print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
             except Exception as send_error:
                 error_msg = str(send_error)
                 if "not enough rights" in error_msg.lower() or "chat not found" in error_msg.lower():
