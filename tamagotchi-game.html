@@ -10234,6 +10234,141 @@
                 }
                 console.log('✅ Game container found');
             
+            // 🔧 ИНИЦИАЛИЗАЦИЯ DOM ЭЛЕМЕНТОВ
+                petSprite = document.getElementById('pet-sprite');
+                petArea = document.getElementById('pet-area');
+                levelDisplay = document.getElementById('level-display');
+                tamaDisplay = document.getElementById('tama-display');
+                rankDisplay = document.getElementById('rank-display');
+                messageDiv = document.getElementById('message');
+                feedBtn = document.getElementById('feed-btn');
+                playBtn = document.getElementById('play-btn');
+                healBtn = document.getElementById('heal-btn');
+                
+                console.log('🔍 DOM Elements initialized:', {
+                    petSprite: !!petSprite,
+                    petArea: !!petArea,
+                    levelDisplay: !!levelDisplay,
+                    tamaDisplay: !!tamaDisplay,
+                    rankDisplay: !!rankDisplay,
+                    messageDiv: !!messageDiv,
+                    feedBtn: !!feedBtn,
+                    playBtn: !!playBtn,
+                    healBtn: !!healBtn
+                });
+                
+                // Re-initialize event listeners if elements are now available
+                if (petArea) {
+                    // Remove old listener if exists
+                    petArea.replaceWith(petArea.cloneNode(true));
+                    petArea = document.getElementById('pet-area');
+                    if (petArea) {
+                        petArea.addEventListener('click', (e) => {
+                            if (e.target.closest('.pet-emoji') || e.target.closest('#pet-sprite') || e.target.closest('#vector-pet')) {
+                                clickPet(e);
+                            }
+                        });
+                        console.log('✅ Pet click handler re-initialized');
+                    }
+                }
+                
+                if (feedBtn) {
+                    feedBtn.replaceWith(feedBtn.cloneNode(true));
+                    feedBtn = document.getElementById('feed-btn');
+                    if (feedBtn) {
+                        feedBtn.addEventListener('click', () => {
+                            const cost = getProgressivePrice(50);
+                            if (gameState.tama >= cost) {
+                                const balanceBefore = gameState.tama;
+                                gameState.tama -= cost;
+                                const balanceAfter = gameState.tama;
+                                gameState.food = Math.min(gameState.maxFood, gameState.food + 30);
+                                gameState.xp += 10;
+                                showMessage('🍔 Yummy! Food +30');
+                                checkLevelUp();
+                                updateUI();
+                                
+                                if (window.TELEGRAM_USER_ID) {
+                                    logTransaction('spend_feed', cost, balanceBefore, balanceAfter, {
+                                        food_gained: 30,
+                                        xp_gained: 10
+                                    });
+                                }
+                                
+                                triggerAutoSave();
+                            } else {
+                                showMessage('❌ Not enough TAMA!');
+                            }
+                        });
+                    }
+                }
+                
+                if (playBtn) {
+                    playBtn.replaceWith(playBtn.cloneNode(true));
+                    playBtn = document.getElementById('play-btn');
+                    if (playBtn) {
+                        playBtn.addEventListener('click', () => {
+                            const cost = getProgressivePrice(30);
+                            if (gameState.tama >= cost) {
+                                const balanceBefore = gameState.tama;
+                                gameState.tama -= cost;
+                                const balanceAfter = gameState.tama;
+                                gameState.happy = Math.min(gameState.maxHappy, gameState.happy + 40);
+                                gameState.food = Math.max(0, gameState.food - 10);
+                                gameState.xp += 15;
+                                showMessage('🎮 So fun! Happy +40, Food -10');
+                                checkLevelUp();
+                                updateUI();
+                                
+                                if (window.TELEGRAM_USER_ID) {
+                                    logTransaction('spend_play', cost, balanceBefore, balanceAfter, {
+                                        happy_gained: 40,
+                                        food_lost: 10,
+                                        xp_gained: 15
+                                    });
+                                }
+                                
+                                triggerAutoSave();
+                            } else {
+                                showMessage('❌ Not enough TAMA!');
+                            }
+                        });
+                    }
+                }
+                
+                if (healBtn) {
+                    healBtn.replaceWith(healBtn.cloneNode(true));
+                    healBtn = document.getElementById('heal-btn');
+                    if (healBtn) {
+                        healBtn.addEventListener('click', () => {
+                            const cost = getProgressivePrice(100);
+                            if (gameState.tama >= cost) {
+                                const balanceBefore = gameState.tama;
+                                gameState.tama -= cost;
+                                const balanceAfter = gameState.tama;
+                                gameState.hp = Math.min(gameState.maxHp, gameState.hp + 50);
+                                gameState.xp += 20;
+                                clickEfficiency = 1.0;
+                                showMessage('💊 Feeling better! HP +50');
+                                checkLevelUp();
+                                updateUI();
+                                
+                                if (window.TELEGRAM_USER_ID) {
+                                    logTransaction('spend_heal', cost, balanceBefore, balanceAfter, {
+                                        hp_gained: 50,
+                                        xp_gained: 20,
+                                        efficiency_restored: true
+                                    });
+                                }
+                                
+                                triggerAutoSave();
+                            } else {
+                                showMessage('❌ Not enough TAMA!');
+                            }
+                        });
+                    }
+                }
+            
             // 🎨 Load NFT boost for user (after user ID is set)
                 setTimeout(() => {
                     try {
