@@ -2286,8 +2286,56 @@
             100% { transform: rotate(360deg); }
         }
         
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
         .spinner {
             animation: spin 1s linear infinite;
+        }
+        
+        /* Fullscreen modal styles */
+        #withdraw-confirm-modal .referral-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #withdraw-confirm-modal .referral-body {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        #withdraw-confirm-modal button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+        }
+        
+        #withdraw-confirm-modal button:active {
+            transform: translateY(0);
+        }
+        
+        /* Custom scrollbar for withdrawal history */
+        #withdraw-history::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #withdraw-history::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        #withdraw-history::-webkit-scrollbar-thumb {
+            background: rgba(138, 201, 38, 0.5);
+            border-radius: 10px;
+        }
+        
+        #withdraw-history::-webkit-scrollbar-thumb:hover {
+            background: rgba(138, 201, 38, 0.7);
+        }
+        
+        /* Smooth scrolling */
+        #withdraw-history {
+            scroll-behavior: smooth;
         }
         
         #nft-modal .referral-header {
@@ -4817,63 +4865,79 @@
                 <div id="withdraw-status" style="margin-top: 20px; padding: 15px; border-radius: 10px; display: none;"></div>
 
                 <!-- Withdrawal History -->
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.1);">
-                    <h4 style="color: #8AC926; margin-bottom: 15px;">📜 Withdrawal History</h4>
-                    <div id="withdraw-history" style="max-height: 300px; overflow-y: auto;">
-                        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Loading history...</div>
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid rgba(255,255,255,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="color: #8AC926; margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px;">
+                            <span>📜</span>
+                            <span>Withdrawal History</span>
+                        </h4>
+                        <button id="refresh-history-btn" style="padding: 8px 15px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 8px; color: #8AC926; cursor: pointer; font-size: 14px; transition: all 0.3s;" 
+                                onmouseover="this.style.background='rgba(138, 201, 38, 0.3)';" 
+                                onmouseout="this.style.background='rgba(138, 201, 38, 0.2)';">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="withdraw-history" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                        <div style="text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.6);">
+                            <div class="spinner" style="border: 4px solid rgba(138, 201, 38, 0.3); border-top: 4px solid #8AC926; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div>
+                            <div style="font-size: 16px;">Loading history...</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Withdrawal Confirmation Modal -->
+    <!-- Withdrawal Confirmation Modal - FULLSCREEN -->
     <div class="referral-modal" id="withdraw-confirm-modal" style="display: none; z-index: 10001;">
-        <div class="referral-content" style="max-width: 500px;">
-            <div class="referral-header">
-                <h2>⚠️ Confirm Withdrawal</h2>
-                <button class="close-btn" id="close-confirm-withdraw">✕</button>
+        <div class="referral-content" style="max-width: 100%; width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; padding: 30px; background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);">
+            <div class="referral-header" style="flex-shrink: 0; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid rgba(16, 185, 129, 0.3);">
+                <h2 style="font-size: 32px; color: #10b981; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin: 0;">⚠️ Confirm Withdrawal</h2>
+                <button class="close-btn" id="close-confirm-withdraw" style="font-size: 28px; width: 45px; height: 45px;">✕</button>
             </div>
-            <div class="referral-body">
-                <div style="padding: 20px; text-align: center;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">💸</div>
-                    <div style="font-size: 18px; color: rgba(255,255,255,0.9); margin-bottom: 30px;">
+            <div class="referral-body" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+                <div style="max-width: 600px; width: 100%; text-align: center;">
+                    <div style="font-size: 80px; margin-bottom: 30px; animation: bounce 2s infinite;">💸</div>
+                    <div style="font-size: 24px; color: rgba(255,255,255,0.9); margin-bottom: 40px; font-weight: 300;">
                         Please confirm your withdrawal details:
                     </div>
                     
-                    <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 20px; margin-bottom: 20px; text-align: left;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            <span style="color: rgba(255,255,255,0.7);">Amount:</span>
-                            <span id="confirm-amount" style="font-weight: bold; color: #8AC926; font-size: 18px;"></span>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; margin-bottom: 30px; text-align: left; border: 2px solid rgba(138, 201, 38, 0.2); box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.1);">
+                            <span style="color: rgba(255,255,255,0.8); font-size: 18px;">Amount:</span>
+                            <span id="confirm-amount" style="font-weight: bold; color: #8AC926; font-size: 28px;"></span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            <span style="color: rgba(255,255,255,0.7);">Fee (5%):</span>
-                            <span id="confirm-fee" style="font-weight: bold; color: #ef4444;"></span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.1);">
+                            <span style="color: rgba(255,255,255,0.8); font-size: 18px;">Fee (5%):</span>
+                            <span id="confirm-fee" style="font-weight: bold; color: #ef4444; font-size: 20px;"></span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                            <span style="color: rgba(255,255,255,0.7);">You will receive:</span>
-                            <span id="confirm-receive" style="font-weight: bold; color: #10b981; font-size: 18px;"></span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.1);">
+                            <span style="color: rgba(255,255,255,0.8); font-size: 18px;">You will receive:</span>
+                            <span id="confirm-receive" style="font-weight: bold; color: #10b981; font-size: 28px;"></span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                            <span style="color: rgba(255,255,255,0.7);">Wallet:</span>
-                            <span id="confirm-wallet" style="font-family: monospace; font-size: 12px; word-break: break-all; color: #8AC926; max-width: 60%; text-align: right;"></span>
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.1);">
+                            <div style="color: rgba(255,255,255,0.8); font-size: 16px; margin-bottom: 10px;">Wallet Address:</div>
+                            <div id="confirm-wallet" style="font-family: monospace; font-size: 14px; word-break: break-all; color: #8AC926; background: rgba(138, 201, 38, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(138, 201, 38, 0.3); line-height: 1.6;"></div>
                         </div>
                     </div>
                     
-                    <div style="background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: left;">
-                        <div style="color: #ef4444; font-weight: bold; margin-bottom: 5px;">⚠️ Important:</div>
-                        <div style="color: rgba(255,255,255,0.8); font-size: 14px;">
+                    <div style="background: rgba(239, 68, 68, 0.15); border: 2px solid rgba(239, 68, 68, 0.4); border-radius: 15px; padding: 25px; margin-bottom: 40px; text-align: left; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);">
+                        <div style="color: #ef4444; font-weight: bold; margin-bottom: 15px; font-size: 20px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 28px;">⚠️</span>
+                            <span>Important:</span>
+                        </div>
+                        <div style="color: rgba(255,255,255,0.9); font-size: 16px; line-height: 1.8;">
                             • Transaction cannot be cancelled<br>
                             • Fee is non-refundable<br>
                             • Make sure wallet address is correct
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 10px;">
-                        <button id="cancel-withdraw-btn" class="share-btn" style="flex: 1; padding: 15px; background: rgba(239, 68, 68, 0.2); border: 2px solid #ef4444; color: #ef4444; font-size: 16px; font-weight: bold;">
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button id="cancel-withdraw-btn" class="share-btn" style="flex: 1; padding: 20px; background: rgba(239, 68, 68, 0.2); border: 2px solid #ef4444; color: #ef4444; font-size: 18px; font-weight: bold; border-radius: 15px; transition: all 0.3s;">
                             Cancel
                         </button>
-                        <button id="final-confirm-withdraw-btn" class="share-btn" style="flex: 1; padding: 15px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 16px; font-weight: bold;">
+                        <button id="final-confirm-withdraw-btn" class="share-btn" style="flex: 1; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 18px; font-weight: bold; border-radius: 15px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: all 0.3s;">
                             ✅ Confirm
                         </button>
                     </div>
@@ -11913,6 +11977,18 @@
                 });
             }
             
+            // Refresh history button
+            const refreshHistoryBtn = document.getElementById('refresh-history-btn');
+            if (refreshHistoryBtn) {
+                refreshHistoryBtn.addEventListener('click', async () => {
+                    refreshHistoryBtn.disabled = true;
+                    refreshHistoryBtn.textContent = '🔄 Loading...';
+                    await loadWithdrawHistory();
+                    refreshHistoryBtn.disabled = false;
+                    refreshHistoryBtn.innerHTML = '🔄 Refresh';
+                });
+            }
+            
             // Saved wallets handlers
             const savedWalletsSelect = document.getElementById('saved-wallets-select');
             const useSelectedWalletBtn = document.getElementById('use-selected-wallet-btn');
@@ -12180,9 +12256,14 @@
                 }
 
                 console.log('Loading withdrawal history for user:', userId);
-                const apiBase = TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
+                const apiBase = window.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
                 
-                historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Loading history...</div>';
+                historyDiv.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.6);">
+                        <div class="spinner" style="border: 4px solid rgba(138, 201, 38, 0.3); border-top: 4px solid #8AC926; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div>
+                        <div style="font-size: 16px;">Loading history...</div>
+                    </div>
+                `;
                 
                 const response = await fetch(`${apiBase}/withdrawal/history?telegram_id=${userId}`, {
                     headers: {
@@ -12219,11 +12300,17 @@
                 }
 
                 if (withdrawals.length === 0) {
-                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No withdrawals yet</div>';
+                    historyDiv.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.6);">
+                            <div style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;">📜</div>
+                            <div style="font-size: 18px; margin-bottom: 10px; color: rgba(255,255,255,0.8);">No withdrawals yet</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.5);">Make your first withdrawal to see history here!</div>
+                        </div>
+                    `;
                     return;
                 }
 
-                historyDiv.innerHTML = withdrawals.map(w => {
+                historyDiv.innerHTML = withdrawals.map((w, index) => {
                     const date = new Date(w.created_at || w.completed_at);
                     const dateStr = date.toLocaleString('ru-RU', { 
                         year: 'numeric', 
@@ -12234,24 +12321,52 @@
                     });
                     // API возвращает amount_sent (уже с вычетом комиссии) или amount - fee
                     const amount = w.amount_sent || w.net_amount || (Math.abs(w.amount || 0) - (w.fee || 0));
+                    const fee = w.fee || Math.floor((w.amount || amount) * 0.05);
+                    const totalAmount = amount + fee;
                     const status = w.status || 'completed';
-                    const signature = w.signature || w.tx_signature;
+                    const signature = w.signature || w.tx_signature || w.transaction_signature;
+                    const wallet = w.wallet_address || w.destination_wallet || 'N/A';
+                    
+                    const statusColor = status === 'completed' ? '#10b981' : status === 'pending' ? '#fbbf24' : '#ef4444';
+                    const statusEmoji = status === 'completed' ? '✅' : status === 'pending' ? '⏳' : '❌';
                     
                     return `
-                        <div style="padding: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(138, 201, 38, 0.2);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                <div style="font-weight: bold; color: #8AC926;">${formatNumber(amount)} TAMA</div>
-                                <div style="font-size: 12px; color: ${status === 'completed' ? '#10b981' : status === 'pending' ? '#fbbf24' : '#ef4444'};">
-                                    ${status === 'completed' ? '✅' : status === 'pending' ? '⏳' : '❌'} ${status}
+                        <div style="padding: 20px; margin-bottom: 15px; background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%); border-radius: 15px; border: 2px solid rgba(138, 201, 38, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                                <div>
+                                    <div style="font-weight: bold; color: #8AC926; font-size: 24px; margin-bottom: 5px;">${formatNumber(amount)} TAMA</div>
+                                    <div style="font-size: 14px; color: rgba(255,255,255,0.6);">
+                                        Fee: ${formatNumber(fee)} TAMA (Total: ${formatNumber(totalAmount)} TAMA)
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 14px; color: ${statusColor}; font-weight: bold; margin-bottom: 5px;">
+                                        ${statusEmoji} ${status.charAt(0).toUpperCase() + status.slice(1)}
+                                    </div>
+                                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">
+                                        #${withdrawals.length - index}
+                                    </div>
                                 </div>
                             </div>
-                            <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">
-                                ${dateStr}
+                            <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 10px;">
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">📅 Date:</div>
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.9); font-weight: 500;">${dateStr}</div>
                             </div>
+                            ${wallet && wallet !== 'N/A' ? `
+                                <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 10px;">
+                                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">👛 Wallet:</div>
+                                    <div style="font-size: 12px; font-family: monospace; color: #8AC926; word-break: break-all;">${wallet}</div>
+                                </div>
+                            ` : ''}
                             ${signature ? `
-                                <div style="font-size: 11px; font-family: monospace; color: rgba(255,255,255,0.5); word-break: break-all; margin-top: 5px;">
-                                    <a href="https://solscan.io/tx/${signature}?cluster=devnet" target="_blank" style="color: #8AC926; text-decoration: none;">
-                                        🔗 ${signature.substring(0, 20)}...
+                                <div style="padding: 12px; background: rgba(138, 201, 38, 0.1); border-radius: 10px; border: 1px solid rgba(138, 201, 38, 0.3);">
+                                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">🔗 Transaction:</div>
+                                    <a href="https://solscan.io/tx/${signature}?cluster=devnet" target="_blank" 
+                                       style="font-size: 12px; font-family: monospace; color: #8AC926; text-decoration: none; word-break: break-all; display: block; padding: 8px; background: rgba(138, 201, 38, 0.1); border-radius: 5px; transition: all 0.3s;"
+                                       onmouseover="this.style.background='rgba(138, 201, 38, 0.2)'; this.style.transform='translateX(5px)';"
+                                       onmouseout="this.style.background='rgba(138, 201, 38, 0.1)'; this.style.transform='translateX(0)';">
+                                        ${signature.substring(0, 20)}...${signature.substring(signature.length - 8)}
+                                        <span style="margin-left: 5px;">↗</span>
                                     </a>
                                 </div>
                             ` : ''}
@@ -12506,7 +12621,10 @@
                     gameState.tama -= amount;
                     updateUI();
                     await loadWithdrawBalance();
-                    await loadWithdrawHistory(); // Reload history
+                    // Reload history after a short delay to ensure transaction is saved
+                    setTimeout(async () => {
+                        await loadWithdrawHistory();
+                    }, 2000);
 
                     // Reset form after 5 seconds (но сохраняем адрес)
                     setTimeout(() => {
