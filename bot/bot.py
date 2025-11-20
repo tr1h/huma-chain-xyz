@@ -2576,8 +2576,8 @@ def claim_daily_reward(message):
 #         bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
 #         
 #     except Exception as e:
-        print(f"Error showing games: {e}")
-        bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨╕╨│╤А")
+#         print(f"Error showing games: {e}")
+#         bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨╕╨│╤А")
 
 @bot.message_handler(commands=['badges'], func=lambda message: message.chat.type == 'private')
 def show_user_badges(message):
@@ -2773,13 +2773,13 @@ A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
             # Send welcome message
             try:
                 sent_message = bot.send_message(
-                message.chat.id, 
-                welcome_text, 
-                parse_mode='HTML', 
-                reply_markup=keyboard,
-                disable_web_page_preview=False
-            )
-            print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
+                    message.chat.id, 
+                    welcome_text, 
+                    parse_mode='HTML', 
+                    reply_markup=keyboard,
+                    disable_web_page_preview=False
+                )
+                print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
             except Exception as send_error:
                 error_msg = str(send_error)
                 if "not enough rights" in error_msg.lower() or "chat not found" in error_msg.lower():
@@ -4385,18 +4385,18 @@ Please try again later!
 # 
 # 🎮 **Come back tomorrow for new games!**
 #             """
-            
-            keyboard = types.InlineKeyboardMarkup()
-            keyboard.row(
-                types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
-            )
-            
-            bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
-        else:
-            bot.reply_to(message, f"❌ {result_text}")
-            
-    except ValueError:
-        bot.reply_to(message, "❌ Enter number from 1 to 100!")
+#             
+#             keyboard = types.InlineKeyboardMarkup()
+#             keyboard.row(
+#                 types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
+#             )
+#             
+#             bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
+#         else:
+#             bot.reply_to(message, f"❌ {result_text}")
+#             
+#     except ValueError:
+#         bot.reply_to(message, "❌ Enter number from 1 to 100!")
 
 # Start bot
 # Handler for WebApp data (game autosave)
