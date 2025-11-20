@@ -1287,21 +1287,9 @@ function handleWithdrawalRequest($url, $key) {
     }
     
     // ============================================
-    // 🛡️ STEP 2: COOLDOWN CHECK (1 withdrawal per hour)
+    // 🛡️ STEP 2: COOLDOWN CHECK - DISABLED
     // ============================================
-    
-    $cooldownSeconds = (int)(getenv('WITHDRAWAL_COOLDOWN') ?: 3600); // 1 hour default
-    
-    if (!checkWithdrawalCooldown($telegram_id, $cooldownSeconds)) {
-        logSecurityEvent('cooldown', 'Withdrawal cooldown active', [
-            'telegram_id' => $telegram_id,
-            'wallet' => $wallet_address
-        ]);
-        returnError('Please wait before making another withdrawal. Cooldown: 1 hour.', 429, [
-            'cooldown_seconds' => $cooldownSeconds,
-            'retry_after' => $cooldownSeconds
-        ]);
-    }
+    // Cooldown removed for better user experience
     
     // ============================================
     // 🛡️ STEP 3: CAPTCHA VERIFICATION (Optional)
