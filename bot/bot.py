@@ -1797,7 +1797,7 @@ def show_tama_balance(message):
 💰 **Your TAMA:** {format_tama_balance(balance)}
 
 🎮 **Earn TAMA by:**
-• Playing games (/games)
+• Playing games (in main game)
 • Daily rewards (/daily)
 • Referring friends (/ref)
 • Completing quests (/quests)
@@ -1821,7 +1821,6 @@ def earn_tama_info(message):
 
 🎮 **Games & Activities:**
 • /daily - Daily rewards (up to 10,000 TAMA)
-• /games - Mini-games (up to 1,500 TAMA/day)
 • /quests - Complete quests for rewards
 
 👥 **Referrals:**
@@ -4296,175 +4295,77 @@ Please try again later!
     
     # ==================== GAME CALLBACKS ====================
     
-    elif call.data == "game_guess":
-        # Guess the number game
-        telegram_id = str(call.from_user.id)
-        can_play, games_played = mini_games.can_play(telegram_id)
-        
-        if not can_play:
-            bot.answer_callback_query(call.id, "Daily game limit reached!")
-            return
-        
-        text = """
-📋 **Guess Number (1-100)**
-
-💰 **Rewards:**
-• Exact match: 500 TAMA
-• ┬▒5: 200 TAMA  
-• ┬▒10: 100 TAMA
-• ┬▒20: 50 TAMA
-• Other: 25 TAMA
-
-**Enter number from 1 to 100:**
-        """
-        
-        keyboard = types.InlineKeyboardMarkup()
-        keyboard.row(
-            types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
-        )
-        
-        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                            parse_mode='Markdown', reply_markup=keyboard)
-        
-        # Set waiting state for number input
-        bot.register_next_step_handler(call.message, process_guess_number)
+    # Mini-games removed - available in main game only
+    # elif call.data == "game_guess":
+    #     # Guess the number game
+    #     telegram_id = str(call.from_user.id)
+    #     can_play, games_played = mini_games.can_play(telegram_id)
+    #     
+    #     if not can_play:
+    #         bot.answer_callback_query(call.id, "Daily game limit reached!")
+    #         return
+    #     
+    #     text = """
+    # 📋 **Guess Number (1-100)**
+    # 
+    # 💰 **Rewards:**
+    # • Exact match: 500 TAMA
+    # • ┬▒5: 200 TAMA  
+    # • ┬▒10: 100 TAMA
+    # • ┬▒20: 50 TAMA
+    # • Other: 25 TAMA
+    # 
+    # **Enter number from 1 to 100:**
+    #         """
+    #     
+    #     keyboard = types.InlineKeyboardMarkup()
+    #     keyboard.row(
+    #         types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
+    #     )
+    #     
+    #     safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
+    #                         parse_mode='Markdown', reply_markup=keyboard)
+    #     
+    #     # Set waiting state for number input
+    #     bot.register_next_step_handler(call.message, process_guess_number)
     
-    elif call.data == "game_trivia":
-        # Trivia game
-        telegram_id = str(call.from_user.id)
-        can_play, games_played = mini_games.can_play(telegram_id)
-        
-        if not can_play:
-            bot.answer_callback_query(call.id, "Daily game limit reached!")
-            return
-        
-        # Random trivia question
-        questions = [
-            {
-                "q": "What language is used for Solana smart contracts?",
-                "options": ["Rust", "Python", "JavaScript", "Solidity"],
-                "correct": "Rust"
-            },
-            {
-                "q": "How many TPS can Solana handle?",
-                "options": ["1,000", "10,000", "50,000+", "100"],
-                "correct": "50,000+"
-            },
-            {
-                "q": "Who is the creator of Solana?",
-                "options": ["Anatoly Yakovenko", "Vitalik Buterin", "Changpeng Zhao", "Sam Bankman-Fried"],
-                "correct": "Anatoly Yakovenko"
-            },
-            {
-                "q": "What consensus does Solana use?",
-                "options": ["Proof of Work", "Proof of Stake", "Proof of History + PoS", "Delegated PoS"],
-                "correct": "Proof of History + PoS"
-            },
-        ]
-        
-        question = random.choice(questions)
-        
-        text = f"""
-❓ **Solana Quiz**
-
-**{question['q']}**
-
-💰 **Reward:** 100 TAMA for correct answer
-        """
-        
-        keyboard = types.InlineKeyboardMarkup()
-        for option in question['options']:
-            keyboard.row(
-                types.InlineKeyboardButton(option, callback_data=f"trivia_{option}_{question['correct']}")
-            )
-        keyboard.row(
-            types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
-        )
-        
-        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                            parse_mode='Markdown', reply_markup=keyboard)
-    
-    elif call.data.startswith("trivia_"):
-        # Process trivia answer
-        telegram_id = str(call.from_user.id)
-        parts = call.data.split('_', 2)
-        answer = parts[1]
-        correct = parts[2] if len(parts) > 2 else ""
-        
-        success, reward, result_text = mini_games.play_trivia(telegram_id, answer, correct)
-        
-        if success:
-            text = f"""
-{result_text}
-
-💰 **Earned:** +{reward} TAMA
-
-Play again tomorrow! 🎮
-            """
-            
-            keyboard = types.InlineKeyboardMarkup()
-            keyboard.row(
-                types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
-            )
-            
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                                parse_mode='Markdown', reply_markup=keyboard)
-        else:
-            bot.answer_callback_query(call.id, result_text)
-    
-    elif call.data == "game_wheel":
-        # Spin the wheel
-        telegram_id = str(call.from_user.id)
-        
-        success, reward, result_text = mini_games.spin_wheel(telegram_id)
-        
-        if success:
-            text = f"""
-🎰 **Fortune Wheel**
-
-{result_text}
-
-💰 **Earned:** +{reward} TAMA
-
-🎮 **Come back tomorrow for new games!**
-            """
-            
-            keyboard = types.InlineKeyboardMarkup()
-            keyboard.row(
-                types.InlineKeyboardButton("🔄 Spin Again", callback_data="game_wheel"),
-                types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
-            )
-            
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                                parse_mode='Markdown', reply_markup=keyboard)
-        else:
-            bot.answer_callback_query(call.id, result_text)
+    # Mini-games removed - available in main game only
+    # elif call.data == "game_trivia":
+    #     # Trivia game
+    #     ...
+    # elif call.data.startswith("trivia_"):
+    #     # Process trivia answer
+    #     ...
+    # elif call.data == "game_wheel":
+    #     # Spin the wheel
+    #     ...
     
     elif call.data == "back_to_menu":
         # Return to main menu
         send_welcome(call.message)
 
+# Mini-games removed - available in main game only
 # Handler for guess number game
-def process_guess_number(message):
-    """Process guess number game input"""
-    telegram_id = str(message.from_user.id)
-    
-    try:
-        guess = int(message.text)
-        if guess < 1 or guess > 100:
-            bot.reply_to(message, "❌ Number must be from 1 to 100!")
-            return
-        
-        success, reward, result_text = mini_games.play_guess_number(telegram_id, guess)
-        
-        if success:
-            text = f"""
-{result_text}
-
-💰 **Earned:** +{reward} TAMA
-
-🎮 **Come back tomorrow for new games!**
-            """
+# def process_guess_number(message):
+#     """Process guess number game input"""
+#     telegram_id = str(message.from_user.id)
+#     
+#     try:
+#         guess = int(message.text)
+#         if guess < 1 or guess > 100:
+#             bot.reply_to(message, "❌ Number must be from 1 to 100!")
+#             return
+#         
+#         success, reward, result_text = mini_games.play_guess_number(telegram_id, guess)
+#         
+#         if success:
+#             text = f"""
+# {result_text}
+# 
+# 💰 **Earned:** +{reward} TAMA
+# 
+# 🎮 **Come back tomorrow for new games!**
+#             """
             
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
