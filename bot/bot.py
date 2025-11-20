@@ -3003,11 +3003,14 @@ def handle_web_app_data(message):
             
             if leaderboard.data:
                 # User exists - update TAMA
-                current_tama = leaderboard.data[0].get('tama', 0)
-                game_tama = game_data.get('tama', 0)
+                current_tama = leaderboard.data[0].get('tama', 0) or 0
+                game_tama = game_data.get('tama', 0) or 0
                 
-                # Calculate new TAMA (don't overwrite, add difference)
+                # 🛡️ PROTECTION: Never decrease balance from game saves!
+                # Only update if game_tama is greater than current (earned in game)
+                # If current_tama is greater (from daily rewards, referrals, etc.), keep it!
                 if game_tama > current_tama:
+                    # Game earned more TAMA - update balance
                     tama_earned = game_tama - current_tama
                     
                     supabase.table('leaderboard').update({
@@ -3015,10 +3018,26 @@ def handle_web_app_data(message):
                         'level': game_data.get('level', 1)
                     }).eq('telegram_id', telegram_id).execute()
                     
+                    print(f"💰 Game save: Updated TAMA from {current_tama} to {game_tama} (+{tama_earned})")
+                    
                     # Only show message for manual save (not auto-save)
                     if data.get('action') == 'save_game_state':
                         bot.reply_to(message, f"✅ Game saved!\n💰 Total TAMA: {game_tama:,}\n🎖️ Level: {game_data.get('level', 1)}\n🎮 Total Clicks: {game_data.get('totalClicks', 0)}")
                 else:
+                    # Current balance is higher (from daily rewards, referrals, etc.)
+                    # Keep current balance, only update level and other game data
+                    update_data = {
+                        'level': game_data.get('level', 1)
+                    }
+                    
+                    # Only update TAMA if game has more (shouldn't happen, but safety check)
+                    if game_tama > current_tama:
+                        update_data['tama'] = game_tama
+                    
+                    supabase.table('leaderboard').update(update_data).eq('telegram_id', telegram_id).execute()
+                    
+                    print(f"💰 Game save: Kept current TAMA {current_tama} (game had {game_tama}) - protected from decrease!")
+                    
                     if data.get('action') == 'save_game_state':
                         bot.reply_to(message, f"✅ Progress saved!\n💰 TAMA: {current_tama:,}\n🎖️ Level: {game_data.get('level', 1)}")
             else:
@@ -4395,7 +4414,7 @@ def handle_web_app_data(message):
             
             # Extract game state
             level = game_data.get('level', 1)
-            tama = game_data.get('tama', 0)
+            game_tama = game_data.get('tama', 0) or 0
             hp = game_data.get('hp', 100)
             food = game_data.get('food', 100)
             happy = game_data.get('happy', 100)
@@ -4413,15 +4432,33 @@ def handle_web_app_data(message):
                 'achievements': game_data.get('achievements', [])
             }
             
+            # 🛡️ PROTECTION: Get current balance and never decrease it!
+            # This prevents game autosave from overwriting daily rewards, referrals, etc.
+            try:
+                current_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+                current_tama = current_response.data[0].get('tama', 0) or 0 if current_response.data else 0
+                
+                # Only update TAMA if game has more (earned in game)
+                # If current balance is higher (from daily rewards, referrals), keep it!
+                final_tama = max(current_tama, game_tama)
+                
+                if final_tama > current_tama:
+                    logging.info(f"💰 Auto-save: Updated TAMA from {current_tama} to {final_tama} (+{final_tama - current_tama})")
+                elif current_tama > game_tama:
+                    logging.info(f"🛡️ Auto-save: Protected balance {current_tama} (game had {game_tama}) - prevented decrease!")
+            except Exception as e:
+                logging.error(f"Error getting current balance: {e}")
+                final_tama = game_tama  # Fallback to game balance if error
+            
             # Update in Supabase
             response = supabase.table('leaderboard').update({
-                'tama': tama,
+                'tama': final_tama,  # Use protected balance
                 'level': level,
                 'pet_data': json.dumps(pet_data),
                 'last_active': datetime.now().isoformat()
             }).eq('telegram_id', telegram_id).execute()
             
-            logging.info(f"✅ Saved game data for user {telegram_id}: Level={level}, TAMA={tama}")
+            logging.info(f"✅ Saved game data for user {telegram_id}: Level={level}, TAMA={final_tama}")
             
         elif data.get('action') == 'level_up':
             game_data = data.get('data', {})
