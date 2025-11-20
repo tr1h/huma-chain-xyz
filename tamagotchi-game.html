@@ -11734,6 +11734,7 @@
             if (withdrawBtn && withdrawModal) {
                 withdrawBtn.addEventListener('click', async () => {
                     await loadWithdrawBalance();
+                    await loadSavedWalletAddress(); // Загружаем сохраненный адрес
                     await loadWithdrawHistory();
                     withdrawModal.style.display = 'block';
                 });
@@ -11765,6 +11766,9 @@
                         document.getElementById('phantom-address').textContent = withdrawWalletAddress;
                         walletInput.value = withdrawWalletAddress;
                         walletInput.disabled = true;
+
+                        // Сохранить адрес
+                        localStorage.setItem('withdraw_wallet_address', withdrawWalletAddress);
 
                         updateWithdrawSummary();
                     } catch (err) {
@@ -11851,6 +11855,53 @@
             }
         }
 
+        async function loadSavedWalletAddress() {
+            try {
+                const userId = window.TELEGRAM_USER_ID;
+                if (!userId) return;
+
+                // Попробовать загрузить из localStorage
+                const savedAddress = localStorage.getItem('withdraw_wallet_address');
+                if (savedAddress && savedAddress.length >= 32) {
+                    const walletInput = document.getElementById('withdraw-wallet-input');
+                    if (walletInput && !walletInput.value) {
+                        walletInput.value = savedAddress;
+                        withdrawWalletAddress = savedAddress;
+                        updateWithdrawSummary();
+                        return;
+                    }
+                }
+
+                // Загрузить из базы данных (leaderboard)
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${userId}&select=wallet_address`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0 && data[0].wallet_address) {
+                        const savedWallet = data[0].wallet_address;
+                        // Проверяем, что это не placeholder
+                        if (savedWallet && savedWallet.length >= 32 && !savedWallet.startsWith('telegram_')) {
+                            const walletInput = document.getElementById('withdraw-wallet-input');
+                            if (walletInput) {
+                                walletInput.value = savedWallet;
+                                withdrawWalletAddress = savedWallet;
+                                updateWithdrawSummary();
+                                // Сохранить в localStorage
+                                localStorage.setItem('withdraw_wallet_address', savedWallet);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('Failed to load saved wallet address:', err);
+            }
+        }
+
         async function loadWithdrawHistory() {
             try {
                 const userId = window.TELEGRAM_USER_ID;
@@ -11867,6 +11918,9 @@
 
                 console.log('Loading withdrawal history for user:', userId);
                 const apiBase = TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
+                
+                historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Loading history...</div>';
+                
                 const response = await fetch(`${apiBase}/withdrawal/history?telegram_id=${userId}`, {
                     headers: {
                         'Content-Type': 'application/json'
@@ -11878,7 +11932,14 @@
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Withdrawal history error:', errorText);
-                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Failed to load history</div>';
+                    let errorMsg = 'Failed to load history';
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        errorMsg = errorJson.error || errorMsg;
+                    } catch (e) {
+                        // Not JSON, use text
+                    }
+                    historyDiv.innerHTML = `<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">${errorMsg}</div>`;
                     return;
                 }
 
@@ -11888,7 +11949,13 @@
                 // API возвращает { success: true, withdrawals: [...] }
                 const withdrawals = result.withdrawals || result.data || [];
 
-                if (!Array.isArray(withdrawals) || withdrawals.length === 0) {
+                if (!Array.isArray(withdrawals)) {
+                    console.error('Invalid withdrawals format:', withdrawals);
+                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Invalid response format</div>';
+                    return;
+                }
+
+                if (withdrawals.length === 0) {
                     historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No withdrawals yet</div>';
                     return;
                 }
@@ -12077,17 +12144,41 @@
                     // Show success message in game
                     showMessage(`✅ Withdrawal successful! ${formatNumber(netAmount)} TAMA sent to wallet!`);
 
+                    // Сохранить адрес кошелька для будущих выводов
+                    if (wallet && wallet.length >= 32) {
+                        localStorage.setItem('withdraw_wallet_address', wallet);
+                        // Также сохранить в базу данных
+                        try {
+                            const saveResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${userId}`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'apikey': SUPABASE_ANON_KEY,
+                                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'return=minimal'
+                                },
+                                body: JSON.stringify({
+                                    wallet_address: wallet
+                                })
+                            });
+                            if (saveResponse.ok) {
+                                console.log('✅ Wallet address saved to database');
+                            }
+                        } catch (e) {
+                            console.warn('Failed to save wallet to database:', e);
+                        }
+                    }
+
                     // Update balance
                     gameState.tama -= amount;
                     updateUI();
                     await loadWithdrawBalance();
                     await loadWithdrawHistory(); // Reload history
 
-                    // Reset form after 5 seconds
+                    // Reset form after 5 seconds (но сохраняем адрес)
                     setTimeout(() => {
                         document.getElementById('withdraw-amount-input').value = '';
-                        document.getElementById('withdraw-wallet-input').value = '';
-                        withdrawWalletAddress = null;
+                        // НЕ очищаем адрес - он сохранен
                         withdrawPhantomConnected = false;
                         document.getElementById('phantom-connect-section').style.display = 'block';
                         document.getElementById('phantom-connected').style.display = 'none';
