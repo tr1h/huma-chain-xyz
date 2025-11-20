@@ -4888,60 +4888,62 @@
         </div>
     </div>
 
-    <!-- Withdrawal Confirmation Modal - FULLSCREEN -->
+    <!-- Withdrawal Confirmation Modal - COMPACT -->
     <div class="referral-modal" id="withdraw-confirm-modal" style="display: none; z-index: 10001;">
-        <div class="referral-content" style="max-width: 100%; width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; padding: 30px; background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);">
-            <div class="referral-header" style="flex-shrink: 0; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid rgba(16, 185, 129, 0.3);">
-                <h2 style="font-size: 32px; color: #10b981; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin: 0;">⚠️ Confirm Withdrawal</h2>
-                <button class="close-btn" id="close-confirm-withdraw" style="font-size: 28px; width: 45px; height: 45px;">✕</button>
+        <div class="referral-content" style="max-width: 450px; width: 95%; padding: 20px; background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%); border-radius: 20px; border: 2px solid rgba(138, 201, 38, 0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid rgba(138, 201, 38, 0.2);">
+                <h3 style="color: #8AC926; margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 24px;">⚠️</span>
+                    <span>Confirm Withdrawal</span>
+                </h3>
+                <button id="close-confirm-withdraw" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; width: 32px; height: 32px; border-radius: 50%; color: #ef4444; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;"
+                        onmouseover="this.style.background='rgba(239, 68, 68, 0.3)';" 
+                        onmouseout="this.style.background='rgba(239, 68, 68, 0.2)';">✕</button>
             </div>
-            <div class="referral-body" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
-                <div style="max-width: 600px; width: 100%; text-align: center;">
-                    <div style="font-size: 80px; margin-bottom: 30px; animation: bounce 2s infinite;">💸</div>
-                    <div style="font-size: 24px; color: rgba(255,255,255,0.9); margin-bottom: 40px; font-weight: 300;">
-                        Please confirm your withdrawal details:
+            
+            <!-- Details Grid -->
+            <div style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.1) 0%, rgba(138, 201, 38, 0.05) 100%); padding: 18px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(138, 201, 38, 0.3);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Amount</div>
+                        <div id="confirm-amount" style="font-size: 16px; color: #8AC926; font-weight: bold;">0</div>
                     </div>
-                    
-                    <div style="background: rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; margin-bottom: 30px; text-align: left; border: 2px solid rgba(138, 201, 38, 0.2); box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.1);">
-                            <span style="color: rgba(255,255,255,0.8); font-size: 18px;">Amount:</span>
-                            <span id="confirm-amount" style="font-weight: bold; color: #8AC926; font-size: 28px;"></span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.1);">
-                            <span style="color: rgba(255,255,255,0.8); font-size: 18px;">Fee (5%):</span>
-                            <span id="confirm-fee" style="font-weight: bold; color: #ef4444; font-size: 20px;"></span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.1);">
-                            <span style="color: rgba(255,255,255,0.8); font-size: 18px;">You will receive:</span>
-                            <span id="confirm-receive" style="font-weight: bold; color: #10b981; font-size: 28px;"></span>
-                        </div>
-                        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.1);">
-                            <div style="color: rgba(255,255,255,0.8); font-size: 16px; margin-bottom: 10px;">Wallet Address:</div>
-                            <div id="confirm-wallet" style="font-family: monospace; font-size: 14px; word-break: break-all; color: #8AC926; background: rgba(138, 201, 38, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(138, 201, 38, 0.3); line-height: 1.6;"></div>
-                        </div>
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Fee</div>
+                        <div id="confirm-fee" style="font-size: 16px; color: #ef4444; font-weight: bold;">0</div>
                     </div>
-                    
-                    <div style="background: rgba(239, 68, 68, 0.15); border: 2px solid rgba(239, 68, 68, 0.4); border-radius: 15px; padding: 25px; margin-bottom: 40px; text-align: left; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);">
-                        <div style="color: #ef4444; font-weight: bold; margin-bottom: 15px; font-size: 20px; display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 28px;">⚠️</span>
-                            <span>Important:</span>
-                        </div>
-                        <div style="color: rgba(255,255,255,0.9); font-size: 16px; line-height: 1.8;">
-                            • Transaction cannot be cancelled<br>
-                            • Fee is non-refundable<br>
-                            • Make sure wallet address is correct
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 15px; margin-top: 20px;">
-                        <button id="cancel-withdraw-btn" class="share-btn" style="flex: 1; padding: 20px; background: rgba(239, 68, 68, 0.2); border: 2px solid #ef4444; color: #ef4444; font-size: 18px; font-weight: bold; border-radius: 15px; transition: all 0.3s;">
-                            Cancel
-                        </button>
-                        <button id="final-confirm-withdraw-btn" class="share-btn" style="flex: 1; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-size: 18px; font-weight: bold; border-radius: 15px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: all 0.3s;">
-                            ✅ Confirm
-                        </button>
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Receive</div>
+                        <div id="confirm-receive" style="font-size: 16px; color: #10b981; font-weight: bold;">0</div>
                     </div>
                 </div>
+                
+                <div style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">👛 Wallet</div>
+                    <div id="confirm-wallet" style="font-size: 10px; color: rgba(255,255,255,0.9); font-family: monospace; word-break: break-all; line-height: 1.4;"></div>
+                </div>
+            </div>
+            
+            <!-- Warning -->
+            <div style="padding: 12px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 8px; margin-bottom: 15px;">
+                <div style="font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.5;">
+                    <span style="font-weight: bold; color: #ef4444;">⚡ Important:</span> Transaction cannot be cancelled. Verify wallet address carefully!
+                </div>
+            </div>
+            
+            <!-- Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button id="cancel-withdraw-btn" style="padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); border-radius: 10px; color: white; font-size: 14px; cursor: pointer; transition: all 0.3s; font-weight: 500;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.15)';" 
+                        onmouseout="this.style.background='rgba(255,255,255,0.1)';">
+                    ✕ Cancel
+                </button>
+                <button id="final-confirm-withdraw-btn" style="padding: 12px; background: linear-gradient(135deg, #8AC926 0%, #6aa519 100%); border: none; border-radius: 10px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(138, 201, 38, 0.3);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(138, 201, 38, 0.4)';" 
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(138, 201, 38, 0.3)';">
+                    ✅ Confirm
+                </button>
             </div>
         </div>
     </div>
