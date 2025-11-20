@@ -797,7 +797,7 @@ def send_welcome(message):
 
 ⭐ *What you can do RIGHT NOW:*
 • 🎁 **Daily Rewards** - Claim your daily TAMA! (Streak: {streak_days} days)
-• 🎮 **Mini-Games** - Play and earn TAMA tokens!
+• 🎮 **Play Game** - Click pet and earn TAMA!
 • 🔗 **Referral Program** - 1,000 TAMA per friend!
 • 🏆 **Badges & Ranks** - Collect achievements!
 • 📋 **Quests** - Complete challenges for bonuses!
@@ -839,9 +839,8 @@ def send_welcome(message):
         types.InlineKeyboardButton("💸 Withdraw TAMA", callback_data="withdraw_tama")
     )
     
-    # Row 4: Games & Referral
+    # Row 4: Referral (Mini-Games removed - available in main game)
     keyboard.row(
-        types.InlineKeyboardButton("🎮 Mini-Games", callback_data="mini_games"),
         types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
     )
     
@@ -2537,46 +2536,47 @@ def claim_daily_reward(message):
         print(f"Error claiming daily reward: {e}")
         bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨┐╤А╨╕ ╨┐╨╛╨╗╤Г╤З╨╡╨╜╨╕╨╕ ╨╜╨░╨│╤А╨░╨┤╤Л. ╨Я╨╛╨┐╤А╨╛╨▒╤Г╨╣ ╨┐╨╛╨╖╨╢╨╡.")
 
-@bot.message_handler(commands=['games'], func=lambda message: message.chat.type == 'private')
-def show_games_menu(message):
-    """Show mini-games menu"""
-    telegram_id = str(message.from_user.id)
-    
-    try:
-        can_play, games_played = mini_games.can_play(telegram_id)
-        games_left = 3 - games_played
-        
-        text = f"""
-🎮 **╨Ь╨╕╨╜╨╕-╨Ш╨│╤А╤Л**
-
-💰 **╨Ш╨│╤А╨░╨╣ ╨╕ ╨╖╨░╤А╨░╨▒╨░╤В╤Л╨▓╨░╨╣ TAMA!**
-
-📋 **╨Ф╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╡ ╨╕╨│╤А╤Л:**
-• ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛ (1-100) - ╨┤╨╛ 500 TAMA
-• Solana ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░ - 100 TAMA
-• ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л - ╨┤╨╛ 500 TAMA
-
-📊 **╨Ы╨╕╨╝╨╕╤В:** {games_left}/3 ╨╕╨│╤А ╨╛╤Б╤В╨░╨╗╨╛╤Б╤М ╤Б╨╡╨│╨╛╨┤╨╜╤П
-
-💰 **╨Т╤Л╨▒╨╡╤А╨╕ ╨╕╨│╤А╤Г:**
-        """
-        
-        keyboard = types.InlineKeyboardMarkup()
-        if can_play:
-            keyboard.row(
-                types.InlineKeyboardButton("📋 ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛", callback_data="game_guess"),
-                types.InlineKeyboardButton("❓ ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░", callback_data="game_trivia")
-            )
-            keyboard.row(
-                types.InlineKeyboardButton("🎰 ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л", callback_data="game_wheel")
-            )
-        keyboard.row(
-            types.InlineKeyboardButton("🔙 ╨Э╨░╨╖╨░╨┤", callback_data="back_to_menu")
-        )
-        
-        bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
-        
-    except Exception as e:
+# Mini-games removed - available in main game only
+# @bot.message_handler(commands=['games'], func=lambda message: message.chat.type == 'private')
+# def show_games_menu(message):
+#     """Show mini-games menu"""
+#     telegram_id = str(message.from_user.id)
+#     
+#     try:
+#         can_play, games_played = mini_games.can_play(telegram_id)
+#         games_left = 3 - games_played
+#         
+#         text = f"""
+# 🎮 **╨Ь╨╕╨╜╨╕-╨Ш╨│╤А╤Л**
+# 
+# 💰 **╨Ш╨│╤А╨░╨╣ ╨╕ ╨╖╨░╤А╨░╨▒╨░╤В╤Л╨▓╨░╨╣ TAMA!**
+# 
+# 📋 **╨Ф╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╡ ╨╕╨│╤А╤Л:**
+# • ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛ (1-100) - ╨┤╨╛ 500 TAMA
+# • Solana ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░ - 100 TAMA
+# • ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л - ╨┤╨╛ 500 TAMA
+# 
+# 📊 **╨Ы╨╕╨╝╨╕╤В:** {games_left}/3 ╨╕╨│╤А ╨╛╤Б╤В╨░╨╗╨╛╤Б╤М ╤Б╨╡╨│╨╛╨┤╨╜╤П
+# 
+# 💰 **╨Т╤Л╨▒╨╡╤А╨╕ ╨╕╨│╤А╤Г:**
+#         """
+#         
+#         keyboard = types.InlineKeyboardMarkup()
+#         if can_play:
+#             keyboard.row(
+#                 types.InlineKeyboardButton("📋 ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛", callback_data="game_guess"),
+#                 types.InlineKeyboardButton("❓ ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░", callback_data="game_trivia")
+#             )
+#             keyboard.row(
+#                 types.InlineKeyboardButton("🎰 ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л", callback_data="game_wheel")
+#             )
+#         keyboard.row(
+#             types.InlineKeyboardButton("🔙 ╨Э╨░╨╖╨░╨┤", callback_data="back_to_menu")
+#         )
+#         
+#         bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
+#         
+#     except Exception as e:
         print(f"Error showing games: {e}")
         bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨╕╨│╤А")
 
@@ -4106,40 +4106,41 @@ Please try again later!
         safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
-    elif call.data == "mini_games":
-        # Show games menu
-        telegram_id = str(call.from_user.id)
-        can_play, games_played = mini_games.can_play(telegram_id)
-        games_left = 3 - games_played
-        
-        text = f"""
-🎮 **Mini-Games**
-
-💰 **Play and earn TAMA!**
-
-📋 **Available games:**
-• Guess Number (1-100) - up to 500 TAMA
-• Solana Quiz - 100 TAMA
-• Fortune Wheel - up to 500 TAMA
-
-📊 **Limit:** {games_left}/3 games left today
-
-💰 **Choose a game:**
-        """
-        
-        keyboard = types.InlineKeyboardMarkup()
-        if can_play:
-            keyboard.row(
-                types.InlineKeyboardButton("📋 Guess Number", callback_data="game_guess"),
-                types.InlineKeyboardButton("❓ Quiz", callback_data="game_trivia")
-            )
-            keyboard.row(
-                types.InlineKeyboardButton("🎰 Fortune Wheel", callback_data="game_wheel")
-            )
-        keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
-        
-        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                            parse_mode='Markdown', reply_markup=keyboard)
+    # Mini-games removed - available in main game only
+    # elif call.data == "mini_games":
+    #     # Show games menu
+    #     telegram_id = str(call.from_user.id)
+    #     can_play, games_played = mini_games.can_play(telegram_id)
+    #     games_left = 3 - games_played
+    #     
+    #     text = f"""
+    # 🎮 **Mini-Games**
+    # 
+    # 💰 **Play and earn TAMA!**
+    # 
+    # 📋 **Available games:**
+    # • Guess Number (1-100) - up to 500 TAMA
+    # • Solana Quiz - 100 TAMA
+    # • Fortune Wheel - up to 500 TAMA
+    # 
+    # 📊 **Limit:** {games_left}/3 games left today
+    # 
+    # 💰 **Choose a game:**
+    #         """
+    #     
+    #     keyboard = types.InlineKeyboardMarkup()
+    #     if can_play:
+    #         keyboard.row(
+    #             types.InlineKeyboardButton("📋 Guess Number", callback_data="game_guess"),
+    #             types.InlineKeyboardButton("❓ Quiz", callback_data="game_trivia")
+    #         )
+    #         keyboard.row(
+    #             types.InlineKeyboardButton("🎰 Fortune Wheel", callback_data="game_wheel")
+    #         )
+    #     keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
+    #     
+    #     safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
+    #                         parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data == "view_badges":
         # Show badges
@@ -4286,8 +4287,7 @@ Please try again later!
         
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
-            types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral"),
-            types.InlineKeyboardButton("🎮 Games", callback_data="mini_games")
+            types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
         )
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
         
