@@ -2228,7 +2228,7 @@
                 walletTransactions = allTransactions.filter(t => {
                     const userId = String(t.user_id || '').trim();
                     const typeStr = String(t.type || '').toLowerCase();
-                    return userId === TREASURY_TEAM ||
+                    return userId === TREASURY_TEAM || 
                            userId === 'BmP4EJjWETjxE9ALZ7sTNMkAYkh5vTbbUBHuq5FVQUWk' || // Old Treasury Team address
                            (t.type && (t.type.includes('team') || 
                                       typeStr.includes('nft_revenue_team') || 
@@ -2388,9 +2388,9 @@
                                         signature = t.transaction_hash;
                                     }
                                     
-                                    if (signature) {
+                                            if (signature) {
                                         explorerLink = '<a href="https://solscan.io/tx/' + signature + '?cluster=devnet" target="_blank" class="explorer-link" style="color: #8AC926; text-decoration: underline;">View 🔗</a>';
-                                    }
+                                            }
                                     
                                     const rowStyle = isOutgoing && !isBurn ? 'style="background: rgba(239, 68, 68, 0.05);"' : '';
                                     return '<tr ' + rowStyle + '><td>' + date + '</td><td><span class="type-badge ' + typeClass + '">' + t.type + '</span></td><td class="' + amountClass + '">' + amountPrefix + Math.round(displayAmount * 100) / 100 + currency + arrow + '</td><td>' + source + '</td><td>' + explorerLink + '</td></tr>';
@@ -2445,7 +2445,7 @@
             });
             const primaryCurrency = solCount > tamaCount ? 'SOL' : 'TAMA';
             stats.currency = primaryCurrency;
-            
+                
             // Second pass: calculate stats only for primary currency
             transactions.forEach(t => {
                 const amount = parseFloat(t.amount || 0);
@@ -2455,27 +2455,27 @@
                 
                 // Only count transactions matching primary currency
                 if (currencyMatch) {
-                    // Calculate inflow/outflow
-                    if (amount > 0) {
-                        stats.totalInflow += amount;
-                    } else {
-                        stats.totalOutflow += Math.abs(amount);
-                    }
-                    
-                    // Type distribution
+                // Calculate inflow/outflow
+                if (amount > 0) {
+                    stats.totalInflow += amount;
+                } else {
+                    stats.totalOutflow += Math.abs(amount);
+                }
+                
+                // Type distribution
                     const typeKey = t.type || 'unknown';
                     if (!stats.typeDistribution[typeKey]) {
                         stats.typeDistribution[typeKey] = { count: 0, amount: 0 };
-                    }
+                }
                     stats.typeDistribution[typeKey].count++;
                     stats.typeDistribution[typeKey].amount += Math.abs(amount);
-                    
-                    // Daily data
-                    if (t.created_at) {
-                        const date = new Date(t.created_at).toISOString().split('T')[0];
-                        if (stats.dailyData[date]) {
-                            stats.dailyData[date].count++;
-                            stats.dailyData[date].amount += Math.abs(amount);
+                
+                // Daily data
+                if (t.created_at) {
+                    const date = new Date(t.created_at).toISOString().split('T')[0];
+                    if (stats.dailyData[date]) {
+                        stats.dailyData[date].count++;
+                        stats.dailyData[date].amount += Math.abs(amount);
                         }
                     }
                 }

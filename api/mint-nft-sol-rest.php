@@ -355,17 +355,17 @@ try {
     
     // 10.1. Create NFT mint transaction (main purchase record)
     $mintMetadata = [
-        'tier' => $tier_name,
-        'rarity' => $rarity,
-        'nft_id' => $nft_id,
-        'design_number' => $designNumber,
-        'payment_method' => 'SOL',
-        'price_sol' => $price_sol,
-        'price_usd' => round($price_usd, 2),
-        'tama_equivalent' => round($tamaEquivalent),
-        'earning_multiplier' => $earning_multiplier,
-        'wallet_address' => $wallet_address,
-        'minted_at' => date('Y-m-d H:i:s')
+            'tier' => $tier_name,
+            'rarity' => $rarity,
+            'nft_id' => $nft_id,
+            'design_number' => $designNumber,
+            'payment_method' => 'SOL',
+            'price_sol' => $price_sol,
+            'price_usd' => round($price_usd, 2),
+            'tama_equivalent' => round($tamaEquivalent),
+            'earning_multiplier' => $earning_multiplier,
+            'wallet_address' => $wallet_address,
+            'minted_at' => date('Y-m-d H:i:s')
     ];
     if ($transaction_signature) {
         $mintMetadata['onchain_signature'] = $transaction_signature;

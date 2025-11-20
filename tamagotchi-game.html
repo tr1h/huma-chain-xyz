@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- VERSION: 1.9.4 | BUILD: 2025-11-20 06:20 | FIX: petArea initialization fix -->
+<!-- VERSION: 1.8.5 | BUILD: 2025-10-26 22:15 | FIX: Really equal button sizes -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -305,7 +305,7 @@
             0%, 100% { opacity: 0.6; }
             50% { opacity: 0.2; }
         }
-        
+
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.2); filter: brightness(1.3); }
@@ -4947,33 +4947,33 @@
                     return;
                 }
                 
-                // Header
-                levelDisplay.textContent = `Lvl ${gameState.level}`;
-                tamaDisplay.textContent = formatNumber(gameState.tama);
+            // Header
+            levelDisplay.textContent = `Lvl ${gameState.level}`;
+            tamaDisplay.textContent = formatNumber(gameState.tama);
 
-                // Stats
-                updateStat('hp', gameState.hp, gameState.maxHp);
-                updateStat('food', gameState.food, gameState.maxFood);
-                updateStat('happy', gameState.happy, gameState.maxHappy);
-                updateStat('xp', gameState.xp, gameState.xpToLevel);
+            // Stats
+            updateStat('hp', gameState.hp, gameState.maxHp);
+            updateStat('food', gameState.food, gameState.maxFood);
+            updateStat('happy', gameState.happy, gameState.maxHappy);
+            updateStat('xp', gameState.xp, gameState.xpToLevel);
 
-                // Pet evolution
-                updatePetEvolution();
+            // Pet evolution
+            updatePetEvolution();
 
-                // NEW: Update pet status and mood
-                updatePetStatus();
+            // NEW: Update pet status and mood
+            updatePetStatus();
 
-                // ⚖️ Apply degradation
-                degradeStats();
+            // ⚖️ Apply degradation
+            degradeStats();
 
-                // 💰 Update progressive prices
-                updateActionPrices();
+            // 💰 Update progressive prices
+            updateActionPrices();
 
-                // Button states (updated with progressive prices)
-                const feedCost = getProgressivePrice(50);
-                const playCost = getProgressivePrice(30);
-                const healCost = getProgressivePrice(100);
-                
+            // Button states (updated with progressive prices)
+            const feedCost = getProgressivePrice(50);
+            const playCost = getProgressivePrice(30);
+            const healCost = getProgressivePrice(100);
+            
                 if (feedBtn) feedBtn.disabled = gameState.tama < feedCost;
                 if (playBtn) playBtn.disabled = gameState.tama < playCost;
                 if (healBtn) healBtn.disabled = gameState.tama < healCost;
@@ -5353,8 +5353,7 @@
         }
 
         function createParticles(type, count) {
-            if (!petArea) petArea = document.getElementById('pet-area');
-            if (!petArea) return; // Safety check
+            const petArea = document.getElementById('pet-area');
             const petRect = petArea.getBoundingClientRect();
             const centerX = petRect.left + petRect.width / 2;
             const centerY = petRect.top + petRect.height / 2;
@@ -5398,7 +5397,12 @@
             }
         }
 
-        // Pet Click - will be initialized in DOMContentLoaded
+        // Pet Click
+        petArea.addEventListener('click', (e) => {
+            if (e.target.closest('.pet-emoji')) {
+                clickPet(e);
+            }
+        });
 
         function clickPet(e) {
             const now = Date.now();
@@ -6454,7 +6458,7 @@
                 
                 // Always update UI after initialization
                 if (typeof updateUI === 'function') {
-                    updateUI();
+                updateUI();
                     console.log('✅ UI updated after initialization');
                 } else {
                     console.error('❌ updateUI function not found!');
@@ -7516,7 +7520,7 @@
                         slotsState.totalWon += (reward - slotsState.betAmount);
                         if (typeof logTransaction === 'function') {
                             logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_slots', reward, `Won ${reward} TAMA from Slot Machine 2.0`, gameState);
-                        }
+                    }
                         // Win animation
                         reels.forEach(reel => {
                             reel.style.animation = 'pulse 0.5s ease-in-out 3';
@@ -7671,7 +7675,7 @@
                     const multiplier = wheelState.segments[segmentIndex].multiplier;
                     const reward = Math.floor(wheelState.betAmount * multiplier);
                     
-                    gameState.tama += reward;
+                        gameState.tama += reward;
                     
                     // Update statistics
                     const netProfit = reward - wheelState.betAmount;
@@ -10191,11 +10195,11 @@
         }
 
         console.log('📌 Setting up DOMContentLoaded listener...');
-        
+
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                console.log('%c🎮 GAME VERSION: 1.9.4 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
-                console.log('%c📅 BUILD: 2025-11-20 06:20 | FIX: petArea initialization fix', 'font-size: 14px; color: #ffff00;');
+                console.log('%c🎮 GAME VERSION: 1.9.3 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
+                console.log('%c📅 BUILD: 2025-11-20 23:30 | FIX: Debug initialization', 'font-size: 14px; color: #ffff00;');
                 console.log('✅ DOM loaded, initializing game...');
                 
                 // Check if critical elements exist
@@ -10204,32 +10208,8 @@
                     throw new Error('Game container not found!');
                 }
                 console.log('✅ Game container found');
-                
-                // Initialize DOM elements
-                petSprite = document.getElementById('pet-sprite');
-                petArea = document.getElementById('pet-area');
-                levelDisplay = document.getElementById('level-display');
-                tamaDisplay = document.getElementById('tama-display');
-                rankDisplay = document.getElementById('rank-display');
-                messageDiv = document.getElementById('message');
-                feedBtn = document.getElementById('feed-btn');
-                playBtn = document.getElementById('play-btn');
-                healBtn = document.getElementById('heal-btn');
-                console.log('✅ DOM elements initialized');
-                
-                // Initialize pet click handler
-                if (petArea) {
-                    petArea.addEventListener('click', (e) => {
-                        if (e.target.closest('.pet-emoji')) {
-                            clickPet(e);
-                        }
-                    });
-                    console.log('✅ Pet click handler initialized');
-                } else {
-                    console.error('❌ petArea not found!');
-                }
-                
-                // 🎨 Load NFT boost for user (after user ID is set)
+            
+            // 🎨 Load NFT boost for user (after user ID is set)
                 setTimeout(() => {
                     try {
                         if (typeof loadUserNFTBoost === 'function') {
@@ -10239,63 +10219,63 @@
                         console.warn('NFT boost load failed:', e);
                     }
                 }, 500);
-                
-                // Wait for Telegram WebApp to initialize
-                if (window.Telegram && window.Telegram.WebApp) {
+            
+            // Wait for Telegram WebApp to initialize
+            if (window.Telegram && window.Telegram.WebApp) {
                     try {
-                        window.Telegram.WebApp.ready();
-                        window.Telegram.WebApp.expand();
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
                         console.log('✅ Telegram WebApp initialized');
-                        
-                        // Give Telegram WebApp time to initialize
-                        await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Give Telegram WebApp time to initialize
+                await new Promise(resolve => setTimeout(resolve, 100));
                     } catch (e) {
                         console.error('Telegram WebApp init error:', e);
                     }
                 } else {
                     console.warn('⚠️ Telegram WebApp not available (browser mode)');
-                }
-                
-                // Re-check elements after DOM is fully loaded
-                const minigamesBtn = document.getElementById('minigames-btn');
-                const minigamesModal = document.getElementById('minigames-modal');
-                const leaderboardBtn = document.getElementById('leaderboard-btn');
-                const leaderboardModal = document.getElementById('leaderboard-modal');
-                
-                console.log('Re-checking elements after DOM load:', {
-                    minigamesBtn: !!minigamesBtn,
-                    minigamesModal: !!minigamesModal,
-                    leaderboardBtn: !!leaderboardBtn,
-                    leaderboardModal: !!leaderboardModal
-                });
-                
-                // Check for referral code first
+            }
+            
+            // Re-check elements after DOM is fully loaded
+            const minigamesBtn = document.getElementById('minigames-btn');
+            const minigamesModal = document.getElementById('minigames-modal');
+            const leaderboardBtn = document.getElementById('leaderboard-btn');
+            const leaderboardModal = document.getElementById('leaderboard-modal');
+            
+            console.log('Re-checking elements after DOM load:', {
+                minigamesBtn: !!minigamesBtn,
+                minigamesModal: !!minigamesModal,
+                leaderboardBtn: !!leaderboardBtn,
+                leaderboardModal: !!leaderboardModal
+            });
+            
+            // Check for referral code first
                 try {
-                    await checkReferralCode();
+            await checkReferralCode();
                 } catch (e) {
                     console.warn('Referral check failed:', e);
                 }
-                
-                // Initialize game
+            
+            // Initialize game
                 console.log('🎮 Starting game initialization...');
-                await initGame();
+            await initGame();
                 console.log('✅ Game initialized successfully');
-                
-                // Initialize theme system
+            
+            // Initialize theme system
                 if (typeof initThemeSystem === 'function') {
-                    initThemeSystem();
+            initThemeSystem();
                     console.log('✅ Theme system initialized');
                 }
-                
-                // Initialize pet selector system
+            
+            // Initialize pet selector system
                 if (typeof initPetSelector === 'function') {
-                    initPetSelector();
+            initPetSelector();
                     console.log('✅ Pet selector initialized');
                 }
-                
-                // Initialize NFT modal
+            
+            // Initialize NFT modal
                 if (typeof initNFTModal === 'function') {
-                    initNFTModal();
+            initNFTModal();
                     console.log('✅ NFT modal initialized');
                 }
                 
@@ -10775,7 +10755,7 @@
 
         // Store NFT data globally for detail view
         let nftCollectionData = {};
-        
+
         function initNFTModal() {
             const nftBtn = document.getElementById('nft-btn');
             const nftModal = document.getElementById('nft-modal');

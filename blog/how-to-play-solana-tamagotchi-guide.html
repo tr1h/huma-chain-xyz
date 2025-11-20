@@ -789,23 +789,23 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'view' })
                 });
-                
+            
                 // Load stats from API
                 const statsResponse = await fetch('/api/blog-stats.php?slug=how-to-play-solana-tamagotchi-guide');
                 const stats = await statsResponse.json();
-                
+            
                 // Update UI with real stats
                 document.getElementById('views-count').textContent = formatNumber(stats.views || 0);
                 document.getElementById('likes-count').textContent = formatNumber(stats.likes || 0);
                 document.getElementById('comments-count').textContent = formatNumber(stats.comments || 0);
-                
+            
                 // Check if user liked (from localStorage for now)
                 const userLiked = localStorage.getItem(`liked_${ARTICLE_ID}`) === 'true';
-                const likeBtn = document.getElementById('like-btn');
-                if (userLiked) {
-                    likeBtn.classList.add('liked');
-                    likeBtn.querySelector('.stat-icon').textContent = '❤️';
-                }
+            const likeBtn = document.getElementById('like-btn');
+            if (userLiked) {
+                likeBtn.classList.add('liked');
+                likeBtn.querySelector('.stat-icon').textContent = '❤️';
+            }
             } catch (error) {
                 console.error('Error loading stats:', error);
                 // Fallback to localStorage if API fails
@@ -828,11 +828,11 @@
                 
                 if (result.success) {
                     document.getElementById('likes-count').textContent = formatNumber(result.stats.likes || 0);
-                    const likeBtn = document.getElementById('like-btn');
-                    
+            const likeBtn = document.getElementById('like-btn');
+            
                     if (result.liked) {
-                        likeBtn.classList.add('liked');
-                        likeBtn.querySelector('.stat-icon').textContent = '❤️';
+                likeBtn.classList.add('liked');
+                likeBtn.querySelector('.stat-icon').textContent = '❤️';
                         localStorage.setItem(`liked_${ARTICLE_ID}`, 'true');
                     } else {
                         likeBtn.classList.remove('liked');
@@ -870,7 +870,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         action: 'comment',
-                        author: author,
+                author: author,
                         comment: text
                     })
                 });
@@ -878,14 +878,14 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Clear form
-                    authorInput.value = '';
-                    textInput.value = '';
-                    
-                    // Reload comments
+            // Clear form
+            authorInput.value = '';
+            textInput.value = '';
+            
+            // Reload comments
                     await loadComments();
-                    
-                    // Update comments count
+            
+            // Update comments count
                     document.getElementById('comments-count').textContent = formatNumber(result.comments.length);
                 } else {
                     alert('Failed to post comment. Please try again.');
@@ -902,14 +902,14 @@
                 const response = await fetch('/api/blog-stats.php?slug=how-to-play-solana-tamagotchi-guide');
                 const stats = await response.json();
                 const comments = stats.comments || [];
-                const commentsList = document.getElementById('comments-list');
-                
-                if (comments.length === 0) {
-                    commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7; padding: 40px;">No comments yet. Be the first to comment! 💬</p>';
-                    return;
-                }
-                
-                commentsList.innerHTML = comments.map(comment => {
+            const commentsList = document.getElementById('comments-list');
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7; padding: 40px;">No comments yet. Be the first to comment! 💬</p>';
+                return;
+            }
+            
+            commentsList.innerHTML = comments.map(comment => {
                     const date = new Date(comment.created_at || comment.date);
                 const dateStr = date.toLocaleDateString('en-US', { 
                     year: 'numeric', 
