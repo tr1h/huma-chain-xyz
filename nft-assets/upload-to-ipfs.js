@@ -27,11 +27,12 @@ if (!NFT_STORAGE_KEY) {
 const client = new NFTStorage({ token: NFT_STORAGE_KEY });
 
 // Define tiers and rarities
-const TIERS = ['bronze', 'silver', 'gold', 'diamond'];
+const TIERS = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 const RARITIES = {
     bronze: ['common', 'uncommon', 'rare', 'epic'],
     silver: ['uncommon', 'rare', 'epic', 'legendary'],
     gold: ['common', 'uncommon', 'rare', 'epic'],
+    platinum: ['rare', 'epic', 'legendary', 'mythical'],
     diamond: ['rare', 'epic', 'legendary', 'mythical']
 };
 
@@ -86,7 +87,10 @@ async function uploadAllImages() {
         const rarities = RARITIES[tier];
         
         for (const rarity of rarities) {
-            const filePath = path.join(__dirname, tier, `${rarity}.png`);
+            // Look in generated/{tier}/ folder first, then fallback to {tier}/ folder
+            const generatedPath = path.join(__dirname, 'generated', tier, `${rarity}.png`);
+            const fallbackPath = path.join(__dirname, tier, `${rarity}.png`);
+            const filePath = fs.existsSync(generatedPath) ? generatedPath : fallbackPath;
             
             // Check if file exists
             if (!fs.existsSync(filePath)) {
