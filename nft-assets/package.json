@@ -1,0 +1,10 @@
+{
+  "name": "nft-assets-uploader",
+  "version": "1.0.0",
+  "description": "NFT image uploader to IPFS",
+  "main": "upload-to-ipfs.js",
+  "dependencies": {
+    "@lighthouse-web3/sdk": "^0.4.3",
+    "nft.storage": "^7.1.1"
+  }
+}

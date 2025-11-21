@@ -108,6 +108,47 @@ function assignRandomRarity($tier_name) {
     }
 }
 
+// Function to get IPFS image URL based on tier and rarity
+// IPFS URLs from Lighthouse Storage (uploaded 2025-11-21)
+function getNFTImageUrl($tier_name, $rarity) {
+    $tier = strtolower($tier_name);
+    $rarityLower = strtolower($rarity);
+    
+    $ipfsUrls = [
+        'bronze' => [
+            'common' => 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i',
+            'uncommon' => 'https://gateway.lighthouse.storage/ipfs/bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq',
+            'rare' => 'https://gateway.lighthouse.storage/ipfs/bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y',
+            'epic' => 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq'
+        ],
+        'silver' => [
+            'uncommon' => 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+            'rare' => 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+            'epic' => 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
+            'legendary' => 'https://gateway.lighthouse.storage/ipfs/bafkreigywjdjw3vxopv4blicqioyx5fyqpwcvs22s2ea377rofvh2sslnm'
+        ],
+        'gold' => [
+            'common' => 'https://gateway.lighthouse.storage/ipfs/bafkreicywzvyse3immuhakmd4dvv22gxsikmzhn4q7cjkmzjpp7253ftse',
+            'uncommon' => 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+            'rare' => 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+            'epic' => 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+        ],
+        'platinum' => [
+            'rare' => 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
+            'epic' => 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4',
+            'legendary' => 'https://gateway.lighthouse.storage/ipfs/bafkreihrwin3ld34uner7rpwggke2pfnn5beb3eyrw7vrjmw6n5hen5hie'
+        ],
+        'diamond' => [
+            'rare' => 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
+            'epic' => 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq',
+            'legendary' => 'https://gateway.lighthouse.storage/ipfs/bafkreidtqr62aeflchsghhdoo4m7tv33j7za5w3ttzqziwkl4u4cmgz7tq'
+        ]
+    ];
+    
+    // Return IPFS URL if available, otherwise fallback to placeholder
+    return $ipfsUrls[$tier][$rarityLower] ?? "https://via.placeholder.com/1000x1000.png?text={$tier_name}+{$rarity}";
+}
+
 try {
     // Get POST data
     $json = file_get_contents('php://input');
@@ -238,6 +279,24 @@ try {
     $rarity = $rarityData['rarity'];
     $earning_multiplier = $rarityData['multiplier'];
     error_log("🎲 Assigned rarity: $rarity (multiplier: {$earning_multiplier}x)");
+    
+    // 5.1. Get IPFS image URL based on tier+rarity and update nft_designs
+    $ipfsImageUrl = getNFTImageUrl($tier_name, $rarity);
+    error_log("🖼️ IPFS Image URL: $ipfsImageUrl");
+    
+    // Update nft_designs with IPFS URL
+    $updateDesignImage = supabaseQuery(
+        'nft_designs',
+        'PATCH',
+        ['image_url' => $ipfsImageUrl],
+        '?id=eq.' . $randomDesign['id']
+    );
+    
+    if ($updateDesignImage['code'] >= 200 && $updateDesignImage['code'] < 300) {
+        error_log("✅ Updated nft_designs.image_url with IPFS URL");
+    } else {
+        error_log("⚠️ Failed to update nft_designs.image_url (non-critical)");
+    }
     
     // 6. Create NFT record using RPC function (same as Bronze minting for consistency)
     $nftMintAddress = strtolower($tier_name) . '_sol_' . $telegram_id . '_' . time() . '_' . $randomDesign['id'];
@@ -511,8 +570,8 @@ try {
     // This will be called by frontend after receiving this response
     // Or we can do it here, but it might timeout
     $onchainMintUrl = getenv('ONCHAIN_MINT_URL') ?: 'http://localhost:3001/api/mint-nft-onchain';
-    $imageUrl = getenv('NFT_IMAGE_BASE_URL') ?: 'https://solanatamagotchi.com/nft-assets';
-    $nftImageUrl = $imageUrl . '/' . strtolower($tier_name) . '/' . strtolower($rarity) . '.png';
+    // Use IPFS URL from Lighthouse Storage (already calculated above)
+    $nftImageUrl = $ipfsImageUrl;
     
     // Log on-chain mint attempt (will be called by frontend)
     error_log("💡 On-chain mint available: nft_id=$nft_id, imageUrl=$nftImageUrl");

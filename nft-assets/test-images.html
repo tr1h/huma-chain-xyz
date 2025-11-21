@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 NFT Images Test - IPFS URLs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .tier-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        
+        .tier-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tier-emoji {
+            font-size: 1.2em;
+        }
+        
+        .rarity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .nft-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .nft-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+        
+        .nft-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .nft-info {
+            text-align: center;
+        }
+        
+        .rarity-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .common { background: #9e9e9e; color: white; }
+        .uncommon { background: #4caf50; color: white; }
+        .rare { background: #2196f3; color: white; }
+        .epic { background: #9c27b0; color: white; }
+        .legendary { background: #ff9800; color: white; }
+        .mythical { background: #f44336; color: white; }
+        
+        .cid {
+            font-size: 0.75em;
+            color: #666;
+            word-break: break-all;
+            margin-top: 5px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        
+        .status.loading { background: #ffc107; color: #000; }
+        .status.success { background: #4caf50; color: white; }
+        .status.error { background: #f44336; color: white; }
+        
+        .test-all-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .test-all-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 12px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 NFT Images Test</h1>
+        <p class="subtitle">Проверка загрузки всех NFT изображений с IPFS через Lighthouse Storage</p>
+        
+        <button class="test-all-btn" onclick="testAllImages()">🔄 Проверить все изображения</button>
+        
+        <div id="stats" class="stats" style="display: none;">
+            <div class="stat">
+                <div class="stat-value" id="total-count">0</div>
+                <div class="stat-label">Всего</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="success-count">0</div>
+                <div class="stat-label">Успешно</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="error-count">0</div>
+                <div class="stat-label">Ошибки</div>
+            </div>
+        </div>
+        
+        <div id="nft-container"></div>
+    </div>
+
+    <script>
+        const NFT_IMAGES = {
+            bronze: {
+                common: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i',
+                    cid: 'bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i'
+                },
+                uncommon: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq',
+                    cid: 'bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq'
+                },
+                rare: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y',
+                    cid: 'bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y'
+                },
+                epic: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq',
+                    cid: 'bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq'
+                }
+            },
+            silver: {
+                uncommon: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+                    cid: 'bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a'
+                },
+                rare: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+                    cid: 'bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334'
+                },
+                epic: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
+                    cid: 'bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+                },
+                legendary: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreigywjdjw3vxopv4blicqioyx5fyqpwcvs22s2ea377rofvh2sslnm',
+                    cid: 'bafkreigywjdjw3vxopv4blicqioyx5fyqpwcvs22s2ea377rofvh2sslnm'
+                }
+            },
+            gold: {
+                common: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreicywzvyse3immuhakmd4dvv22gxsikmzhn4q7cjkmzjpp7253ftse',
+                    cid: 'bafkreicywzvyse3immuhakmd4dvv22gxsikmzhn4q7cjkmzjpp7253ftse'
+                },
+                uncommon: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+                    cid: 'bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a'
+                },
+                rare: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+                    cid: 'bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334'
+                },
+                epic: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
+                    cid: 'bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+                }
+            },
+            platinum: {
+                rare: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
+                    cid: 'bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq'
+                },
+                epic: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4',
+                    cid: 'bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4'
+                },
+                legendary: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreihrwin3ld34uner7rpwggke2pfnn5beb3eyrw7vrjmw6n5hen5hie',
+                    cid: 'bafkreihrwin3ld34uner7rpwggke2pfnn5beb3eyrw7vrjmw6n5hen5hie'
+                }
+            },
+            diamond: {
+                rare: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
+                    cid: 'bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly'
+                },
+                epic: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq',
+                    cid: 'bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq'
+                },
+                legendary: {
+                    url: 'https://gateway.lighthouse.storage/ipfs/bafkreidtqr62aeflchsghhdoo4m7tv33j7za5w3ttzqziwkl4u4cmgz7tq',
+                    cid: 'bafkreidtqr62aeflchsghhdoo4m7tv33j7za5w3ttzqziwkl4u4cmgz7tq'
+                }
+            }
+        };
+
+        const tierEmojis = {
+            bronze: '🥉',
+            silver: '🥈',
+            gold: '🥇',
+            platinum: '💎',
+            diamond: '💠'
+        };
+
+        function renderNFTs() {
+            const container = document.getElementById('nft-container');
+            container.innerHTML = '';
+
+            for (const [tier, rarities] of Object.entries(NFT_IMAGES)) {
+                const tierSection = document.createElement('div');
+                tierSection.className = 'tier-section';
+                
+                const tierTitle = document.createElement('h2');
+                tierTitle.className = 'tier-title';
+                tierTitle.innerHTML = `<span class="tier-emoji">${tierEmojis[tier]}</span> ${tier.toUpperCase()}`;
+                tierSection.appendChild(tierTitle);
+                
+                const rarityGrid = document.createElement('div');
+                rarityGrid.className = 'rarity-grid';
+                
+                for (const [rarity, data] of Object.entries(rarities)) {
+                    const card = document.createElement('div');
+                    card.className = 'nft-card';
+                    card.id = `${tier}-${rarity}`;
+                    
+                    const img = document.createElement('img');
+                    img.className = 'nft-image';
+                    img.src = data.url;
+                    img.alt = `${tier} ${rarity}`;
+                    img.onerror = function() {
+                        this.parentElement.querySelector('.status').textContent = '❌ Ошибка загрузки';
+                        this.parentElement.querySelector('.status').className = 'status error';
+                    };
+                    img.onload = function() {
+                        this.parentElement.querySelector('.status').textContent = '✅ Загружено';
+                        this.parentElement.querySelector('.status').className = 'status success';
+                    };
+                    
+                    const info = document.createElement('div');
+                    info.className = 'nft-info';
+                    
+                    const badge = document.createElement('div');
+                    badge.className = `rarity-badge ${rarity}`;
+                    badge.textContent = rarity.toUpperCase();
+                    
+                    const status = document.createElement('div');
+                    status.className = 'status loading';
+                    status.textContent = '⏳ Загрузка...';
+                    
+                    const cid = document.createElement('div');
+                    cid.className = 'cid';
+                    cid.textContent = data.cid.substring(0, 20) + '...';
+                    
+                    info.appendChild(badge);
+                    info.appendChild(status);
+                    info.appendChild(cid);
+                    
+                    card.appendChild(img);
+                    card.appendChild(info);
+                    rarityGrid.appendChild(card);
+                }
+                
+                tierSection.appendChild(rarityGrid);
+                container.appendChild(tierSection);
+            }
+        }
+
+        function testAllImages() {
+            const stats = document.getElementById('stats');
+            stats.style.display = 'flex';
+            
+            let total = 0;
+            let success = 0;
+            let errors = 0;
+            
+            for (const [tier, rarities] of Object.entries(NFT_IMAGES)) {
+                for (const [rarity, data] of Object.entries(rarities)) {
+                    total++;
+                    const img = new Image();
+                    img.onload = function() {
+                        success++;
+                        updateStats(total, success, errors);
+                    };
+                    img.onerror = function() {
+                        errors++;
+                        updateStats(total, success, errors);
+                    };
+                    img.src = data.url;
+                }
+            }
+        }
+
+        function updateStats(total, success, errors) {
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('success-count').textContent = success;
+            document.getElementById('error-count').textContent = errors;
+        }
+
+        // Автоматически рендерить при загрузке
+        window.addEventListener('DOMContentLoaded', renderNFTs);
+    </script>
+</body>
+</html>
+
