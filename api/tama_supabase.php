@@ -909,7 +909,32 @@ function handleLeaderboardUpsert($url, $key) {
         // Log what we found
         if (!empty($getResult['data'])) {
             $existingData = $getResult['data'][0];
-            error_log("✅ Found existing user: telegram_id={$existingData['telegram_id']}, level={$existingData['level']}, tama={$existingData['tama']}");
+            $existingLevel = (int)$existingData['level'];
+            $existingTama = (int)$existingData['tama'];
+            $incomingLevel = (int)$level;
+            $incomingTama = (int)$tama;
+            
+            error_log("✅ Found existing user: telegram_id={$existingData['telegram_id']}, level={$existingLevel}, tama={$existingTama}");
+            error_log("📥 Incoming data: level={$incomingLevel}, tama={$incomingTama}");
+            
+            // 🛡️ ЗАЩИТА ОТ СБРОСА ПРОГРЕССА: не понижать уровень, если в базе больше
+            $levelWasDowngraded = false;
+            if ($incomingLevel < $existingLevel) {
+                error_log("⚠️ PROTECTION: Preventing level downgrade from {$existingLevel} to {$incomingLevel}");
+                $level = $existingLevel; // Используем существующий уровень
+                $levelWasDowngraded = true;
+            }
+            
+            // 🛡️ ЗАЩИТА ОТ СБРОСА БАЛАНСА:
+            // 1. Если уровень был понижен (и скорректирован) - всегда используем больший баланс
+            // 2. Если уровень одинаковый, но баланс меньше - используем больший
+            // 3. Если уровень выше, но баланс меньше - используем больший (защита от частичного сброса)
+            if ($levelWasDowngraded || $incomingTama < $existingTama) {
+                error_log("⚠️ PROTECTION: Preserving higher balance {$existingTama} over {$incomingTama} (level was downgraded: " . ($levelWasDowngraded ? 'yes' : 'no') . ")");
+                $tama = $existingTama; // Используем существующий баланс
+            }
+            
+            error_log("✅ Final values after protection: level={$level}, tama={$tama}");
         } else {
             error_log("⚠️ User not found, will create new record: telegram_id={$user_id}");
         }

@@ -11240,10 +11240,20 @@
 
             if (nftBtn) {
                 nftBtn.addEventListener('click', async () => {
-                    // Load NFT collection when opening modal
-                    await loadNFTCollection();
-                    nftModal.style.display = 'block';
+                    console.log('🖼️ NFT button clicked');
+                    try {
+                        // Load NFT collection when opening modal
+                        console.log('📥 Loading NFT collection...');
+                        await loadNFTCollection();
+                        console.log('✅ NFT collection loaded, opening modal');
+                        nftModal.style.display = 'block';
+                    } catch (err) {
+                        console.error('❌ Error opening NFT modal:', err);
+                        showMessage('❌ Failed to load NFTs');
+                    }
                 });
+            } else {
+                console.warn('⚠️ NFT button not found in DOM');
             }
             
             // Also load when modal is opened via other means
@@ -11485,8 +11495,10 @@
         }
 
         async function loadNFTCollection() {
+            console.log('🔍 loadNFTCollection called');
             try {
                 const userId = window.TELEGRAM_USER_ID;
+                console.log('👤 Current user ID:', userId);
                 if (!userId) {
                     console.warn('⚠️ No user ID for NFT loading');
                     const nftStats = document.getElementById('nft-stats');
@@ -11603,19 +11615,7 @@
                             imageUrl = nft.nft_designs.image_url;
                         }
                         
-                        // Fallback to tier-based static images if no design image
-                        if (!imageUrl) {
-                            const tierImageMap = {
-                                'Bronze': 'https://solanatamagotchi.com/nft-assets/bronze/bronze-1.png',
-                                'Silver': 'https://solanatamagotchi.com/nft-assets/silver/silver-1.png',
-                                'Gold': 'https://solanatamagotchi.com/nft-assets/gold/gold-1.png',
-                                'Platinum': 'https://solanatamagotchi.com/nft-assets/platinum/platinum-1.png',
-                                'Diamond': 'https://solanatamagotchi.com/nft-assets/diamond/diamond-1.png'
-                            };
-                            imageUrl = tierImageMap[tier];
-                        }
-                        
-                        // Use emoji fallback if still no image
+                        // Use emoji fallback if no image from database
                         const tierEmoji = {
                             'Bronze': '🥉',
                             'Silver': '🥈',
@@ -11715,17 +11715,9 @@
                 let imageUrl = null;
                 if (nft.nft_designs && nft.nft_designs.image_url) {
                     imageUrl = nft.nft_designs.image_url;
-                } else {
-                    const tierImageMap = {
-                        'Bronze': 'https://solanatamagotchi.com/nft-assets/bronze/bronze-1.png',
-                        'Silver': 'https://solanatamagotchi.com/nft-assets/silver/silver-1.png',
-                        'Gold': 'https://solanatamagotchi.com/nft-assets/gold/gold-1.png',
-                        'Platinum': 'https://solanatamagotchi.com/nft-assets/platinum/platinum-1.png',
-                        'Diamond': 'https://solanatamagotchi.com/nft-assets/diamond/diamond-1.png'
-                    };
-                    imageUrl = tierImageMap[tier];
                 }
                 
+                // Use emoji fallback if no image from database
                 const tierEmoji = {
                     'Bronze': '🥉',
                     'Silver': '🥈',
@@ -11734,7 +11726,9 @@
                     'Diamond': '💠'
                 };
                 const emojiUrl = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || '🎮'}</text></svg>`;
-                if (!imageUrl) imageUrl = emojiUrl;
+                if (!imageUrl) {
+                    imageUrl = emojiUrl;
+                }
                 
                 const tierColors = {
                     'Bronze': '#CD7F32',
