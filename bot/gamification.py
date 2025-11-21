@@ -95,21 +95,59 @@ class DailyRewards:
             # Calculate reward (1000 + streak * 100, max 10000)
             reward = min(1000 + (new_streak * 100), 10000)
             
-            # Update database - try with last_daily_claim, fallback without it
+            # 💰 UPDATE TAMA BALANCE (FIX: награда не начислялась!)
             try:
-                self.supabase.table('leaderboard').update({
-                    'last_daily_claim': datetime.now().isoformat(),
-                    'daily_streak': new_streak
-                }).eq('telegram_id', telegram_id).execute()
-            except Exception as update_error:
-                # If column doesn't exist, update only daily_streak
-                print(f"Could not update last_daily_claim, updating only daily_streak: {update_error}")
-                try:
-                    self.supabase.table('leaderboard').update({
-                        'daily_streak': new_streak
-                    }).eq('telegram_id', telegram_id).execute()
-                except:
-                    pass  # Ignore if update fails
+                # Get current balance
+                balance_response = self.supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+                
+                if balance_response.data and len(balance_response.data) > 0:
+                    current_tama = balance_response.data[0].get('tama', 0) or 0
+                    new_tama = current_tama + reward
+                    
+                    # Update balance and streak in one query
+                    try:
+                        self.supabase.table('leaderboard').update({
+                            'tama': new_tama,
+                            'last_daily_claim': datetime.now().isoformat(),
+                            'daily_streak': new_streak
+                        }).eq('telegram_id', telegram_id).execute()
+                        print(f"💰 Daily Reward: Awarded {reward} TAMA to {telegram_id} (new balance: {new_tama}, streak: {new_streak})")
+                    except Exception as update_error:
+                        # If last_daily_claim column doesn't exist, update only balance and streak
+                        print(f"Could not update last_daily_claim, updating only tama and daily_streak: {update_error}")
+                        try:
+                            self.supabase.table('leaderboard').update({
+                                'tama': new_tama,
+                                'daily_streak': new_streak
+                            }).eq('telegram_id', telegram_id).execute()
+                            print(f"💰 Daily Reward: Awarded {reward} TAMA to {telegram_id} (new balance: {new_tama}, streak: {new_streak})")
+                        except:
+                            pass
+                else:
+                    # User doesn't exist in leaderboard, create entry
+                    try:
+                        self.supabase.table('leaderboard').insert({
+                            'telegram_id': telegram_id,
+                            'tama': reward,
+                            'daily_streak': new_streak,
+                            'last_daily_claim': datetime.now().isoformat(),
+                            'wallet_address': f'telegram_{telegram_id}'
+                        }).execute()
+                        print(f"💰 Daily Reward: Created user and awarded {reward} TAMA to {telegram_id} (streak: {new_streak})")
+                    except Exception as insert_error:
+                        # If last_daily_claim column doesn't exist
+                        try:
+                            self.supabase.table('leaderboard').insert({
+                                'telegram_id': telegram_id,
+                                'tama': reward,
+                                'daily_streak': new_streak,
+                                'wallet_address': f'telegram_{telegram_id}'
+                            }).execute()
+                            print(f"💰 Daily Reward: Created user and awarded {reward} TAMA to {telegram_id} (streak: {new_streak})")
+                        except:
+                            pass
+            except Exception as tama_error:
+                print(f"Error updating TAMA balance for daily reward: {tama_error}")
             
             return True, new_streak, reward
         except Exception as e:
@@ -244,7 +282,7 @@ class MiniGames:
         return True, reward, msg
     
     def _record_game(self, telegram_id: str, game_type: str, reward: int):
-        """Record game play"""
+        """Record game play and update TAMA balance"""
         try:
             today = datetime.now().date().isoformat()
             # Update game limits
@@ -253,6 +291,35 @@ class MiniGames:
                 'date': today,
                 'games_played': 1  # Will be incremented
             }, on_conflict='telegram_id,date').execute()
+            
+            # 💰 UPDATE TAMA BALANCE (FIX: награда не начислялась!)
+            if reward > 0:
+                try:
+                    # Get current balance
+                    response = self.supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+                    
+                    if response.data and len(response.data) > 0:
+                        current_tama = response.data[0].get('tama', 0) or 0
+                        new_tama = current_tama + reward
+                        
+                        # Update balance
+                        self.supabase.table('leaderboard').update({
+                            'tama': new_tama
+                        }).eq('telegram_id', telegram_id).execute()
+                        
+                        print(f"💰 {game_type}: Awarded {reward} TAMA to {telegram_id} (new balance: {new_tama})")
+                    else:
+                        # User doesn't exist in leaderboard, create entry
+                        self.supabase.table('leaderboard').insert({
+                            'telegram_id': telegram_id,
+                            'tama': reward,
+                            'wallet_address': f'telegram_{telegram_id}'
+                        }).execute()
+                        print(f"💰 {game_type}: Created user and awarded {reward} TAMA to {telegram_id}")
+                        
+                except Exception as tama_error:
+                    print(f"Error updating TAMA balance: {tama_error}")
+                    
         except Exception as e:
             print(f"Error recording game: {e}")
 

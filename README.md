@@ -9,7 +9,7 @@
 
 **Play-to-Earn Tamagotchi game on Telegram with Solana blockchain integration**
 
-> 🔄 **Latest Update (Nov 2025):** Migrated to Render.com with Keep-Alive • 3-Tier NFT System • On-Chain Revenue Distribution
+> 🔄 **Latest Update (Nov 2025):** Enhanced Withdrawal UI • Saved Wallets • Confirmation Modal • Progress Indicators • 3-Tier NFT System • On-Chain Revenue Distribution
 
 [🎮 Play Now](https://t.me/GotchiGameBot) • [📖 Documentation](#-documentation) • [🚀 Deploy](#-deployment)
 
@@ -465,6 +465,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Devnet:** ✅ Fully operational
 - **Mainnet:** ⏳ Ready for launch (awaiting final testing)
 
+### **💸 Enhanced Withdrawal System (Nov 2025):**
+- ✅ **Saved Wallets:** Save multiple wallet addresses (like exchanges)
+- ✅ **Confirmation Modal:** Review withdrawal details before confirming
+- ✅ **Progress Indicator:** Real-time withdrawal progress with steps
+- ✅ **Phantom Integration:** Connect Phantom wallet directly
+- ✅ **Withdrawal History:** View all past withdrawals with transaction links
+- ✅ **Minimum:** 1,000 TAMA | **Fee:** 5% | **Real Solana Transactions**
+
 ### **📈 Tokenomics:**
 - **Total Supply:** 1,000,000,000 TAMA
 - **Circulating:** Dynamic (based on withdrawals)
@@ -484,6 +492,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ## 🆕 Latest Updates (November 2025)
+
+### **💸 Enhanced Withdrawal System (Nov 20, 2025)**
+- ✅ **Saved Wallets:** Save and manage multiple wallet addresses
+- ✅ **Confirmation Modal:** Review withdrawal details before confirming
+- ✅ **Progress Indicator:** Real-time progress bar with step-by-step status
+- ✅ **Phantom Integration:** Direct Phantom wallet connection support
+- ✅ **Withdrawal History:** Complete history with Solscan transaction links
+- ✅ **Improved UX:** Better error handling and user feedback
 
 ### **Migration to Render.com**
 - ✅ API migrated from Railway to Render

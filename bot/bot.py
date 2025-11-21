@@ -797,7 +797,7 @@ def send_welcome(message):
 
 ⭐ *What you can do RIGHT NOW:*
 • 🎁 **Daily Rewards** - Claim your daily TAMA! (Streak: {streak_days} days)
-• 🎮 **Mini-Games** - Play and earn TAMA tokens!
+• 🎮 **Play Game** - Click pet and earn TAMA!
 • 🔗 **Referral Program** - 1,000 TAMA per friend!
 • 🏆 **Badges & Ranks** - Collect achievements!
 • 📋 **Quests** - Complete challenges for bonuses!
@@ -839,9 +839,8 @@ def send_welcome(message):
         types.InlineKeyboardButton("💸 Withdraw TAMA", callback_data="withdraw_tama")
     )
     
-    # Row 4: Games & Referral
+    # Row 4: Referral (Mini-Games removed - available in main game)
     keyboard.row(
-        types.InlineKeyboardButton("🎮 Mini-Games", callback_data="mini_games"),
         types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
     )
     
@@ -1798,7 +1797,7 @@ def show_tama_balance(message):
 💰 **Your TAMA:** {format_tama_balance(balance)}
 
 🎮 **Earn TAMA by:**
-• Playing games (/games)
+• Playing games (in main game)
 • Daily rewards (/daily)
 • Referring friends (/ref)
 • Completing quests (/quests)
@@ -1822,7 +1821,6 @@ def earn_tama_info(message):
 
 🎮 **Games & Activities:**
 • /daily - Daily rewards (up to 10,000 TAMA)
-• /games - Mini-games (up to 1,500 TAMA/day)
 • /quests - Complete quests for rewards
 
 👥 **Referrals:**
@@ -2306,18 +2304,18 @@ def test_promo_post(message):
 🎮 What is it?
 • Virtual pet in Telegram
 • Earn TAMA tokens
-• Mini-games and adventures
+• Play games and adventures (in main game)
 • Evolution and customization
 
 💰 Earning:
 • Clicks = TAMA tokens
-• Mini-games = bonuses
+• Playing games = bonuses (in main game)
 • Referrals = 10% of income
 • Daily rewards
 
 🏅 Features:
 • 5 pet types
-• 5 mini-games
+• 5 games (in main game)
 • Achievement system
 • Leaderboard
 
@@ -2333,7 +2331,7 @@ def test_promo_post(message):
 
 📋 How to Earn:
 • Click your pet = Instant TAMA!
-• Play mini-games = Up to 500 TAMA!
+• Play games in main game = Up to 500 TAMA!
 • Daily rewards = Streak bonuses!
 • Refer friends = 1,000 TAMA per friend!
 • Complete quests = Extra bonuses!
@@ -2343,7 +2341,7 @@ def test_promo_post(message):
 • Level 2: 500 TAMA per sub-referral
 • Milestone bonuses up to 100,000 TAMA!
 
-🎮 5 Mini-Games Available:
+🎮 5 Games Available (in main game):
 • Guess Number • Trivia Quiz
 • Fortune Wheel • And more!
 
@@ -2373,7 +2371,7 @@ def test_promo_post(message):
 ✅ Free to start - no investment
 ✅ Fun pet game in Telegram
 ✅ Real earning opportunities
-✅ Daily rewards & mini-games
+✅ Daily rewards & games (in main game)
 
 ЁЯУИ Top referrers earning 100,000+ TAMA!
 
@@ -2396,7 +2394,7 @@ def test_promo_post(message):
 • Combo System - Click fast for bonuses!
 • Emotions - Happy, Sad, Hungry, Angry, Surprised
 
-📋 Mini-Games:
+📋 Games (in main game):
 • ЁЯО▓ Guess Number
 • ❓ Solana Quiz
 • 🎰 Fortune Wheel
@@ -2492,9 +2490,8 @@ def claim_daily_reward(message):
         success, streak_days, reward_amount = daily_rewards.claim_reward(telegram_id)
         
         if success:
-            # Add TAMA reward
-            tama_reward = min(reward_amount, 10000)  # Max 10,000 TAMA
-            add_tama_reward(telegram_id, tama_reward, "daily_reward")
+            # 💰 TAMA balance is already updated in claim_reward() function
+            # No need to call add_tama_reward() separately - it's handled in gamification.py
             
             # Check for streak milestones
             milestone_text = ""
@@ -2538,48 +2535,49 @@ def claim_daily_reward(message):
         print(f"Error claiming daily reward: {e}")
         bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨┐╤А╨╕ ╨┐╨╛╨╗╤Г╤З╨╡╨╜╨╕╨╕ ╨╜╨░╨│╤А╨░╨┤╤Л. ╨Я╨╛╨┐╤А╨╛╨▒╤Г╨╣ ╨┐╨╛╨╖╨╢╨╡.")
 
-@bot.message_handler(commands=['games'], func=lambda message: message.chat.type == 'private')
-def show_games_menu(message):
-    """Show mini-games menu"""
-    telegram_id = str(message.from_user.id)
-    
-    try:
-        can_play, games_played = mini_games.can_play(telegram_id)
-        games_left = 3 - games_played
-        
-        text = f"""
-🎮 **╨Ь╨╕╨╜╨╕-╨Ш╨│╤А╤Л**
-
-💰 **╨Ш╨│╤А╨░╨╣ ╨╕ ╨╖╨░╤А╨░╨▒╨░╤В╤Л╨▓╨░╨╣ TAMA!**
-
-📋 **╨Ф╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╡ ╨╕╨│╤А╤Л:**
-• ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛ (1-100) - ╨┤╨╛ 500 TAMA
-• Solana ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░ - 100 TAMA
-• ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л - ╨┤╨╛ 500 TAMA
-
-📊 **╨Ы╨╕╨╝╨╕╤В:** {games_left}/3 ╨╕╨│╤А ╨╛╤Б╤В╨░╨╗╨╛╤Б╤М ╤Б╨╡╨│╨╛╨┤╨╜╤П
-
-💰 **╨Т╤Л╨▒╨╡╤А╨╕ ╨╕╨│╤А╤Г:**
-        """
-        
-        keyboard = types.InlineKeyboardMarkup()
-        if can_play:
-            keyboard.row(
-                types.InlineKeyboardButton("📋 ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛", callback_data="game_guess"),
-                types.InlineKeyboardButton("❓ ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░", callback_data="game_trivia")
-            )
-            keyboard.row(
-                types.InlineKeyboardButton("🎰 ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л", callback_data="game_wheel")
-            )
-        keyboard.row(
-            types.InlineKeyboardButton("🔙 ╨Э╨░╨╖╨░╨┤", callback_data="back_to_menu")
-        )
-        
-        bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
-        
-    except Exception as e:
-        print(f"Error showing games: {e}")
-        bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨╕╨│╤А")
+# Mini-games removed - available in main game only
+# @bot.message_handler(commands=['games'], func=lambda message: message.chat.type == 'private')
+# def show_games_menu(message):
+#     """Show mini-games menu"""
+#     telegram_id = str(message.from_user.id)
+#     
+#     try:
+#         can_play, games_played = mini_games.can_play(telegram_id)
+#         games_left = 3 - games_played
+#         
+#         text = f"""
+# 🎮 **╨Ь╨╕╨╜╨╕-╨Ш╨│╤А╤Л**
+# 
+# 💰 **╨Ш╨│╤А╨░╨╣ ╨╕ ╨╖╨░╤А╨░╨▒╨░╤В╤Л╨▓╨░╨╣ TAMA!**
+# 
+# 📋 **╨Ф╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╡ ╨╕╨│╤А╤Л:**
+# • ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛ (1-100) - ╨┤╨╛ 500 TAMA
+# • Solana ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░ - 100 TAMA
+# • ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л - ╨┤╨╛ 500 TAMA
+# 
+# 📊 **╨Ы╨╕╨╝╨╕╤В:** {games_left}/3 ╨╕╨│╤А ╨╛╤Б╤В╨░╨╗╨╛╤Б╤М ╤Б╨╡╨│╨╛╨┤╨╜╤П
+# 
+# 💰 **╨Т╤Л╨▒╨╡╤А╨╕ ╨╕╨│╤А╤Г:**
+#         """
+#         
+#         keyboard = types.InlineKeyboardMarkup()
+#         if can_play:
+#             keyboard.row(
+#                 types.InlineKeyboardButton("📋 ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛", callback_data="game_guess"),
+#                 types.InlineKeyboardButton("❓ ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░", callback_data="game_trivia")
+#             )
+#             keyboard.row(
+#                 types.InlineKeyboardButton("🎰 ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л", callback_data="game_wheel")
+#             )
+#         keyboard.row(
+#             types.InlineKeyboardButton("🔙 ╨Э╨░╨╖╨░╨┤", callback_data="back_to_menu")
+#         )
+#         
+#         bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
+#         
+#     except Exception as e:
+#         print(f"Error showing games: {e}")
+#         bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨╕╨│╤А")
 
 @bot.message_handler(commands=['badges'], func=lambda message: message.chat.type == 'private')
 def show_user_badges(message):
@@ -2775,13 +2773,13 @@ A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
             # Send welcome message
             try:
                 sent_message = bot.send_message(
-                message.chat.id, 
-                welcome_text, 
-                parse_mode='HTML', 
-                reply_markup=keyboard,
-                disable_web_page_preview=False
-            )
-            print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
+                    message.chat.id, 
+                    welcome_text, 
+                    parse_mode='HTML', 
+                    reply_markup=keyboard,
+                    disable_web_page_preview=False
+                )
+                print(f"✅ Welcomed new member: {first_name} ({new_member.id}) in group {message.chat.id}")
             except Exception as send_error:
                 error_msg = str(send_error)
                 if "not enough rights" in error_msg.lower() or "chat not found" in error_msg.lower():
@@ -2827,18 +2825,18 @@ def post_daily_promo():
 🎮 What is it?
 • Virtual pet in Telegram
 • Earn TAMA tokens
-• Mini-games and adventures
+• Play games and adventures (in main game)
 • Evolution and customization
 
 💰 Earning:
 • Clicks = TAMA tokens
-• Mini-games = bonuses
+• Playing games = bonuses (in main game)
 • Referrals = 10% of income
 • Daily rewards
 
 🏅 Features:
 • 5 pet types
-• 5 mini-games
+• 5 games (in main game)
 • Achievement system
 • Leaderboard
 
@@ -2854,7 +2852,7 @@ def post_daily_promo():
 
 📋 How to Earn:
 • Click your pet = Instant TAMA!
-• Play mini-games = Up to 500 TAMA!
+• Play games in main game = Up to 500 TAMA!
 • Daily rewards = Streak bonuses!
 • Refer friends = 1,000 TAMA per friend!
 • Complete quests = Extra bonuses!
@@ -2864,7 +2862,7 @@ def post_daily_promo():
 • Level 2: 500 TAMA per sub-referral
 • Milestone bonuses up to 100,000 TAMA!
 
-🎮 5 Mini-Games Available:
+🎮 5 Games Available (in main game):
 • Guess Number • Trivia Quiz
 • Fortune Wheel • And more!
 
@@ -2894,7 +2892,7 @@ def post_daily_promo():
 ✅ Free to start - no investment
 ✅ Fun pet game in Telegram
 ✅ Real earning opportunities
-✅ Daily rewards & mini-games
+✅ Daily rewards & games (in main game)
 
 ЁЯУИ Top referrers earning 100,000+ TAMA!
 
@@ -2917,7 +2915,7 @@ def post_daily_promo():
 • Combo System - Click fast for bonuses!
 • Emotions - Happy, Sad, Hungry, Angry, Surprised
 
-📋 Mini-Games:
+📋 Games (in main game):
 • ЁЯО▓ Guess Number
 • ❓ Solana Quiz
 • 🎰 Fortune Wheel
@@ -3005,11 +3003,14 @@ def handle_web_app_data(message):
             
             if leaderboard.data:
                 # User exists - update TAMA
-                current_tama = leaderboard.data[0].get('tama', 0)
-                game_tama = game_data.get('tama', 0)
+                current_tama = leaderboard.data[0].get('tama', 0) or 0
+                game_tama = game_data.get('tama', 0) or 0
                 
-                # Calculate new TAMA (don't overwrite, add difference)
+                # 🛡️ PROTECTION: Never decrease balance from game saves!
+                # Only update if game_tama is greater than current (earned in game)
+                # If current_tama is greater (from daily rewards, referrals, etc.), keep it!
                 if game_tama > current_tama:
+                    # Game earned more TAMA - update balance
                     tama_earned = game_tama - current_tama
                     
                     supabase.table('leaderboard').update({
@@ -3017,10 +3018,26 @@ def handle_web_app_data(message):
                         'level': game_data.get('level', 1)
                     }).eq('telegram_id', telegram_id).execute()
                     
+                    print(f"💰 Game save: Updated TAMA from {current_tama} to {game_tama} (+{tama_earned})")
+                    
                     # Only show message for manual save (not auto-save)
                     if data.get('action') == 'save_game_state':
                         bot.reply_to(message, f"✅ Game saved!\n💰 Total TAMA: {game_tama:,}\n🎖️ Level: {game_data.get('level', 1)}\n🎮 Total Clicks: {game_data.get('totalClicks', 0)}")
                 else:
+                    # Current balance is higher (from daily rewards, referrals, etc.)
+                    # Keep current balance, only update level and other game data
+                    update_data = {
+                        'level': game_data.get('level', 1)
+                    }
+                    
+                    # Only update TAMA if game has more (shouldn't happen, but safety check)
+                    if game_tama > current_tama:
+                        update_data['tama'] = game_tama
+                    
+                    supabase.table('leaderboard').update(update_data).eq('telegram_id', telegram_id).execute()
+                    
+                    print(f"💰 Game save: Kept current TAMA {current_tama} (game had {game_tama}) - protected from decrease!")
+                    
                     if data.get('action') == 'save_game_state':
                         bot.reply_to(message, f"✅ Progress saved!\n💰 TAMA: {current_tama:,}\n🎖️ Level: {game_data.get('level', 1)}")
             else:
@@ -4065,6 +4082,9 @@ Please try again later!
         success, streak_days, reward_amount = daily_rewards.claim_reward(telegram_id)
         
         if success:
+            # 💰 TAMA balance is already updated in claim_reward() function
+            # No need to call add_tama_reward() separately
+            
             milestone_text = ""
             if streak_days == 7:
                 milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
@@ -4104,40 +4124,41 @@ Please try again later!
         safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
     
-    elif call.data == "mini_games":
-        # Show games menu
-        telegram_id = str(call.from_user.id)
-        can_play, games_played = mini_games.can_play(telegram_id)
-        games_left = 3 - games_played
-        
-        text = f"""
-🎮 **Mini-Games**
-
-💰 **Play and earn TAMA!**
-
-📋 **Available games:**
-• Guess Number (1-100) - up to 500 TAMA
-• Solana Quiz - 100 TAMA
-• Fortune Wheel - up to 500 TAMA
-
-📊 **Limit:** {games_left}/3 games left today
-
-💰 **Choose a game:**
-        """
-        
-        keyboard = types.InlineKeyboardMarkup()
-        if can_play:
-            keyboard.row(
-                types.InlineKeyboardButton("📋 Guess Number", callback_data="game_guess"),
-                types.InlineKeyboardButton("❓ Quiz", callback_data="game_trivia")
-            )
-            keyboard.row(
-                types.InlineKeyboardButton("🎰 Fortune Wheel", callback_data="game_wheel")
-            )
-        keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
-        
-        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                            parse_mode='Markdown', reply_markup=keyboard)
+    # Mini-games removed - available in main game only
+    # elif call.data == "mini_games":
+    #     # Show games menu
+    #     telegram_id = str(call.from_user.id)
+    #     can_play, games_played = mini_games.can_play(telegram_id)
+    #     games_left = 3 - games_played
+    #     
+    #     text = f"""
+    # 🎮 **Mini-Games**
+    # 
+    # 💰 **Play and earn TAMA!**
+    # 
+    # 📋 **Available games:**
+    # • Guess Number (1-100) - up to 500 TAMA
+    # • Solana Quiz - 100 TAMA
+    # • Fortune Wheel - up to 500 TAMA
+    # 
+    # 📊 **Limit:** {games_left}/3 games left today
+    # 
+    # 💰 **Choose a game:**
+    #         """
+    #     
+    #     keyboard = types.InlineKeyboardMarkup()
+    #     if can_play:
+    #         keyboard.row(
+    #             types.InlineKeyboardButton("📋 Guess Number", callback_data="game_guess"),
+    #             types.InlineKeyboardButton("❓ Quiz", callback_data="game_trivia")
+    #         )
+    #         keyboard.row(
+    #             types.InlineKeyboardButton("🎰 Fortune Wheel", callback_data="game_wheel")
+    #         )
+    #     keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
+    #     
+    #     safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
+    #                         parse_mode='Markdown', reply_markup=keyboard)
     
     elif call.data == "view_badges":
         # Show badges
@@ -4284,8 +4305,7 @@ Please try again later!
         
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
-            types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral"),
-            types.InlineKeyboardButton("🎮 Games", callback_data="mini_games")
+            types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
         )
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
         
@@ -4294,187 +4314,89 @@ Please try again later!
     
     # ==================== GAME CALLBACKS ====================
     
-    elif call.data == "game_guess":
-        # Guess the number game
-        telegram_id = str(call.from_user.id)
-        can_play, games_played = mini_games.can_play(telegram_id)
-        
-        if not can_play:
-            bot.answer_callback_query(call.id, "Daily game limit reached!")
-            return
-        
-        text = """
-📋 **Guess Number (1-100)**
-
-💰 **Rewards:**
-• Exact match: 500 TAMA
-• ┬▒5: 200 TAMA  
-• ┬▒10: 100 TAMA
-• ┬▒20: 50 TAMA
-• Other: 25 TAMA
-
-**Enter number from 1 to 100:**
-        """
-        
-        keyboard = types.InlineKeyboardMarkup()
-        keyboard.row(
-            types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
-        )
-        
-        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                            parse_mode='Markdown', reply_markup=keyboard)
-        
-        # Set waiting state for number input
-        bot.register_next_step_handler(call.message, process_guess_number)
+    # Mini-games removed - available in main game only
+    # elif call.data == "game_guess":
+    #     # Guess the number game
+    #     telegram_id = str(call.from_user.id)
+    #     can_play, games_played = mini_games.can_play(telegram_id)
+    #     
+    #     if not can_play:
+    #         bot.answer_callback_query(call.id, "Daily game limit reached!")
+    #         return
+    #     
+    #     text = """
+    # 📋 **Guess Number (1-100)**
+    # 
+    # 💰 **Rewards:**
+    # • Exact match: 500 TAMA
+    # • ┬▒5: 200 TAMA  
+    # • ┬▒10: 100 TAMA
+    # • ┬▒20: 50 TAMA
+    # • Other: 25 TAMA
+    # 
+    # **Enter number from 1 to 100:**
+    #         """
+    #     
+    #     keyboard = types.InlineKeyboardMarkup()
+    #     keyboard.row(
+    #         types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
+    #     )
+    #     
+    #     safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
+    #                         parse_mode='Markdown', reply_markup=keyboard)
+    #     
+    #     # Set waiting state for number input
+    #     bot.register_next_step_handler(call.message, process_guess_number)
     
-    elif call.data == "game_trivia":
-        # Trivia game
-        telegram_id = str(call.from_user.id)
-        can_play, games_played = mini_games.can_play(telegram_id)
-        
-        if not can_play:
-            bot.answer_callback_query(call.id, "Daily game limit reached!")
-            return
-        
-        # Random trivia question
-        questions = [
-            {
-                "q": "What language is used for Solana smart contracts?",
-                "options": ["Rust", "Python", "JavaScript", "Solidity"],
-                "correct": "Rust"
-            },
-            {
-                "q": "How many TPS can Solana handle?",
-                "options": ["1,000", "10,000", "50,000+", "100"],
-                "correct": "50,000+"
-            },
-            {
-                "q": "Who is the creator of Solana?",
-                "options": ["Anatoly Yakovenko", "Vitalik Buterin", "Changpeng Zhao", "Sam Bankman-Fried"],
-                "correct": "Anatoly Yakovenko"
-            },
-            {
-                "q": "What consensus does Solana use?",
-                "options": ["Proof of Work", "Proof of Stake", "Proof of History + PoS", "Delegated PoS"],
-                "correct": "Proof of History + PoS"
-            },
-        ]
-        
-        question = random.choice(questions)
-        
-        text = f"""
-❓ **Solana Quiz**
-
-**{question['q']}**
-
-💰 **Reward:** 100 TAMA for correct answer
-        """
-        
-        keyboard = types.InlineKeyboardMarkup()
-        for option in question['options']:
-            keyboard.row(
-                types.InlineKeyboardButton(option, callback_data=f"trivia_{option}_{question['correct']}")
-            )
-        keyboard.row(
-            types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
-        )
-        
-        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                            parse_mode='Markdown', reply_markup=keyboard)
-    
-    elif call.data.startswith("trivia_"):
-        # Process trivia answer
-        telegram_id = str(call.from_user.id)
-        parts = call.data.split('_', 2)
-        answer = parts[1]
-        correct = parts[2] if len(parts) > 2 else ""
-        
-        success, reward, result_text = mini_games.play_trivia(telegram_id, answer, correct)
-        
-        if success:
-            text = f"""
-{result_text}
-
-💰 **Earned:** +{reward} TAMA
-
-Play again tomorrow! 🎮
-            """
-            
-            keyboard = types.InlineKeyboardMarkup()
-            keyboard.row(
-                types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
-            )
-            
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                                parse_mode='Markdown', reply_markup=keyboard)
-        else:
-            bot.answer_callback_query(call.id, result_text)
-    
-    elif call.data == "game_wheel":
-        # Spin the wheel
-        telegram_id = str(call.from_user.id)
-        
-        success, reward, result_text = mini_games.spin_wheel(telegram_id)
-        
-        if success:
-            text = f"""
-🎰 **Fortune Wheel**
-
-{result_text}
-
-💰 **Earned:** +{reward} TAMA
-
-🎮 **Come back tomorrow for new games!**
-            """
-            
-            keyboard = types.InlineKeyboardMarkup()
-            keyboard.row(
-                types.InlineKeyboardButton("🔄 Spin Again", callback_data="game_wheel"),
-                types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
-            )
-            
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
-                                parse_mode='Markdown', reply_markup=keyboard)
-        else:
-            bot.answer_callback_query(call.id, result_text)
+    # Mini-games removed - available in main game only
+    # elif call.data == "game_trivia":
+    #     # Trivia game
+    #     ...
+    # elif call.data.startswith("trivia_"):
+    #     # Process trivia answer
+    #     ...
+    # elif call.data == "game_wheel":
+    #     # Spin the wheel
+    #     ...
     
     elif call.data == "back_to_menu":
         # Return to main menu
         send_welcome(call.message)
 
+# Mini-games removed - available in main game only
 # Handler for guess number game
-def process_guess_number(message):
-    """Process guess number game input"""
-    telegram_id = str(message.from_user.id)
-    
-    try:
-        guess = int(message.text)
-        if guess < 1 or guess > 100:
-            bot.reply_to(message, "❌ Number must be from 1 to 100!")
-            return
-        
-        success, reward, result_text = mini_games.play_guess_number(telegram_id, guess)
-        
-        if success:
-            text = f"""
-{result_text}
-
-💰 **Earned:** +{reward} TAMA
-
-🎮 **Come back tomorrow for new games!**
-            """
-            
-            keyboard = types.InlineKeyboardMarkup()
-            keyboard.row(
-                types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
-            )
-            
-            bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
-        else:
-            bot.reply_to(message, f"❌ {result_text}")
-            
-    except ValueError:
-        bot.reply_to(message, "❌ Enter number from 1 to 100!")
+# def process_guess_number(message):
+#     """Process guess number game input"""
+#     telegram_id = str(message.from_user.id)
+#     
+#     try:
+#         guess = int(message.text)
+#         if guess < 1 or guess > 100:
+#             bot.reply_to(message, "❌ Number must be from 1 to 100!")
+#             return
+#         
+#         success, reward, result_text = mini_games.play_guess_number(telegram_id, guess)
+#         
+#         if success:
+#             text = f"""
+# {result_text}
+# 
+# 💰 **Earned:** +{reward} TAMA
+# 
+# 🎮 **Come back tomorrow for new games!**
+#             """
+#             
+#             keyboard = types.InlineKeyboardMarkup()
+#             keyboard.row(
+#                 types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
+#             )
+#             
+#             bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
+#         else:
+#             bot.reply_to(message, f"❌ {result_text}")
+#             
+#     except ValueError:
+#         bot.reply_to(message, "❌ Enter number from 1 to 100!")
 
 # Start bot
 # Handler for WebApp data (game autosave)
@@ -4492,7 +4414,7 @@ def handle_web_app_data(message):
             
             # Extract game state
             level = game_data.get('level', 1)
-            tama = game_data.get('tama', 0)
+            game_tama = game_data.get('tama', 0) or 0
             hp = game_data.get('hp', 100)
             food = game_data.get('food', 100)
             happy = game_data.get('happy', 100)
@@ -4510,15 +4432,33 @@ def handle_web_app_data(message):
                 'achievements': game_data.get('achievements', [])
             }
             
+            # 🛡️ PROTECTION: Get current balance and never decrease it!
+            # This prevents game autosave from overwriting daily rewards, referrals, etc.
+            try:
+                current_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+                current_tama = current_response.data[0].get('tama', 0) or 0 if current_response.data else 0
+                
+                # Only update TAMA if game has more (earned in game)
+                # If current balance is higher (from daily rewards, referrals), keep it!
+                final_tama = max(current_tama, game_tama)
+                
+                if final_tama > current_tama:
+                    logging.info(f"💰 Auto-save: Updated TAMA from {current_tama} to {final_tama} (+{final_tama - current_tama})")
+                elif current_tama > game_tama:
+                    logging.info(f"🛡️ Auto-save: Protected balance {current_tama} (game had {game_tama}) - prevented decrease!")
+            except Exception as e:
+                logging.error(f"Error getting current balance: {e}")
+                final_tama = game_tama  # Fallback to game balance if error
+            
             # Update in Supabase
             response = supabase.table('leaderboard').update({
-                'tama': tama,
+                'tama': final_tama,  # Use protected balance
                 'level': level,
                 'pet_data': json.dumps(pet_data),
                 'last_active': datetime.now().isoformat()
             }).eq('telegram_id', telegram_id).execute()
             
-            logging.info(f"✅ Saved game data for user {telegram_id}: Level={level}, TAMA={tama}")
+            logging.info(f"✅ Saved game data for user {telegram_id}: Level={level}, TAMA={final_tama}")
             
         elif data.get('action') == 'level_up':
             game_data = data.get('data', {})

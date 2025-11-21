@@ -2280,6 +2280,64 @@
             flex-direction: column;
         }
         
+        /* Spinner Animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Fullscreen modal styles */
+        #withdraw-confirm-modal .referral-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #withdraw-confirm-modal .referral-body {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        #withdraw-confirm-modal button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+        }
+        
+        #withdraw-confirm-modal button:active {
+            transform: translateY(0);
+        }
+        
+        /* Custom scrollbar for withdrawal history */
+        #withdraw-history::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #withdraw-history::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        #withdraw-history::-webkit-scrollbar-thumb {
+            background: rgba(138, 201, 38, 0.5);
+            border-radius: 10px;
+        }
+        
+        #withdraw-history::-webkit-scrollbar-thumb:hover {
+            background: rgba(138, 201, 38, 0.7);
+        }
+        
+        /* Smooth scrolling */
+        #withdraw-history {
+            scroll-behavior: smooth;
+        }
+        
         #nft-modal .referral-header {
             flex-shrink: 0;
             margin-bottom: 10px;
@@ -4710,6 +4768,18 @@
                 <div id="withdraw-wallet-section" style="margin-bottom: 20px;">
                     <h4 style="color: #8AC926; margin-bottom: 10px;">👛 Wallet Address</h4>
                     
+                    <!-- Saved Wallets List -->
+                    <div id="saved-wallets-section" style="margin-bottom: 15px; display: none;">
+                        <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8); font-size: 14px;">💾 Saved Wallets:</label>
+                        <select id="saved-wallets-select" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(138, 201, 38, 0.3); background: rgba(0,0,0,0.3); color: white; font-family: monospace; font-size: 14px; margin-bottom: 10px;">
+                            <option value="">Select saved wallet...</option>
+                        </select>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="use-selected-wallet-btn" class="share-btn" style="flex: 1; padding: 8px; font-size: 12px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; color: #8AC926;">Use Selected</button>
+                            <button id="delete-wallet-btn" class="share-btn" style="flex: 1; padding: 8px; font-size: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444;">Delete</button>
+                        </div>
+                    </div>
+                    
                     <!-- Phantom Wallet Option -->
                     <div id="phantom-connect-section" style="margin-bottom: 15px;">
                         <button class="share-btn" id="connect-phantom-btn" style="width: 100%; margin-bottom: 10px;">
@@ -4718,15 +4788,21 @@
                         <div id="phantom-connected" style="display: none; padding: 15px; background: rgba(138, 201, 38, 0.1); border-radius: 10px; border: 2px solid #8AC926;">
                             <div style="color: #8AC926; font-weight: bold; margin-bottom: 5px;">✅ Connected</div>
                             <div id="phantom-address" style="font-family: monospace; font-size: 12px; word-break: break-all;"></div>
-                            <button id="disconnect-phantom" style="margin-top: 10px; padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Disconnect</button>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button id="save-phantom-wallet-btn" style="flex: 1; padding: 5px 10px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 5px; color: #8AC926; cursor: pointer; font-size: 12px;">💾 Save</button>
+                                <button id="disconnect-phantom" style="flex: 1; padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Disconnect</button>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Manual Input Option -->
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid rgba(255,255,255,0.1);">
                         <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8);">Or enter wallet address manually:</label>
-                        <input type="text" id="withdraw-wallet-input" placeholder="Enter Solana wallet address..." 
-                               style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(138, 201, 38, 0.3); background: rgba(0,0,0,0.3); color: white; font-family: monospace; font-size: 14px;">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="withdraw-wallet-input" placeholder="Enter Solana wallet address..." 
+                                   style="flex: 1; padding: 12px; border-radius: 8px; border: 2px solid rgba(138, 201, 38, 0.3); background: rgba(0,0,0,0.3); color: white; font-family: monospace; font-size: 14px;">
+                            <button id="save-wallet-btn" class="share-btn" style="padding: 12px 20px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; color: #8AC926; border-radius: 8px; cursor: pointer; font-size: 14px; white-space: nowrap;">💾 Save</button>
+                        </div>
                         <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.6);">
                             💡 You can also open in browser for full Phantom support
                         </div>
@@ -4770,15 +4846,104 @@
                     </button>
                 </div>
 
+                <!-- Withdrawal Progress Indicator -->
+                <div id="withdraw-progress" style="margin-top: 20px; padding: 20px; border-radius: 10px; display: none; background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div class="spinner" style="border: 4px solid rgba(59, 130, 246, 0.3); border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                    </div>
+                    <div id="withdraw-progress-text" style="text-align: center; color: #3b82f6; font-weight: bold; margin-bottom: 10px;">Processing withdrawal...</div>
+                    <div id="withdraw-progress-bar" style="width: 100%; height: 8px; background: rgba(59, 130, 246, 0.2); border-radius: 4px; overflow: hidden;">
+                        <div id="withdraw-progress-fill" style="height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                    <div id="withdraw-progress-steps" style="margin-top: 15px; font-size: 12px; color: rgba(255,255,255,0.7);">
+                        <div id="step-1">⏳ Validating request...</div>
+                        <div id="step-2" style="display: none;">⏳ Processing transaction...</div>
+                        <div id="step-3" style="display: none;">⏳ Confirming on blockchain...</div>
+                    </div>
+                </div>
+
                 <div id="withdraw-status" style="margin-top: 20px; padding: 15px; border-radius: 10px; display: none;"></div>
 
                 <!-- Withdrawal History -->
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.1);">
-                    <h4 style="color: #8AC926; margin-bottom: 15px;">📜 Withdrawal History</h4>
-                    <div id="withdraw-history" style="max-height: 300px; overflow-y: auto;">
-                        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Loading history...</div>
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid rgba(255,255,255,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="color: #8AC926; margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px;">
+                            <span>📜</span>
+                            <span>Withdrawal History</span>
+                        </h4>
+                        <button id="refresh-history-btn" style="padding: 8px 15px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 8px; color: #8AC926; cursor: pointer; font-size: 14px; transition: all 0.3s;" 
+                                onmouseover="this.style.background='rgba(138, 201, 38, 0.3)';" 
+                                onmouseout="this.style.background='rgba(138, 201, 38, 0.2)';">
+                            🔄 Refresh
+                        </button>
+                    </div>
+                    <div id="withdraw-history" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                        <div style="text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.6);">
+                            <div class="spinner" style="border: 4px solid rgba(138, 201, 38, 0.3); border-top: 4px solid #8AC926; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div>
+                            <div style="font-size: 16px;">Loading history...</div>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawal Confirmation Modal - COMPACT -->
+    <div class="referral-modal" id="withdraw-confirm-modal" style="display: none; z-index: 10001;">
+        <div class="referral-content" style="max-width: 450px; width: 95%; padding: 20px; background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%); border-radius: 20px; border: 2px solid rgba(138, 201, 38, 0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid rgba(138, 201, 38, 0.2);">
+                <h3 style="color: #8AC926; margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 24px;">⚠️</span>
+                    <span>Confirm Withdrawal</span>
+                </h3>
+                <button id="close-confirm-withdraw" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; width: 32px; height: 32px; border-radius: 50%; color: #ef4444; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;"
+                        onmouseover="this.style.background='rgba(239, 68, 68, 0.3)';" 
+                        onmouseout="this.style.background='rgba(239, 68, 68, 0.2)';">✕</button>
+            </div>
+            
+            <!-- Details Grid -->
+            <div style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.1) 0%, rgba(138, 201, 38, 0.05) 100%); padding: 18px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(138, 201, 38, 0.3);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Amount</div>
+                        <div id="confirm-amount" style="font-size: 16px; color: #8AC926; font-weight: bold;">0</div>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Fee</div>
+                        <div id="confirm-fee" style="font-size: 16px; color: #ef4444; font-weight: bold;">0</div>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Receive</div>
+                        <div id="confirm-receive" style="font-size: 16px; color: #10b981; font-weight: bold;">0</div>
+                    </div>
+                </div>
+                
+                <div style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">👛 Wallet</div>
+                    <div id="confirm-wallet" style="font-size: 10px; color: rgba(255,255,255,0.9); font-family: monospace; word-break: break-all; line-height: 1.4;"></div>
+                </div>
+            </div>
+            
+            <!-- Warning -->
+            <div style="padding: 12px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 8px; margin-bottom: 15px;">
+                <div style="font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.5;">
+                    <span style="font-weight: bold; color: #ef4444;">⚡ Important:</span> Transaction cannot be cancelled. Verify wallet address carefully!
+                </div>
+            </div>
+            
+            <!-- Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button id="cancel-withdraw-btn" style="padding: 12px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); border-radius: 10px; color: white; font-size: 14px; cursor: pointer; transition: all 0.3s; font-weight: 500;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.15)';" 
+                        onmouseout="this.style.background='rgba(255,255,255,0.1)';">
+                    ✕ Cancel
+                </button>
+                <button id="final-confirm-withdraw-btn" style="padding: 12px; background: linear-gradient(135deg, #8AC926 0%, #6aa519 100%); border: none; border-radius: 10px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(138, 201, 38, 0.3);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(138, 201, 38, 0.4)';" 
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(138, 201, 38, 0.3)';">
+                    ✅ Confirm
+                </button>
             </div>
         </div>
     </div>
@@ -11729,6 +11894,76 @@
         // 💸 WITHDRAW MODAL INITIALIZATION
         let withdrawWalletAddress = null;
         let withdrawPhantomConnected = false;
+        let savedWallets = [];
+
+        // Load saved wallets from localStorage
+        function loadSavedWallets() {
+            try {
+                const saved = localStorage.getItem('saved_wallets');
+                if (saved) {
+                    savedWallets = JSON.parse(saved);
+                } else {
+                    savedWallets = [];
+                }
+                updateSavedWalletsUI();
+            } catch (e) {
+                console.error('Failed to load saved wallets:', e);
+                savedWallets = [];
+            }
+        }
+
+        // Save wallets to localStorage
+        function saveWallets() {
+            try {
+                localStorage.setItem('saved_wallets', JSON.stringify(savedWallets));
+            } catch (e) {
+                console.error('Failed to save wallets:', e);
+            }
+        }
+
+        // Update saved wallets dropdown
+        function updateSavedWalletsUI() {
+            const select = document.getElementById('saved-wallets-select');
+            const section = document.getElementById('saved-wallets-section');
+            
+            if (!select || !section) return;
+            
+            if (savedWallets.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            select.innerHTML = '<option value="">Select saved wallet...</option>';
+            
+            savedWallets.forEach((wallet, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${wallet.name || 'Wallet'} - ${wallet.address.substring(0, 8)}...${wallet.address.substring(wallet.address.length - 8)}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Add wallet to saved list
+        function addSavedWallet(address, name = null) {
+            if (!address || address.length < 32) return false;
+            
+            // Check if already exists
+            const exists = savedWallets.find(w => w.address === address);
+            if (exists) {
+                return false; // Already exists
+            }
+            
+            savedWallets.push({
+                address: address,
+                name: name || `Wallet ${savedWallets.length + 1}`,
+                addedAt: new Date().toISOString()
+            });
+            
+            saveWallets();
+            updateSavedWalletsUI();
+            return true;
+        }
 
         function initWithdrawModal() {
             const withdrawBtn = document.getElementById('withdraw-btn');
@@ -11741,6 +11976,9 @@
             const confirmBtn = document.getElementById('confirm-withdraw-btn');
             const openBrowserBtn = document.getElementById('open-browser-withdraw');
             const quickAmountBtns = document.querySelectorAll('.quick-amount-btn');
+            
+            // Load saved wallets
+            loadSavedWallets();
 
             // Open modal
             if (withdrawBtn && withdrawModal) {
@@ -11748,7 +11986,85 @@
                     await loadWithdrawBalance();
                     await loadSavedWalletAddress(); // Загружаем сохраненный адрес
                     await loadWithdrawHistory();
+                    loadSavedWallets(); // Загружаем список сохраненных адресов
                     withdrawModal.style.display = 'block';
+                });
+            }
+            
+            // Refresh history button
+            const refreshHistoryBtn = document.getElementById('refresh-history-btn');
+            if (refreshHistoryBtn) {
+                refreshHistoryBtn.addEventListener('click', async () => {
+                    refreshHistoryBtn.disabled = true;
+                    refreshHistoryBtn.textContent = '🔄 Loading...';
+                    await loadWithdrawHistory();
+                    refreshHistoryBtn.disabled = false;
+                    refreshHistoryBtn.innerHTML = '🔄 Refresh';
+                });
+            }
+            
+            // Saved wallets handlers
+            const savedWalletsSelect = document.getElementById('saved-wallets-select');
+            const useSelectedWalletBtn = document.getElementById('use-selected-wallet-btn');
+            const deleteWalletBtn = document.getElementById('delete-wallet-btn');
+            const saveWalletBtn = document.getElementById('save-wallet-btn');
+            const savePhantomWalletBtn = document.getElementById('save-phantom-wallet-btn');
+            
+            if (useSelectedWalletBtn && savedWalletsSelect) {
+                useSelectedWalletBtn.addEventListener('click', () => {
+                    const index = savedWalletsSelect.value;
+                    if (index !== '' && savedWallets[index]) {
+                        const wallet = savedWallets[index];
+                        walletInput.value = wallet.address;
+                        withdrawWalletAddress = wallet.address;
+                        updateWithdrawSummary();
+                    }
+                });
+            }
+            
+            if (deleteWalletBtn && savedWalletsSelect) {
+                deleteWalletBtn.addEventListener('click', () => {
+                    const index = savedWalletsSelect.value;
+                    if (index !== '' && savedWallets[index]) {
+                        if (confirm(`Delete wallet ${savedWallets[index].name}?`)) {
+                            savedWallets.splice(index, 1);
+                            saveWallets();
+                            updateSavedWalletsUI();
+                            if (walletInput.value === savedWallets[index]?.address) {
+                                walletInput.value = '';
+                                withdrawWalletAddress = null;
+                            }
+                        }
+                    }
+                });
+            }
+            
+            if (saveWalletBtn && walletInput) {
+                saveWalletBtn.addEventListener('click', () => {
+                    const address = walletInput.value.trim();
+                    if (address && address.length >= 32) {
+                        const name = prompt('Enter wallet name (optional):', `Wallet ${savedWallets.length + 1}`);
+                        if (addSavedWallet(address, name)) {
+                            alert('✅ Wallet saved!');
+                        } else {
+                            alert('⚠️ Wallet already saved');
+                        }
+                    } else {
+                        alert('❌ Invalid wallet address');
+                    }
+                });
+            }
+            
+            if (savePhantomWalletBtn) {
+                savePhantomWalletBtn.addEventListener('click', () => {
+                    if (withdrawWalletAddress && withdrawPhantomConnected) {
+                        const name = prompt('Enter wallet name (optional):', 'Phantom Wallet');
+                        if (addSavedWallet(withdrawWalletAddress, name)) {
+                            alert('✅ Phantom wallet saved!');
+                        } else {
+                            alert('⚠️ Wallet already saved');
+                        }
+                    }
                 });
             }
 
@@ -11836,9 +12152,34 @@
                 });
             });
 
-            // Confirm withdrawal
+            // Confirm withdrawal - show confirmation modal first
             if (confirmBtn) {
-                confirmBtn.addEventListener('click', async () => {
+                confirmBtn.addEventListener('click', () => {
+                    showWithdrawConfirmation();
+                });
+            }
+            
+            // Confirmation modal handlers
+            const confirmModal = document.getElementById('withdraw-confirm-modal');
+            const closeConfirmBtn = document.getElementById('close-confirm-withdraw');
+            const cancelWithdrawBtn = document.getElementById('cancel-withdraw-btn');
+            const finalConfirmBtn = document.getElementById('final-confirm-withdraw-btn');
+            
+            if (closeConfirmBtn && confirmModal) {
+                closeConfirmBtn.addEventListener('click', () => {
+                    confirmModal.style.display = 'none';
+                });
+            }
+            
+            if (cancelWithdrawBtn && confirmModal) {
+                cancelWithdrawBtn.addEventListener('click', () => {
+                    confirmModal.style.display = 'none';
+                });
+            }
+            
+            if (finalConfirmBtn) {
+                finalConfirmBtn.addEventListener('click', async () => {
+                    if (confirmModal) confirmModal.style.display = 'none';
                     await processWithdrawal();
                 });
             }
@@ -11929,9 +12270,14 @@
                 }
 
                 console.log('Loading withdrawal history for user:', userId);
-                const apiBase = TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
+                const apiBase = window.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
                 
-                historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Loading history...</div>';
+                historyDiv.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.6);">
+                        <div class="spinner" style="border: 4px solid rgba(138, 201, 38, 0.3); border-top: 4px solid #8AC926; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div>
+                        <div style="font-size: 16px;">Loading history...</div>
+                    </div>
+                `;
                 
                 const response = await fetch(`${apiBase}/withdrawal/history?telegram_id=${userId}`, {
                     headers: {
@@ -11968,11 +12314,17 @@
                 }
 
                 if (withdrawals.length === 0) {
-                    historyDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No withdrawals yet</div>';
+                    historyDiv.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.6);">
+                            <div style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;">📜</div>
+                            <div style="font-size: 18px; margin-bottom: 10px; color: rgba(255,255,255,0.8);">No withdrawals yet</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.5);">Make your first withdrawal to see history here!</div>
+                        </div>
+                    `;
                     return;
                 }
 
-                historyDiv.innerHTML = withdrawals.map(w => {
+                historyDiv.innerHTML = withdrawals.map((w, index) => {
                     const date = new Date(w.created_at || w.completed_at);
                     const dateStr = date.toLocaleString('ru-RU', { 
                         year: 'numeric', 
@@ -11983,24 +12335,52 @@
                     });
                     // API возвращает amount_sent (уже с вычетом комиссии) или amount - fee
                     const amount = w.amount_sent || w.net_amount || (Math.abs(w.amount || 0) - (w.fee || 0));
+                    const fee = w.fee || Math.floor((w.amount || amount) * 0.05);
+                    const totalAmount = amount + fee;
                     const status = w.status || 'completed';
-                    const signature = w.signature || w.tx_signature;
+                    const signature = w.signature || w.tx_signature || w.transaction_signature;
+                    const wallet = w.wallet_address || w.destination_wallet || 'N/A';
+                    
+                    const statusColor = status === 'completed' ? '#10b981' : status === 'pending' ? '#fbbf24' : '#ef4444';
+                    const statusEmoji = status === 'completed' ? '✅' : status === 'pending' ? '⏳' : '❌';
                     
                     return `
-                        <div style="padding: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(138, 201, 38, 0.2);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                <div style="font-weight: bold; color: #8AC926;">${formatNumber(amount)} TAMA</div>
-                                <div style="font-size: 12px; color: ${status === 'completed' ? '#10b981' : status === 'pending' ? '#fbbf24' : '#ef4444'};">
-                                    ${status === 'completed' ? '✅' : status === 'pending' ? '⏳' : '❌'} ${status}
+                        <div style="padding: 20px; margin-bottom: 15px; background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%); border-radius: 15px; border: 2px solid rgba(138, 201, 38, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                                <div>
+                                    <div style="font-weight: bold; color: #8AC926; font-size: 24px; margin-bottom: 5px;">${formatNumber(amount)} TAMA</div>
+                                    <div style="font-size: 14px; color: rgba(255,255,255,0.6);">
+                                        Fee: ${formatNumber(fee)} TAMA (Total: ${formatNumber(totalAmount)} TAMA)
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 14px; color: ${statusColor}; font-weight: bold; margin-bottom: 5px;">
+                                        ${statusEmoji} ${status.charAt(0).toUpperCase() + status.slice(1)}
+                                    </div>
+                                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">
+                                        #${withdrawals.length - index}
+                                    </div>
                                 </div>
                             </div>
-                            <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">
-                                ${dateStr}
+                            <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 10px;">
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">📅 Date:</div>
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.9); font-weight: 500;">${dateStr}</div>
                             </div>
+                            ${wallet && wallet !== 'N/A' ? `
+                                <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 10px;">
+                                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">👛 Wallet:</div>
+                                    <div style="font-size: 12px; font-family: monospace; color: #8AC926; word-break: break-all;">${wallet}</div>
+                                </div>
+                            ` : ''}
                             ${signature ? `
-                                <div style="font-size: 11px; font-family: monospace; color: rgba(255,255,255,0.5); word-break: break-all; margin-top: 5px;">
-                                    <a href="https://solscan.io/tx/${signature}?cluster=devnet" target="_blank" style="color: #8AC926; text-decoration: none;">
-                                        🔗 ${signature.substring(0, 20)}...
+                                <div style="padding: 12px; background: rgba(138, 201, 38, 0.1); border-radius: 10px; border: 1px solid rgba(138, 201, 38, 0.3);">
+                                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">🔗 Transaction:</div>
+                                    <a href="https://solscan.io/tx/${signature}?cluster=devnet" target="_blank" 
+                                       style="font-size: 12px; font-family: monospace; color: #8AC926; text-decoration: none; word-break: break-all; display: block; padding: 8px; background: rgba(138, 201, 38, 0.1); border-radius: 5px; transition: all 0.3s;"
+                                       onmouseover="this.style.background='rgba(138, 201, 38, 0.2)'; this.style.transform='translateX(5px)';"
+                                       onmouseout="this.style.background='rgba(138, 201, 38, 0.1)'; this.style.transform='translateX(0)';">
+                                        ${signature.substring(0, 20)}...${signature.substring(signature.length - 8)}
+                                        <span style="margin-left: 5px;">↗</span>
                                     </a>
                                 </div>
                             ` : ''}
@@ -12075,6 +12455,44 @@
             }
         }
 
+        function showWithdrawConfirmation() {
+            const amount = parseInt(document.getElementById('withdraw-amount-input').value) || 0;
+            const wallet = withdrawWalletAddress || document.getElementById('withdraw-wallet-input').value.trim();
+            const balance = gameState.tama || 0;
+            
+            // Validation
+            if (amount < 1000) {
+                alert('❌ Minimum withdrawal is 1,000 TAMA');
+                return;
+            }
+            
+            if (!wallet || wallet.length < 32) {
+                alert('❌ Invalid wallet address');
+                return;
+            }
+            
+            if (amount > balance) {
+                alert(`❌ Insufficient balance! You have ${formatNumber(balance)} TAMA`);
+                return;
+            }
+            
+            // Calculate fees
+            const fee = Math.floor(amount * 0.05);
+            const receive = amount - fee;
+            
+            // Update confirmation modal
+            document.getElementById('confirm-amount').textContent = formatNumber(amount);
+            document.getElementById('confirm-fee').textContent = formatNumber(fee);
+            document.getElementById('confirm-receive').textContent = formatNumber(receive);
+            document.getElementById('confirm-wallet').textContent = wallet;
+            
+            // Show modal
+            const confirmModal = document.getElementById('withdraw-confirm-modal');
+            if (confirmModal) {
+                confirmModal.style.display = 'block';
+            }
+        }
+
         async function processWithdrawal() {
             try {
                 const amount = parseInt(document.getElementById('withdraw-amount-input').value);
@@ -12101,18 +12519,36 @@
                     return;
                 }
 
-                // Disable button
+                // Disable button and show progress
                 const confirmBtn = document.getElementById('confirm-withdraw-btn');
                 confirmBtn.disabled = true;
                 confirmBtn.textContent = '⏳ Processing...';
 
+                // Hide status, show progress
                 const statusDiv = document.getElementById('withdraw-status');
-                statusDiv.style.display = 'block';
-                statusDiv.style.background = 'rgba(59, 130, 246, 0.1)';
-                statusDiv.style.border = '2px solid #3b82f6';
-                statusDiv.style.color = '#3b82f6';
-                statusDiv.innerHTML = '⏳ Processing withdrawal request...';
+                const progressDiv = document.getElementById('withdraw-progress');
+                const progressFill = document.getElementById('withdraw-progress-fill');
+                const progressText = document.getElementById('withdraw-progress-text');
+                
+                statusDiv.style.display = 'none';
+                progressDiv.style.display = 'block';
+                progressFill.style.width = '0%';
+                progressText.textContent = 'Validating request...';
+                
+                // Show step 1
+                document.getElementById('step-1').style.display = 'block';
+                document.getElementById('step-2').style.display = 'none';
+                document.getElementById('step-3').style.display = 'none';
+                progressFill.style.width = '20%';
 
+                // Step 2: Processing transaction
+                setTimeout(() => {
+                    progressFill.style.width = '50%';
+                    progressText.textContent = 'Processing transaction...';
+                    document.getElementById('step-1').style.display = 'none';
+                    document.getElementById('step-2').style.display = 'block';
+                }, 500);
+                
                 // Call API
                 const apiBase = window.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
                 const response = await fetch(`${apiBase}/withdrawal/request`, {
@@ -12127,10 +12563,24 @@
                     })
                 });
 
+                // Step 3: Confirming on blockchain
+                progressFill.style.width = '80%';
+                progressText.textContent = 'Confirming on blockchain...';
+                document.getElementById('step-2').style.display = 'none';
+                document.getElementById('step-3').style.display = 'block';
+
                 const result = await response.json();
+                
+                // Complete progress
+                progressFill.style.width = '100%';
 
                 if (result.success) {
-                    // Success
+                    // Success - hide progress, show status
+                    setTimeout(() => {
+                        progressDiv.style.display = 'none';
+                        statusDiv.style.display = 'block';
+                    }, 500);
+                    
                     const netAmount = result.data?.net_amount || (amount - Math.floor(amount * 0.05));
                     const signature = result.data?.signature;
                     
@@ -12185,7 +12635,10 @@
                     gameState.tama -= amount;
                     updateUI();
                     await loadWithdrawBalance();
-                    await loadWithdrawHistory(); // Reload history
+                    // Reload history after a short delay to ensure transaction is saved
+                    setTimeout(async () => {
+                        await loadWithdrawHistory();
+                    }, 2000);
 
                     // Reset form after 5 seconds (но сохраняем адрес)
                     setTimeout(() => {
@@ -12199,18 +12652,21 @@
                         updateWithdrawSummary();
                     }, 5000);
                 } else {
-                    // Error
+                    // Error - hide progress, show error
+                    progressDiv.style.display = 'none';
+                    statusDiv.style.display = 'block';
                     statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
                     statusDiv.style.border = '2px solid #ef4444';
                     statusDiv.style.color = '#ef4444';
                     statusDiv.innerHTML = `❌ Error: ${result.error || 'Unknown error'}`;
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = '💸 Confirm Withdrawal';
                 }
-
-                confirmBtn.disabled = false;
-                confirmBtn.textContent = '💸 Confirm Withdrawal';
             } catch (err) {
                 console.error('Withdrawal error:', err);
+                const progressDiv = document.getElementById('withdraw-progress');
                 const statusDiv = document.getElementById('withdraw-status');
+                progressDiv.style.display = 'none';
                 statusDiv.style.display = 'block';
                 statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
                 statusDiv.style.border = '2px solid #ef4444';
