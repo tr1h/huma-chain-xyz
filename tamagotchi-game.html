@@ -11075,10 +11075,20 @@
 
             if (nftBtn) {
                 nftBtn.addEventListener('click', async () => {
-                    // Load NFT collection when opening modal
-                    await loadNFTCollection();
-                    nftModal.style.display = 'block';
+                    console.log('🖼️ NFT button clicked');
+                    try {
+                        // Load NFT collection when opening modal
+                        console.log('📥 Loading NFT collection...');
+                        await loadNFTCollection();
+                        console.log('✅ NFT collection loaded, opening modal');
+                        nftModal.style.display = 'block';
+                    } catch (err) {
+                        console.error('❌ Error opening NFT modal:', err);
+                        showMessage('❌ Failed to load NFTs');
+                    }
                 });
+            } else {
+                console.warn('⚠️ NFT button not found in DOM');
             }
             
             // Also load when modal is opened via other means
@@ -11320,8 +11330,10 @@
         }
 
         async function loadNFTCollection() {
+            console.log('🔍 loadNFTCollection called');
             try {
                 const userId = window.TELEGRAM_USER_ID;
+                console.log('👤 Current user ID:', userId);
                 if (!userId) {
                     console.warn('⚠️ No user ID for NFT loading');
                     const nftStats = document.getElementById('nft-stats');

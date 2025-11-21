@@ -910,6 +910,18 @@ function handleLeaderboardUpsert($url, $key) {
         if (!empty($getResult['data'])) {
             $existingData = $getResult['data'][0];
             error_log("✅ Found existing user: telegram_id={$existingData['telegram_id']}, level={$existingData['level']}, tama={$existingData['tama']}");
+            
+            // 🛡️ ЗАЩИТА ОТ СБРОСА ПРОГРЕССА: не понижать уровень, если в базе больше
+            if ((int)$level < (int)$existingData['level']) {
+                error_log("⚠️ PROTECTION: Preventing level downgrade from {$existingData['level']} to {$level}");
+                $level = (int)$existingData['level']; // Используем существующий уровень
+            }
+            
+            // 🛡️ Если уровень одинаковый, но пришедший баланс меньше, используем больший
+            if ((int)$level == (int)$existingData['level'] && (int)$tama < (int)$existingData['tama']) {
+                error_log("⚠️ PROTECTION: Preserving higher balance {$existingData['tama']} over {$tama} at same level");
+                $tama = (int)$existingData['tama']; // Используем существующий баланс
+            }
         } else {
             error_log("⚠️ User not found, will create new record: telegram_id={$user_id}");
         }
