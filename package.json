@@ -7,7 +7,8 @@
     "start": "node api/tama_supabase_api.js",
     "dev": "nodemon api/tama_supabase_api.js",
     "start:onchain": "node api/server-onchain.js",
-    "dev:onchain": "nodemon api/server-onchain.js"
+    "dev:onchain": "nodemon api/server-onchain.js",
+    "update-all-nfts": "node tools/update-all-nfts-metadata.js"
   },
   "dependencies": {
     "@metaplex-foundation/js": "^0.20.1",

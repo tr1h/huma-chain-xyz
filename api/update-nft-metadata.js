@@ -80,9 +80,10 @@ function getNFTImageUrl(tier, rarity) {
             uncommon: 'https://gateway.lighthouse.storage/ipfs/bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq',
             rare: 'https://gateway.lighthouse.storage/ipfs/bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y',
             epic: 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq',
-            legendary: 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i'
+            legendary: 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i' // TODO: Upload real Legendary image
         },
         silver: {
+            common: 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a', // Use Uncommon as fallback
             uncommon: 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
             rare: 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
             epic: 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
@@ -93,13 +94,47 @@ function getNFTImageUrl(tier, rarity) {
             uncommon: 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
             rare: 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
             epic: 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+        },
+        platinum: {
+            common: 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq', // Use Rare as fallback
+            rare: 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
+            epic: 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4',
+            legendary: 'https://gateway.lighthouse.storage/ipfs/bafkreihrwin3ld34uner7rpwggke2pfnn5beb3eyrw7vrjmw6n5hen5hie'
+        },
+        diamond: {
+            rare: 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
+            epic: 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq', // Use this for Epic
+            legendary: 'https://gateway.lighthouse.storage/ipfs/bafkreidtqr62aeflchsghhdoo4m7tv33j7za5w3ttzqziwkl4u4cmgz7tq'
         }
     };
     
     const tierLower = tier.toLowerCase();
     const rarityLower = rarity.toLowerCase();
     
-    return NFT_IMAGES[tierLower]?.[rarityLower] || null;
+    // Try exact match first
+    let imageUrl = NFT_IMAGES[tierLower]?.[rarityLower];
+    
+    // If not found, use fallback based on tier
+    if (!imageUrl) {
+        if (tierLower === 'silver' && rarityLower === 'common') {
+            // Silver Common -> use Uncommon
+            imageUrl = NFT_IMAGES.silver.uncommon;
+        } else if (tierLower === 'platinum' && rarityLower === 'common') {
+            // Platinum Common -> use Rare
+            imageUrl = NFT_IMAGES.platinum.rare;
+        } else if (tierLower === 'diamond' && rarityLower === 'epic') {
+            // Diamond Epic -> use Epic image
+            imageUrl = NFT_IMAGES.diamond.epic;
+        } else {
+            // Last resort: use first available image for tier
+            const tierImages = NFT_IMAGES[tierLower];
+            if (tierImages) {
+                imageUrl = Object.values(tierImages)[0];
+            }
+        }
+    }
+    
+    return imageUrl || null;
 }
 
 /**
