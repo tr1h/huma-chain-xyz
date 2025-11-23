@@ -163,11 +163,29 @@
             text-align: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
         }
         
         .stat-label {
@@ -183,9 +201,22 @@
         
         .nft-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
             margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .nft-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            .nft-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
         }
         
         .nft-card {
@@ -193,54 +224,112 @@
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 3px solid transparent;
+            position: relative;
+        }
+        
+        .nft-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 20px;
+            padding: 3px;
+            background: linear-gradient(135deg, #8AC926, #1D3557, #667eea);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
         }
         
         .nft-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-            border-color: #8AC926;
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+        
+        .nft-card:hover::after {
+            opacity: 1;
         }
         
         .nft-image {
             width: 100%;
-            height: 300px;
+            height: 320px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .nft-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1));
+            z-index: 1;
+            pointer-events: none;
         }
         
         .nft-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.5s ease;
+            position: relative;
+            z-index: 0;
+        }
+        
+        .nft-card:hover .nft-image img {
+            transform: scale(1.1);
         }
         
         .nft-emoji {
             font-size: 120px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
         
         .nft-badge {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             color: white;
             padding: 8px 15px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .nft-card:hover .nft-badge {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
         
         .onchain-badge {
             position: absolute;
             top: 15px;
             left: 15px;
-            background: #4CAF50;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
             padding: 8px 15px;
             border-radius: 20px;
@@ -249,14 +338,25 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .nft-card:hover .onchain-badge {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
         }
         
         .offchain-badge {
-            background: #FF9800;
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
         }
         
         .nft-info {
             padding: 25px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,1));
         }
         
         .nft-header {
@@ -308,6 +408,25 @@
             font-size: 20px;
             font-weight: bold;
             margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nft-multiplier::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
         
         .nft-mint-address {
@@ -324,22 +443,48 @@
         .nft-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 20px;
         }
         
         .nft-btn {
-            padding: 12px;
+            padding: 14px;
             border: none;
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             font-size: 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        .nft-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
         }
         
         .nft-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+        
+        .nft-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .nft-btn:active {
+            transform: translateY(-1px) scale(1.02);
         }
         
         .view-btn {
@@ -1102,99 +1247,167 @@
                 : '#';
             
             const modal = document.createElement('div');
+            modal.id = 'nft-details-modal';
             modal.style.cssText = `
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0,0,0,0.8);
+                background: rgba(0,0,0,0.85);
+                backdrop-filter: blur(10px);
                 z-index: 10000;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 padding: 20px;
+                animation: fadeIn 0.3s ease;
             `;
+            
+            // Add animations if not exists
+            if (!document.getElementById('modal-animations')) {
+                const style = document.createElement('style');
+                style.id = 'modal-animations';
+                style.textContent = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    @keyframes slideUp {
+                        from { transform: translateY(50px) scale(0.9); opacity: 0; }
+                        to { transform: translateY(0) scale(1); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Remove old modal if exists
+            const oldModal = document.getElementById('nft-details-modal');
+            if (oldModal) oldModal.remove();
             
             modal.innerHTML = `
                 <div style="
                     background: white;
-                    border-radius: 20px;
-                    max-width: 600px;
+                    border-radius: 25px;
+                    max-width: 650px;
                     width: 100%;
                     max-height: 90vh;
                     overflow-y: auto;
                     position: relative;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+                    box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+                    animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 ">
                     <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="
                         position: absolute;
-                        top: 15px;
-                        right: 15px;
-                        background: #f44336;
+                        top: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #f44336, #d32f2f);
                         color: white;
                         border: none;
-                        width: 40px;
-                        height: 40px;
+                        width: 45px;
+                        height: 45px;
                         border-radius: 50%;
-                        font-size: 24px;
+                        font-size: 28px;
                         cursor: pointer;
                         z-index: 10001;
-                    ">×</button>
+                        box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        line-height: 1;
+                    " onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(244, 67, 54, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(244, 67, 54, 0.4)';" title="Close">×</button>
                     
                     <div style="padding: 40px;">
                         <div style="
                             width: 100%;
-                            height: 300px;
+                            height: 350px;
                             background: linear-gradient(135deg, ${tierColor}, ${rarityColor});
-                            border-radius: 15px;
-                            margin-bottom: 20px;
+                            border-radius: 20px;
+                            margin-bottom: 25px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
                             position: relative;
                             overflow: hidden;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
                         ">
                             ${imageUrl ? `
                                 <img src="${imageUrl}" alt="${escapeHtml(nft.tier_name)} ${escapeHtml(nft.rarity)}" 
-                                     style="width: 100%; height: 100%; object-fit: cover;"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <div style="display: none; font-size: 120px;">${getTierEmoji(nft.tier_name)}</div>
+                                     style="width: 100%; height: 100%; object-fit: cover; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; transition: transform 0.5s ease;"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                     onmouseover="this.style.transform='scale(1.05)';"
+                                     onmouseout="this.style.transform='scale(1)';">
+                                <div style="display: none; font-size: 140px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">${getTierEmoji(nft.tier_name)}</div>
                             ` : `
-                                <div style="font-size: 120px;">${getTierEmoji(nft.tier_name)}</div>
+                                <div style="font-size: 140px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">${getTierEmoji(nft.tier_name)}</div>
                             `}
-                            <div style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                            ${isRealOnChain ? `
+                                <div style="position: absolute; top: 15px; left: 15px; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 8px 15px; border-radius: 20px; font-size: 11px; font-weight: bold; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); display: flex; align-items: center; gap: 5px;">
+                                    ✅ Real On-Chain
+                                </div>
+                            ` : `
+                                <div style="position: absolute; top: 15px; left: 15px; background: linear-gradient(135deg, #FF9800, #F57C00); color: white; padding: 8px 15px; border-radius: 20px; font-size: 11px; font-weight: bold; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);">
+                                    ⚠️ Off-Chain Only
+                                </div>
+                            `}
+                            <div style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                                 ${escapeHtml(nft.rarity || 'Unknown')}
                             </div>
                         </div>
                         
-                        <h2 style="color: ${tierColor}; margin-bottom: 10px; font-size: 28px;">
+                        <h2 style="color: ${tierColor}; margin-bottom: 15px; font-size: 32px; font-weight: bold; text-align: center;">
                             ${escapeHtml(nft.tier_name || 'Unknown')} NFT
                         </h2>
                         
-                        <div style="background: linear-gradient(135deg, #FFD700, #FF8C00); color: white; padding: 15px; border-radius: 10px; text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0;">
-                            🚀 ${nft.earning_multiplier || 1.0}x Earning Boost
+                        <div style="background: linear-gradient(135deg, #FFD700, #FF8C00); color: white; padding: 18px; border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; margin: 25px 0; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent); animation: shine 3s infinite;"></div>
+                            <span style="position: relative; z-index: 1;">🚀 ${nft.earning_multiplier || 1.0}x Earning Boost</span>
                         </div>
                         
-                        <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin: 20px 0;">
-                            <h3 style="margin-bottom: 15px; color: #333;">📋 Details</h3>
-                            <div style="line-height: 2;">
-                                <div><strong>🎨 Design:</strong> #${escapeHtml(String(nft.design_number || 'N/A'))}</div>
-                                <div><strong>📅 Minted:</strong> ${escapeHtml(nft.minted_at ? new Date(nft.minted_at).toLocaleString() : 'Unknown')}</div>
-                                ${nft.price_paid_sol ? `<div><strong>💎 Price Paid:</strong> ${escapeHtml(String(nft.price_paid_sol))} SOL</div>` : ''}
-                                ${nft.price_paid_tama ? `<div><strong>💰 Price Paid:</strong> ${escapeHtml(String(nft.price_paid_tama.toLocaleString()))} TAMA</div>` : ''}
+                        <div style="background: linear-gradient(to bottom, #f9f9f9, #f5f5f5); padding: 25px; border-radius: 15px; margin: 25px 0; border: 2px solid #e0e0e0; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                            <h3 style="margin-bottom: 20px; color: #1D3557; font-size: 20px; display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 24px;">📋</span> Details
+                            </h3>
+                            <div style="line-height: 2.2; color: #555;">
+                                <div style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between;">
+                                    <span style="font-weight: 600;">🎨 Design:</span>
+                                    <strong style="color: ${tierColor};">#${escapeHtml(String(nft.design_number || 'N/A'))}</strong>
+                                </div>
+                                <div style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between;">
+                                    <span style="font-weight: 600;">📅 Minted:</span>
+                                    <strong>${escapeHtml(nft.minted_at ? new Date(nft.minted_at).toLocaleString() : 'Unknown')}</strong>
+                                </div>
+                                ${nft.price_paid_sol ? `
+                                    <div style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between;">
+                                        <span style="font-weight: 600;">💎 Price Paid:</span>
+                                        <strong style="color: #667eea;">${escapeHtml(String(nft.price_paid_sol))} SOL</strong>
+                                    </div>
+                                ` : ''}
+                                ${nft.price_paid_tama ? `
+                                    <div style="padding: 8px 0; display: flex; justify-content: space-between;">
+                                        <span style="font-weight: 600;">💰 Price Paid:</span>
+                                        <strong style="color: #8AC926;">${escapeHtml(String(nft.price_paid_tama.toLocaleString()))} TAMA</strong>
+                                    </div>
+                                ` : ''}
                             </div>
                         </div>
                         
                         ${isRealOnChain ? `
-                            <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #4CAF50;">
-                                <strong>✅ Real On-Chain NFT</strong><br>
-                                <code style="font-size: 11px; word-break: break-all; color: #666;">${escapeHtml(nft.nft_mint_address || '')}</code>
+                            <div style="background: linear-gradient(to right, #e8f5e9, #f1f8f4); padding: 18px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #4CAF50; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <span style="font-size: 20px;">✅</span>
+                                    <strong style="color: #2e7d32; font-size: 16px;">Real On-Chain NFT</strong>
+                                </div>
+                                <code style="font-size: 11px; word-break: break-all; color: #555; background: rgba(255,255,255,0.7); padding: 8px; border-radius: 6px; display: block; font-family: 'Courier New', monospace;">${escapeHtml(nft.nft_mint_address || '')}</code>
                             </div>
                         ` : `
-                            <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #ffc107;">
-                                <strong>⚠️ Off-Chain Only</strong><br>
-                                <code style="font-size: 11px; word-break: break-all; color: #666;">${escapeHtml(nft.nft_mint_address || 'N/A')}</code>
+                            <div style="background: linear-gradient(to right, #fff3cd, #fffbf0); padding: 18px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #ffc107; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <span style="font-size: 20px;">⚠️</span>
+                                    <strong style="color: #f57c00; font-size: 16px;">Off-Chain Only</strong>
+                                </div>
+                                <code style="font-size: 11px; word-break: break-all; color: #555; background: rgba(255,255,255,0.7); padding: 8px; border-radius: 6px; display: block; font-family: 'Courier New', monospace;">${escapeHtml(nft.nft_mint_address || 'N/A')}</code>
                             </div>
                         `}
                         
