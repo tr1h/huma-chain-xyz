@@ -42,25 +42,43 @@ async function initMetaplex() {
 
         let metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
         
+        // Initialize Bundlr storage for Arweave uploads
+        // Check if bundlrStorage exists and is callable
+        console.log('🔧 Checking Bundlr storage availability...');
+        console.log('   bundlrStorage type:', typeof bundlrStorage);
+        console.log('   bundlrStorage value:', bundlrStorage ? 'exists' : 'undefined');
+        
         try {
-            if (typeof bundlrStorage === 'function') {
-                metaplex = metaplex.use(bundlrStorage({
-                    address: SOLANA_NETWORK === 'mainnet' 
-                        ? 'https://node1.bundlr.network' 
-                        : 'https://devnet.bundlr.network',
-                    providerUrl: SOLANA_NETWORK === 'mainnet'
-                        ? clusterApiUrl('mainnet-beta')
-                        : clusterApiUrl('devnet'),
-                    timeout: 60000,
-                }));
-                console.log('✅ Metaplex initialized with Bundlr storage');
-            } else {
-                metaplex = metaplex.use(mockStorage());
-                console.log('✅ Metaplex initialized with Mock storage');
+            // bundlrStorage should be a function in @metaplex-foundation/js
+            if (!bundlrStorage) {
+                throw new Error('bundlrStorage is not exported from @metaplex-foundation/js. Check package version.');
             }
+            
+            if (typeof bundlrStorage !== 'function') {
+                throw new Error(`bundlrStorage is not a function (type: ${typeof bundlrStorage}). Check @metaplex-foundation/js installation.`);
+            }
+            
+            console.log('✅ bundlrStorage is available, initializing...');
+            metaplex = metaplex.use(bundlrStorage({
+                address: SOLANA_NETWORK === 'mainnet' 
+                    ? 'https://node1.bundlr.network' 
+                    : 'https://devnet.bundlr.network',
+                providerUrl: SOLANA_NETWORK === 'mainnet'
+                    ? clusterApiUrl('mainnet-beta')
+                    : clusterApiUrl('devnet'),
+                timeout: 60000,
+            }));
+            console.log('✅ Metaplex initialized with Bundlr storage (Arweave)');
         } catch (storageError) {
-            console.warn('⚠️ Failed to initialize bundlrStorage, using mock storage');
-            metaplex = metaplex.use(mockStorage());
+            console.error('❌ CRITICAL: Failed to initialize bundlrStorage!');
+            console.error('   Error:', storageError.message);
+            console.error('   Stack:', storageError.stack);
+            console.error('   This means metadata will NOT be stored on Arweave!');
+            console.error('   Please check:');
+            console.error('   1. @metaplex-foundation/js version supports Bundlr');
+            console.error('   2. Payer keypair has SOL balance (min 0.01 SOL)');
+            console.error('   3. Network connection to Bundlr devnet');
+            throw new Error(`CRITICAL: Failed to initialize Bundlr storage: ${storageError.message}. Cannot proceed without Arweave storage.`);
         }
 
         return metaplex;
@@ -183,8 +201,28 @@ async function updateNFTMetadata(req, res) {
         console.log('📋 Current NFT:', {
             name: existingNFT.name,
             uri: existingNFT.uri,
-            updateAuthority: existingNFT.updateAuthorityAddress.toString()
+            updateAuthority: existingNFT.updateAuthorityAddress.toString(),
+            isMutable: existingNFT.isMutable !== false // Check if NFT is mutable
         });
+
+        // Check if NFT is mutable (can be updated)
+        if (existingNFT.isMutable === false) {
+            return res.status(400).json({
+                success: false,
+                error: 'NFT is immutable. Metadata cannot be updated. This NFT was created with immutable flag.',
+                mintAddress: mintAddress
+            });
+        }
+
+        // Check if we have update authority
+        const payerPublicKey = metaplex.identity().publicKey;
+        if (!existingNFT.updateAuthorityAddress.equals(payerPublicKey)) {
+            return res.status(403).json({
+                success: false,
+                error: 'No update authority. Cannot update metadata. Update authority: ' + existingNFT.updateAuthorityAddress.toString(),
+                mintAddress: mintAddress
+            });
+        }
 
         // Create new metadata
         const metadata = {
@@ -223,6 +261,19 @@ async function updateNFTMetadata(req, res) {
             const uploadResult = await metaplex.nfts().uploadMetadata(metadata);
             newUri = uploadResult.uri;
             console.log('✅ New metadata uploaded:', newUri);
+            
+            // Check if mockStorage was used (indicates Bundlr failed)
+            if (newUri && newUri.includes('mockstorage.example.com')) {
+                console.error('❌ WARNING: mockStorage was used instead of Arweave!');
+                console.error('   This means Bundlr initialization failed.');
+                console.error('   NFT metadata will not be accessible on-chain.');
+                throw new Error('Metadata uploaded to mockStorage instead of Arweave. Bundlr initialization failed. Check payer balance and network connection.');
+            }
+            
+            // Verify it's a real Arweave URI
+            if (newUri && !newUri.startsWith('https://arweave.net/') && !newUri.startsWith('http://arweave.net/')) {
+                console.warn('⚠️ WARNING: URI does not look like Arweave:', newUri);
+            }
         } catch (uploadError) {
             console.error('❌ Metadata upload failed:', uploadError);
             throw new Error(`Failed to upload metadata: ${uploadError.message}`);

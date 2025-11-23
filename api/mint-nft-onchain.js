@@ -53,31 +53,43 @@ async function initMetaplex() {
         // Initialize Metaplex with Bundlr storage for Arweave uploads
         let metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
         
-        // Try to use bundlrStorage if available, otherwise use mockStorage
+        // Initialize Bundlr storage for Arweave uploads
+        // CRITICAL: Do NOT use mockStorage - it creates fake URIs that won't work on-chain
+        console.log('🔧 Checking Bundlr storage availability...');
+        console.log('   bundlrStorage type:', typeof bundlrStorage);
+        console.log('   bundlrStorage value:', bundlrStorage ? 'exists' : 'undefined');
+        
         try {
-            if (typeof bundlrStorage === 'function') {
-                metaplex = metaplex.use(bundlrStorage({
-                    address: SOLANA_NETWORK === 'mainnet' 
-                        ? 'https://node1.bundlr.network' 
-                        : 'https://devnet.bundlr.network',
-                    providerUrl: SOLANA_NETWORK === 'mainnet'
-                        ? clusterApiUrl('mainnet-beta')
-                        : clusterApiUrl('devnet'),
-                    timeout: 60000,
-                }));
-                console.log('✅ Metaplex initialized with Bundlr storage');
-            } else {
-                console.warn('⚠️ bundlrStorage not available, using mock storage for testing');
-                // Use mockStorage as fallback (creates fake metadata URIs)
-                metaplex = metaplex.use(mockStorage());
-                console.log('✅ Metaplex initialized with Mock storage (for testing)');
+            // bundlrStorage should be a function in @metaplex-foundation/js
+            if (!bundlrStorage) {
+                throw new Error('bundlrStorage is not exported from @metaplex-foundation/js. Check package version.');
             }
+            
+            if (typeof bundlrStorage !== 'function') {
+                throw new Error(`bundlrStorage is not a function (type: ${typeof bundlrStorage}). Check @metaplex-foundation/js installation.`);
+            }
+            
+            console.log('✅ bundlrStorage is available, initializing...');
+            metaplex = metaplex.use(bundlrStorage({
+                address: SOLANA_NETWORK === 'mainnet' 
+                    ? 'https://node1.bundlr.network' 
+                    : 'https://devnet.bundlr.network',
+                providerUrl: SOLANA_NETWORK === 'mainnet'
+                    ? clusterApiUrl('mainnet-beta')
+                    : clusterApiUrl('devnet'),
+                timeout: 60000,
+            }));
+            console.log('✅ Metaplex initialized with Bundlr storage (Arweave)');
         } catch (storageError) {
-            console.warn('⚠️ Failed to initialize bundlrStorage:', storageError.message);
-            console.warn('⚠️ Falling back to mock storage');
-            // Fallback to mockStorage
-            metaplex = metaplex.use(mockStorage());
-            console.log('✅ Metaplex initialized with Mock storage (fallback)');
+            console.error('❌ CRITICAL: Failed to initialize bundlrStorage!');
+            console.error('   Error:', storageError.message);
+            console.error('   Stack:', storageError.stack);
+            console.error('   This means metadata will NOT be stored on Arweave!');
+            console.error('   Please check:');
+            console.error('   1. @metaplex-foundation/js version supports Bundlr');
+            console.error('   2. Payer keypair has SOL balance (min 0.01 SOL)');
+            console.error('   3. Network connection to Bundlr devnet');
+            throw new Error(`CRITICAL: Failed to initialize Bundlr storage: ${storageError.message}. Cannot proceed without Arweave storage.`);
         }
 
         return metaplex;
@@ -199,16 +211,17 @@ async function mintOnChainNFT(req, res) {
         console.log('🔗 Explorer:', explorerUrl);
 
         // ==========================================
-        // REVOKE AUTHORITIES (Make NFT truly unique and immutable)
+        // REVOKE AUTHORITIES (Keep NFT mutable for metadata updates)
         // ==========================================
-        console.log('🔒 Revoking Mint and Freeze authorities...');
+        console.log('🔒 Revoking Mint and Freeze authorities (keeping updateAuthority for metadata updates)...');
         try {
             await metaplex.nfts().update({
                 nftOrSft: nft,
                 mintAuthority: null,    // ❌ Revoke: No one can mint duplicates
                 freezeAuthority: null   // ❌ Revoke: No one can freeze the NFT
+                // ✅ Keep updateAuthority: Allows metadata updates (images, attributes, etc.)
             });
-            console.log('✅ Authorities revoked! NFT is now truly unique and immutable.');
+            console.log('✅ Mint and Freeze authorities revoked! NFT metadata can still be updated.');
         } catch (revokeError) {
             console.warn('⚠️ Failed to revoke authorities:', revokeError.message);
             console.warn('   NFT is still functional, but authorities remain active.');
