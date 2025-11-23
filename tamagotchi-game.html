@@ -11261,6 +11261,22 @@
                         await loadNFTCollection();
                         console.log('✅ NFT collection loaded, opening modal');
                         nftModal.style.display = 'block';
+                        
+                        // Check if in Telegram WebApp and show warning
+                        const isTelegramWebApp = window.Telegram && window.Telegram.WebApp;
+                        const walletConnectSection = document.getElementById('wallet-connect-section');
+                        const phantomWarning = document.getElementById('phantom-warning');
+                        
+                        if (isTelegramWebApp && walletConnectSection && phantomWarning) {
+                            // Show wallet connect section with warning
+                            walletConnectSection.style.display = 'block';
+                            phantomWarning.style.display = 'block';
+                        } else if (!isTelegramWebApp && walletConnectSection) {
+                            // In browser, check if Phantom is available
+                            if (!window.solana || !window.solana.isPhantom) {
+                                walletConnectSection.style.display = 'block';
+                            }
+                        }
                     } catch (err) {
                         console.error('❌ Error opening NFT modal:', err);
                         showMessage('❌ Failed to load NFTs');
@@ -11391,12 +11407,38 @@
 
         async function connectPhantomWallet() {
             try {
+                // ⚠️ Check if running in Telegram WebApp (Phantom doesn't work there)
+                const isTelegramWebApp = window.Telegram && window.Telegram.WebApp;
+                
+                if (isTelegramWebApp) {
+                    // In Telegram WebApp, Phantom doesn't work - need to open in browser
+                    const confirmed = confirm(
+                        '⚠️ Phantom Wallet не работает в Telegram WebApp!\n\n' +
+                        'Для подключения кошелька нужно открыть игру в браузере.\n\n' +
+                        'Открыть в браузере сейчас?'
+                    );
+                    
+                    if (confirmed) {
+                        // Get current game URL
+                        const gameUrl = window.location.href;
+                        // Open in external browser
+                        if (window.Telegram.WebApp.openLink) {
+                            window.Telegram.WebApp.openLink(gameUrl);
+                        } else {
+                            window.open(gameUrl, '_blank');
+                        }
+                    }
+                    return;
+                }
+                
+                // Check if Phantom is installed
                 if (!window.solana || !window.solana.isPhantom) {
-                    alert('❌ Phantom wallet not found! Install from phantom.app');
+                    alert('❌ Phantom wallet not found!\n\nPlease install Phantom wallet:\nhttps://phantom.app/\n\nAfter installing, refresh the page.');
                     window.open('https://phantom.app/', '_blank');
                     return;
                 }
 
+                // Try to connect
                 const resp = await window.solana.connect();
                 walletAddress = resp.publicKey.toString();
                 walletConnected = true;
@@ -11409,15 +11451,30 @@
                 // 🔄 Sync account data (balance, NFTs, etc.)
                 await syncAccountData();
 
-                document.getElementById('wallet-connect-section').style.display = 'none';
-                document.getElementById('nft-collection').style.display = 'block';
-                document.getElementById('wallet-address-display').textContent = walletAddress.slice(0, 8) + '...' + walletAddress.slice(-4);
+                const walletConnectSection = document.getElementById('wallet-connect-section');
+                const nftCollection = document.getElementById('nft-collection');
+                const walletAddressDisplay = document.getElementById('wallet-address-display');
+                
+                if (walletConnectSection) walletConnectSection.style.display = 'none';
+                if (nftCollection) nftCollection.style.display = 'block';
+                if (walletAddressDisplay) walletAddressDisplay.textContent = walletAddress.slice(0, 8) + '...' + walletAddress.slice(-4);
 
                 await loadWalletBalance();
                 await loadNFTCollection();
             } catch (err) {
                 console.error('❌ Wallet connection error:', err);
-                alert('Failed to connect wallet: ' + err.message);
+                
+                // Better error messages
+                let errorMsg = 'Failed to connect wallet';
+                if (err.message.includes('User rejected')) {
+                    errorMsg = '❌ Connection cancelled by user';
+                } else if (err.message.includes('not found') || err.message.includes('Phantom')) {
+                    errorMsg = '❌ Phantom wallet not found! Please install from phantom.app';
+                } else {
+                    errorMsg = '❌ ' + err.message;
+                }
+                
+                alert(errorMsg);
             }
         }
 
