@@ -11319,6 +11319,27 @@
             // Mint with SOL - mint directly in game
             if (mintWithSolBtn) {
                 mintWithSolBtn.addEventListener('click', async () => {
+                    // Check if in Telegram WebApp
+                    const isTelegramWebApp = window.Telegram && window.Telegram.WebApp;
+                    
+                    if (isTelegramWebApp) {
+                        const confirmed = confirm(
+                            '⚠️ Минтинг за SOL не работает в Telegram WebApp!\n\n' +
+                            'Для минтинга NFT за SOL нужно открыть игру в браузере.\n\n' +
+                            'Открыть в браузере сейчас?'
+                        );
+                        
+                        if (confirmed) {
+                            const gameUrl = window.location.href;
+                            if (window.Telegram.WebApp.openLink) {
+                                window.Telegram.WebApp.openLink(gameUrl);
+                            } else {
+                                window.open(gameUrl, '_blank');
+                            }
+                        }
+                        return;
+                    }
+                    
                     if (!walletConnected || !walletAddress) {
                         showMessage('❌ Please connect wallet first!', 'error');
                         await connectPhantomWallet();
