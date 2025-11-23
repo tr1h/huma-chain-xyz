@@ -3985,12 +3985,31 @@ function handleMarketplaceList($url, $key) {
             return;
         }
         
+        // Determine payment type
+        $paymentType = $data['payment_type'] ?? 'tama'; // 'tama', 'sol', or 'both'
+        $priceSol = $data['price_sol'] ?? null;
+        
+        // Validate payment type
+        if ($paymentType === 'sol' && !$priceSol) {
+            http_response_code(400);
+            echo json_encode(['error' => 'price_sol is required when payment_type is sol']);
+            return;
+        }
+        
+        if ($paymentType === 'tama' && !$price) {
+            http_response_code(400);
+            echo json_encode(['error' => 'price is required when payment_type is tama']);
+            return;
+        }
+        
         // Create listing
         $listingData = [
             'nft_id' => (int)$nftId,
             'nft_mint_address' => $nft['nft_mint_address'] ?? null,
             'seller_telegram_id' => (string)$telegramId,
-            'price_tama' => (int)$price,
+            'price_tama' => $price ? (int)$price : null,
+            'price_sol' => $priceSol ? (float)$priceSol : null,
+            'payment_type' => $paymentType,
             'status' => 'active'
         ];
         
@@ -4059,51 +4078,110 @@ function handleMarketplaceBuy($url, $key) {
             return;
         }
         
-        $price = (int)$listing['price_tama'];
+        $paymentType = $data['payment_type'] ?? $listing['payment_type'] ?? 'tama';
         $nftId = $listing['nft_id'];
         $nft = $listing['user_nfts'] ?? [];
         
-        // Check buyer balance
-        $buyerBalance = supabaseRequest($url, $key, 'GET', 'leaderboard', [
-            'telegram_id' => 'eq.' . $telegramId,
-            'select' => 'tama'
-        ]);
+        // Determine price based on payment type
+        $priceTama = $listing['price_tama'] ? (int)$listing['price_tama'] : null;
+        $priceSol = $listing['price_sol'] ? (float)$listing['price_sol'] : null;
         
-        if (empty($buyerBalance['data'])) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Buyer not found']);
-            return;
-        }
-        
-        $balance = (int)($buyerBalance['data'][0]['tama'] ?? 0);
-        
-        if ($balance < $price) {
+        // Validate payment type availability
+        if ($paymentType === 'tama' && !$priceTama) {
             http_response_code(400);
-            echo json_encode(['error' => 'Insufficient TAMA balance']);
+            echo json_encode(['error' => 'This listing does not accept TAMA payment']);
             return;
         }
         
-        // Calculate fees
-        $platformFee = (int)($price * 0.05); // 5%
-        $sellerReceives = $price - $platformFee;
+        if ($paymentType === 'sol' && !$priceSol) {
+            http_response_code(400);
+            echo json_encode(['error' => 'This listing does not accept SOL payment']);
+            return;
+        }
         
-        // Transfer TAMA from buyer to seller
-        // 1. Deduct from buyer
-        $newBuyerBalance = $balance - $price;
-        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
-            'telegram_id' => 'eq.' . $telegramId
-        ], ['tama' => $newBuyerBalance]);
-        
-        // 2. Add to seller
-        $sellerBalance = supabaseRequest($url, $key, 'GET', 'leaderboard', [
-            'telegram_id' => 'eq.' . $listing['seller_telegram_id'],
-            'select' => 'tama'
-        ]);
-        $sellerCurrentBalance = (int)($sellerBalance['data'][0]['tama'] ?? 0);
-        $newSellerBalance = $sellerCurrentBalance + $sellerReceives;
-        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
-            'telegram_id' => 'eq.' . $listing['seller_telegram_id']
-        ], ['tama' => $newSellerBalance]);
+        // Handle TAMA payment
+        if ($paymentType === 'tama' && $priceTama) {
+            // Check buyer balance
+            $buyerBalance = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+                'telegram_id' => 'eq.' . $telegramId,
+                'select' => 'tama'
+            ]);
+            
+            if (empty($buyerBalance['data'])) {
+                http_response_code(404);
+                echo json_encode(['error' => 'Buyer not found']);
+                return;
+            }
+            
+            $balance = (int)($buyerBalance['data'][0]['tama'] ?? 0);
+            
+            if ($balance < $priceTama) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Insufficient TAMA balance']);
+                return;
+            }
+            
+            // Calculate fees
+            $platformFee = (int)($priceTama * 0.05); // 5%
+            $sellerReceives = $priceTama - $platformFee;
+            
+            // Transfer TAMA from buyer to seller
+            // 1. Deduct from buyer
+            $newBuyerBalance = $balance - $priceTama;
+            supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+                'telegram_id' => 'eq.' . $telegramId
+            ], ['tama' => $newBuyerBalance]);
+            
+            // 2. Add to seller
+            $sellerBalance = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+                'telegram_id' => 'eq.' . $listing['seller_telegram_id'],
+                'select' => 'tama'
+            ]);
+            $sellerCurrentBalance = (int)($sellerBalance['data'][0]['tama'] ?? 0);
+            $newSellerBalance = $sellerCurrentBalance + $sellerReceives;
+            supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+                'telegram_id' => 'eq.' . $listing['seller_telegram_id']
+            ], ['tama' => $newSellerBalance]);
+            
+            $price = $priceTama;
+            $platformFeeAmount = $platformFee;
+            $sellerReceivesAmount = $sellerReceives;
+            $transactionType = 'tama';
+        }
+        // Handle SOL payment
+        elseif ($paymentType === 'sol' && $priceSol) {
+            // Get buyer and seller wallet addresses
+            $buyerWallet = $data['buyer_wallet'] ?? null;
+            $sellerWallet = $data['seller_wallet'] ?? null;
+            
+            if (!$buyerWallet || !$sellerWallet) {
+                http_response_code(400);
+                echo json_encode(['error' => 'buyer_wallet and seller_wallet are required for SOL payment']);
+                return;
+            }
+            
+            // Calculate fees
+            $platformFeeSol = $priceSol * 0.05; // 5%
+            $sellerReceivesSol = $priceSol - $platformFeeSol;
+            
+            // Send SOL from buyer to seller (via API)
+            // This would typically be done on-chain, but for now we'll use the send-sol endpoint
+            // Note: In production, this should be done via Phantom wallet connection on frontend
+            // For now, we'll just record the transaction
+            
+            $price = $priceSol;
+            $platformFeeAmount = $platformFeeSol;
+            $sellerReceivesAmount = $sellerReceivesSol;
+            $transactionType = 'sol';
+            
+            // Store wallet addresses
+            $buyerWalletAddress = $buyerWallet;
+            $sellerWalletAddress = $sellerWallet;
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid payment type or price not set']);
+            return;
+        }
         
         // 3. Transfer NFT ownership
         supabaseRequest($url, $key, 'PATCH', 'user_nfts', [
@@ -4130,53 +4208,62 @@ function handleMarketplaceBuy($url, $key) {
             'tier_name' => $nft['tier_name'] ?? null,
             'rarity' => $nft['rarity'] ?? null,
             'seller_telegram_id' => (string)$listing['seller_telegram_id'],
+            'seller_wallet_address' => $sellerWalletAddress ?? null,
             'buyer_telegram_id' => (string)$telegramId,
-            'sale_price_tama' => $price,
-            'platform_fee_tama' => $platformFee,
-            'seller_received_tama' => $sellerReceives,
-            'transaction_type' => 'tama'
+            'buyer_wallet_address' => $buyerWalletAddress ?? null,
+            'sale_price_tama' => $transactionType === 'tama' ? $price : null,
+            'sale_price_sol' => $transactionType === 'sol' ? $price : null,
+            'platform_fee_tama' => $transactionType === 'tama' ? $platformFeeAmount : null,
+            'platform_fee_sol' => $transactionType === 'sol' ? $platformFeeAmount : null,
+            'seller_received_tama' => $transactionType === 'tama' ? $sellerReceivesAmount : null,
+            'seller_received_sol' => $transactionType === 'sol' ? $sellerReceivesAmount : null,
+            'transaction_type' => $transactionType
         ];
         
         supabaseRequest($url, $key, 'POST', 'marketplace_sales', [], $saleData);
         
-        // 6. Record transactions
-        $txData = [
-            'user_id' => $telegramId,
-            'username' => 'Buyer',
-            'type' => 'marketplace_buy',
-            'amount' => -$price,
-            'balance_before' => $balance,
-            'balance_after' => $newBuyerBalance,
-            'metadata' => json_encode([
-                'listing_id' => $listingId,
-                'nft_id' => $nftId,
-                'tier' => $nft['tier_name'] ?? null
-            ])
-        ];
-        supabaseRequest($url, $key, 'POST', 'transactions', [], $txData);
-        
-        $sellerTxData = [
-            'user_id' => $listing['seller_telegram_id'],
-            'username' => 'Seller',
-            'type' => 'marketplace_sale',
-            'amount' => $sellerReceives,
-            'balance_before' => $sellerCurrentBalance,
-            'balance_after' => $newSellerBalance,
-            'metadata' => json_encode([
-                'listing_id' => $listingId,
-                'nft_id' => $nftId,
-                'platform_fee' => $platformFee,
-                'tier' => $nft['tier_name'] ?? null
-            ])
-        ];
-        supabaseRequest($url, $key, 'POST', 'transactions', [], $sellerTxData);
+        // 6. Record transactions (only for TAMA payments)
+        if ($transactionType === 'tama') {
+            $txData = [
+                'user_id' => $telegramId,
+                'username' => 'Buyer',
+                'type' => 'marketplace_buy',
+                'amount' => -$price,
+                'balance_before' => $balance,
+                'balance_after' => $newBuyerBalance,
+                'metadata' => json_encode([
+                    'listing_id' => $listingId,
+                    'nft_id' => $nftId,
+                    'tier' => $nft['tier_name'] ?? null
+                ])
+            ];
+            supabaseRequest($url, $key, 'POST', 'transactions', [], $txData);
+            
+            $sellerTxData = [
+                'user_id' => $listing['seller_telegram_id'],
+                'username' => 'Seller',
+                'type' => 'marketplace_sale',
+                'amount' => $sellerReceivesAmount,
+                'balance_before' => $sellerCurrentBalance,
+                'balance_after' => $newSellerBalance,
+                'metadata' => json_encode([
+                    'listing_id' => $listingId,
+                    'nft_id' => $nftId,
+                    'platform_fee' => $platformFeeAmount,
+                    'tier' => $nft['tier_name'] ?? null
+                ])
+            ];
+            supabaseRequest($url, $key, 'POST', 'transactions', [], $sellerTxData);
+        }
         
         echo json_encode([
             'success' => true,
             'message' => 'NFT purchased successfully',
             'nft_id' => $nftId,
             'price_paid' => $price,
-            'platform_fee' => $platformFee
+            'platform_fee' => $platformFeeAmount,
+            'payment_type' => $transactionType,
+            'transaction_signature' => $data['transaction_signature'] ?? null
         ]);
     } catch (Exception $e) {
         http_response_code(500);

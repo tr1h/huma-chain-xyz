@@ -26,8 +26,14 @@ CREATE TABLE IF NOT EXISTS marketplace_listings (
     seller_wallet_address TEXT,  -- Optional wallet address
     
     -- Listing details
-    price_tama BIGINT NOT NULL CHECK (price_tama >= 1000),  -- Price in TAMA (min 1000)
-    price_sol DECIMAL(12, 9),  -- Equivalent price in SOL (calculated)
+    price_tama BIGINT,  -- Price in TAMA (optional if price_sol is set)
+    price_sol DECIMAL(12, 9),  -- Price in SOL (optional if price_tama is set)
+    payment_type TEXT NOT NULL DEFAULT 'tama' CHECK (payment_type IN ('tama', 'sol', 'both')),  -- Payment method
+    CHECK (
+        (price_tama IS NOT NULL AND price_tama >= 1000) OR 
+        (price_sol IS NOT NULL AND price_sol > 0) OR
+        (price_tama IS NOT NULL AND price_sol IS NOT NULL)
+    )  -- At least one price must be set
     
     -- Status
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'sold', 'cancelled', 'expired')),
@@ -83,10 +89,16 @@ CREATE TABLE IF NOT EXISTS marketplace_sales (
     buyer_wallet_address TEXT,
     
     -- Price details
-    sale_price_tama BIGINT NOT NULL,
-    sale_price_sol DECIMAL(12, 9),
-    platform_fee_tama BIGINT NOT NULL,  -- 5% of sale price
-    seller_received_tama BIGINT NOT NULL,  -- 95% of sale price
+    sale_price_tama BIGINT,  -- Price in TAMA (if paid with TAMA)
+    sale_price_sol DECIMAL(12, 9),  -- Price in SOL (if paid with SOL)
+    platform_fee_tama BIGINT,  -- 5% of sale price in TAMA
+    platform_fee_sol DECIMAL(12, 9),  -- 5% of sale price in SOL
+    seller_received_tama BIGINT,  -- 95% of sale price in TAMA
+    seller_received_sol DECIMAL(12, 9),  -- 95% of sale price in SOL
+    CHECK (
+        (sale_price_tama IS NOT NULL AND platform_fee_tama IS NOT NULL AND seller_received_tama IS NOT NULL) OR
+        (sale_price_sol IS NOT NULL AND platform_fee_sol IS NOT NULL AND seller_received_sol IS NOT NULL)
+    )  -- At least one payment method must be set
     
     -- Transaction
     transaction_signature TEXT UNIQUE,  -- Solana transaction signature

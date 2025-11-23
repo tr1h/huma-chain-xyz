@@ -501,14 +501,27 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Payment Type:</label>
+                    <select class="form-input" id="sell-payment-type" onchange="updateSellForm()">
+                        <option value="tama">💰 TAMA</option>
+                        <option value="sol">💎 SOL</option>
+                        <option value="both">💰 TAMA or 💎 SOL</option>
+                    </select>
+                </div>
+                <div class="form-group" id="sell-price-tama-group">
                     <label class="form-label">Price (TAMA):</label>
-                    <input type="number" class="form-input" id="sell-price" placeholder="e.g. 10000" min="1000">
+                    <input type="number" class="form-input" id="sell-price-tama" placeholder="e.g. 10000" min="1000">
                     <small style="color: rgba(255,255,255,0.5);">Minimum: 1,000 TAMA</small>
+                </div>
+                <div class="form-group" id="sell-price-sol-group" style="display: none;">
+                    <label class="form-label">Price (SOL):</label>
+                    <input type="number" class="form-input" id="sell-price-sol" placeholder="e.g. 0.1" step="0.001" min="0.001">
+                    <small style="color: rgba(255,255,255,0.5);">Minimum: 0.001 SOL</small>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Platform Fee: 5%</label>
                     <div style="color: rgba(255,255,255,0.7); font-size: 14px;">
-                        You will receive: <span id="sell-receive">0</span> TAMA
+                        You will receive: <span id="sell-receive">0</span> <span id="sell-receive-currency">TAMA</span>
                     </div>
                 </div>
                 <button class="btn btn-sell" onclick="listNFT()" style="width: 100%; margin-top: 20px;">
@@ -592,7 +605,8 @@
             document.getElementById('filter-sort').addEventListener('change', loadNFTs);
             
             // Price input for sell modal
-            document.getElementById('sell-price').addEventListener('input', updateSellReceive);
+            document.getElementById('sell-price-tama')?.addEventListener('input', updateSellReceive);
+            document.getElementById('sell-price-sol')?.addEventListener('input', updateSellReceive);
             
             await loadStats();
             await loadNFTs();
@@ -777,31 +791,88 @@
             document.getElementById('sell-modal').classList.remove('active');
         }
         
+        function updateSellForm() {
+            const paymentType = document.getElementById('sell-payment-type').value;
+            const tamaGroup = document.getElementById('sell-price-tama-group');
+            const solGroup = document.getElementById('sell-price-sol-group');
+            const receiveCurrency = document.getElementById('sell-receive-currency');
+            
+            if (paymentType === 'tama') {
+                tamaGroup.style.display = 'block';
+                solGroup.style.display = 'none';
+                receiveCurrency.textContent = 'TAMA';
+            } else if (paymentType === 'sol') {
+                tamaGroup.style.display = 'none';
+                solGroup.style.display = 'block';
+                receiveCurrency.textContent = 'SOL';
+            } else { // both
+                tamaGroup.style.display = 'block';
+                solGroup.style.display = 'block';
+                receiveCurrency.textContent = 'TAMA or SOL';
+            }
+            updateSellReceive();
+        }
+        
         function updateSellReceive() {
-            const price = parseFloat(document.getElementById('sell-price').value) || 0;
-            const receive = Math.floor(price * 0.95); // 5% fee
+            const paymentType = document.getElementById('sell-payment-type').value;
+            let receive = 0;
+            
+            if (paymentType === 'tama' || paymentType === 'both') {
+                const priceTama = parseFloat(document.getElementById('sell-price-tama')?.value) || 0;
+                receive = Math.floor(priceTama * 0.95);
+            } else if (paymentType === 'sol') {
+                const priceSol = parseFloat(document.getElementById('sell-price-sol')?.value) || 0;
+                receive = (priceSol * 0.95).toFixed(6);
+            }
+            
             document.getElementById('sell-receive').textContent = formatNumber(receive);
         }
         
         // List NFT for sale
         async function listNFT() {
             const nftId = document.getElementById('sell-nft-select').value;
-            const price = parseFloat(document.getElementById('sell-price').value);
+            const paymentType = document.getElementById('sell-payment-type').value;
+            const priceTama = paymentType === 'sol' ? null : parseFloat(document.getElementById('sell-price-tama')?.value);
+            const priceSol = paymentType === 'tama' ? null : parseFloat(document.getElementById('sell-price-sol')?.value);
             
-            if (!nftId || !price || price < 1000) {
-                alert('Please select NFT and enter valid price (min 1,000 TAMA)');
+            if (!nftId) {
+                alert('Please select an NFT');
+                return;
+            }
+            
+            if (paymentType === 'tama' && (!priceTama || priceTama < 1000)) {
+                alert('Please enter a price (minimum 1,000 TAMA)');
+                return;
+            }
+            
+            if (paymentType === 'sol' && (!priceSol || priceSol < 0.001)) {
+                alert('Please enter a price (minimum 0.001 SOL)');
+                return;
+            }
+            
+            if (paymentType === 'both' && (!priceTama || priceTama < 1000) && (!priceSol || priceSol < 0.001)) {
+                alert('Please enter at least one price (TAMA: min 1,000, SOL: min 0.001)');
                 return;
             }
             
             try {
+                const body = {
+                    telegram_id: userTelegramId,
+                    nft_id: parseInt(nftId),
+                    payment_type: paymentType
+                };
+                
+                if (priceTama) {
+                    body.price = Math.floor(priceTama);
+                }
+                if (priceSol) {
+                    body.price_sol = priceSol;
+                }
+                
                 const response = await fetch(`${API_BASE}/marketplace/list`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegram_id: userTelegramId,
-                        nft_id: nftId,
-                        price: price
-                    })
+                    body: JSON.stringify(body)
                 });
                 
                 if (response.ok) {
