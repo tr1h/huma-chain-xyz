@@ -3940,6 +3940,33 @@
                     `;
                     listEl.appendChild(mintItem);
                 });
+                
+                // Fill empty grid slots to prevent layout gaps
+                // Calculate how many items fit per row based on container width
+                const containerWidth = listEl.offsetWidth || 1200; // Fallback width
+                const itemMinWidth = 280; // minmax(280px, 1fr)
+                const gap = 15;
+                const itemsPerRow = Math.max(1, Math.floor((containerWidth + gap) / (itemMinWidth + gap)));
+                
+                if (itemsPerRow > 0 && recentNFTs.length > 0) {
+                    const totalItems = recentNFTs.length;
+                    const rows = Math.ceil(totalItems / itemsPerRow);
+                    const totalSlots = rows * itemsPerRow;
+                    const emptySlots = totalSlots - totalItems;
+                    
+                    // Add invisible placeholder items to fill empty slots in last row
+                    for (let i = 0; i < emptySlots && i < itemsPerRow - 1; i++) {
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'mint-item';
+                        placeholder.style.visibility = 'hidden';
+                        placeholder.style.height = '0';
+                        placeholder.style.padding = '0';
+                        placeholder.style.margin = '0';
+                        placeholder.style.border = 'none';
+                        placeholder.style.minHeight = '0';
+                        listEl.appendChild(placeholder);
+                    }
+                }
 
                 console.log('✅ Recent mints loaded:', recentNFTs.length);
             } catch (error) {
