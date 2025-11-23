@@ -8,6 +8,10 @@
     <meta property="og:description" content="Buy and sell NFT pets on the marketplace!">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://unpkg.com/@solana/wallet-adapter-base@latest/lib/index.iife.min.js"></script>
+    <script src="https://unpkg.com/@solana/wallet-adapter-wallets@latest/lib/index.iife.min.js"></script>
+    <script src="https://unpkg.com/@solana/wallet-adapter-phantom@latest/lib/index.iife.min.js"></script>
     
     <style>
         * {
@@ -36,6 +40,99 @@
             background: rgba(255,255,255,0.05);
             border-radius: 20px;
             border: 2px solid rgba(138, 201, 38, 0.3);
+            position: relative;
+        }
+        
+        .auth-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .auth-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .wallet-connected {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .wallet-address {
+            font-family: monospace;
+            font-size: 11px;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .not-authenticated {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+        
+        .not-authenticated h2 {
+            color: #8AC926;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .not-authenticated p {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .auth-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .auth-option {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .auth-option h3 {
+            color: #8AC926;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .auth-option p {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            margin-bottom: 15px;
         }
         
         h1 {
@@ -587,8 +684,22 @@
         
         // Initialize
         async function init() {
-            userTelegramId = getTelegramUserId();
+            // Initialize auth first
+            await initAuth();
             
+            // Wait a bit for auth to complete
+            setTimeout(() => {
+                userTelegramId = getTelegramUserId();
+                
+                // Only initialize if authenticated
+                if (isAuthenticated || userTelegramId) {
+                    initMarketplace();
+                }
+            }, 500);
+        }
+        
+        // Initialize marketplace features
+        function initMarketplace() {
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -608,8 +719,8 @@
             document.getElementById('sell-price-tama')?.addEventListener('input', updateSellReceive);
             document.getElementById('sell-price-sol')?.addEventListener('input', updateSellReceive);
             
-            await loadStats();
-            await loadNFTs();
+            loadStats();
+            loadNFTs();
         }
         
         // Load marketplace stats
@@ -745,8 +856,8 @@
         
         // Open sell modal
         async function openSellModal() {
-            if (!userTelegramId) {
-                alert('Please login first');
+            if (!isAuthenticated && !userTelegramId) {
+                alert('Please connect wallet or login via Telegram first');
                 return;
             }
             
@@ -951,7 +1062,29 @@
         
         // Buy NFT
         async function buyNFT() {
-            if (!selectedNFT || !userTelegramId) return;
+            if (!selectedNFT) {
+                alert('Please select an NFT');
+                return;
+            }
+            
+            if (!isAuthenticated && !userTelegramId && !walletAddress) {
+                alert('Please connect wallet or login via Telegram first');
+                return;
+            }
+            
+            // For SOL payments, need wallet
+            if (selectedNFT.payment_type === 'sol' && !walletAddress) {
+                alert('Please connect Phantom wallet to buy with SOL');
+                await connectPhantomWallet();
+                return;
+            }
+            
+            // For TAMA payments, need Telegram ID
+            if (selectedNFT.payment_type === 'tama' && !userTelegramId) {
+                alert('Please login via Telegram to buy with TAMA');
+                await loginViaTelegram();
+                return;
+            }
             
             if (!confirm(`Buy ${selectedNFT.tier_name} NFT for ${formatNumber(selectedNFT.price)} TAMA?`)) {
                 return;

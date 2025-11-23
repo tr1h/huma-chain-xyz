@@ -28,15 +28,10 @@ CREATE TABLE IF NOT EXISTS marketplace_listings (
     -- Listing details
     price_tama BIGINT,  -- Price in TAMA (optional if price_sol is set)
     price_sol DECIMAL(12, 9),  -- Price in SOL (optional if price_tama is set)
-    payment_type TEXT NOT NULL DEFAULT 'tama' CHECK (payment_type IN ('tama', 'sol', 'both')),  -- Payment method
-    CHECK (
-        (price_tama IS NOT NULL AND price_tama >= 1000) OR 
-        (price_sol IS NOT NULL AND price_sol > 0) OR
-        (price_tama IS NOT NULL AND price_sol IS NOT NULL)
-    )  -- At least one price must be set
+    payment_type TEXT NOT NULL DEFAULT 'tama',  -- Payment method: 'tama', 'sol', 'both'
     
     -- Status
-    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'sold', 'cancelled', 'expired')),
+    status TEXT NOT NULL DEFAULT 'active',
     
     -- Timestamps
     listed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -50,7 +45,16 @@ CREATE TABLE IF NOT EXISTS marketplace_listings (
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    -- Constraints
+    CONSTRAINT payment_type_check CHECK (payment_type IN ('tama', 'sol', 'both')),
+    CONSTRAINT status_check CHECK (status IN ('active', 'sold', 'cancelled', 'expired')),
+    CONSTRAINT price_check CHECK (
+        (price_tama IS NOT NULL AND price_tama >= 1000) OR 
+        (price_sol IS NOT NULL AND price_sol > 0) OR
+        (price_tama IS NOT NULL AND price_sol IS NOT NULL)
+    )  -- At least one price must be set
 );
 
 -- Indexes for fast queries
