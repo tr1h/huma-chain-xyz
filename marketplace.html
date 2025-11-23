@@ -1179,6 +1179,24 @@
         
         // List NFT for sale
         async function listNFT() {
+            // Update userTelegramId before sending
+            userTelegramId = getTelegramUserId();
+            
+            // If no telegram_id, try to find it via wallet address
+            if (!userTelegramId && walletAddress) {
+                console.log('No telegram_id found, searching via wallet address...');
+                const { data: leaderboardData } = await supabase
+                    .from('leaderboard')
+                    .select('telegram_id')
+                    .eq('wallet_address', walletAddress)
+                    .maybeSingle();
+                
+                if (leaderboardData && leaderboardData.telegram_id) {
+                    userTelegramId = leaderboardData.telegram_id.toString();
+                    console.log('Found telegram_id via wallet:', userTelegramId);
+                }
+            }
+            
             const nftId = document.getElementById('sell-nft-select').value;
             const paymentType = document.getElementById('sell-payment-type').value;
             const priceTama = paymentType === 'sol' ? null : parseFloat(document.getElementById('sell-price-tama')?.value);
@@ -1186,6 +1204,11 @@
             
             if (!nftId) {
                 alert('Please select an NFT');
+                return;
+            }
+            
+            if (!userTelegramId) {
+                alert('Telegram ID not found. Please login via Telegram or link your wallet to a Telegram account.');
                 return;
             }
             
@@ -1218,6 +1241,8 @@
                     body.price_sol = priceSol;
                 }
                 
+                console.log('Sending listing request:', body);
+                
                 const response = await fetch(`${API_BASE}/marketplace/list`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1225,15 +1250,18 @@
                 });
                 
                 if (response.ok) {
+                    const result = await response.json();
                     alert('✅ NFT listed successfully!');
                     closeSellModal();
                     loadNFTs();
                     loadStats();
                 } else {
                     const error = await response.json();
+                    console.error('Listing error:', error);
                     alert('Failed to list NFT: ' + (error.error || 'Unknown error'));
                 }
             } catch (error) {
+                console.error('Listing exception:', error);
                 alert('Failed to list NFT: ' + error.message);
             }
         }
