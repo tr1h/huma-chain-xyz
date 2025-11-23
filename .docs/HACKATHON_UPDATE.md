@@ -43,7 +43,7 @@ We're excited to announce a major milestone for our hackathon project!
 • Active community engagement
 
 📊 Project Stats:
-• 1000+ active players
+• Active players (count loaded dynamically from database)
 • 5 NFT tiers implemented
 • Multi-level referral system
 • Daily reward mechanisms

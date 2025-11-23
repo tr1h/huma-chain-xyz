@@ -780,7 +780,7 @@
                     <div class="stat-content">
                         <div class="stat-number" id="landing-total-players">0</div>
                         <div class="stat-label">Total Players</div>
-                        <div class="stat-subtitle">Growing community</div>
+                        <div class="stat-subtitle" id="player-count-subtitle">Loading...</div>
                         <canvas id="chart-players" class="stat-chart"></canvas>
                     </div>
                     <div class="stat-pulse"></div>
@@ -1900,6 +1900,16 @@
                     'number'
                 );
                 
+                // Update subtitle with actual count
+                const subtitleEl = document.getElementById('player-count-subtitle');
+                if (subtitleEl) {
+                    if (totalPlayers > 0) {
+                        subtitleEl.textContent = `${totalPlayers}+ active players`;
+                    } else {
+                        subtitleEl.textContent = 'Growing community';
+                    }
+                }
+                
                 animateStatNumber(
                     document.getElementById('landing-nfts-minted'),
                     getCurrentValue('landing-nfts-minted'),
@@ -1933,6 +1943,9 @@
                     tama: totalTAMA,
                     wallets: uniqueWallets
                 });
+                
+                // Update page title and meta description with actual player count (for dynamic content)
+                updatePageStats(totalPlayers, nftsMinted);
                 
             } catch (error) {
                 console.error('❌ Error loading LIVE STATS:', error);
