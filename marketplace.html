@@ -717,9 +717,38 @@
         
         // Initialize Authentication
         async function initAuth() {
+            // Check localStorage for saved auth session
+            const savedSession = localStorage.getItem('gotchi_auth_session');
+            if (savedSession) {
+                try {
+                    const session = JSON.parse(savedSession);
+                    if (session.telegramId) {
+                        userTelegramId = session.telegramId.toString();
+                        isAuthenticated = true;
+                        console.log('Restored session from localStorage:', userTelegramId);
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse saved session:', e);
+                }
+            }
+            
+            // Check URL parameters for telegram_id
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlTelegramId = urlParams.get('user_id') || urlParams.get('tg_id');
+            if (urlTelegramId) {
+                userTelegramId = urlTelegramId.toString();
+                isAuthenticated = true;
+                console.log('Found telegram_id in URL:', userTelegramId);
+            }
+            
             // Wait for auth system to be ready
             if (window.GotchiAuth) {
                 await window.GotchiAuth.initAuth();
+                // Update from GotchiAuth if available
+                if (window.GotchiAuth.isAuthenticated) {
+                    userTelegramId = window.GotchiAuth.telegramId || userTelegramId;
+                    isAuthenticated = true;
+                }
                 updateAuthStatus();
             } else {
                 // Wait for auth to load
@@ -727,6 +756,10 @@
                     if (window.GotchiAuth) {
                         clearInterval(checkAuth);
                         window.GotchiAuth.initAuth().then(() => {
+                            if (window.GotchiAuth.isAuthenticated) {
+                                userTelegramId = window.GotchiAuth.telegramId || userTelegramId;
+                                isAuthenticated = true;
+                            }
                             updateAuthStatus();
                         });
                     }
@@ -744,9 +777,13 @@
                 phantomWallet = window.solana;
                 if (phantomWallet.isConnected) {
                     walletAddress = phantomWallet.publicKey.toString();
+                    isAuthenticated = true;
                     updateAuthStatus();
                 }
             }
+            
+            // Update auth status immediately
+            updateAuthStatus();
         }
         
         // Update authentication status UI
