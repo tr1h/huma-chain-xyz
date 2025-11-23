@@ -699,9 +699,162 @@
         let currentFilters = {};
         let selectedNFT = null;
         let userTelegramId = null;
+        let walletAddress = null;
+        let isAuthenticated = false;
+        let phantomWallet = null;
+        
+        // Solana Connection
+        const SOLANA_NETWORK = 'devnet';
+        let connection = null;
+        if (typeof solanaWeb3 !== 'undefined') {
+            connection = new solanaWeb3.Connection(
+                SOLANA_NETWORK === 'mainnet' 
+                    ? 'https://api.mainnet-beta.solana.com'
+                    : 'https://api.devnet.solana.com',
+                'confirmed'
+            );
+        }
+        
+        // Initialize Authentication
+        async function initAuth() {
+            // Wait for auth system to be ready
+            if (window.GotchiAuth) {
+                await window.GotchiAuth.initAuth();
+                updateAuthStatus();
+            } else {
+                // Wait for auth to load
+                const checkAuth = setInterval(() => {
+                    if (window.GotchiAuth) {
+                        clearInterval(checkAuth);
+                        window.GotchiAuth.initAuth().then(() => {
+                            updateAuthStatus();
+                        });
+                    }
+                }, 100);
+                
+                // Timeout after 5 seconds
+                setTimeout(() => {
+                    clearInterval(checkAuth);
+                    updateAuthStatus();
+                }, 5000);
+            }
+            
+            // Check for Phantom wallet
+            if (window.solana && window.solana.isPhantom) {
+                phantomWallet = window.solana;
+                if (phantomWallet.isConnected) {
+                    walletAddress = phantomWallet.publicKey.toString();
+                    updateAuthStatus();
+                }
+            }
+        }
+        
+        // Update authentication status UI
+        function updateAuthStatus() {
+            const authSection = document.getElementById('auth-section');
+            const notAuthScreen = document.getElementById('not-authenticated');
+            const authContent = document.getElementById('authenticated-content');
+            
+            if (!authSection || !notAuthScreen || !authContent) {
+                return; // Elements not loaded yet
+            }
+            
+            // Check Telegram auth
+            if (window.GotchiAuth && window.GotchiAuth.isAuthenticated) {
+                userTelegramId = window.GotchiAuth.telegramId;
+                isAuthenticated = true;
+            } else if (window.GotchiAuth) {
+                userTelegramId = window.GotchiAuth.getTelegramUserId() || null;
+            }
+            
+            // Check wallet connection
+            if (phantomWallet && phantomWallet.isConnected) {
+                walletAddress = phantomWallet.publicKey.toString();
+                isAuthenticated = true;
+            }
+            
+            if (isAuthenticated || userTelegramId) {
+                isAuthenticated = true;
+                notAuthScreen.style.display = 'none';
+                authContent.style.display = 'block';
+                
+                // Update auth section
+                let authHtml = '';
+                if (userTelegramId) {
+                    authHtml += `<span style="color: #8AC926; margin-right: 10px;">✅ Telegram: ${userTelegramId}</span>`;
+                }
+                if (walletAddress) {
+                    authHtml += `<div class="wallet-connected">
+                        <span>💎</span>
+                        <span class="wallet-address">${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}</span>
+                        <button class="auth-btn" onclick="disconnectWallet()" style="padding: 5px 10px; font-size: 11px; margin-left: 5px;">Disconnect</button>
+                    </div>`;
+                } else {
+                    authHtml += `<button class="auth-btn" onclick="connectPhantomWallet()">Connect Wallet</button>`;
+                }
+                authSection.innerHTML = authHtml;
+            } else {
+                notAuthScreen.style.display = 'block';
+                authContent.style.display = 'none';
+                authSection.innerHTML = '<div style="color: rgba(255,255,255,0.5);">Not connected</div>';
+            }
+        }
+        
+        // Connect Phantom Wallet
+        async function connectPhantomWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('Phantom wallet not found! Please install Phantom: https://phantom.app');
+                    window.open('https://phantom.app', '_blank');
+                    return;
+                }
+                
+                const response = await window.solana.connect();
+                walletAddress = response.publicKey.toString();
+                phantomWallet = window.solana;
+                
+                // Link wallet to Telegram account if available
+                if (userTelegramId && window.GotchiAuth) {
+                    await window.GotchiAuth.linkWalletToTelegramAccount(walletAddress);
+                }
+                
+                updateAuthStatus();
+                console.log('✅ Wallet connected:', walletAddress);
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet: ' + error.message);
+            }
+        }
+        
+        // Disconnect Wallet
+        async function disconnectWallet() {
+            try {
+                if (phantomWallet) {
+                    await phantomWallet.disconnect();
+                    walletAddress = null;
+                    phantomWallet = null;
+                    updateAuthStatus();
+                }
+            } catch (error) {
+                console.error('Failed to disconnect wallet:', error);
+            }
+        }
+        
+        // Login via Telegram
+        async function loginViaTelegram() {
+            if (window.GotchiAuth) {
+                await window.GotchiAuth.authViaTelegramWidget();
+                updateAuthStatus();
+            } else {
+                alert('Telegram auth not available. Please open from Telegram bot.');
+            }
+        }
         
         // Get Telegram user ID from URL or localStorage
         function getTelegramUserId() {
+            if (window.GotchiAuth && window.GotchiAuth.isAuthenticated) {
+                return window.GotchiAuth.telegramId;
+            }
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id') || localStorage.getItem('telegram_user_id');
             return userId;
