@@ -9,7 +9,7 @@
 
 **Play-to-Earn Tamagotchi game on Telegram with Solana blockchain integration**
 
-> 🔄 **Latest Update (Nov 2025):** Enhanced Withdrawal UI • Saved Wallets • Confirmation Modal • Progress Indicators • 3-Tier NFT System • On-Chain Revenue Distribution
+> 🔄 **Latest Update (Nov 2025):** Unified Auth System • Profile Management • Admin Auth Panel • Contact & Support • Enhanced Withdrawal UI • 3-Tier NFT System
 
 [🎮 Play Now](https://t.me/GotchiGameBot) • [📖 Documentation](#-documentation) • [🚀 Deploy](#-deployment)
 
@@ -44,6 +44,13 @@
 - **Referral System:** Earn 1000 TAMA per friend invited
 - **Global Leaderboard:** Compete with players worldwide
 - **Share Progress:** Post achievements on Telegram
+
+### 🔐 **Unified Authentication System**
+- **Telegram WebApp:** Auto-login from bot
+- **Telegram Widget:** Direct website login
+- **Phantom Wallet:** Connect and link accounts
+- **Profile Management:** Sync data across platforms
+- **Account Linking:** Link Telegram, Wallet, and Twitter
 
 ---
 
@@ -298,7 +305,10 @@ SUPABASE_KEY=your_supabase_anon_key
 3. **Live URLs:**
    - 🎮 **Game:** https://solanatamagotchi.com/tamagotchi-game.html
    - 🎨 **Mint NFT:** https://solanatamagotchi.com/mint.html
+   - 🖼️ **My NFTs:** https://solanatamagotchi.com/my-nfts.html
+   - 👤 **Profile:** https://solanatamagotchi.com/profile.html
    - 📊 **Tokenomics Dashboard:** https://solanatamagotchi.com/admin-tokenomics.html
+   - 🔐 **Auth Admin:** https://solanatamagotchi.com/admin-auth.html
    - 🏆 **Super Admin:** https://solanatamagotchi.com/super-admin.html
    - 🔗 **Referral:** https://solanatamagotchi.com/referral.html
    - 🏠 **Landing:** https://solanatamagotchi.com/
@@ -460,6 +470,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ PHP API (REST API, withdrawal, admin functions)
 - ✅ Webhook mode for bot (instant responses)
 - ✅ Keep-Alive system (prevents sleeping)
+- ✅ Unified Authentication System (Telegram, Wallet, Twitter)
+- ✅ Profile Management Page
+- ✅ Admin Auth Panel (users, wallets, sessions, analytics)
+- ✅ Contact & Support Section
 
 ### **🚀 Current Status:**
 - **Devnet:** ✅ Fully operational
@@ -482,16 +496,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Contact
+## 📞 Contact & Support
 
-- **Telegram:** [@gotchi_ceo](https://t.me/gotchi_ceo)
-- **Bot:** [@GotchiGameBot](https://t.me/GotchiGameBot)
-- **GitHub:** [tr1h](https://github.com/tr1h)
-- **Twitter:** [@GotchiGame](https://x.com/GotchiGame)
+- **📧 Email:** gotchigame@proton.me
+- **📱 Telegram Bot:** [@GotchiGameBot](https://t.me/GotchiGameBot)
+- **🐦 Twitter/X:** [@GotchiGame](https://x.com/GotchiGame)
+- **🌐 Website:** https://solanatamagotchi.com
+- **💬 Support:** Contact us via Telegram bot or email
 
 ---
 
 ## 🆕 Latest Updates (November 2025)
+
+### **🔐 Unified Authentication System (Nov 2025)**
+- ✅ **Multi-Platform Auth:** Telegram WebApp, Telegram Widget, Phantom Wallet
+- ✅ **Profile Management:** Centralized profile page with account linking
+- ✅ **Account Synchronization:** Sync data across game, website, and bot
+- ✅ **Twitter Integration:** Link Twitter username to profile
+- ✅ **Admin Auth Panel:** Complete user, wallet, and session management
+- ✅ **Analytics Module:** Track user actions and platform statistics
 
 ### **💸 Enhanced Withdrawal System (Nov 20, 2025)**
 - ✅ **Saved Wallets:** Save and manage multiple wallet addresses
