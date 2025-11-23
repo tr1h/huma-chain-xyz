@@ -16,6 +16,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- Unified Auth System -->
+    <script src="js/auth.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -402,18 +405,37 @@
     </div>
     
     <script>
-        // Supabase config
-        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // Telegram Bot Username for Login Widget
-        const TELEGRAM_BOT_USERNAME = 'GotchiGameBot';
-        
-        // State
+        // Use unified auth system
         let currentTelegramId = null;
         let currentWallet = null;
         let userProfile = null;
+        
+        // Wait for auth to initialize
+        window.addEventListener('gotchiAuthReady', async (e) => {
+            const authResult = e.detail;
+            if (authResult.success) {
+                const authState = window.GotchiAuth.getState();
+                currentTelegramId = authState.telegramId;
+                currentWallet = authState.walletAddress;
+                userProfile = authState.userProfile;
+                
+                if (currentTelegramId) {
+                    await loadProfile(currentTelegramId);
+                } else if (currentWallet) {
+                    await loadProfileByWallet(currentWallet);
+                } else {
+                    // Show login options
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('profile-content').style.display = 'block';
+                    setupTelegramLoginWidget();
+                }
+            } else {
+                // Not authenticated - show login options
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('profile-content').style.display = 'block';
+                setupTelegramLoginWidget();
+            }
+        });
         
         // Initialize
         async function init() {
@@ -487,16 +509,18 @@
         
         async function handleTelegramAuth(authData) {
             try {
-                // Verify auth data with backend (optional - for security)
-                // For now, we'll trust the widget data
+                // Use unified auth system
+                const result = await window.GotchiAuth.authViaTelegramWidget(authData);
                 
-                currentTelegramId = authData.id.toString();
-                localStorage.setItem('telegram_id', currentTelegramId);
-                localStorage.setItem('telegram_username', authData.username || '');
-                localStorage.setItem('telegram_first_name', authData.first_name || '');
-                
-                await loadProfile(currentTelegramId);
-                showMessage('✅ Telegram account connected!', 'success');
+                if (result.success) {
+                    currentTelegramId = result.user.id.toString();
+                    userProfile = result.profile;
+                    
+                    await loadProfile(currentTelegramId);
+                    showMessage('✅ Telegram account connected!', 'success');
+                } else {
+                    throw new Error(result.error);
+                }
             } catch (error) {
                 console.error('Error handling Telegram auth:', error);
                 showMessage('❌ Failed to connect Telegram account', 'error');
@@ -509,19 +533,12 @@
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('profile-content').style.display = 'none';
                 
-                const { data: userData, error } = await supabase
-                    .from('leaderboard')
-                    .select('*')
-                    .eq('telegram_id', telegramId)
-                    .single();
+                // Use unified auth system to load profile
+                const profile = await window.GotchiAuth.loadUserProfile(telegramId);
                 
-                if (error && error.code !== 'PGRST116') {
-                    throw error;
-                }
-                
-                userProfile = userData || {
+                userProfile = profile || {
                     telegram_id: telegramId,
-                    telegram_username: localStorage.getItem('telegram_username') || '',
+                    telegram_username: window.GotchiAuth.getState().telegramUsername || '',
                     tama: 0,
                     wallet_address: null,
                     twitter_username: null
@@ -646,11 +663,15 @@
         // Unlink Twitter
         async function unlinkTwitter() {
             try {
-                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
+                const telegramId = currentTelegramId || window.GotchiAuth.getTelegramId();
                 if (!telegramId) {
                     showMessage('❌ Please connect Telegram first', 'error');
                     return;
                 }
+                
+                const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 
                 const { error } = await supabase
                     .from('leaderboard')
@@ -675,22 +696,25 @@
         // Connect Wallet
         async function connectWallet() {
             try {
-                if (!window.solana || !window.solana.isPhantom) {
-                    alert('Please install Phantom Wallet!\n\nVisit: https://phantom.app');
-                    window.open('https://phantom.app', '_blank');
-                    return;
+                // Use unified auth system
+                const result = await window.GotchiAuth.authViaWallet();
+                
+                if (!result.success) {
+                    throw new Error(result.error);
                 }
                 
-                const resp = await window.solana.connect();
-                const walletAddress = resp.publicKey.toString();
-                currentWallet = walletAddress;
+                currentWallet = result.walletAddress;
                 
-                // Update database
-                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
+                // Update database if Telegram is linked
+                const telegramId = currentTelegramId || window.GotchiAuth.getTelegramId();
                 if (telegramId) {
+                    const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+                    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+                    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    
                     const { error } = await supabase
                         .from('leaderboard')
-                        .update({ wallet_address: walletAddress })
+                        .update({ wallet_address: currentWallet })
                         .eq('telegram_id', telegramId);
                     
                     if (error) throw error;
@@ -712,8 +736,12 @@
         // Disconnect Wallet
         async function disconnectWallet() {
             try {
-                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
+                const telegramId = currentTelegramId || window.GotchiAuth.getTelegramId();
                 if (telegramId) {
+                    const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+                    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+                    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    
                     const { error } = await supabase
                         .from('leaderboard')
                         .update({ wallet_address: null })
@@ -739,16 +767,22 @@
         // Sync Data
         async function syncData() {
             try {
-                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
-                if (!telegramId) {
+                if (!window.GotchiAuth || !window.GotchiAuth.isAuthenticated()) {
                     showMessage('❌ Please connect Telegram first', 'error');
                     return;
                 }
                 
                 showMessage('🔄 Syncing data...', 'success');
                 
-                // Reload profile to get latest data
-                await loadProfile(telegramId);
+                // Use unified auth system to sync
+                const profile = await window.GotchiAuth.syncProfile();
+                
+                if (profile) {
+                    userProfile = profile;
+                    currentTelegramId = profile.telegram_id;
+                    currentWallet = profile.wallet_address;
+                    await loadProfile(currentTelegramId);
+                }
                 
                 showMessage('✅ Data synchronized!', 'success');
             } catch (error) {

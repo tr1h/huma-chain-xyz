@@ -1852,6 +1852,11 @@
     <!-- Metaplex Minter Module -->
     <script src="js/metaplex-mint.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Unified Auth System -->
+    <script src="js/auth.js"></script>
+    <script src="js/profile-widget.js"></script>
+    
     <script>
         // ==============================================
         // CONFIG
@@ -1867,7 +1872,47 @@
 
         // Load SOL/USD rate from cache or use default
         let SOL_USD_RATE = parseFloat(localStorage.getItem('sol_usd_rate')) || 164.07;
-        const TELEGRAM_USER_ID = getTelegramUserId();
+        
+        // Use unified auth system
+        let TELEGRAM_USER_ID = null;
+        
+        // Wait for auth to initialize
+        window.addEventListener('gotchiAuthReady', (e) => {
+            if (window.GotchiAuth && window.GotchiAuth.isAuthenticated()) {
+                TELEGRAM_USER_ID = window.GotchiAuth.getTelegramId();
+                console.log('✅ Auth ready, Telegram ID:', TELEGRAM_USER_ID);
+                // Update TAMA balance if authenticated
+                if (TELEGRAM_USER_ID) {
+                    loadTAMABalance();
+                }
+            }
+        });
+        
+        // Fallback to old method if auth not ready
+        function getTelegramUserId() {
+            if (window.GotchiAuth && window.GotchiAuth.isAuthenticated()) {
+                return window.GotchiAuth.getTelegramId();
+            }
+            
+            // Try to get from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('user_id')) {
+                return parseInt(urlParams.get('user_id'));
+            }
+            
+            // Try Telegram WebApp API
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) {
+                    return user.id;
+                }
+            }
+            
+            return null;
+        }
+        
+        // Initialize
+        TELEGRAM_USER_ID = getTelegramUserId();
 
         // Treasury Wallet Addresses (Devnet)
         const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
