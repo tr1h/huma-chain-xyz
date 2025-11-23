@@ -4031,18 +4031,48 @@ function handleMarketplaceList($url, $key) {
         $listingData = [
             'nft_id' => (int)$nftId,
             'nft_mint_address' => $nft['nft_mint_address'] ?? null,
-            'seller_telegram_id' => (string)$telegramId,
-            'price_tama' => $price ? (int)$price : null,
-            'price_sol' => $priceSol ? (float)$priceSol : null,
+            'seller_telegram_id' => (int)$telegramId,  // BIGINT requires integer, not string
             'payment_type' => $paymentType,
             'status' => 'active'
         ];
         
+        // Add prices based on payment type
+        if ($price) {
+            $listingData['price_tama'] = (int)$price;
+        }
+        if ($priceSol) {
+            $listingData['price_sol'] = (float)$priceSol;
+        }
+        
+        // Ensure at least one price is set (required by constraint)
+        if (!$listingData['price_tama'] && !$listingData['price_sol']) {
+            http_response_code(400);
+            echo json_encode(['error' => 'At least one price (price or price_sol) must be set']);
+            return;
+        }
+        
+        // Log for debugging
+        error_log('Creating marketplace listing: ' . json_encode($listingData));
+        
         $createResult = supabaseRequest($url, $key, 'POST', 'marketplace_listings', [], $listingData);
+        
+        error_log('Listing creation result: code=' . $createResult['code'] . ', data=' . json_encode($createResult['data']));
         
         if ($createResult['code'] < 200 || $createResult['code'] >= 300) {
             http_response_code($createResult['code']);
-            echo json_encode(['error' => 'Failed to create listing', 'details' => $createResult['data']]);
+            $errorMessage = 'Failed to create listing';
+            if (isset($createResult['data']['message'])) {
+                $errorMessage .= ': ' . $createResult['data']['message'];
+            } elseif (isset($createResult['data']['error'])) {
+                $errorMessage .= ': ' . $createResult['data']['error'];
+            } elseif (is_string($createResult['data'])) {
+                $errorMessage .= ': ' . $createResult['data'];
+            }
+            echo json_encode([
+                'error' => $errorMessage,
+                'details' => $createResult['data'],
+                'listing_data' => $listingData
+            ]);
             return;
         }
         

@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS marketplace_listings (
         (price_tama IS NOT NULL AND price_tama >= 1000) OR 
         (price_sol IS NOT NULL AND price_sol > 0) OR
         (price_tama IS NOT NULL AND price_sol IS NOT NULL)
-    )  -- At least one price must be set
+    )  -- At least one price must be set, TAMA min 1000, SOL min 0.001
 );
 
 -- Indexes for fast queries
