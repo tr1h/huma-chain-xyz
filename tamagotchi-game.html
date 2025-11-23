@@ -11405,6 +11405,9 @@
 
                 // 🔗 NEW: Auto-link wallet to Telegram account
                 await linkWalletToTelegramAccount(walletAddress);
+                
+                // 🔄 Sync account data (balance, NFTs, etc.)
+                await syncAccountData();
 
                 document.getElementById('wallet-connect-section').style.display = 'none';
                 document.getElementById('nft-collection').style.display = 'block';
@@ -11552,6 +11555,250 @@
                 // Don't show error to user - non-critical feature
             }
         }
+        
+        // ==============================================
+        // ACCOUNT SYNCHRONIZATION
+        // ==============================================
+        async function syncAccountData() {
+            const telegramId = window.TELEGRAM_USER_ID;
+            const wallet = walletAddress;
+            
+            if (!telegramId || !wallet) {
+                console.log('⚠️ Cannot sync: missing telegram_id or wallet_address');
+                return;
+            }
+            
+            try {
+                console.log('🔄 Syncing account data...', { telegramId, wallet });
+                
+                // 1. Update wallet_address in leaderboard
+                await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ wallet_address: wallet })
+                });
+                
+                // 2. Sync TAMA balance from database
+                const balanceResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}&select=tama`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (balanceResponse.ok) {
+                    const balanceData = await balanceResponse.json();
+                    if (balanceData && balanceData.length > 0 && balanceData[0].tama !== undefined) {
+                        const dbBalance = balanceData[0].tama || 0;
+                        // Update gameState if database balance is higher (might have passive income)
+                        if (dbBalance > gameState.tama) {
+                            gameState.tama = dbBalance;
+                            updateTamaDisplay();
+                            console.log('✅ TAMA balance synced from database:', dbBalance);
+                        }
+                    }
+                }
+                
+                // 3. Link orphaned NFTs (already done in linkWalletToTelegramAccount)
+                await linkWalletToTelegramAccount(wallet);
+                
+                console.log('✅ Account data synced successfully');
+                
+            } catch (err) {
+                console.error('❌ Error syncing account data:', err);
+            }
+        }
+        
+        // ==============================================
+        // SOL DISTRIBUTION FUNCTION (for NFT minting)
+        // ==============================================
+        async function createAndSendDistributionTransaction(priceSOL) {
+            try {
+                const { Transaction, SystemProgram, PublicKey, Connection } = window.solanaWeb3;
+                const connection = new Connection('https://api.devnet.solana.com');
+                
+                // Create transaction with 3 transfers
+                const transaction = new Transaction();
+                
+                // Transfer 1: 50% to Treasury Main
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_MAIN),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.50)
+                    })
+                );
+                
+                // Transfer 2: 30% to Treasury Liquidity
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_LIQUIDITY),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.30)
+                    })
+                );
+                
+                // Transfer 3: 20% to Treasury Team
+                transaction.add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: new PublicKey(TREASURY_TEAM),
+                        lamports: Math.floor(priceSOL * 1e9 * 0.20)
+                    })
+                );
+                
+                // Get recent blockhash and set fee payer
+                const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+                transaction.recentBlockhash = blockhash;
+                transaction.lastValidBlockHeight = lastValidBlockHeight;
+                transaction.feePayer = new PublicKey(walletAddress);
+                
+                console.log('💰 Creating SOL distribution transaction...');
+                console.log(`  🏦 Treasury Main: ${(priceSOL * 0.50).toFixed(6)} SOL (50%)`);
+                console.log(`  💧 Treasury Liquidity: ${(priceSOL * 0.30).toFixed(6)} SOL (30%)`);
+                console.log(`  👥 Treasury Team: ${(priceSOL * 0.20).toFixed(6)} SOL (20%)`);
+                
+                // Request signature from Phantom
+                const signed = await window.solana.signAndSendTransaction(transaction);
+                
+                // Wait for confirmation
+                await connection.confirmTransaction(signed, 'confirmed');
+                
+                // Extract signature from response
+                const signature = typeof signed === 'string' ? signed : (signed.signature || signed);
+                
+                console.log('✅ SOL distribution transaction confirmed:', signature);
+                return signature;
+                
+            } catch (err) {
+                console.error('❌ Distribution transaction failed:', err);
+                throw new Error('Failed to create distribution transaction: ' + err.message);
+            }
+        }
+        
+        // ==============================================
+        // MINT NFT WITH SOL (in-game)
+        // ==============================================
+        window.mintNFTWithSOL = async function(tierName) {
+            try {
+                console.log(`💎 Minting ${tierName} NFT with SOL in-game...`);
+                
+                if (!walletConnected || !walletAddress) {
+                    showMessage('❌ Please connect wallet first!', 'error');
+                    await connectPhantomWallet();
+                    return;
+                }
+                
+                // Get current price from database
+                const priceResponse = await fetch(`${SUPABASE_URL}/rest/v1/nft_bonding_state?tier_name=eq.${tierName}&select=current_price`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!priceResponse.ok) {
+                    showMessage('❌ Failed to get NFT price. Please try again.', 'error');
+                    return;
+                }
+                
+                const priceData = await priceResponse.json();
+                if (!priceData || priceData.length === 0) {
+                    showMessage('❌ NFT tier not found. Please try again.', 'error');
+                    return;
+                }
+                
+                const price = parseFloat(priceData[0].current_price);
+                const priceUSD = (price * SOL_USD_RATE).toFixed(2);
+                
+                const boostMap = {
+                    'Bronze': 2.0,
+                    'Silver': 2.3,
+                    'Gold': 2.7,
+                    'Platinum': 3.5,
+                    'Diamond': 5.0
+                };
+                
+                // Confirm mint
+                const confirmed = confirm(
+                    `Mint ${tierName} NFT for ${price} SOL ($${priceUSD})?\n\n` +
+                    `You will get ×${boostMap[tierName]} earning boost!\n\n` +
+                    `Continue?`
+                );
+                
+                if (!confirmed) {
+                    return;
+                }
+                
+                showMessage('⏳ Creating transaction...', 'info');
+                
+                // Create and send SOL distribution transaction
+                let transactionSignature = null;
+                try {
+                    transactionSignature = await createAndSendDistributionTransaction(price);
+                    console.log('✅ Distribution transaction completed:', transactionSignature);
+                } catch (distError) {
+                    console.error('⚠️ Distribution transaction failed:', distError);
+                    showMessage('❌ Transaction failed: ' + distError.message, 'error');
+                    return;
+                }
+                
+                // Call API for minting
+                let apiUrl;
+                let requestBody;
+                
+                if (tierName === 'Bronze') {
+                    // Bronze uses different endpoint
+                    apiUrl = 'https://api.solanatamagotchi.com/api/mint-nft-bronze-sol-rest.php';
+                    requestBody = {
+                        telegram_id: window.TELEGRAM_USER_ID || null,
+                        wallet_address: walletAddress,
+                        price_sol: price,
+                        transaction_signature: transactionSignature
+                    };
+                } else {
+                    // Silver/Gold/Platinum/Diamond
+                    apiUrl = 'https://api.solanatamagotchi.com/api/mint-nft-sol-rest.php';
+                    requestBody = {
+                        telegram_id: window.TELEGRAM_USER_ID || null,
+                        wallet_address: walletAddress,
+                        tier_name: tierName,
+                        price_sol: price,
+                        transaction_signature: transactionSignature
+                    };
+                }
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(`✅ ${tierName} NFT #${result.design_number || result.nft_id || 'N/A'} minted!`, 'success');
+                    await loadNFTCollection(); // Reload collection
+                    // Sync account data
+                    await syncAccountData();
+                } else {
+                    showMessage('❌ Mint failed: ' + (result.error || 'Unknown error'), 'error');
+                }
+                
+            } catch (err) {
+                console.error(`❌ Mint ${tierName} failed:`, err);
+                showMessage('❌ Mint error: ' + err.message, 'error');
+            }
+        };
 
         async function loadWalletBalance() {
             try {
