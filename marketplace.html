@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Marketplace - Solana Tamagotchi</title>
+    <meta property="og:title" content="NFT Marketplace - Solana Tamagotchi">
+    <meta property="og:description" content="Buy and sell NFT pets on the marketplace!">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 2px solid rgba(138, 201, 38, 0.3);
+        }
+        
+        h1 {
+            color: #8AC926;
+            margin-bottom: 10px;
+            font-size: 42px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 18px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #8AC926 0%, #6aa519 100%);
+            border-color: #8AC926;
+            box-shadow: 0 4px 15px rgba(138, 201, 38, 0.4);
+        }
+        
+        .tab-btn:hover {
+            background: rgba(138, 201, 38, 0.2);
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .filter-select option {
+            background: #1a1f3a;
+            color: white;
+        }
+        
+        /* NFT Grid */
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .nft-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid rgba(138, 201, 38, 0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nft-card:hover {
+            transform: translateY(-5px);
+            border-color: #8AC926;
+            box-shadow: 0 10px 30px rgba(138, 201, 38, 0.3);
+        }
+        
+        .nft-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8AC926, #10b981, #8AC926);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .nft-card:hover::before {
+            opacity: 1;
+        }
+        
+        .nft-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(138, 201, 38, 0.3);
+        }
+        
+        .nft-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            background: rgba(239, 68, 68, 0.9);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .nft-info {
+            margin-bottom: 15px;
+        }
+        
+        .nft-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8AC926;
+            margin-bottom: 8px;
+        }
+        
+        .nft-attributes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .attribute-badge {
+            padding: 5px 10px;
+            background: rgba(138, 201, 38, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            border: 1px solid rgba(138, 201, 38, 0.3);
+        }
+        
+        .nft-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .price-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .price-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        
+        .price-tama {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .nft-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-buy {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .btn-buy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-sell {
+            background: linear-gradient(135deg, #8AC926, #6aa519);
+            color: white;
+        }
+        
+        .btn-sell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 201, 38, 0.4);
+        }
+        
+        .btn-cancel {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 2px solid #ef4444;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            color: #8AC926;
+        }
+        
+        .close-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(138, 201, 38, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #8AC926;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(138, 201, 38, 0.2);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #8AC926;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .spinner {
+            border: 4px solid rgba(138, 201, 38, 0.3);
+            border-top: 4px solid #8AC926;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 NFT Marketplace</h1>
+            <p class="subtitle">Buy and sell your NFT pets</p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-listed">0</div>
+                <div class="stat-label">NFTs Listed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-sales">0</div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="floor-price">-</div>
+                <div class="stat-label">Floor Price (TAMA)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="volume">0</div>
+                <div class="stat-label">Volume (TAMA)</div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="browse">🛒 Browse</button>
+            <button class="tab-btn" data-tab="my-listings">📋 My Listings</button>
+            <button class="tab-btn" data-tab="my-sales">💰 My Sales</button>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label style="color: rgba(255,255,255,0.8);">Tier:</label>
+                <select class="filter-select" id="filter-tier">
+                    <option value="">All Tiers</option>
+                    <option value="Bronze">🥉 Bronze</option>
+                    <option value="Silver">🥈 Silver</option>
+                    <option value="Gold">🥇 Gold</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label style="color: rgba(255,255,255,0.8);">Rarity:</label>
+                <select class="filter-select" id="filter-rarity">
+                    <option value="">All Rarities</option>
+                    <option value="Common">⚪ Common</option>
+                    <option value="Uncommon">🟢 Uncommon</option>
+                    <option value="Rare">🔵 Rare</option>
+                    <option value="Epic">🟣 Epic</option>
+                    <option value="Legendary">🟠 Legendary</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label style="color: rgba(255,255,255,0.8);">Sort:</label>
+                <select class="filter-select" id="filter-sort">
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="rarity-desc">Rarity: High to Low</option>
+                    <option value="newest">Newest First</option>
+                </select>
+            </div>
+            <button class="btn btn-sell" onclick="openSellModal()">➕ List NFT for Sale</button>
+        </div>
+        
+        <!-- NFT Grid -->
+        <div class="nft-grid" id="nft-grid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading marketplace...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sell Modal -->
+    <div class="modal" id="sell-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📋 List NFT for Sale</h2>
+                <button class="close-btn" onclick="closeSellModal()">✕</button>
+            </div>
+            <div id="sell-form">
+                <div class="form-group">
+                    <label class="form-label">Select NFT:</label>
+                    <select class="form-input" id="sell-nft-select">
+                        <option value="">Loading your NFTs...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price (TAMA):</label>
+                    <input type="number" class="form-input" id="sell-price" placeholder="e.g. 10000" min="1000">
+                    <small style="color: rgba(255,255,255,0.5);">Minimum: 1,000 TAMA</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Platform Fee: 5%</label>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 14px;">
+                        You will receive: <span id="sell-receive">0</span> TAMA
+                    </div>
+                </div>
+                <button class="btn btn-sell" onclick="listNFT()" style="width: 100%; margin-top: 20px;">
+                    ✅ List for Sale
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Buy Modal -->
+    <div class="modal" id="buy-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🛒 Buy NFT</h2>
+                <button class="close-btn" onclick="closeBuyModal()">✕</button>
+            </div>
+            <div id="buy-details"></div>
+            <div style="margin-top: 20px;">
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: rgba(255,255,255,0.7);">Price:</span>
+                        <span id="buy-price" style="color: #10b981; font-weight: bold; font-size: 20px;">0 TAMA</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: rgba(255,255,255,0.7);">Platform Fee (5%):</span>
+                        <span id="buy-fee" style="color: #ef4444;">0 TAMA</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: rgba(255,255,255,0.7); font-weight: bold;">Total:</span>
+                        <span id="buy-total" style="color: #8AC926; font-weight: bold; font-size: 18px;">0 TAMA</span>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 5px;">Your Balance:</div>
+                    <div id="buy-balance" style="color: #8AC926; font-weight: bold; font-size: 18px;">Loading...</div>
+                </div>
+                <button class="btn btn-buy" onclick="buyNFT()" style="width: 100%;" id="buy-btn">
+                    💰 Buy Now
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+        
+        let currentTab = 'browse';
+        let currentFilters = {};
+        let selectedNFT = null;
+        let userTelegramId = null;
+        
+        // Get Telegram user ID from URL or localStorage
+        function getTelegramUserId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id') || localStorage.getItem('telegram_user_id');
+            return userId;
+        }
+        
+        // Initialize
+        async function init() {
+            userTelegramId = getTelegramUserId();
+            
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTab = btn.dataset.tab;
+                    loadNFTs();
+                });
+            });
+            
+            // Filter changes
+            document.getElementById('filter-tier').addEventListener('change', loadNFTs);
+            document.getElementById('filter-rarity').addEventListener('change', loadNFTs);
+            document.getElementById('filter-sort').addEventListener('change', loadNFTs);
+            
+            // Price input for sell modal
+            document.getElementById('sell-price').addEventListener('input', updateSellReceive);
+            
+            await loadStats();
+            await loadNFTs();
+        }
+        
+        // Load marketplace stats
+        async function loadStats() {
+            try {
+                // This would come from API
+                // For now, using placeholder
+                const response = await fetch(`${API_BASE}/marketplace/stats`);
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('total-listed').textContent = stats.total_listed || 0;
+                    document.getElementById('total-sales').textContent = stats.total_sales || 0;
+                    document.getElementById('floor-price').textContent = stats.floor_price || '-';
+                    document.getElementById('volume').textContent = formatNumber(stats.volume || 0);
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+        
+        // Load NFTs based on current tab and filters
+        async function loadNFTs() {
+            const grid = document.getElementById('nft-grid');
+            grid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+            
+            try {
+                let nfts = [];
+                
+                if (currentTab === 'browse') {
+                    // Load all listed NFTs from API
+                    const tier = document.getElementById('filter-tier').value;
+                    const rarity = document.getElementById('filter-rarity').value;
+                    const sort = document.getElementById('filter-sort').value;
+                    
+                    const params = new URLSearchParams();
+                    if (tier) params.append('tier', tier);
+                    if (rarity) params.append('rarity', rarity);
+                    if (sort) params.append('sort', sort);
+                    
+                    const response = await fetch(`${API_BASE}/marketplace/listings?${params}`);
+                    if (response.ok) {
+                        nfts = await response.json();
+                    }
+                } else if (currentTab === 'my-listings' && userTelegramId) {
+                    // Load user's listings
+                    const response = await fetch(`${API_BASE}/marketplace/listings?seller_id=${userTelegramId}`);
+                    if (response.ok) {
+                        nfts = await response.json();
+                    }
+                } else if (currentTab === 'my-sales' && userTelegramId) {
+                    // Load user's sales history from Supabase
+                    const { data: sales, error } = await supabase
+                        .from('marketplace_sales')
+                        .select('*,user_nfts(tier_name,rarity,earning_multiplier)')
+                        .or(`seller_telegram_id.eq.${userTelegramId},buyer_telegram_id.eq.${userTelegramId}`)
+                        .order('sold_at', { ascending: false })
+                        .limit(50);
+                    
+                    if (!error && sales) {
+                        nfts = sales.map(sale => ({
+                            ...sale,
+                            tier_name: sale.user_nfts?.tier_name || sale.tier_name,
+                            rarity: sale.user_nfts?.rarity || sale.rarity,
+                            earning_multiplier: sale.user_nfts?.earning_multiplier,
+                            price: sale.sale_price_tama,
+                            sold_at: sale.sold_at
+                        }));
+                    }
+                }
+                
+                displayNFTs(nfts);
+            } catch (error) {
+                console.error('Failed to load NFTs:', error);
+                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">😢</div><p>Failed to load NFTs. Please try again.</p></div>';
+            }
+        }
+        
+        // Display NFTs in grid
+        function displayNFTs(nfts) {
+            const grid = document.getElementById('nft-grid');
+            
+            if (!nfts || nfts.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><p>No NFTs found</p></div>';
+                return;
+            }
+            
+            grid.innerHTML = nfts.map(nft => {
+                const tierEmoji = getTierEmoji(nft.tier_name);
+                const rarityEmoji = getRarityEmoji(nft.rarity);
+                
+                // Get NFT image URL if on-chain
+                let imageHtml = `<div class="nft-image">${tierEmoji}</div>`;
+                if (nft.nft_mint_address) {
+                    // Try to load image from IPFS/Arweave
+                    imageHtml = `<div class="nft-image" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2)); display: flex; align-items: center; justify-content: center; padding: 0;">
+                        <img src="https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i" 
+                             onerror="this.parentElement.innerHTML='${tierEmoji}'"
+                             style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;" />
+                    </div>`;
+                }
+                
+                return `
+                    <div class="nft-card" onclick="${currentTab === 'browse' ? `openBuyModal(${JSON.stringify(nft).replace(/"/g, '&quot;')})` : ''}">
+                        ${nft.is_listed || currentTab === 'browse' ? '<div class="nft-badge">FOR SALE</div>' : ''}
+                        ${imageHtml}
+                        <div class="nft-info">
+                            <div class="nft-name">${tierEmoji} ${nft.tier_name || 'Unknown'}</div>
+                            <div class="nft-attributes">
+                                <span class="attribute-badge">${rarityEmoji} ${nft.rarity || 'Common'}</span>
+                                <span class="attribute-badge">⚡ ${nft.earning_multiplier || 1.0}x</span>
+                                ${nft.nft_mint_address ? '<span class="attribute-badge" style="background: rgba(138, 201, 38, 0.3);">🔗 On-Chain</span>' : ''}
+                            </div>
+                        </div>
+                        ${(nft.price || nft.price_tama) ? `
+                            <div class="nft-price">
+                                <div>
+                                    <div class="price-label">Price</div>
+                                    <div class="price-value">${formatNumber(nft.price || nft.price_tama)}</div>
+                                    <div class="price-tama">TAMA</div>
+                                </div>
+                            </div>
+                            ${currentTab === 'browse' ? '<button class="btn btn-buy" onclick="event.stopPropagation(); openBuyModal(' + JSON.stringify(nft).replace(/"/g, '&quot;') + ')">Buy Now</button>' : ''}
+                        ` : ''}
+                        ${currentTab === 'my-listings' ? `
+                            <div class="nft-actions">
+                                <button class="btn btn-cancel" onclick="event.stopPropagation(); cancelListing(${nft.listing_id || nft.id})">Cancel</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Open sell modal
+        async function openSellModal() {
+            if (!userTelegramId) {
+                alert('Please login first');
+                return;
+            }
+            
+            const modal = document.getElementById('sell-modal');
+            const select = document.getElementById('sell-nft-select');
+            
+            // Load user's NFTs from Supabase
+            try {
+                const { data: nfts, error } = await supabase
+                    .from('user_nfts')
+                    .select('*')
+                    .eq('telegram_id', userTelegramId)
+                    .eq('is_active', true)
+                    .order('minted_at', { ascending: false });
+                
+                if (error) {
+                    console.error('Failed to load NFTs:', error);
+                    return;
+                }
+                
+                // Filter out already listed NFTs
+                const { data: listings } = await supabase
+                    .from('marketplace_listings')
+                    .select('nft_id')
+                    .eq('status', 'active');
+                
+                const listedNftIds = new Set((listings || []).map(l => l.nft_id));
+                const availableNfts = (nfts || []).filter(nft => !listedNftIds.has(nft.id) && !nft.is_listed);
+                
+                select.innerHTML = '<option value="">Select NFT...</option>' + 
+                    availableNfts.map(nft => 
+                        `<option value="${nft.id}">${getTierEmoji(nft.tier_name)} ${nft.tier_name} - ${nft.rarity || 'Common'} (${nft.earning_multiplier}x)${nft.nft_mint_address ? ' [On-Chain]' : ''}</option>`
+                    ).join('');
+            } catch (error) {
+                console.error('Failed to load NFTs:', error);
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeSellModal() {
+            document.getElementById('sell-modal').classList.remove('active');
+        }
+        
+        function updateSellReceive() {
+            const price = parseFloat(document.getElementById('sell-price').value) || 0;
+            const receive = Math.floor(price * 0.95); // 5% fee
+            document.getElementById('sell-receive').textContent = formatNumber(receive);
+        }
+        
+        // List NFT for sale
+        async function listNFT() {
+            const nftId = document.getElementById('sell-nft-select').value;
+            const price = parseFloat(document.getElementById('sell-price').value);
+            
+            if (!nftId || !price || price < 1000) {
+                alert('Please select NFT and enter valid price (min 1,000 TAMA)');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/marketplace/list`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: userTelegramId,
+                        nft_id: nftId,
+                        price: price
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ NFT listed successfully!');
+                    closeSellModal();
+                    loadNFTs();
+                    loadStats();
+                } else {
+                    const error = await response.json();
+                    alert('Failed to list NFT: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to list NFT: ' + error.message);
+            }
+        }
+        
+        // Open buy modal
+        function openBuyModal(nft) {
+            selectedNFT = nft;
+            const modal = document.getElementById('buy-modal');
+            const details = document.getElementById('buy-details');
+            
+            details.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 80px; margin-bottom: 10px;">${getPetEmoji(nft.pet_type)}</div>
+                    <div style="font-size: 20px; color: #8AC926; font-weight: bold; margin-bottom: 10px;">
+                        ${getTierEmoji(nft.tier_name)} ${nft.tier_name}
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                        <span class="attribute-badge">${getRarityEmoji(nft.rarity)} ${nft.rarity}</span>
+                        <span class="attribute-badge">⚡ ${nft.earning_multiplier}x</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('buy-price').textContent = formatNumber(nft.price) + ' TAMA';
+            const fee = Math.floor(nft.price * 0.05);
+            document.getElementById('buy-fee').textContent = formatNumber(fee) + ' TAMA';
+            document.getElementById('buy-total').textContent = formatNumber(nft.price + fee) + ' TAMA';
+            
+            // Load user balance
+            loadUserBalance();
+            
+            modal.classList.add('active');
+        }
+        
+        function closeBuyModal() {
+            document.getElementById('buy-modal').classList.remove('active');
+            selectedNFT = null;
+        }
+        
+        async function loadUserBalance() {
+            if (!userTelegramId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/balance?telegram_id=${userTelegramId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const balance = data.balance || 0;
+                    document.getElementById('buy-balance').textContent = formatNumber(balance) + ' TAMA';
+                    
+                    const total = selectedNFT.price + Math.floor(selectedNFT.price * 0.05);
+                    const buyBtn = document.getElementById('buy-btn');
+                    if (balance < total) {
+                        buyBtn.disabled = true;
+                        buyBtn.textContent = '❌ Insufficient Balance';
+                    } else {
+                        buyBtn.disabled = false;
+                        buyBtn.textContent = '💰 Buy Now';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load balance:', error);
+            }
+        }
+        
+        // Buy NFT
+        async function buyNFT() {
+            if (!selectedNFT || !userTelegramId) return;
+            
+            if (!confirm(`Buy ${selectedNFT.tier_name} NFT for ${formatNumber(selectedNFT.price)} TAMA?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/marketplace/buy`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: userTelegramId,
+                        listing_id: selectedNFT.listing_id
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ NFT purchased successfully!');
+                    closeBuyModal();
+                    loadNFTs();
+                    loadStats();
+                } else {
+                    const error = await response.json();
+                    alert('Failed to buy NFT: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to buy NFT: ' + error.message);
+            }
+        }
+        
+        // Helper functions
+        function getPetEmoji(type) {
+            const emojis = {
+                'cat': '🐱', 'dog': '🐶', 'dragon': '🐉', 'fox': '🦊',
+                'bear': '🐻', 'rabbit': '🐰', 'panda': '🐼', 'tiger': '🐯',
+                'lion': '🦁', 'wolf': '🐺'
+            };
+            return emojis[type?.toLowerCase()] || '🐾';
+        }
+        
+        function getTierEmoji(tier) {
+            const emojis = {
+                'Bronze': '🥉', 'Silver': '🥈', 'Gold': '🥇'
+            };
+            return emojis[tier] || '🎨';
+        }
+        
+        function getRarityEmoji(rarity) {
+            const emojis = {
+                'Common': '⚪', 'Uncommon': '🟢', 'Rare': '🔵',
+                'Epic': '🟣', 'Legendary': '🟠'
+            };
+            return emojis[rarity] || '⚪';
+        }
+        
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(Math.floor(num));
+        }
+        
+        // Cancel listing
+        async function cancelListing(listingId) {
+            if (!userTelegramId) {
+                alert('Please login first');
+                return;
+            }
+            
+            if (!confirm('Cancel this listing?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/marketplace/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: userTelegramId,
+                        listing_id: listingId
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('✅ Listing cancelled!');
+                    loadNFTs();
+                    loadStats();
+                } else {
+                    const error = await response.json();
+                    alert('Failed to cancel: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to cancel: ' + error.message);
+            }
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
+
+
+
+
+
+

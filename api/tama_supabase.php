@@ -328,6 +328,51 @@ switch ($path) {
         }
         break;
         
+    case '/marketplace/stats':
+        if ($method === 'GET') {
+            handleMarketplaceStats($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/marketplace/listings':
+        if ($method === 'GET') {
+            handleMarketplaceListings($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/marketplace/list':
+        if ($method === 'POST') {
+            handleMarketplaceList($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/marketplace/buy':
+        if ($method === 'POST') {
+            handleMarketplaceBuy($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
+    case '/marketplace/cancel':
+        if ($method === 'POST') {
+            handleMarketplaceCancel($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     default:
         // Ensure JSON response for unknown routes
         ob_clean();
@@ -3734,6 +3779,460 @@ function handleEconomyActive($url, $key) {
                 'details' => $result['data']
             ]);
         }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * ============================================
+ * MARKETPLACE ENDPOINTS
+ * ============================================
+ */
+
+/**
+ * Get Marketplace Statistics
+ * GET /api/tama/marketplace/stats
+ */
+function handleMarketplaceStats($url, $key) {
+    try {
+        // Get active listings count
+        $listingsResult = supabaseRequest($url, $key, 'GET', 'marketplace_listings', [
+            'status' => 'eq.active',
+            'select' => 'count'
+        ]);
+        $totalListed = $listingsResult['count'] ?? 0;
+        
+        // Get total sales count
+        $salesResult = supabaseRequest($url, $key, 'GET', 'marketplace_sales', [
+            'select' => 'count'
+        ]);
+        $totalSales = $salesResult['count'] ?? 0;
+        
+        // Get floor price (lowest active listing)
+        $floorResult = supabaseRequest($url, $key, 'GET', 'marketplace_listings', [
+            'status' => 'eq.active',
+            'select' => 'price_tama',
+            'order' => 'price_tama.asc',
+            'limit' => '1'
+        ]);
+        $floorPrice = !empty($floorResult['data']) ? (int)$floorResult['data'][0]['price_tama'] : null;
+        
+        // Get total volume (sum of all sales)
+        $volumeResult = supabaseRequest($url, $key, 'GET', 'marketplace_sales', [
+            'select' => 'sale_price_tama'
+        ]);
+        $volume = 0;
+        if (!empty($volumeResult['data'])) {
+            foreach ($volumeResult['data'] as $sale) {
+                $volume += (int)($sale['sale_price_tama'] ?? 0);
+            }
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'total_listed' => $totalListed,
+            'total_sales' => $totalSales,
+            'floor_price' => $floorPrice,
+            'volume' => $volume
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Get Marketplace Listings
+ * GET /api/tama/marketplace/listings?tier=Bronze&rarity=Common&seller_id=123
+ */
+function handleMarketplaceListings($url, $key) {
+    try {
+        $params = [
+            'status' => 'eq.active',
+            'select' => '*,user_nfts(tier_name,rarity,earning_multiplier,nft_mint_address)'
+        ];
+        
+        // Filters
+        $tier = $_GET['tier'] ?? null;
+        $rarity = $_GET['rarity'] ?? null;
+        $sellerId = $_GET['seller_id'] ?? null;
+        $sort = $_GET['sort'] ?? 'price-asc';
+        
+        if ($sellerId) {
+            $params['seller_telegram_id'] = 'eq.' . $sellerId;
+        }
+        
+        // Get listings
+        $result = supabaseRequest($url, $key, 'GET', 'marketplace_listings', $params);
+        
+        if ($result['code'] !== 200) {
+            http_response_code($result['code']);
+            echo json_encode(['error' => 'Failed to fetch listings', 'details' => $result['data']]);
+            return;
+        }
+        
+        $listings = $result['data'] ?? [];
+        
+        // Apply filters
+        if ($tier) {
+            $listings = array_filter($listings, function($l) use ($tier) {
+                return isset($l['user_nfts']) && $l['user_nfts']['tier_name'] === $tier;
+            });
+        }
+        
+        if ($rarity) {
+            $listings = array_filter($listings, function($l) use ($rarity) {
+                return isset($l['user_nfts']) && $l['user_nfts']['rarity'] === $rarity;
+            });
+        }
+        
+        // Flatten structure for frontend
+        $formatted = array_map(function($listing) {
+            $nft = $listing['user_nfts'] ?? [];
+            return [
+                'listing_id' => $listing['id'],
+                'nft_id' => $listing['nft_id'],
+                'nft_mint_address' => $nft['nft_mint_address'] ?? $listing['nft_mint_address'],
+                'tier_name' => $nft['tier_name'] ?? null,
+                'rarity' => $nft['rarity'] ?? null,
+                'earning_multiplier' => $nft['earning_multiplier'] ?? null,
+                'price' => (int)$listing['price_tama'],
+                'price_tama' => (int)$listing['price_tama'],
+                'price_sol' => $listing['price_sol'] ?? null,
+                'seller_telegram_id' => $listing['seller_telegram_id'],
+                'listed_at' => $listing['listed_at'],
+                'is_listed' => true
+            ];
+        }, $listings);
+        
+        // Sort
+        if ($sort === 'price-asc') {
+            usort($formatted, fn($a, $b) => $a['price'] <=> $b['price']);
+        } elseif ($sort === 'price-desc') {
+            usort($formatted, fn($a, $b) => $b['price'] <=> $a['price']);
+        } elseif ($sort === 'newest') {
+            usort($formatted, fn($a, $b) => strtotime($b['listed_at']) <=> strtotime($a['listed_at']));
+        }
+        
+        echo json_encode($formatted);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * List NFT for Sale
+ * POST /api/tama/marketplace/list
+ * Body: { telegram_id, nft_id, price }
+ */
+function handleMarketplaceList($url, $key) {
+    try {
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        
+        $telegramId = $data['telegram_id'] ?? null;
+        $nftId = $data['nft_id'] ?? null;
+        $price = $data['price'] ?? null;
+        
+        if (!$telegramId || !$nftId || !$price) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing required fields: telegram_id, nft_id, price']);
+            return;
+        }
+        
+        if ($price < 1000) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Minimum price is 1,000 TAMA']);
+            return;
+        }
+        
+        // Check if NFT exists and belongs to user
+        $nftResult = supabaseRequest($url, $key, 'GET', 'user_nfts', [
+            'id' => 'eq.' . $nftId,
+            'telegram_id' => 'eq.' . $telegramId,
+            'is_active' => 'eq.true',
+            'select' => '*'
+        ]);
+        
+        if (empty($nftResult['data'])) {
+            http_response_code(404);
+            echo json_encode(['error' => 'NFT not found or does not belong to user']);
+            return;
+        }
+        
+        $nft = $nftResult['data'][0];
+        
+        // Check if already listed
+        if (!empty($nft['is_listed'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'NFT is already listed']);
+            return;
+        }
+        
+        // Check for existing active listing
+        $existingListing = supabaseRequest($url, $key, 'GET', 'marketplace_listings', [
+            'nft_id' => 'eq.' . $nftId,
+            'status' => 'eq.active',
+            'select' => 'id'
+        ]);
+        
+        if (!empty($existingListing['data'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'NFT is already listed on marketplace']);
+            return;
+        }
+        
+        // Create listing
+        $listingData = [
+            'nft_id' => (int)$nftId,
+            'nft_mint_address' => $nft['nft_mint_address'] ?? null,
+            'seller_telegram_id' => (string)$telegramId,
+            'price_tama' => (int)$price,
+            'status' => 'active'
+        ];
+        
+        $createResult = supabaseRequest($url, $key, 'POST', 'marketplace_listings', [], $listingData);
+        
+        if ($createResult['code'] < 200 || $createResult['code'] >= 300) {
+            http_response_code($createResult['code']);
+            echo json_encode(['error' => 'Failed to create listing', 'details' => $createResult['data']]);
+            return;
+        }
+        
+        // Update NFT is_listed flag
+        supabaseRequest($url, $key, 'PATCH', 'user_nfts', [
+            'id' => 'eq.' . $nftId
+        ], ['is_listed' => true]);
+        
+        echo json_encode([
+            'success' => true,
+            'listing_id' => $createResult['data'][0]['id'] ?? null,
+            'message' => 'NFT listed successfully'
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Buy NFT from Marketplace
+ * POST /api/tama/marketplace/buy
+ * Body: { telegram_id, listing_id }
+ */
+function handleMarketplaceBuy($url, $key) {
+    try {
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        
+        $telegramId = $data['telegram_id'] ?? null;
+        $listingId = $data['listing_id'] ?? null;
+        
+        if (!$telegramId || !$listingId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing required fields: telegram_id, listing_id']);
+            return;
+        }
+        
+        // Get listing
+        $listingResult = supabaseRequest($url, $key, 'GET', 'marketplace_listings', [
+            'id' => 'eq.' . $listingId,
+            'status' => 'eq.active',
+            'select' => '*,user_nfts(*)'
+        ]);
+        
+        if (empty($listingResult['data'])) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Listing not found or not active']);
+            return;
+        }
+        
+        $listing = $listingResult['data'][0];
+        
+        // Check if buyer is seller
+        if ($listing['seller_telegram_id'] == $telegramId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Cannot buy your own NFT']);
+            return;
+        }
+        
+        $price = (int)$listing['price_tama'];
+        $nftId = $listing['nft_id'];
+        $nft = $listing['user_nfts'] ?? [];
+        
+        // Check buyer balance
+        $buyerBalance = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'telegram_id' => 'eq.' . $telegramId,
+            'select' => 'tama'
+        ]);
+        
+        if (empty($buyerBalance['data'])) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Buyer not found']);
+            return;
+        }
+        
+        $balance = (int)($buyerBalance['data'][0]['tama'] ?? 0);
+        
+        if ($balance < $price) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Insufficient TAMA balance']);
+            return;
+        }
+        
+        // Calculate fees
+        $platformFee = (int)($price * 0.05); // 5%
+        $sellerReceives = $price - $platformFee;
+        
+        // Transfer TAMA from buyer to seller
+        // 1. Deduct from buyer
+        $newBuyerBalance = $balance - $price;
+        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+            'telegram_id' => 'eq.' . $telegramId
+        ], ['tama' => $newBuyerBalance]);
+        
+        // 2. Add to seller
+        $sellerBalance = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'telegram_id' => 'eq.' . $listing['seller_telegram_id'],
+            'select' => 'tama'
+        ]);
+        $sellerCurrentBalance = (int)($sellerBalance['data'][0]['tama'] ?? 0);
+        $newSellerBalance = $sellerCurrentBalance + $sellerReceives;
+        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+            'telegram_id' => 'eq.' . $listing['seller_telegram_id']
+        ], ['tama' => $newSellerBalance]);
+        
+        // 3. Transfer NFT ownership
+        supabaseRequest($url, $key, 'PATCH', 'user_nfts', [
+            'id' => 'eq.' . $nftId
+        ], [
+            'telegram_id' => $telegramId,
+            'is_listed' => false
+        ]);
+        
+        // 4. Update listing status
+        supabaseRequest($url, $key, 'PATCH', 'marketplace_listings', [
+            'id' => 'eq.' . $listingId
+        ], [
+            'status' => 'sold',
+            'buyer_telegram_id' => $telegramId,
+            'sold_at' => date('c')
+        ]);
+        
+        // 5. Create sale record
+        $saleData = [
+            'listing_id' => (int)$listingId,
+            'nft_id' => (int)$nftId,
+            'nft_mint_address' => $listing['nft_mint_address'] ?? $nft['nft_mint_address'] ?? null,
+            'tier_name' => $nft['tier_name'] ?? null,
+            'rarity' => $nft['rarity'] ?? null,
+            'seller_telegram_id' => (string)$listing['seller_telegram_id'],
+            'buyer_telegram_id' => (string)$telegramId,
+            'sale_price_tama' => $price,
+            'platform_fee_tama' => $platformFee,
+            'seller_received_tama' => $sellerReceives,
+            'transaction_type' => 'tama'
+        ];
+        
+        supabaseRequest($url, $key, 'POST', 'marketplace_sales', [], $saleData);
+        
+        // 6. Record transactions
+        $txData = [
+            'user_id' => $telegramId,
+            'username' => 'Buyer',
+            'type' => 'marketplace_buy',
+            'amount' => -$price,
+            'balance_before' => $balance,
+            'balance_after' => $newBuyerBalance,
+            'metadata' => json_encode([
+                'listing_id' => $listingId,
+                'nft_id' => $nftId,
+                'tier' => $nft['tier_name'] ?? null
+            ])
+        ];
+        supabaseRequest($url, $key, 'POST', 'transactions', [], $txData);
+        
+        $sellerTxData = [
+            'user_id' => $listing['seller_telegram_id'],
+            'username' => 'Seller',
+            'type' => 'marketplace_sale',
+            'amount' => $sellerReceives,
+            'balance_before' => $sellerCurrentBalance,
+            'balance_after' => $newSellerBalance,
+            'metadata' => json_encode([
+                'listing_id' => $listingId,
+                'nft_id' => $nftId,
+                'platform_fee' => $platformFee,
+                'tier' => $nft['tier_name'] ?? null
+            ])
+        ];
+        supabaseRequest($url, $key, 'POST', 'transactions', [], $sellerTxData);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'NFT purchased successfully',
+            'nft_id' => $nftId,
+            'price_paid' => $price,
+            'platform_fee' => $platformFee
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Cancel Listing
+ * POST /api/tama/marketplace/cancel
+ * Body: { telegram_id, listing_id }
+ */
+function handleMarketplaceCancel($url, $key) {
+    try {
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        
+        $telegramId = $data['telegram_id'] ?? null;
+        $listingId = $data['listing_id'] ?? null;
+        
+        if (!$telegramId || !$listingId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing required fields: telegram_id, listing_id']);
+            return;
+        }
+        
+        // Get listing
+        $listingResult = supabaseRequest($url, $key, 'GET', 'marketplace_listings', [
+            'id' => 'eq.' . $listingId,
+            'seller_telegram_id' => 'eq.' . $telegramId,
+            'status' => 'eq.active',
+            'select' => 'nft_id'
+        ]);
+        
+        if (empty($listingResult['data'])) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Listing not found or not owned by user']);
+            return;
+        }
+        
+        $nftId = $listingResult['data'][0]['nft_id'];
+        
+        // Update listing status
+        supabaseRequest($url, $key, 'PATCH', 'marketplace_listings', [
+            'id' => 'eq.' . $listingId
+        ], ['status' => 'cancelled']);
+        
+        // Update NFT is_listed flag
+        supabaseRequest($url, $key, 'PATCH', 'user_nfts', [
+            'id' => 'eq.' . $nftId
+        ], ['is_listed' => false]);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Listing cancelled successfully'
+        ]);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
