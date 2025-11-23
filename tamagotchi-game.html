@@ -4730,8 +4730,12 @@
                 <!-- NFT Gallery -->
                 <div id="nft-collection" style="display: block;">
                     <div id="nft-grid" class="nft-grid"></div>
-                    <div style="text-align: center;">
+                    <div style="text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center;">
                         <button class="share-btn" id="mint-nft-btn">✨ Mint New NFT Pet</button>
+                        <div id="mint-options" style="display: none; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <button class="share-btn" id="mint-with-tama-btn" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926;">💰 Mint with TAMA</button>
+                            <button class="share-btn" id="mint-with-sol-btn" style="background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea;">💎 Mint with SOL</button>
+                        </div>
                     </div>
                 </div>
                 
@@ -10194,6 +10198,14 @@
         
         // API Configuration (UPDATED TO RENDER)
         const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+        
+        // Treasury addresses for SOL distribution
+        const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+        const TREASURY_LIQUIDITY = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+        const TREASURY_TEAM = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
+        
+        // SOL/USD rate (can be fetched from API later)
+        const SOL_USD_RATE = 164; // Approximate
 
         // Fetch user's rank even if not in top 50
         async function fetchUserRank(telegramId) {
@@ -11263,50 +11275,107 @@
                 loadNFTCollection();
             };
             
-            // Mint button - navigate to mint page
+            // Mint button - show options or navigate
+            const mintOptions = document.getElementById('mint-options');
+            const mintWithTamaBtn = document.getElementById('mint-with-tama-btn');
+            const mintWithSolBtn = document.getElementById('mint-with-sol-btn');
+            
             if (mintNftBtn) {
                 mintNftBtn.addEventListener('click', async () => {
-                    // Save current game state before navigating
-                    const userId = window.TELEGRAM_USER_ID || 'guest';
-                    const userIdStr = String(userId);
-                    
-                    // Force save to Supabase before leaving
-                    try {
-                        await saveDirectToSupabase(userIdStr);
-                        console.log('✅ Game state saved before NFT mint page');
-                    } catch (err) {
-                        console.warn('⚠️ Failed to save before navigation:', err);
-                    }
-                    
-                    // Get current balance (ensure it's up to date)
-                    const tamaBalance = gameState.tama || 0;
-                    const level = gameState.level || 1;
-                    const xp = gameState.xp || 0;
-                    
-                    // Save wallet connection state if exists
-                    if (window.solana && window.solana.isConnected) {
-                        try {
-                            const wallet = window.solana.publicKey;
-                            if (wallet) {
-                                localStorage.setItem('phantom_wallet_address', wallet.toString());
-                                console.log('✅ Wallet address saved:', wallet.toString());
-                            }
-                        } catch (err) {
-                            console.warn('⚠️ Failed to save wallet:', err);
-                        }
-                    }
-                    
-                    // Build URL with all important data
-                    const nftUrl = `https://solanatamagotchi.com/mint.html?user_id=${userIdStr}&tama=${tamaBalance}&level=${level}&xp=${xp}`;
-                    
-                    if (window.Telegram && window.Telegram.WebApp) {
-                        // In Telegram, open external link
-                        window.Telegram.WebApp.openLink(nftUrl);
+                    // If wallet connected, show options
+                    if (walletConnected && walletAddress && mintOptions) {
+                        mintOptions.style.display = 'flex';
+                        mintNftBtn.style.display = 'none';
                     } else {
-                        // In browser, open in new tab
-                        window.open(nftUrl, '_blank');
+                        // No wallet - navigate to mint page
+                        await navigateToMintPage();
                     }
                 });
+            }
+            
+            // Mint with TAMA - navigate to mint page
+            if (mintWithTamaBtn) {
+                mintWithTamaBtn.addEventListener('click', async () => {
+                    await navigateToMintPage();
+                });
+            }
+            
+            // Mint with SOL - mint directly in game
+            if (mintWithSolBtn) {
+                mintWithSolBtn.addEventListener('click', async () => {
+                    if (!walletConnected || !walletAddress) {
+                        showMessage('❌ Please connect wallet first!', 'error');
+                        await connectPhantomWallet();
+                        return;
+                    }
+                    
+                    // Show tier selection
+                    showMintTierSelection();
+                });
+            }
+            
+            // Helper: Navigate to mint page
+            async function navigateToMintPage() {
+                const userId = window.TELEGRAM_USER_ID || 'guest';
+                const userIdStr = String(userId);
+                
+                // Force save to Supabase before leaving
+                try {
+                    await saveDirectToSupabase(userIdStr);
+                    console.log('✅ Game state saved before NFT mint page');
+                } catch (err) {
+                    console.warn('⚠️ Failed to save before navigation:', err);
+                }
+                
+                // Get current balance (ensure it's up to date)
+                const tamaBalance = gameState.tama || 0;
+                const level = gameState.level || 1;
+                const xp = gameState.xp || 0;
+                
+                // Save wallet connection state if exists
+                if (window.solana && window.solana.isConnected) {
+                    try {
+                        const wallet = window.solana.publicKey;
+                        if (wallet) {
+                            localStorage.setItem('phantom_wallet_address', wallet.toString());
+                            console.log('✅ Wallet address saved:', wallet.toString());
+                        }
+                    } catch (err) {
+                        console.warn('⚠️ Failed to save wallet:', err);
+                    }
+                }
+                
+                // Build URL with all important data
+                const nftUrl = `https://solanatamagotchi.com/mint.html?user_id=${userIdStr}&tama=${tamaBalance}&level=${level}&xp=${xp}`;
+                
+                if (window.Telegram && window.Telegram.WebApp) {
+                    // In Telegram, open external link
+                    window.Telegram.WebApp.openLink(nftUrl);
+                } else {
+                    // In browser, open in new tab
+                    window.open(nftUrl, '_blank');
+                }
+            }
+            
+            // Show tier selection modal for SOL minting
+            function showMintTierSelection() {
+                const modal = document.createElement('div');
+                modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+                modal.innerHTML = `
+                    <div style="background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(69, 123, 157, 0.9)); border: 2px solid #8AC926; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+                        <h2 style="color: #FFD700; text-align: center; margin-bottom: 20px;">💎 Mint NFT with SOL</h2>
+                        <p style="text-align: center; color: rgba(255,255,255,0.8); margin-bottom: 20px;">Choose NFT tier:</p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button class="share-btn" onclick="window.mintNFTWithSOL('Bronze')" style="background: rgba(205, 127, 50, 0.3); border: 2px solid #CD7F32;">🥉 Bronze - 0.15 SOL</button>
+                            <button class="share-btn" onclick="window.mintNFTWithSOL('Silver')" style="background: rgba(192, 192, 192, 0.3); border: 2px solid #C0C0C0;">🥈 Silver - ~1 SOL</button>
+                            <button class="share-btn" onclick="window.mintNFTWithSOL('Gold')" style="background: rgba(255, 215, 0, 0.3); border: 2px solid #FFD700;">🥇 Gold - ~3 SOL</button>
+                            <button class="share-btn" onclick="window.mintNFTWithSOL('Platinum')" style="background: rgba(229, 228, 226, 0.3); border: 2px solid #E5E4E2;">💎 Platinum - ~10 SOL</button>
+                            <button class="share-btn" onclick="window.mintNFTWithSOL('Diamond')" style="background: rgba(185, 242, 255, 0.3); border: 2px solid #B9F2FF;">🔷 Diamond - ~50 SOL</button>
+                        </div>
+                        <button class="share-btn" onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="margin-top: 20px; width: 100%; background: rgba(239, 68, 68, 0.3); border: 2px solid #ef4444;">Cancel</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
             }
 
             if (closeNft) {
