@@ -885,15 +885,20 @@
                 // Method 1: Check if wallet is linked to Telegram account
                 const { data: linkedUser } = await supabase
                     .from('leaderboard')
-                    .select('telegram_id, wallet_address')
+                    .select('telegram_id, wallet_address, tama')
                     .eq('wallet_address', walletAddress)
                     .single();
                 
                 let nfts = [];
+                let tamaBalance = 0;
                 
                 if (linkedUser && linkedUser.telegram_id) {
                     // User has linked wallet - show their NFTs by telegram_id
                     console.log('✅ Found linked Telegram account:', linkedUser.telegram_id);
+                    
+                    // Load TAMA balance from linked account
+                    tamaBalance = linkedUser.tama || 0;
+                    console.log('💰 TAMA balance from linked account:', tamaBalance);
                     
                     const { data: telegramNfts, error } = await supabase
                         .from('user_nfts')
@@ -957,9 +962,22 @@
                         showLinkWalletMessage(walletAddress);
                         return;
                     }
+                    
+                    // Try to get TAMA balance if wallet has any transactions
+                    // Check if wallet has any leaderboard entry (even without telegram_id)
+                    const { data: walletUser } = await supabase
+                        .from('leaderboard')
+                        .select('tama')
+                        .eq('wallet_address', walletAddress)
+                        .single();
+                    
+                    if (walletUser) {
+                        tamaBalance = walletUser.tama || 0;
+                        console.log('💰 TAMA balance from wallet entry:', tamaBalance);
+                    }
                 }
                 
-                displayNFTs(nfts, 0);
+                displayNFTs(nfts, tamaBalance);
             } catch (error) {
                 showError('Failed to load NFTs: ' + error.message);
             }
