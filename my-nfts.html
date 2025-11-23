@@ -1027,6 +1027,18 @@
             document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
             document.getElementById('onchain-count').textContent = onchainCount;
             
+            // Add pulse animation to stats update
+            const statsElements = ['total-nfts', 'active-boost', 'tama-balance', 'onchain-count'];
+            statsElements.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.animation = 'none';
+                    setTimeout(() => {
+                        el.style.animation = 'pulse 0.5s ease';
+                    }, 10);
+                }
+            });
+            
             // Render NFTs
             if (!nfts || nfts.length === 0) {
                 document.getElementById('nft-container').innerHTML = `
