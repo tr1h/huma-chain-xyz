@@ -7,6 +7,12 @@
     <meta property="og:title" content="My NFT Collection - Solana Tamagotchi">
     <meta property="og:description" content="View your NFT collection with beautiful images and earning boosts!">
     <meta property="og:type" content="website">
+    <!-- Favicon - Google prefers .ico format -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -603,6 +609,14 @@
             'Legendary': '#FF9800'
         };
         
+        // Utility function to escape HTML (defined globally)
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+        
         // Initialize with Smart Auto-Detect
         async function init() {
             console.log('🚀 Initializing My NFTs page with Smart Auto-Detect...');
@@ -911,16 +925,18 @@
                 
                 const nftCard = document.createElement('div');
                 nftCard.className = 'nft-card';
+                nftCard.style.cursor = 'pointer';
+                nftCard.addEventListener('click', () => showNFTDetails(nft));
                 
-                // Escape HTML to prevent XSS and unwanted HTML code
-                const escapeHtml = (text) => {
-                    if (!text) return '';
-                    const div = document.createElement('div');
-                    div.textContent = text;
-                    return div.innerHTML;
-                };
-                
-                const imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
+                // Get image URL - use design_id if available, otherwise fallback to tier+rarity
+                let imageUrl = null;
+                if (nft.nft_design_id) {
+                    // TODO: Load image from nft_designs table using nft_design_id
+                    // For now, use tier+rarity fallback
+                    imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
+                } else {
+                    imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
+                }
                 const tierNameEscaped = escapeHtml(nft.tier_name || '');
                 const rarityEscaped = escapeHtml(nft.rarity || '');
                 
@@ -1069,6 +1085,162 @@
         // View in Phantom
         function viewInPhantom(mintAddress) {
             alert(`To view this NFT in Phantom Wallet:\n\n1. Open Phantom Wallet\n2. Switch to Devnet (Settings → Network → Devnet)\n3. Go to Collectibles tab\n4. You should see your NFT!\n\nMint Address: ${mintAddress}`);
+        }
+        
+        // Show NFT details modal
+        function showNFTDetails(nft) {
+            const isRealOnChain = nft.nft_mint_address && 
+                nft.nft_mint_address.length > 30 && 
+                !nft.nft_mint_address.includes('_');
+            
+            const tierColor = tierColors[nft.tier_name] || '#666';
+            const rarityColor = rarityColors[nft.rarity] || '#666';
+            const imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
+            const explorerUrl = isRealOnChain 
+                ? `https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet`
+                : '#';
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 20px;
+                    max-width: 600px;
+                    width: 100%;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    position: relative;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+                ">
+                    <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: #f44336;
+                        color: white;
+                        border: none;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        font-size: 24px;
+                        cursor: pointer;
+                        z-index: 10001;
+                    ">×</button>
+                    
+                    <div style="padding: 40px;">
+                        <div style="
+                            width: 100%;
+                            height: 300px;
+                            background: linear-gradient(135deg, ${tierColor}, ${rarityColor});
+                            border-radius: 15px;
+                            margin-bottom: 20px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            position: relative;
+                            overflow: hidden;
+                        ">
+                            ${imageUrl ? `
+                                <img src="${imageUrl}" alt="${escapeHtml(nft.tier_name)} ${escapeHtml(nft.rarity)}" 
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="display: none; font-size: 120px;">${getTierEmoji(nft.tier_name)}</div>
+                            ` : `
+                                <div style="font-size: 120px;">${getTierEmoji(nft.tier_name)}</div>
+                            `}
+                            <div style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                                ${escapeHtml(nft.rarity || 'Unknown')}
+                            </div>
+                        </div>
+                        
+                        <h2 style="color: ${tierColor}; margin-bottom: 10px; font-size: 28px;">
+                            ${escapeHtml(nft.tier_name || 'Unknown')} NFT
+                        </h2>
+                        
+                        <div style="background: linear-gradient(135deg, #FFD700, #FF8C00); color: white; padding: 15px; border-radius: 10px; text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0;">
+                            🚀 ${nft.earning_multiplier || 1.0}x Earning Boost
+                        </div>
+                        
+                        <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                            <h3 style="margin-bottom: 15px; color: #333;">📋 Details</h3>
+                            <div style="line-height: 2;">
+                                <div><strong>🎨 Design:</strong> #${escapeHtml(String(nft.design_number || 'N/A'))}</div>
+                                <div><strong>📅 Minted:</strong> ${escapeHtml(nft.minted_at ? new Date(nft.minted_at).toLocaleString() : 'Unknown')}</div>
+                                ${nft.price_paid_sol ? `<div><strong>💎 Price Paid:</strong> ${escapeHtml(String(nft.price_paid_sol))} SOL</div>` : ''}
+                                ${nft.price_paid_tama ? `<div><strong>💰 Price Paid:</strong> ${escapeHtml(String(nft.price_paid_tama.toLocaleString()))} TAMA</div>` : ''}
+                            </div>
+                        </div>
+                        
+                        ${isRealOnChain ? `
+                            <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #4CAF50;">
+                                <strong>✅ Real On-Chain NFT</strong><br>
+                                <code style="font-size: 11px; word-break: break-all; color: #666;">${escapeHtml(nft.nft_mint_address || '')}</code>
+                            </div>
+                        ` : `
+                            <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #ffc107;">
+                                <strong>⚠️ Off-Chain Only</strong><br>
+                                <code style="font-size: 11px; word-break: break-all; color: #666;">${escapeHtml(nft.nft_mint_address || 'N/A')}</code>
+                            </div>
+                        `}
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                            ${isRealOnChain ? `
+                                <button onclick="window.open('${explorerUrl}', '_blank')" style="
+                                    padding: 12px;
+                                    background: linear-gradient(135deg, #8AC926, #1D3557);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 10px;
+                                    font-weight: bold;
+                                    cursor: pointer;
+                                ">🔗 View on Explorer</button>
+                                <button onclick="viewInPhantom('${escapeHtml(nft.nft_mint_address)}'); this.closest('div[style*=\"position: fixed\"]').remove();" style="
+                                    padding: 12px;
+                                    background: linear-gradient(135deg, #667eea, #764ba2);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 10px;
+                                    font-weight: bold;
+                                    cursor: pointer;
+                                ">👛 View in Phantom</button>
+                            ` : `
+                                <button disabled style="
+                                    padding: 12px;
+                                    background: #ccc;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 10px;
+                                    font-weight: bold;
+                                    cursor: not-allowed;
+                                    opacity: 0.5;
+                                ">⚠️ Not on Blockchain</button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            document.body.appendChild(modal);
         }
         
         // Disconnect
