@@ -296,14 +296,39 @@ try {
     error_log("🔍 Debug: telegram_id type=" . gettype($telegram_id_final) . ", value=" . $telegram_id_final);
     error_log("🔍 Debug: design_id type=" . gettype($design_id_int) . ", value=" . $design_id_int);
     
+    // 🎲 Assign random rarity for Bronze NFT (like other tiers)
+    // Bronze rarity distribution: Common (50%), Uncommon (30%), Rare (15%), Epic (4%), Legendary (1%)
+    $rand = mt_rand(1, 100);
+    $bronzeRarity = 'Common';
+    $bronzeMultiplier = 2.0;
+    
+    if ($rand <= 50) {
+        $bronzeRarity = 'Common';
+        $bronzeMultiplier = 2.0;
+    } elseif ($rand <= 80) {
+        $bronzeRarity = 'Uncommon';
+        $bronzeMultiplier = 2.2;
+    } elseif ($rand <= 95) {
+        $bronzeRarity = 'Rare';
+        $bronzeMultiplier = 2.5;
+    } elseif ($rand <= 99) {
+        $bronzeRarity = 'Epic';
+        $bronzeMultiplier = 2.8;
+    } else {
+        $bronzeRarity = 'Legendary';
+        $bronzeMultiplier = 3.0;
+    }
+    
+    error_log("🎲 Bronze NFT rarity assigned: {$bronzeRarity} (roll: {$rand}/100, multiplier: {$bronzeMultiplier}x)");
+    
     // Build array with explicit integer types
     $nftData = [
         'telegram_id' => $telegram_id_final, // ✅ Explicitly INTEGER (will be JSON number for BIGINT column)
         'nft_design_id' => $design_id_int, // ✅ Send as integer
         'nft_mint_address' => 'pending_' . $telegram_id_final . '_' . time() . '_' . $randomDesign['id'], // ✅ Placeholder until on-chain mint
         'tier_name' => 'Bronze',
-        'rarity' => 'Common', // ✅ Required field: Bronze = Common
-        'earning_multiplier' => 2.0, // ✅ Correct field name
+        'rarity' => $bronzeRarity, // ✅ Random rarity assigned based on probability
+        'earning_multiplier' => $bronzeMultiplier, // ✅ Multiplier based on rarity
         'purchase_price_tama' => 5000, // ✅ Correct field name
         'is_active' => true
     ];

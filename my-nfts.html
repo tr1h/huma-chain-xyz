@@ -995,12 +995,12 @@
                         ${isRealOnChain ? `
                             <div class="nft-mint-address">
                                 <strong>📍 Mint Address:</strong><br>
-                                <code style="font-size: 11px; word-break: break-all;">${escapeHtml(nft.nft_mint_address || '')}</code>
+                                <code style="font-size: 11px; word-break: break-all; display: block; padding: 5px; background: rgba(0,0,0,0.1); border-radius: 4px;">${escapeHtml(String(nft.nft_mint_address || ''))}</code>
                             </div>
                         ` : `
                             <div class="nft-mint-address" style="background: #fff3cd; border-color: #ffc107;">
                                 <strong>⚠️ Internal ID:</strong><br>
-                                <code style="font-size: 11px; word-break: break-all;">${escapeHtml(nft.nft_mint_address || 'N/A')}</code>
+                                <code style="font-size: 11px; word-break: break-all; display: block; padding: 5px; background: rgba(0,0,0,0.1); border-radius: 4px;">${escapeHtml(String(nft.nft_mint_address || 'N/A'))}</code>
                             </div>
                         `}
                         
