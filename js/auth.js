@@ -242,12 +242,17 @@ async function authViaWallet() {
         
         // Try to find linked Telegram account
         if (supabase) {
-            const { data: linkedUser } = await supabase
-                .from('leaderboard')
-                .select('telegram_id, telegram_username, telegram_first_name')
-                .eq('wallet_address', walletAddress)
-                .single();
-            
+            try {
+                const { data: linkedUser, error } = await supabase
+                    .from('leaderboard')
+                    .select('telegram_id, telegram_username')
+                    .eq('wallet_address', walletAddress)
+                    .maybeSingle(); // Use maybeSingle() to avoid 400 error if no record found
+                
+                if (error && error.code !== 'PGRST116') {
+                    console.warn('Error checking linked account:', error);
+                }
+                
                 if (linkedUser && linkedUser.telegram_id) {
                     authState.telegramId = linkedUser.telegram_id.toString();
                     authState.telegramUsername = linkedUser.telegram_username || '';
