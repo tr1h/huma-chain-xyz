@@ -99,18 +99,22 @@ CREATE TABLE IF NOT EXISTS marketplace_sales (
     platform_fee_sol DECIMAL(12, 9),  -- 5% of sale price in SOL
     seller_received_tama BIGINT,  -- 95% of sale price in TAMA
     seller_received_sol DECIMAL(12, 9),  -- 95% of sale price in SOL
-    CHECK (
-        (sale_price_tama IS NOT NULL AND platform_fee_tama IS NOT NULL AND seller_received_tama IS NOT NULL) OR
-        (sale_price_sol IS NOT NULL AND platform_fee_sol IS NOT NULL AND seller_received_sol IS NOT NULL)
-    )  -- At least one payment method must be set
     
     -- Transaction
-    transaction_signature TEXT UNIQUE,  -- Solana transaction signature
-    transaction_type TEXT DEFAULT 'tama' CHECK (transaction_type IN ('tama', 'sol', 'mixed')),
+    transaction_signature TEXT,  -- Solana transaction signature
+    transaction_type TEXT DEFAULT 'tama',
     
     -- Timestamps
     sold_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    -- Constraints
+    CONSTRAINT transaction_signature_unique UNIQUE (transaction_signature),
+    CONSTRAINT transaction_type_check CHECK (transaction_type IN ('tama', 'sol', 'mixed')),
+    CONSTRAINT payment_method_check CHECK (
+        (sale_price_tama IS NOT NULL AND platform_fee_tama IS NOT NULL AND seller_received_tama IS NOT NULL) OR
+        (sale_price_sol IS NOT NULL AND platform_fee_sol IS NOT NULL AND seller_received_sol IS NOT NULL)
+    )  -- At least one payment method must be set
 );
 
 -- Indexes for analytics
