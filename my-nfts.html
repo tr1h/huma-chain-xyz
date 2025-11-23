@@ -1499,8 +1499,27 @@
             `;
         }
         
-        // Initialize on load
-        init();
+        // Initialize on load - wait for auth.js to be ready
+        window.addEventListener('gotchiAuthReady', (event) => {
+            console.log('✅ Auth ready, initializing NFT page...');
+            init();
+        });
+        
+        // Fallback: if auth is already ready, init immediately
+        if (window.GotchiAuth && window.GotchiAuth.isAuthenticated && window.GotchiAuth.isAuthenticated()) {
+            console.log('✅ Auth already initialized, starting NFT page...');
+            init();
+        } else {
+            // Wait a bit for auth.js to load
+            setTimeout(() => {
+                if (window.GotchiAuth) {
+                    init();
+                } else {
+                    console.warn('⚠️ Auth.js not loaded, initializing without auth...');
+                    init();
+                }
+            }, 500);
+        }
     </script>
 </body>
 </html>
