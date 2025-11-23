@@ -591,7 +591,7 @@
                 const { data: users, error } = await supabase
                     .from('leaderboard')
                     .select('*')
-                    .order('last_active', { ascending: false })
+                    .order('last_daily_claim', { ascending: false, nullsFirst: false })
                     .limit(1000);
                 
                 if (error) throw error;
@@ -623,7 +623,7 @@
                     const row = document.createElement('tr');
                     const wallet = user.wallet_address ? `${user.wallet_address.substring(0, 8)}...${user.wallet_address.substring(user.wallet_address.length - 6)}` : '-';
                     const twitter = user.twitter_username ? `@${user.twitter_username}` : '-';
-                    const lastActive = user.last_active ? new Date(user.last_active).toLocaleString('ru-RU') : 'Никогда';
+                    const lastActive = user.last_daily_claim ? new Date(user.last_daily_claim).toLocaleString('ru-RU') : 'Никогда';
                     const nftCount = nftCounts[user.telegram_id] || 0;
                     
                     row.innerHTML = `
@@ -657,7 +657,7 @@
                     .from('leaderboard')
                     .select('*')
                     .not('wallet_address', 'is', null)
-                    .order('last_active', { ascending: false });
+                    .order('last_daily_claim', { ascending: false, nullsFirst: false });
                 
                 if (error) throw error;
                 
@@ -709,14 +709,14 @@
             }
         }
 
-        // Load sessions (simulated - based on last_active)
+        // Load sessions (simulated - based on last_daily_claim)
         async function loadSessions() {
             try {
                 const { data: users, error } = await supabase
                     .from('leaderboard')
-                    .select('telegram_id, telegram_username, last_active, wallet_address')
-                    .not('last_active', 'is', null)
-                    .order('last_active', { ascending: false })
+                    .select('telegram_id, telegram_username, last_daily_claim, wallet_address')
+                    .not('last_daily_claim', 'is', null)
+                    .order('last_daily_claim', { ascending: false })
                     .limit(500);
                 
                 if (error) throw error;
@@ -732,7 +732,7 @@
                 users.forEach(user => {
                     const row = document.createElement('tr');
                     const method = user.wallet_address ? '<span class="badge badge-linked">Связан</span>' : '<span class="badge badge-webapp">WebApp</span>';
-                    const lastActive = new Date(user.last_active);
+                    const lastActive = user.last_daily_claim ? new Date(user.last_daily_claim) : new Date(0);
                     const sessionExpiry = new Date(lastActive.getTime() + 7 * 24 * 60 * 60 * 1000);
                     const isExpired = sessionExpiry < new Date();
                     
@@ -740,8 +740,8 @@
                         <td>${user.telegram_id}</td>
                         <td>${user.telegram_username || '-'}</td>
                         <td>${method}</td>
-                        <td>${lastActive.toLocaleString('ru-RU')}</td>
-                        <td style="color: ${isExpired ? '#f44336' : '#8AC926'}">${sessionExpiry.toLocaleString('ru-RU')}</td>
+                        <td>${user.last_daily_claim ? lastActive.toLocaleString('ru-RU') : 'Никогда'}</td>
+                        <td style="color: ${isExpired ? '#f44336' : '#8AC926'}">${user.last_daily_claim ? sessionExpiry.toLocaleString('ru-RU') : 'N/A'}</td>
                         <td>
                             <button class="action-btn view" onclick="viewUser('${user.telegram_id}')">👁️</button>
                         </td>
@@ -760,7 +760,7 @@
             try {
                 const { data: users } = await supabase
                     .from('leaderboard')
-                    .select('telegram_id, wallet_address, last_active, tama');
+                    .select('telegram_id, wallet_address, last_daily_claim, tama');
                 
                 if (!users) return;
                 
@@ -769,7 +769,7 @@
                 const walletUsers = users.filter(u => u.wallet_address).length;
                 const linkedUsers = users.filter(u => u.wallet_address && u.telegram_id).length;
                 const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-                const activeUsers = users.filter(u => u.last_active && new Date(u.last_active) > sevenDaysAgo).length;
+                const activeUsers = users.filter(u => u.last_daily_claim && new Date(u.last_daily_claim) > sevenDaysAgo).length;
                 
                 // Auth method chart
                 const ctx1 = document.getElementById('auth-method-chart').getContext('2d');
@@ -800,8 +800,8 @@
                     const dayStart = new Date(date.setHours(0,0,0,0));
                     const dayEnd = new Date(date.setHours(23,59,59,999));
                     const count = users.filter(u => {
-                        if (!u.last_active) return false;
-                        const active = new Date(u.last_active);
+                        if (!u.last_daily_claim) return false;
+                        const active = new Date(u.last_daily_claim);
                         return active >= dayStart && active <= dayEnd;
                     }).length;
                     last7Days.push({ date: dayStart.toLocaleDateString('ru-RU'), count });
@@ -880,7 +880,7 @@
                 const { count: activeUsers } = await supabase
                     .from('leaderboard')
                     .select('*', { count: 'exact', head: true })
-                    .gte('last_active', sevenDaysAgo);
+                    .gte('last_daily_claim', sevenDaysAgo);
                 
                 document.getElementById('stat-total-users').textContent = (totalUsers || 0).toLocaleString();
                 document.getElementById('stat-wallet-users').textContent = (walletUsers || 0).toLocaleString();
@@ -1005,7 +1005,7 @@
         function exportUsersCSV() {
             const csv = 'Telegram ID,Username,Wallet,Twitter,TAMA,NFT,Last Active\n' +
                 allUsers.map(u => 
-                    `${u.telegram_id},${u.telegram_username || ''},${u.wallet_address || ''},${u.twitter_username || ''},${u.tama || 0},${0},${u.last_active || ''}`
+                    `${u.telegram_id},${u.telegram_username || ''},${u.wallet_address || ''},${u.twitter_username || ''},${u.tama || 0},${0},${u.last_daily_claim || ''}`
                 ).join('\n');
             
             downloadCSV(csv, 'users.csv');
