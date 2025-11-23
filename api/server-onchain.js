@@ -6,6 +6,7 @@
 const express = require('express');
 const cors = require('cors');
 const { mintOnChainNFT } = require('./mint-nft-onchain');
+const { updateNFTMetadata } = require('./update-nft-metadata');
 const { executeTAMATransfer } = require('./tama-transfer');
 const { executeWithdrawal } = require('./tama-withdrawal');
 
@@ -50,6 +51,9 @@ app.get('/health', (req, res) => {
 // Mint on-chain NFT endpoint
 app.post('/api/mint-nft-onchain', mintOnChainNFT);
 
+// Update NFT metadata endpoint
+app.post('/api/update-nft-metadata', updateNFTMetadata);
+
 // TAMA token distribution endpoint
 app.post('/api/tama-transfer', executeTAMATransfer);
 
@@ -68,6 +72,8 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
     console.log(`🚀 NFT On-Chain Minting API running on port ${PORT}`);
-    console.log(`📡 Endpoint: http://localhost:${PORT}/api/mint-nft-onchain`);
+    console.log(`📡 Endpoints:`);
+    console.log(`   - Mint: http://localhost:${PORT}/api/mint-nft-onchain`);
+    console.log(`   - Update Metadata: http://localhost:${PORT}/api/update-nft-metadata`);
 });
 
