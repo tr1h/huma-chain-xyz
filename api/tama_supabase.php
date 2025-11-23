@@ -4037,22 +4037,43 @@ function handleMarketplaceList($url, $key) {
         ];
         
         // Add prices based on payment type
-        if ($price) {
-            $listingData['price_tama'] = (int)$price;
+        // For SOL-only payments, price_tama should be NULL (not set in array)
+        if ($paymentType === 'tama' || $paymentType === 'both') {
+            if ($price) {
+                $listingData['price_tama'] = (int)$price;
+            }
+        } else {
+            // For SOL-only, explicitly set price_tama to null
+            $listingData['price_tama'] = null;
         }
-        if ($priceSol) {
-            $listingData['price_sol'] = (float)$priceSol;
+        
+        if ($paymentType === 'sol' || $paymentType === 'both') {
+            if ($priceSol) {
+                $listingData['price_sol'] = (float)$priceSol;
+            }
+        } else {
+            // For TAMA-only, explicitly set price_sol to null
+            $listingData['price_sol'] = null;
         }
         
         // Ensure at least one price is set (required by constraint)
-        if (!$listingData['price_tama'] && !$listingData['price_sol']) {
+        $hasPriceTama = isset($listingData['price_tama']) && $listingData['price_tama'] !== null;
+        $hasPriceSol = isset($listingData['price_sol']) && $listingData['price_sol'] !== null;
+        
+        if (!$hasPriceTama && !$hasPriceSol) {
             http_response_code(400);
             echo json_encode(['error' => 'At least one price (price or price_sol) must be set']);
             return;
         }
         
         // Log for debugging
-        error_log('Creating marketplace listing: ' . json_encode($listingData));
+        error_log("🔍 handleMarketplaceList - Creating listing:");
+        error_log("   telegram_id: $telegramId");
+        error_log("   nft_id: $nftId");
+        error_log("   payment_type: $paymentType");
+        error_log("   price_tama: " . ($listingData['price_tama'] ?? 'NULL'));
+        error_log("   price_sol: " . ($listingData['price_sol'] ?? 'NULL'));
+        error_log("   Full listing data: " . json_encode($listingData));
         
         $createResult = supabaseRequest($url, $key, 'POST', 'marketplace_listings', [], $listingData);
         
