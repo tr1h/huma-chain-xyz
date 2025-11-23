@@ -697,11 +697,19 @@
     </div>
     
     <script>
-        // Supabase config
+        // Supabase config - Use shared client from auth.js or create separate one
         const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Create separate Supabase client for NFT page to avoid conflicts with auth.js
+        // Use different storage key to prevent session conflicts
+        const nftSupabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                storageKey: 'nft-supabase-auth-token',
+                autoRefreshToken: true,
+                persistSession: false
+            }
+        }) : null;
         
         // Check for Telegram WebApp init data
         const urlParams = new URLSearchParams(window.location.search);
@@ -850,7 +858,7 @@
             `;
             
             try {
-                const { data: nfts, error } = await supabase
+                const { data: nfts, error } = await nftSupabase
                     .from('user_nfts')
                     .select('*')
                     .eq('telegram_id', userId)
@@ -860,7 +868,7 @@
                 if (error) throw error;
                 
                 // Load TAMA balance
-                const { data: userData } = await supabase
+                const { data: userData } = await nftSupabase
                     .from('leaderboard')
                     .select('tama')
                     .eq('telegram_id', userId)
@@ -887,7 +895,7 @@
                 console.log('🔍 Loading NFTs for wallet:', walletAddress);
                 
                 // Method 1: Check if wallet is linked to Telegram account
-                const { data: linkedUser } = await supabase
+                const { data: linkedUser } = await nftSupabase
                     .from('leaderboard')
                     .select('telegram_id, wallet_address, tama')
                     .eq('wallet_address', walletAddress)
@@ -904,7 +912,7 @@
                     tamaBalance = linkedUser.tama || 0;
                     console.log('💰 TAMA balance from linked account:', tamaBalance);
                     
-                    const { data: telegramNfts, error } = await supabase
+                    const { data: telegramNfts, error } = await nftSupabase
                         .from('user_nfts')
                         .select('*')
                         .eq('telegram_id', linkedUser.telegram_id)
@@ -921,7 +929,7 @@
                     // Query NFTs with NULL telegram_id but matching wallet_address
                     // Since Supabase doesn't support direct wallet_address query in user_nfts,
                     // we'll check transactions table for SOL purchases with this wallet
-                    const { data: solTransactions } = await supabase
+                    const { data: solTransactions } = await nftSupabase
                         .from('transactions')
                         .select('metadata')
                         .eq('type', 'nft_mint_sol')
@@ -949,7 +957,7 @@
                     
                     // Fetch NFTs by IDs
                     if (nftIds.length > 0) {
-                        const { data: walletNfts, error } = await supabase
+                        const { data: walletNfts, error } = await nftSupabase
                             .from('user_nfts')
                             .select('*')
                             .in('id', nftIds)
@@ -969,7 +977,7 @@
                     
                     // Try to get TAMA balance if wallet has any transactions
                     // Check if wallet has any leaderboard entry (even without telegram_id)
-                    const { data: walletUser } = await supabase
+                    const { data: walletUser } = await nftSupabase
                         .from('leaderboard')
                         .select('tama')
                         .eq('wallet_address', walletAddress)
