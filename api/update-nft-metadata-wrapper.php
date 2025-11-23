@@ -57,11 +57,28 @@ $data = [
 $tempFile = tempnam(sys_get_temp_dir(), 'nft_update_');
 file_put_contents($tempFile, json_encode($data));
 
-// Call Node.js script via Express server or direct node
-// Option 1: If you have Express server running
-$apiUrl = 'http://localhost:3001/api/update-nft-metadata';
+// Call Node.js script via Express server
+// Check if we're on Render.com or local
+$isRender = getenv('RENDER') || getenv('RENDER_SERVICE_ID');
+$nodeBackendUrl = getenv('ONCHAIN_API_URL');
 
-// Try Express server first
+if (!$nodeBackendUrl) {
+    // Default: try to detect environment
+    if ($isRender) {
+        // On Render.com - use separate Node.js service URL
+        $nodeBackendUrl = 'https://solanatamagotchi-onchain.onrender.com/api/update-nft-metadata';
+    } else {
+        // Local development
+        $nodeBackendUrl = 'http://localhost:3001/api/update-nft-metadata';
+    }
+}
+
+$apiUrl = $nodeBackendUrl;
+
+error_log("🔗 Calling Node.js backend: $apiUrl");
+error_log("📦 POST data: " . json_encode($data));
+
+// Try Express server
 $ch = curl_init($apiUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
