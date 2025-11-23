@@ -11323,18 +11323,40 @@
                     const isTelegramWebApp = window.Telegram && window.Telegram.WebApp;
                     
                     if (isTelegramWebApp) {
-                        const confirmed = confirm(
-                            '⚠️ Минтинг за SOL не работает в Telegram WebApp!\n\n' +
-                            'Для минтинга NFT за SOL нужно открыть игру в браузере.\n\n' +
-                            'Открыть в браузере сейчас?'
-                        );
+                        // In Telegram WebApp - redirect to mint page with deep link
+                        const userId = window.TELEGRAM_USER_ID || 'guest';
+                        const userIdStr = String(userId);
+                        const tamaBalance = gameState.tama || 0;
+                        const level = gameState.level || 1;
+                        const xp = gameState.xp || 0;
                         
-                        if (confirmed) {
-                            const gameUrl = window.location.href;
+                        // Build mint page URL
+                        const mintUrl = `https://solanatamagotchi.com/mint.html?user_id=${userIdStr}&tama=${tamaBalance}&level=${level}&xp=${xp}&mobile=true`;
+                        
+                        // Try to open Phantom wallet first (mobile deep link)
+                        // Phantom mobile deep link format: https://phantom.app/ul/v1/...
+                        // Or use solana: protocol
+                        const phantomDeepLink = `https://phantom.app/ul/v1/connect?app_url=${encodeURIComponent(mintUrl)}&redirect_link=${encodeURIComponent(mintUrl)}`;
+                        
+                        // Try to open Phantom first, fallback to mint page
+                        try {
+                            // On mobile, try to open Phantom app
+                            window.location.href = phantomDeepLink;
+                            
+                            // Fallback: if Phantom doesn't open, open mint page after 1 second
+                            setTimeout(() => {
+                                if (window.Telegram.WebApp.openLink) {
+                                    window.Telegram.WebApp.openLink(mintUrl);
+                                } else {
+                                    window.open(mintUrl, '_blank');
+                                }
+                            }, 1000);
+                        } catch (err) {
+                            // If deep link fails, just open mint page
                             if (window.Telegram.WebApp.openLink) {
-                                window.Telegram.WebApp.openLink(gameUrl);
+                                window.Telegram.WebApp.openLink(mintUrl);
                             } else {
-                                window.open(gameUrl, '_blank');
+                                window.open(mintUrl, '_blank');
                             }
                         }
                         return;
