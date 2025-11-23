@@ -111,3 +111,9 @@ git push origin main
 - **Основная ветка:** `main`
 - **Автодеплой:** GitHub Actions автоматически деплоит на GitHub Pages при push в `main`
 
+
+
+
+
+
+

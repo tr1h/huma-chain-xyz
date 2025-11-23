@@ -125,3 +125,8 @@ Play: https://t.me/GotchiGameBot
 - Before/after comparison
 - Transaction history view
 
+
+
+
+
+

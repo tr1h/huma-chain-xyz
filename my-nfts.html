@@ -912,6 +912,23 @@
                 const nftCard = document.createElement('div');
                 nftCard.className = 'nft-card';
                 
+                // Escape HTML to prevent XSS and unwanted HTML code
+                const escapeHtml = (text) => {
+                    if (!text) return '';
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                };
+                
+                const imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
+                const tierNameEscaped = escapeHtml(nft.tier_name || '');
+                const rarityEscaped = escapeHtml(nft.rarity || '');
+                
+                const imageHtml = imageUrl 
+                    ? `<img src="${imageUrl}" alt="${tierNameEscaped} ${rarityEscaped}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                       <div class="nft-emoji" style="display: none;">${getTierEmoji(nft.tier_name)}</div>`
+                    : `<div class="nft-emoji">${getTierEmoji(nft.tier_name)}</div>`;
+                
                 nftCard.innerHTML = `
                     <div class="nft-image" style="background: linear-gradient(135deg, ${tierColor}, ${rarityColor});">
                         ${isRealOnChain ? `
@@ -923,13 +940,13 @@
                                 ⚠️ Off-Chain Only
                             </div>
                         `}
-                        <div class="nft-badge">${nft.rarity}</div>
-                        <div class="nft-emoji">${getTierEmoji(nft.tier_name)}</div>
+                        <div class="nft-badge">${rarityEscaped}</div>
+                        ${imageHtml}
                     </div>
                     <div class="nft-info">
                         <div class="nft-header">
-                            <div class="nft-tier" style="color: ${tierColor};">${nft.tier_name}</div>
-                            <div class="nft-rarity" style="background: ${rarityColor};">${nft.rarity}</div>
+                            <div class="nft-tier" style="color: ${tierColor};">${tierNameEscaped}</div>
+                            <div class="nft-rarity" style="background: ${rarityColor};">${rarityEscaped}</div>
                         </div>
                         
                         <div class="nft-multiplier">
@@ -939,22 +956,22 @@
                         <div class="nft-details">
                             <div class="nft-detail-row">
                                 <span>🎨 Design:</span>
-                                <strong>#${nft.design_number || 'N/A'}</strong>
+                                <strong>#${escapeHtml(String(nft.design_number || 'N/A'))}</strong>
                             </div>
                             <div class="nft-detail-row">
                                 <span>📅 Minted:</span>
-                                <strong>${mintedDate}</strong>
+                                <strong>${escapeHtml(mintedDate)}</strong>
                             </div>
                             ${nft.price_paid_sol ? `
                                 <div class="nft-detail-row">
                                     <span>💎 Price Paid:</span>
-                                    <strong>${nft.price_paid_sol} SOL</strong>
+                                    <strong>${escapeHtml(String(nft.price_paid_sol))} SOL</strong>
                                 </div>
                             ` : ''}
                             ${nft.price_paid_tama ? `
                                 <div class="nft-detail-row">
                                     <span>💰 Price Paid:</span>
-                                    <strong>${nft.price_paid_tama.toLocaleString()} TAMA</strong>
+                                    <strong>${escapeHtml(String(nft.price_paid_tama.toLocaleString()))} TAMA</strong>
                                 </div>
                             ` : ''}
                         </div>
@@ -962,12 +979,12 @@
                         ${isRealOnChain ? `
                             <div class="nft-mint-address">
                                 <strong>📍 Mint Address:</strong><br>
-                                ${nft.nft_mint_address}
+                                <code style="font-size: 11px; word-break: break-all;">${escapeHtml(nft.nft_mint_address || '')}</code>
                             </div>
                         ` : `
                             <div class="nft-mint-address" style="background: #fff3cd; border-color: #ffc107;">
                                 <strong>⚠️ Internal ID:</strong><br>
-                                ${nft.nft_mint_address || 'N/A'}
+                                <code style="font-size: 11px; word-break: break-all;">${escapeHtml(nft.nft_mint_address || 'N/A')}</code>
                             </div>
                         `}
                         
@@ -1008,6 +1025,45 @@
                 'Diamond': '🔷'
             };
             return emojis[tier] || '🎨';
+        }
+        
+        // Get NFT image URL from IPFS
+        function getNFTImageUrl(tier, rarity) {
+            const ipfsUrls = {
+                'bronze': {
+                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i',
+                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq',
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq'
+                },
+                'silver': {
+                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
+                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreigywjdjw3vxopv4blicqioyx5fyqpwcvs22s2ea377rofvh2sslnm'
+                },
+                'gold': {
+                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreicywzvyse3immuhakmd4dvv22gxsikmzhn4q7cjkmzjpp7253ftse',
+                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+                },
+                'platinum': {
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4',
+                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreihrwin3ld34uner7rpwggke2pfnn5beb3eyrw7vrjmw6n5hen5hie'
+                },
+                'diamond': {
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq',
+                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreidtqr62aeflchsghhdoo4m7tv33j7za5w3ttzqziwkl4u4cmgz7tq'
+                }
+            };
+            
+            const tierLower = (tier || '').toLowerCase();
+            const rarityLower = (rarity || '').toLowerCase();
+            
+            return ipfsUrls[tierLower]?.[rarityLower] || null;
         }
         
         // View in Phantom

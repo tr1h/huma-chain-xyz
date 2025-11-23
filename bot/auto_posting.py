@@ -315,3 +315,10 @@ def setup_auto_posting(bot, channel_username):
 
 
 
+
+
+
+
+
+
+

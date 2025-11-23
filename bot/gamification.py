@@ -1,4 +1,4 @@
-"""
+﻿"""
 Gamification system for Solana Tamagotchi Bot
 Provides daily rewards, mini-games, ranks, badges, and quests
 """
@@ -427,5 +427,4 @@ class QuestSystem:
                         }, on_conflict='telegram_id,quest_id').execute()
         except Exception as e:
             print(f"Error checking quests: {e}")
-
 
