@@ -3935,17 +3935,59 @@ function handleMarketplaceList($url, $key) {
         
         $telegramId = $data['telegram_id'] ?? null;
         $nftId = $data['nft_id'] ?? null;
+        $paymentType = $data['payment_type'] ?? 'tama'; // 'tama', 'sol', or 'both'
         $price = $data['price'] ?? null;
+        $priceSol = $data['price_sol'] ?? null;
         
-        if (!$telegramId || !$nftId || !$price) {
+        // Basic validation
+        if (!$telegramId || !$nftId) {
             http_response_code(400);
-            echo json_encode(['error' => 'Missing required fields: telegram_id, nft_id, price']);
+            echo json_encode(['error' => 'Missing required fields: telegram_id, nft_id']);
             return;
         }
         
-        if ($price < 1000) {
+        // Validate payment type and price
+        if ($paymentType === 'tama') {
+            if (!$price) {
+                http_response_code(400);
+                echo json_encode(['error' => 'price is required when payment_type is tama']);
+                return;
+            }
+            if ($price < 1000) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Minimum price is 1,000 TAMA']);
+                return;
+            }
+        } elseif ($paymentType === 'sol') {
+            if (!$priceSol) {
+                http_response_code(400);
+                echo json_encode(['error' => 'price_sol is required when payment_type is sol']);
+                return;
+            }
+            if ($priceSol < 0.001) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Minimum price is 0.001 SOL']);
+                return;
+            }
+        } elseif ($paymentType === 'both') {
+            if (!$price && !$priceSol) {
+                http_response_code(400);
+                echo json_encode(['error' => 'At least one price (price or price_sol) is required when payment_type is both']);
+                return;
+            }
+            if ($price && $price < 1000) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Minimum price is 1,000 TAMA']);
+                return;
+            }
+            if ($priceSol && $priceSol < 0.001) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Minimum price is 0.001 SOL']);
+                return;
+            }
+        } else {
             http_response_code(400);
-            echo json_encode(['error' => 'Minimum price is 1,000 TAMA']);
+            echo json_encode(['error' => 'Invalid payment_type. Must be: tama, sol, or both']);
             return;
         }
         
@@ -3982,23 +4024,6 @@ function handleMarketplaceList($url, $key) {
         if (!empty($existingListing['data'])) {
             http_response_code(400);
             echo json_encode(['error' => 'NFT is already listed on marketplace']);
-            return;
-        }
-        
-        // Determine payment type
-        $paymentType = $data['payment_type'] ?? 'tama'; // 'tama', 'sol', or 'both'
-        $priceSol = $data['price_sol'] ?? null;
-        
-        // Validate payment type
-        if ($paymentType === 'sol' && !$priceSol) {
-            http_response_code(400);
-            echo json_encode(['error' => 'price_sol is required when payment_type is sol']);
-            return;
-        }
-        
-        if ($paymentType === 'tama' && !$price) {
-            http_response_code(400);
-            echo json_encode(['error' => 'price is required when payment_type is tama']);
             return;
         }
         
