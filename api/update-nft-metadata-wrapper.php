@@ -58,20 +58,29 @@ $tempFile = tempnam(sys_get_temp_dir(), 'nft_update_');
 file_put_contents($tempFile, json_encode($data));
 
 // Call Node.js script via Express server
-// Check if we're on Render.com or local
-$isRender = getenv('RENDER') || getenv('RENDER_SERVICE_ID');
+// For production API (api.solanatamagotchi.com), always use Render.com service
+// For local development, use localhost
+$hostname = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+
+// Check if we're on production domain (not localhost)
+$isProduction = strpos($hostname, 'localhost') === false && 
+                strpos($hostname, '127.0.0.1') === false;
+
+// Get URL from environment variable or use default
 $nodeBackendUrl = getenv('ONCHAIN_API_URL');
 
 if (!$nodeBackendUrl) {
-    // Default: try to detect environment
-    if ($isRender) {
-        // On Render.com - use separate Node.js service URL
+    if ($isProduction) {
+        // Production: Use Render.com Node.js service (from render.yaml)
         $nodeBackendUrl = 'https://solanatamagotchi-onchain.onrender.com/api/update-nft-metadata';
     } else {
         // Local development
         $nodeBackendUrl = 'http://localhost:3001/api/update-nft-metadata';
     }
 }
+
+error_log("🔍 Hostname: $hostname, isProduction: " . ($isProduction ? 'true' : 'false'));
+error_log("🔗 Using Node.js backend URL: $nodeBackendUrl");
 
 $apiUrl = $nodeBackendUrl;
 
