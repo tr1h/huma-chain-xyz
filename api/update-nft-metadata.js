@@ -3,7 +3,7 @@
  * Updates image URI and other metadata for existing NFTs
  */
 
-const { Metaplex, keypairIdentity, bundlrStorage, mockStorage } = require('@metaplex-foundation/js');
+const { Metaplex, keypairIdentity, irysStorage, bundlrStorage, mockStorage } = require('@metaplex-foundation/js');
 const { Connection, Keypair, clusterApiUrl, PublicKey } = require('@solana/web3.js');
 const bs58 = require('bs58');
 
@@ -42,43 +42,60 @@ async function initMetaplex() {
 
         let metaplex = Metaplex.make(connection).use(keypairIdentity(payer));
         
-        // Initialize Bundlr storage for Arweave uploads
-        // Check if bundlrStorage exists and is callable
-        console.log('🔧 Checking Bundlr storage availability...');
+        // Initialize Irys (formerly Bundlr) storage for Arweave uploads
+        // In newer versions of @metaplex-foundation/js, bundlrStorage was renamed to irysStorage
+        console.log('🔧 Checking Irys (Bundlr) storage availability...');
+        console.log('   irysStorage type:', typeof irysStorage);
         console.log('   bundlrStorage type:', typeof bundlrStorage);
-        console.log('   bundlrStorage value:', bundlrStorage ? 'exists' : 'undefined');
         
         try {
-            // bundlrStorage should be a function in @metaplex-foundation/js
-            if (!bundlrStorage) {
-                throw new Error('bundlrStorage is not exported from @metaplex-foundation/js. Check package version.');
+            // Try irysStorage first (newer versions)
+            let storageFunction = null;
+            let storageName = '';
+            let storageConfig = {};
+            
+            if (irysStorage && typeof irysStorage === 'function') {
+                storageFunction = irysStorage;
+                storageName = 'Irys';
+                storageConfig = {
+                    address: SOLANA_NETWORK === 'mainnet' 
+                        ? 'https://node1.irys.xyz' 
+                        : 'https://devnet.irys.xyz',
+                    providerUrl: SOLANA_NETWORK === 'mainnet'
+                        ? clusterApiUrl('mainnet-beta')
+                        : clusterApiUrl('devnet'),
+                    timeout: 60000,
+                };
+                console.log('✅ Using Irys storage (newer API)');
+            } else if (bundlrStorage && typeof bundlrStorage === 'function') {
+                storageFunction = bundlrStorage;
+                storageName = 'Bundlr';
+                storageConfig = {
+                    address: SOLANA_NETWORK === 'mainnet' 
+                        ? 'https://node1.bundlr.network' 
+                        : 'https://devnet.bundlr.network',
+                    providerUrl: SOLANA_NETWORK === 'mainnet'
+                        ? clusterApiUrl('mainnet-beta')
+                        : clusterApiUrl('devnet'),
+                    timeout: 60000,
+                };
+                console.log('✅ Using Bundlr storage (legacy API)');
+            } else {
+                throw new Error('Neither irysStorage nor bundlrStorage is available. Check @metaplex-foundation/js version.');
             }
             
-            if (typeof bundlrStorage !== 'function') {
-                throw new Error(`bundlrStorage is not a function (type: ${typeof bundlrStorage}). Check @metaplex-foundation/js installation.`);
-            }
-            
-            console.log('✅ bundlrStorage is available, initializing...');
-            metaplex = metaplex.use(bundlrStorage({
-                address: SOLANA_NETWORK === 'mainnet' 
-                    ? 'https://node1.bundlr.network' 
-                    : 'https://devnet.bundlr.network',
-                providerUrl: SOLANA_NETWORK === 'mainnet'
-                    ? clusterApiUrl('mainnet-beta')
-                    : clusterApiUrl('devnet'),
-                timeout: 60000,
-            }));
-            console.log('✅ Metaplex initialized with Bundlr storage (Arweave)');
+            metaplex = metaplex.use(storageFunction(storageConfig));
+            console.log(`✅ Metaplex initialized with ${storageName} storage (Arweave)`);
         } catch (storageError) {
-            console.error('❌ CRITICAL: Failed to initialize bundlrStorage!');
+            console.error('❌ CRITICAL: Failed to initialize Arweave storage!');
             console.error('   Error:', storageError.message);
             console.error('   Stack:', storageError.stack);
             console.error('   This means metadata will NOT be stored on Arweave!');
             console.error('   Please check:');
-            console.error('   1. @metaplex-foundation/js version supports Bundlr');
+            console.error('   1. @metaplex-foundation/js version supports Irys/Bundlr');
             console.error('   2. Payer keypair has SOL balance (min 0.01 SOL)');
-            console.error('   3. Network connection to Bundlr devnet');
-            throw new Error(`CRITICAL: Failed to initialize Bundlr storage: ${storageError.message}. Cannot proceed without Arweave storage.`);
+            console.error('   3. Network connection to Irys/Bundlr devnet');
+            throw new Error(`CRITICAL: Failed to initialize Arweave storage: ${storageError.message}. Cannot proceed without Arweave storage.`);
         }
 
         return metaplex;
