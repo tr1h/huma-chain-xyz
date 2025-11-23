@@ -509,9 +509,33 @@
 <body>
     <div class="container">
         <div class="header">
+            <div class="auth-section" id="auth-section">
+                <div id="auth-status">Loading...</div>
+            </div>
             <h1>🛒 NFT Marketplace</h1>
             <p class="subtitle">Buy and sell your NFT pets</p>
         </div>
+        
+        <!-- Not Authenticated Screen -->
+        <div id="not-authenticated" class="not-authenticated" style="display: none;">
+            <h2>🔐 Connect to Marketplace</h2>
+            <p>Please connect your wallet or login via Telegram to access the marketplace</p>
+            <div class="auth-options">
+                <div class="auth-option">
+                    <h3>👛 Connect Wallet</h3>
+                    <p>Connect your Phantom wallet to buy and sell NFTs</p>
+                    <button class="auth-btn" onclick="connectPhantomWallet()">Connect Phantom</button>
+                </div>
+                <div class="auth-option">
+                    <h3>📱 Telegram Login</h3>
+                    <p>Login via Telegram to access your NFTs</p>
+                    <button class="auth-btn" onclick="loginViaTelegram()">Login via Telegram</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Authenticated Content -->
+        <div id="authenticated-content">
         
         <!-- Stats -->
         <div class="stats">
@@ -581,7 +605,8 @@
                 <p>Loading marketplace...</p>
             </div>
         </div>
-    </div>
+        </div>
+        <!-- End Authenticated Content -->
     
     <!-- Sell Modal -->
     <div class="modal" id="sell-modal">
