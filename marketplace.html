@@ -1034,7 +1034,10 @@
         
         // Open sell modal
         async function openSellModal() {
-            if (!isAuthenticated && !userTelegramId) {
+            // Update userTelegramId before checking
+            userTelegramId = getTelegramUserId();
+            
+            if (!isAuthenticated && !userTelegramId && !walletAddress) {
                 alert('Please connect wallet or login via Telegram first');
                 return;
             }
@@ -1042,38 +1045,95 @@
             const modal = document.getElementById('sell-modal');
             const select = document.getElementById('sell-nft-select');
             
+            // Show loading state
+            select.innerHTML = '<option value="">Loading your NFTs...</option>';
+            modal.classList.add('active');
+            
             // Load user's NFTs from Supabase
             try {
-                const { data: nfts, error } = await supabase
+                let nfts = [];
+                let query = supabase
                     .from('user_nfts')
                     .select('*')
-                    .eq('telegram_id', userTelegramId)
-                    .eq('is_active', true)
-                    .order('minted_at', { ascending: false });
+                    .eq('is_active', true);
                 
-                if (error) {
-                    console.error('Failed to load NFTs:', error);
+                // Try to find NFTs by telegram_id first
+                if (userTelegramId) {
+                    console.log('Loading NFTs for Telegram ID:', userTelegramId);
+                    const { data, error } = await query
+                        .eq('telegram_id', userTelegramId.toString())
+                        .order('minted_at', { ascending: false });
+                    
+                    if (error) {
+                        console.error('Error loading NFTs by telegram_id:', error);
+                    } else {
+                        nfts = data || [];
+                        console.log('Found NFTs by telegram_id:', nfts.length);
+                    }
+                }
+                
+                // If no NFTs found and wallet is connected, try to find by wallet address
+                if (nfts.length === 0 && walletAddress) {
+                    console.log('Loading NFTs for wallet:', walletAddress);
+                    // Check if wallet is linked to a telegram account
+                    const { data: leaderboardData } = await supabase
+                        .from('leaderboard')
+                        .select('telegram_id')
+                        .eq('wallet_address', walletAddress)
+                        .maybeSingle();
+                    
+                    if (leaderboardData && leaderboardData.telegram_id) {
+                        const { data, error } = await supabase
+                            .from('user_nfts')
+                            .select('*')
+                            .eq('telegram_id', leaderboardData.telegram_id.toString())
+                            .eq('is_active', true)
+                            .order('minted_at', { ascending: false });
+                        
+                        if (error) {
+                            console.error('Error loading NFTs by linked wallet:', error);
+                        } else {
+                            nfts = data || [];
+                            console.log('Found NFTs by linked wallet:', nfts.length);
+                        }
+                    }
+                }
+                
+                if (nfts.length === 0) {
+                    select.innerHTML = '<option value="">No NFTs found. Mint an NFT first!</option>';
+                    console.warn('No NFTs found for user');
                     return;
                 }
                 
                 // Filter out already listed NFTs
-                const { data: listings } = await supabase
+                const { data: listings, error: listingsError } = await supabase
                     .from('marketplace_listings')
                     .select('nft_id')
                     .eq('status', 'active');
                 
+                if (listingsError) {
+                    console.error('Error loading listings:', listingsError);
+                }
+                
                 const listedNftIds = new Set((listings || []).map(l => l.nft_id));
-                const availableNfts = (nfts || []).filter(nft => !listedNftIds.has(nft.id) && !nft.is_listed);
+                const availableNfts = nfts.filter(nft => !listedNftIds.has(nft.id) && !nft.is_listed);
+                
+                if (availableNfts.length === 0) {
+                    select.innerHTML = '<option value="">All your NFTs are already listed</option>';
+                    return;
+                }
                 
                 select.innerHTML = '<option value="">Select NFT...</option>' + 
                     availableNfts.map(nft => 
                         `<option value="${nft.id}">${getTierEmoji(nft.tier_name)} ${nft.tier_name} - ${nft.rarity || 'Common'} (${nft.earning_multiplier}x)${nft.nft_mint_address ? ' [On-Chain]' : ''}</option>`
                     ).join('');
+                
+                console.log('Loaded', availableNfts.length, 'available NFTs');
             } catch (error) {
                 console.error('Failed to load NFTs:', error);
+                select.innerHTML = '<option value="">Error loading NFTs. Please try again.</option>';
+                alert('Failed to load NFTs: ' + error.message);
             }
-            
-            modal.classList.add('active');
         }
         
         function closeSellModal() {
