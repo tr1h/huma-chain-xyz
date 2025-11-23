@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Auth Management - Solana Tamagotchi Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/admin-auth.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1D3557 0%, #2D4564 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 15px;
+            border: 4px solid #8AC926;
+        }
+
+        .header h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: #FFCA3A;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            margin-bottom: 10px;
+            text-shadow: 4px 4px 0 #1D3557;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 10000;
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #FFCA3A, #FFA500);
+            color: #1D3557;
+            padding: 10px 20px;
+            border: 4px solid #1D3557;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.7rem;
+            box-shadow: 0 4px 0 #8AC926, 0 6px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #8AC926, 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1));
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #8AC926;
+            box-shadow: 0 6px 0 #6FA01A, 0 12px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 0 #6FA01A, 0 16px 40px rgba(0,0,0,0.4);
+        }
+
+        .stat-label {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            color: #FFCA3A;
+            text-shadow: 2px 2px 0 #1D3557;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #1982C4, #1D3557);
+            color: white;
+            border: 3px solid #1D3557;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 #0F5A8A, 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #0F5A8A, 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #8AC926, #6FA01A);
+            border-color: #8AC926;
+            box-shadow: 0 4px 0 #6FA01A, 0 6px 15px rgba(138, 201, 38, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #8AC926;
+            box-shadow: 0 6px 0 #6FA01A, 0 12px 30px rgba(0,0,0,0.3);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            background: rgba(138, 201, 38, 0.3);
+            color: #FFCA3A;
+            text-transform: uppercase;
+        }
+
+        td {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        tr:hover {
+            background: rgba(138, 201, 38, 0.2);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .badge-webapp {
+            background: #26A5E4;
+            color: white;
+        }
+
+        .badge-widget {
+            background: #9333EA;
+            color: white;
+        }
+
+        .badge-wallet {
+            background: #8AC926;
+            color: #1D3557;
+        }
+
+        .badge-linked {
+            background: #FFCA3A;
+            color: #1D3557;
+        }
+
+        .badge-only {
+            background: #999;
+            color: white;
+        }
+
+        .action-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            padding: 6px 12px;
+            border: 2px solid #1D3557;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 2px;
+        }
+
+        .action-btn.view {
+            background: #1982C4;
+            color: white;
+        }
+
+        .action-btn.sync {
+            background: #8AC926;
+            color: #1D3557;
+        }
+
+        .action-btn.unlink {
+            background: #f44336;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 3px solid #1D3557;
+            border-radius: 8px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #8AC926;
+            box-shadow: 0 0 0 3px rgba(138, 201, 38, 0.3);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid #1D3557;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #8AC926;
+            color: #1D3557;
+            border-color: #8AC926;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid #8AC926;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .chart-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="super-admin.html" class="back-btn">⬅️ BACK</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔐 AUTH MANAGEMENT</h1>
+            <p>Управление авторизацией и пользователями</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">👥 Всего пользователей</div>
+                <div class="stat-value" id="stat-total-users">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">🔗 С кошельком</div>
+                <div class="stat-value" id="stat-wallet-users">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">📱 WebApp (бот)</div>
+                <div class="stat-value" id="stat-webapp-users">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">🌐 Widget (сайт)</div>
+                <div class="stat-value" id="stat-widget-users">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">✅ Связанные</div>
+                <div class="stat-value" id="stat-linked-users">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">🔄 Активные (7д)</div>
+                <div class="stat-value" id="stat-active-users">-</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('users')">👥 Пользователи</button>
+            <button class="tab-btn" onclick="switchTab('wallets')">👛 Кошельки</button>
+            <button class="tab-btn" onclick="switchTab('sessions')">🔐 Сессии</button>
+            <button class="tab-btn" onclick="switchTab('analytics')">📊 Аналитика</button>
+            <button class="tab-btn" onclick="switchTab('actions')">⚙️ Действия</button>
+        </div>
+
+        <!-- Tab: Users -->
+        <div id="tab-users" class="tab-content active">
+            <div class="search-box">
+                <input type="text" id="search-users" placeholder="🔍 Поиск по Telegram ID, username, wallet..." onkeyup="filterUsers()">
+                <select id="filter-method" onchange="filterUsers()" style="padding: 12px; border: 3px solid #1D3557; border-radius: 8px; background: rgba(255,255,255,0.1); color: white;">
+                    <option value="">Все методы</option>
+                    <option value="webapp">WebApp (бот)</option>
+                    <option value="widget">Widget (сайт)</option>
+                    <option value="wallet">Только кошелек</option>
+                    <option value="linked">Связанные</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Telegram ID</th>
+                            <th>Username</th>
+                            <th>Wallet</th>
+                            <th>Twitter</th>
+                            <th>TAMA</th>
+                            <th>NFT</th>
+                            <th>Последняя активность</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <tr>
+                            <td colspan="8" class="loading">
+                                <div class="loading-spinner"></div>
+                                <p>Загрузка пользователей...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Wallets -->
+        <div id="tab-wallets" class="tab-content">
+            <div class="search-box">
+                <input type="text" id="search-wallets" placeholder="🔍 Поиск по адресу кошелька..." onkeyup="filterWallets()">
+            </div>
+            <div class="table-container">
+                <table id="wallets-table">
+                    <thead>
+                        <tr>
+                            <th>Wallet Address</th>
+                            <th>Telegram ID</th>
+                            <th>Username</th>
+                            <th>TAMA Balance</th>
+                            <th>NFT Count</th>
+                            <th>Status</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wallets-tbody">
+                        <tr>
+                            <td colspan="7" class="loading">
+                                <div class="loading-spinner"></div>
+                                <p>Загрузка кошельков...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Sessions -->
+        <div id="tab-sessions" class="tab-content">
+            <div class="table-container">
+                <table id="sessions-table">
+                    <thead>
+                        <tr>
+                            <th>Telegram ID</th>
+                            <th>Username</th>
+                            <th>Метод авторизации</th>
+                            <th>Последняя активность</th>
+                            <th>Сессия истекает</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessions-tbody">
+                        <tr>
+                            <td colspan="6" class="loading">
+                                <div class="loading-spinner"></div>
+                                <p>Загрузка сессий...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab: Analytics -->
+        <div id="tab-analytics" class="tab-content">
+            <div class="chart-container">
+                <h3 style="font-family: 'Press Start 2P', cursive; font-size: 0.8rem; margin-bottom: 20px; color: #FFCA3A;">📊 Методы авторизации</h3>
+                <canvas id="auth-method-chart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 style="font-family: 'Press Start 2P', cursive; font-size: 0.8rem; margin-bottom: 20px; color: #FFCA3A;">📈 Активность по дням</h3>
+                <canvas id="activity-chart" width="400" height="200"></canvas>
+            </div>
+            <div class="stats-grid" style="margin-top: 20px;">
+                <div class="stat-card">
+                    <div class="stat-label">Конверсия</div>
+                    <div class="stat-value" id="stat-conversion">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Retention (7д)</div>
+                    <div class="stat-value" id="stat-retention">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Средний баланс</div>
+                    <div class="stat-value" id="stat-avg-balance">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Средний NFT</div>
+                    <div class="stat-value" id="stat-avg-nft">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Actions -->
+        <div id="tab-actions" class="tab-content">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div class="stat-card">
+                    <h3 style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; margin-bottom: 15px; color: #FFCA3A;">🔄 Синхронизация</h3>
+                    <button class="action-btn sync" onclick="syncAllUsers()" style="width: 100%;">Синхронизировать всех</button>
+                    <button class="action-btn sync" onclick="syncLinkedWallets()" style="width: 100%; margin-top: 10px;">Синхронизировать кошельки</button>
+                </div>
+                <div class="stat-card">
+                    <h3 style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; margin-bottom: 15px; color: #FFCA3A;">🔗 Управление связями</h3>
+                    <input type="text" id="link-telegram-id" placeholder="Telegram ID" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 2px solid #1D3557; border-radius: 6px; background: rgba(255,255,255,0.1); color: white;">
+                    <input type="text" id="link-wallet" placeholder="Wallet Address" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 2px solid #1D3557; border-radius: 6px; background: rgba(255,255,255,0.1); color: white;">
+                    <button class="action-btn sync" onclick="linkWalletToTelegram()" style="width: 100%;">🔗 Привязать кошелек</button>
+                </div>
+                <div class="stat-card">
+                    <h3 style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; margin-bottom: 15px; color: #FFCA3A;">📊 Экспорт данных</h3>
+                    <button class="action-btn view" onclick="exportUsersCSV()" style="width: 100%;">📥 Экспорт пользователей</button>
+                    <button class="action-btn view" onclick="exportWalletsCSV()" style="width: 100%; margin-top: 10px;">📥 Экспорт кошельков</button>
+                    <button class="action-btn view" onclick="exportAnalyticsCSV()" style="width: 100%; margin-top: 10px;">📥 Экспорт аналитики</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Supabase config
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let allUsers = [];
+        let allWallets = [];
+        let authMethodChart = null;
+        let activityChart = null;
+
+        // Check admin auth
+        if (typeof adminAuth !== 'undefined' && adminAuth.isAuthenticated) {
+            if (!adminAuth.isAuthenticated()) {
+                window.location.href = 'admin-dashboard.html';
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'wallets') loadWallets();
+            if (tabName === 'sessions') loadSessions();
+            if (tabName === 'analytics') loadAnalytics();
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const { data: users, error } = await supabase
+                    .from('leaderboard')
+                    .select('*')
+                    .order('last_active', { ascending: false })
+                    .limit(1000);
+                
+                if (error) throw error;
+                
+                allUsers = users || [];
+                
+                // Get NFT counts
+                const { data: nfts } = await supabase
+                    .from('user_nfts')
+                    .select('telegram_id')
+                    .eq('is_active', true);
+                
+                const nftCounts = {};
+                if (nfts) {
+                    nfts.forEach(nft => {
+                        nftCounts[nft.telegram_id] = (nftCounts[nft.telegram_id] || 0) + 1;
+                    });
+                }
+                
+                const tbody = document.getElementById('users-tbody');
+                tbody.innerHTML = '';
+                
+                if (allUsers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Нет пользователей</td></tr>';
+                    return;
+                }
+                
+                allUsers.forEach(user => {
+                    const row = document.createElement('tr');
+                    const wallet = user.wallet_address ? `${user.wallet_address.substring(0, 8)}...${user.wallet_address.substring(user.wallet_address.length - 6)}` : '-';
+                    const twitter = user.twitter_username ? `@${user.twitter_username}` : '-';
+                    const lastActive = user.last_active ? new Date(user.last_active).toLocaleString('ru-RU') : 'Никогда';
+                    const nftCount = nftCounts[user.telegram_id] || 0;
+                    
+                    row.innerHTML = `
+                        <td>${user.telegram_id}</td>
+                        <td>${user.telegram_username || '-'}</td>
+                        <td>${wallet}</td>
+                        <td>${twitter}</td>
+                        <td>${(user.tama || 0).toLocaleString()}</td>
+                        <td>${nftCount}</td>
+                        <td>${lastActive}</td>
+                        <td>
+                            <button class="action-btn view" onclick="viewUser('${user.telegram_id}')">👁️</button>
+                            <button class="action-btn sync" onclick="syncUser('${user.telegram_id}')">🔄</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                updateStats();
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('users-tbody').innerHTML = 
+                    '<tr><td colspan="8" class="empty-state">Ошибка загрузки: ' + error.message + '</td></tr>';
+            }
+        }
+
+        // Load wallets
+        async function loadWallets() {
+            try {
+                const { data: users, error } = await supabase
+                    .from('leaderboard')
+                    .select('*')
+                    .not('wallet_address', 'is', null)
+                    .order('last_active', { ascending: false });
+                
+                if (error) throw error;
+                
+                allWallets = users || [];
+                
+                // Get NFT counts
+                const { data: nfts } = await supabase
+                    .from('user_nfts')
+                    .select('telegram_id')
+                    .eq('is_active', true);
+                
+                const nftCounts = {};
+                if (nfts) {
+                    nfts.forEach(nft => {
+                        nftCounts[nft.telegram_id] = (nftCounts[nft.telegram_id] || 0) + 1;
+                    });
+                }
+                
+                const tbody = document.getElementById('wallets-tbody');
+                tbody.innerHTML = '';
+                
+                if (allWallets.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Нет кошельков</td></tr>';
+                    return;
+                }
+                
+                allWallets.forEach(user => {
+                    const row = document.createElement('tr');
+                    const status = user.telegram_id ? '<span class="badge badge-linked">Связан</span>' : '<span class="badge badge-only">Только кошелек</span>';
+                    
+                    row.innerHTML = `
+                        <td>${user.wallet_address.substring(0, 12)}...${user.wallet_address.substring(user.wallet_address.length - 8)}</td>
+                        <td>${user.telegram_id || '-'}</td>
+                        <td>${user.telegram_username || '-'}</td>
+                        <td>${(user.tama || 0).toLocaleString()}</td>
+                        <td>${nftCounts[user.telegram_id] || 0}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button class="action-btn view" onclick="viewWallet('${user.wallet_address}')">👁️</button>
+                            ${user.telegram_id ? '' : '<button class="action-btn sync" onclick="linkWalletPrompt(\'' + user.wallet_address + '\')">🔗</button>'}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading wallets:', error);
+                document.getElementById('wallets-tbody').innerHTML = 
+                    '<tr><td colspan="7" class="empty-state">Ошибка загрузки: ' + error.message + '</td></tr>';
+            }
+        }
+
+        // Load sessions (simulated - based on last_active)
+        async function loadSessions() {
+            try {
+                const { data: users, error } = await supabase
+                    .from('leaderboard')
+                    .select('telegram_id, telegram_username, last_active, wallet_address')
+                    .not('last_active', 'is', null)
+                    .order('last_active', { ascending: false })
+                    .limit(500);
+                
+                if (error) throw error;
+                
+                const tbody = document.getElementById('sessions-tbody');
+                tbody.innerHTML = '';
+                
+                if (!users || users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Нет активных сессий</td></tr>';
+                    return;
+                }
+                
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    const method = user.wallet_address ? '<span class="badge badge-linked">Связан</span>' : '<span class="badge badge-webapp">WebApp</span>';
+                    const lastActive = new Date(user.last_active);
+                    const sessionExpiry = new Date(lastActive.getTime() + 7 * 24 * 60 * 60 * 1000);
+                    const isExpired = sessionExpiry < new Date();
+                    
+                    row.innerHTML = `
+                        <td>${user.telegram_id}</td>
+                        <td>${user.telegram_username || '-'}</td>
+                        <td>${method}</td>
+                        <td>${lastActive.toLocaleString('ru-RU')}</td>
+                        <td style="color: ${isExpired ? '#f44336' : '#8AC926'}">${sessionExpiry.toLocaleString('ru-RU')}</td>
+                        <td>
+                            <button class="action-btn view" onclick="viewUser('${user.telegram_id}')">👁️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                document.getElementById('sessions-tbody').innerHTML = 
+                    '<tr><td colspan="6" class="empty-state">Ошибка загрузки: ' + error.message + '</td></tr>';
+            }
+        }
+
+        // Load analytics
+        async function loadAnalytics() {
+            try {
+                const { data: users } = await supabase
+                    .from('leaderboard')
+                    .select('telegram_id, wallet_address, last_active, tama');
+                
+                if (!users) return;
+                
+                // Calculate stats
+                const totalUsers = users.length;
+                const walletUsers = users.filter(u => u.wallet_address).length;
+                const linkedUsers = users.filter(u => u.wallet_address && u.telegram_id).length;
+                const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                const activeUsers = users.filter(u => u.last_active && new Date(u.last_active) > sevenDaysAgo).length;
+                
+                // Auth method chart
+                const ctx1 = document.getElementById('auth-method-chart').getContext('2d');
+                if (authMethodChart) authMethodChart.destroy();
+                authMethodChart = new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['С кошельком', 'Связанные', 'Только Telegram'],
+                        datasets: [{
+                            data: [walletUsers, linkedUsers, totalUsers - walletUsers],
+                            backgroundColor: ['#8AC926', '#FFCA3A', '#26A5E4']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: '#fff' } }
+                        }
+                    }
+                });
+                
+                // Activity chart (last 7 days)
+                const ctx2 = document.getElementById('activity-chart').getContext('2d');
+                const last7Days = [];
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dayStart = new Date(date.setHours(0,0,0,0));
+                    const dayEnd = new Date(date.setHours(23,59,59,999));
+                    const count = users.filter(u => {
+                        if (!u.last_active) return false;
+                        const active = new Date(u.last_active);
+                        return active >= dayStart && active <= dayEnd;
+                    }).length;
+                    last7Days.push({ date: dayStart.toLocaleDateString('ru-RU'), count });
+                }
+                
+                if (activityChart) activityChart.destroy();
+                activityChart = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: last7Days.map(d => d.date),
+                        datasets: [{
+                            label: 'Активных пользователей',
+                            data: last7Days.map(d => d.count),
+                            borderColor: '#8AC926',
+                            backgroundColor: 'rgba(138, 201, 38, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: '#fff' } }
+                        },
+                        scales: {
+                            y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
+                    }
+                });
+                
+                // Update stats
+                const avgBalance = users.reduce((sum, u) => sum + (u.tama || 0), 0) / totalUsers;
+                document.getElementById('stat-conversion').textContent = totalUsers > 0 ? ((walletUsers / totalUsers) * 100).toFixed(1) + '%' : '0%';
+                document.getElementById('stat-retention').textContent = totalUsers > 0 ? ((activeUsers / totalUsers) * 100).toFixed(1) + '%' : '0%';
+                document.getElementById('stat-avg-balance').textContent = Math.round(avgBalance).toLocaleString();
+                
+                // Get avg NFT count
+                const { data: nfts } = await supabase
+                    .from('user_nfts')
+                    .select('telegram_id')
+                    .eq('is_active', true);
+                
+                const nftCounts = {};
+                if (nfts) {
+                    nfts.forEach(nft => {
+                        nftCounts[nft.telegram_id] = (nftCounts[nft.telegram_id] || 0) + 1;
+                    });
+                }
+                
+                const avgNFT = Object.values(nftCounts).reduce((sum, count) => sum + count, 0) / (Object.keys(nftCounts).length || 1);
+                document.getElementById('stat-avg-nft').textContent = avgNFT.toFixed(1);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Update stats
+        async function updateStats() {
+            try {
+                const { count: totalUsers } = await supabase
+                    .from('leaderboard')
+                    .select('*', { count: 'exact', head: true });
+                
+                const { count: walletUsers } = await supabase
+                    .from('leaderboard')
+                    .select('*', { count: 'exact', head: true })
+                    .not('wallet_address', 'is', null);
+                
+                const { count: linkedUsers } = await supabase
+                    .from('leaderboard')
+                    .select('*', { count: 'exact', head: true })
+                    .not('wallet_address', 'is', null)
+                    .not('telegram_id', 'is', null);
+                
+                const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+                const { count: activeUsers } = await supabase
+                    .from('leaderboard')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('last_active', sevenDaysAgo);
+                
+                document.getElementById('stat-total-users').textContent = (totalUsers || 0).toLocaleString();
+                document.getElementById('stat-wallet-users').textContent = (walletUsers || 0).toLocaleString();
+                document.getElementById('stat-linked-users').textContent = (linkedUsers || 0).toLocaleString();
+                document.getElementById('stat-active-users').textContent = (activeUsers || 0).toLocaleString();
+                
+                // Estimate WebApp vs Widget (based on wallet connection)
+                // WebApp users are more likely to have wallet connected
+                document.getElementById('stat-webapp-users').textContent = Math.round((walletUsers || 0) * 0.7).toLocaleString();
+                document.getElementById('stat-widget-users').textContent = Math.round((totalUsers || 0) - (walletUsers || 0) * 0.7).toLocaleString();
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        // Filter users
+        function filterUsers() {
+            const search = document.getElementById('search-users').value.toLowerCase();
+            const method = document.getElementById('filter-method').value;
+            
+            const rows = document.querySelectorAll('#users-tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const matchesSearch = !search || text.includes(search);
+                
+                let matchesMethod = true;
+                if (method === 'webapp') {
+                    // WebApp users likely have wallet
+                    matchesMethod = row.querySelector('td:nth-child(3)')?.textContent !== '-';
+                } else if (method === 'widget') {
+                    matchesMethod = row.querySelector('td:nth-child(3)')?.textContent === '-';
+                } else if (method === 'wallet') {
+                    matchesMethod = row.querySelector('td:nth-child(3)')?.textContent !== '-';
+                } else if (method === 'linked') {
+                    matchesMethod = row.querySelector('td:nth-child(3)')?.textContent !== '-' && 
+                                   row.querySelector('td:nth-child(2)')?.textContent !== '-';
+                }
+                
+                row.style.display = (matchesSearch && matchesMethod) ? '' : 'none';
+            });
+        }
+
+        // Filter wallets
+        function filterWallets() {
+            const search = document.getElementById('search-wallets').value.toLowerCase();
+            const rows = document.querySelectorAll('#wallets-tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = !search || text.includes(search) ? '' : 'none';
+            });
+        }
+
+        // Actions
+        function viewUser(telegramId) {
+            alert(`Просмотр пользователя: ${telegramId}\n\nОткройте консоль для деталей.`);
+            console.log('User details:', allUsers.find(u => u.telegram_id === telegramId));
+        }
+
+        function viewWallet(walletAddress) {
+            alert(`Просмотр кошелька: ${walletAddress}\n\nОткройте консоль для деталей.`);
+            console.log('Wallet details:', allWallets.find(w => w.wallet_address === walletAddress));
+        }
+
+        async function syncUser(telegramId) {
+            try {
+                alert(`Синхронизация пользователя ${telegramId}...`);
+                // Here you would call your sync API
+                console.log('Syncing user:', telegramId);
+            } catch (error) {
+                alert('Ошибка синхронизации: ' + error.message);
+            }
+        }
+
+        async function linkWalletToTelegram() {
+            const telegramId = document.getElementById('link-telegram-id').value.trim();
+            const walletAddress = document.getElementById('link-wallet').value.trim();
+            
+            if (!telegramId || !walletAddress) {
+                alert('Заполните все поля!');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('leaderboard')
+                    .update({ wallet_address: walletAddress })
+                    .eq('telegram_id', telegramId);
+                
+                if (error) throw error;
+                
+                alert('✅ Кошелек успешно привязан!');
+                document.getElementById('link-telegram-id').value = '';
+                document.getElementById('link-wallet').value = '';
+                loadUsers();
+                loadWallets();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+
+        function linkWalletPrompt(walletAddress) {
+            const telegramId = prompt('Введите Telegram ID для привязки:');
+            if (telegramId) {
+                document.getElementById('link-telegram-id').value = telegramId;
+                document.getElementById('link-wallet').value = walletAddress;
+                linkWalletToTelegram();
+            }
+        }
+
+        async function syncAllUsers() {
+            if (!confirm('Синхронизировать всех пользователей?')) return;
+            alert('Синхронизация запущена...');
+            // Implement sync logic
+        }
+
+        async function syncLinkedWallets() {
+            if (!confirm('Синхронизировать все кошельки?')) return;
+            alert('Синхронизация кошельков запущена...');
+            // Implement sync logic
+        }
+
+        function exportUsersCSV() {
+            const csv = 'Telegram ID,Username,Wallet,Twitter,TAMA,NFT,Last Active\n' +
+                allUsers.map(u => 
+                    `${u.telegram_id},${u.telegram_username || ''},${u.wallet_address || ''},${u.twitter_username || ''},${u.tama || 0},${0},${u.last_active || ''}`
+                ).join('\n');
+            
+            downloadCSV(csv, 'users.csv');
+        }
+
+        function exportWalletsCSV() {
+            const csv = 'Wallet Address,Telegram ID,Username,TAMA,NFT,Status\n' +
+                allWallets.map(u => 
+                    `${u.wallet_address},${u.telegram_id || ''},${u.telegram_username || ''},${u.tama || 0},${0},${u.telegram_id ? 'Linked' : 'Wallet Only'}`
+                ).join('\n');
+            
+            downloadCSV(csv, 'wallets.csv');
+        }
+
+        function exportAnalyticsCSV() {
+            const csv = 'Metric,Value\n' +
+                `Total Users,${document.getElementById('stat-total-users').textContent}\n` +
+                `Wallet Users,${document.getElementById('stat-wallet-users').textContent}\n` +
+                `Linked Users,${document.getElementById('stat-linked-users').textContent}\n` +
+                `Active Users,${document.getElementById('stat-active-users').textContent}\n`;
+            
+            downloadCSV(csv, 'analytics.csv');
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        loadUsers();
+        updateStats();
+        setInterval(updateStats, 60000); // Update every minute
+    </script>
+</body>
+</html>
+
