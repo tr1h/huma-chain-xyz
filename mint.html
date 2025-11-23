@@ -1863,8 +1863,30 @@
         // ==============================================
         const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
-        // Create supabase client (use different name to avoid conflict with auth.js)
-        const mintSupabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+        // Use shared supabase client from auth.js if available, otherwise create one
+        // This prevents multiple GoTrueClient instances warning
+        let mintSupabase;
+        if (window.GotchiAuth && window.GotchiAuth.getState && window.supabase) {
+            // Try to get supabase from auth.js internal state (if exposed)
+            // Otherwise create with same config but different storage key
+            mintSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                auth: {
+                    storageKey: 'mint-supabase-auth-token', // Different storage key to avoid conflicts
+                    autoRefreshToken: true,
+                    persistSession: false // Don't persist session here, auth.js handles it
+                }
+            });
+        } else if (window.supabase) {
+            mintSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                auth: {
+                    storageKey: 'mint-supabase-auth-token',
+                    autoRefreshToken: true,
+                    persistSession: false
+                }
+            });
+        } else {
+            mintSupabase = null;
+        }
 
         // API Base URL
         const TAMA_API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -2161,18 +2183,40 @@
                     walletInfoEl.style.display = 'block';
                 }
                 
-                // Update SOL balance
-                if (window.solana && window.solana.publicKey) {
-                    const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
-                    connection.getBalance(window.solana.publicKey).then(balance => {
-                        const walletBalanceEl = document.getElementById('wallet-balance');
-                        if (walletBalanceEl) {
-                            walletBalanceEl.textContent = (balance / 1e9).toFixed(4);
-                        }
-                    }).catch(err => {
-                        console.warn('⚠️ Failed to get SOL balance:', err);
-                    });
+                // Update wallet status
+                const walletStatusEl = document.getElementById('wallet-status');
+                if (walletStatusEl) {
+                    walletStatusEl.textContent = walletAddress.substring(0, 4) + '...' + walletAddress.substring(walletAddress.length - 4);
                 }
+                
+                const connectBtn = document.querySelector('.btn-connect');
+                if (connectBtn) {
+                    connectBtn.textContent = '✅ Connected';
+                }
+            }
+        }
+        
+        // Update SOL balance function
+        async function updateWalletBalance() {
+            if (!walletAddress) {
+                console.warn('⚠️ No wallet address to update balance');
+                return;
+            }
+            
+            try {
+                const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
+                const publicKey = new solanaWeb3.PublicKey(walletAddress);
+                const balance = await connection.getBalance(publicKey);
+                const solBalance = balance / 1e9;
+                
+                const solBalanceEl = document.getElementById('sol-balance');
+                if (solBalanceEl) {
+                    solBalanceEl.textContent = solBalance.toFixed(4);
+                }
+                
+                console.log('✅ SOL balance updated:', solBalance.toFixed(4), 'SOL');
+            } catch (err) {
+                console.error('❌ Failed to update SOL balance:', err);
             }
         }
 
