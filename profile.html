@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Solana Tamagotchi</title>
+    <meta property="og:title" content="My Profile - Solana Tamagotchi">
+    <meta property="og:description" content="Manage your Solana Tamagotchi profile, link accounts, and sync data!">
+    <meta property="og:type" content="website">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1D3557 0%, #2D4564 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none"/><circle cx="50" cy="50" r="2" fill="rgba(255,202,58,0.1)"/></svg>');
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 0 #8AC926, 0 20px 60px rgba(0,0,0,0.4);
+            border: 4px solid #1D3557;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: #FFCA3A;
+            margin-bottom: 15px;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            text-shadow: 4px 4px 0 #1D3557, 6px 6px 0 rgba(0,0,0,0.2);
+            line-height: 1.4;
+        }
+        
+        .profile-section {
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 4px solid #8AC926;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 6px 0 #6FA01A, 0 12px 30px rgba(0,0,0,0.3);
+        }
+        
+        .profile-section h2 {
+            font-family: 'Press Start 2P', cursive;
+            color: #1D3557;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+        }
+        
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #1D3557;
+        }
+        
+        .info-label {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 5px;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1D3557;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        .account-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #1D3557;
+        }
+        
+        .account-link-info {
+            flex: 1;
+        }
+        
+        .account-link-name {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            color: #1D3557;
+            margin-bottom: 5px;
+        }
+        
+        .account-link-status {
+            font-size: 0.7rem;
+            color: #666;
+        }
+        
+        .account-link-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            padding: 10px 20px;
+            border: 3px solid #1D3557;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #FFCA3A, #FFA500);
+            color: #1D3557;
+            box-shadow: 0 4px 0 #8AC926, 0 6px 10px rgba(0,0,0,0.3);
+        }
+        
+        .account-link-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #8AC926, 0 8px 15px rgba(0,0,0,0.4);
+        }
+        
+        .account-link-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #8AC926, 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .account-link-btn.connected {
+            background: linear-gradient(135deg, #8AC926, #6FA01A);
+            color: white;
+        }
+        
+        .account-link-btn.connected:hover {
+            background: linear-gradient(135deg, #6FA01A, #5A8A15);
+        }
+        
+        .telegram-login-widget {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .twitter-link-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .twitter-input {
+            flex: 1;
+            padding: 12px;
+            border: 3px solid #1D3557;
+            border-radius: 8px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+        }
+        
+        .twitter-input:focus {
+            outline: none;
+            border-color: #8AC926;
+            box-shadow: 0 0 0 3px rgba(138, 201, 38, 0.3);
+        }
+        
+        .sync-btn {
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #1982C4, #1D3557);
+            color: white;
+            padding: 15px 30px;
+            border: 4px solid #1D3557;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 0 #0F5A8A, 0 10px 20px rgba(0,0,0,0.3);
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .sync-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 0 #0F5A8A, 0 14px 30px rgba(0,0,0,0.4);
+        }
+        
+        .sync-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #0F5A8A, 0 8px 15px rgba(0,0,0,0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            font-size: 18px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #8AC926;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 10000;
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #FFCA3A, #FFA500);
+            color: #1D3557;
+            padding: 10px 20px;
+            border: 4px solid #1D3557;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.7rem;
+            box-shadow: 0 4px 0 #8AC926, 0 6px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #8AC926, 0 8px 20px rgba(0,0,0,0.4);
+        }
+        
+        .success-message {
+            background: #8AC926;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            text-align: center;
+            border: 3px solid #1D3557;
+        }
+        
+        .error-message {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            text-align: center;
+            border: 3px solid #1D3557;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .twitter-link-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">🏠 HOME</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>👤 MY PROFILE</h1>
+            <p style="color: #666; font-size: 16px; margin-top: 10px;">Manage your account and sync data</p>
+        </div>
+        
+        <div id="message-container"></div>
+        
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading profile...</p>
+        </div>
+        
+        <div id="profile-content" style="display: none;">
+            <!-- Profile Info -->
+            <div class="profile-section">
+                <h2>📊 PROFILE INFO</h2>
+                <div class="profile-info">
+                    <div class="info-item">
+                        <div class="info-label">Telegram ID</div>
+                        <div class="info-value" id="telegram-id">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Username</div>
+                        <div class="info-value" id="telegram-username">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">TAMA Balance</div>
+                        <div class="info-value" id="tama-balance">0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Wallet Address</div>
+                        <div class="info-value" id="wallet-address" style="font-size: 0.8rem; word-break: break-all;">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Links -->
+            <div class="profile-section">
+                <h2>🔗 LINKED ACCOUNTS</h2>
+                
+                <!-- Telegram -->
+                <div class="account-link">
+                    <div class="account-link-info">
+                        <div class="account-link-name">📱 Telegram</div>
+                        <div class="account-link-status" id="telegram-status">Not connected</div>
+                    </div>
+                    <div id="telegram-login-widget" class="telegram-login-widget"></div>
+                </div>
+                
+                <!-- Twitter -->
+                <div class="account-link">
+                    <div class="account-link-info">
+                        <div class="account-link-name">🐦 Twitter/X</div>
+                        <div class="account-link-status" id="twitter-status">Not connected</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="twitter-link-form">
+                            <input type="text" id="twitter-username" class="twitter-input" placeholder="@username" maxlength="20">
+                            <button class="account-link-btn" onclick="linkTwitter()">LINK</button>
+                        </div>
+                        <button class="account-link-btn connected" id="twitter-unlink-btn" onclick="unlinkTwitter()" style="display: none;">UNLINK</button>
+                    </div>
+                </div>
+                
+                <!-- Phantom Wallet -->
+                <div class="account-link">
+                    <div class="account-link-info">
+                        <div class="account-link-name">👛 Phantom Wallet</div>
+                        <div class="account-link-status" id="wallet-status">Not connected</div>
+                    </div>
+                    <button class="account-link-btn" id="wallet-connect-btn" onclick="connectWallet()">CONNECT</button>
+                    <button class="account-link-btn connected" id="wallet-disconnect-btn" onclick="disconnectWallet()" style="display: none;">DISCONNECT</button>
+                </div>
+            </div>
+            
+            <!-- Sync Data -->
+            <div class="profile-section">
+                <h2>🔄 SYNC DATA</h2>
+                <p style="color: #666; margin-bottom: 20px; font-size: 14px;">
+                    Synchronize your game data between Telegram bot and website. This will update your TAMA balance, NFTs, and other game progress.
+                </p>
+                <button class="sync-btn" onclick="syncData()">🔄 SYNC NOW</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Supabase config
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Telegram Bot Username for Login Widget
+        const TELEGRAM_BOT_USERNAME = 'GotchiGameBot';
+        
+        // State
+        let currentTelegramId = null;
+        let currentWallet = null;
+        let userProfile = null;
+        
+        // Initialize
+        async function init() {
+            // Check for Telegram auth from widget
+            const urlParams = new URLSearchParams(window.location.search);
+            const telegramAuth = urlParams.get('tgAuth');
+            
+            if (telegramAuth) {
+                try {
+                    const authData = JSON.parse(decodeURIComponent(telegramAuth));
+                    await handleTelegramAuth(authData);
+                } catch (e) {
+                    console.error('Error parsing Telegram auth:', e);
+                }
+            }
+            
+            // Check for existing Telegram session
+            const savedTelegramId = localStorage.getItem('telegram_id');
+            if (savedTelegramId) {
+                currentTelegramId = savedTelegramId;
+                await loadProfile(savedTelegramId);
+                return;
+            }
+            
+            // Check for Phantom wallet
+            if (window.solana && window.solana.isPhantom) {
+                try {
+                    const response = await window.solana.connect({ onlyIfTrusted: true });
+                    if (response && response.publicKey) {
+                        currentWallet = response.publicKey.toString();
+                        await loadProfileByWallet(currentWallet);
+                        return;
+                    }
+                } catch (e) {
+                    console.log('Phantom not auto-connected');
+                }
+            }
+            
+            // Show login options
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('profile-content').style.display = 'block';
+            setupTelegramLoginWidget();
+        }
+        
+        // Setup Telegram Login Widget
+        function setupTelegramLoginWidget() {
+            const widget = document.getElementById('telegram-login-widget');
+            widget.innerHTML = `
+                <script async src="https://telegram.org/js/telegram-widget.js?22" 
+                    data-telegram-login="${TELEGRAM_BOT_USERNAME}" 
+                    data-size="large" 
+                    data-onauth="onTelegramAuth(user)" 
+                    data-request-access="write">
+                </script>
+            `;
+        }
+        
+        // Handle Telegram Auth
+        async function onTelegramAuth(user) {
+            console.log('Telegram auth received:', user);
+            await handleTelegramAuth(user);
+        }
+        
+        async function handleTelegramAuth(authData) {
+            try {
+                // Verify auth data with backend (optional - for security)
+                // For now, we'll trust the widget data
+                
+                currentTelegramId = authData.id.toString();
+                localStorage.setItem('telegram_id', currentTelegramId);
+                localStorage.setItem('telegram_username', authData.username || '');
+                localStorage.setItem('telegram_first_name', authData.first_name || '');
+                
+                await loadProfile(currentTelegramId);
+                showMessage('✅ Telegram account connected!', 'success');
+            } catch (error) {
+                console.error('Error handling Telegram auth:', error);
+                showMessage('❌ Failed to connect Telegram account', 'error');
+            }
+        }
+        
+        // Load Profile
+        async function loadProfile(telegramId) {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('profile-content').style.display = 'none';
+                
+                const { data: userData, error } = await supabase
+                    .from('leaderboard')
+                    .select('*')
+                    .eq('telegram_id', telegramId)
+                    .single();
+                
+                if (error && error.code !== 'PGRST116') {
+                    throw error;
+                }
+                
+                userProfile = userData || {
+                    telegram_id: telegramId,
+                    telegram_username: localStorage.getItem('telegram_username') || '',
+                    tama: 0,
+                    wallet_address: null,
+                    twitter_username: null
+                };
+                
+                // Update UI
+                document.getElementById('telegram-id').textContent = userProfile.telegram_id || '-';
+                document.getElementById('telegram-username').textContent = userProfile.telegram_username || '-';
+                document.getElementById('tama-balance').textContent = (userProfile.tama || 0).toLocaleString();
+                document.getElementById('wallet-address').textContent = userProfile.wallet_address || '-';
+                
+                // Update status
+                document.getElementById('telegram-status').textContent = userProfile.telegram_username 
+                    ? `Connected as @${userProfile.telegram_username}` 
+                    : 'Connected';
+                document.getElementById('telegram-status').style.color = '#8AC926';
+                
+                // Twitter status
+                if (userProfile.twitter_username) {
+                    document.getElementById('twitter-status').textContent = `Connected as @${userProfile.twitter_username}`;
+                    document.getElementById('twitter-status').style.color = '#8AC926';
+                    document.getElementById('twitter-username').value = userProfile.twitter_username;
+                    document.getElementById('twitter-unlink-btn').style.display = 'block';
+                } else {
+                    document.getElementById('twitter-status').textContent = 'Not connected';
+                    document.getElementById('twitter-status').style.color = '#999';
+                    document.getElementById('twitter-unlink-btn').style.display = 'none';
+                }
+                
+                // Wallet status
+                if (userProfile.wallet_address) {
+                    document.getElementById('wallet-status').textContent = `${userProfile.wallet_address.substring(0, 8)}...${userProfile.wallet_address.substring(userProfile.wallet_address.length - 6)}`;
+                    document.getElementById('wallet-status').style.color = '#8AC926';
+                    document.getElementById('wallet-connect-btn').style.display = 'none';
+                    document.getElementById('wallet-disconnect-btn').style.display = 'block';
+                    currentWallet = userProfile.wallet_address;
+                } else {
+                    document.getElementById('wallet-status').textContent = 'Not connected';
+                    document.getElementById('wallet-status').style.color = '#999';
+                    document.getElementById('wallet-connect-btn').style.display = 'block';
+                    document.getElementById('wallet-disconnect-btn').style.display = 'none';
+                }
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('profile-content').style.display = 'block';
+                setupTelegramLoginWidget();
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showMessage('❌ Failed to load profile: ' + error.message, 'error');
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('profile-content').style.display = 'block';
+            }
+        }
+        
+        // Load Profile by Wallet
+        async function loadProfileByWallet(walletAddress) {
+            try {
+                const { data: userData } = await supabase
+                    .from('leaderboard')
+                    .select('*')
+                    .eq('wallet_address', walletAddress)
+                    .single();
+                
+                if (userData) {
+                    await loadProfile(userData.telegram_id);
+                } else {
+                    // Create new profile for wallet
+                    currentWallet = walletAddress;
+                    document.getElementById('wallet-address').textContent = walletAddress;
+                    document.getElementById('wallet-status').textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}`;
+                    document.getElementById('wallet-status').style.color = '#8AC926';
+                    document.getElementById('wallet-connect-btn').style.display = 'none';
+                    document.getElementById('wallet-disconnect-btn').style.display = 'block';
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('profile-content').style.display = 'block';
+                    setupTelegramLoginWidget();
+                }
+            } catch (error) {
+                console.error('Error loading profile by wallet:', error);
+            }
+        }
+        
+        // Link Twitter
+        async function linkTwitter() {
+            const username = document.getElementById('twitter-username').value.trim();
+            if (!username) {
+                showMessage('❌ Please enter Twitter username', 'error');
+                return;
+            }
+            
+            // Remove @ if present
+            const cleanUsername = username.replace('@', '');
+            
+            try {
+                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
+                if (!telegramId) {
+                    showMessage('❌ Please connect Telegram first', 'error');
+                    return;
+                }
+                
+                // Update database
+                const { error } = await supabase
+                    .from('leaderboard')
+                    .update({ twitter_username: cleanUsername })
+                    .eq('telegram_id', telegramId);
+                
+                if (error) throw error;
+                
+                userProfile.twitter_username = cleanUsername;
+                document.getElementById('twitter-status').textContent = `Connected as @${cleanUsername}`;
+                document.getElementById('twitter-status').style.color = '#8AC926';
+                document.getElementById('twitter-unlink-btn').style.display = 'block';
+                
+                showMessage('✅ Twitter account linked!', 'success');
+            } catch (error) {
+                console.error('Error linking Twitter:', error);
+                showMessage('❌ Failed to link Twitter: ' + error.message, 'error');
+            }
+        }
+        
+        // Unlink Twitter
+        async function unlinkTwitter() {
+            try {
+                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
+                if (!telegramId) {
+                    showMessage('❌ Please connect Telegram first', 'error');
+                    return;
+                }
+                
+                const { error } = await supabase
+                    .from('leaderboard')
+                    .update({ twitter_username: null })
+                    .eq('telegram_id', telegramId);
+                
+                if (error) throw error;
+                
+                userProfile.twitter_username = null;
+                document.getElementById('twitter-status').textContent = 'Not connected';
+                document.getElementById('twitter-status').style.color = '#999';
+                document.getElementById('twitter-username').value = '';
+                document.getElementById('twitter-unlink-btn').style.display = 'none';
+                
+                showMessage('✅ Twitter account unlinked', 'success');
+            } catch (error) {
+                console.error('Error unlinking Twitter:', error);
+                showMessage('❌ Failed to unlink Twitter: ' + error.message, 'error');
+            }
+        }
+        
+        // Connect Wallet
+        async function connectWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('Please install Phantom Wallet!\n\nVisit: https://phantom.app');
+                    window.open('https://phantom.app', '_blank');
+                    return;
+                }
+                
+                const resp = await window.solana.connect();
+                const walletAddress = resp.publicKey.toString();
+                currentWallet = walletAddress;
+                
+                // Update database
+                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
+                if (telegramId) {
+                    const { error } = await supabase
+                        .from('leaderboard')
+                        .update({ wallet_address: walletAddress })
+                        .eq('telegram_id', telegramId);
+                    
+                    if (error) throw error;
+                }
+                
+                document.getElementById('wallet-address').textContent = walletAddress;
+                document.getElementById('wallet-status').textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}`;
+                document.getElementById('wallet-status').style.color = '#8AC926';
+                document.getElementById('wallet-connect-btn').style.display = 'none';
+                document.getElementById('wallet-disconnect-btn').style.display = 'block';
+                
+                showMessage('✅ Wallet connected!', 'success');
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                showMessage('❌ Failed to connect wallet: ' + error.message, 'error');
+            }
+        }
+        
+        // Disconnect Wallet
+        async function disconnectWallet() {
+            try {
+                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
+                if (telegramId) {
+                    const { error } = await supabase
+                        .from('leaderboard')
+                        .update({ wallet_address: null })
+                        .eq('telegram_id', telegramId);
+                    
+                    if (error) throw error;
+                }
+                
+                currentWallet = null;
+                document.getElementById('wallet-address').textContent = '-';
+                document.getElementById('wallet-status').textContent = 'Not connected';
+                document.getElementById('wallet-status').style.color = '#999';
+                document.getElementById('wallet-connect-btn').style.display = 'block';
+                document.getElementById('wallet-disconnect-btn').style.display = 'none';
+                
+                showMessage('✅ Wallet disconnected', 'success');
+            } catch (error) {
+                console.error('Error disconnecting wallet:', error);
+                showMessage('❌ Failed to disconnect wallet: ' + error.message, 'error');
+            }
+        }
+        
+        // Sync Data
+        async function syncData() {
+            try {
+                const telegramId = currentTelegramId || localStorage.getItem('telegram_id');
+                if (!telegramId) {
+                    showMessage('❌ Please connect Telegram first', 'error');
+                    return;
+                }
+                
+                showMessage('🔄 Syncing data...', 'success');
+                
+                // Reload profile to get latest data
+                await loadProfile(telegramId);
+                
+                showMessage('✅ Data synchronized!', 'success');
+            } catch (error) {
+                console.error('Error syncing data:', error);
+                showMessage('❌ Failed to sync data: ' + error.message, 'error');
+            }
+        }
+        
+        // Show Message
+        function showMessage(message, type) {
+            const container = document.getElementById('message-container');
+            const messageEl = document.createElement('div');
+            messageEl.className = type === 'success' ? 'success-message' : 'error-message';
+            messageEl.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.remove();
+            }, 5000);
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
+
