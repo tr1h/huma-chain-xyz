@@ -2323,7 +2323,10 @@
                         
                         // Update UI
                         updateWalletUI();
-                        await updateWalletBalance();
+                        // Update balance (function is defined below)
+                        if (typeof updateWalletBalance === 'function') {
+                            await updateWalletBalance();
+                        }
                         showNotification('success', 'Wallet Connected', `Connected: ${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}`);
                         return;
                     }
