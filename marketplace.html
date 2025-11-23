@@ -773,10 +773,13 @@
                 isAuthenticated = true;
             }
             
-            if (isAuthenticated || userTelegramId) {
+            // Always show content if we have any auth method
+            if (isAuthenticated || userTelegramId || walletAddress) {
                 isAuthenticated = true;
                 notAuthScreen.style.display = 'none';
-                authContent.style.display = 'block';
+                if (authContent) {
+                    authContent.style.display = 'block';
+                }
                 
                 // Update auth section
                 let authHtml = '';
@@ -869,11 +872,12 @@
             setTimeout(() => {
                 userTelegramId = getTelegramUserId();
                 
-                // Only initialize if authenticated
-                if (isAuthenticated || userTelegramId) {
-                    initMarketplace();
-                }
-            }, 500);
+                // Update auth status again after delay
+                updateAuthStatus();
+                
+                // Always initialize marketplace (it will show auth screen if needed)
+                initMarketplace();
+            }, 1000);
         }
         
         // Initialize marketplace features
