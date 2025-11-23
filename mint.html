@@ -1863,7 +1863,8 @@
         // ==============================================
         const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Create supabase client (use different name to avoid conflict with auth.js)
+        const mintSupabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
         // API Base URL
         const TAMA_API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -2264,8 +2265,27 @@
             };
         }
         
-        async function connectWallet() {
+        // Make connectWallet globally accessible
+        window.connectWallet = async function connectWallet() {
             try {
+                // Use unified auth system if available
+                if (window.GotchiAuth) {
+                    const result = await window.GotchiAuth.authViaWallet();
+                    if (result.success) {
+                        walletAddress = result.walletAddress;
+                        walletConnected = true;
+                        window.walletAddress = walletAddress;
+                        window.walletConnected = walletConnected;
+                        
+                        // Update UI
+                        updateWalletUI();
+                        await updateWalletBalance();
+                        showNotification('success', 'Wallet Connected', `Connected: ${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}`);
+                        return;
+                    }
+                }
+                
+                // Fallback to direct connection
                 if (!window.solana || !window.solana.isPhantom) {
                     showNotification('error', 'Wallet Required', 'Please install Phantom wallet to continue!');
                     window.open('https://phantom.app/', '_blank');
@@ -2680,7 +2700,7 @@
                 try {
                     // 1. Record BURN transaction
                     // Save transaction ID for later signature update
-                    const { data: burnTx, error: burnTxError } = await supabase.from('transactions').insert({
+                    const { data: burnTx, error: burnTxError } = await mintSupabase.from('transactions').insert({
                         user_id: 'SYSTEM_BURN',
                         type: 'tama_burn',
                         amount: burnAmount,
@@ -2707,12 +2727,12 @@
                     
                     if (treasuryData) {
                         // Update existing treasury balance
-                        await supabase.from('leaderboard').update({
+                        await mintSupabase.from('leaderboard').update({
                             tama: (treasuryData.tama || 0) + treasuryAmount
                         }).eq('wallet_address', TREASURY_MAIN);
                     } else {
                         // Create treasury account
-                        await supabase.from('leaderboard').insert({
+                        await mintSupabase.from('leaderboard').insert({
                             telegram_id: '999999999',
                             telegram_username: 'Treasury',
                             wallet_address: TREASURY_MAIN,
@@ -2726,7 +2746,7 @@
                     // 2.1. Record Treasury transaction (save ID for later signature update)
                     let treasuryTransactionId = null;
                     try {
-                        const { data: treasuryTx, error: treasuryTxError } = await supabase.from('transactions').insert({
+                        const { data: treasuryTx, error: treasuryTxError } = await mintSupabase.from('transactions').insert({
                             user_id: TREASURY_MAIN,
                             username: '💰 Treasury Main V2',
                             type: 'treasury_income_from_nft',
@@ -2760,12 +2780,12 @@
                     
                     if (poolData) {
                         // Update existing pool balance
-                        await supabase.from('leaderboard').update({
+                        await mintSupabase.from('leaderboard').update({
                             tama: (poolData.tama || 0) + poolAmount
                         }).eq('wallet_address', P2E_POOL);
                     } else {
                         // Create P2E Pool account
-                        await supabase.from('leaderboard').insert({
+                        await mintSupabase.from('leaderboard').insert({
                             telegram_id: '888888888',
                             telegram_username: 'P2E_Pool',
                             wallet_address: P2E_POOL,
@@ -2778,7 +2798,7 @@
                     
                     // 3.1. Record P2E Pool transaction
                     try {
-                        await supabase.from('transactions').insert({
+                        await mintSupabase.from('transactions').insert({
                             user_id: P2E_POOL,
                             username: '🎮 P2E Pool',
                             type: 'p2e_pool_refund_from_nft',
@@ -3032,7 +3052,7 @@
                 
                 if (designError || !designs || designs.length === 0) {
                     // Rollback TAMA deduction
-                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    await mintSupabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
                     throw new Error('No Bronze NFT designs available');
                 }
                 
@@ -3071,7 +3091,7 @@
                 if (nftError) {
                     console.error('❌ NFT creation error:', nftError);
                     // Rollback TAMA deduction
-                    await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    await mintSupabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
                     throw new Error('Failed to create NFT: ' + nftError.message);
                 }
                 

@@ -248,17 +248,20 @@ async function authViaWallet() {
                 .eq('wallet_address', walletAddress)
                 .single();
             
-            if (linkedUser && linkedUser.telegram_id) {
-                authState.telegramId = linkedUser.telegram_id.toString();
-                authState.telegramUsername = linkedUser.telegram_username || '';
-                authState.telegramFirstName = linkedUser.telegram_first_name || '';
-                authState.authMethod = 'wallet_linked';
-                
-                const profile = await loadUserProfile(authState.telegramId);
-                if (profile) {
-                    authState.userProfile = profile;
+                if (linkedUser && linkedUser.telegram_id) {
+                    authState.telegramId = linkedUser.telegram_id.toString();
+                    authState.telegramUsername = linkedUser.telegram_username || '';
+                    authState.authMethod = 'wallet_linked';
+                    
+                    const profile = await loadUserProfile(authState.telegramId);
+                    if (profile) {
+                        authState.userProfile = profile;
+                    }
+                } else {
+                    authState.authMethod = 'wallet_only';
                 }
-            } else {
+            } catch (err) {
+                console.warn('Error in wallet auth:', err);
                 authState.authMethod = 'wallet_only';
             }
         }
