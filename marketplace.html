@@ -1326,13 +1326,42 @@
                 </div>
             `;
             
-            document.getElementById('buy-price').textContent = formatNumber(nft.price) + ' TAMA';
-            const fee = Math.floor(nft.price * 0.05);
-            document.getElementById('buy-fee').textContent = formatNumber(fee) + ' TAMA';
-            document.getElementById('buy-total').textContent = formatNumber(nft.price + fee) + ' TAMA';
+            // Display price based on payment type
+            let priceText = '';
+            let feeText = '';
+            let totalText = '';
+            
+            if (nft.payment_type === 'tama' || nft.payment_type === 'both') {
+                const priceTama = nft.price || nft.price_tama || 0;
+                const feeTama = Math.floor(priceTama * 0.05);
+                const totalTama = priceTama + feeTama;
+                priceText = formatNumber(priceTama) + ' TAMA';
+                feeText = formatNumber(feeTama) + ' TAMA';
+                totalText = formatNumber(totalTama) + ' TAMA';
+            }
+            
+            if (nft.payment_type === 'sol' || nft.payment_type === 'both') {
+                const priceSol = nft.price_sol || 0;
+                const feeSol = (priceSol * 0.05).toFixed(6);
+                const totalSol = (priceSol + parseFloat(feeSol)).toFixed(6);
+                
+                if (priceText) {
+                    priceText += ' / ' + formatNumber(priceSol) + ' SOL';
+                    feeText += ' / ' + formatNumber(feeSol) + ' SOL';
+                    totalText += ' / ' + formatNumber(totalSol) + ' SOL';
+                } else {
+                    priceText = formatNumber(priceSol) + ' SOL';
+                    feeText = formatNumber(feeSol) + ' SOL';
+                    totalText = formatNumber(totalSol) + ' SOL';
+                }
+            }
+            
+            document.getElementById('buy-price').textContent = priceText || '0 TAMA';
+            document.getElementById('buy-fee').textContent = feeText || '0 TAMA';
+            document.getElementById('buy-total').textContent = totalText || '0 TAMA';
             
             // Load user balance
-            loadUserBalance();
+            loadUserBalance(nft.payment_type);
             
             modal.classList.add('active');
         }
@@ -1342,28 +1371,70 @@
             selectedNFT = null;
         }
         
-        async function loadUserBalance() {
-            if (!userTelegramId) return;
+        async function loadUserBalance(paymentType) {
+            if (!userTelegramId && !walletAddress) return;
             
             try {
-                const response = await fetch(`${API_BASE}/balance?telegram_id=${userTelegramId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    const balance = data.balance || 0;
-                    document.getElementById('buy-balance').textContent = formatNumber(balance) + ' TAMA';
-                    
-                    const total = selectedNFT.price + Math.floor(selectedNFT.price * 0.05);
-                    const buyBtn = document.getElementById('buy-btn');
-                    if (balance < total) {
-                        buyBtn.disabled = true;
-                        buyBtn.textContent = '❌ Insufficient Balance';
-                    } else {
-                        buyBtn.disabled = false;
-                        buyBtn.textContent = '💰 Buy Now';
+                let balanceTama = 0;
+                let balanceSol = 0;
+                
+                // Load TAMA balance
+                if (userTelegramId && (paymentType === 'tama' || paymentType === 'both')) {
+                    const response = await fetch(`${API_BASE}/balance?telegram_id=${userTelegramId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        balanceTama = data.balance || 0;
                     }
+                }
+                
+                // Load SOL balance
+                if (walletAddress && (paymentType === 'sol' || paymentType === 'both')) {
+                    const solBalanceLamports = await connection.getBalance(new solanaWeb3.PublicKey(walletAddress));
+                    balanceSol = solBalanceLamports / solanaWeb3.LAMPORTS_PER_SOL;
+                }
+                
+                // Display balance
+                let balanceHtml = '';
+                if (paymentType === 'tama' || paymentType === 'both') {
+                    balanceHtml = formatNumber(balanceTama) + ' TAMA';
+                }
+                if (paymentType === 'sol' || paymentType === 'both') {
+                    if (balanceHtml) balanceHtml += ' / ';
+                    balanceHtml += formatNumber(balanceSol) + ' SOL';
+                }
+                document.getElementById('buy-balance').textContent = balanceHtml || 'Loading...';
+                
+                // Check if user can afford
+                const buyBtn = document.getElementById('buy-btn');
+                let canBuy = true;
+                
+                if (paymentType === 'tama' || paymentType === 'both') {
+                    const priceTama = selectedNFT.price || selectedNFT.price_tama || 0;
+                    const feeTama = Math.floor(priceTama * 0.05);
+                    const totalTama = priceTama + feeTama;
+                    if (balanceTama < totalTama) {
+                        canBuy = false;
+                    }
+                }
+                if (paymentType === 'sol' || paymentType === 'both') {
+                    const priceSol = selectedNFT.price_sol || 0;
+                    const feeSol = (priceSol * 0.05);
+                    const totalSol = priceSol + feeSol;
+                    if (balanceSol < totalSol) {
+                        canBuy = false;
+                    }
+                }
+                
+                if (!canBuy) {
+                    buyBtn.disabled = true;
+                    buyBtn.textContent = '❌ Insufficient Balance';
+                } else {
+                    buyBtn.disabled = false;
+                    buyBtn.textContent = '💰 Buy Now';
                 }
             } catch (error) {
                 console.error('Failed to load balance:', error);
+                document.getElementById('buy-balance').textContent = 'Error loading balance';
             }
         }
         
