@@ -1053,12 +1053,22 @@
                                 ${nft.nft_mint_address ? '<span class="attribute-badge" style="background: rgba(138, 201, 38, 0.3);">🔗 On-Chain</span>' : ''}
                             </div>
                         </div>
-                        ${(nft.price || nft.price_tama) ? `
+                        ${(nft.price || nft.price_tama || nft.price_sol) ? `
                             <div class="nft-price">
                                 <div>
                                     <div class="price-label">Price</div>
-                                    <div class="price-value">${formatNumber(nft.price || nft.price_tama)}</div>
-                                    <div class="price-tama">TAMA</div>
+                                    ${(() => {
+                                        const priceTama = nft.price || nft.price_tama;
+                                        const priceSol = nft.price_sol;
+                                        if (priceTama && priceSol) {
+                                            return `<div class="price-value">${formatNumber(priceTama)} TAMA / ${formatNumber(priceSol)} SOL</div>`;
+                                        } else if (priceTama) {
+                                            return `<div class="price-value">${formatNumber(priceTama)} TAMA</div>`;
+                                        } else if (priceSol) {
+                                            return `<div class="price-value">${formatNumber(priceSol)} SOL</div>`;
+                                        }
+                                        return '';
+                                    })()}
                                 </div>
                             </div>
                             ${currentTab === 'browse' ? '<button class="btn btn-buy" onclick="event.stopPropagation(); openBuyModal(' + JSON.stringify(nft).replace(/"/g, '&quot;') + ')">Buy Now</button>' : ''}
