@@ -1,0 +1,227 @@
+[
+  {
+    "tier": "Bronze",
+    "rarity": "Common",
+    "filename": "bronze-common.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in orange-brown, copper, bronze colors, matte finish, simple design. The device has a light green pixelated screen displaying simple pixelated pet face, basic colors, no special effects. Below the screen are darker orange-brown round buttons. plain device, no decorations. The device has a small keychain loop at the top. retro 8-bit Tamagotchi device, common rarity with completely static device. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Completely static device, no animation, perfect for extracting first frame as image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Static device - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Bronze",
+    "rarity": "Uncommon",
+    "filename": "bronze-uncommon.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in orange-brown, copper, bronze colors, matte finish, simple design. The device has a light green pixelated screen displaying happy pixelated pet face, better colors, slight glow on screen. Below the screen are darker orange-brown round buttons. small star decoration above keychain loop. The device has a small keychain loop at the top. retro 8-bit Tamagotchi device, uncommon rarity with very subtle screen glow pulse. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only gentle screen glow, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Bronze",
+    "rarity": "Rare",
+    "filename": "bronze-rare.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in orange-brown, copper, bronze colors, matte finish, simple design. The device has a light green pixelated screen displaying happy pixelated pet face, glowing screen, magical aura around pet. Below the screen are darker orange-brown round buttons. decorative elements, subtle shine on body. The device has a small keychain loop at the top. retro 8-bit Tamagotchi device, rare rarity with gentle glowing pulse on screen and buttons. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only glowing pulse on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Bronze",
+    "rarity": "Epic",
+    "filename": "bronze-epic.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in orange-brown, copper, bronze colors, matte finish, simple design. The device has a light green pixelated screen displaying happy pixelated pet face, bright glowing screen, particle effects around pet. Below the screen are darker orange-brown round buttons. decorative patterns, sparkles on body, premium look. The device has a small keychain loop at the top. retro 8-bit Tamagotchi device, epic rarity with animated particles on screen, glowing effects. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only particle effects on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Bronze",
+    "rarity": "Legendary",
+    "filename": "bronze-legendary.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in orange-brown, copper, bronze colors, matte finish, simple design. The device has a light green pixelated screen displaying happy pixelated pet face, maximum glow, legendary aura, particle effects. Below the screen are darker orange-brown round buttons. luxury decorations, golden accents, premium finish, special design. The device has a small keychain loop at the top. retro 8-bit Tamagotchi device, legendary rarity with dramatic lighting, legendary aura effects, animated particles. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only legendary aura effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Common",
+    "filename": "silver-common.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in silver, metallic gray, chrome colors, shiny metallic finish, medium detail. The device has a light blue pixelated screen displaying simple pixelated pet face, basic colors, no special effects. Below the screen are dark silver round buttons. plain device, no decorations. The device has a small keychain loop at the top. retro 16-bit Tamagotchi device, common rarity with completely static device. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Completely static device, no animation, perfect for extracting first frame as image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Static device - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Uncommon",
+    "filename": "silver-uncommon.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in silver, metallic gray, chrome colors, shiny metallic finish, medium detail. The device has a light blue pixelated screen displaying happy pixelated pet face, better colors, slight glow on screen. Below the screen are dark silver round buttons. small star decoration above keychain loop. The device has a small keychain loop at the top. retro 16-bit Tamagotchi device, uncommon rarity with very subtle screen glow pulse. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only gentle screen glow, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Rare",
+    "filename": "silver-rare.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in silver, metallic gray, chrome colors, shiny metallic finish, medium detail. The device has a light blue pixelated screen displaying happy pixelated pet face, glowing screen, magical aura around pet. Below the screen are dark silver round buttons. decorative elements, subtle shine on body. The device has a small keychain loop at the top. retro 16-bit Tamagotchi device, rare rarity with gentle glowing pulse on screen and buttons. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only glowing pulse on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Epic",
+    "filename": "silver-epic.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in silver, metallic gray, chrome colors, shiny metallic finish, medium detail. The device has a light blue pixelated screen displaying happy pixelated pet face, bright glowing screen, particle effects around pet. Below the screen are dark silver round buttons. decorative patterns, sparkles on body, premium look. The device has a small keychain loop at the top. retro 16-bit Tamagotchi device, epic rarity with animated particles on screen, glowing effects. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only particle effects on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Legendary",
+    "filename": "silver-legendary.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in silver, metallic gray, chrome colors, shiny metallic finish, medium detail. The device has a light blue pixelated screen displaying happy pixelated pet face, maximum glow, legendary aura, particle effects. Below the screen are dark silver round buttons. luxury decorations, golden accents, premium finish, special design. The device has a small keychain loop at the top. retro 16-bit Tamagotchi device, legendary rarity with dramatic lighting, legendary aura effects, animated particles. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only legendary aura effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Common",
+    "filename": "gold-common.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in gold, luxury yellow-gold, premium colors, glossy gold finish, high detail, luxury. The device has a bright green pixelated screen displaying simple pixelated pet face, basic colors, no special effects. Below the screen are dark gold round buttons. plain device, no decorations. The device has a small keychain loop at the top. premium Tamagotchi device, common rarity with completely static device. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Completely static device, no animation, perfect for extracting first frame as image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Static device - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Uncommon",
+    "filename": "gold-uncommon.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in gold, luxury yellow-gold, premium colors, glossy gold finish, high detail, luxury. The device has a bright green pixelated screen displaying happy pixelated pet face, better colors, slight glow on screen. Below the screen are dark gold round buttons. small star decoration above keychain loop. The device has a small keychain loop at the top. premium Tamagotchi device, uncommon rarity with very subtle screen glow pulse. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only gentle screen glow, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Rare",
+    "filename": "gold-rare.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in gold, luxury yellow-gold, premium colors, glossy gold finish, high detail, luxury. The device has a bright green pixelated screen displaying happy pixelated pet face, glowing screen, magical aura around pet. Below the screen are dark gold round buttons. decorative elements, subtle shine on body. The device has a small keychain loop at the top. premium Tamagotchi device, rare rarity with gentle glowing pulse on screen and buttons. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only glowing pulse on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Epic",
+    "filename": "gold-epic.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in gold, luxury yellow-gold, premium colors, glossy gold finish, high detail, luxury. The device has a bright green pixelated screen displaying happy pixelated pet face, bright glowing screen, particle effects around pet. Below the screen are dark gold round buttons. decorative patterns, sparkles on body, premium look. The device has a small keychain loop at the top. premium Tamagotchi device, epic rarity with animated particles on screen, glowing effects. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only particle effects on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Legendary",
+    "filename": "gold-legendary.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in gold, luxury yellow-gold, premium colors, glossy gold finish, high detail, luxury. The device has a bright green pixelated screen displaying happy pixelated pet face, maximum glow, legendary aura, particle effects. Below the screen are dark gold round buttons. luxury decorations, golden accents, premium finish, special design. The device has a small keychain loop at the top. premium Tamagotchi device, legendary rarity with dramatic lighting, legendary aura effects, animated particles. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only legendary aura effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Platinum",
+    "rarity": "Common",
+    "filename": "platinum-common.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in platinum, silver-white, metallic platinum, premium colors, glossy platinum finish, maximum detail, ultra-luxury. The device has a bright cyan pixelated screen displaying simple pixelated pet face, basic colors, no special effects. Below the screen are dark platinum round buttons. plain device, no decorations. The device has a small keychain loop at the top. ultra-premium Tamagotchi device, common rarity with completely static device. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Completely static device, no animation, perfect for extracting first frame as image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Static device - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Platinum",
+    "rarity": "Uncommon",
+    "filename": "platinum-uncommon.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in platinum, silver-white, metallic platinum, premium colors, glossy platinum finish, maximum detail, ultra-luxury. The device has a bright cyan pixelated screen displaying happy pixelated pet face, better colors, slight glow on screen. Below the screen are dark platinum round buttons. small star decoration above keychain loop. The device has a small keychain loop at the top. ultra-premium Tamagotchi device, uncommon rarity with very subtle screen glow pulse. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only gentle screen glow, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Platinum",
+    "rarity": "Rare",
+    "filename": "platinum-rare.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in platinum, silver-white, metallic platinum, premium colors, glossy platinum finish, maximum detail, ultra-luxury. The device has a bright cyan pixelated screen displaying happy pixelated pet face, glowing screen, magical aura around pet. Below the screen are dark platinum round buttons. decorative elements, subtle shine on body. The device has a small keychain loop at the top. ultra-premium Tamagotchi device, rare rarity with gentle glowing pulse on screen and buttons. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only glowing pulse on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Platinum",
+    "rarity": "Epic",
+    "filename": "platinum-epic.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in platinum, silver-white, metallic platinum, premium colors, glossy platinum finish, maximum detail, ultra-luxury. The device has a bright cyan pixelated screen displaying happy pixelated pet face, bright glowing screen, particle effects around pet. Below the screen are dark platinum round buttons. decorative patterns, sparkles on body, premium look. The device has a small keychain loop at the top. ultra-premium Tamagotchi device, epic rarity with animated particles on screen, glowing effects. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only particle effects on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Platinum",
+    "rarity": "Legendary",
+    "filename": "platinum-legendary.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in platinum, silver-white, metallic platinum, premium colors, glossy platinum finish, maximum detail, ultra-luxury. The device has a bright cyan pixelated screen displaying happy pixelated pet face, maximum glow, legendary aura, particle effects. Below the screen are dark platinum round buttons. luxury decorations, golden accents, premium finish, special design. The device has a small keychain loop at the top. ultra-premium Tamagotchi device, legendary rarity with dramatic lighting, legendary aura effects, animated particles. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only legendary aura effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Diamond",
+    "rarity": "Common",
+    "filename": "diamond-common.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in diamond, crystal clear, prismatic, rainbow reflections, ultra-premium colors, crystal clear finish, prismatic effects, rainbow reflections, maximum luxury. The device has a rainbow holographic pixelated screen displaying simple pixelated pet face, basic colors, no special effects. Below the screen are diamond-cut crystal buttons. plain device, no decorations. The device has a small keychain loop at the top. legendary Tamagotchi device, common rarity with completely static device. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Completely static device, no animation, perfect for extracting first frame as image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Static device - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Diamond",
+    "rarity": "Uncommon",
+    "filename": "diamond-uncommon.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in diamond, crystal clear, prismatic, rainbow reflections, ultra-premium colors, crystal clear finish, prismatic effects, rainbow reflections, maximum luxury. The device has a rainbow holographic pixelated screen displaying happy pixelated pet face, better colors, slight glow on screen. Below the screen are diamond-cut crystal buttons. small star decoration above keychain loop. The device has a small keychain loop at the top. legendary Tamagotchi device, uncommon rarity with very subtle screen glow pulse. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only gentle screen glow, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Diamond",
+    "rarity": "Rare",
+    "filename": "diamond-rare.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in diamond, crystal clear, prismatic, rainbow reflections, ultra-premium colors, crystal clear finish, prismatic effects, rainbow reflections, maximum luxury. The device has a rainbow holographic pixelated screen displaying happy pixelated pet face, glowing screen, magical aura around pet. Below the screen are diamond-cut crystal buttons. decorative elements, subtle shine on body. The device has a small keychain loop at the top. legendary Tamagotchi device, rare rarity with gentle glowing pulse on screen and buttons. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only glowing pulse on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Diamond",
+    "rarity": "Epic",
+    "filename": "diamond-epic.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in diamond, crystal clear, prismatic, rainbow reflections, ultra-premium colors, crystal clear finish, prismatic effects, rainbow reflections, maximum luxury. The device has a rainbow holographic pixelated screen displaying happy pixelated pet face, bright glowing screen, particle effects around pet. Below the screen are diamond-cut crystal buttons. decorative patterns, sparkles on body, premium look. The device has a small keychain loop at the top. legendary Tamagotchi device, epic rarity with animated particles on screen, glowing effects. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only particle effects on screen, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  },
+  {
+    "tier": "Diamond",
+    "rarity": "Legendary",
+    "filename": "diamond-legendary.png",
+    "prompt": "A cute retro pixel art Tamagotchi virtual pet device, egg-shaped body in diamond, crystal clear, prismatic, rainbow reflections, ultra-premium colors, crystal clear finish, prismatic effects, rainbow reflections, maximum luxury. The device has a rainbow holographic pixelated screen displaying happy pixelated pet face, maximum glow, legendary aura, particle effects. Below the screen are diamond-cut crystal buttons. luxury decorations, golden accents, premium finish, special design. The device has a small keychain loop at the top. legendary Tamagotchi device, legendary rarity with dramatic lighting, legendary aura effects, animated particles. White background, 1000x1000px, clean illustration, front view, isometric perspective, game device aesthetic, NFT art style. Very subtle animation: only legendary aura effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame",
+    "style": "Tamagotchi device with screen and buttons"
+  }
+]

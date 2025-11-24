@@ -33,3 +33,24 @@ Options -Indexes
 # CORS headers are handled in PHP (api/tama_supabase.php, api/mint-nft-onchain-wrapper.php)
 # Do NOT set CORS headers in Apache to avoid duplicate headers conflict
 
+# ============================================
+# CLEAN URLs - Remove .html extension
+# ============================================
+
+# Remove .html extension from URLs
+# Example: /mint.html → /mint
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.html -f
+RewriteRule ^(.*)\.html$ /$1 [R=301,L]
+
+# Add .html extension internally (for files without extension)
+# Example: /mint → /mint.html (internal rewrite, URL stays clean)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.html -f
+RewriteRule ^(.*)$ $1.html [L]
+
+# Redirect root index.html to clean URL
+RewriteCond %{THE_REQUEST} /index\.html[\s?] [NC]
+RewriteRule ^index\.html$ / [R=301,L]
+

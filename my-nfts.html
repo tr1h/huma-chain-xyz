@@ -687,6 +687,13 @@
             </div>
         </div>
         
+        <!-- Mint New NFT Button -->
+        <div id="mint-new-nft-section" style="display: none; text-align: center; margin: 30px 0;">
+            <a href="mint" id="mint-new-nft-btn" class="mint-btn" style="display: inline-block;">
+                ✨ Mint New NFT Pet
+            </a>
+        </div>
+        
         <!-- NFT Container -->
         <div id="nft-container">
             <div class="loading">
@@ -1023,6 +1030,18 @@
         function displayNFTs(nfts, tamaBalance) {
             document.getElementById('stats-bar').style.display = 'grid';
             
+            // Show mint button
+            const mintSection = document.getElementById('mint-new-nft-section');
+            if (mintSection) {
+                mintSection.style.display = 'block';
+                // Add user_id to mint URL if available
+                const telegramUserId = window.GotchiAuth?.getTelegramId();
+                const mintBtn = document.getElementById('mint-new-nft-btn');
+                if (mintBtn && telegramUserId) {
+                    mintBtn.href = `mint?user_id=${telegramUserId}`;
+                }
+            }
+            
             // Update stats
             const totalNFTs = nfts?.length || 0;
             const bestMultiplier = nfts && nfts.length > 0 
@@ -1079,7 +1098,7 @@
                 
                 const mintedDate = nft.minted_at ? new Date(nft.minted_at).toLocaleDateString() : 'Unknown';
                 const explorerUrl = isRealOnChain 
-                    ? `https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet`
+                    ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
                     : '#';
                 
                 const nftCard = document.createElement('div');
@@ -1096,13 +1115,16 @@
                 } else {
                     imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
                 }
-                const tierNameEscaped = escapeHtml(nft.tier_name || '');
-                const rarityEscaped = escapeHtml(nft.rarity || '');
+                // Clean and escape tier_name and rarity to remove any HTML code
+                const tierNameClean = String(nft.tier_name || '').replace(/<[^>]*>/g, '').trim();
+                const rarityClean = String(nft.rarity || '').replace(/<[^>]*>/g, '').trim();
+                const tierNameEscaped = escapeHtml(tierNameClean);
+                const rarityEscaped = escapeHtml(rarityClean);
                 
                 const imageHtml = imageUrl 
                     ? `<img src="${imageUrl}" alt="${tierNameEscaped} ${rarityEscaped}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                       <div class="nft-emoji" style="display: none;">${getTierEmoji(nft.tier_name)}</div>`
-                    : `<div class="nft-emoji">${getTierEmoji(nft.tier_name)}</div>`;
+                       <div class="nft-emoji" style="display: none;">${getTierEmoji(nft.tier_name || '')}</div>`
+                    : `<div class="nft-emoji">${getTierEmoji(nft.tier_name || '')}</div>`;
                 
                 nftCard.innerHTML = `
                     <div class="nft-image" style="background: linear-gradient(135deg, ${tierColor}, ${rarityColor});">
@@ -1257,7 +1279,7 @@
             const rarityColor = rarityColors[nft.rarity] || '#666';
             const imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
             const explorerUrl = isRealOnChain 
-                ? `https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet`
+                ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
                 : '#';
             
             const modal = document.createElement('div');
@@ -1373,6 +1395,9 @@
                         <h2 style="color: ${tierColor}; margin-bottom: 15px; font-size: 32px; font-weight: bold; text-align: center;">
                             ${escapeHtml(nft.tier_name || 'Unknown')} NFT
                         </h2>
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <span style="font-size: 24px;">${getTierEmoji(nft.tier_name)}</span>
+                        </div>
                         
                         <div style="background: linear-gradient(135deg, #FFD700, #FF8C00); color: white; padding: 18px; border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; margin: 25px 0; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); position: relative; overflow: hidden;">
                             <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent); animation: shine 3s infinite;"></div>
@@ -1435,7 +1460,7 @@
                                     border-radius: 10px;
                                     font-weight: bold;
                                     cursor: pointer;
-                                ">🔗 View on Explorer</button>
+                                ">🔗 View on Solscan</button>
                                 <button onclick="viewInPhantom('${escapeHtml(nft.nft_mint_address)}'); this.closest('div[style*=\"position: fixed\"]').remove();" style="
                                     padding: 12px;
                                     background: linear-gradient(135deg, #667eea, #764ba2);

@@ -14,6 +14,9 @@
 -- ============================================
 -- Active NFT listings on the marketplace
 
+-- Drop table if exists (for development - remove in production!)
+-- DROP TABLE IF EXISTS marketplace_listings CASCADE;
+
 CREATE TABLE IF NOT EXISTS marketplace_listings (
     id SERIAL PRIMARY KEY,
     

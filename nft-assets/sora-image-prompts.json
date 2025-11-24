@@ -1,0 +1,122 @@
+[
+  {
+    "tier": "Bronze",
+    "rarity": "Common",
+    "filename": "bronze-common.png",
+    "prompt": "A cute pixel art Tamagotchi pet, bronze/copper color scheme, simple design, retro 8-bit game style, 8-bit pixel art aesthetic, common rarity with simple, basic colors, no special effects, static pose, white background, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Completely static, no animation, perfect for extracting first frame as image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Static - use first frame"
+  },
+  {
+    "tier": "Bronze",
+    "rarity": "Uncommon",
+    "filename": "bronze-uncommon.png",
+    "prompt": "A cute pixel art Tamagotchi pet, bronze/copper color scheme, simple design, retro 8-bit game style, 8-bit pixel art aesthetic, uncommon rarity with slight glow, better colors, subtle shine, minimal breathing animation, white background, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only gentle breathing, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Bronze",
+    "rarity": "Rare",
+    "filename": "bronze-rare.png",
+    "prompt": "A cute pixel art Tamagotchi pet, bronze/copper color scheme, simple design, retro 8-bit game style, 8-bit pixel art aesthetic, rare rarity with glowing effects, special details, magical aura, gentle pulsing glow, white background, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only glowing pulse, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Bronze",
+    "rarity": "Epic",
+    "filename": "bronze-epic.png",
+    "prompt": "A cute pixel art Tamagotchi pet, bronze/copper color scheme, simple design, retro 8-bit game style, 8-bit pixel art aesthetic, epic rarity with particle effects, unique design, strong glow, sparkles, animated particles, white background, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only particle effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Bronze",
+    "rarity": "Legendary",
+    "filename": "bronze-legendary.png",
+    "prompt": "A cute pixel art Tamagotchi pet, bronze/copper color scheme, simple design, retro 8-bit game style, 8-bit pixel art aesthetic, legendary rarity with maximum effects, legendary aura, unique pose, particle effects, glowing halo, epic status, dramatic lighting, white background, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only legendary aura effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Common",
+    "filename": "silver-common.png",
+    "prompt": "A cute pixel art Tamagotchi pet, silver/metallic color scheme, medium detail, retro 16-bit game style, 16-bit pixel art aesthetic, common rarity with simple, basic colors, no special effects, static pose, gradient background with subtle animation, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Completely static, no animation, perfect for extracting first frame as image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Static - use first frame"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Uncommon",
+    "filename": "silver-uncommon.png",
+    "prompt": "A cute pixel art Tamagotchi pet, silver/metallic color scheme, medium detail, retro 16-bit game style, 16-bit pixel art aesthetic, uncommon rarity with slight glow, better colors, subtle shine, minimal breathing animation, gradient background with subtle animation, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only gentle breathing, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Rare",
+    "filename": "silver-rare.png",
+    "prompt": "A cute pixel art Tamagotchi pet, silver/metallic color scheme, medium detail, retro 16-bit game style, 16-bit pixel art aesthetic, rare rarity with glowing effects, special details, magical aura, gentle pulsing glow, gradient background with subtle animation, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only glowing pulse, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Epic",
+    "filename": "silver-epic.png",
+    "prompt": "A cute pixel art Tamagotchi pet, silver/metallic color scheme, medium detail, retro 16-bit game style, 16-bit pixel art aesthetic, epic rarity with particle effects, unique design, strong glow, sparkles, animated particles, gradient background with subtle animation, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only particle effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Silver",
+    "rarity": "Legendary",
+    "filename": "silver-legendary.png",
+    "prompt": "A cute pixel art Tamagotchi pet, silver/metallic color scheme, medium detail, retro 16-bit game style, 16-bit pixel art aesthetic, legendary rarity with maximum effects, legendary aura, unique pose, particle effects, glowing halo, epic status, dramatic lighting, gradient background with subtle animation, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only legendary aura effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Common",
+    "filename": "gold-common.png",
+    "prompt": "A cute pixel art Tamagotchi pet, gold/luxury color scheme, high detail, premium pixel art style, modern pixel art, common rarity with simple, basic colors, no special effects, static pose, luxury background with effects, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Completely static, no animation, perfect for extracting first frame as image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Static - use first frame"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Uncommon",
+    "filename": "gold-uncommon.png",
+    "prompt": "A cute pixel art Tamagotchi pet, gold/luxury color scheme, high detail, premium pixel art style, modern pixel art, uncommon rarity with slight glow, better colors, subtle shine, minimal breathing animation, luxury background with effects, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only gentle breathing, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Rare",
+    "filename": "gold-rare.png",
+    "prompt": "A cute pixel art Tamagotchi pet, gold/luxury color scheme, high detail, premium pixel art style, modern pixel art, rare rarity with glowing effects, special details, magical aura, gentle pulsing glow, luxury background with effects, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only glowing pulse, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Epic",
+    "filename": "gold-epic.png",
+    "prompt": "A cute pixel art Tamagotchi pet, gold/luxury color scheme, high detail, premium pixel art style, modern pixel art, epic rarity with particle effects, unique design, strong glow, sparkles, animated particles, luxury background with effects, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only particle effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  },
+  {
+    "tier": "Gold",
+    "rarity": "Legendary",
+    "filename": "gold-legendary.png",
+    "prompt": "A cute pixel art Tamagotchi pet, gold/luxury color scheme, high detail, premium pixel art style, modern pixel art, legendary rarity with maximum effects, legendary aura, unique pose, particle effects, glowing halo, epic status, dramatic lighting, luxury background with effects, 1000x1000px, clean illustration, front view, happy expression, game character, NFT art style. Very subtle animation: only legendary aura effects, perfect for extracting first frame as high-quality static image. Duration: 1-2 seconds, first frame is the main image.",
+    "duration": "1-2 seconds",
+    "note": "Subtle animation - use first frame"
+  }
+]

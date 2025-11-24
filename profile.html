@@ -184,6 +184,79 @@
             text-align: center;
         }
         
+        .telegram-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0088cc, #0066aa) !important;
+            color: white !important;
+            border: 3px solid #1D3557 !important;
+            box-shadow: 0 4px 0 #0066aa, 0 6px 10px rgba(0,0,0,0.3) !important;
+        }
+        
+        .telegram-login-btn:hover {
+            background: linear-gradient(135deg, #0066aa, #005588) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #0066aa, 0 8px 15px rgba(0,0,0,0.4) !important;
+        }
+        
+        .telegram-login-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #0066aa, 0 4px 8px rgba(0,0,0,0.3) !important;
+        }
+        
+        /* Telegram Login Modal */
+        .telegram-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .telegram-modal.active {
+            display: flex;
+        }
+        
+        .telegram-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            border: 4px solid #1D3557;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .telegram-modal-content h3 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            color: #1D3557;
+            margin-bottom: 20px;
+        }
+        
+        .telegram-modal-widget {
+            margin: 20px 0;
+        }
+        
+        .telegram-modal-close {
+            margin-top: 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            padding: 10px 20px;
+            background: #f44336;
+            color: white;
+            border: 3px solid #1D3557;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
         .twitter-link-form {
             display: flex;
             gap: 10px;
@@ -364,7 +437,10 @@
                         <div class="account-link-name">📱 Telegram</div>
                         <div class="account-link-status" id="telegram-status">Not connected</div>
                     </div>
-                    <div id="telegram-login-widget" class="telegram-login-widget"></div>
+                    <div id="telegram-login-widget" class="telegram-login-widget" style="display: none;"></div>
+                    <button class="account-link-btn telegram-login-btn" id="telegram-login-btn" onclick="openTelegramModal()" style="display: none;">
+                        <span style="margin-right: 8px;">✈️</span> Login via Telegram
+                    </button>
                 </div>
                 
                 <!-- Twitter -->
@@ -483,30 +559,66 @@
         // Setup Telegram Login Widget
         function setupTelegramLoginWidget() {
             const widget = document.getElementById('telegram-login-widget');
-            if (!widget) return;
-            
-            // Clear previous widget
-            widget.innerHTML = '';
+            const modalWidget = document.getElementById('telegram-modal-widget');
+            const customBtn = document.getElementById('telegram-login-btn');
             
             // Bot username (without @)
             const botUsername = 'GotchiGameBot';
             
-            // Create script element according to Telegram documentation
-            // https://core.telegram.org/widgets/login
-            const script = document.createElement('script');
-            script.async = true;
-            script.src = 'https://telegram.org/js/telegram-widget.js?22';
-            script.setAttribute('data-telegram-login', botUsername);
-            script.setAttribute('data-size', 'large');
-            script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-            script.setAttribute('data-request-access', 'write');
+            // Create script for hidden widget (needed for auth callback)
+            if (widget) {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://telegram.org/js/telegram-widget.js?22';
+                script.setAttribute('data-telegram-login', botUsername);
+                script.setAttribute('data-size', 'large');
+                script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+                script.setAttribute('data-request-access', 'write');
+                widget.innerHTML = '';
+                widget.appendChild(script);
+            }
+            
+            // Create script for modal widget
+            if (modalWidget) {
+                const modalScript = document.createElement('script');
+                modalScript.async = true;
+                modalScript.src = 'https://telegram.org/js/telegram-widget.js?22';
+                modalScript.setAttribute('data-telegram-login', botUsername);
+                modalScript.setAttribute('data-size', 'large');
+                modalScript.setAttribute('data-onauth', 'onTelegramAuth(user)');
+                modalScript.setAttribute('data-request-access', 'write');
+                modalWidget.innerHTML = '';
+                modalWidget.appendChild(modalScript);
+            }
             
             // Make onTelegramAuth globally accessible
             window.onTelegramAuth = onTelegramAuth;
             
-            widget.appendChild(script);
+            // Show custom English button
+            if (customBtn) {
+                customBtn.style.display = 'inline-flex';
+            }
             
             console.log('✅ Telegram Login Widget initialized for:', botUsername);
+        }
+        
+        // Open Telegram Login Modal
+        function openTelegramModal() {
+            const modal = document.getElementById('telegram-modal');
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+        
+        // Close Telegram Login Modal
+        function closeTelegramModal(event) {
+            const modal = document.getElementById('telegram-modal');
+            if (modal) {
+                // If event is provided and target is modal itself (not content), close
+                if (!event || event.target === modal) {
+                    modal.classList.remove('active');
+                }
+            }
         }
         
         // Handle Telegram Auth
@@ -517,6 +629,9 @@
         
         async function handleTelegramAuth(authData) {
             try {
+                // Close modal if open
+                closeTelegramModal();
+                
                 // Use unified auth system
                 const result = await window.GotchiAuth.authViaTelegramWidget(authData);
                 
@@ -816,6 +931,15 @@
         // Initialize on load
         init();
     </script>
+    
+    <!-- Telegram Login Modal -->
+    <div id="telegram-modal" class="telegram-modal" onclick="closeTelegramModal(event)">
+        <div class="telegram-modal-content" onclick="event.stopPropagation()">
+            <h3>🔐 Login via Telegram</h3>
+            <div id="telegram-modal-widget" class="telegram-modal-widget"></div>
+            <button class="telegram-modal-close" onclick="closeTelegramModal()">CLOSE</button>
+        </div>
+    </div>
 </body>
 </html>
 

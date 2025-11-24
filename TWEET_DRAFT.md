@@ -70,10 +70,12 @@ Now you can:
 ✅ Link Telegram + Wallet + Twitter
 ✅ Sync data across all platforms
 ✅ Manage your profile in one place
-✅ Track your stats & NFTs
+✅ View your stats (TAMA, NFTs, Referrals)
+✅ Track your NFT collection
 
 🎮 Play: https://t.me/GotchiGameBot
 👤 Profile: https://solanatamagotchi.com/profile.html
+🖼️ My NFTs: https://solanatamagotchi.com/my-nfts.html
 
 #Solana #P2E #GameFi #Web3
 ```
