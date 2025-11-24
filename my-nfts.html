@@ -1106,25 +1106,40 @@
                 nftCard.style.cursor = 'pointer';
                 nftCard.addEventListener('click', () => showNFTDetails(nft));
                 
-                // Get image URL - use design_id if available, otherwise fallback to tier+rarity
-                let imageUrl = null;
-                if (nft.nft_design_id) {
-                    // TODO: Load image from nft_designs table using nft_design_id
-                    // For now, use tier+rarity fallback
-                    imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
-                } else {
-                    imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
-                }
+                // Get initial image URL - use static IPFS for now, will update from blockchain if on-chain
+                let imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
+                
                 // Clean and escape tier_name and rarity to remove any HTML code
                 const tierNameClean = String(nft.tier_name || '').replace(/<[^>]*>/g, '').trim();
                 const rarityClean = String(nft.rarity || '').replace(/<[^>]*>/g, '').trim();
                 const tierNameEscaped = escapeHtml(tierNameClean);
                 const rarityEscaped = escapeHtml(rarityClean);
                 
+                // Create unique ID for image element to update later
+                const imageId = `nft-image-${nft.id || nft.nft_mint_address || Math.random()}`;
+                
                 const imageHtml = imageUrl 
-                    ? `<img src="${imageUrl}" alt="${tierNameEscaped} ${rarityEscaped}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    ? `<img id="${imageId}" src="${imageUrl}" alt="${tierNameEscaped} ${rarityEscaped}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                        <div class="nft-emoji" style="display: none;">${getTierEmoji(nft.tier_name || '')}</div>`
                     : `<div class="nft-emoji">${getTierEmoji(nft.tier_name || '')}</div>`;
+                
+                // If on-chain NFT, fetch image from blockchain asynchronously
+                if (isRealOnChain && nft.nft_mint_address) {
+                    getOnChainNFTImage(nft.nft_mint_address).then(blockchainImageUrl => {
+                        if (blockchainImageUrl) {
+                            const imgElement = document.getElementById(imageId);
+                            if (imgElement) {
+                                imgElement.src = blockchainImageUrl;
+                                imgElement.onerror = function() {
+                                    // If blockchain image fails, keep the fallback
+                                    console.warn('⚠️ Blockchain image failed, using fallback for:', nft.nft_mint_address);
+                                };
+                            }
+                        }
+                    }).catch(err => {
+                        console.warn('⚠️ Failed to fetch blockchain image for:', nft.nft_mint_address, err);
+                    });
+                }
                 
                 nftCard.innerHTML = `
                     <div class="nft-image" style="background: linear-gradient(135deg, ${tierColor}, ${rarityColor});">
@@ -1224,7 +1239,46 @@
             return emojis[tier] || '🎨';
         }
         
-        // Get NFT image URL from IPFS
+        // Get on-chain NFT image from blockchain metadata
+        async function getOnChainNFTImage(mintAddress) {
+            try {
+                // Fetch from our API endpoint which uses Metaplex to get metadata
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? `http://localhost:3001/api/get-nft-metadata?mint=${encodeURIComponent(mintAddress)}`
+                    : `https://solanatamagotchi-onchain.onrender.com/api/get-nft-metadata?mint=${encodeURIComponent(mintAddress)}`;
+                
+                console.log('🔍 Fetching NFT image from blockchain:', mintAddress);
+                
+                const apiResponse = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (apiResponse.ok) {
+                    const apiData = await apiResponse.json();
+                    if (apiData?.image) {
+                        console.log('✅ Got image from blockchain for:', mintAddress, '→', apiData.image);
+                        return apiData.image;
+                    } else {
+                        console.warn('⚠️ API returned no image for:', mintAddress);
+                    }
+                } else {
+                    const errorText = await apiResponse.text();
+                    console.warn('⚠️ API request failed:', apiResponse.status, errorText);
+                }
+                
+                // Fallback: return null to use static IPFS image
+                return null;
+                
+            } catch (error) {
+                console.error('❌ Failed to fetch on-chain NFT image:', error);
+                return null;
+            }
+        }
+        
+        // Get NFT image URL from IPFS (fallback for off-chain or when blockchain fetch fails)
         function getNFTImageUrl(tier, rarity) {
             const ipfsUrls = {
                 'bronze': {

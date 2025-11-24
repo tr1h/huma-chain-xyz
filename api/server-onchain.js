@@ -9,6 +9,7 @@ const { mintOnChainNFT } = require('./mint-nft-onchain');
 const { updateNFTMetadata } = require('./update-nft-metadata');
 const { executeTAMATransfer } = require('./tama-transfer');
 const { executeWithdrawal } = require('./tama-withdrawal');
+const { handleGetNFTMetadata } = require('./get-nft-metadata');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -54,6 +55,9 @@ app.post('/api/mint-nft-onchain', mintOnChainNFT);
 // Update NFT metadata endpoint
 app.post('/api/update-nft-metadata', updateNFTMetadata);
 
+// Get NFT metadata endpoint (for fetching images from blockchain)
+app.get('/api/get-nft-metadata', handleGetNFTMetadata);
+
 // TAMA token distribution endpoint
 app.post('/api/tama-transfer', executeTAMATransfer);
 
@@ -75,5 +79,6 @@ app.listen(PORT, () => {
     console.log(`📡 Endpoints:`);
     console.log(`   - Mint: http://localhost:${PORT}/api/mint-nft-onchain`);
     console.log(`   - Update Metadata: http://localhost:${PORT}/api/update-nft-metadata`);
+    console.log(`   - Get Metadata: http://localhost:${PORT}/api/get-nft-metadata?mint=<mint_address>`);
 });
 

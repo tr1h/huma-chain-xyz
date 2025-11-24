@@ -1017,6 +1017,70 @@
             }
         }
         
+        // Load NFT image from blockchain metadata
+        async function loadNFTImageFromBlockchain(mintAddress, imageId, fallbackEmoji) {
+            try {
+                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? `http://localhost:3001/api/get-nft-metadata?mint=${encodeURIComponent(mintAddress)}`
+                    : `https://solanatamagotchi-onchain.onrender.com/api/get-nft-metadata?mint=${encodeURIComponent(mintAddress)}`;
+                
+                const apiResponse = await fetch(apiUrl);
+                if (apiResponse.ok) {
+                    const apiData = await apiResponse.json();
+                    if (apiData?.image) {
+                        const imgElement = document.getElementById(imageId);
+                        if (imgElement) {
+                            imgElement.src = apiData.image;
+                            imgElement.onerror = function() {
+                                console.warn('⚠️ Blockchain image failed, using fallback for:', mintAddress);
+                                if (imgElement.parentElement) {
+                                    imgElement.parentElement.innerHTML = fallbackEmoji;
+                                }
+                            };
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to load blockchain image for:', mintAddress, error);
+            }
+        }
+        
+        // Get static NFT image URL based on tier and rarity (fallback)
+        function getNFTImageUrlStatic(tier, rarity) {
+            const ipfsUrls = {
+                'bronze': {
+                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i',
+                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq',
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq'
+                },
+                'silver': {
+                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+                },
+                'gold': {
+                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreicywzvyse3immuhakmd4dvv22gxsikmzhn4q7cjkmzjpp7253ftse',
+                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+                },
+                'platinum': {
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4'
+                },
+                'diamond': {
+                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq'
+                }
+            };
+            
+            const tierLower = (tier || '').toLowerCase();
+            const rarityLower = (rarity || '').toLowerCase();
+            
+            return ipfsUrls[tierLower]?.[rarityLower] || null;
+        }
+        
         // Display NFTs in grid
         function displayNFTs(nfts) {
             const grid = document.getElementById('nft-grid');
@@ -1030,15 +1094,36 @@
                 const tierEmoji = getTierEmoji(nft.tier_name);
                 const rarityEmoji = getRarityEmoji(nft.rarity);
                 
-                // Get NFT image URL if on-chain
+                // Get NFT image URL - use blockchain metadata for on-chain NFT
+                const imageId = `marketplace-nft-image-${nft.id || nft.nft_mint_address || Math.random()}`;
+                const isRealOnChain = nft.nft_mint_address && 
+                    nft.nft_mint_address.length > 30 && 
+                    !nft.nft_mint_address.includes('_');
+                
+                // Start with placeholder, will update from blockchain if on-chain
                 let imageHtml = `<div class="nft-image">${tierEmoji}</div>`;
-                if (nft.nft_mint_address) {
-                    // Try to load image from IPFS/Arweave
+                
+                if (isRealOnChain) {
+                    // Create image element with unique ID for async update
                     imageHtml = `<div class="nft-image" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2)); display: flex; align-items: center; justify-content: center; padding: 0;">
-                        <img src="https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i" 
+                        <img id="${imageId}" 
+                             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='48'%3E${tierEmoji}%3C/text%3E%3C/svg%3E"
                              onerror="this.parentElement.innerHTML='${tierEmoji}'"
                              style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;" />
                     </div>`;
+                    
+                    // Load image from blockchain asynchronously
+                    loadNFTImageFromBlockchain(nft.nft_mint_address, imageId, tierEmoji);
+                } else if (nft.tier_name && nft.rarity) {
+                    // For off-chain NFT, try to use static IPFS URL based on tier/rarity
+                    const staticImageUrl = getNFTImageUrlStatic(nft.tier_name, nft.rarity);
+                    if (staticImageUrl) {
+                        imageHtml = `<div class="nft-image" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2)); display: flex; align-items: center; justify-content: center; padding: 0;">
+                            <img src="${staticImageUrl}" 
+                                 onerror="this.parentElement.innerHTML='${tierEmoji}'"
+                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;" />
+                        </div>`;
+                    }
                 }
                 
                 return `
