@@ -693,6 +693,9 @@
         body[data-pet="cyber"] .cyber-pet { display: block !important; }
         body[data-pet="alien"] .alien-pet { display: block !important; }
         body[data-pet="kitsune"] .kitsune-pet { display: block !important; }
+        
+        /* FALLBACK: If no data-pet attribute, show kawai pet by default */
+        body:not([data-pet]) .kawai-pet { display: block !important; }
 
         .pet-area {
             position: relative;
@@ -5030,6 +5033,29 @@
             div.textContent = String(text);
             return div.innerHTML;
         }
+        
+        // 🐾 CRITICAL: Initialize pet display IMMEDIATELY (before DOMContentLoaded)
+        // This ensures pet is visible from the start, even if initPetSelector() runs later
+        (function() {
+            try {
+                const savedPet = localStorage.getItem('tamagotchi-pet') || 'kawai';
+                if (document.body && !document.body.getAttribute('data-pet')) {
+                    document.body.setAttribute('data-pet', savedPet);
+                    console.log('✅ Early pet initialization - data-pet set to:', savedPet);
+                } else if (!document.body) {
+                    // If body not ready, set it when DOM is ready
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const savedPet = localStorage.getItem('tamagotchi-pet') || 'kawai';
+                        if (!document.body.getAttribute('data-pet')) {
+                            document.body.setAttribute('data-pet', savedPet);
+                            console.log('✅ Early pet initialization (DOM ready) - data-pet set to:', savedPet);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('⚠️ Early pet initialization failed:', e);
+            }
+        })();
         
         // Pet Types with unique characteristics
         const PET_TYPES = {
@@ -10853,6 +10879,14 @@
         function initPetSelector() {
             // Load saved pet
             const savedPet = localStorage.getItem('tamagotchi-pet') || 'kawai';
+            
+            // CRITICAL: Set data-pet immediately, even before switchPet
+            // This ensures pet is visible from the start
+            if (!document.body.getAttribute('data-pet')) {
+                document.body.setAttribute('data-pet', savedPet);
+                console.log('✅ Set initial data-pet:', savedPet);
+            }
+            
             switchPet(savedPet);
             
             // Add click listeners to pet buttons (both old and new)
