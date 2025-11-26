@@ -5876,6 +5876,18 @@
             const baseReward = (clickPower * BASE_CLICK_REWARD) + cappedComboBonus;
             let earnedTama = Math.max(MIN_REWARD, baseReward);
             
+            // Safety check: ensure earnedTama is never 0 or negative
+            if (earnedTama <= 0 || isNaN(earnedTama) || !isFinite(earnedTama)) {
+                console.error('⚠️ Invalid earnedTama calculated:', earnedTama, {
+                    clickPower,
+                    BASE_CLICK_REWARD,
+                    cappedComboBonus,
+                    baseReward,
+                    localClickEfficiency
+                });
+                earnedTama = MIN_REWARD; // Fallback to minimum reward
+            }
+            
             // Log detailed calculation (only on first click or when combo resets)
             if (gameState.combo === 1 || gameState.combo === 0) {
                 console.log('🧮 Reward Calculation:', {
@@ -5929,9 +5941,18 @@
             
             // Log transaction BEFORE updating balance
             const balanceBefore = gameState.tama;
+            console.log('💰 TAMA Update:', {
+                balanceBefore: balanceBefore.toFixed(2),
+                earnedTama: earnedTama.toFixed(2),
+                willAdd: earnedTama.toFixed(2)
+            });
             gameState.tama += earnedTama;
             gameState.dailyEarned += earnedTama; // Track daily earned
             const balanceAfter = gameState.tama;
+            console.log('💰 TAMA After:', {
+                balanceAfter: balanceAfter.toFixed(2),
+                difference: (balanceAfter - balanceBefore).toFixed(2)
+            });
             gameState.xp += earnedXP;
             gameState.totalClicks++;
             gameState.questClicks++;
@@ -12348,8 +12369,7 @@
                     })
                     : 'Unknown';
                 
-                // Проверяем on-chain статус
-                const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
+                // isOnChain already declared above (line 12251), reuse it
                 const explorerLink = isOnChain 
                     ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
                     : null;
