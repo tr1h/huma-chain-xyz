@@ -5021,6 +5021,14 @@
         console.log('🚀 SCRIPT STARTED - tamagotchi-game.html loaded');
         console.log('📍 Script execution beginning at:', new Date().toISOString());
         
+        // 🔒 Utility function to escape HTML and prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+        
         // Pet Types with unique characteristics
         const PET_TYPES = {
             cat: {
@@ -12098,7 +12106,9 @@
                             'Platinum': '💎',
                             'Diamond': '💠'
                         };
-                        const emojiUrl = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || '🎮'}</text></svg>`;
+                        // Properly encode SVG to avoid HTML injection issues
+                        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || '🎮'}</text></svg>`;
+                        const emojiUrl = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
                         if (!imageUrl) {
                             imageUrl = emojiUrl;
                         }
@@ -12135,11 +12145,15 @@
                             design_variant: nft.nft_designs?.design_variant
                         }));
                         
+                        // Escape values to prevent HTML injection
+                        const tierSafe = escapeHtml(tier);
+                        const raritySafe = escapeHtml(rarity);
+                        
                         return `
                             <div class="nft-card" style="border-color: ${tierColor};" data-nft='${nftData}' onclick="showNFTDetail(${nft.id})">
-                                <img src="${imageUrl}" alt="${tier} NFT" onerror="this.src='${emojiUrl}'">
-                                <div style="font-size: 18px; font-weight: bold; color: ${tierColor}; margin-bottom: 8px;">${tier}${onChainBadge}</div>
-                                <div style="font-size: 14px; color: #fff; margin-bottom: 8px; opacity: 0.9;">${rarity}</div>
+                                <img src="${imageUrl}" alt="${tierSafe} NFT" onerror="this.onerror=null; this.src='${emojiUrl}';">
+                                <div style="font-size: 18px; font-weight: bold; color: ${tierColor}; margin-bottom: 8px;">${tierSafe}${onChainBadge}</div>
+                                <div style="font-size: 14px; color: #fff; margin-bottom: 8px; opacity: 0.9;">${raritySafe}</div>
                                 <div style="font-size: 16px; color: #8AC926; margin-bottom: 8px; font-weight: bold;">⚡ ${multiplier}x Boost</div>
                                 ${isActive ? '<div style="font-size: 12px; color: #10b981; font-weight: bold;">✅ Active</div>' : '<div style="font-size: 12px; color: #ef4444;">❌ Inactive</div>'}
                             </div>
@@ -12211,7 +12225,9 @@
                     'Platinum': '💎',
                     'Diamond': '💠'
                 };
-                const emojiUrl = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || '🎮'}</text></svg>`;
+                // Properly encode SVG to avoid HTML injection issues
+                const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || '🎮'}</text></svg>`;
+                const emojiUrl = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
                 if (!imageUrl) {
                     imageUrl = emojiUrl;
                 }
@@ -12284,19 +12300,23 @@
                     ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
                     : null;
                 
+                // Escape values to prevent HTML injection
+                const tierSafe = escapeHtml(tier);
+                const raritySafe = escapeHtml(rarity);
+                
                 // Формируем HTML
                 const detailHTML = `
                     <div class="nft-detail-header">
                         <div class="nft-detail-image">
-                            <img src="${imageUrl}" alt="${tier} NFT" onerror="this.src='${emojiUrl}'" style="border-color: ${tierColor};">
+                            <img src="${imageUrl}" alt="${tierSafe} NFT" onerror="this.onerror=null; this.src='${emojiUrl}';" style="border-color: ${tierColor};">
                         </div>
                         <div class="nft-detail-info">
                             <div class="nft-detail-title" style="color: ${tierColor};">
-                                ${tier} NFT ${isOnChain ? '🔗' : ''}
+                                ${tierSafe} NFT ${isOnChain ? '🔗' : ''}
                             </div>
                             <div style="margin-bottom: 15px;">
                                 <span class="nft-detail-badge" style="background: ${tierColor}; color: #000;">
-                                    ${rarity}
+                                    ${raritySafe}
                                 </span>
                                 <span class="nft-detail-badge" style="background: ${isActive ? '#10b981' : '#ef4444'}; color: #fff;">
                                     ${isActive ? '✅ Active' : '❌ Inactive'}
