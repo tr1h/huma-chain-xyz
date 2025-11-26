@@ -1914,7 +1914,9 @@
             }
             
             #slots-arena #slots-balance-display {
-                font-size: 28px !important;
+                font-size: 18px !important;
+                padding: 10px 15px !important;
+                margin-bottom: 10px !important;
             }
             
             #slots-arena .slots-bet-btn {
@@ -1980,7 +1982,9 @@
             }
             
             #wheel-arena #wheel-balance-display {
-                font-size: 28px !important;
+                font-size: 18px !important;
+                padding: 10px 15px !important;
+                margin-bottom: 10px !important;
             }
             
             #wheel-arena .wheel-bet-btn {
@@ -4056,11 +4060,6 @@
                     <div class="game-card-icon">🎡</div>
                     <div class="game-card-name">Lucky Wheel</div>
                     <div class="game-card-cost">Bet: 100-1000 TAMA | Win: up to 10x!</div>
-                </div>
-                <div class="game-card" data-game="dice" style="background: linear-gradient(135deg, #10b981, #059669);">
-                    <div class="game-card-icon">🎲</div>
-                    <div class="game-card-name">Dice Roll</div>
-                    <div class="game-card-cost">Bet: 50-500 TAMA | Win: up to 15x!</div>
                 </div>
                 <div class="game-card" data-game="platformer" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
                     <div class="game-card-icon">🍄</div>
@@ -8056,8 +8055,16 @@
                 } else {
                     clearInterval(wheelSpinInterval); // Stop spinning sound
                     sounds.reelStop(); // Stop sound
-                    const normalizedRotation = wheelState.rotation % (Math.PI * 2);
-                    const segmentIndex = Math.floor((8 - (normalizedRotation / (Math.PI * 2) * 8)) % 8);
+                    // ✅ FIX: Правильный расчет сегмента под указателем
+                    // Указатель наверху (0°), сегменты идут по часовой стрелке
+                    // Нормализуем rotation к [0, 2π]
+                    const normalizedRotation = ((wheelState.rotation % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2);
+                    // Угол одного сегмента
+                    const segmentAngle = (Math.PI * 2) / wheelState.segments.length;
+                    // Указатель наверху, нужно найти сегмент под ним
+                    // Инвертируем (т.к. колесо вращается против часовой, а сегменты по часовой)
+                    // Добавляем segmentAngle/2 чтобы указатель был в центре сегмента
+                    const segmentIndex = Math.floor((Math.PI * 2 - normalizedRotation + segmentAngle / 2) / segmentAngle) % wheelState.segments.length;
                     const multiplier = wheelState.segments[segmentIndex].multiplier;
                     const reward = Math.floor(wheelState.betAmount * multiplier);
                     
@@ -8116,69 +8123,161 @@
             }
         }, 1000);
         
-        // 🎲 DICE ROLL 2.0
-        let diceState = { betAmount: 50, rolling: false };
-        const diceEmojis = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-        document.querySelectorAll('.dice-bet-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                diceState.betAmount = parseInt(btn.dataset.bet);
-                document.querySelectorAll('.dice-bet-btn').forEach(b => b.style.opacity = '0.7');
-                btn.style.opacity = '1';
-            });
-        });
-        document.getElementById('dice-roll-btn')?.addEventListener('click', () => {
-            if (diceState.rolling || gameState.tama < diceState.betAmount) {
-                showMessage(`❌ Not enough TAMA! Need ${diceState.betAmount} TAMA`);
-                return;
-            }
-            diceState.rolling = true;
-            gameState.tama -= diceState.betAmount;
-            if (typeof logTransaction === 'function') logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_dice', -diceState.betAmount, `Spent ${diceState.betAmount} TAMA to play Dice Roll`, gameState);
-            updateUI();
-            const dice1 = document.getElementById('dice-1');
-            const dice2 = document.getElementById('dice-2');
-            const dice3 = document.getElementById('dice-3');
-            const diceResult = document.getElementById('dice-result');
-            diceResult.innerHTML = 'Rolling...';
-            let rolls = 0;
-            const interval = setInterval(() => {
-                dice1.textContent = diceEmojis[Math.floor(Math.random() * 6)];
-                dice2.textContent = diceEmojis[Math.floor(Math.random() * 6)];
-                dice3.textContent = diceEmojis[Math.floor(Math.random() * 6)];
-                if (++rolls === 15) {
-                    clearInterval(interval);
-                    const d1 = Math.floor(Math.random() * 6) + 1;
-                    const d2 = Math.floor(Math.random() * 6) + 1;
-                    const d3 = Math.floor(Math.random() * 6) + 1;
-                    dice1.textContent = diceEmojis[d1 - 1];
-                    dice2.textContent = diceEmojis[d2 - 1];
-                    dice3.textContent = diceEmojis[d3 - 1];
-                    const total = d1 + d2 + d3;
-                    let reward = 0, message = '';
-                    if (d1 === d2 && d2 === d3) {
-                        reward = diceState.betAmount * 15;
-                        message = `🎰 TRIPLE ${d1}! JACKPOT! +${reward} TAMA!`;
-                    } else if (d1 === d2 || d2 === d3 || d1 === d3) {
-                        reward = diceState.betAmount * 3;
-                        message = `🎲 Pair! Nice! +${reward} TAMA!`;
-                    } else if (total >= 15) {
-                        reward = diceState.betAmount * 2;
-                        message = `✨ High Roll (${total})! +${reward} TAMA!`;
-                    } else if (total >= 10) {
-                        reward = diceState.betAmount;
-                        message = `💫 Medium Roll (${total})! +${reward} TAMA!`;
-                    } else message = `😔 Low Roll (${total}). Try again!`;
-                    if (reward > 0) {
-                        gameState.tama += reward;
-                        if (typeof logTransaction === 'function') logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_dice', reward, `Won ${reward} TAMA from Dice Roll (${d1}+${d2}+${d3}=${total})`, gameState);
-                    }
-                    diceResult.innerHTML = message + `<br><small>Total: ${total}</small>`;
-                    updateUI();
-                    triggerAutoSave();
-                    diceState.rolling = false;
+        // 🎲 DICE ROLL - REMOVED (not interesting)
+        
+        // 🐾 CATCH THE PET - IMPROVED VERSION
+        let catchPetState = {
+            active: false,
+            petX: 50,
+            petY: 50,
+            petSpeed: 2,
+            caught: 0,
+            score: 0,
+            speed: 1.0,
+            gameTime: 30,
+            timer: null,
+            petInterval: null,
+            obstacles: []
+        };
+        
+        document.getElementById('catchpet-start-btn')?.addEventListener('click', () => {
+            if (catchPetState.active) return;
+            
+            catchPetState.active = true;
+            catchPetState.caught = 0;
+            catchPetState.score = 0;
+            catchPetState.speed = 1.0;
+            catchPetState.gameTime = 30;
+            catchPetState.petX = Math.random() * 80 + 10;
+            catchPetState.petY = Math.random() * 60 + 20;
+            catchPetState.petSpeed = 2;
+            
+            const gameArea = document.getElementById('catchpet-game-area');
+            const pet = document.getElementById('catchpet-pet');
+            const status = document.getElementById('catchpet-status');
+            
+            status.textContent = '🎮 Game Started! Catch the pet!';
+            status.style.color = '#10b981';
+            
+            // Start timer
+            catchPetState.timer = setInterval(() => {
+                catchPetState.gameTime--;
+                if (catchPetState.gameTime <= 0) {
+                    endCatchPetGame();
                 }
+            }, 1000);
+            
+            // Move pet randomly
+            catchPetState.petInterval = setInterval(() => {
+                if (!catchPetState.active) return;
+                
+                // Random movement
+                catchPetState.petX += (Math.random() - 0.5) * catchPetState.petSpeed * 2;
+                catchPetState.petY += (Math.random() - 0.5) * catchPetState.petSpeed * 2;
+                
+                // Keep pet in bounds
+                catchPetState.petX = Math.max(5, Math.min(95, catchPetState.petX));
+                catchPetState.petY = Math.max(10, Math.min(80, catchPetState.petY));
+                
+                // Update pet position
+                pet.style.left = catchPetState.petX + '%';
+                pet.style.top = catchPetState.petY + '%';
+                
+                // Increase speed over time
+                catchPetState.petSpeed = Math.min(5, 2 + catchPetState.caught * 0.2);
+                catchPetState.speed = catchPetState.petSpeed;
+                
+                // Update speed display
+                document.querySelector('#catchpet-arena .game-arena > div > div:nth-child(3) > div:first-child').textContent = catchPetState.speed.toFixed(1) + 'x';
             }, 100);
+            
+            // Click to catch
+            gameArea.addEventListener('click', catchPetClick);
         });
+        
+        function catchPetClick(e) {
+            if (!catchPetState.active) return;
+            
+            const gameArea = document.getElementById('catchpet-game-area');
+            const rect = gameArea.getBoundingClientRect();
+            const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+            const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            const distance = Math.sqrt(
+                Math.pow(clickX - catchPetState.petX, 2) + 
+                Math.pow(clickY - catchPetState.petY, 2)
+            );
+            
+            if (distance < 10) {
+                // Caught!
+                catchPetState.caught++;
+                catchPetState.score += Math.floor(50 * catchPetState.speed);
+                
+                // Update displays
+                document.querySelector('#catchpet-arena .game-arena > div > div:nth-child(1) > div:first-child').textContent = catchPetState.caught;
+                document.querySelector('#catchpet-arena .game-arena > div > div:nth-child(2) > div:first-child').textContent = catchPetState.score;
+                
+                // Move pet to new random position
+                catchPetState.petX = Math.random() * 80 + 10;
+                catchPetState.petY = Math.random() * 60 + 20;
+                document.getElementById('catchpet-pet').style.left = catchPetState.petX + '%';
+                document.getElementById('catchpet-pet').style.top = catchPetState.petY + '%';
+                
+                // Visual feedback
+                const status = document.getElementById('catchpet-status');
+                status.textContent = `🎉 Caught! +${Math.floor(50 * catchPetState.speed)} points!`;
+                status.style.color = '#10b981';
+                
+                setTimeout(() => {
+                    if (catchPetState.active) {
+                        status.textContent = `⏰ Time: ${catchPetState.gameTime}s | Caught: ${catchPetState.caught}`;
+                        status.style.color = '#fff';
+                    }
+                }, 1000);
+            } else {
+                // Missed
+                const status = document.getElementById('catchpet-status');
+                status.textContent = '😔 Missed! Try again!';
+                status.style.color = '#ef4444';
+                setTimeout(() => {
+                    if (catchPetState.active) {
+                        status.textContent = `⏰ Time: ${catchPetState.gameTime}s | Caught: ${catchPetState.caught}`;
+                        status.style.color = '#fff';
+                    }
+                }, 500);
+            }
+        }
+        
+        function endCatchPetGame() {
+            catchPetState.active = false;
+            clearInterval(catchPetState.timer);
+            clearInterval(catchPetState.petInterval);
+            
+            const gameArea = document.getElementById('catchpet-game-area');
+            gameArea.removeEventListener('click', catchPetClick);
+            
+            // Calculate reward
+            const baseReward = catchPetState.caught * 10;
+            const speedBonus = Math.floor(catchPetState.speed * 5);
+            const totalReward = Math.min(200, baseReward + speedBonus);
+            
+            if (totalReward > 0) {
+                gameState.tama += totalReward;
+                if (typeof logTransaction === 'function') {
+                    logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_catchpet', totalReward, `Won ${totalReward} TAMA from Catch the Pet (${catchPetState.caught} caught)`, gameState);
+                }
+            }
+            
+            const status = document.getElementById('catchpet-status');
+            status.textContent = `🎮 Game Over! Caught: ${catchPetState.caught} | Score: ${catchPetState.score} | Reward: +${totalReward} TAMA!`;
+            status.style.color = '#fbbf24';
+            
+            updateUI();
+            triggerAutoSave();
+            
+            // Reset button
+            document.getElementById('catchpet-start-btn').textContent = '🐾 START CATCHING!';
+        }
         
         // 🍄 TAMA JUMP PLATFORMER GAME - REAL MARIO STYLE
         const platformerGame = {
