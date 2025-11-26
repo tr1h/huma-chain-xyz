@@ -8960,7 +8960,7 @@
             resultDiv.textContent = message;
             precisionState.active = false;
             
-            const gameArea = document.getElementById('precision-game-area');
+            // gameArea already declared at line 8917, just use it
             gameArea.removeEventListener('click', precisionClickHandler);
             
             updateUI();
