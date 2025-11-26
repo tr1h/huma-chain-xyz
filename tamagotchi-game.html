@@ -10519,8 +10519,12 @@
                     // Get max multiplier from active NFTs
                     let maxMultiplier = 0;
                     data.forEach(nft => {
-                        // All NFTs are active by default unless explicitly set to false
-                        if (nft.is_active !== false && nft.earning_multiplier > maxMultiplier) {
+                        // Check if on-chain NFT
+                        const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
+                        // On-chain NFTs are ALWAYS active, off-chain NFTs use is_active flag
+                        const isActive = isOnChain ? true : (nft.is_active !== false);
+                        
+                        if (isActive && nft.earning_multiplier > maxMultiplier) {
                             maxMultiplier = nft.earning_multiplier;
                         }
                     });
@@ -12066,8 +12070,11 @@
                     
                     // Calculate stats
                     const totalNFTs = nfts.length;
-                    // All NFTs are active by default unless explicitly set to false
-                    const activeNFTs = nfts.filter(n => n.is_active !== false).length;
+                    // On-chain NFTs are ALWAYS active, off-chain NFTs use is_active flag
+                    const activeNFTs = nfts.filter(n => {
+                        const isOnChain = n.nft_mint_address && n.nft_mint_address.length > 30 && !n.nft_mint_address.includes('_');
+                        return isOnChain ? true : (n.is_active !== false);
+                    }).length;
                     const totalBoost = nfts.reduce((sum, n) => sum + (parseFloat(n.earning_multiplier) || 0), 0);
                     
                     nftStats.innerHTML = `
@@ -12083,8 +12090,13 @@
                         const tier = nft.tier_name || 'Unknown';
                         const rarity = nft.rarity || 'Common';
                         const multiplier = parseFloat(nft.earning_multiplier) || 1;
-                        // All NFTs are active by default - only explicitly deactivated ones are inactive
-                        const isActive = nft.is_active === false ? false : true;
+                        
+                        // Check if on-chain NFT
+                        const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
+                        
+                        // CRITICAL: On-chain NFTs are ALWAYS active (they exist on blockchain forever)
+                        // Only off-chain NFTs can be inactive (based on is_active flag in DB)
+                        const isActive = isOnChain ? true : (nft.is_active !== false);
                         
                         // Get image URL - priority: database > IPFS > emoji fallback
                         let imageUrl = null;
@@ -12126,9 +12138,6 @@
                             'Diamond': '#B9F2FF'
                         };
                         const tierColor = tierColors[tier] || '#8AC926';
-                        
-                        // Check if on-chain NFT
-                        const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
                         const onChainBadge = isOnChain ? ' 🔗' : '';
                         
                         // Store NFT data in data attribute for detail view
@@ -12203,8 +12212,13 @@
                 const tier = nft.tier_name || 'Unknown';
                 const rarity = nft.rarity || 'Common';
                 const multiplier = parseFloat(nft.earning_multiplier) || 1;
-                // All NFTs are active by default unless explicitly set to false
-                const isActive = nft.is_active === false ? false : true;
+                
+                // Check if on-chain NFT
+                const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
+                
+                // CRITICAL: On-chain NFTs are ALWAYS active (they exist on blockchain forever)
+                // Only off-chain NFTs can be inactive (based on is_active flag in DB)
+                const isActive = isOnChain ? true : (nft.is_active !== false);
                 
                 // Get image URL - priority: database > IPFS > emoji fallback
                 let imageUrl = null;
