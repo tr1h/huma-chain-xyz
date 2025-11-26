@@ -5993,14 +5993,15 @@
             }
         }
 
-        // Pet Click
-        if (petArea) {
-        petArea.addEventListener('click', (e) => {
-            if (e.target.closest('.pet-emoji')) {
-                clickPet(e);
-            }
-        });
-        }
+        // Pet Click - REMOVED: This was trying to add listener before DOM is ready
+        // Handler is now properly initialized in DOMContentLoaded (line ~11790)
+        // if (petArea) {
+        //     petArea.addEventListener('click', (e) => {
+        //         if (e.target.closest('.pet-emoji')) {
+        //             clickPet(e);
+        //         }
+        //     });
+        // }
 
         function clickPet(e) {
             const now = Date.now();
