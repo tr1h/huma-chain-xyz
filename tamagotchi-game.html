@@ -4733,16 +4733,18 @@
                     <div class="referral-status" id="nft-stats">Loading...</div>
                 </div>
                 
+                <!-- Mint Button - Moved to top -->
+                <div style="text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 20px;">
+                    <button class="share-btn" id="mint-nft-btn">✨ Mint New NFT Pet</button>
+                    <div id="mint-options" style="display: none; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                        <button class="share-btn" id="mint-with-tama-btn" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926;">💰 Mint with TAMA</button>
+                        <button class="share-btn" id="mint-with-sol-btn" style="background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea;">💎 Mint with SOL</button>
+                    </div>
+                </div>
+                
                 <!-- NFT Gallery -->
                 <div id="nft-collection" style="display: block;">
                     <div id="nft-grid" class="nft-grid"></div>
-                    <div style="text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                        <button class="share-btn" id="mint-nft-btn">✨ Mint New NFT Pet</button>
-                        <div id="mint-options" style="display: none; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                            <button class="share-btn" id="mint-with-tama-btn" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926;">💰 Mint with TAMA</button>
-                            <button class="share-btn" id="mint-with-sol-btn" style="background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea;">💎 Mint with SOL</button>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Wallet Connect (optional) -->
@@ -10517,7 +10519,8 @@
                     // Get max multiplier from active NFTs
                     let maxMultiplier = 0;
                     data.forEach(nft => {
-                        if (nft.is_active && nft.earning_multiplier > maxMultiplier) {
+                        // All NFTs are active by default unless explicitly set to false
+                        if (nft.is_active !== false && nft.earning_multiplier > maxMultiplier) {
                             maxMultiplier = nft.earning_multiplier;
                         }
                     });
@@ -12063,7 +12066,8 @@
                     
                     // Calculate stats
                     const totalNFTs = nfts.length;
-                    const activeNFTs = nfts.filter(n => n.is_active).length;
+                    // All NFTs are active by default unless explicitly set to false
+                    const activeNFTs = nfts.filter(n => n.is_active !== false).length;
                     const totalBoost = nfts.reduce((sum, n) => sum + (parseFloat(n.earning_multiplier) || 0), 0);
                     
                     nftStats.innerHTML = `
@@ -12079,7 +12083,8 @@
                         const tier = nft.tier_name || 'Unknown';
                         const rarity = nft.rarity || 'Common';
                         const multiplier = parseFloat(nft.earning_multiplier) || 1;
-                        const isActive = nft.is_active !== false; // Default to true
+                        // All NFTs are active by default - only explicitly deactivated ones are inactive
+                        const isActive = nft.is_active === false ? false : true;
                         
                         // Get image URL - priority: database > IPFS > emoji fallback
                         let imageUrl = null;
@@ -12198,7 +12203,8 @@
                 const tier = nft.tier_name || 'Unknown';
                 const rarity = nft.rarity || 'Common';
                 const multiplier = parseFloat(nft.earning_multiplier) || 1;
-                const isActive = nft.is_active !== false;
+                // All NFTs are active by default unless explicitly set to false
+                const isActive = nft.is_active === false ? false : true;
                 
                 // Get image URL - priority: database > IPFS > emoji fallback
                 let imageUrl = null;
