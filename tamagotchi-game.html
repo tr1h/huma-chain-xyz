@@ -4071,6 +4071,31 @@
                     <div class="game-card-name">Catch the Pet!</div>
                     <div class="game-card-cost">FREE | Win: up to 200 TAMA!</div>
                 </div>
+                <div class="game-card" data-game="battle" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    <div class="game-card-icon">⚔️</div>
+                    <div class="game-card-name">PET BATTLE</div>
+                    <div class="game-card-cost">Bet: 100-1000 TAMA | Win: up to 2x!</div>
+                </div>
+                <div class="game-card" data-game="tower" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                    <div class="game-card-icon">🏗️</div>
+                    <div class="game-card-name">TAMA TOWER</div>
+                    <div class="game-card-cost">Bet: 50-500 TAMA | Win: up to 20x!</div>
+                </div>
+                <div class="game-card" data-game="precision" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <div class="game-card-icon">🎯</div>
+                    <div class="game-card-name">PRECISION CLICK</div>
+                    <div class="game-card-cost">Bet: 50-500 TAMA | Win: up to 10x!</div>
+                </div>
+                <div class="game-card" data-game="roulette" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <div class="game-card-icon">🎲</div>
+                    <div class="game-card-name">ROULETTE</div>
+                    <div class="game-card-cost">Bet: 50-1000 TAMA | Win: up to 36x!</div>
+                </div>
+                <div class="game-card" data-game="cards" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                    <div class="game-card-icon">🃏</div>
+                    <div class="game-card-name">CARD GAME</div>
+                    <div class="game-card-cost">Bet: 100-1000 TAMA | Win: up to 3x!</div>
+                </div>
             </div>
             
             <!-- Game Arenas (will be shown when game is selected) -->
@@ -4238,6 +4263,238 @@
                 <div style="text-align: center; margin-top: 15px;">
                     <button id="catchpet-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #06b6d4, #0891b2); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🐾 START CATCHING!</button>
                     <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                </div>
+            </div>
+            
+            <!-- ⚔️ PET BATTLE ARENA -->
+            <div class="game-arena" id="battle-arena" style="display: none;">
+                <h3 style="text-align: center; margin-bottom: 15px;">⚔️ PET BATTLE ARENA</h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Choose your NFT pet and battle!</p>
+                
+                <!-- Balance Display -->
+                <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2)); border-radius: 10px; border: 2px solid rgba(239, 68, 68, 0.3);">
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Your Balance:</div>
+                    <div id="battle-balance-display" style="font-size: 18px; font-weight: bold; color: #fff;">0 TAMA</div>
+                </div>
+                
+                <!-- Bet Selection -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <button class="battle-bet-btn" data-bet="100" style="padding: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">100 TAMA</button>
+                    <button class="battle-bet-btn" data-bet="300" style="padding: 12px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">300 TAMA</button>
+                    <button class="battle-bet-btn" data-bet="500" style="padding: 12px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">500 TAMA</button>
+                    <button class="battle-bet-btn" data-bet="1000" style="padding: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">1000 TAMA</button>
+                </div>
+                
+                <!-- Battle Area -->
+                <div id="battle-game-area" style="position: relative; width: 100%; min-height: 300px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                    <div id="battle-result" style="text-align: center; font-size: 18px; margin: 15px 0; min-height: 50px; font-weight: bold; color: #fff;">Select your NFT pet and bet to start!</div>
+                    <div id="battle-pets" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px;">
+                        <div id="player-pet" style="text-align: center; padding: 20px; background: rgba(59, 130, 246, 0.2); border-radius: 10px; border: 2px solid #3b82f6;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">🐾</div>
+                            <div style="color: #fff; font-weight: bold;">Your Pet</div>
+                            <div id="player-pet-stats" style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 10px;">Select NFT</div>
+                        </div>
+                        <div id="enemy-pet" style="text-align: center; padding: 20px; background: rgba(239, 68, 68, 0.2); border-radius: 10px; border: 2px solid #ef4444;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">🤖</div>
+                            <div style="color: #fff; font-weight: bold;">Enemy Pet</div>
+                            <div id="enemy-pet-stats" style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 10px;">Waiting...</div>
+                        </div>
+                    </div>
+                    <div id="battle-log" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; max-height: 150px; overflow-y: auto; font-size: 14px; color: #fff;"></div>
+                </div>
+                
+                <!-- Controls -->
+                <div style="text-align: center; margin-top: 15px;">
+                    <button id="battle-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">⚔️ START BATTLE!</button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                </div>
+                
+                <!-- Stats -->
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">
+                    <div>Wins: <span id="battle-wins" style="color: #10b981; font-weight: bold;">0</span></div>
+                    <div>Losses: <span id="battle-losses" style="color: #ef4444; font-weight: bold;">0</span></div>
+                    <div>Total Won: <span id="battle-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
+                </div>
+            </div>
+            
+            <!-- 🏗️ TAMA TOWER -->
+            <div class="game-arena" id="tower-arena" style="display: none;">
+                <h3 style="text-align: center; margin-bottom: 15px;">🏗️ TAMA TOWER</h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Build a tower! Higher = more reward! But it can fall anytime!</p>
+                
+                <!-- Balance Display -->
+                <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.2)); border-radius: 10px; border: 2px solid rgba(139, 92, 246, 0.3);">
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Your Balance:</div>
+                    <div id="tower-balance-display" style="font-size: 18px; font-weight: bold; color: #fff;">0 TAMA</div>
+                </div>
+                
+                <!-- Bet Selection -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <button class="tower-bet-btn" data-bet="50" style="padding: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">50 TAMA</button>
+                    <button class="tower-bet-btn" data-bet="100" style="padding: 12px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">100 TAMA</button>
+                    <button class="tower-bet-btn" data-bet="300" style="padding: 12px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">300 TAMA</button>
+                    <button class="tower-bet-btn" data-bet="500" style="padding: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">500 TAMA</button>
+                </div>
+                
+                <!-- Tower Display -->
+                <div id="tower-game-area" style="position: relative; width: 100%; min-height: 400px; background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%); border-radius: 15px; margin: 20px 0; overflow: hidden; display: flex; align-items: flex-end; justify-content: center;">
+                    <div id="tower-blocks" style="display: flex; flex-direction: column-reverse; align-items: center; gap: 2px; padding-bottom: 20px;"></div>
+                </div>
+                
+                <!-- Game Status -->
+                <div id="tower-result" style="text-align: center; font-size: 18px; margin: 15px 0; min-height: 50px; font-weight: bold; color: #fff;">Place your bet and start building!</div>
+                
+                <!-- Controls -->
+                <div style="text-align: center; margin-top: 15px;">
+                    <button id="tower-add-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none;">➕ ADD BLOCK</button>
+                    <button id="tower-cashout-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;">💰 CASH OUT</button>
+                    <button id="tower-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🏗️ START BUILDING!</button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                </div>
+                
+                <!-- Stats -->
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">
+                    <div>Highest: <span id="tower-highest" style="color: #fbbf24; font-weight: bold;">0</span> blocks</div>
+                    <div>Total Won: <span id="tower-total-won" style="color: #10b981; font-weight: bold;">0</span> TAMA</div>
+                </div>
+            </div>
+            
+            <!-- 🎯 PRECISION CLICK -->
+            <div class="game-arena" id="precision-arena" style="display: none;">
+                <h3 style="text-align: center; margin-bottom: 15px;">🎯 PRECISION CLICK</h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Click exactly when the target is in the center!</p>
+                
+                <!-- Balance Display -->
+                <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); border-radius: 10px; border: 2px solid rgba(245, 158, 11, 0.3);">
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Your Balance:</div>
+                    <div id="precision-balance-display" style="font-size: 18px; font-weight: bold; color: #fff;">0 TAMA</div>
+                </div>
+                
+                <!-- Bet Selection -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <button class="precision-bet-btn" data-bet="50" style="padding: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">50 TAMA</button>
+                    <button class="precision-bet-btn" data-bet="100" style="padding: 12px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">100 TAMA</button>
+                    <button class="precision-bet-btn" data-bet="300" style="padding: 12px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">300 TAMA</button>
+                    <button class="precision-bet-btn" data-bet="500" style="padding: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">500 TAMA</button>
+                </div>
+                
+                <!-- Game Area -->
+                <div id="precision-game-area" style="position: relative; width: 100%; height: 300px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); border-radius: 15px; margin: 20px 0; overflow: hidden; cursor: crosshair;">
+                    <div id="precision-target" style="position: absolute; width: 60px; height: 60px; border: 4px solid #fbbf24; border-radius: 50%; background: rgba(251, 191, 36, 0.3); left: 50%; top: 50%; transform: translate(-50%, -50%); transition: all 0.1s linear;"></div>
+                    <div id="precision-center" style="position: absolute; width: 4px; height: 4px; background: #fff; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px rgba(255,255,255,0.8);"></div>
+                </div>
+                
+                <!-- Game Status -->
+                <div id="precision-result" style="text-align: center; font-size: 18px; margin: 15px 0; min-height: 50px; font-weight: bold; color: #fff;">Place your bet and click when target is centered!</div>
+                
+                <!-- Controls -->
+                <div style="text-align: center; margin-top: 15px;">
+                    <button id="precision-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🎯 START!</button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                </div>
+                
+                <!-- Stats -->
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">
+                    <div>Perfect: <span id="precision-perfect" style="color: #10b981; font-weight: bold;">0</span></div>
+                    <div>Total Won: <span id="precision-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
+                </div>
+            </div>
+            
+            <!-- 🎲 ROULETTE -->
+            <div class="game-arena" id="roulette-arena" style="display: none;">
+                <h3 style="text-align: center; margin-bottom: 15px;">🎲 ROULETTE</h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Place your bets! Classic casino game!</p>
+                
+                <!-- Balance Display -->
+                <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-radius: 10px; border: 2px solid rgba(16, 185, 129, 0.3);">
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Your Balance:</div>
+                    <div id="roulette-balance-display" style="font-size: 18px; font-weight: bold; color: #fff;">0 TAMA</div>
+                </div>
+                
+                <!-- Bet Selection -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <button class="roulette-bet-btn" data-bet="50" style="padding: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">50 TAMA</button>
+                    <button class="roulette-bet-btn" data-bet="100" style="padding: 12px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">100 TAMA</button>
+                    <button class="roulette-bet-btn" data-bet="300" style="padding: 12px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">300 TAMA</button>
+                    <button class="roulette-bet-btn" data-bet="500" style="padding: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">500 TAMA</button>
+                </div>
+                
+                <!-- Roulette Table -->
+                <div id="roulette-table" style="background: linear-gradient(135deg, #0f766e, #14b8a6); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px;">
+                        <button class="roulette-bet-type" data-type="red" style="padding: 15px; background: #ef4444; border: 2px solid #fff; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">🔴 RED (2x)</button>
+                        <button class="roulette-bet-type" data-type="black" style="padding: 15px; background: #1a1a1a; border: 2px solid #fff; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">⚫ BLACK (2x)</button>
+                        <button class="roulette-bet-type" data-type="green" style="padding: 15px; background: #10b981; border: 2px solid #fff; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">🟢 ZERO (36x)</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-bottom: 10px;">
+                        <button class="roulette-bet-type" data-type="even" style="padding: 15px; background: rgba(59, 130, 246, 0.5); border: 2px solid #3b82f6; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">EVEN (2x)</button>
+                        <button class="roulette-bet-type" data-type="odd" style="padding: 15px; background: rgba(139, 92, 246, 0.5); border: 2px solid #8b5cf6; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">ODD (2x)</button>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <div id="roulette-wheel" style="width: 200px; height: 200px; margin: 0 auto; border-radius: 50%; background: linear-gradient(135deg, #ef4444, #1a1a1a, #10b981); border: 5px solid #fff; position: relative; display: flex; align-items: center; justify-content: center; font-size: 48px; color: #fff; font-weight: bold; transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);">🎲</div>
+                        <div id="roulette-result" style="margin-top: 15px; font-size: 24px; font-weight: bold; color: #fff; min-height: 40px;">Place your bet!</div>
+                    </div>
+                </div>
+                
+                <!-- Controls -->
+                <div style="text-align: center; margin-top: 15px;">
+                    <button id="roulette-spin-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🎲 SPIN!</button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                </div>
+                
+                <!-- Stats -->
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">
+                    <div>Wins: <span id="roulette-wins" style="color: #10b981; font-weight: bold;">0</span></div>
+                    <div>Losses: <span id="roulette-losses" style="color: #ef4444; font-weight: bold;">0</span></div>
+                    <div>Total Won: <span id="roulette-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
+                </div>
+            </div>
+            
+            <!-- 🃏 CARD GAME (Durak) -->
+            <div class="game-arena" id="cards-arena" style="display: none;">
+                <h3 style="text-align: center; margin-bottom: 15px;">🃏 CARD GAME</h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Play Durak! Beat the dealer!</p>
+                
+                <!-- Balance Display -->
+                <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(219, 39, 119, 0.2)); border-radius: 10px; border: 2px solid rgba(236, 72, 153, 0.3);">
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Your Balance:</div>
+                    <div id="cards-balance-display" style="font-size: 18px; font-weight: bold; color: #fff;">0 TAMA</div>
+                </div>
+                
+                <!-- Bet Selection -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <button class="cards-bet-btn" data-bet="100" style="padding: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">100 TAMA</button>
+                    <button class="cards-bet-btn" data-bet="300" style="padding: 12px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">300 TAMA</button>
+                    <button class="cards-bet-btn" data-bet="500" style="padding: 12px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">500 TAMA</button>
+                    <button class="cards-bet-btn" data-bet="1000" style="padding: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">1000 TAMA</button>
+                </div>
+                
+                <!-- Game Area -->
+                <div id="cards-game-area" style="position: relative; width: 100%; min-height: 400px; background: linear-gradient(135deg, #0f766e, #14b8a6); border-radius: 15px; padding: 20px; margin: 20px 0;">
+                    <div id="cards-dealer" style="text-align: center; margin-bottom: 20px;">
+                        <div style="color: #fff; font-weight: bold; margin-bottom: 10px;">Dealer Cards:</div>
+                        <div id="dealer-cards" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;"></div>
+                    </div>
+                    <div id="cards-player" style="text-align: center; margin-top: 40px;">
+                        <div style="color: #fff; font-weight: bold; margin-bottom: 10px;">Your Cards:</div>
+                        <div id="player-cards" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;"></div>
+                    </div>
+                    <div id="cards-result" style="text-align: center; font-size: 18px; margin: 20px 0; min-height: 50px; font-weight: bold; color: #fff;">Place your bet and start playing!</div>
+                </div>
+                
+                <!-- Controls -->
+                <div style="text-align: center; margin-top: 15px;">
+                    <button id="cards-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #ec4899, #db2777); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🃏 DEAL CARDS!</button>
+                    <button id="cards-hit-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;">HIT</button>
+                    <button id="cards-stand-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;">STAND</button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                </div>
+                
+                <!-- Stats -->
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">
+                    <div>Wins: <span id="cards-wins" style="color: #10b981; font-weight: bold;">0</span></div>
+                    <div>Losses: <span id="cards-losses" style="color: #ef4444; font-weight: bold;">0</span></div>
+                    <div>Total Won: <span id="cards-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
                 </div>
             </div>
             
@@ -8278,6 +8535,774 @@
             // Reset button
             document.getElementById('catchpet-start-btn').textContent = '🐾 START CATCHING!';
         }
+        
+        // ⚔️ PET BATTLE ARENA
+        let battleState = {
+            betAmount: 100,
+            active: false,
+            playerPet: null,
+            enemyPet: null,
+            wins: 0,
+            losses: 0,
+            totalWon: 0
+        };
+        
+        // Load user NFTs for battle
+        async function loadBattleNFTs() {
+            const userId = window.TELEGRAM_USER_ID;
+            if (!userId) return [];
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&select=id,tier_name,rarity,earning_multiplier,nft_mint_address,is_active&limit=50`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                if (response.ok) {
+                    const nfts = await response.json();
+                    return nfts.filter(n => {
+                        const isOnChain = n.nft_mint_address && n.nft_mint_address.length > 30 && !n.nft_mint_address.includes('_');
+                        return isOnChain ? true : (n.is_active !== false);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load NFTs for battle:', e);
+            }
+            return [];
+        }
+        
+        // Initialize battle bet buttons
+        document.querySelectorAll('.battle-bet-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                battleState.betAmount = parseInt(btn.dataset.bet);
+                document.querySelectorAll('.battle-bet-btn').forEach(b => b.style.opacity = '0.7');
+                btn.style.opacity = '1';
+            });
+        });
+        
+        document.getElementById('battle-start-btn')?.addEventListener('click', async () => {
+            if (battleState.active || gameState.tama < battleState.betAmount) {
+                showMessage(`❌ Not enough TAMA! Need ${battleState.betAmount} TAMA`);
+                return;
+            }
+            
+            // Load NFTs
+            const nfts = await loadBattleNFTs();
+            if (nfts.length === 0) {
+                showMessage('❌ You need at least one active NFT to battle!');
+                return;
+            }
+            
+            // Select random player NFT
+            battleState.playerPet = nfts[Math.floor(Math.random() * nfts.length)];
+            
+            // Create enemy pet (random stats)
+            const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+            const rarities = ['Common', 'Rare', 'Epic', 'Legendary'];
+            battleState.enemyPet = {
+                tier_name: tiers[Math.floor(Math.random() * tiers.length)],
+                rarity: rarities[Math.floor(Math.random() * rarities.length)],
+                earning_multiplier: 1 + Math.random() * 5
+            };
+            
+            battleState.active = true;
+            gameState.tama -= battleState.betAmount;
+            if (typeof logTransaction === 'function') {
+                logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_battle', -battleState.betAmount, `Spent ${battleState.betAmount} TAMA to battle`, gameState);
+            }
+            updateUI();
+            updateBattleBalance();
+            
+            // Display pets
+            const playerPetDiv = document.getElementById('player-pet');
+            const enemyPetDiv = document.getElementById('enemy-pet');
+            const playerStats = document.getElementById('player-pet-stats');
+            const enemyStats = document.getElementById('enemy-pet-stats');
+            const battleLog = document.getElementById('battle-log');
+            
+            playerPetDiv.querySelector('div:first-child').textContent = getPetEmoji(battleState.playerPet.tier_name);
+            playerStats.textContent = `${battleState.playerPet.tier_name} ${battleState.playerPet.rarity} (${battleState.playerPet.earning_multiplier}x)`;
+            
+            enemyPetDiv.querySelector('div:first-child').textContent = getPetEmoji(battleState.enemyPet.tier_name);
+            enemyStats.textContent = `${battleState.enemyPet.tier_name} ${battleState.enemyPet.rarity} (${battleState.enemyPet.earning_multiplier.toFixed(1)}x)`;
+            
+            battleLog.innerHTML = '<div style="color: #3b82f6;">⚔️ Battle Started!</div>';
+            
+            // Simulate battle
+            setTimeout(() => {
+                const playerPower = battleState.playerPet.earning_multiplier + (battleState.playerPet.rarity === 'Legendary' ? 2 : battleState.playerPet.rarity === 'Epic' ? 1 : 0);
+                const enemyPower = battleState.enemyPet.earning_multiplier + (battleState.enemyPet.rarity === 'Legendary' ? 2 : battleState.enemyPet.rarity === 'Epic' ? 1 : 0);
+                
+                const playerRoll = playerPower + Math.random() * 3;
+                const enemyRoll = enemyPower + Math.random() * 3;
+                
+                battleLog.innerHTML += `<div style="color: #fff; margin-top: 5px;">Player attacks: ${playerRoll.toFixed(1)} power</div>`;
+                battleLog.innerHTML += `<div style="color: #fff; margin-top: 5px;">Enemy attacks: ${enemyRoll.toFixed(1)} power</div>`;
+                
+                setTimeout(() => {
+                    const won = playerRoll > enemyRoll;
+                    const resultDiv = document.getElementById('battle-result');
+                    
+                    if (won) {
+                        const reward = Math.floor(battleState.betAmount * 2);
+                        gameState.tama += reward;
+                        battleState.wins++;
+                        battleState.totalWon += (reward - battleState.betAmount);
+                        resultDiv.textContent = `🏆 VICTORY! +${reward} TAMA!`;
+                        resultDiv.style.color = '#10b981';
+                        battleLog.innerHTML += `<div style="color: #10b981; margin-top: 5px; font-weight: bold;">🏆 VICTORY! You won ${reward} TAMA!</div>`;
+                        
+                        if (typeof logTransaction === 'function') {
+                            logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_battle', reward, `Won ${reward} TAMA from Pet Battle`, gameState);
+                        }
+                    } else {
+                        battleState.losses++;
+                        resultDiv.textContent = `💀 DEFEAT! Lost ${battleState.betAmount} TAMA`;
+                        resultDiv.style.color = '#ef4444';
+                        battleLog.innerHTML += `<div style="color: #ef4444; margin-top: 5px; font-weight: bold;">💀 DEFEAT! You lost ${battleState.betAmount} TAMA</div>`;
+                    }
+                    
+                    updateUI();
+                    updateBattleBalance();
+                    triggerAutoSave();
+                    battleState.active = false;
+                }, 1000);
+            }, 500);
+        });
+        
+        function updateBattleBalance() {
+            document.getElementById('battle-balance-display').textContent = `${gameState.tama.toLocaleString()} TAMA`;
+            document.getElementById('battle-wins').textContent = battleState.wins;
+            document.getElementById('battle-losses').textContent = battleState.losses;
+            document.getElementById('battle-total-won').textContent = battleState.totalWon.toLocaleString();
+        }
+        
+        function getPetEmoji(tier) {
+            const emojis = {
+                'Bronze': '🥉',
+                'Silver': '🥈',
+                'Gold': '🥇',
+                'Platinum': '💎',
+                'Diamond': '💠'
+            };
+            return emojis[tier] || '🐾';
+        }
+        
+        setTimeout(() => updateBattleBalance(), 100);
+        
+        // 🏗️ TAMA TOWER
+        let towerState = {
+            betAmount: 50,
+            blocks: 0,
+            active: false,
+            highest: 0,
+            totalWon: 0,
+            fallChance: 0.05
+        };
+        
+        document.querySelectorAll('.tower-bet-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                towerState.betAmount = parseInt(btn.dataset.bet);
+                document.querySelectorAll('.tower-bet-btn').forEach(b => b.style.opacity = '0.7');
+                btn.style.opacity = '1';
+            });
+        });
+        
+        document.getElementById('tower-start-btn')?.addEventListener('click', () => {
+            if (towerState.active || gameState.tama < towerState.betAmount) {
+                showMessage(`❌ Not enough TAMA! Need ${towerState.betAmount} TAMA`);
+                return;
+            }
+            
+            towerState.active = true;
+            towerState.blocks = 0;
+            towerState.fallChance = 0.05;
+            gameState.tama -= towerState.betAmount;
+            if (typeof logTransaction === 'function') {
+                logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_tower', -towerState.betAmount, `Spent ${towerState.betAmount} TAMA to build tower`, gameState);
+            }
+            updateUI();
+            updateTowerBalance();
+            
+            document.getElementById('tower-start-btn').style.display = 'none';
+            document.getElementById('tower-add-btn').style.display = 'inline-block';
+            document.getElementById('tower-cashout-btn').style.display = 'inline-block';
+            
+            const resultDiv = document.getElementById('tower-result');
+            resultDiv.textContent = '🏗️ Start building! Click ADD BLOCK or CASH OUT!';
+            resultDiv.style.color = '#fff';
+            
+            renderTower();
+        });
+        
+        document.getElementById('tower-add-btn')?.addEventListener('click', () => {
+            if (!towerState.active) return;
+            
+            // Check if tower falls
+            if (Math.random() < towerState.fallChance) {
+                // Tower falls!
+                endTowerGame(true);
+                return;
+            }
+            
+            towerState.blocks++;
+            towerState.fallChance = Math.min(0.5, 0.05 + towerState.blocks * 0.02);
+            
+            if (towerState.blocks > towerState.highest) {
+                towerState.highest = towerState.blocks;
+            }
+            
+            renderTower();
+            
+            const resultDiv = document.getElementById('tower-result');
+            resultDiv.textContent = `🏗️ Tower: ${towerState.blocks} blocks | Fall chance: ${(towerState.fallChance * 100).toFixed(1)}%`;
+            resultDiv.style.color = '#fff';
+        });
+        
+        document.getElementById('tower-cashout-btn')?.addEventListener('click', () => {
+            if (!towerState.active) return;
+            endTowerGame(false);
+        });
+        
+        function renderTower() {
+            const towerBlocks = document.getElementById('tower-blocks');
+            towerBlocks.innerHTML = '';
+            
+            for (let i = 0; i < towerState.blocks; i++) {
+                const block = document.createElement('div');
+                block.style.cssText = 'width: 60px; height: 30px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: 2px solid #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);';
+                towerBlocks.appendChild(block);
+            }
+        }
+        
+        function endTowerGame(fell) {
+            towerState.active = false;
+            
+            let reward = 0;
+            if (fell) {
+                const resultDiv = document.getElementById('tower-result');
+                resultDiv.textContent = `💥 TOWER FELL! Lost ${towerState.betAmount} TAMA!`;
+                resultDiv.style.color = '#ef4444';
+            } else {
+                // Calculate reward based on height
+                let multiplier = 1;
+                if (towerState.blocks >= 20) multiplier = 20;
+                else if (towerState.blocks >= 15) multiplier = 10;
+                else if (towerState.blocks >= 10) multiplier = 5;
+                else if (towerState.blocks >= 5) multiplier = 2;
+                
+                reward = Math.floor(towerState.betAmount * multiplier);
+                gameState.tama += reward;
+                towerState.totalWon += (reward - towerState.betAmount);
+                
+                const resultDiv = document.getElementById('tower-result');
+                resultDiv.textContent = `💰 CASHED OUT! Tower: ${towerState.blocks} blocks | Reward: +${reward} TAMA (${multiplier}x)!`;
+                resultDiv.style.color = '#10b981';
+                
+                if (typeof logTransaction === 'function') {
+                    logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_tower', reward, `Won ${reward} TAMA from TAMA Tower (${towerState.blocks} blocks)`, gameState);
+                }
+            }
+            
+            document.getElementById('tower-start-btn').style.display = 'inline-block';
+            document.getElementById('tower-add-btn').style.display = 'none';
+            document.getElementById('tower-cashout-btn').style.display = 'none';
+            
+            updateUI();
+            updateTowerBalance();
+            triggerAutoSave();
+            
+            setTimeout(() => {
+                towerState.blocks = 0;
+                renderTower();
+            }, 2000);
+        }
+        
+        function updateTowerBalance() {
+            document.getElementById('tower-balance-display').textContent = `${gameState.tama.toLocaleString()} TAMA`;
+            document.getElementById('tower-highest').textContent = towerState.highest;
+            document.getElementById('tower-total-won').textContent = towerState.totalWon.toLocaleString();
+        }
+        
+        setTimeout(() => updateTowerBalance(), 100);
+        
+        // 🎯 PRECISION CLICK
+        let precisionState = {
+            betAmount: 50,
+            active: false,
+            targetX: 50,
+            targetY: 50,
+            targetSpeed: 2,
+            directionX: 1,
+            directionY: 1,
+            perfect: 0,
+            totalWon: 0
+        };
+        
+        document.querySelectorAll('.precision-bet-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                precisionState.betAmount = parseInt(btn.dataset.bet);
+                document.querySelectorAll('.precision-bet-btn').forEach(b => b.style.opacity = '0.7');
+                btn.style.opacity = '1';
+            });
+        });
+        
+        document.getElementById('precision-start-btn')?.addEventListener('click', () => {
+            if (precisionState.active || gameState.tama < precisionState.betAmount) {
+                showMessage(`❌ Not enough TAMA! Need ${precisionState.betAmount} TAMA`);
+                return;
+            }
+            
+            precisionState.active = true;
+            precisionState.targetX = 50;
+            precisionState.targetY = 50;
+            precisionState.targetSpeed = 2;
+            precisionState.directionX = Math.random() > 0.5 ? 1 : -1;
+            precisionState.directionY = Math.random() > 0.5 ? 1 : -1;
+            
+            gameState.tama -= precisionState.betAmount;
+            if (typeof logTransaction === 'function') {
+                logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_precision', -precisionState.betAmount, `Spent ${precisionState.betAmount} TAMA to play Precision Click`, gameState);
+            }
+            updateUI();
+            updatePrecisionBalance();
+            
+            document.getElementById('precision-start-btn').style.display = 'none';
+            
+            const resultDiv = document.getElementById('precision-result');
+            resultDiv.textContent = '🎯 Click when target is in the center!';
+            resultDiv.style.color = '#fff';
+            
+            startPrecisionGame();
+        });
+        
+        function startPrecisionGame() {
+            const target = document.getElementById('precision-target');
+            const gameArea = document.getElementById('precision-game-area');
+            
+            const moveInterval = setInterval(() => {
+                if (!precisionState.active) {
+                    clearInterval(moveInterval);
+                    return;
+                }
+                
+                precisionState.targetX += precisionState.directionX * precisionState.targetSpeed;
+                precisionState.targetY += precisionState.directionY * precisionState.targetSpeed;
+                
+                // Bounce off walls
+                if (precisionState.targetX <= 5 || precisionState.targetX >= 95) {
+                    precisionState.directionX *= -1;
+                    precisionState.targetX = Math.max(5, Math.min(95, precisionState.targetX));
+                }
+                if (precisionState.targetY <= 5 || precisionState.targetY >= 95) {
+                    precisionState.directionY *= -1;
+                    precisionState.targetY = Math.max(5, Math.min(95, precisionState.targetY));
+                }
+                
+                target.style.left = precisionState.targetX + '%';
+                target.style.top = precisionState.targetY + '%';
+                
+                // Increase speed over time
+                precisionState.targetSpeed = Math.min(5, 2 + Date.now() % 10000 / 2000);
+            }, 50);
+            
+            gameArea.addEventListener('click', precisionClickHandler);
+        }
+        
+        function precisionClickHandler(e) {
+            if (!precisionState.active) return;
+            
+            const gameArea = document.getElementById('precision-game-area');
+            const rect = gameArea.getBoundingClientRect();
+            const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+            const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            const distance = Math.sqrt(
+                Math.pow(clickX - 50, 2) + Math.pow(clickY - 50, 2)
+            );
+            
+            let reward = 0;
+            let message = '';
+            const resultDiv = document.getElementById('precision-result');
+            
+            if (distance < 5) {
+                // Perfect!
+                reward = Math.floor(precisionState.betAmount * 10);
+                precisionState.perfect++;
+                message = `🎯 PERFECT! +${reward} TAMA!`;
+                resultDiv.style.color = '#10b981';
+            } else if (distance < 10) {
+                // Very close
+                reward = Math.floor(precisionState.betAmount * 5);
+                message = `⭐ Very Close! +${reward} TAMA!`;
+                resultDiv.style.color = '#3b82f6';
+            } else if (distance < 20) {
+                // Close
+                reward = Math.floor(precisionState.betAmount * 2);
+                message = `✨ Close! +${reward} TAMA!`;
+                resultDiv.style.color = '#8b5cf6';
+            } else {
+                // Missed
+                message = `😔 Missed! Lost ${precisionState.betAmount} TAMA`;
+                resultDiv.style.color = '#ef4444';
+            }
+            
+            if (reward > 0) {
+                gameState.tama += reward;
+                precisionState.totalWon += (reward - precisionState.betAmount);
+                if (typeof logTransaction === 'function') {
+                    logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_precision', reward, `Won ${reward} TAMA from Precision Click`, gameState);
+                }
+            }
+            
+            resultDiv.textContent = message;
+            precisionState.active = false;
+            
+            const gameArea = document.getElementById('precision-game-area');
+            gameArea.removeEventListener('click', precisionClickHandler);
+            
+            updateUI();
+            updatePrecisionBalance();
+            triggerAutoSave();
+            
+            document.getElementById('precision-start-btn').style.display = 'inline-block';
+            
+            setTimeout(() => {
+                precisionState.targetX = 50;
+                precisionState.targetY = 50;
+                document.getElementById('precision-target').style.left = '50%';
+                document.getElementById('precision-target').style.top = '50%';
+            }, 1000);
+        }
+        
+        function updatePrecisionBalance() {
+            document.getElementById('precision-balance-display').textContent = `${gameState.tama.toLocaleString()} TAMA`;
+            document.getElementById('precision-perfect').textContent = precisionState.perfect;
+            document.getElementById('precision-total-won').textContent = precisionState.totalWon.toLocaleString();
+        }
+        
+        setTimeout(() => updatePrecisionBalance(), 100);
+        
+        // 🎲 ROULETTE
+        let rouletteState = {
+            betAmount: 50,
+            betType: null,
+            spinning: false,
+            wins: 0,
+            losses: 0,
+            totalWon: 0
+        };
+        
+        const rouletteNumbers = [];
+        for (let i = 0; i <= 36; i++) {
+            if (i === 0) rouletteNumbers.push({ num: 0, color: 'green' });
+            else if (i % 2 === 0) rouletteNumbers.push({ num: i, color: 'black' });
+            else rouletteNumbers.push({ num: i, color: 'red' });
+        }
+        
+        document.querySelectorAll('.roulette-bet-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                rouletteState.betAmount = parseInt(btn.dataset.bet);
+                document.querySelectorAll('.roulette-bet-btn').forEach(b => b.style.opacity = '0.7');
+                btn.style.opacity = '1';
+            });
+        });
+        
+        document.querySelectorAll('.roulette-bet-type').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (rouletteState.spinning) return;
+                rouletteState.betType = btn.dataset.type;
+                document.querySelectorAll('.roulette-bet-type').forEach(b => b.style.border = '2px solid rgba(255,255,255,0.3)');
+                btn.style.border = '3px solid #fbbf24';
+            });
+        });
+        
+        document.getElementById('roulette-spin-btn')?.addEventListener('click', () => {
+            if (rouletteState.spinning || !rouletteState.betType || gameState.tama < rouletteState.betAmount) {
+                if (!rouletteState.betType) showMessage('❌ Please select a bet type!');
+                else showMessage(`❌ Not enough TAMA! Need ${rouletteState.betAmount} TAMA`);
+                return;
+            }
+            
+            rouletteState.spinning = true;
+            gameState.tama -= rouletteState.betAmount;
+            if (typeof logTransaction === 'function') {
+                logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_roulette', -rouletteState.betAmount, `Spent ${rouletteState.betAmount} TAMA on ${rouletteState.betType}`, gameState);
+            }
+            updateUI();
+            updateRouletteBalance();
+            
+            const wheel = document.getElementById('roulette-wheel');
+            const resultDiv = document.getElementById('roulette-result');
+            resultDiv.textContent = '🎲 Spinning...';
+            resultDiv.style.color = '#fff';
+            
+            // Spin animation
+            const spins = 5 + Math.random() * 3;
+            wheel.style.transform = `rotate(${spins * 360}deg)`;
+            
+            setTimeout(() => {
+                const winningNumber = rouletteNumbers[Math.floor(Math.random() * rouletteNumbers.length)];
+                let won = false;
+                let multiplier = 1;
+                
+                if (rouletteState.betType === 'red' && winningNumber.color === 'red') {
+                    won = true;
+                    multiplier = 2;
+                } else if (rouletteState.betType === 'black' && winningNumber.color === 'black') {
+                    won = true;
+                    multiplier = 2;
+                } else if (rouletteState.betType === 'green' && winningNumber.color === 'green') {
+                    won = true;
+                    multiplier = 36;
+                } else if (rouletteState.betType === 'even' && winningNumber.num > 0 && winningNumber.num % 2 === 0) {
+                    won = true;
+                    multiplier = 2;
+                } else if (rouletteState.betType === 'odd' && winningNumber.num > 0 && winningNumber.num % 2 === 1) {
+                    won = true;
+                    multiplier = 2;
+                }
+                
+                let reward = 0;
+                if (won) {
+                    reward = Math.floor(rouletteState.betAmount * multiplier);
+                    gameState.tama += reward;
+                    rouletteState.wins++;
+                    rouletteState.totalWon += (reward - rouletteState.betAmount);
+                    resultDiv.textContent = `🎉 WIN! Number: ${winningNumber.num} (${winningNumber.color}) | +${reward} TAMA!`;
+                    resultDiv.style.color = '#10b981';
+                    
+                    if (typeof logTransaction === 'function') {
+                        logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_roulette', reward, `Won ${reward} TAMA from Roulette (${rouletteState.betType})`, gameState);
+                    }
+                } else {
+                    rouletteState.losses++;
+                    resultDiv.textContent = `😔 LOSE! Number: ${winningNumber.num} (${winningNumber.color}) | Lost ${rouletteState.betAmount} TAMA`;
+                    resultDiv.style.color = '#ef4444';
+                }
+                
+                updateUI();
+                updateRouletteBalance();
+                triggerAutoSave();
+                rouletteState.spinning = false;
+                rouletteState.betType = null;
+                document.querySelectorAll('.roulette-bet-type').forEach(b => b.style.border = '2px solid rgba(255,255,255,0.3)');
+            }, 3000);
+        });
+        
+        function updateRouletteBalance() {
+            document.getElementById('roulette-balance-display').textContent = `${gameState.tama.toLocaleString()} TAMA`;
+            document.getElementById('roulette-wins').textContent = rouletteState.wins;
+            document.getElementById('roulette-losses').textContent = rouletteState.losses;
+            document.getElementById('roulette-total-won').textContent = rouletteState.totalWon.toLocaleString();
+        }
+        
+        setTimeout(() => updateRouletteBalance(), 100);
+        
+        // 🃏 CARD GAME (Durak/Blackjack style)
+        let cardsState = {
+            betAmount: 100,
+            active: false,
+            playerCards: [],
+            dealerCards: [],
+            playerScore: 0,
+            dealerScore: 0,
+            wins: 0,
+            losses: 0,
+            totalWon: 0
+        };
+        
+        const cardSuits = ['♠', '♥', '♦', '♣'];
+        const cardValues = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        
+        function createDeck() {
+            const deck = [];
+            for (const suit of cardSuits) {
+                for (const value of cardValues) {
+                    deck.push({ suit, value });
+                }
+            }
+            // Shuffle
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+        
+        function getCardValue(card) {
+            if (card.value === 'A') return 11;
+            if (['J', 'Q', 'K'].includes(card.value)) return 10;
+            return parseInt(card.value);
+        }
+        
+        function calculateScore(cards) {
+            let score = 0;
+            let aces = 0;
+            for (const card of cards) {
+                if (card.value === 'A') aces++;
+                score += getCardValue(card);
+            }
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces--;
+            }
+            return score;
+        }
+        
+        document.querySelectorAll('.cards-bet-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                cardsState.betAmount = parseInt(btn.dataset.bet);
+                document.querySelectorAll('.cards-bet-btn').forEach(b => b.style.opacity = '0.7');
+                btn.style.opacity = '1';
+            });
+        });
+        
+        document.getElementById('cards-start-btn')?.addEventListener('click', () => {
+            if (cardsState.active || gameState.tama < cardsState.betAmount) {
+                showMessage(`❌ Not enough TAMA! Need ${cardsState.betAmount} TAMA`);
+                return;
+            }
+            
+            cardsState.active = true;
+            cardsState.playerCards = [];
+            cardsState.dealerCards = [];
+            
+            gameState.tama -= cardsState.betAmount;
+            if (typeof logTransaction === 'function') {
+                logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_cards', -cardsState.betAmount, `Spent ${cardsState.betAmount} TAMA to play Card Game`, gameState);
+            }
+            updateUI();
+            updateCardsBalance();
+            
+            const deck = createDeck();
+            cardsState.playerCards = [deck.pop(), deck.pop()];
+            cardsState.dealerCards = [deck.pop(), deck.pop()];
+            
+            cardsState.playerScore = calculateScore(cardsState.playerCards);
+            cardsState.dealerScore = calculateScore(cardsState.dealerCards);
+            
+            renderCards();
+            
+            document.getElementById('cards-start-btn').style.display = 'none';
+            document.getElementById('cards-hit-btn').style.display = 'inline-block';
+            document.getElementById('cards-stand-btn').style.display = 'inline-block';
+            
+            const resultDiv = document.getElementById('cards-result');
+            resultDiv.textContent = `Your score: ${cardsState.playerScore} | Dealer: ${cardsState.dealerCards[0].value}${cardsState.dealerCards[0].suit} ?`;
+            resultDiv.style.color = '#fff';
+        });
+        
+        document.getElementById('cards-hit-btn')?.addEventListener('click', () => {
+            if (!cardsState.active) return;
+            
+            const deck = createDeck();
+            // Remove already dealt cards
+            const allCards = [...cardsState.playerCards, ...cardsState.dealerCards];
+            const newDeck = deck.filter(card => !allCards.some(c => c.suit === card.suit && c.value === card.value));
+            
+            if (newDeck.length > 0) {
+                cardsState.playerCards.push(newDeck[Math.floor(Math.random() * newDeck.length)]);
+                cardsState.playerScore = calculateScore(cardsState.playerCards);
+                renderCards();
+                
+                const resultDiv = document.getElementById('cards-result');
+                resultDiv.textContent = `Your score: ${cardsState.playerScore}`;
+                
+                if (cardsState.playerScore > 21) {
+                    endCardGame(false);
+                }
+            }
+        });
+        
+        document.getElementById('cards-stand-btn')?.addEventListener('click', () => {
+            if (!cardsState.active) return;
+            
+            // Dealer draws until 17+
+            const deck = createDeck();
+            const allCards = [...cardsState.playerCards, ...cardsState.dealerCards];
+            const newDeck = deck.filter(card => !allCards.some(c => c.suit === card.suit && c.value === card.value));
+            
+            while (cardsState.dealerScore < 17 && newDeck.length > 0) {
+                cardsState.dealerCards.push(newDeck[Math.floor(Math.random() * newDeck.length)]);
+                cardsState.dealerScore = calculateScore(cardsState.dealerCards);
+            }
+            
+            endCardGame(cardsState.playerScore <= 21 && (cardsState.dealerScore > 21 || cardsState.playerScore > cardsState.dealerScore));
+        });
+        
+        function renderCards() {
+            const playerCardsDiv = document.getElementById('player-cards');
+            const dealerCardsDiv = document.getElementById('dealer-cards');
+            
+            playerCardsDiv.innerHTML = '';
+            dealerCardsDiv.innerHTML = '';
+            
+            cardsState.playerCards.forEach(card => {
+                const cardDiv = document.createElement('div');
+                const isRed = card.suit === '♥' || card.suit === '♦';
+                cardDiv.style.cssText = `width: 60px; height: 90px; background: #fff; border-radius: 8px; padding: 5px; display: flex; flex-direction: column; justify-content: space-between; font-weight: bold; color: ${isRed ? '#ef4444' : '#000'}; border: 2px solid #000;`;
+                cardDiv.innerHTML = `<div style="font-size: 18px;">${card.value}</div><div style="font-size: 24px; text-align: center;">${card.suit}</div><div style="font-size: 18px; transform: rotate(180deg);">${card.value}</div>`;
+                playerCardsDiv.appendChild(cardDiv);
+            });
+            
+            cardsState.dealerCards.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                if (index === 0 || !cardsState.active) {
+                    const isRed = card.suit === '♥' || card.suit === '♦';
+                    cardDiv.style.cssText = `width: 60px; height: 90px; background: #fff; border-radius: 8px; padding: 5px; display: flex; flex-direction: column; justify-content: space-between; font-weight: bold; color: ${isRed ? '#ef4444' : '#000'}; border: 2px solid #000;`;
+                    cardDiv.innerHTML = `<div style="font-size: 18px;">${card.value}</div><div style="font-size: 24px; text-align: center;">${card.suit}</div><div style="font-size: 18px; transform: rotate(180deg);">${card.value}</div>`;
+                } else {
+                    cardDiv.style.cssText = `width: 60px; height: 90px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d); border-radius: 8px; border: 2px solid #000;`;
+                    cardDiv.innerHTML = '<div style="color: #fff; text-align: center; margin-top: 30px;">?</div>';
+                }
+                dealerCardsDiv.appendChild(cardDiv);
+            });
+        }
+        
+        function endCardGame(won) {
+            cardsState.active = false;
+            
+            renderCards(); // Show all dealer cards
+            
+            let reward = 0;
+            const resultDiv = document.getElementById('cards-result');
+            
+            if (won) {
+                reward = Math.floor(cardsState.betAmount * 2);
+                gameState.tama += reward;
+                cardsState.wins++;
+                cardsState.totalWon += (reward - cardsState.betAmount);
+                resultDiv.textContent = `🏆 WIN! Your: ${cardsState.playerScore} | Dealer: ${cardsState.dealerScore} | +${reward} TAMA!`;
+                resultDiv.style.color = '#10b981';
+                
+                if (typeof logTransaction === 'function') {
+                    logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_cards', reward, `Won ${reward} TAMA from Card Game`, gameState);
+                }
+            } else {
+                cardsState.losses++;
+                resultDiv.textContent = `💀 LOSE! Your: ${cardsState.playerScore} | Dealer: ${cardsState.dealerScore} | Lost ${cardsState.betAmount} TAMA`;
+                resultDiv.style.color = '#ef4444';
+            }
+            
+            document.getElementById('cards-start-btn').style.display = 'inline-block';
+            document.getElementById('cards-hit-btn').style.display = 'none';
+            document.getElementById('cards-stand-btn').style.display = 'none';
+            
+            updateUI();
+            updateCardsBalance();
+            triggerAutoSave();
+        }
+        
+        function updateCardsBalance() {
+            document.getElementById('cards-balance-display').textContent = `${gameState.tama.toLocaleString()} TAMA`;
+            document.getElementById('cards-wins').textContent = cardsState.wins;
+            document.getElementById('cards-losses').textContent = cardsState.losses;
+            document.getElementById('cards-total-won').textContent = cardsState.totalWon.toLocaleString();
+        }
+        
+        setTimeout(() => updateCardsBalance(), 100);
         
         // 🍄 TAMA JUMP PLATFORMER GAME - REAL MARIO STYLE
         const platformerGame = {
