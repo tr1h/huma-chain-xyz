@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- VERSION: 1.9.4 | BUILD: 2025-11-26 22:20 | FIX: Remove duplicate gameArea declaration -->
+<!-- VERSION: 1.9.5 | BUILD: 2025-11-26 22:35 | FIX: Rename petBattleState to avoid conflict with PVP battleState -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8538,7 +8538,7 @@
         }
         
         // ⚔️ PET BATTLE ARENA
-        let battleState = {
+        let petBattleState = {
             betAmount: 100,
             active: false,
             playerPet: null,
@@ -8576,15 +8576,15 @@
         // Initialize battle bet buttons
         document.querySelectorAll('.battle-bet-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                battleState.betAmount = parseInt(btn.dataset.bet);
+                petBattleState.betAmount = parseInt(btn.dataset.bet);
                 document.querySelectorAll('.battle-bet-btn').forEach(b => b.style.opacity = '0.7');
                 btn.style.opacity = '1';
             });
         });
         
         document.getElementById('battle-start-btn')?.addEventListener('click', async () => {
-            if (battleState.active || gameState.tama < battleState.betAmount) {
-                showMessage(`❌ Not enough TAMA! Need ${battleState.betAmount} TAMA`);
+            if (petBattleState.active || gameState.tama < petBattleState.betAmount) {
+                showMessage(`❌ Not enough TAMA! Need ${petBattleState.betAmount} TAMA`);
                 return;
             }
             
@@ -8596,21 +8596,21 @@
             }
             
             // Select random player NFT
-            battleState.playerPet = nfts[Math.floor(Math.random() * nfts.length)];
+            petBattleState.playerPet = nfts[Math.floor(Math.random() * nfts.length)];
             
             // Create enemy pet (random stats)
             const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
             const rarities = ['Common', 'Rare', 'Epic', 'Legendary'];
-            battleState.enemyPet = {
+            petBattleState.enemyPet = {
                 tier_name: tiers[Math.floor(Math.random() * tiers.length)],
                 rarity: rarities[Math.floor(Math.random() * rarities.length)],
                 earning_multiplier: 1 + Math.random() * 5
             };
             
-            battleState.active = true;
-            gameState.tama -= battleState.betAmount;
+            petBattleState.active = true;
+            gameState.tama -= petBattleState.betAmount;
             if (typeof logTransaction === 'function') {
-                logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_battle', -battleState.betAmount, `Spent ${battleState.betAmount} TAMA to battle`, gameState);
+                logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'spend_battle', -petBattleState.betAmount, `Spent ${petBattleState.betAmount} TAMA to battle`, gameState);
             }
             updateUI();
             updateBattleBalance();
@@ -8622,18 +8622,18 @@
             const enemyStats = document.getElementById('enemy-pet-stats');
             const battleLog = document.getElementById('battle-log');
             
-            playerPetDiv.querySelector('div:first-child').textContent = getPetEmoji(battleState.playerPet.tier_name);
-            playerStats.textContent = `${battleState.playerPet.tier_name} ${battleState.playerPet.rarity} (${battleState.playerPet.earning_multiplier}x)`;
+            playerPetDiv.querySelector('div:first-child').textContent = getPetEmoji(petBattleState.playerPet.tier_name);
+            playerStats.textContent = `${petBattleState.playerPet.tier_name} ${petBattleState.playerPet.rarity} (${petBattleState.playerPet.earning_multiplier}x)`;
             
-            enemyPetDiv.querySelector('div:first-child').textContent = getPetEmoji(battleState.enemyPet.tier_name);
-            enemyStats.textContent = `${battleState.enemyPet.tier_name} ${battleState.enemyPet.rarity} (${battleState.enemyPet.earning_multiplier.toFixed(1)}x)`;
+            enemyPetDiv.querySelector('div:first-child').textContent = getPetEmoji(petBattleState.enemyPet.tier_name);
+            enemyStats.textContent = `${petBattleState.enemyPet.tier_name} ${petBattleState.enemyPet.rarity} (${petBattleState.enemyPet.earning_multiplier.toFixed(1)}x)`;
             
             battleLog.innerHTML = '<div style="color: #3b82f6;">⚔️ Battle Started!</div>';
             
             // Simulate battle
             setTimeout(() => {
-                const playerPower = battleState.playerPet.earning_multiplier + (battleState.playerPet.rarity === 'Legendary' ? 2 : battleState.playerPet.rarity === 'Epic' ? 1 : 0);
-                const enemyPower = battleState.enemyPet.earning_multiplier + (battleState.enemyPet.rarity === 'Legendary' ? 2 : battleState.enemyPet.rarity === 'Epic' ? 1 : 0);
+                const playerPower = petBattleState.playerPet.earning_multiplier + (petBattleState.playerPet.rarity === 'Legendary' ? 2 : petBattleState.playerPet.rarity === 'Epic' ? 1 : 0);
+                const enemyPower = petBattleState.enemyPet.earning_multiplier + (petBattleState.enemyPet.rarity === 'Legendary' ? 2 : petBattleState.enemyPet.rarity === 'Epic' ? 1 : 0);
                 
                 const playerRoll = playerPower + Math.random() * 3;
                 const enemyRoll = enemyPower + Math.random() * 3;
@@ -8646,10 +8646,10 @@
                     const resultDiv = document.getElementById('battle-result');
                     
                     if (won) {
-                        const reward = Math.floor(battleState.betAmount * 2);
+                        const reward = Math.floor(petBattleState.betAmount * 2);
                         gameState.tama += reward;
-                        battleState.wins++;
-                        battleState.totalWon += (reward - battleState.betAmount);
+                        petBattleState.wins++;
+                        petBattleState.totalWon += (reward - petBattleState.betAmount);
                         resultDiv.textContent = `🏆 VICTORY! +${reward} TAMA!`;
                         resultDiv.style.color = '#10b981';
                         battleLog.innerHTML += `<div style="color: #10b981; margin-top: 5px; font-weight: bold;">🏆 VICTORY! You won ${reward} TAMA!</div>`;
@@ -8658,25 +8658,25 @@
                             logTransaction(window.TELEGRAM_USER_ID || 'unknown', 'earn_battle', reward, `Won ${reward} TAMA from Pet Battle`, gameState);
                         }
                     } else {
-                        battleState.losses++;
-                        resultDiv.textContent = `💀 DEFEAT! Lost ${battleState.betAmount} TAMA`;
+                        petBattleState.losses++;
+                        resultDiv.textContent = `💀 DEFEAT! Lost ${petBattleState.betAmount} TAMA`;
                         resultDiv.style.color = '#ef4444';
-                        battleLog.innerHTML += `<div style="color: #ef4444; margin-top: 5px; font-weight: bold;">💀 DEFEAT! You lost ${battleState.betAmount} TAMA</div>`;
+                        battleLog.innerHTML += `<div style="color: #ef4444; margin-top: 5px; font-weight: bold;">💀 DEFEAT! You lost ${petBattleState.betAmount} TAMA</div>`;
                     }
                     
                     updateUI();
                     updateBattleBalance();
                     triggerAutoSave();
-                    battleState.active = false;
+                    petBattleState.active = false;
                 }, 1000);
             }, 500);
         });
         
         function updateBattleBalance() {
             document.getElementById('battle-balance-display').textContent = `${gameState.tama.toLocaleString()} TAMA`;
-            document.getElementById('battle-wins').textContent = battleState.wins;
-            document.getElementById('battle-losses').textContent = battleState.losses;
-            document.getElementById('battle-total-won').textContent = battleState.totalWon.toLocaleString();
+            document.getElementById('battle-wins').textContent = petBattleState.wins;
+            document.getElementById('battle-losses').textContent = petBattleState.losses;
+            document.getElementById('battle-total-won').textContent = petBattleState.totalWon.toLocaleString();
         }
         
         function getPetEmoji(tier) {
