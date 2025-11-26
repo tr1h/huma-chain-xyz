@@ -5853,7 +5853,7 @@
             clickPower *= localClickEfficiency;
             
             // BALANCED Combo bonus - Load from admin panel or use defaults
-            const BASE_CLICK_REWARD = economyConfig.BASE_CLICK_REWARD || 1.0; // Base reward per click
+            const BASE_CLICK_REWARD = economyConfig.BASE_CLICK_REWARD || 10.0; // Base reward per click (default: 10)
             const COMBO_BONUS_DIVIDER = economyConfig.COMBO_BONUS_DIVIDER || 5; // Bonus every 5 clicks
             const MAX_COMBO_BONUS = economyConfig.MAX_COMBO_BONUS || 10; // Cap combo bonus at 10 TAMA
             const MIN_REWARD = economyConfig.MIN_REWARD || 0.5; // Minimum reward
@@ -10584,8 +10584,8 @@
                         }
                     });
                     
-                    // Apply CAP: максимум 100x
-                    const MAX_BOOST_CAP = 100.0;
+                    // Apply CAP: максимум 10x (балансировка - было 100x)
+                    const MAX_BOOST_CAP = 10.0;
                     const cappedMultiplier = Math.min(totalMultiplier, MAX_BOOST_CAP);
                     
                     // Convert multiplier to boost percentage (e.g., 20.0x = 1900% boost = 19.0)
