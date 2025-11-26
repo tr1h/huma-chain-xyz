@@ -5901,12 +5901,15 @@
                 });
             }
             
-            // 🎨 NFT BOOST: Apply rarity bonus if user has NFTs
+            // 🎨 NFT BOOST: Apply sum of all active NFT multipliers
+            // Formula: earnedTama *= (1 + userNFTBoost)
+            // Example: 20x total multiplier → userNFTBoost = 19.0 → earnedTama *= 20.0
             if (window.userNFTBoost && window.userNFTBoost > 0) {
                 const earnedTamaBeforeBoost = earnedTama;
-                earnedTama *= (1 + window.userNFTBoost);
+                const multiplier = (1 + window.userNFTBoost); // Convert boost back to multiplier for display
+                earnedTama *= multiplier;
                 if (gameState.combo === 1 || gameState.combo === 0) {
-                    console.log(`🖼️ NFT Boost: ${earnedTamaBeforeBoost.toFixed(2)} × ${(1 + window.userNFTBoost).toFixed(2)} = ${earnedTama.toFixed(2)} TAMA`);
+                    console.log(`🖼️ NFT Boost Applied: ${earnedTamaBeforeBoost.toFixed(2)} TAMA × ${multiplier.toFixed(2)} = ${earnedTama.toFixed(2)} TAMA`);
                 }
             }
             
@@ -10550,8 +10553,8 @@
                 return;
             }
             try {
-                // Fetch NFTs directly from Supabase
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&select=earning_multiplier,is_active`, {
+                // Fetch NFTs directly from Supabase (include nft_mint_address for on-chain check)
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?telegram_id=eq.${userId}&select=earning_multiplier,is_active,nft_mint_address`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -10563,25 +10566,48 @@
                 const data = await response.json();
 
                 if (data && data.length > 0) {
-                    // Get max multiplier from active NFTs
-                    let maxMultiplier = 0;
+                    // ✅ ВАРИАНТ 1: СУММА ВСЕХ АКТИВНЫХ БУСТОВ
+                    // Sum all multipliers from active NFTs (not just max)
+                    let totalMultiplier = 0;
+                    let activeCount = 0;
+                    
                     data.forEach(nft => {
                         // Check if on-chain NFT
                         const isOnChain = nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_');
                         // On-chain NFTs are ALWAYS active, off-chain NFTs use is_active flag
                         const isActive = isOnChain ? true : (nft.is_active !== false);
                         
-                        if (isActive && nft.earning_multiplier > maxMultiplier) {
-                            maxMultiplier = nft.earning_multiplier;
+                        if (isActive) {
+                            const multiplier = parseFloat(nft.earning_multiplier) || 0;
+                            totalMultiplier += multiplier;
+                            activeCount++;
                         }
                     });
                     
-                    // Convert multiplier to boost percentage (e.g., 2.0x = 100% boost = 1.0)
-                    window.userNFTBoost = maxMultiplier > 0 ? (maxMultiplier - 1.0) : 0;
+                    // Apply CAP: максимум 100x
+                    const MAX_BOOST_CAP = 100.0;
+                    const cappedMultiplier = Math.min(totalMultiplier, MAX_BOOST_CAP);
                     
-                    console.log(`✅ Loaded NFT Boost for user ${userId}: ${maxMultiplier.toFixed(1)}x multiplier (+${(window.userNFTBoost * 100).toFixed(0)}% boost)`);
+                    // Convert multiplier to boost percentage (e.g., 20.0x = 1900% boost = 19.0)
+                    // Formula: earnedTama *= (1 + userNFTBoost), so 20x multiplier = 19.0 boost
+                    window.userNFTBoost = cappedMultiplier > 0 ? (cappedMultiplier - 1.0) : 0;
+                    
+                    const boostPercentage = (window.userNFTBoost * 100).toFixed(0);
+                    const isCapped = totalMultiplier > MAX_BOOST_CAP;
+                    
+                    console.log(`✅ Loaded NFT Boost for user ${userId}:`, {
+                        activeNFTs: activeCount,
+                        totalMultiplier: totalMultiplier.toFixed(1) + 'x',
+                        cappedMultiplier: cappedMultiplier.toFixed(1) + 'x',
+                        boostPercentage: `+${boostPercentage}%`,
+                        isCapped: isCapped
+                    });
+                    
                     if (window.userNFTBoost > 0) {
-                        showMessage(`🖼️ NFT Boost Active: ${maxMultiplier.toFixed(1)}x earnings!`);
+                        const message = isCapped 
+                            ? `🖼️ NFT Boost Active: ${cappedMultiplier.toFixed(1)}x (${activeCount} NFTs, CAP 100x reached!)`
+                            : `🖼️ NFT Boost Active: ${cappedMultiplier.toFixed(1)}x from ${activeCount} NFT${activeCount !== 1 ? 's' : ''}!`;
+                        showMessage(message);
                     }
                 } else {
                     window.userNFTBoost = 0;
@@ -12126,11 +12152,13 @@
                     // Calculate stats
                     const totalNFTs = nfts.length;
                     // On-chain NFTs are ALWAYS active, off-chain NFTs use is_active flag
-                    const activeNFTs = nfts.filter(n => {
+                    const activeNFTsList = nfts.filter(n => {
                         const isOnChain = n.nft_mint_address && n.nft_mint_address.length > 30 && !n.nft_mint_address.includes('_');
                         return isOnChain ? true : (n.is_active !== false);
-                    }).length;
-                    const totalBoost = nfts.reduce((sum, n) => sum + (parseFloat(n.earning_multiplier) || 0), 0);
+                    });
+                    const activeNFTs = activeNFTsList.length;
+                    // ✅ FIX: Sum only ACTIVE NFTs, not all NFTs
+                    const totalBoost = activeNFTsList.reduce((sum, n) => sum + (parseFloat(n.earning_multiplier) || 0), 0);
                     
                     nftStats.innerHTML = `
                         <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 15px;">
