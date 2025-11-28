@@ -3,6 +3,10 @@
 
 permalink: pretty
 
+# Include all HTML files for processing
+include:
+  - "*.html"
+
 # Exclude files from processing
 exclude:
   - README.md
@@ -11,9 +15,20 @@ exclude:
   - api/
   - .bat
   - .md
+  - blog/
+  - backups/
+  - nft-assets/
+  - tools/
+  - bot/
+  - sql/
 
 # Enable GitHub Pages features
 plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
+
+# Site settings
+title: "Solana Tamagotchi"
+description: "Play-to-Earn NFT Pet Game on Solana"
+url: "https://solanatamagotchi.com"
 
