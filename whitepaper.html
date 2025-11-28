@@ -38,6 +38,17 @@
             border-bottom: 3px solid #9945FF;
             margin-bottom: 40px;
         }
+        .whitepaper-logo {
+            max-width: 150px;
+            height: auto;
+            margin: 0 auto 25px;
+            display: block;
+            filter: drop-shadow(0 4px 8px rgba(153, 69, 255, 0.3));
+            transition: transform 0.3s ease;
+        }
+        .whitepaper-logo:hover {
+            transform: scale(1.05);
+        }
         .whitepaper-header h1 {
             font-size: 2.5em;
             color: #1D3557;
@@ -284,6 +295,9 @@
             .whitepaper-container {
                 padding: 20px 15px;
             }
+            .whitepaper-logo {
+                max-width: 100px;
+            }
             .whitepaper-header h1 {
                 font-size: 1.8em;
             }
@@ -304,6 +318,9 @@
         <a href="index.html" class="back-link">← Back to Home</a>
         
         <div class="whitepaper-header">
+            <!-- Logo -->
+            <img src="logo.png" alt="Solana Tamagotchi Logo" class="whitepaper-logo">
+            
             <h1>Solana Tamagotchi</h1>
             <div class="subtitle">Official Whitepaper</div>
             <div class="version">Version 1.0 | November 2025</div>
