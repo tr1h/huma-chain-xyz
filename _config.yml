@@ -1,0 +1,19 @@
+# Jekyll configuration for GitHub Pages
+# Remove .html extensions from URLs
+
+permalink: pretty
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - node_modules/
+  - vendor/
+  - api/
+  - .bat
+  - .md
+
+# Enable GitHub Pages features
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+

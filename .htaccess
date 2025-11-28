@@ -1,56 +1,9 @@
-# Enable Rewrite Engine
+# Rewrite URLs to remove .html extension
 RewriteEngine On
-
-# CRITICAL: Allow direct access to ALL PHP files in /api/ (mint, get, etc.)
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteCond %{REQUEST_URI} ^/api/.*\.php$
-RewriteRule ^ - [L]
-
-# Route /api/tama/* requests to tama_supabase.php
-# CRITICAL: Skip tama_supabase.php itself to prevent redirect loop!
-RewriteCond %{REQUEST_URI} ^/api/tama
-RewriteCond %{REQUEST_URI} !tama_supabase\.php$
-RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^api/tama(.*)$ api/tama_supabase.php [QSA,L]
-
-# Route /api/mint-nft-onchain to mint-nft-onchain-wrapper.php
-RewriteCond %{REQUEST_URI} ^/api/mint-nft-onchain
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^api/mint-nft-onchain$ api/mint-nft-onchain-wrapper.php [QSA,L]
+RewriteRule ^([^\.]+)$ $1.html [NC,L]
 
-# Route /api/test.php to test.php (if exists)
-RewriteCond %{REQUEST_URI} ^/api/test\.php$
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^api/test\.php$ /api/test.php [L]
-
-# Set default charset
-AddDefaultCharset UTF-8
-
-# Disable directory listing
-Options -Indexes
-
-# CORS headers are handled in PHP (api/tama_supabase.php, api/mint-nft-onchain-wrapper.php)
-# Do NOT set CORS headers in Apache to avoid duplicate headers conflict
-
-# ============================================
-# CLEAN URLs - Remove .html extension
-# ============================================
-
-# Remove .html extension from URLs
-# Example: /mint.html → /mint
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}\.html -f
+# Redirect .html to clean URLs
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /([^\ ]+)\.html
 RewriteRule ^(.*)\.html$ /$1 [R=301,L]
-
-# Add .html extension internally (for files without extension)
-# Example: /mint → /mint.html (internal rewrite, URL stays clean)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}\.html -f
-RewriteRule ^(.*)$ $1.html [L]
-
-# Redirect root index.html to clean URL
-RewriteCond %{THE_REQUEST} /index\.html[\s?] [NC]
-RewriteRule ^index\.html$ / [R=301,L]
-
