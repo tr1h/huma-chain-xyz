@@ -44,11 +44,11 @@ class AutoPoster:
     def post_monday_gm(self):
         """Утренний мотивационный пост (понедельник)"""
         posts = [
-            "GM frens! 🌅\n\nNew week = new opportunities! 💎\n\nSolana Tamagotchi is LIVE on Devnet! 🔗\n\n🔥 2,000 $TAMA burned every NFT mint\n💰 Real SPL token distribution\n🎨 Metaplex-powered NFTs\n\nWho's minting today? 👇\n\n#SolanaNFT #P2E #Solana",
+            "GM frens! 🌅\n\nNew week = new opportunities! 💎\n\nSolana Tamagotchi is LIVE on Devnet! 🔗\n\n🎮 ZERO WALLET BARRIER - Play instantly!\n🛒 NFT MARKETPLACE - Buy/Sell with TAMA or SOL\n🔥 2,000 $TAMA burned every NFT mint\n💰 Real SPL token distribution\n🎨 Metaplex-powered NFTs on Arweave\n\nWho's trading today? 👇\n\n#SolanaNFT #P2E #Solana #Marketplace",
             
-            "GM Solana fam! 🌞\n\nStart your week right! 🚀\n\n✨ Play Solana Tamagotchi\n✨ Earn real $TAMA tokens\n✨ Mint unique NFTs\n\nAll 100% on-chain and transparent! 🔗\n\nPlay now: https://t.me/GotchiGameBot\n\n#Solana #Web3Gaming #P2E",
+            "GM Solana fam! 🌞\n\nStart your week right! 🚀\n\n✨ Play Solana Tamagotchi (no wallet needed!)\n✨ Earn real $TAMA tokens\n✨ Mint unique NFTs\n✨ Trade on Marketplace (TAMA + SOL)\n\nAll 100% on-chain and transparent! 🔗\n\nPlay now: https://t.me/GotchiGameBot\nMarketplace: https://solanatamagotchi.com/marketplace.html\n\n#Solana #Web3Gaming #P2E #ZeroWalletBarrier",
             
-            "GM! Ready for a productive week? 💪\n\nSolana Tamagotchi offers:\n🎮 FREE to start (no investment!)\n💰 Earn $TAMA by playing\n🎨 Mint NFTs with TAMA\n🔥 Every mint = automatic burn\n\nStart earning today! 👇\nhttps://t.me/GotchiGameBot\n\n#Solana #PlayToEarn"
+            "GM! Ready for a productive week? 💪\n\nSolana Tamagotchi offers:\n🎮 FREE to start - ZERO wallet barrier!\n💰 Earn $TAMA by playing\n🎨 Mint NFTs with TAMA\n🛒 Buy/Sell NFTs with TAMA OR SOL\n🔥 Every mint = automatic burn\n✅ Verified on Solscan\n\nStart earning today! 👇\nhttps://t.me/GotchiGameBot\n\n#Solana #PlayToEarn #Marketplace"
         ]
         self.post_to_channel(random.choice(posts))
     
@@ -97,11 +97,13 @@ class AutoPoster:
         text += "Every NFT mint is 100% on-chain:\n\n"
         text += "✅ TAMA transfers → Solana blockchain\n"
         text += "✅ NFT creation → Metaplex\n"
+        text += "✅ Metadata storage → Arweave (not IPFS!)\n"
+        text += "✅ Images verified → Solscan ✅\n"
         text += "✅ All transactions → Public explorer\n\n"
         text += "No trust needed. Just code. 💎\n\n"
         text += "View proof:\n"
         text += "https://solanatamagotchi.com/treasury-monitor.html\n\n"
-        text += "#OnChain #Transparency #Solana"
+        text += "#OnChain #Transparency #Solana #Arweave"
         self.post_to_channel(text)
     
     # ==================== WEDNESDAY - Community Wednesday ====================
@@ -125,12 +127,15 @@ class AutoPoster:
         text += "Bronze NFT Collection\n"
         text += "Theme: Baby Creatures 🐾\n"
         text += "Rarity: Common - Legendary\n\n"
-        text += "💰 Price: 5,000 TAMA\n"
+        text += "💰 Mint Price: 5,000 TAMA or 0.05 SOL\n"
         text += "🔥 Burn: 2,000 TAMA (40%)\n"
         text += "💎 Treasury: 1,500 TAMA (30%)\n"
         text += "🎮 P2E Pool: 1,500 TAMA (30%)\n\n"
-        text += "Mint yours: https://solanatamagotchi.com/mint.html\n\n"
-        text += "#SolanaNFT #Tamagotchi #P2E"
+        text += "🛒 Trade on Marketplace:\n"
+        text += "Buy/Sell with TAMA OR SOL!\n\n"
+        text += "Mint: https://solanatamagotchi.com/mint.html\n"
+        text += "Marketplace: https://solanatamagotchi.com/marketplace.html\n\n"
+        text += "#SolanaNFT #Tamagotchi #P2E #Marketplace"
         self.post_to_channel(text)
     
     # ==================== THURSDAY - Throwback Thursday ====================
@@ -141,15 +146,21 @@ class AutoPoster:
         text += "We've come a long way! 💪\n\n"
         text += "✅ 3 months of development\n"
         text += "✅ Full on-chain integration\n"
+        text += "✅ NFT Marketplace (dual payment!)\n"
+        text += "✅ Zero wallet barrier\n"
+        text += "✅ Arweave metadata storage\n"
+        text += "✅ Solscan verification\n"
+        text += "✅ Colosseum ETERNAL participation\n"
         text += "✅ Transparent tokenomics\n"
         text += "✅ Growing community\n\n"
         text += "What's next?\n"
         text += "🎯 Mainnet launch Q1 2026\n"
-        text += "🎯 More features\n"
+        text += "🎯 Enhanced marketplace\n"
+        text += "🎯 More NFT tiers\n"
         text += "🎯 Partnerships\n\n"
         text += "Join the journey! 👇\n"
         text += "https://t.me/GotchiGameBot\n\n"
-        text += "#Progress #Solana #Web3"
+        text += "#Progress #Solana #Web3 #Colosseum"
         self.post_to_channel(text)
     
     # ==================== FRIDAY - Feature Friday ====================
@@ -157,11 +168,11 @@ class AutoPoster:
     def post_friday_feature(self):
         """Новые фичи (пятница)"""
         features = [
-            "🚀 NEW FEATURE ALERT! ✨\n\nWe just added:\n✅ Treasury Monitor with real-time balances\n✅ On-chain transaction history\n✅ Explorer links for all transactions\n\nTry it now:\nhttps://solanatamagotchi.com/treasury-monitor.html\n\n#Solana #Web3 #Transparency",
+            "🚀 NFT MARKETPLACE IS LIVE! ✨\n\nWe just launched:\n✅ Buy/Sell NFTs with TAMA OR SOL\n✅ First P2E game with dual payment!\n✅ Real on-chain transactions\n✅ Arweave metadata storage\n✅ Images verified on Solscan\n\nTry it now:\nhttps://solanatamagotchi.com/marketplace.html\n\n#Solana #Marketplace #P2E #DualPayment",
             
-            "✨ FEATURE UPDATE ✨\n\nNew improvements:\n✅ Auto-link Phantom wallet to Telegram\n✅ NFT collection view by wallet\n✅ Enhanced transaction tracking\n\nPlay now: https://t.me/GotchiGameBot\n\n#Update #Solana #Gaming",
+            "✨ ZERO WALLET BARRIER ✨\n\nRevolutionary feature:\n✅ Play INSTANTLY - no wallet needed!\n✅ Earn TAMA first\n✅ Connect wallet when ready\n✅ Seamless experience\n\nThis is mass adoption! 🚀\n\nPlay now: https://t.me/GotchiGameBot\n\n#ZeroWalletBarrier #MassAdoption #Solana",
             
-            "🎉 WHAT'S NEW 🎉\n\nLatest features:\n✅ Real-time TAMA balance updates\n✅ Improved NFT minting flow\n✅ Better error handling\n\nStart playing: https://t.me/GotchiGameBot\n\n#NewFeatures #Solana #P2E"
+            "🎉 COLOSSEUM ETERNAL 🎉\n\nWe're participating in Colosseum hackathon!\n✅ Building in public\n✅ Week 3 update coming\n✅ Real product, real traction\n\nWatch us build:\nhttps://arena.colosseum.org/projects/explore/solana-tamagotchi-ultimate-play-to-earn-nft-pet-game\n\n#Colosseum #Hackathon #Solana #BuildInPublic"
         ]
         self.post_to_channel(random.choice(features))
     
@@ -206,24 +217,30 @@ class AutoPoster:
     def post_tutorial_thread(self):
         """Как играть (обучающий пост)"""
         text = "📚 HOW TO PLAY 🎮\n\n"
-        text += "Getting Started:\n\n"
+        text += "Getting Started (ZERO WALLET BARRIER!):\n\n"
         text += "1️⃣ Open @GotchiGameBot in Telegram\n"
-        text += "2️⃣ Start playing (FREE!)\n"
+        text += "2️⃣ Start playing INSTANTLY (no wallet!)\n"
         text += "3️⃣ Earn TAMA by clicking, feeding, playing\n\n"
         text += "Earning TAMA:\n"
         text += "💰 Click your pet = +TAMA\n"
         text += "💰 Complete quests = +TAMA\n"
         text += "💰 Daily rewards = +TAMA\n\n"
         text += "Minting NFT:\n"
-        text += "🎨 Save 5,000 TAMA\n"
+        text += "🎨 Save 5,000 TAMA (or use 0.05 SOL)\n"
         text += "🎨 Go to mint page\n"
         text += "🎨 Choose Bronze NFT\n\n"
+        text += "Trading NFTs:\n"
+        text += "🛒 Buy/Sell on Marketplace\n"
+        text += "🛒 Use TAMA OR SOL\n"
+        text += "🛒 First P2E game with dual payment!\n\n"
         text += "Benefits:\n"
         text += "✅ ×2.0 earning boost\n"
         text += "✅ +50 TAMA/day passive income\n"
-        text += "✅ Real on-chain NFT\n\n"
-        text += "Start now: https://t.me/GotchiGameBot\n\n"
-        text += "#Tutorial #P2E #Solana"
+        text += "✅ Real on-chain NFT (Arweave)\n"
+        text += "✅ Verified on Solscan\n\n"
+        text += "Start now: https://t.me/GotchiGameBot\n"
+        text += "Marketplace: https://solanatamagotchi.com/marketplace.html\n\n"
+        text += "#Tutorial #P2E #Solana #ZeroWalletBarrier"
         self.post_to_channel(text)
     
     def post_burn_report(self):
@@ -243,11 +260,11 @@ class AutoPoster:
     def post_call_to_action(self):
         """Призыв к действию"""
         ctas = [
-            "🎮 Ready to start earning? 💰\n\nSolana Tamagotchi is:\n✅ 100% Free to start\n✅ Play in Telegram\n✅ Earn real $TAMA tokens\n✅ Mint unique NFTs\n\nStart now: https://t.me/GotchiGameBot\n\n#Solana #P2E #Free",
+            "🎮 Ready to start earning? 💰\n\nSolana Tamagotchi is:\n✅ 100% Free to start\n✅ ZERO wallet barrier - play instantly!\n✅ Play in Telegram\n✅ Earn real $TAMA tokens\n✅ Mint unique NFTs\n✅ Trade on Marketplace (TAMA + SOL)\n\nStart now: https://t.me/GotchiGameBot\nMarketplace: https://solanatamagotchi.com/marketplace.html\n\n#Solana #P2E #Free #ZeroWalletBarrier",
             
-            "💎 Why Solana Tamagotchi? 💎\n\n✨ Nostalgic Tamagotchi gameplay\n✨ Modern blockchain tokenomics\n✨ 100% on-chain transparency\n✨ Real passive income from NFTs\n\nJoin us: https://t.me/GotchiGameBot\n\n#Web3Gaming #Solana",
+            "💎 Why Solana Tamagotchi? 💎\n\n✨ ZERO wallet barrier - play first!\n✨ NFT Marketplace with dual payment\n✨ Nostalgic Tamagotchi gameplay\n✨ Modern blockchain tokenomics\n✨ 100% on-chain (Arweave + Solscan)\n✨ Real passive income from NFTs\n\nJoin us: https://t.me/GotchiGameBot\n\n#Web3Gaming #Solana #Marketplace",
             
-            "🚀 Start Your P2E Journey! 🚀\n\nNo investment needed!\n\n1. Play the game 🎮\n2. Earn $TAMA 💰\n3. Mint NFTs 🎨\n4. Get passive income 💎\n\nAll 100% on-chain!\n\nhttps://t.me/GotchiGameBot\n\n#PlayToEarn #Solana"
+            "🚀 Start Your P2E Journey! 🚀\n\nNo investment needed! No wallet needed!\n\n1. Play the game 🎮 (instant start!)\n2. Earn $TAMA 💰\n3. Mint NFTs 🎨 (TAMA or SOL)\n4. Trade on Marketplace 🛒 (TAMA + SOL)\n5. Get passive income 💎\n\nAll 100% on-chain!\n\nhttps://t.me/GotchiGameBot\n\n#PlayToEarn #Solana #ZeroWalletBarrier"
         ]
         self.post_to_channel(random.choice(ctas))
     
