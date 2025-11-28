@@ -264,9 +264,19 @@
         }
         /* Print styles for PDF export */
         @media print {
+            @page {
+                size: A4;
+                margin: 2cm 1.5cm;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
             body {
                 background: white !important;
                 color: black !important;
+                font-size: 11pt !important;
+                line-height: 1.4 !important;
             }
             .share-buttons {
                 display: none !important;
@@ -274,36 +284,131 @@
             .back-link {
                 display: none !important;
             }
+            .live-stats-embed {
+                display: none !important;
+            }
             .whitepaper-logo {
                 max-width: 100px !important;
                 page-break-after: avoid;
+                filter: none !important;
             }
             .whitepaper-header {
                 page-break-after: avoid;
+                margin-bottom: 20px !important;
+            }
+            .whitepaper-header h1 {
+                font-size: 24pt !important;
+                color: black !important;
+            }
+            .whitepaper-header .subtitle {
+                font-size: 12pt !important;
+                color: #666 !important;
+            }
+            .whitepaper-header .version {
+                color: #666 !important;
             }
             .whitepaper-nav {
                 break-inside: avoid;
                 page-break-inside: avoid;
                 page-break-after: avoid;
+                background: #f8f9fa !important;
+                border: 1px solid #ddd !important;
+            }
+            .whitepaper-nav ul {
+                margin: 10px 0 !important;
             }
             .section {
                 page-break-inside: avoid;
+                margin-bottom: 20px !important;
+            }
+            .section h2 {
+                font-size: 18pt !important;
+                color: black !important;
+                page-break-after: avoid;
+                margin-top: 25px !important;
+            }
+            .section h3 {
+                font-size: 14pt !important;
+                color: black !important;
+                page-break-after: avoid;
+            }
+            .section h4 {
+                font-size: 12pt !important;
+                color: black !important;
             }
             .highlight-box {
-                border: 2px solid #9945FF !important;
+                border: 1px solid #999 !important;
                 break-inside: avoid;
                 page-break-inside: avoid;
                 background: #f8f9fa !important;
+                padding: 15px !important;
+                margin: 15px 0 !important;
             }
-            .live-stats-embed {
-                display: none !important;
+            .highlight-box h3 {
+                color: black !important;
             }
-            a {
-                color: #9945FF !important;
-                text-decoration: underline;
+            pre {
+                background: #f8f9fa !important;
+                border: 1px solid #ddd !important;
+                padding: 15px !important;
+                font-size: 9pt !important;
+                line-height: 1.3 !important;
+                overflow: visible !important;
+                white-space: pre-wrap !important;
+                word-wrap: break-word !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            pre.architecture-diagram {
+                font-size: 8pt !important;
+                line-height: 1.2 !important;
+                padding: 12px !important;
+                background: white !important;
+                border: 1px solid #ccc !important;
+                max-width: 100% !important;
+                overflow-x: visible !important;
+                white-space: pre !important;
+                word-wrap: normal !important;
             }
             table {
                 page-break-inside: avoid;
+                border-collapse: collapse !important;
+                width: 100% !important;
+                font-size: 10pt !important;
+            }
+            table th,
+            table td {
+                border: 1px solid #ddd !important;
+                padding: 8px !important;
+            }
+            table th {
+                background: #f0f0f0 !important;
+                color: black !important;
+            }
+            a {
+                color: #000 !important;
+                text-decoration: underline !important;
+            }
+            a[href^="http"]:after {
+                content: " (" attr(href) ")";
+                font-size: 9pt;
+                color: #666;
+            }
+            .stat-grid {
+                display: none !important;
+            }
+            .tokenomics-table {
+                font-size: 9pt !important;
+            }
+            ul, ol {
+                margin: 10px 0 !important;
+                padding-left: 25px !important;
+            }
+            li {
+                margin: 5px 0 !important;
+            }
+            p {
+                margin: 10px 0 !important;
             }
         }
         @media (max-width: 768px) {
@@ -485,7 +590,7 @@
 
             <h3>Hybrid Virtual-Blockchain Architecture</h3>
             <p>Our proprietary two-layer system combines Web2 speed with Web3 ownership, delivering sub-100ms response times while maintaining cryptographic asset ownership:</p>
-            <pre style="background: #f8f9fa; padding: 20px; border-radius: 10px; overflow-x: auto; border-left: 4px solid #9945FF;">
+            <pre class="architecture-diagram" style="background: #f8f9fa; padding: 20px; border-radius: 10px; overflow-x: auto; border-left: 4px solid #9945FF; font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.4;">
 ┌─────────────────────────────────────────────────────────┐
 │                    USER INTERFACES                      │
 │  ┌──────────────┐     ┌──────────────┐                 │
@@ -1081,9 +1186,17 @@
 
         // Download PDF (print to PDF)
         function downloadPDF() {
-            // Open print dialog - user can save as PDF
-            alert('📄 To save as PDF:\n\n1. Print dialog will open\n2. Select "Save as PDF" or "Microsoft Print to PDF"\n3. Click "Save"\n\nNote: This preserves all formatting and links!');
-            window.print();
+            // Add print class to body for better PDF styling
+            document.body.classList.add('printing');
+            
+            // Wait a moment for styles to apply, then print
+            setTimeout(() => {
+                window.print();
+                // Remove class after print
+                setTimeout(() => {
+                    document.body.classList.remove('printing');
+                }, 1000);
+            }, 100);
         }
 
         // Load live stats
