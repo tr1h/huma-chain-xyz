@@ -1285,28 +1285,60 @@
         async function loadLiveStats() {
             try {
                 // Use your PHP API via custom domain (handles CORS properly)
-                const response = await fetch('https://api.solanatamagotchi.com/api/tama/leaderboard', {
+                const apiUrl = 'https://api.solanatamagotchi.com/api/tama/leaderboard';
+                console.log('📡 Fetching stats from:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    // Add timeout
+                    signal: AbortSignal.timeout(5000)
                 });
                 
+                console.log('📥 Response status:', response.status, response.statusText);
+                
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const result = await response.json();
-                const data = result.data || result;
+                console.log('📊 Raw API response:', result);
+                
+                // Handle different response formats
+                let data = null;
+                if (Array.isArray(result)) {
+                    data = result;
+                } else if (result.leaderboard && Array.isArray(result.leaderboard)) {
+                    // API returns { success: true, leaderboard: [...] }
+                    data = result.leaderboard;
+                } else if (result.data && Array.isArray(result.data)) {
+                    data = result.data;
+                } else {
+                    console.warn('⚠️ Unexpected response format:', result);
+                    throw new Error('Invalid response format');
+                }
                 
                 // Validate data
                 if (!data || !Array.isArray(data) || data.length === 0) {
+                    console.warn('⚠️ Empty or invalid data array');
                     throw new Error('No data received');
                 }
                 
+                console.log('✅ Data validated, processing', data.length, 'users');
+                
                 // Calculate stats
+                // API returns 'total_tama' not 'tama'!
                 const totalPlayers = data.length;
-                const totalTAMA = data.reduce((sum, user) => sum + parseFloat(user.tama || 0), 0);
+                const totalTAMA = data.reduce((sum, user) => {
+                    // API uses 'total_tama' field
+                    const tamaValue = parseFloat(user.total_tama || user.tama || 0);
+                    return sum + tamaValue;
+                }, 0);
                 const avgLevel = totalPlayers > 0 ? Math.round(data.reduce((sum, user) => sum + parseInt(user.level || 0), 0) / totalPlayers) : 0;
                 
                 // Update display
@@ -1317,6 +1349,8 @@
                 console.log('✅ Live stats loaded:', { totalPlayers, totalTAMA: Math.round(totalTAMA), avgLevel });
             } catch (error) {
                 console.error('❌ Error loading stats:', error);
+                console.log('📊 Using fallback values');
+                
                 // Fallback to static values (based on last known data - Nov 28, 2025)
                 document.getElementById('stat-players').textContent = '40+';
                 document.getElementById('stat-tama').textContent = '750,000';
