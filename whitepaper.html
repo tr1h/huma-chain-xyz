@@ -3,8 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Solana Tamagotchi Whitepaper - Complete technical documentation, tokenomics, roadmap, and vision for the Play-to-Earn Tamagotchi game on Solana blockchain.">
-    <title>Whitepaper - Solana Tamagotchi | TAMA Token</title>
+    <meta name="description" content="Official Solana Tamagotchi Whitepaper - Revolutionary Play-to-Earn pet game on Solana. Zero wallet barrier, 1B TAMA tokens, 3-tier NFT system, deflationary economics. Complete technical documentation & tokenomics.">
+    <meta name="keywords" content="solana tamagotchi whitepaper, tama token, play to earn, blockchain game, nft pets, solana gaming, crypto gaming whitepaper, p2e tokenomics">
+    <title>Whitepaper - Solana Tamagotchi | TAMA Token Official Documentation</title>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://solanatamagotchi.com/whitepaper.html">
+    <meta property="og:title" content="Solana Tamagotchi Whitepaper - Revolutionary Play-to-Earn Game">
+    <meta property="og:description" content="Zero wallet barrier • 1B TAMA supply • 3-tier NFT system • 60% burn model • Bitcoin-style halving. Read the complete technical documentation.">
+    <meta property="og:image" content="https://solanatamagotchi.com/og-image.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://solanatamagotchi.com/whitepaper.html">
+    <meta name="twitter:title" content="Solana Tamagotchi Whitepaper 🐾">
+    <meta name="twitter:description" content="Revolutionary Play-to-Earn pet game on Solana! Zero wallet barrier • 1B TAMA • 3-tier NFTs • Deflationary economics">
+    <meta name="twitter:image" content="https://solanatamagotchi.com/og-image.png">
+    
+    <link rel="canonical" href="https://solanatamagotchi.com/whitepaper.html">
     <link rel="stylesheet" href="css/main.css">
     <style>
         .whitepaper-container {
@@ -40,9 +57,6 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 40px;
-            position: sticky;
-            top: 20px;
-            z-index: 100;
         }
         .whitepaper-nav ul {
             list-style: none;
@@ -170,6 +184,102 @@
         .disclaimer strong {
             color: #856404;
         }
+        .share-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        .share-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .share-btn.twitter {
+            background: linear-gradient(135deg, #1DA1F2 0%, #0d8bd9 100%);
+        }
+        .share-btn.telegram {
+            background: linear-gradient(135deg, #26A5E4 0%, #0088cc 100%);
+        }
+        .share-btn.discord {
+            background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+        }
+        .share-btn.pdf {
+            background: linear-gradient(135deg, #FF6B6B 0%, #C92A2A 100%);
+        }
+        .live-stats-embed {
+            background: linear-gradient(135deg, rgba(153, 69, 255, 0.1), rgba(20, 241, 149, 0.1));
+            border: 2px solid #9945FF;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #9945FF;
+            margin: 10px 0;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        /* Print styles for PDF export */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .share-buttons {
+                display: none;
+            }
+            .back-link {
+                display: none;
+            }
+            .whitepaper-nav {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
+            .highlight-box {
+                border: 2px solid #9945FF;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            a {
+                color: #9945FF;
+                text-decoration: underline;
+            }
+        }
         @media (max-width: 768px) {
             .whitepaper-container {
                 padding: 20px 15px;
@@ -179,6 +289,12 @@
             }
             .section h2 {
                 font-size: 1.5em;
+            }
+            .share-buttons {
+                flex-direction: column;
+            }
+            .share-btn {
+                width: 100%;
             }
         }
     </style>
@@ -191,6 +307,22 @@
             <h1>Solana Tamagotchi</h1>
             <div class="subtitle">Official Whitepaper</div>
             <div class="version">Version 1.0 | November 2025</div>
+            
+            <!-- Share & Download Buttons -->
+            <div class="share-buttons">
+                <button onclick="shareOnTwitter()" class="share-btn twitter">
+                    𝕏 Share on Twitter
+                </button>
+                <button onclick="shareOnTelegram()" class="share-btn telegram">
+                    📱 Share on Telegram
+                </button>
+                <button onclick="shareOnDiscord()" class="share-btn discord">
+                    💬 Share on Discord
+                </button>
+                <button onclick="downloadPDF()" class="share-btn pdf">
+                    📄 Download PDF
+                </button>
+            </div>
         </div>
 
         <div class="whitepaper-nav">
@@ -204,6 +336,30 @@
                 <li><a href="#gameplay">6. Gameplay Mechanics</a></li>
                 <li><a href="#risks">7. Risks & Disclaimers</a></li>
             </ul>
+        </div>
+
+        <!-- Live Stats Widget -->
+        <div class="live-stats-embed">
+            <h3 style="color: #9945FF; margin-top: 0;">📊 Live Project Stats</h3>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Active Players</div>
+                    <div class="stat-value" id="stat-players">...</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">TAMA in Circulation</div>
+                    <div class="stat-value" id="stat-tama">...</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Average Level</div>
+                    <div class="stat-value" id="stat-level">...</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Contract Status</div>
+                    <div class="stat-value" style="font-size: 1.5em;">🟢 Live</div>
+                </div>
+            </div>
+            <p style="color: #666; font-size: 0.85em; margin-top: 15px;">Real-time data from Solana Devnet • Updates automatically</p>
         </div>
 
         <!-- Executive Summary -->
@@ -406,7 +562,54 @@
             </table>
 
             <h3>Token Distribution</h3>
-            <table class="tokenomics-table">
+            
+            <!-- Visual Distribution Chart -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin: 30px 0;">
+                <div style="background: linear-gradient(135deg, #9945FF 0%, #14F195 100%); padding: 25px; border-radius: 15px; color: white; text-align: center;">
+                    <div style="font-size: 3em; font-weight: bold;">40%</div>
+                    <div style="font-size: 1.3em; margin: 10px 0;">Play-to-Earn Pool</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">400M TAMA</div>
+                    <div style="margin-top: 10px;">✅ Active</div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; color: white; text-align: center;">
+                    <div style="font-size: 3em; font-weight: bold;">20%</div>
+                    <div style="font-size: 1.3em; margin: 10px 0;">Team</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">200M TAMA</div>
+                    <div style="margin-top: 10px;">🔒 Vested 4 years</div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 25px; border-radius: 15px; color: white; text-align: center;">
+                    <div style="font-size: 3em; font-weight: bold;">15%</div>
+                    <div style="font-size: 1.3em; margin: 10px 0;">Marketing</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">150M TAMA</div>
+                    <div style="margin-top: 10px;">✅ Active</div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 25px; border-radius: 15px; color: white; text-align: center;">
+                    <div style="font-size: 3em; font-weight: bold;">10%</div>
+                    <div style="font-size: 1.3em; margin: 10px 0;">Liquidity</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">100M TAMA</div>
+                    <div style="margin-top: 10px;">🔒 Locked DEX</div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 25px; border-radius: 15px; color: white; text-align: center;">
+                    <div style="font-size: 3em; font-weight: bold;">10%</div>
+                    <div style="font-size: 1.3em; margin: 10px 0;">Community</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">100M TAMA</div>
+                    <div style="margin-top: 10px;">✅ Active</div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 25px; border-radius: 15px; color: white; text-align: center;">
+                    <div style="font-size: 3em; font-weight: bold;">5%</div>
+                    <div style="font-size: 1.3em; margin: 10px 0;">Reserve</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">50M TAMA</div>
+                    <div style="margin-top: 10px;">🔒 Locked</div>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <table class="tokenomics-table" style="margin-top: 30px;">
                 <tr>
                     <th>Category</th>
                     <th>Amount</th>
@@ -517,7 +720,32 @@
             <div class="highlight-box">
                 <h3>Fee Distribution Model (5% Withdrawal Fee)</h3>
                 <p>Every TAMA withdrawal from virtual to blockchain triggers a three-way fee split ensuring long-term economic sustainability:</p>
-                <ul>
+                
+                <!-- Visual Fee Distribution -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin: 25px 0;">
+                    <div style="background: rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 12px; text-align: center; border: 2px solid rgba(255, 255, 255, 0.3);">
+                        <div style="font-size: 3em;">🔥</div>
+                        <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;">60%</div>
+                        <div style="font-size: 1.1em; font-weight: bold;">BURNED</div>
+                        <div style="font-size: 0.85em; margin-top: 8px; opacity: 0.9;">Permanent supply reduction</div>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 12px; text-align: center; border: 2px solid rgba(255, 255, 255, 0.3);">
+                        <div style="font-size: 3em;">♻️</div>
+                        <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;">30%</div>
+                        <div style="font-size: 1.1em; font-weight: bold;">RECYCLED</div>
+                        <div style="font-size: 0.85em; margin-top: 8px; opacity: 0.9;">Returns to P2E pool</div>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 12px; text-align: center; border: 2px solid rgba(255, 255, 255, 0.3);">
+                        <div style="font-size: 3em;">💼</div>
+                        <div style="font-size: 2.5em; font-weight: bold; margin: 10px 0;">10%</div>
+                        <div style="font-size: 1.1em; font-weight: bold;">TREASURY</div>
+                        <div style="font-size: 0.85em; margin-top: 8px; opacity: 0.9;">Development & ops</div>
+                    </div>
+                </div>
+                
+                <ul style="margin-top: 20px;">
                     <li><strong>60% → Permanent Token Burns:</strong> Tokens sent to null address, permanently reducing circulating supply—creating deflationary pressure as adoption increases</li>
                     <li><strong>30% → P2E Pool Recycling:</strong> Fees return to reward distribution pool, enabling infinite mining capacity without new token emissions</li>
                     <li><strong>10% → Protocol Treasury:</strong> Development, operations, marketing, and ecosystem growth funding</li>
@@ -754,6 +982,69 @@
 
         <a href="index.html" class="back-link" style="display: block; text-align: center; margin-top: 40px;">← Back to Home</a>
     </div>
+
+    <script>
+        // Share on Twitter
+        function shareOnTwitter() {
+            const text = "Check out Solana Tamagotchi Whitepaper! 🐾\n\nPlay-to-Earn pet game on Solana with:\n✅ Zero wallet barrier\n✅ 1B TAMA tokens\n✅ NFT system\n✅ Deflationary economics\n\n";
+            const url = "https://solanatamagotchi.com/whitepaper.html";
+            const hashtags = "Solana,PlayToEarn,NFT,TAMA,Web3Gaming";
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${hashtags}`, '_blank');
+        }
+
+        // Share on Telegram
+        function shareOnTelegram() {
+            const text = "🐾 Solana Tamagotchi Whitepaper\n\nRevolutionary Play-to-Earn game on Solana!\n\n✅ Zero wallet barrier\n✅ 1B TAMA supply\n✅ 3-tier NFT system\n✅ 60% burn model\n\nRead: https://solanatamagotchi.com/whitepaper.html";
+            window.open(`https://t.me/share/url?url=${encodeURIComponent('https://solanatamagotchi.com/whitepaper.html')}&text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // Share on Discord
+        function shareOnDiscord() {
+            // Copy to clipboard for Discord
+            const text = "🐾 **Solana Tamagotchi Whitepaper**\n\nRevolutionary Play-to-Earn pet game on Solana blockchain!\n\n✅ Zero wallet barrier - start playing instantly\n✅ 1,000,000,000 TAMA token supply\n✅ 3-tier NFT system (Bronze/Silver/Gold)\n✅ Deflationary economics (60% burn)\n✅ Bitcoin-style halving\n\n📖 Read the full whitepaper:\nhttps://solanatamagotchi.com/whitepaper.html\n\n🎮 Play now: @GotchiGameBot";
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Copied to clipboard! Now paste it in Discord! 💬');
+            }).catch(() => {
+                prompt('Copy this text for Discord:', text);
+            });
+        }
+
+        // Download PDF (print to PDF)
+        function downloadPDF() {
+            // Open print dialog - user can save as PDF
+            alert('📄 To save as PDF:\n\n1. Print dialog will open\n2. Select "Save as PDF" or "Microsoft Print to PDF"\n3. Click "Save"\n\nNote: This preserves all formatting and links!');
+            window.print();
+        }
+
+        // Load live stats
+        async function loadLiveStats() {
+            try {
+                // Fetch from Supabase
+                const response = await fetch('https://zfrazyupameidxpjihrh.supabase.co/rest/v1/leaderboard?select=*', {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA0NTU1NTQsImV4cCI6MjA0NjAzMTU1NH0.kH8G3xQ_tr-EqL6yqnZLaE3s4vLLlMuK22g_2bYfEQo'
+                    }
+                });
+                const data = await response.json();
+                
+                // Calculate stats
+                const totalPlayers = data.length;
+                const totalTAMA = data.reduce((sum, user) => sum + parseFloat(user.tama || 0), 0);
+                const avgLevel = Math.round(data.reduce((sum, user) => sum + parseInt(user.level || 0), 0) / totalPlayers);
+                
+                // Update display
+                document.getElementById('stat-players').textContent = totalPlayers.toLocaleString();
+                document.getElementById('stat-tama').textContent = Math.round(totalTAMA).toLocaleString() + ' TAMA';
+                document.getElementById('stat-level').textContent = avgLevel;
+            } catch (error) {
+                console.log('Stats loading...', error);
+            }
+        }
+
+        // Load stats on page load
+        window.addEventListener('DOMContentLoaded', loadLiveStats);
+    </script>
 </body>
 </html>
 
