@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Solana Tamagotchi Whitepaper - Complete technical documentation, tokenomics, roadmap, and vision for the Play-to-Earn Tamagotchi game on Solana blockchain.">
+    <title>Whitepaper - Solana Tamagotchi | TAMA Token</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .whitepaper-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #fff;
+            color: #1D3557;
+            line-height: 1.8;
+        }
+        .whitepaper-header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 3px solid #9945FF;
+            margin-bottom: 40px;
+        }
+        .whitepaper-header h1 {
+            font-size: 2.5em;
+            color: #1D3557;
+            margin-bottom: 10px;
+        }
+        .whitepaper-header .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .whitepaper-header .version {
+            color: #9945FF;
+            font-weight: bold;
+        }
+        .whitepaper-nav {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+        .whitepaper-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .whitepaper-nav li {
+            margin: 10px 0;
+        }
+        .whitepaper-nav a {
+            color: #9945FF;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .whitepaper-nav a:hover {
+            text-decoration: underline;
+        }
+        .section {
+            margin: 60px 0;
+            padding: 30px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section h2 {
+            color: #9945FF;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #9945FF;
+        }
+        .section h3 {
+            color: #1D3557;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        .section h4 {
+            color: #666;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+        .highlight-box h3 {
+            color: white;
+            margin-top: 0;
+        }
+        .tokenomics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .tokenomics-table th,
+        .tokenomics-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .tokenomics-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #1D3557;
+        }
+        .roadmap-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #9945FF;
+        }
+        .roadmap-item.completed {
+            border-left-color: #14F195;
+        }
+        .roadmap-item h4 {
+            margin-top: 0;
+            color: #9945FF;
+        }
+        .roadmap-item.completed h4 {
+            color: #14F195;
+        }
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .tech-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .tech-item strong {
+            color: #9945FF;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .back-link {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 12px 24px;
+            background: #9945FF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .back-link:hover {
+            background: #7a35cc;
+        }
+        .disclaimer {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        .disclaimer strong {
+            color: #856404;
+        }
+        @media (max-width: 768px) {
+            .whitepaper-container {
+                padding: 20px 15px;
+            }
+            .whitepaper-header h1 {
+                font-size: 1.8em;
+            }
+            .section h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="whitepaper-container">
+        <a href="index.html" class="back-link">← Back to Home</a>
+        
+        <div class="whitepaper-header">
+            <h1>Solana Tamagotchi</h1>
+            <div class="subtitle">Official Whitepaper</div>
+            <div class="version">Version 1.0 | November 2025</div>
+        </div>
+
+        <div class="whitepaper-nav">
+            <strong>Table of Contents:</strong>
+            <ul>
+                <li><a href="#executive-summary">1. Executive Summary</a></li>
+                <li><a href="#problem-solution">2. Problem & Solution</a></li>
+                <li><a href="#technology">3. Technology & Architecture</a></li>
+                <li><a href="#tokenomics">4. Tokenomics</a></li>
+                <li><a href="#roadmap">5. Roadmap</a></li>
+                <li><a href="#gameplay">6. Gameplay Mechanics</a></li>
+                <li><a href="#risks">7. Risks & Disclaimers</a></li>
+            </ul>
+        </div>
+
+        <!-- Executive Summary -->
+        <section id="executive-summary" class="section">
+            <h2>1. Executive Summary</h2>
+            
+            <p><strong>Solana Tamagotchi</strong> is a Play-to-Earn (P2E) virtual pet game built on the Solana blockchain, designed to bring Web3 gaming to mainstream audiences through an innovative zero-wallet-barrier approach. By leveraging Telegram's 900M+ user base and Solana's high-performance infrastructure, we're creating the world's most accessible blockchain game.</p>
+            
+            <div class="highlight-box">
+                <h3>Key Innovation: Zero Wallet Barrier</h3>
+                <p>Unlike traditional blockchain games that require users to connect a wallet before playing, Solana Tamagotchi enables instant onboarding—players begin earning TAMA tokens immediately without any blockchain knowledge, wallet setup, or initial capital investment. This breakthrough approach eliminates the primary barrier to Web3 gaming adoption, targeting the 99% of gamers who have never used crypto.</p>
+            </div>
+
+            <h3>Core Features</h3>
+            <ul>
+                <li><strong>Instant Onboarding:</strong> Start playing in under 10 seconds via Telegram or web browser</li>
+                <li><strong>Virtual Pet Economy:</strong> Care for your Gotchi pet through feeding, playing, and nurturing</li>
+                <li><strong>Sustainable Play-to-Earn:</strong> Earn TAMA tokens through multiple revenue streams with deflationary tokenomics</li>
+                <li><strong>Premium NFT System:</strong> 3-tier collection (Bronze/Silver/Gold) with multiplicative earning boosts up to 10x</li>
+                <li><strong>Cross-Platform Sync:</strong> Seamless gameplay across Telegram bot and web interface</li>
+                <li><strong>True Blockchain Integration:</strong> Real SPL token on Solana with on-chain NFT minting via Metaplex</li>
+                <li><strong>Deflationary Economics:</strong> 60% fee burns + 30% pool recycling ensure long-term sustainability</li>
+            </ul>
+
+            <h3>Mission Statement</h3>
+            <p>Our mission is to democratize blockchain gaming by making Play-to-Earn accessible to anyone with a smartphone, regardless of their technical expertise or financial resources. We believe that the future of gaming is decentralized, transparent, and rewarding—and we're building the infrastructure to make that future accessible today.</p>
+        </section>
+
+        <!-- Problem & Solution -->
+        <section id="problem-solution" class="section">
+            <h2>2. Problem & Solution</h2>
+
+            <h3>The Problem: Why Current P2E Games Fail</h3>
+            <p>The Play-to-Earn gaming sector has shown tremendous promise but faces critical adoption barriers that limit market penetration to less than 1% of global gamers:</p>
+            <ul>
+                <li><strong>Prohibitive Entry Barriers:</strong> Users must navigate complex wallet setup, purchase cryptocurrency through exchanges, maintain seed phrases, and pay gas fees before experiencing gameplay—eliminating 99% of potential users at onboarding</li>
+                <li><strong>Technical Complexity:</strong> Blockchain concepts (wallets, gas, private keys, signatures) remain incomprehensible to mainstream audiences, creating friction at every interaction point</li>
+                <li><strong>Transaction Costs:</strong> On-chain transactions introduce latency (5-60 seconds) and fees ($0.01-$50+), making micro-rewards economically unfeasible</li>
+                <li><strong>Platform Limitations:</strong> Most blockchain games are desktop-only, excluding the 4.3B mobile-first internet users who represent the largest gaming demographic</li>
+                <li><strong>Economic Death Spirals:</strong> Poor tokenomics (infinite inflation, no burns, no utility) cause 90%+ token depreciation, destroying player trust and project viability</li>
+            </ul>
+
+            <h3>Our Solution: Hybrid Virtual-Blockchain Architecture</h3>
+            <div class="highlight-box">
+                <h3>Two-Layer System: Instant UX + True Ownership</h3>
+                <p>We've engineered a proprietary hybrid architecture that delivers Web2 user experience with Web3 economic benefits:</p>
+                <ul>
+                    <li><strong>Virtual Layer (Off-Chain):</strong> Sub-100ms response times, zero transaction costs, SQL-based state management for instant gameplay feedback</li>
+                    <li><strong>Blockchain Layer (On-Chain):</strong> Real SPL token minting on Solana only during withdrawal events, ensuring cryptographic ownership without gameplay friction</li>
+                </ul>
+                <p><em>Result:</em> Players enjoy instant, free gameplay while maintaining cryptographic ownership of real blockchain assets—the best of both worlds.</p>
+            </div>
+
+            <h3>Key Technical & Economic Innovations</h3>
+            <ul>
+                <li><strong>Zero Wallet Barrier:</strong> Telegram OAuth enables instant onboarding; wallet connection required only for withdrawals (reducing friction by 95%)</li>
+                <li><strong>Sustainable Fee Recycling:</strong> 30% of withdrawal fees automatically return to P2E reward pool, creating infinite mining capacity without inflation</li>
+                <li><strong>Aggressive Deflationary Model:</strong> 60% of withdrawal fees permanently burned from supply, ensuring long-term token appreciation as adoption grows</li>
+                <li><strong>Viral Distribution Channel:</strong> Native Telegram integration provides access to 900M+ monthly active users with one-click sharing mechanics</li>
+                <li><strong>Cross-Platform State Sync:</strong> Unified PostgreSQL backend ensures seamless gameplay across Telegram bot, web, and future mobile apps</li>
+                <li><strong>NFT Utility Layer:</strong> On-chain NFTs provide multiplicative earning boosts (up to 10x cap), creating genuine utility beyond speculation</li>
+            </ul>
+        </section>
+
+        <!-- Technology -->
+        <section id="technology" class="section">
+            <h2>3. Technology & Architecture</h2>
+
+            <h3>Hybrid Virtual-Blockchain Architecture</h3>
+            <p>Our proprietary two-layer system combines Web2 speed with Web3 ownership, delivering sub-100ms response times while maintaining cryptographic asset ownership:</p>
+            <pre style="background: #f8f9fa; padding: 20px; border-radius: 10px; overflow-x: auto; border-left: 4px solid #9945FF;">
+┌─────────────────────────────────────────────────────────┐
+│                    USER INTERFACES                      │
+│  ┌──────────────┐     ┌──────────────┐                 │
+│  │ Telegram Bot │     │  Web Browser │                 │
+│  │   (Webhook)  │     │  (GitHub Pages)                │
+│  └──────┬───────┘     └──────┬───────┘                 │
+│         │                     │                         │
+│         └──────────┬──────────┘                         │
+└────────────────────┼───────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│              BACKEND API LAYER (Render)                 │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │  PHP API (tama_supabase.php)                     │  │
+│  │  • Authentication & Authorization                │  │
+│  │  • Game Logic & Validation                       │  │
+│  │  • Referral System                               │  │
+│  └──────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │  Node.js On-Chain API (server-onchain.js)       │  │
+│  │  • NFT Minting via Metaplex                      │  │
+│  │  • SPL Token Transfers                           │  │
+│  │  • Solana Blockchain Interaction                 │  │
+│  └──────────────────────────────────────────────────┘  │
+└────────────┬───────────────────────┬────────────────────┘
+             │                       │
+             ▼                       ▼
+┌────────────────────────┐  ┌────────────────────────────┐
+│   Supabase Database    │  │    Solana Blockchain       │
+│   (PostgreSQL + RLS)   │  │      (Devnet/Mainnet)      │
+│                        │  │                            │
+│  • leaderboard         │  │  • TAMA SPL Token          │
+│  • user_nfts           │  │  • NFT Collection          │
+│  • transactions        │  │  • Metaplex Standard       │
+│  • game_limits         │  │  • Phantom Wallet          │
+│  • referrals           │  │  • On-Chain Verification   │
+└────────────────────────┘  └────────────────────────────┘
+
+                 VIRTUAL LAYER          BLOCKCHAIN LAYER
+                 (Instant, Free)    (Secure, Immutable)
+            </pre>
+
+            <h3>Enterprise-Grade Technology Stack</h3>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <strong>Blockchain</strong>
+                    Solana (SPL Tokens)
+                </div>
+                <div class="tech-item">
+                    <strong>Frontend</strong>
+                    HTML5, CSS3, JavaScript
+                </div>
+                <div class="tech-item">
+                    <strong>Backend</strong>
+                    PHP 8.x, Node.js
+                </div>
+                <div class="tech-item">
+                    <strong>Database</strong>
+                    Supabase (PostgreSQL)
+                </div>
+                <div class="tech-item">
+                    <strong>Bot</strong>
+                    Python (Telegram Bot API)
+                </div>
+                <div class="tech-item">
+                    <strong>NFT</strong>
+                    Metaplex (Solana NFT Standard)
+                </div>
+                <div class="tech-item">
+                    <strong>Hosting</strong>
+                    GitHub Pages, Render.com
+                </div>
+                <div class="tech-item">
+                    <strong>Wallet</strong>
+                    Phantom, Solflare
+                </div>
+            </div>
+
+            <h3>Key Technical Features</h3>
+            <ul>
+                <li><strong>Webhook Mode:</strong> Instant bot responses (no polling delays)</li>
+                <li><strong>Keep-Alive System:</strong> Prevents free-tier hosting from sleeping</li>
+                <li><strong>On-Chain Transactions:</strong> Real SPL token transfers for withdrawals and NFT mints</li>
+                <li><strong>CORS Configured:</strong> Seamless frontend-backend communication</li>
+                <li><strong>Server-Side Validation:</strong> All transactions validated before blockchain execution</li>
+                <li><strong>RLS Security:</strong> Row-Level Security in Supabase prevents unauthorized access</li>
+            </ul>
+        </section>
+
+        <!-- Tokenomics -->
+        <section id="tokenomics" class="section">
+            <h2>4. Tokenomics</h2>
+
+            <h3>TAMA Token Overview</h3>
+            <table class="tokenomics-table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Token Name</td>
+                    <td>TAMA (Tamagotchi Token)</td>
+                </tr>
+                <tr>
+                    <td>Blockchain</td>
+                    <td>Solana</td>
+                </tr>
+                <tr>
+                    <td>Standard</td>
+                    <td>SPL Token</td>
+                </tr>
+                <tr>
+                    <td>Total Supply</td>
+                    <td>1,000,000,000 TAMA</td>
+                </tr>
+                <tr>
+                    <td>Decimals</td>
+                    <td>9</td>
+                </tr>
+                <tr>
+                    <td>Mint Address</td>
+                    <td><code>Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY</code></td>
+                </tr>
+                <tr>
+                    <td>Network</td>
+                    <td>Devnet (Mainnet Q1 2025)</td>
+                </tr>
+            </table>
+
+            <h3>Token Distribution</h3>
+            <table class="tokenomics-table">
+                <tr>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Percentage</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td><strong>P2E Pool</strong></td>
+                    <td>400,000,000</td>
+                    <td>40%</td>
+                    <td>✅ Active</td>
+                </tr>
+                <tr>
+                    <td><strong>Team</strong></td>
+                    <td>200,000,000</td>
+                    <td>20%</td>
+                    <td>🔒 Locked (4 years vesting)</td>
+                </tr>
+                <tr>
+                    <td><strong>Marketing</strong></td>
+                    <td>150,000,000</td>
+                    <td>15%</td>
+                    <td>✅ Active</td>
+                </tr>
+                <tr>
+                    <td><strong>Liquidity</strong></td>
+                    <td>100,000,000</td>
+                    <td>10%</td>
+                    <td>🔒 Locked (DEX)</td>
+                </tr>
+                <tr>
+                    <td><strong>Community</strong></td>
+                    <td>100,000,000</td>
+                    <td>10%</td>
+                    <td>✅ Active</td>
+                </tr>
+                <tr>
+                    <td><strong>Reserve</strong></td>
+                    <td>50,000,000</td>
+                    <td>5%</td>
+                    <td>🔒 Locked</td>
+                </tr>
+            </table>
+
+            <h3>Bitcoin-Style Halving Emission Schedule</h3>
+            <p>TAMA implements a predictable, deflationary emission schedule inspired by Bitcoin's proven halving model, ensuring long-term scarcity and value appreciation:</p>
+            <table class="tokenomics-table">
+                <tr>
+                    <th>Period</th>
+                    <th>Total Emission</th>
+                    <th>Daily Rate</th>
+                    <th>Halving Event</th>
+                </tr>
+                <tr>
+                    <td><strong>Year 1 H1</strong></td>
+                    <td>200,000,000 TAMA</td>
+                    <td>~1,100,000/day</td>
+                    <td>Initial emission</td>
+                </tr>
+                <tr>
+                    <td><strong>Year 1 H2</strong></td>
+                    <td>100,000,000 TAMA</td>
+                    <td>~550,000/day</td>
+                    <td>50% reduction</td>
+                </tr>
+                <tr>
+                    <td><strong>Year 2 H1</strong></td>
+                    <td>50,000,000 TAMA</td>
+                    <td>~275,000/day</td>
+                    <td>50% reduction</td>
+                </tr>
+                <tr>
+                    <td><strong>Year 2 H2</strong></td>
+                    <td>25,000,000 TAMA</td>
+                    <td>~137,000/day</td>
+                    <td>50% reduction</td>
+                </tr>
+                <tr>
+                    <td><strong>Year 3-5</strong></td>
+                    <td>25,000,000 TAMA</td>
+                    <td>~13,700/day</td>
+                    <td>Gradual tail emission</td>
+                </tr>
+            </table>
+            <p><strong>Key Benefit:</strong> Halving creates predictable scarcity—as emission decreases, token value typically increases (assuming constant or growing demand), rewarding early adopters while maintaining long-term sustainability.</p>
+
+            <h3>Multi-Stream Revenue Model</h3>
+            <h4>Player Earning Mechanisms (7 Revenue Streams)</h4>
+            <ul>
+                <li><strong>Click-to-Earn Core Loop:</strong> Primary mechanic earning 1-10 TAMA per interaction, configurable via admin dashboard for economic balancing</li>
+                <li><strong>Daily Reward Streaks:</strong> Progressive bonuses from 100 to 1,000 TAMA/day, incentivizing daily active users (DAU)</li>
+                <li><strong>Mini-Game Ecosystem:</strong> 6 skill-based games (Lucky Wheel, Pet Battle Arena, Tama Tower, Precision Click, Roulette, Card Game) with independent reward pools</li>
+                <li><strong>Two-Tier Referral System:</strong> 1,000 TAMA per direct referral + 500 TAMA per sub-referral, creating viral growth loops</li>
+                <li><strong>Quest & Achievement System:</strong> Challenge-based rewards for milestone completion, driving engagement and retention</li>
+                <li><strong>NFT Multiplicative Boosts:</strong> Stackable earning multipliers from owned NFTs (2-4x per NFT, 10x cap) creating genuine NFT utility beyond speculation</li>
+                <li><strong>Competitive Leaderboards:</strong> Weekly/monthly prize pools for top performers, fostering competitive engagement</li>
+            </ul>
+
+            <h4>Token Utility & Spending Sinks</h4>
+            <ul>
+                <li><strong>NFT Minting:</strong> Bronze Tier (2,500 TAMA), Silver Tier (0.1 SOL + TAMA), Gold Tier (0.2 SOL + TAMA)—creating primary deflationary mechanism</li>
+                <li><strong>Pet Customization:</strong> Cosmetic upgrades, stat enhancements, and visual themes purchased with TAMA</li>
+                <li><strong>Marketplace Trading:</strong> Player-to-player NFT trades with 2.5% platform fees (burned)</li>
+                <li><strong>Withdrawal to Blockchain:</strong> Convert virtual TAMA to real SPL tokens (5% fee redistributed per deflationary model below)</li>
+            </ul>
+
+            <h3>Deflationary Economics: The Sustainability Engine</h3>
+            <div class="highlight-box">
+                <h3>Fee Distribution Model (5% Withdrawal Fee)</h3>
+                <p>Every TAMA withdrawal from virtual to blockchain triggers a three-way fee split ensuring long-term economic sustainability:</p>
+                <ul>
+                    <li><strong>60% → Permanent Token Burns:</strong> Tokens sent to null address, permanently reducing circulating supply—creating deflationary pressure as adoption increases</li>
+                    <li><strong>30% → P2E Pool Recycling:</strong> Fees return to reward distribution pool, enabling infinite mining capacity without new token emissions</li>
+                    <li><strong>10% → Protocol Treasury:</strong> Development, operations, marketing, and ecosystem growth funding</li>
+                </ul>
+                <p><strong>Economic Result:</strong> The game becomes more sustainable over time as withdrawal volume increases, creating a positive feedback loop where higher adoption → more burns → higher token value → more player attraction.</p>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section id="roadmap" class="section">
+            <h2>5. Roadmap</h2>
+
+            <div class="roadmap-item completed">
+                <h4>✅ Q4 2024 - Foundation & Devnet Launch (COMPLETED)</h4>
+                <ul>
+                    <li>✅ Telegram bot deployment with webhook mode and keep-alive system</li>
+                    <li>✅ Web game interface with responsive design and cross-platform sync</li>
+                    <li>✅ 3-tier NFT system (Bronze/Silver/Gold) with Metaplex integration</li>
+                    <li>✅ 6 mini-games launched (Lucky Wheel, Pet Battle Arena, Tama Tower, Precision Click, Roulette, Card Game)</li>
+                    <li>✅ Zero wallet barrier architecture implemented and tested</li>
+                    <li>✅ Two-tier referral system with viral growth mechanics</li>
+                    <li>✅ On-chain token deployment (1B TAMA supply on Devnet)</li>
+                    <li>✅ Official whitepaper published</li>
+                </ul>
+            </div>
+
+            <div class="roadmap-item">
+                <h4>🚀 Q1 2025 - Mainnet Migration & DEX Launch</h4>
+                <ul>
+                    <li><strong>Mainnet Deployment:</strong> Migrate TAMA token and NFT contracts to Solana Mainnet</li>
+                    <li><strong>Security Audit:</strong> Third-party smart contract audit by reputable firm (Certik, Hacken, or equivalent)</li>
+                    <li><strong>DEX Listings:</strong> Liquidity pools on Jupiter Aggregator, Raydium, and Orca</li>
+                    <li><strong>CEX Outreach:</strong> Listing applications to Tier 2-3 centralized exchanges</li>
+                    <li><strong>Enhanced Marketplace:</strong> P2P NFT trading with advanced filtering and analytics</li>
+                    <li><strong>Staking System:</strong> Lock TAMA for passive rewards and governance weight</li>
+                    <li><strong>Marketing Campaign:</strong> Influencer partnerships, Twitter Spaces, YouTube content</li>
+                    <li><strong>Target Metrics:</strong> 10,000+ active users, $50K+ daily trading volume</li>
+                </ul>
+            </div>
+
+            <div class="roadmap-item">
+                <h4>📱 Q2 2025 - Mobile Optimization & Advanced Features</h4>
+                <ul>
+                    <li><strong>Native Mobile App:</strong> iOS and Android apps with push notifications and offline play</li>
+                    <li><strong>Breeding System:</strong> Combine NFTs to create new pets with inherited traits</li>
+                    <li><strong>Tournament Mode:</strong> Weekly/monthly competitive events with prize pools</li>
+                    <li><strong>DAO Governance:</strong> Token holder voting on economic parameters and features</li>
+                    <li><strong>Achievement System:</strong> 50+ on-chain achievements with NFT badge rewards</li>
+                    <li><strong>Cross-Chain Bridges:</strong> Wormhole integration for Ethereum and BSC</li>
+                    <li><strong>Target Metrics:</strong> 50,000+ active users, $200K+ daily volume</li>
+                </ul>
+            </div>
+
+            <div class="roadmap-item">
+                <h4>💎 Q3-Q4 2025 - Ecosystem Expansion & Partnerships</h4>
+                <ul>
+                    <li><strong>Strategic Partnerships:</strong> Integrations with Magic Eden, Solana Pay, and Dialect</li>
+                    <li><strong>Guild System:</strong> Player organizations with shared rewards and leaderboards</li>
+                    <li><strong>Additional Game Modes:</strong> PvP battles, co-op quests, seasonal events</li>
+                    <li><strong>NFT Gen 2 Launch:</strong> New collection with enhanced artwork and utilities</li>
+                    <li><strong>Merchandise Store:</strong> Physical goods purchasable with TAMA</li>
+                    <li><strong>International Expansion:</strong> Localization for top 10 languages</li>
+                    <li><strong>Metaverse Integration:</strong> Portals to other Solana games and worlds</li>
+                    <li><strong>Target Metrics:</strong> 200,000+ active users, $1M+ daily volume</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Gameplay -->
+        <section id="gameplay" class="section">
+            <h2>6. Gameplay Mechanics</h2>
+
+            <h3>Core Gameplay Loop</h3>
+            <ol>
+                <li><strong>Start Playing:</strong> Open Telegram bot or web game (no wallet needed)</li>
+                <li><strong>Care for Pet:</strong> Click, feed, play with your Gotchi</li>
+                <li><strong>Earn TAMA:</strong> Accumulate tokens through gameplay</li>
+                <li><strong>Mint NFT:</strong> Use TAMA to mint NFT pets for earning boosts</li>
+                <li><strong>Withdraw:</strong> Convert virtual TAMA to real SPL tokens</li>
+            </ol>
+
+            <h3>Pet Evolution System</h3>
+            <ul>
+                <li><strong>Egg Stage:</strong> Starting pet (Level 0)</li>
+                <li><strong>Baby Stage:</strong> After first interactions (Level 1-10)</li>
+                <li><strong>Teen Stage:</strong> Growing pet (Level 11-50)</li>
+                <li><strong>Adult Stage:</strong> Mature pet (Level 51-100)</li>
+                <li><strong>Legendary Stage:</strong> Maximum evolution (Level 100+)</li>
+            </ul>
+
+            <h3>Three-Tier NFT Collection with Earning Multipliers</h3>
+            <p>Our NFT system provides genuine utility beyond speculation—each NFT multiplies your earning rate, creating stackable boosts up to a 10x cap:</p>
+            <table class="tokenomics-table">
+                <tr>
+                    <th>Tier</th>
+                    <th>Mint Price</th>
+                    <th>Earning Boost</th>
+                    <th>Rarity Distribution</th>
+                    <th>Annual ROI Estimate*</th>
+                </tr>
+                <tr>
+                    <td><strong>🥉 Bronze</strong></td>
+                    <td>2,500 TAMA<br/><span style="font-size: 0.85em; color: #666;">(~$25 at $0.01)</span></td>
+                    <td>2.0x - 3.0x</td>
+                    <td>Common (70%)<br/>Uncommon (30%)</td>
+                    <td>150-300%</td>
+                </tr>
+                <tr>
+                    <td><strong>🥈 Silver</strong></td>
+                    <td>0.1 SOL<br/><span style="font-size: 0.85em; color: #666;">(~$20)</span></td>
+                    <td>2.5x - 3.5x</td>
+                    <td>Rare (50%)<br/>Epic (30%)<br/>Legendary (20%)</td>
+                    <td>200-400%</td>
+                </tr>
+                <tr>
+                    <td><strong>🥇 Gold</strong></td>
+                    <td>0.2 SOL<br/><span style="font-size: 0.85em; color: #666;">(~$40)</span></td>
+                    <td>3.0x - 4.0x</td>
+                    <td>Epic (40%)<br/>Legendary (40%)<br/>Mythic (20%)</td>
+                    <td>250-500%</td>
+                </tr>
+            </table>
+            <p style="font-size: 0.9em; color: #666; margin-top: 15px;">
+                <em>*ROI estimates assume moderate daily playtime (30-60 min) and current tokenomics. Not financial advice. Past performance does not guarantee future results.</em>
+            </p>
+            <div class="highlight-box" style="margin-top: 25px;">
+                <h3>NFT Boost Mechanics</h3>
+                <ul>
+                    <li><strong>Stackable Multipliers:</strong> Own multiple NFTs to combine boost effects (e.g., 3x + 2.5x + 2x = 7.5x total)</li>
+                    <li><strong>10x Maximum Cap:</strong> Prevents economic imbalance while rewarding dedicated collectors</li>
+                    <li><strong>Active Boost System:</strong> Select which NFTs to activate (strategic optimization for different game modes)</li>
+                    <li><strong>Real On-Chain Assets:</strong> All NFTs minted via Metaplex standard—full ownership, transferable, tradeable</li>
+                    <li><strong>Marketplace Trading:</strong> Buy/sell NFTs peer-to-peer with TAMA or SOL payments</li>
+                </ul>
+            </div>
+
+            <h3>Mini-Games</h3>
+            <ul>
+                <li><strong>Lucky Wheel:</strong> Spin for random TAMA rewards</li>
+                <li><strong>Pet Battle Arena:</strong> Fight with your NFTs</li>
+                <li><strong>Tama Tower:</strong> Build and risk for rewards</li>
+                <li><strong>Precision Click:</strong> Skill-based rewards</li>
+                <li><strong>Roulette:</strong> Classic casino mechanics</li>
+                <li><strong>Card Game:</strong> Win big or go home</li>
+            </ul>
+        </section>
+
+        <!-- Risks -->
+        <section id="risks" class="section">
+            <h2>7. Risk Factors & Legal Disclaimers</h2>
+
+            <div class="disclaimer">
+                <strong>⚠️ IMPORTANT LEGAL DISCLAIMER</strong>
+                <p><strong>This whitepaper is for informational and educational purposes only and does not constitute financial, investment, legal, or tax advice.</strong> TAMA tokens are utility tokens designed for in-game functionality and are not securities, investment contracts, or financial instruments. Solana Tamagotchi NFTs are digital collectibles with gameplay utility and should not be purchased for speculative investment purposes.</p>
+                <p><strong>By participating in Solana Tamagotchi, you acknowledge and accept all risks outlined below.</strong> The protocol team makes no guarantees regarding token value, project success, or return on participation. Only participate with funds you can afford to lose entirely.</p>
+                <p><strong>Regulatory Status:</strong> This project currently operates on Solana Devnet (testnet). Mainnet deployment is subject to legal review and regulatory compliance in applicable jurisdictions. Token distribution may be restricted in certain countries.</p>
+            </div>
+
+            <h3>Technical & Smart Contract Risks</h3>
+            <ul>
+                <li><strong>Smart Contract Vulnerabilities:</strong> Despite best efforts and planned audits, blockchain code may contain undiscovered bugs, exploits, or logical errors that could result in loss of funds or token functionality</li>
+                <li><strong>Blockchain Network Risk:</strong> Solana network congestion, outages, or protocol changes may temporarily or permanently affect gameplay, transactions, or token accessibility</li>
+                <li><strong>Security & Hacking Risk:</strong> Malicious actors may exploit vulnerabilities in smart contracts, wallets, or infrastructure, potentially resulting in theft or loss of tokens and NFTs</li>
+                <li><strong>Technology Obsolescence:</strong> Rapid evolution of blockchain technology may render current architecture outdated, requiring costly migrations or rebuilds</li>
+                <li><strong>Oracle & Integration Risk:</strong> Third-party dependencies (Metaplex, Supabase, Render) may experience downtime or discontinuation, affecting project functionality</li>
+            </ul>
+
+            <h3>Economic & Market Risks</h3>
+            <ul>
+                <li><strong>Extreme Token Volatility:</strong> TAMA token price may experience >90% volatility in either direction based on market sentiment, adoption, or external market conditions</li>
+                <li><strong>Liquidity Risk:</strong> Insufficient trading volume on DEXs may prevent users from buying/selling TAMA at desired prices or quantities</li>
+                <li><strong>Regulatory & Legal Risk:</strong> Changing cryptocurrency regulations in the US, EU, or other jurisdictions may restrict project operations, token trading, or user participation</li>
+                <li><strong>Adoption & Growth Risk:</strong> Failure to achieve critical mass of active users may result in low token utility, reduced liquidity, and project failure</li>
+                <li><strong>Tokenomics Failure:</strong> Despite deflationary mechanisms, poor economic balancing may lead to hyperinflation or deflation spiral, destroying token value</li>
+            </ul>
+
+            <h3>Project & Operational Risks</h3>
+            <ul>
+                <li><strong>Development Delays:</strong> Roadmap milestones may be delayed or cancelled due to technical complexity, resource constraints, or unforeseen challenges</li>
+                <li><strong>Competitive Displacement:</strong> Competing projects with superior technology, marketing, or funding may capture market share and user attention</li>
+                <li><strong>Team & Key Person Risk:</strong> Departure of core team members may disrupt development velocity or project vision</li>
+                <li><strong>Funding Risk:</strong> Insufficient revenue or treasury funds may prevent completion of roadmap or ongoing operations</li>
+                <li><strong>Market Cycle Risk:</strong> Crypto bear markets may reduce user interest, token demand, and project viability regardless of technical merit</li>
+            </ul>
+
+            <h3>User Responsibilities & Requirements</h3>
+            <ul>
+                <li><strong>Self-Custody Security:</strong> Users are solely responsible for securing their wallets, private keys, and seed phrases. Loss or compromise results in irreversible loss of assets.</li>
+                <li><strong>Technical Competence:</strong> Users should understand blockchain fundamentals (wallets, signatures, gas fees, irreversible transactions) before interacting with crypto assets.</li>
+                <li><strong>Financial Prudence:</strong> Users should only allocate discretionary capital they can afford to lose entirely without impacting financial stability or wellbeing.</li>
+                <li><strong>Regulatory Compliance:</strong> Users are responsible for determining and complying with applicable cryptocurrency regulations, tax obligations, and legal restrictions in their jurisdiction.</li>
+                <li><strong>Due Diligence:</strong> Users should conduct independent research, consult qualified advisors, and critically evaluate all claims before participating.</li>
+            </ul>
+
+            <h3>No Guarantees or Warranties</h3>
+            <p>The Solana Tamagotchi protocol team makes no representations or warranties regarding:</p>
+            <ul>
+                <li>Future token value, price appreciation, or return on participation</li>
+                <li>Successful completion of roadmap milestones or feature delivery</li>
+                <li>Availability, uptime, or continuity of game services</li>
+                <li>Compatibility with future blockchain upgrades or protocol changes</li>
+                <li>Protection against financial loss, hacking, or smart contract exploits</li>
+            </ul>
+            <p><strong>By using Solana Tamagotchi, you acknowledge these risks and agree to hold the team harmless from any losses incurred.</strong></p>
+        </section>
+
+        <!-- Footer -->
+        <section class="section" style="text-align: center; padding: 40px 0;">
+            <h2>Join the Ecosystem</h2>
+            <p style="margin: 30px 0;">
+                <a href="https://t.me/GotchiGameBot" target="_blank" style="color: #9945FF; text-decoration: none; font-weight: bold; margin: 0 15px;">🎮 Play Now</a> | 
+                <a href="https://solanatamagotchi.com" target="_blank" style="color: #9945FF; text-decoration: none; font-weight: bold; margin: 0 15px;">🌐 Website</a> | 
+                <a href="https://github.com/tr1h/huma-chain-xyz" target="_blank" style="color: #9945FF; text-decoration: none; font-weight: bold; margin: 0 15px;">💻 GitHub</a>
+            </p>
+            <p style="margin: 20px 0;">
+                <a href="https://twitter.com/GotchiGame" target="_blank" style="color: #9945FF; text-decoration: none; font-weight: bold; margin: 0 15px;">𝕏 Twitter</a> | 
+                <a href="https://discord.gg/solanatamagotchi" target="_blank" style="color: #9945FF; text-decoration: none; font-weight: bold; margin: 0 15px;">💬 Discord</a> | 
+                <a href="https://t.me/GotchiGameChat" target="_blank" style="color: #9945FF; text-decoration: none; font-weight: bold; margin: 0 15px;">📢 Telegram</a>
+            </p>
+            <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin: 30px auto; max-width: 600px;">
+                <p style="color: #1D3557; margin: 10px 0;"><strong>Contract Address:</strong></p>
+                <p style="color: #666; font-family: monospace; font-size: 0.9em; word-break: break-all; margin: 10px 0;">
+                    Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY
+                </p>
+                <p style="color: #999; font-size: 0.85em; margin: 10px 0;">Solana Devnet (Mainnet Q1 2025)</p>
+            </div>
+            <p style="color: #666; margin-top: 30px; line-height: 1.8;">
+                <strong style="color: #1D3557;">Solana Tamagotchi</strong><br>
+                Whitepaper Version 1.0 | November 2025<br>
+                Built on Solana • Powered by Community<br>
+                <span style="font-size: 0.9em; color: #999;">© 2024-2025 Solana Tamagotchi. All rights reserved.</span>
+            </p>
+        </section>
+
+        <a href="index.html" class="back-link" style="display: block; text-align: center; margin-top: 40px;">← Back to Home</a>
+    </div>
+</body>
+</html>
+
