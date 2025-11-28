@@ -262,6 +262,17 @@
             color: #666;
             font-size: 0.9em;
         }
+        .architecture-visual {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid #9945FF;
+            box-shadow: 0 4px 12px rgba(153, 69, 255, 0.1);
+        }
+        .architecture-visual > div {
+            margin-bottom: 20px;
+        }
         /* Print styles for PDF export */
         @media print {
             @page {
@@ -291,6 +302,12 @@
                 max-width: 100px !important;
                 page-break-after: avoid;
                 filter: none !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            img.whitepaper-logo {
+                display: block !important;
+                margin: 0 auto 20px !important;
             }
             .whitepaper-header {
                 page-break-after: avoid;
@@ -369,6 +386,20 @@
                 overflow-x: visible !important;
                 white-space: pre !important;
                 word-wrap: normal !important;
+            }
+            .architecture-visual {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                background: white !important;
+                border: 1px solid #999 !important;
+                padding: 20px !important;
+            }
+            .architecture-visual > div {
+                page-break-inside: avoid !important;
+            }
+            .architecture-visual img {
+                max-width: 100% !important;
+                height: auto !important;
             }
             table {
                 page-break-inside: avoid;
@@ -462,7 +493,7 @@
         
         <div class="whitepaper-header">
             <!-- Logo -->
-            <img src="logo.png" alt="Solana Tamagotchi Logo" class="whitepaper-logo">
+            <img src="https://solanatamagotchi.com/logo.png" alt="Solana Tamagotchi Logo" class="whitepaper-logo" onerror="this.style.display='none'">
             
             <h1>Solana Tamagotchi</h1>
             <div class="subtitle">Official Whitepaper</div>
@@ -590,49 +621,100 @@
 
             <h3>Hybrid Virtual-Blockchain Architecture</h3>
             <p>Our proprietary two-layer system combines Web2 speed with Web3 ownership, delivering sub-100ms response times while maintaining cryptographic asset ownership:</p>
-            <pre class="architecture-diagram" style="background: #f8f9fa; padding: 20px; border-radius: 10px; overflow-x: auto; border-left: 4px solid #9945FF; font-family: 'Courier New', monospace; font-size: 11px; line-height: 1.4;">
-┌─────────────────────────────────────────────────────────┐
-│                    USER INTERFACES                      │
-│  ┌──────────────┐     ┌──────────────┐                 │
-│  │ Telegram Bot │     │  Web Browser │                 │
-│  │   (Webhook)  │     │  (GitHub Pages)                │
-│  └──────┬───────┘     └──────┬───────┘                 │
-│         │                     │                         │
-│         └──────────┬──────────┘                         │
-└────────────────────┼───────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────┐
-│              BACKEND API LAYER (Render)                 │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │  PHP API (tama_supabase.php)                     │  │
-│  │  • Authentication & Authorization                │  │
-│  │  • Game Logic & Validation                       │  │
-│  │  • Referral System                               │  │
-│  └──────────────────────────────────────────────────┘  │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │  Node.js On-Chain API (server-onchain.js)       │  │
-│  │  • NFT Minting via Metaplex                      │  │
-│  │  • SPL Token Transfers                           │  │
-│  │  • Solana Blockchain Interaction                 │  │
-│  └──────────────────────────────────────────────────┘  │
-└────────────┬───────────────────────┬────────────────────┘
-             │                       │
-             ▼                       ▼
-┌────────────────────────┐  ┌────────────────────────────┐
-│   Supabase Database    │  │    Solana Blockchain       │
-│   (PostgreSQL + RLS)   │  │      (Devnet/Mainnet)      │
-│                        │  │                            │
-│  • leaderboard         │  │  • TAMA SPL Token          │
-│  • user_nfts           │  │  • NFT Collection          │
-│  • transactions        │  │  • Metaplex Standard       │
-│  • game_limits         │  │  • Phantom Wallet          │
-│  • referrals           │  │  • On-Chain Verification   │
-└────────────────────────┘  └────────────────────────────┘
+            
+            <!-- Visual Architecture Diagram -->
+            <div class="architecture-visual" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border: 2px solid #9945FF;">
+                <!-- User Interfaces Layer -->
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div style="background: linear-gradient(135deg, #9945FF 0%, #14F195 100%); color: white; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1em; margin-bottom: 20px;">
+                        📱 USER INTERFACES
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px; margin: 0 auto;">
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #9945FF; box-shadow: 0 2px 8px rgba(153, 69, 255, 0.2);">
+                            <div style="font-weight: bold; color: #9945FF; margin-bottom: 8px;">📱 Telegram Bot</div>
+                            <div style="font-size: 0.85em; color: #666;">Webhook Mode</div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #14F195; box-shadow: 0 2px 8px rgba(20, 241, 149, 0.2);">
+                            <div style="font-weight: bold; color: #14F195; margin-bottom: 8px;">🌐 Web Browser</div>
+                            <div style="font-size: 0.85em; color: #666;">GitHub Pages</div>
+                        </div>
+                    </div>
+                </div>
 
-                 VIRTUAL LAYER          BLOCKCHAIN LAYER
-                 (Instant, Free)    (Secure, Immutable)
-            </pre>
+                <!-- Arrow Down -->
+                <div style="text-align: center; margin: 15px 0; font-size: 2em; color: #9945FF;">⬇️</div>
+
+                <!-- Backend API Layer -->
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 1.1em; margin-bottom: 20px;">
+                        ⚙️ BACKEND API LAYER (Render.com)
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 700px; margin: 0 auto;">
+                        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 12px; font-size: 1.05em;">🔧 PHP API</div>
+                            <div style="font-size: 0.9em; color: #666; margin-bottom: 8px; font-family: monospace;">tama_supabase.php</div>
+                            <ul style="text-align: left; font-size: 0.85em; color: #555; margin: 10px 0; padding-left: 20px;">
+                                <li>Authentication & Authorization</li>
+                                <li>Game Logic & Validation</li>
+                                <li>Referral System</li>
+                            </ul>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #764ba2; box-shadow: 0 2px 8px rgba(118, 75, 162, 0.2);">
+                            <div style="font-weight: bold; color: #764ba2; margin-bottom: 12px; font-size: 1.05em;">⚡ Node.js API</div>
+                            <div style="font-size: 0.9em; color: #666; margin-bottom: 8px; font-family: monospace;">server-onchain.js</div>
+                            <ul style="text-align: left; font-size: 0.85em; color: #555; margin: 10px 0; padding-left: 20px;">
+                                <li>NFT Minting via Metaplex</li>
+                                <li>SPL Token Transfers</li>
+                                <li>Solana Blockchain Interaction</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arrows Down -->
+                <div style="text-align: center; margin: 15px 0; font-size: 2em; color: #9945FF;">
+                    <div style="display: inline-block; margin: 0 100px;">⬇️</div>
+                    <div style="display: inline-block; margin: 0 100px;">⬇️</div>
+                </div>
+
+                <!-- Data & Blockchain Layers -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 800px; margin: 0 auto;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #14F195; box-shadow: 0 2px 8px rgba(20, 241, 149, 0.2);">
+                        <div style="background: linear-gradient(135deg, #14F195 0%, #0d8b5f 100%); color: white; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; text-align: center;">
+                            💾 Supabase Database
+                        </div>
+                        <div style="font-size: 0.9em; color: #666; margin-bottom: 12px; text-align: center;">PostgreSQL + RLS</div>
+                        <ul style="text-align: left; font-size: 0.85em; color: #555; margin: 10px 0; padding-left: 20px;">
+                            <li>leaderboard</li>
+                            <li>user_nfts</li>
+                            <li>transactions</li>
+                            <li>game_limits</li>
+                            <li>referrals</li>
+                        </ul>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #14F195; text-align: center; font-weight: bold; color: #14F195;">
+                            ⚡ VIRTUAL LAYER<br/>
+                            <span style="font-size: 0.85em; font-weight: normal;">(Instant, Free)</span>
+                        </div>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #9945FF; box-shadow: 0 2px 8px rgba(153, 69, 255, 0.2);">
+                        <div style="background: linear-gradient(135deg, #9945FF 0%, #6a2c91 100%); color: white; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; text-align: center;">
+                            ⛓️ Solana Blockchain
+                        </div>
+                        <div style="font-size: 0.9em; color: #666; margin-bottom: 12px; text-align: center;">Devnet/Mainnet</div>
+                        <ul style="text-align: left; font-size: 0.85em; color: #555; margin: 10px 0; padding-left: 20px;">
+                            <li>TAMA SPL Token</li>
+                            <li>NFT Collection</li>
+                            <li>Metaplex Standard</li>
+                            <li>Phantom Wallet</li>
+                            <li>On-Chain Verification</li>
+                        </ul>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #9945FF; text-align: center; font-weight: bold; color: #9945FF;">
+                            🔒 BLOCKCHAIN LAYER<br/>
+                            <span style="font-size: 0.85em; font-weight: normal;">(Secure, Immutable)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <h3>Enterprise-Grade Technology Stack</h3>
             <div class="tech-stack">
