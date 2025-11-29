@@ -231,10 +231,24 @@
         // Show link if redirect fails after 3 seconds
         setTimeout(() => {
             const link = document.getElementById('telegram-link');
-            if (link && document.hasFocus()) {
+            const errorMsg = document.getElementById('error-message');
+            if (link) {
                 link.style.display = 'inline-block';
             }
+            if (errorMsg && document.hasFocus() && window.location.href.includes('s.html')) {
+                errorMsg.style.display = 'block';
+            }
         }, 3000);
+        
+        // Also handle page visibility - if user comes back, show link
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                const link = document.getElementById('telegram-link');
+                if (link && window.location.href.includes('s.html')) {
+                    link.style.display = 'inline-block';
+                }
+            }
+        });
     </script>
 </body>
 </html>
