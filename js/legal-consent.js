@@ -369,8 +369,58 @@ class LegalConsent {
             modal.remove();
         }, 300);
 
+        // Hide legal documents sidebar/panel if exists
+        this.hideLegalSidebar();
+
         // Log acceptance (for analytics if needed)
         console.log('✅ User accepted legal terms');
+    }
+
+    hideLegalSidebar() {
+        // Try to find and hide legal sidebar/panel on the right side
+        const selectors = [
+            '.legal-sidebar',
+            '.legal-panel',
+            '.documents-sidebar',
+            '.documents-panel',
+            '[class*="legal"][class*="sidebar"]',
+            '[class*="legal"][class*="panel"]',
+            '[id*="legal"][id*="sidebar"]',
+            '[id*="legal"][id*="panel"]',
+            'div[style*="position: fixed"][style*="right"]',
+            'div[style*="position:fixed"][style*="right"]'
+        ];
+
+        selectors.forEach(selector => {
+            try {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    // Check if element contains legal text
+                    const text = el.textContent || '';
+                    if (text.includes('Privacy Policy') || text.includes('Terms of Service') || text.includes('Risk Warning')) {
+                        el.style.display = 'none';
+                        el.style.opacity = '0';
+                        el.style.transition = 'opacity 0.3s ease';
+                        console.log('✅ Hidden legal sidebar:', selector);
+                    }
+                });
+            } catch (e) {
+                // Ignore invalid selectors
+            }
+        });
+
+        // Also check for any fixed right-side elements that might be legal docs
+        const allFixedElements = document.querySelectorAll('[style*="position: fixed"], [style*="position:fixed"]');
+        allFixedElements.forEach(el => {
+            const style = el.getAttribute('style') || '';
+            const text = el.textContent || '';
+            if (style.includes('right') && (text.includes('Privacy Policy') || text.includes('Terms of Service') || text.includes('Risk Warning'))) {
+                el.style.display = 'none';
+                el.style.opacity = '0';
+                el.style.transition = 'opacity 0.3s ease';
+                console.log('✅ Hidden legal sidebar element');
+            }
+        });
     }
 
     declineConsent() {
