@@ -2266,6 +2266,40 @@
             font-family: 'Courier New', monospace;
         }
         
+        /* Referral Modal - Fullscreen */
+        #referral-modal .referral-content {
+            max-width: 100%;
+            width: 100%;
+            height: 100vh;
+            max-height: 100vh;
+            border-radius: 0;
+            border: none;
+            padding: 30px;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #referral-modal .referral-header {
+            flex-shrink: 0;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        #referral-modal .referral-header h2 {
+            font-size: 28px;
+            color: #667eea;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
+        }
+        
+        #referral-modal .referral-body {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
         /* NFT Modal - Fullscreen */
         #nft-modal .referral-content {
             max-width: 100%;
@@ -11229,16 +11263,33 @@
                 const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
                 if (!telegramUser?.id) return;
 
-                // Get user's referral count
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/referrals?referrer_telegram_id=eq.${telegramUser.id}&select=count`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
+                // Get user's referral count (BOTH confirmed and pending!)
+                const [referralsResponse, pendingResponse] = await Promise.all([
+                    fetch(`${SUPABASE_URL}/rest/v1/referrals?referrer_telegram_id=eq.${telegramUser.id}&select=count`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }),
+                    fetch(`${SUPABASE_URL}/rest/v1/pending_referrals?referrer_telegram_id=eq.${telegramUser.id}&status=eq.pending&select=count`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    })
+                ]);
 
-                const referrals = await response.json();
-                const referralCount = referrals.length || 0;
+                const referrals = await referralsResponse.json();
+                const pending = await pendingResponse.json();
+                
+                // Total count = confirmed + pending
+                const referralCount = (referrals.length || 0) + (pending.length || 0);
+                
+                console.log('📊 Referral Progress:', {
+                    confirmed: referrals.length || 0,
+                    pending: pending.length || 0,
+                    total: referralCount
+                });
 
                 // Определить текущий milestone
                 const milestones = [5, 10, 25, 50, 100];
