@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Treasury Monitor - Public Transparency Dashboard | Solana Tamagotchi</title>
+    <meta name="description" content="Public transparency dashboard showing all project wallet transactions, TAMA distribution, and tokenomics. All transactions are on-chain and verifiable.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Admin Login Screen */
+        #adminLoginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-container h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        #adminPasswordInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        #adminPasswordInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #5568d3;
+        }
+
+        #adminLoginError {
+            color: red;
+            margin-top: 15px;
+            min-height: 20px;
+            font-size: 14px;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(45, 55, 72, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        h1 {
+            font-size: 32px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(16, 185, 129, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #10b981;
+        }
+
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Wallet Cards Grid */
+        .wallets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .wallet-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+
+        .wallet-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .wallet-card.treasury {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .wallet-card.p2e {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .wallet-card.burn {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        }
+
+        .wallet-card.sol-treasury {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .wallet-card.marketing {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        }
+
+        .wallet-card.community {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+        }
+
+        .wallet-card.reserve {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
+
+        .wallet-card.treasury-liquidity {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+
+        .wallet-card.treasury-team {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .wallet-icon {
+            font-size: 32px;
+        }
+
+        .wallet-name {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .wallet-balance {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .wallet-address {
+            font-size: 11px;
+            opacity: 0.7;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+
+        .wallet-recent {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .filters {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .transactions-table {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(0,0,0,0.3);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+        }
+
+        tr {
+            transition: all 0.2s;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .type-treasury {
+            background: #8b5cf6;
+            color: #fff;
+        }
+
+        .type-p2e {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .type-burn {
+            background: #ff6b35;
+            color: #fff;
+        }
+
+        .type-sol {
+            background: #f59e0b;
+            color: #fff;
+        }
+
+        .amount-positive {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .amount-negative {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .amount-burn {
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .explorer-link {
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .explorer-link:hover {
+            text-decoration: underline;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            transition: all 0.2s;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+        }
+
+        .update-time {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        .pagination button {
+            padding: 10px 20px;
+            background: #667eea;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button:not(:disabled):hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        #page-info {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Wallet Detail Modal */
+        .wallet-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wallet-modal.show {
+            display: flex;
+        }
+
+        .wallet-modal-content {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 1800px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .wallet-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .wallet-modal-header h2 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wallet-modal-close {
+            background: #ef4444;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .wallet-modal-close:hover {
+            background: #dc2626;
+            transform: rotate(90deg);
+        }
+
+        .wallet-card:hover {
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+    </style>
+    <script src="js/admin-env.js"></script>
+</head>
+<body>
+    <!-- Main Content - Public Access -->
+    <div id="adminContent" style="display: block;">
+        <div class="container">
+            <div class="header">
+                <a href="index.html" class="back-btn">🏠 Home</a>
+                <div>
+                    <h1 style="margin-bottom: 5px;">💰 Treasury Monitor - Public Transparency Dashboard</h1>
+                    <div class="transparency-badge">
+                        🔓 Public Access • All transactions on-chain • Verifiable on Solscan
+                    </div>
+                </div>
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    <span>Live Updates</span>
+                </div>
+            </div>
+            
+            <!-- Public Notice -->
+            <div style="background: rgba(16, 185, 129, 0.2); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 2px solid rgba(16, 185, 129, 0.3);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <span style="font-size: 24px;">🔍</span>
+                    <h3 style="font-size: 18px; margin: 0;">100% Transparency & On-Chain Verification</h3>
+                </div>
+                <div style="font-size: 14px; line-height: 1.8; opacity: 0.9;">
+                    This dashboard provides <strong>complete transparency</strong> into our project's tokenomics and fund distribution. 
+                    Every transaction shown here is <strong>on-chain</strong> and can be verified on 
+                    <a href="https://solscan.io/?cluster=devnet" target="_blank" style="color: #60a5fa; text-decoration: underline;">Solscan</a>. 
+                    All wallet addresses are public, and all distribution rules are clearly displayed. 
+                    This is our commitment to <strong>transparency and trust</strong> in the Solana Tamagotchi ecosystem.
+                </div>
+            </div>
+
+            <!-- Tokenomics Summary -->
+            <div style="background: rgba(102, 126, 234, 0.2); padding: 25px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(102, 126, 234, 0.3);">
+                <h2 style="margin-bottom: 20px; font-size: 24px; display: flex; align-items: center; gap: 10px;">
+                    📊 Tokenomics & Distribution Summary
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;" id="tokenomics-summary">
+                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total TAMA Distributed</div>
+                        <div style="font-size: 28px; font-weight: bold;" id="total-tama-distributed">Calculating...</div>
+                    </div>
+                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total SOL Distributed</div>
+                        <div style="font-size: 28px; font-weight: bold;" id="total-sol-distributed">Calculating...</div>
+                    </div>
+                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total Burned</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #ff6b35;" id="total-burned-summary">Calculating...</div>
+                    </div>
+                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">NFT Mints (Total)</div>
+                        <div style="font-size: 28px; font-weight: bold;" id="total-nft-mints">Calculating...</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">💰 Distribution Rules:</div>
+                    <div style="font-size: 13px; line-height: 1.8; opacity: 0.9;">
+                        <strong>TAMA NFT Mints:</strong> 40% Burn 🔥 | 30% Treasury 💰 | 30% P2E Pool 🎮<br>
+                        <strong>SOL NFT Mints:</strong> 50% Treasury Main 💰 | 30% Treasury Liquidity 💧 | 20% Treasury Team 👥<br>
+                        <strong>All transactions are on-chain and verifiable on Solscan</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Cards -->
+            <div class="wallets-grid" id="wallets-grid">
+                <div class="wallet-card treasury" onclick="showWalletDetails('treasury')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">💰 Treasury Main V2</div>
+                            <div class="wallet-balance" id="treasury-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">💎</div>
+                    </div>
+                    <a href="https://solscan.io/account/6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;">
+                        6rY5...6dNpFM 🔗
+                    </a>
+                    <div class="wallet-recent">30% TAMA from NFT mints + 50% SOL from NFT sales</div>
+                </div>
+
+                <div class="wallet-card p2e" onclick="showWalletDetails('p2e')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">🎮 P2E Pool</div>
+                            <div class="wallet-balance" id="p2e-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">🎮</div>
+                    </div>
+                    <a href="https://solscan.io/account/HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;">
+                        HPQf...c1fCQw 🔗
+                    </a>
+                    <div class="wallet-recent">30% from NFT mints (TAMA) + Player rewards</div>
+                </div>
+
+                <div class="wallet-card burn" onclick="showWalletDetails('burn')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">🔥 Total Burned</div>
+                            <div class="wallet-balance" id="burn-total">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">🔥</div>
+                    </div>
+                    <div class="wallet-address">Permanent destruction</div>
+                    <div class="wallet-recent">40% from NFT mints (TAMA) - burned forever</div>
+                </div>
+
+                <div class="wallet-card sol-treasury" onclick="showWalletDetails('liquidity')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">💧 Liquidity Pool (30%)</div>
+                            <div class="wallet-balance" id="liquidity-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">💧</div>
+                    </div>
+                    <a href="https://solscan.io/account/5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        5kHA...3o36z 🔗
+                    </a>
+                    <div class="wallet-recent">30% SOL for DEX liquidity (Raydium/Jupiter)</div>
+                </div>
+
+                <div class="wallet-card sol-treasury" onclick="showWalletDetails('team')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">👥 Team Wallet (20%)</div>
+                            <div class="wallet-balance" id="team-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">👥</div>
+                    </div>
+                    <a href="https://solscan.io/account/AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        AQr5...kWXVR 🔗
+                    </a>
+                    <div class="wallet-recent">20% SOL for team compensation</div>
+                </div>
+
+                <div class="wallet-card marketing" onclick="showWalletDetails('marketing')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">📢 Marketing</div>
+                            <div class="wallet-balance" id="marketing-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">📢</div>
+                    </div>
+                    <a href="https://solscan.io/account/2eryce7DH7mqDCPegTb696FjXReA5qmx9xfCKH5UneeF?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        2ery...neeF 🔗
+                    </a>
+                    <div class="wallet-recent">Marketing & partnerships (15%)</div>
+                </div>
+
+                <div class="wallet-card community" onclick="showWalletDetails('community')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">🌐 Community</div>
+                            <div class="wallet-balance" id="community-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">🌐</div>
+                    </div>
+                    <a href="https://solscan.io/account/9X1DYKzHiYP4V2UuVNGbU42DQkd8ST1nPwbJDuFQY3T?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        9X1D...QY3T 🔗
+                    </a>
+                    <div class="wallet-recent">Community rewards & airdrops (10%)</div>
+                </div>
+
+                <div class="wallet-card reserve" onclick="showWalletDetails('reserve')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">🏦 Reserve</div>
+                            <div class="wallet-balance" id="reserve-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">🏦</div>
+                    </div>
+                    <a href="https://solscan.io/account/8cDHbeHcuspjGKXofYzApCCBrAVenSHPy2UAPU1iCEj6?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        8cDH...CEj6 🔗
+                    </a>
+                    <div class="wallet-recent">Reserve fund for emergencies (5%)</div>
+                </div>
+
+                <div class="wallet-card treasury-liquidity" onclick="showWalletDetails('treasury-liquidity')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">💧 Treasury Liquidity V2</div>
+                            <div class="wallet-balance" id="treasury-liquidity-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">💹</div>
+                    </div>
+                    <a href="https://solscan.io/account/CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        CeeK...avGk1 🔗
+                    </a>
+                    <div class="wallet-recent">DEX Liquidity Pool (SOL Silver/Gold: 30%)</div>
+                </div>
+
+                <div class="wallet-card treasury-team" onclick="showWalletDetails('treasury-team')">
+                    <div class="wallet-header">
+                        <div>
+                            <div class="wallet-name">👥 Treasury Team V2</div>
+                            <div class="wallet-balance" id="treasury-team-balance">Loading...</div>
+                        </div>
+                        <div class="wallet-icon">💼</div>
+                    </div>
+                    <a href="https://solscan.io/account/Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8?cluster=devnet" 
+                       target="_blank" class="wallet-address" style="color: #60a5fa; text-decoration: none;" onclick="event.stopPropagation();">
+                        Amy5...7Ua8 🔗
+                    </a>
+                    <div class="wallet-recent">Team Operations (SOL Silver/Gold: 20%)</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Wallet Type</label>
+                    <select id="filter-wallet">
+                        <option value="">All Wallets</option>
+                        <option value="treasury">Treasury (TAMA)</option>
+                        <option value="p2e">P2E Pool (TAMA)</option>
+                        <option value="burn">Burn</option>
+                        <option value="sol">SOL Wallets</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Transaction Type</label>
+                    <select id="filter-type">
+                        <option value="">All Types</option>
+                        <option value="treasury_income">Treasury Income</option>
+                        <option value="p2e_pool_refund">P2E Pool Refund</option>
+                        <option value="burn">Burn</option>
+                        <option value="sol_income">SOL Income</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Date From</label>
+                    <input type="date" id="filter-date-from">
+                </div>
+                <div class="filter-group">
+                    <label>Date To</label>
+                    <input type="date" id="filter-date-to">
+                </div>
+            </div>
+
+            <button class="export-btn" onclick="exportToCSV()">📥 Export to CSV</button>
+
+            <!-- Transactions Table -->
+            <div class="transactions-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Wallet</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Source</th>
+                            <th>Signature / Explorer</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-body">
+                        <tr>
+                            <td colspan="6" class="loading">⏳ Loading project transactions...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <button onclick="changePage(-1)">← Previous</button>
+                <div id="page-info">Page 1</div>
+                <button onclick="changePage(1)">Next →</button>
+            </div>
+
+            <div class="update-time" id="update-time">Last updated: Never</div>
+        </div>
+
+        <!-- Wallet Detail Modal -->
+        <div class="wallet-modal" id="wallet-modal">
+            <div class="wallet-modal-content">
+                <div class="wallet-modal-header">
+                    <h2 id="wallet-modal-title">💰 Wallet Transactions</h2>
+                    <button class="wallet-modal-close" onclick="closeWalletModal()">✕</button>
+                </div>
+                <div id="wallet-modal-body">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = window.AdminEnv?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_ANON_KEY = window.AdminEnv?.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const TAMA_API_BASE = window.AdminEnv?.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
+
+        // Project Wallet Addresses
+        const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+        const P2E_POOL = 'HPQf1MG8e41MoMayD8iqFmadqZ2NteScx4dQuwc1fCQw';
+        const BURN_ADDRESS = 'BURN_ADDRESS';
+        const LIQUIDITY_POOL = '5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z';
+        const TEAM_WALLET = 'AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR';
+        const MARKETING_WALLET = '2eryce7DH7mqDCPegTb696FjXReA5qmx9xfCKH5UneeF';
+        const COMMUNITY_WALLET = '9X1DYKzHiYP4V2UuVNGbU42DQkd8ST1nPwbJDuFQY3T';
+        const RESERVE_WALLET = '8cDHbeHcuspjGKXofYzApCCBrAVenSHPy2UAPU1iCEj6';
+        const TREASURY_LIQUIDITY = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+        const TREASURY_TEAM = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
+        const SOLANA_RPC = 'https://api.devnet.solana.com';
+        
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let currentPage = 1;
+        const PAGE_SIZE = 50;
+        let autoUpdateInterval;
+
+        // TAMA Mint Address
+        const TAMA_MINT = 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY';
+        const TAMA_DECIMALS = 9;
+
+        // Get SOL balance from Solana RPC
+        async function getSolBalance(address) {
+            try {
+                const response = await fetch(SOLANA_RPC, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getBalance',
+                        params: [address]
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result && data.result.value !== undefined) {
+                        // Convert lamports to SOL (1 SOL = 1,000,000,000 lamports)
+                        return data.result.value / 1e9;
+                    }
+                }
+                return 0;
+            } catch (error) {
+                console.error(`Failed to get SOL balance for ${address}:`, error);
+                return 0;
+            }
+        }
+
+        // Get TAMA token balance from Solana RPC
+        async function getTamaBalance(address) {
+            try {
+                const response = await fetch(SOLANA_RPC, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getTokenAccountsByOwner',
+                        params: [
+                            address,
+                            { mint: TAMA_MINT },
+                            { encoding: 'jsonParsed' }
+                        ]
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result && data.result.value && data.result.value.length > 0) {
+                        const tokenAccount = data.result.value[0];
+                        // Get token amount from parsed data
+                        const amount = tokenAccount?.account?.data?.parsed?.info?.tokenAmount?.amount;
+                        
+                        if (amount && parseInt(amount) > 0) {
+                            // Convert from raw units to TAMA (divide by 10^decimals)
+                            return parseInt(amount) / Math.pow(10, TAMA_DECIMALS);
+                        }
+                    }
+                }
+                return 0;
+            } catch (error) {
+                console.error(`Failed to get TAMA balance for ${address}:`, error);
+                return 0;
+            }
+        }
+
+        async function loadWalletBalances() {
+            try {
+                console.log('🔄 Loading wallet balances (optimized parallel requests)...');
+                
+                // OPTIMIZATION: Load all balances in parallel instead of sequentially
+                // This reduces total loading time from ~18 seconds to ~3-5 seconds
+                const [
+                    treasuryMainSol, treasuryMainTama,
+                    p2eBlockchainTama,
+                    liquiditySolBalance, liquidityTamaBalance,
+                    teamSolBalance, teamTamaBalance,
+                    marketingSolBalance, marketingTamaBalance,
+                    communitySolBalance, communityTamaBalance,
+                    reserveSolBalance, reserveTamaBalance,
+                    treasuryLiquiditySolBalance, treasuryLiquidityTamaBalance,
+                    treasuryTeamSolBalance, treasuryTeamTamaBalance,
+                    burnResponse
+                ] = await Promise.all([
+                    getSolBalance(TREASURY_MAIN),
+                    getTamaBalance(TREASURY_MAIN),
+                    getTamaBalance(P2E_POOL),
+                    getSolBalance(LIQUIDITY_POOL),
+                    getTamaBalance(LIQUIDITY_POOL),
+                    getSolBalance(TEAM_WALLET),
+                    getTamaBalance(TEAM_WALLET),
+                    getSolBalance(MARKETING_WALLET),
+                    getTamaBalance(MARKETING_WALLET),
+                    getSolBalance(COMMUNITY_WALLET),
+                    getTamaBalance(COMMUNITY_WALLET),
+                    getSolBalance(RESERVE_WALLET),
+                    getTamaBalance(RESERVE_WALLET),
+                    getSolBalance(TREASURY_LIQUIDITY),
+                    getTamaBalance(TREASURY_LIQUIDITY),
+                    getSolBalance(TREASURY_TEAM),
+                    getTamaBalance(TREASURY_TEAM),
+                    fetch(`${TAMA_API_BASE}/transactions/list?limit=1000`)
+                ]);
+                
+                // Update UI with loaded balances
+                let treasuryMainText = Math.round(treasuryMainTama).toLocaleString() + ' TAMA';
+                if (treasuryMainSol > 0) {
+                    treasuryMainText += ' + ' + treasuryMainSol.toFixed(4) + ' SOL';
+                }
+                document.getElementById('treasury-balance').textContent = treasuryMainText;
+
+                document.getElementById('p2e-balance').textContent = 
+                    Math.round(p2eBlockchainTama).toLocaleString() + ' TAMA';
+
+                // Calculate total burned
+                if (burnResponse.ok) {
+                    const burnData = await burnResponse.json();
+                    const burnTransactions = (burnData.data || []).filter(t => t.type && t.type.includes('burn'));
+                    const totalBurned = burnTransactions.reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
+                    document.getElementById('burn-total').textContent = 
+                        Math.round(totalBurned).toLocaleString() + ' TAMA';
+                } else {
+                    document.getElementById('burn-total').textContent = '0 TAMA';
+                }
+
+                // Update all wallet balances
+                let liquidityText = liquiditySolBalance.toFixed(4) + ' SOL';
+                if (liquidityTamaBalance > 0) {
+                    liquidityText += ' + ' + Math.round(liquidityTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('liquidity-balance').textContent = liquidityText;
+                
+                let teamText = teamSolBalance.toFixed(4) + ' SOL';
+                if (teamTamaBalance > 0) {
+                    teamText += ' + ' + Math.round(teamTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('team-balance').textContent = teamText;
+
+                let marketingText = marketingSolBalance.toFixed(4) + ' SOL';
+                if (marketingTamaBalance > 0) {
+                    marketingText += ' + ' + Math.round(marketingTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('marketing-balance').textContent = marketingText;
+
+                let communityText = communitySolBalance.toFixed(4) + ' SOL';
+                if (communityTamaBalance > 0) {
+                    communityText += ' + ' + Math.round(communityTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('community-balance').textContent = communityText;
+
+                let reserveText = reserveSolBalance.toFixed(4) + ' SOL';
+                if (reserveTamaBalance > 0) {
+                    reserveText += ' + ' + Math.round(reserveTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('reserve-balance').textContent = reserveText;
+
+                let treasuryLiquidityText = treasuryLiquiditySolBalance.toFixed(4) + ' SOL';
+                if (treasuryLiquidityTamaBalance > 0) {
+                    treasuryLiquidityText += ' + ' + Math.round(treasuryLiquidityTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('treasury-liquidity-balance').textContent = treasuryLiquidityText;
+
+                let treasuryTeamText = treasuryTeamSolBalance.toFixed(4) + ' SOL';
+                if (treasuryTeamTamaBalance > 0) {
+                    treasuryTeamText += ' + ' + Math.round(treasuryTeamTamaBalance).toLocaleString() + ' TAMA';
+                }
+                document.getElementById('treasury-team-balance').textContent = treasuryTeamText;
+
+                console.log('✅ Wallet balances loaded (optimized)');
+            } catch (error) {
+                console.error('❌ Error loading wallet balances:', error);
+                // Set error state
+                document.getElementById('treasury-balance').textContent = 'Error';
+                document.getElementById('p2e-balance').textContent = 'Error';
+                document.getElementById('burn-total').textContent = 'Error';
+                document.getElementById('liquidity-balance').textContent = 'Error';
+                document.getElementById('team-balance').textContent = 'Error';
+            }
+        }
+
+        async function loadProjectTransactions() {
+            const tbody = document.getElementById('transactions-body');
+            
+            try {
+                // Запрашиваем транзакции напрямую по адресам проектных кошельков
+                // Это гарантирует, что мы получим все транзакции, даже если их много
+                console.log(`📡 Fetching project wallet transactions from Supabase directly...`);
+                
+                const projectWalletIds = [
+                    TREASURY_MAIN,
+                    P2E_POOL,
+                    BURN_ADDRESS,
+                    'SYSTEM_BURN',
+                    LIQUIDITY_POOL,
+                    TEAM_WALLET,
+                    MARKETING_WALLET,
+                    COMMUNITY_WALLET,
+                    RESERVE_WALLET,
+                    TREASURY_LIQUIDITY,
+                    TREASURY_TEAM,
+                    'FFM3AaQEYQVPVcWqHwm7AXGXS6BjzvZ8S4EhxLKQfCuA', // Old Treasury Liquidity (used in mint-nft-sol-rest.php)
+                    'BmP4EJjWETjxE9ALZ7sTNMkAYkh5vTbbUBHuq5FVQUWk'  // Old Treasury Team (used in mint-nft-sol-rest.php)
+                ];
+                
+                // Запрашиваем транзакции для каждого кошелька
+                const allProjectTxs = [];
+                const projectTypes = [
+                    'burn_from_bronze_nft_onchain',
+                    'treasury_income_from_nft_onchain',
+                    'p2e_pool_refund_from_nft_onchain',
+                    'nft_mint_sol',
+                    'treasury_main_income_from_nft_sol',
+                    'treasury_liquidity_income_from_nft_sol',
+                    'treasury_team_income_from_nft_sol',
+                    'nft_revenue_main', // ✅ New type from mint-nft-sol-rest.php
+                    'nft_revenue_liquidity', // ✅ New type from mint-nft-sol-rest.php
+                    'nft_revenue_team', // ✅ New type from mint-nft-sol-rest.php
+                    'nft_mint',
+                    'withdrawal',
+                    'tama_burn',
+                    'spend_game',
+                    'transfer_out',
+                    'p2e_pool_withdrawal',
+                    'treasury_withdrawal',
+                    'admin_balance_set'
+                ];
+                
+                // Запрос 1: По адресам кошельков (входящие и исходящие)
+                for (const walletId of projectWalletIds) {
+                    try {
+                        // Fetch incoming transactions (user_id = wallet)
+                        const walletResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&user_id=eq.${walletId}&order=created_at.desc&limit=1000`, {
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            }
+                        });
+                        if (walletResponse.ok) {
+                            const walletData = await walletResponse.json();
+                            if (Array.isArray(walletData) && walletData.length > 0) {
+                                console.log(`✅ Found ${walletData.length} transactions for wallet ${walletId.substring(0, 8)}...`);
+                                allProjectTxs.push(...walletData);
+                            }
+                        }
+                        
+                        // НОВОЕ: Fetch outgoing transactions (metadata contains wallet as source)
+                        // Это покажет withdrawal, transfer_out и другие расходные операции
+                        const outgoingResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&metadata->>source_address=eq.${walletId}&order=created_at.desc&limit=1000`, {
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            }
+                        });
+                        if (outgoingResponse.ok) {
+                            const outgoingData = await outgoingResponse.json();
+                            if (Array.isArray(outgoingData) && outgoingData.length > 0) {
+                                console.log(`📤 Found ${outgoingData.length} outgoing transactions from ${walletId.substring(0, 8)}...`);
+                                allProjectTxs.push(...outgoingData);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to fetch transactions for ${walletId}:`, e);
+                    }
+                }
+                
+                // Запрос 2: По типам транзакций
+                for (const txType of projectTypes) {
+                    try {
+                        const typeResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&type=eq.${txType}&order=created_at.desc&limit=1000`, {
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                            }
+                        });
+                        if (typeResponse.ok) {
+                            const typeData = await typeResponse.json();
+                            if (Array.isArray(typeData) && typeData.length > 0) {
+                                console.log(`✅ Found ${typeData.length} transactions of type ${txType}`);
+                                allProjectTxs.push(...typeData);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to fetch transactions for type ${txType}:`, e);
+                    }
+                }
+                
+                // Удаляем дубликаты по id
+                const uniqueTxs = [];
+                const seenIds = new Set();
+                for (const tx of allProjectTxs) {
+                    if (!seenIds.has(tx.id)) {
+                        seenIds.add(tx.id);
+                        uniqueTxs.push(tx);
+                    }
+                }
+                
+                // Сортируем по дате (новые первые)
+                uniqueTxs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                console.log(`✅ Total unique project transactions: ${uniqueTxs.length}`);
+                
+                if (uniqueTxs.length > 0) {
+                    allTransactions = uniqueTxs;
+                    filteredTransactions = [...allTransactions];
+                    renderTransactions(filteredTransactions);
+                    updateTokenomicsSummary(allTransactions);
+                    updateLastUpdateTime();
+                    return;
+                }
+                
+                // Fallback: Try API with large limit
+                console.log(`📡 Fallback: Fetching transactions from: ${TAMA_API_BASE}/transactions/list`);
+                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=10000&order=created_at.desc`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.warn(`⚠️ API returned ${response.status}, trying Supabase directly...`);
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const payload = await response.json();
+                console.log('📦 API Response:', payload);
+                
+                if (payload && payload.data && Array.isArray(payload.data)) {
+                    // Debug: Log first few transactions to see structure
+                    if (payload.data.length > 0) {
+                        console.log('🔍 Sample transactions (first 5):', payload.data.slice(0, 5).map(t => ({
+                            id: t.id,
+                            user_id: t.user_id,
+                            type: t.type,
+                            amount: t.amount
+                        })));
+                        console.log('🔍 Expected addresses:', {
+                            TREASURY_MAIN,
+                            P2E_POOL,
+                            BURN_ADDRESS
+                        });
+                    }
+                    
+                    // Filter only project transactions
+                    // ВАЖНО: NFT mint транзакции содержат распределение по пулам в metadata
+                    // Делаем фильтр более гибким - сначала собираем все потенциально релевантные
+                    allTransactions = payload.data.filter(t => {
+                        // Convert user_id to string for comparison (может быть число или строка)
+                        const userId = String(t.user_id || '').trim();
+                        const userIdLower = userId.toLowerCase();
+                        
+                        // 1. Include by user_id (exact match) - direct pool transactions
+                        // Проверяем все проектные кошельки (case-insensitive)
+                        if (userId === TREASURY_MAIN || 
+                            userIdLower === TREASURY_MAIN.toLowerCase() ||
+                            userId === P2E_POOL || 
+                            userIdLower === P2E_POOL.toLowerCase() ||
+                            userId === BURN_ADDRESS ||
+                            userIdLower === BURN_ADDRESS.toLowerCase() ||
+                            userId === 'SYSTEM_BURN' ||
+                            userIdLower === 'system_burn' ||
+                            userId === LIQUIDITY_POOL ||
+                            userIdLower === LIQUIDITY_POOL.toLowerCase() ||
+                            userId === TEAM_WALLET ||
+                            userIdLower === TEAM_WALLET.toLowerCase() ||
+                            userId === MARKETING_WALLET ||
+                            userIdLower === MARKETING_WALLET.toLowerCase() ||
+                            userId === COMMUNITY_WALLET ||
+                            userIdLower === COMMUNITY_WALLET.toLowerCase() ||
+                            userId === RESERVE_WALLET ||
+                            userIdLower === RESERVE_WALLET.toLowerCase() ||
+                            userId === TREASURY_LIQUIDITY ||
+                            userIdLower === TREASURY_LIQUIDITY.toLowerCase() ||
+                            userId === TREASURY_TEAM ||
+                            userIdLower === TREASURY_TEAM.toLowerCase()) {
+                            return true;
+                        }
+                        
+                        // 2. Include by type (case insensitive) - все типы, связанные с пулами
+                        const typeStr = String(t.type || '').toLowerCase();
+                        if (typeStr) {
+                            // NFT mint транзакции содержат распределение
+                            if (typeStr.includes('nft') || 
+                                typeStr.includes('mint') ||
+                                typeStr.includes('revenue')) {
+                                return true;
+                            }
+                            
+                            // Другие релевантные типы (расширенный список)
+                            if (typeStr.includes('treasury') || 
+                                typeStr.includes('p2e') ||
+                                typeStr.includes('burn') ||
+                                typeStr.includes('tama_burn') ||
+                                typeStr.includes('sol_income') ||
+                                typeStr.includes('liquidity') ||
+                                typeStr.includes('team') ||
+                                typeStr.includes('withdrawal') ||
+                                typeStr.includes('refund') ||
+                                typeStr.includes('distribution') ||
+                                typeStr.includes('income') ||
+                                typeStr.includes('transfer') ||
+                                typeStr.includes('onchain')) {
+                                return true;
+                            }
+                        }
+                        
+                        // 3. Check metadata for distribution info
+                        if (t.metadata) {
+                            try {
+                                const metadata = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                                const metadataStr = JSON.stringify(metadata).toLowerCase();
+                                
+                                // Если в metadata есть distribution (распределение средств)
+                                if (metadata.distribution || 
+                                    (metadata.distribution && (metadata.distribution.treasury || metadata.distribution.p2e_pool || metadata.distribution.burn || metadata.distribution.pool)) ||
+                                    metadataStr.includes('treasury') || 
+                                    metadataStr.includes('p2e') ||
+                                    metadataStr.includes('burn') ||
+                                    metadataStr.includes('pool') ||
+                                    metadataStr.includes('distribution') ||
+                                    metadataStr.includes('refund') ||
+                                    metadataStr.includes('income') ||
+                                    metadataStr.includes('onchain')) {
+                                    return true;
+                                }
+                            } catch (e) {
+                                // Ignore JSON parse errors
+                                // console.warn('Failed to parse metadata:', e);
+                            }
+                        }
+                        
+                        // 4. Check username for project wallets
+                        const username = String(t.username || '').toLowerCase();
+                        if (username.includes('treasury') || 
+                            username.includes('p2e') ||
+                            username.includes('burn') ||
+                            username.includes('pool') ||
+                            username.includes('team') ||
+                            username.includes('liquidity')) {
+                            return true;
+                        }
+                        
+                        return false;
+                    });
+                    
+                    // Если не нашли проектные транзакции, ищем NFT mint транзакции, которые могут содержать distribution в metadata
+                    if (allTransactions.length === 0) {
+                        console.warn('⚠️ No project transactions found with strict filter. Trying to find NFT mint transactions with distribution...');
+                        
+                        // Ищем NFT mint транзакции, которые могут содержать distribution в metadata
+                        const nftWithDistribution = payload.data.filter(t => {
+                            const type = String(t.type || '').toLowerCase();
+                            
+                            // Ищем NFT mint транзакции
+                            if (type.includes('nft') || type.includes('mint')) {
+                                // Проверяем metadata на наличие distribution
+                                if (t.metadata) {
+                                    try {
+                                        const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                                        const metaStr = JSON.stringify(meta).toLowerCase();
+                                        
+                                        // Если есть distribution или упоминание о распределении
+                                        if (meta.distribution || 
+                                            metaStr.includes('distribution') ||
+                                            metaStr.includes('treasury') ||
+                                            metaStr.includes('p2e') ||
+                                            metaStr.includes('burn') ||
+                                            metaStr.includes('onchain')) {
+                                            return true;
+                                        }
+                                    } catch(e) {}
+                                }
+                                
+                                // Или просто все NFT mint транзакции
+                                return true;
+                            }
+                            
+                            return false;
+                        });
+                        
+                        if (nftWithDistribution.length > 0) {
+                            console.log(`📦 Found ${nftWithDistribution.length} NFT/mint transactions - will extract distribution from metadata`);
+                            allTransactions = nftWithDistribution;
+                        } else {
+                            console.warn('⚠️ No NFT mint transactions found either. Database might not have project wallet transactions yet.');
+                            console.warn('💡 This is normal if no NFT mints with distribution have been made yet.');
+                        }
+                    }
+                    
+                    console.log(`✅ Loaded ${allTransactions.length} project transactions from API (filtered from ${payload.data.length} total)`);
+                    
+                    // Debug: Show transaction types distribution
+                    if (allTransactions.length > 0) {
+                        const typeCounts = {};
+                        allTransactions.forEach(t => {
+                            const type = t.type || 'unknown';
+                            typeCounts[type] = (typeCounts[type] || 0) + 1;
+                        });
+                        console.log('📊 Transaction types:', typeCounts);
+                        
+                        // Show user_id distribution
+                        const userIdCounts = {};
+                        allTransactions.forEach(t => {
+                            const uid = String(t.user_id || 'unknown').substring(0, 8);
+                            userIdCounts[uid] = (userIdCounts[uid] || 0) + 1;
+                        });
+                        console.log('👤 User IDs (first 8 chars):', userIdCounts);
+                    } else {
+                        console.warn('⚠️ No project transactions found! Check filtering logic.');
+                        console.log('🔍 Sample of all transactions (first 10):', payload.data.slice(0, 10).map(t => ({
+                            id: t.id,
+                            user_id: t.user_id,
+                            user_id_type: typeof t.user_id,
+                            username: t.username,
+                            type: t.type,
+                            amount: t.amount,
+                            metadata: t.metadata ? (typeof t.metadata === 'string' ? 'string' : 'object') : null
+                        })));
+                        
+                        // Show all unique types
+                        const allTypes = [...new Set(payload.data.map(t => t.type).filter(Boolean))];
+                        console.log('📋 All transaction types found:', allTypes);
+                        
+                        // Show all unique user_ids (first 20)
+                        const allUserIds = [...new Set(payload.data.map(t => String(t.user_id || 'null')).filter(id => id !== 'null'))].slice(0, 20);
+                        console.log('👤 Sample user_ids found:', allUserIds);
+                        
+                        // Check if there are any transactions with metadata containing distribution
+                        const withMetadata = payload.data.filter(t => t.metadata).slice(0, 10);
+                        console.log('📦 Sample transactions with metadata:', withMetadata.map(t => {
+                            let meta = t.metadata;
+                            try {
+                                if (typeof meta === 'string') meta = JSON.parse(meta);
+                            } catch(e) {}
+                            return {
+                                id: t.id,
+                                type: t.type,
+                                user_id: t.user_id,
+                                has_distribution: meta && (meta.distribution || JSON.stringify(meta).toLowerCase().includes('distribution')),
+                                metadata_keys: meta && typeof meta === 'object' ? Object.keys(meta).slice(0, 5) : null
+                            };
+                        }));
+                        
+                        // Try to find any transaction that might be project-related
+                        const potentialProjectTxs = payload.data.filter(t => {
+                            const type = String(t.type || '').toLowerCase();
+                            const userId = String(t.user_id || '');
+                            
+                            // Check type
+                            if (type.includes('nft') || 
+                                type.includes('mint') || 
+                                type.includes('burn') ||
+                                type.includes('treasury') ||
+                                type.includes('p2e') ||
+                                type.includes('onchain') ||
+                                type.includes('distribution')) {
+                                return true;
+                            }
+                            
+                            // Check user_id length (Solana addresses are 44 chars)
+                            if (userId.length > 40) {
+                                return true;
+                            }
+                            
+                            // Check metadata for distribution
+                            if (t.metadata) {
+                                try {
+                                    const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                                    const metaStr = JSON.stringify(meta).toLowerCase();
+                                    if (metaStr.includes('distribution') || 
+                                        metaStr.includes('treasury') ||
+                                        metaStr.includes('p2e') ||
+                                        metaStr.includes('burn') ||
+                                        meta.distribution) {
+                                        return true;
+                                    }
+                                } catch(e) {}
+                            }
+                            
+                            return false;
+                        });
+                        console.log(`🔍 Found ${potentialProjectTxs.length} potentially project-related transactions`);
+                        if (potentialProjectTxs.length > 0) {
+                            console.log('📊 Sample potential project transactions:', potentialProjectTxs.slice(0, 5).map(t => ({
+                                id: t.id,
+                                user_id: t.user_id,
+                                type: t.type,
+                                amount: t.amount,
+                                username: t.username
+                            })));
+                        }
+                    }
+                    
+                    filteredTransactions = [...allTransactions];
+                    renderTransactions(filteredTransactions);
+                    updateTokenomicsSummary(allTransactions);
+                    updateLastUpdateTime();
+                } else {
+                    console.warn('⚠️ API returned invalid format, trying Supabase...');
+                    throw new Error('Invalid API response format');
+                }
+            } catch (error) {
+                console.error('❌ API Error:', error);
+                
+                // Fallback: Try Supabase directly
+                try {
+                    console.log('🔄 Trying Supabase directly...');
+                    const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=id,user_id,username,type,amount,balance_before,balance_after,metadata,created_at&order=created_at.desc&limit=5000`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    
+                    if (supabaseResponse.ok) {
+                        const supabaseData = await supabaseResponse.json();
+                        console.log(`📦 Supabase returned ${supabaseData.length} transactions`);
+                        
+                        // Filter project transactions (same logic as API)
+                        allTransactions = (Array.isArray(supabaseData) ? supabaseData : []).filter(t => {
+                            const userId = String(t.user_id || '').trim();
+                            const userIdLower = userId.toLowerCase();
+                            
+                            // 1. Include by user_id - все проектные кошельки (case-insensitive)
+                            if (userId === TREASURY_MAIN || 
+                                userIdLower === TREASURY_MAIN.toLowerCase() ||
+                                userId === P2E_POOL || 
+                                userIdLower === P2E_POOL.toLowerCase() ||
+                                userId === BURN_ADDRESS ||
+                                userIdLower === BURN_ADDRESS.toLowerCase() ||
+                                userId === 'SYSTEM_BURN' ||
+                                userIdLower === 'system_burn' ||
+                                userId === LIQUIDITY_POOL ||
+                                userIdLower === LIQUIDITY_POOL.toLowerCase() ||
+                                userId === TEAM_WALLET ||
+                                userIdLower === TEAM_WALLET.toLowerCase() ||
+                                userId === MARKETING_WALLET ||
+                                userIdLower === MARKETING_WALLET.toLowerCase() ||
+                                userId === COMMUNITY_WALLET ||
+                                userIdLower === COMMUNITY_WALLET.toLowerCase() ||
+                                userId === RESERVE_WALLET ||
+                                userIdLower === RESERVE_WALLET.toLowerCase() ||
+                                userId === TREASURY_LIQUIDITY ||
+                                userIdLower === TREASURY_LIQUIDITY.toLowerCase() ||
+                                userId === TREASURY_TEAM ||
+                                userIdLower === TREASURY_TEAM.toLowerCase()) {
+                                return true;
+                            }
+                            
+                            // 2. Include by type
+                            const typeStr = String(t.type || '').toLowerCase();
+                            if (typeStr) {
+                                if (typeStr.includes('nft') || 
+                                    typeStr.includes('mint')) {
+                                    return true;
+                                }
+                                
+                                if (typeStr.includes('treasury') || 
+                                    typeStr.includes('p2e') ||
+                                    typeStr.includes('burn') ||
+                                    typeStr.includes('tama_burn') ||
+                                    typeStr.includes('sol_income') ||
+                                    typeStr.includes('liquidity') ||
+                                    typeStr.includes('team') ||
+                                    typeStr.includes('withdrawal') ||
+                                    typeStr.includes('refund') ||
+                                    typeStr.includes('distribution') ||
+                                    typeStr.includes('income') ||
+                                    typeStr.includes('transfer') ||
+                                    typeStr.includes('onchain')) {
+                                    return true;
+                                }
+                            }
+                            
+                            // 3. Check metadata
+                            if (t.metadata) {
+                                try {
+                                    const metadata = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                                    const metadataStr = JSON.stringify(metadata).toLowerCase();
+                                    
+                                    if (metadata.distribution || 
+                                        (metadata.distribution && (metadata.distribution.treasury || metadata.distribution.p2e_pool || metadata.distribution.burn || metadata.distribution.pool)) ||
+                                        metadataStr.includes('treasury') || 
+                                        metadataStr.includes('p2e') ||
+                                        metadataStr.includes('burn') ||
+                                        metadataStr.includes('pool') ||
+                                        metadataStr.includes('distribution') ||
+                                        metadataStr.includes('refund') ||
+                                        metadataStr.includes('income') ||
+                                        metadataStr.includes('onchain')) {
+                                        return true;
+                                    }
+                                } catch (e) {
+                                    // Ignore
+                                }
+                            }
+                            
+                            // 4. Check username
+                            const username = String(t.username || '').toLowerCase();
+                            if (username.includes('treasury') || 
+                                username.includes('p2e') ||
+                                username.includes('burn') ||
+                                username.includes('pool') ||
+                                username.includes('team') ||
+                                username.includes('liquidity')) {
+                                return true;
+                            }
+                            
+                            return false;
+                        });
+                        
+                        // Если не нашли, показываем NFT транзакции
+                        if (allTransactions.length === 0) {
+                            const nftTransactions = supabaseData.filter(t => {
+                                const type = String(t.type || '').toLowerCase();
+                                return type.includes('nft') || type.includes('mint');
+                            });
+                            if (nftTransactions.length > 0) {
+                                console.log(`📦 Found ${nftTransactions.length} NFT/mint transactions - using them`);
+                                allTransactions = nftTransactions;
+                            }
+                        }
+                        
+                        console.log(`✅ Loaded ${allTransactions.length} project transactions from Supabase`);
+                        
+                        // Debug logging
+                        if (allTransactions.length > 0) {
+                            const typeCounts = {};
+                            allTransactions.forEach(t => {
+                                const type = t.type || 'unknown';
+                                typeCounts[type] = (typeCounts[type] || 0) + 1;
+                            });
+                            console.log('📊 Transaction types:', typeCounts);
+                        } else {
+                            console.warn('⚠️ No project transactions found in Supabase!');
+                        }
+                        
+                        filteredTransactions = [...allTransactions];
+                        renderTransactions(filteredTransactions);
+                        updateTokenomicsSummary(allTransactions);
+                        updateLastUpdateTime();
+                    } else {
+                        throw new Error(`Supabase error: ${supabaseResponse.status}`);
+                    }
+                } catch (supabaseError) {
+                    console.error('❌ Supabase Error:', supabaseError);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="loading">
+                                ❌ Error loading transactions: ${error.message}<br>
+                                <small>API: ${TAMA_API_BASE}/transactions/list</small><br>
+                                <small>Supabase fallback also failed</small>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        function renderTransactions(transactions) {
+            const tbody = document.getElementById('transactions-body');
+            
+            if (!transactions || transactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="loading" style="text-align: center; padding: 40px;">
+                            <div style="font-size: 18px; margin-bottom: 10px;">📭 No project transactions found</div>
+                            <div style="font-size: 14px; opacity: 0.8; line-height: 1.6;">
+                                This is normal if:<br>
+                                • No NFT mints with distribution have been made yet<br>
+                                • No on-chain transfers to project wallets have occurred<br>
+                                • Transactions are in a different date range<br><br>
+                                <strong>Project wallet transactions will appear here when:</strong><br>
+                                • Users mint NFTs (Bronze/Silver/Gold) - distribution is logged<br>
+                                • SOL payments are made - 50% Main, 30% Liquidity, 20% Team<br>
+                                • TAMA tokens are distributed to Treasury/P2E Pool/Burn<br><br>
+                                <small style="opacity: 0.6;">Check console (F12) for detailed transaction analysis</small>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                updatePaginationInfo();
+                return;
+            }
+
+            tbody.innerHTML = transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(t => {
+                const date = new Date(t.created_at).toLocaleString();
+                const amount = t.amount || 0;
+                const isOutgoing = amount < 0 || 
+                                  String(t.type || '').includes('withdrawal') || 
+                                  String(t.type || '').includes('spend') || 
+                                  String(t.type || '').includes('transfer_out');
+                
+                // Determine wallet name
+                let walletName = t.username || t.user_id || 'Unknown';
+                const userId = String(t.user_id || '');
+                if (userId === TREASURY_MAIN) walletName = '💰 Treasury Main V2';
+                else if (userId === P2E_POOL) walletName = '🎮 P2E Pool';
+                else if (userId === BURN_ADDRESS || userId === 'SYSTEM_BURN') walletName = '🔥 Burn';
+                else if (userId === LIQUIDITY_POOL) walletName = '💧 Liquidity Pool';
+                else if (userId === TEAM_WALLET) walletName = '👥 Team Wallet';
+                else if (userId === MARKETING_WALLET) walletName = '📢 Marketing';
+                else if (userId === COMMUNITY_WALLET) walletName = '🌐 Community';
+                else if (userId === RESERVE_WALLET) walletName = '🏦 Reserve';
+                else if (userId === TREASURY_LIQUIDITY) walletName = '💧 Treasury Liquidity V2';
+                else if (userId === TREASURY_TEAM) walletName = '👥 Treasury Team V2';
+                
+                // Type badge
+                const typeStr = String(t.type || '').toLowerCase();
+                const typeClass = typeStr.includes('treasury') || typeStr.includes('nft_revenue_main') ? 'type-treasury' :
+                                 typeStr.includes('p2e') ? 'type-p2e' :
+                                 typeStr.includes('burn') ? 'type-burn' :
+                                 typeStr.includes('sol') || typeStr.includes('liquidity') || typeStr.includes('team') || typeStr.includes('revenue') ? 'type-sol' : 'type-treasury';
+                
+                // Amount display with arrows for incoming/outgoing
+                const isBurn = t.type && t.type.includes('burn');
+                let amountClass, amountPrefix, displayAmount, arrow;
+                if (isBurn) {
+                    amountClass = 'amount-burn';
+                    amountPrefix = '🔥 ';
+                    displayAmount = Math.abs(amount);
+                    arrow = '';
+                } else if (isOutgoing) {
+                    amountClass = 'amount-negative';
+                    amountPrefix = '−';
+                    displayAmount = Math.abs(amount);
+                    arrow = ' 📤';
+                } else {
+                    amountClass = 'amount-positive';
+                    amountPrefix = '+';
+                    displayAmount = Math.abs(amount);
+                    arrow = ' 📥';
+                }
+                
+                // Determine currency: SOL for _sol, revenue, or liquidity/team income transactions (reuse typeStr from above)
+                const currency = (typeStr.includes('_sol') || 
+                                 typeStr.includes('nft_revenue') || 
+                                 typeStr.includes('revenue') ||
+                                 typeStr.includes('treasury_liquidity_income') ||
+                                 typeStr.includes('treasury_team_income')) ? ' SOL' : ' TAMA';
+                
+                // Source (from metadata) and destination wallet for withdrawals
+                let source = 'System';
+                let destinationWallet = null;
+                if (t.metadata && typeof t.metadata === 'object') {
+                    source = t.metadata.reason || t.metadata.source || 'NFT Mint';
+                    destinationWallet = t.metadata.wallet_address || t.metadata.destination;
+                } else if (typeof t.metadata === 'string') {
+                    // Try to parse JSON string
+                    try {
+                        const parsed = JSON.parse(t.metadata);
+                        source = parsed.reason || parsed.source || 'NFT Mint';
+                        destinationWallet = parsed.wallet_address || parsed.destination;
+                    } catch (e) {
+                        // Invalid JSON, keep 'System'
+                    }
+                }
+                
+                // Add destination wallet to source if exists (for withdrawals)
+                if (destinationWallet) {
+                    source += `<br><small style="opacity: 0.7;">→ ${destinationWallet.substring(0, 6)}...${destinationWallet.substring(destinationWallet.length - 4)}</small>`;
+                }
+                
+                // Explorer link (from metadata) - using Solscan
+                let explorerLink = '-';
+                let signature = null;
+                
+                if (t.metadata && typeof t.metadata === 'object') {
+                    signature = t.metadata.onchain_signature || t.metadata.transaction_signature;
+                } else if (typeof t.metadata === 'string') {
+                    // Try to parse JSON string
+                    try {
+                        const parsed = JSON.parse(t.metadata);
+                        signature = parsed.onchain_signature || parsed.transaction_signature;
+                    } catch (e) {
+                        // Invalid JSON, keep null
+                    }
+                }
+                
+                if (signature) {
+                    explorerLink = `<a href="https://solscan.io/tx/${signature}?cluster=devnet" 
+                                      target="_blank" class="explorer-link">View on Solscan 🔗</a>`;
+                }
+                
+                return `
+                    <tr style="${isOutgoing && !isBurn ? 'background: rgba(239, 68, 68, 0.05);' : ''}">
+                        <td>${date}</td>
+                        <td><strong>${walletName}</strong></td>
+                        <td><span class="type-badge ${typeClass}">${t.type}</span></td>
+                        <td class="${amountClass}">${amountPrefix}${Math.round(displayAmount * 100) / 100}${currency}${arrow}</td>
+                        <td>${source}</td>
+                        <td>${explorerLink}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            updatePaginationInfo();
+        }
+
+        function updatePaginationInfo() {
+            const transactionsToShow = filteredTransactions.length > 0 ? filteredTransactions : allTransactions;
+            const totalPages = Math.ceil(transactionsToShow.length / PAGE_SIZE);
+            const start = (currentPage - 1) * PAGE_SIZE + 1;
+            const end = Math.min(currentPage * PAGE_SIZE, transactionsToShow.length);
+            
+            document.getElementById('page-info').innerHTML = `
+                Page ${currentPage} of ${totalPages}<br>
+                <span style="font-size: 14px; opacity: 0.8;">
+                    Showing ${start.toLocaleString()} - ${end.toLocaleString()} of ${transactionsToShow.length.toLocaleString()}
+                </span>
+            `;
+            
+            // Update button states
+            const prevBtn = document.querySelector('.pagination button:first-child');
+            const nextBtn = document.querySelector('.pagination button:last-child');
+            
+            if (prevBtn) {
+                prevBtn.disabled = currentPage <= 1;
+            }
+            if (nextBtn) {
+                nextBtn.disabled = currentPage >= totalPages;
+            }
+        }
+
+        function changePage(direction) {
+            const transactionsToShow = filteredTransactions.length > 0 ? filteredTransactions : allTransactions;
+            const totalPages = Math.ceil(transactionsToShow.length / PAGE_SIZE);
+            currentPage += direction;
+            
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            renderTransactions(transactionsToShow);
+        }
+
+        function filterTransactions() {
+            const walletFilter = document.getElementById('filter-wallet').value;
+            const typeFilter = document.getElementById('filter-type').value;
+            const dateFrom = document.getElementById('filter-date-from').value;
+            const dateTo = document.getElementById('filter-date-to').value;
+
+            // Apply filters to already loaded transactions
+            let filtered = [...allTransactions];
+
+            // Filter by wallet type
+            if (walletFilter) {
+                if (walletFilter === 'treasury') {
+                    filtered = filtered.filter(t => {
+                        const userId = String(t.user_id || '');
+                        return userId === TREASURY_MAIN || 
+                               (t.type && t.type.includes('treasury'));
+                    });
+                } else if (walletFilter === 'p2e') {
+                    filtered = filtered.filter(t => {
+                        const userId = String(t.user_id || '');
+                        return userId === P2E_POOL || 
+                               (t.type && t.type.includes('p2e'));
+                    });
+                } else if (walletFilter === 'burn') {
+                    filtered = filtered.filter(t => {
+                        const userId = String(t.user_id || '');
+                        return userId === BURN_ADDRESS || 
+                               userId === 'SYSTEM_BURN' ||
+                               (t.type && t.type.includes('burn'));
+                    });
+                } else if (walletFilter === 'sol') {
+                    filtered = filtered.filter(t => {
+                        const userId = String(t.user_id || '');
+                        return userId === LIQUIDITY_POOL || 
+                               userId === TEAM_WALLET ||
+                               userId === MARKETING_WALLET ||
+                               userId === COMMUNITY_WALLET ||
+                               userId === RESERVE_WALLET ||
+                               userId === TREASURY_LIQUIDITY ||
+                               userId === TREASURY_TEAM ||
+                               (t.type && t.type.includes('sol'));
+                    });
+                }
+            }
+
+            // Filter by transaction type
+            if (typeFilter) {
+                filtered = filtered.filter(t => {
+                    const typeStr = String(t.type || '').toLowerCase();
+                    if (typeFilter === 'treasury_income') {
+                        return typeStr.includes('treasury') || typeStr.includes('nft_mint');
+                    } else if (typeFilter === 'p2e_pool_refund') {
+                        return typeStr.includes('p2e') || typeStr.includes('withdrawal');
+                    } else if (typeFilter === 'burn') {
+                        return typeStr.includes('burn');
+                    } else if (typeFilter === 'sol_income') {
+                        return typeStr.includes('sol') || typeStr.includes('nft_mint_sol');
+                    }
+                    return true;
+                });
+            }
+
+            // Filter by date range
+            if (dateFrom) {
+                const fromDate = new Date(dateFrom);
+                fromDate.setHours(0, 0, 0, 0);
+                filtered = filtered.filter(t => {
+                    const txDate = new Date(t.created_at);
+                    return txDate >= fromDate;
+                });
+            }
+
+            if (dateTo) {
+                const toDate = new Date(dateTo);
+                toDate.setHours(23, 59, 59, 999);
+                filtered = filtered.filter(t => {
+                    const txDate = new Date(t.created_at);
+                    return txDate <= toDate;
+                });
+            }
+
+            // Reset to first page and render filtered results
+            filteredTransactions = filtered;
+            currentPage = 1;
+            renderTransactions(filteredTransactions);
+        }
+
+        function exportToCSV() {
+            const transactionsToExport = filteredTransactions.length > 0 ? filteredTransactions : allTransactions;
+            const csv = [
+                ['Date', 'Wallet', 'Type', 'Amount', 'Source', 'Signature'],
+                ...transactionsToExport.map(t => [
+                    new Date(t.created_at).toISOString(),
+                    t.username || t.user_id,
+                    t.type,
+                    t.amount,
+                    (t.metadata && t.metadata.reason) || '',
+                    (t.metadata && t.metadata.onchain_signature) || ''
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `treasury_transactions_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function updateLastUpdateTime() {
+            document.getElementById('update-time').textContent = `Last updated: ${new Date().toLocaleString()}`;
+        }
+
+        function updateTokenomicsSummary(transactions) {
+            let totalTamaDistributed = 0;
+            let totalSolDistributed = 0;
+            let totalBurned = 0;
+            let nftMintCount = 0;
+            
+            transactions.forEach(tx => {
+                const type = String(tx.type || '').toLowerCase();
+                const amount = Math.abs(parseFloat(tx.amount || 0));
+                
+                // Count NFT mints
+                if (type.includes('nft_mint') || type.includes('mint_nft')) {
+                    nftMintCount++;
+                }
+                
+                // Calculate TAMA distribution
+                if (type.includes('treasury_income') || 
+                    type.includes('p2e_pool') || 
+                    type.includes('treasury_main') ||
+                    type.includes('treasury_liquidity') ||
+                    type.includes('treasury_team')) {
+                    // Check if it's TAMA or SOL
+                    if (type.includes('_sol') || type.includes('sol_')) {
+                        // SOL transaction - convert to TAMA equivalent (1 SOL = 32,800 TAMA)
+                        const solAmount = amount / 32800;
+                        totalSolDistributed += solAmount;
+                    } else {
+                        totalTamaDistributed += amount;
+                    }
+                }
+                
+                // Calculate burned
+                if (type.includes('burn') || 
+                    tx.user_id === BURN_ADDRESS || 
+                    tx.user_id === 'SYSTEM_BURN') {
+                    totalBurned += amount;
+                }
+                
+                // Check metadata for distribution
+                if (tx.metadata) {
+                    try {
+                        const meta = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
+                        if (meta.distribution) {
+                            if (meta.distribution.burn) totalBurned += Math.abs(parseFloat(meta.distribution.burn));
+                            if (meta.distribution.treasury) totalTamaDistributed += Math.abs(parseFloat(meta.distribution.treasury));
+                            if (meta.distribution.p2e_pool) totalTamaDistributed += Math.abs(parseFloat(meta.distribution.p2e_pool));
+                        }
+                    } catch(e) {}
+                }
+            });
+            
+            // Update UI
+            const totalTamaEl = document.getElementById('total-tama-distributed');
+            const totalSolEl = document.getElementById('total-sol-distributed');
+            const totalBurnedEl = document.getElementById('total-burned-summary');
+            const totalMintsEl = document.getElementById('total-nft-mints');
+            
+            if (totalTamaEl) totalTamaEl.textContent = Math.round(totalTamaDistributed).toLocaleString() + ' TAMA';
+            if (totalSolEl) totalSolEl.textContent = totalSolDistributed.toFixed(4) + ' SOL';
+            if (totalBurnedEl) totalBurnedEl.textContent = Math.round(totalBurned).toLocaleString() + ' TAMA';
+            if (totalMintsEl) totalMintsEl.textContent = nftMintCount.toLocaleString();
+        }
+
+        function startAutoUpdate() {
+            autoUpdateInterval = setInterval(() => {
+                console.log('🔄 Auto-updating...');
+                loadWalletBalances();
+                loadProjectTransactions();
+            }, 30000); // Every 30 seconds
+        }
+
+        // Add filter listeners
+        document.getElementById('filter-wallet').addEventListener('change', filterTransactions);
+        document.getElementById('filter-type').addEventListener('change', filterTransactions);
+        document.getElementById('filter-date-from').addEventListener('change', filterTransactions);
+        document.getElementById('filter-date-to').addEventListener('change', filterTransactions);
+
+        // Wallet Detail Modal Functions
+        window.showWalletDetails = function(walletType) {
+            const modal = document.getElementById('wallet-modal');
+            const title = document.getElementById('wallet-modal-title');
+            const body = document.getElementById('wallet-modal-body');
+            
+            // Set title based on wallet type
+            const titles = {
+                'treasury': '💰 Treasury Main V2 - All Transactions',
+                'p2e': '🎮 P2E Pool - All Transactions',
+                'burn': '🔥 Burn - All Transactions',
+                'liquidity': '💧 Liquidity Pool - All Transactions',
+                'team': '👥 Team Wallet - All Transactions',
+                'marketing': '📢 Marketing - All Transactions',
+                'community': '🌐 Community - All Transactions',
+                'reserve': '🏦 Reserve - All Transactions',
+                'treasury-liquidity': '💧 Treasury Liquidity V2 - All Transactions',
+                'treasury-team': '👥 Treasury Team V2 - All Transactions'
+            };
+            
+            title.textContent = titles[walletType] || '💰 Wallet Transactions';
+            
+            // Filter transactions by wallet type (improved with metadata check)
+            let walletTransactions = [];
+            
+            // Helper function to check metadata for wallet-related info
+            function checkMetadataForWallet(metadata, walletType) {
+                if (!metadata) return false;
+                try {
+                    const meta = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
+                    const metaStr = JSON.stringify(meta).toLowerCase();
+                    
+                    if (walletType === 'treasury') {
+                        // Check for treasury in distribution or metadata
+                        return (meta.distribution && (meta.distribution.treasury || meta.distribution.treasury_income)) ||
+                               metaStr.includes('treasury') ||
+                               meta.source === 'treasury' ||
+                               meta.source_address === TREASURY_MAIN;
+                    } else if (walletType === 'p2e') {
+                        // Check for p2e pool in distribution or metadata
+                        return (meta.distribution && (meta.distribution.p2e_pool || meta.distribution.pool)) ||
+                               metaStr.includes('p2e') || 
+                               metaStr.includes('pool') ||
+                               meta.source === 'p2e_pool' ||
+                               meta.source_address === P2E_POOL;
+                    } else if (walletType === 'burn') {
+                        // Check for burn in distribution or metadata
+                        return (meta.distribution && meta.distribution.burn) ||
+                               metaStr.includes('burn') ||
+                               meta.source === 'burn';
+                    } else if (walletType === 'liquidity') {
+                        return metaStr.includes('liquidity') ||
+                               meta.source_address === LIQUIDITY_POOL ||
+                               meta.source_address === TREASURY_LIQUIDITY;
+                    } else if (walletType === 'team') {
+                        return metaStr.includes('team') ||
+                               meta.source_address === TEAM_WALLET ||
+                               meta.source_address === TREASURY_TEAM;
+                    } else if (walletType === 'marketing') {
+                        return metaStr.includes('marketing') ||
+                               meta.source_address === MARKETING_WALLET;
+                    } else if (walletType === 'community') {
+                        return metaStr.includes('community') ||
+                               meta.source_address === COMMUNITY_WALLET;
+                    } else if (walletType === 'reserve') {
+                        return metaStr.includes('reserve') ||
+                               meta.source_address === RESERVE_WALLET;
+                    }
+                } catch (e) {
+                    console.warn('Error parsing metadata:', e);
+                    return false;
+                }
+                return false;
+            }
+            
+            // Helper function to extract transactions from NFT mint distribution
+            function extractDistributionTransactions(transaction, walletType) {
+                if (!transaction.metadata) return null;
+                
+                try {
+                    const meta = typeof transaction.metadata === 'string' 
+                        ? JSON.parse(transaction.metadata) 
+                        : transaction.metadata;
+                    
+                    if (!meta.distribution) return null;
+                    
+                    const dist = meta.distribution;
+                    let amount = 0;
+                    
+                    if (walletType === 'treasury' && (dist.treasury || dist.treasury_income)) {
+                        amount = dist.treasury || dist.treasury_income || 0;
+                    } else if (walletType === 'p2e' && (dist.p2e_pool || dist.pool)) {
+                        amount = dist.p2e_pool || dist.pool || 0;
+                    } else if (walletType === 'burn' && dist.burn) {
+                        amount = dist.burn || 0;
+                    } else {
+                        return null;
+                    }
+                    
+                    if (amount > 0) {
+                        // Create a virtual transaction for this wallet from the distribution
+                        return {
+                            ...transaction,
+                            amount: amount,
+                            type: transaction.type + '_distribution',
+                            isDistribution: true
+                        };
+                    }
+                } catch (e) {
+                    console.warn('Error extracting distribution:', e);
+                }
+                
+                return null;
+            }
+            
+            // Filter transactions for this specific wallet
+            walletTransactions = [];
+            
+            if (walletType === 'treasury') {
+                // INCOMING: Direct transactions to treasury
+                const direct = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    const typeStr = String(t.type || '').toLowerCase();
+                    return userId === TREASURY_MAIN || 
+                           (t.type && (t.type.includes('treasury_income') || 
+                                      t.type.includes('treasury') || 
+                                      typeStr.includes('nft_revenue_main') ||
+                                      typeStr.includes('treasury_income_from_nft_sol'))) ||
+                           checkMetadataForWallet(t.metadata, 'treasury');
+                });
+                
+                // INCOMING: Extract treasury portion from NFT mint distributions
+                const fromDistributions = [];
+                allTransactions.forEach(t => {
+                    if (t.type && (t.type.includes('nft_mint') || t.type.includes('mint'))) {
+                        const distTx = extractDistributionTransactions(t, 'treasury');
+                        if (distTx) fromDistributions.push(distTx);
+                    }
+                });
+                
+                // OUTGOING: Withdrawals/transfers FROM treasury
+                const outgoing = allTransactions.filter(t => {
+                    if (t.metadata) {
+                        try {
+                            const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                            return meta.source === 'treasury' || 
+                                   meta.source_address === TREASURY_MAIN ||
+                                   (meta.source && String(meta.source).toLowerCase().includes('treasury'));
+                        } catch (e) {}
+                    }
+                    return false;
+                });
+                
+                walletTransactions = [...direct, ...fromDistributions, ...outgoing];
+            } else if (walletType === 'p2e') {
+                // INCOMING transactions to P2E Pool
+                const direct = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    const amount = parseFloat(t.amount || 0);
+                    // Only include positive amounts (incoming) or zero
+                    return (userId === P2E_POOL && amount >= 0) || 
+                           (t.type && (t.type.includes('p2e_pool') || t.type.includes('p2e') || t.type.includes('refund')) && amount >= 0) ||
+                           checkMetadataForWallet(t.metadata, 'p2e');
+                });
+                
+                const fromDistributions = [];
+                allTransactions.forEach(t => {
+                    if (t.type && (t.type.includes('nft_mint') || t.type.includes('mint'))) {
+                        const distTx = extractDistributionTransactions(t, 'p2e');
+                        if (distTx) fromDistributions.push(distTx);
+                    }
+                });
+                
+                // OUTGOING transactions from P2E Pool (withdrawals)
+                const outgoing = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    const amount = parseFloat(t.amount || 0);
+                    const typeStr = String(t.type || '').toLowerCase();
+                    
+                    // 1. Check by user_id = P2E_POOL with negative amount (direct withdrawal)
+                    if (userId === P2E_POOL && amount < 0) {
+                        return true;
+                    }
+                    
+                    // 2. Check by transaction type
+                    if (typeStr.includes('p2e_pool_withdrawal') || typeStr.includes('withdrawal')) {
+                        return true;
+                    }
+                    
+                    // 3. Check metadata for P2E Pool as source
+                    if (t.metadata) {
+                        try {
+                            const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                            if (meta.source === 'p2e_pool' || 
+                                meta.source_address === P2E_POOL ||
+                                (meta.source && String(meta.source).toLowerCase().includes('p2e'))) {
+                                return true;
+                            }
+                        } catch (e) {}
+                    }
+                    
+                    return false;
+                });
+                
+                walletTransactions = [...direct, ...fromDistributions, ...outgoing];
+            } else if (walletType === 'burn') {
+                const direct = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    return userId === BURN_ADDRESS || 
+                           userId === 'SYSTEM_BURN' ||
+                           (t.type && (t.type.includes('burn') || t.type.includes('tama_burn'))) ||
+                           checkMetadataForWallet(t.metadata, 'burn');
+                });
+                
+                const fromDistributions = [];
+                allTransactions.forEach(t => {
+                    if (t.type && (t.type.includes('nft_mint') || t.type.includes('mint'))) {
+                        const distTx = extractDistributionTransactions(t, 'burn');
+                        if (distTx) fromDistributions.push(distTx);
+                    }
+                });
+                
+                walletTransactions = [...direct, ...fromDistributions];
+            } else if (walletType === 'liquidity') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    return userId === LIQUIDITY_POOL || 
+                           userId === TREASURY_LIQUIDITY ||
+                           (t.type && t.type.includes('liquidity')) ||
+                           checkMetadataForWallet(t.metadata, 'liquidity');
+                });
+            } else if (walletType === 'team') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    return userId === TEAM_WALLET || 
+                           userId === TREASURY_TEAM ||
+                           (t.type && t.type.includes('team') && !t.type.includes('treasury_team')) ||
+                           checkMetadataForWallet(t.metadata, 'team');
+                });
+            } else if (walletType === 'marketing') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    return userId === MARKETING_WALLET || 
+                           (t.type && t.type.includes('marketing')) ||
+                           checkMetadataForWallet(t.metadata, 'marketing');
+                });
+            } else if (walletType === 'community') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    return userId === COMMUNITY_WALLET || 
+                           (t.type && t.type.includes('community')) ||
+                           checkMetadataForWallet(t.metadata, 'community');
+                });
+            } else if (walletType === 'reserve') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    return userId === RESERVE_WALLET || 
+                           (t.type && t.type.includes('reserve')) ||
+                           checkMetadataForWallet(t.metadata, 'reserve');
+                });
+            } else if (walletType === 'treasury-liquidity') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    const typeStr = String(t.type || '').toLowerCase();
+                    return userId === TREASURY_LIQUIDITY || 
+                           userId === 'FFM3AaQEYQVPVcWqHwm7AXGXS6BjzvZ8S4EhxLKQfCuA' || // Old Treasury Liquidity address
+                           (t.type && (t.type.includes('liquidity') || 
+                                      typeStr.includes('nft_revenue_liquidity') || 
+                                      typeStr.includes('treasury_liquidity_income') ||
+                                      typeStr.includes('treasury_liquidity_income_from_nft_sol'))) ||
+                           checkMetadataForWallet(t.metadata, 'liquidity');
+                });
+            } else if (walletType === 'treasury-team') {
+                walletTransactions = allTransactions.filter(t => {
+                    const userId = String(t.user_id || '').trim();
+                    const typeStr = String(t.type || '').toLowerCase();
+                    return userId === TREASURY_TEAM || 
+                           userId === 'BmP4EJjWETjxE9ALZ7sTNMkAYkh5vTbbUBHuq5FVQUWk' || // Old Treasury Team address
+                           (t.type && (t.type.includes('team') || 
+                                      typeStr.includes('nft_revenue_team') || 
+                                      typeStr.includes('treasury_team_income') ||
+                                      typeStr.includes('treasury_team_income_from_nft_sol'))) ||
+                           checkMetadataForWallet(t.metadata, 'team');
+                });
+            }
+            
+            // Sort by date (newest first)
+            walletTransactions.sort((a, b) => {
+                const dateA = new Date(a.created_at || 0);
+                const dateB = new Date(b.created_at || 0);
+                return dateB - dateA;
+            });
+            
+            console.log(`📊 Found ${walletTransactions.length} transactions for ${walletType} wallet`);
+            
+            // Calculate statistics
+            const stats = calculateWalletStats(walletTransactions);
+            
+            console.log(`📊 Wallet ${walletType}: ${walletTransactions.length} transactions, stats:`, stats);
+            
+            // Render transactions in modal with stats and charts
+            if (walletTransactions.length === 0) {
+                body.innerHTML = `
+                    <div class="loading">
+                        <p>No transactions found for this wallet</p>
+                        <p style="font-size: 12px; opacity: 0.7; margin-top: 10px;">
+                            Total transactions in system: ${allTransactions.length}<br>
+                            Try checking the main table for all project transactions.
+                        </p>
+                    </div>
+                `;
+            } else {
+                body.innerHTML = `
+                    <!-- Statistics Section -->
+                    <div style="margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="padding: 15px; background: rgba(102, 126, 234, 0.2); border-radius: 10px; border: 1px solid rgba(102, 126, 234, 0.3);">
+                            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total Transactions</div>
+                            <div style="font-size: 24px; font-weight: bold;">${stats.totalTransactions}</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(34, 197, 94, 0.2); border-radius: 10px; border: 1px solid rgba(34, 197, 94, 0.3);">
+                            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total Inflow</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #22c55e;">+${stats.totalInflow.toLocaleString()} ${stats.currency}</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(239, 68, 68, 0.2); border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Total Outflow</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #ef4444;">-${stats.totalOutflow.toLocaleString()} ${stats.currency}</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(251, 191, 36, 0.2); border-radius: 10px; border: 1px solid rgba(251, 191, 36, 0.3);">
+                            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Net Balance</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #fbbf24;">${stats.netBalance >= 0 ? '+' : ''}${stats.netBalance.toLocaleString()} ${stats.currency}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts Section -->
+                    <div style="margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <h3 style="margin-bottom: 10px; font-size: 16px;">📊 Transactions by Type</h3>
+                            <canvas id="typeChart" style="max-height: 250px;"></canvas>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <h3 style="margin-bottom: 10px; font-size: 16px;">📈 Daily Activity (Last 30 Days)</h3>
+                            <canvas id="dailyChart" style="max-height: 250px;"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Transactions Table -->
+                    <div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">
+                            📋 Transaction History (${walletTransactions.length})
+                        </div>
+                    </div>
+                    <div class="transactions-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Source</th>
+                                    <th>Explorer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${walletTransactions.map(t => {
+                                    const date = new Date(t.created_at).toLocaleString();
+                                    const amount = t.amount || 0;
+                                    const typeClass = t.type && t.type.includes('treasury') ? 'type-treasury' :
+                                                     t.type && t.type.includes('p2e') ? 'type-p2e' :
+                                                     t.type && t.type.includes('burn') ? 'type-burn' : 'type-treasury';
+                                    const isBurn = t.type && t.type.includes('burn');
+                                    const isOutgoing = amount < 0 || String(t.type || '').includes('withdrawal') || String(t.type || '').includes('spend') || String(t.type || '').includes('transfer_out');
+                                    
+                                    let amountClass, amountPrefix, displayAmount;
+                                    if (isBurn) {
+                                        amountClass = 'amount-burn';
+                                        amountPrefix = '🔥 ';
+                                        displayAmount = Math.abs(amount);
+                                    } else if (amount > 0) {
+                                        amountClass = 'amount-positive';
+                                        amountPrefix = '+';
+                                        displayAmount = amount;
+                                    } else {
+                                        amountClass = 'amount-negative';
+                                        amountPrefix = '-';
+                                        displayAmount = Math.abs(amount);
+                                    }
+                                    // Determine currency: SOL for _sol, revenue, or liquidity/team income transactions
+                                    const txTypeStr = String(t.type || '').toLowerCase();
+                                    const currency = (txTypeStr.includes('_sol') ||
+                                 txTypeStr.includes('nft_revenue') ||
+                                 txTypeStr.includes('revenue') ||
+                                 txTypeStr.includes('treasury_liquidity_income') ||
+                                 txTypeStr.includes('treasury_team_income')) ? ' SOL' : ' TAMA';
+                                    const arrow = isOutgoing && !isBurn ? ' ↗' : '';
+                                    
+                                    let source = 'System';
+                                    let destinationWallet = null;
+                                    if (t.metadata && typeof t.metadata === 'object') {
+                                        source = t.metadata.reason || t.metadata.source || t.metadata.action || 'NFT Mint';
+                                        destinationWallet = t.metadata.wallet_address || t.metadata.destination || t.metadata.to_address;
+                                    } else if (typeof t.metadata === 'string') {
+                                        try {
+                                            const parsed = JSON.parse(t.metadata);
+                                            source = parsed.reason || parsed.source || parsed.action || 'NFT Mint';
+                                            destinationWallet = parsed.wallet_address || parsed.destination || parsed.to_address;
+                                        } catch (e) {
+                                            // Invalid JSON, keep 'System'
+                                        }
+                                    }
+                                    
+                                    // Show destination for outgoing transactions
+                                    if (destinationWallet && isOutgoing) {
+                                        source += '<br><small style="opacity: 0.7;">→ ' + destinationWallet.substring(0, 6) + '...' + destinationWallet.substring(destinationWallet.length - 4) + '</small>';
+                                    }
+                                    
+                                    let explorerLink = '-';
+                                    let signature = null;
+                                    
+                                    // Try to get signature from metadata
+                                    if (t.metadata) {
+                                        let meta = t.metadata;
+                                        if (typeof meta === 'string') {
+                                            try {
+                                                meta = JSON.parse(meta);
+                                            } catch (e) {}
+                                        }
+                                        if (meta && typeof meta === 'object') {
+                                            signature = meta.onchain_signature || meta.transaction_signature || meta.signature || meta.tx_signature;
+                                        }
+                                    }
+                                    
+                                    // Also check transaction_hash field directly
+                                    if (!signature && t.transaction_hash) {
+                                        signature = t.transaction_hash;
+                                    }
+                                    
+                                            if (signature) {
+                                        explorerLink = '<a href="https://solscan.io/tx/' + signature + '?cluster=devnet" target="_blank" class="explorer-link" style="color: #8AC926; text-decoration: underline;">View 🔗</a>';
+                                            }
+                                    
+                                    const rowStyle = isOutgoing && !isBurn ? 'style="background: rgba(239, 68, 68, 0.05);"' : '';
+                                    return '<tr ' + rowStyle + '><td>' + date + '</td><td><span class="type-badge ' + typeClass + '">' + t.type + '</span></td><td class="' + amountClass + '">' + amountPrefix + Math.round(displayAmount * 100) / 100 + currency + arrow + '</td><td>' + source + '</td><td>' + explorerLink + '</td></tr>';
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                // Render charts after HTML is inserted
+                setTimeout(() => {
+                    renderTypeChart(stats.typeDistribution);
+                    renderDailyChart(stats.dailyData);
+                }, 100);
+            }
+            
+            modal.classList.add('show');
+        }
+        
+        // Calculate wallet statistics
+        function calculateWalletStats(transactions) {
+            const stats = {
+                totalTransactions: transactions.length,
+                totalInflow: 0,
+                totalOutflow: 0,
+                netBalance: 0,
+                currency: 'TAMA',
+                typeDistribution: {},
+                dailyData: {}
+            };
+            
+            // Get last 30 days
+            const today = new Date();
+            const last30Days = [];
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                last30Days.push(dateStr);
+                stats.dailyData[dateStr] = { count: 0, amount: 0 };
+            }
+            
+            // First pass: determine primary currency (most common)
+            let tamaCount = 0, solCount = 0;
+            transactions.forEach(t => {
+                const type = String(t.type || '').toLowerCase();
+                if (type.includes('_sol') || type.includes('nft_mint_sol')) {
+                    solCount++;
+                } else {
+                    tamaCount++;
+                }
+            });
+            const primaryCurrency = solCount > tamaCount ? 'SOL' : 'TAMA';
+            stats.currency = primaryCurrency;
+                
+            // Second pass: calculate stats only for primary currency
+            transactions.forEach(t => {
+                const amount = parseFloat(t.amount || 0);
+                const type = String(t.type || '').toLowerCase();
+                const isSolTx = type.includes('_sol') || type.includes('nft_mint_sol');
+                const currencyMatch = (primaryCurrency === 'SOL' && isSolTx) || (primaryCurrency === 'TAMA' && !isSolTx);
+                
+                // Only count transactions matching primary currency
+                if (currencyMatch) {
+                // Calculate inflow/outflow
+                if (amount > 0) {
+                    stats.totalInflow += amount;
+                } else {
+                    stats.totalOutflow += Math.abs(amount);
+                }
+                
+                // Type distribution
+                    const typeKey = t.type || 'unknown';
+                    if (!stats.typeDistribution[typeKey]) {
+                        stats.typeDistribution[typeKey] = { count: 0, amount: 0 };
+                }
+                    stats.typeDistribution[typeKey].count++;
+                    stats.typeDistribution[typeKey].amount += Math.abs(amount);
+                
+                // Daily data
+                if (t.created_at) {
+                    const date = new Date(t.created_at).toISOString().split('T')[0];
+                    if (stats.dailyData[date]) {
+                        stats.dailyData[date].count++;
+                        stats.dailyData[date].amount += Math.abs(amount);
+                        }
+                    }
+                }
+            });
+            
+            stats.netBalance = stats.totalInflow - stats.totalOutflow;
+            
+            // Round to reasonable precision
+            stats.totalInflow = Math.round(stats.totalInflow * 100) / 100;
+            stats.totalOutflow = Math.round(stats.totalOutflow * 100) / 100;
+            stats.netBalance = Math.round(stats.netBalance * 100) / 100;
+            
+            return stats;
+        }
+        
+        // Render type distribution chart
+        function renderTypeChart(typeDistribution) {
+            const ctx = document.getElementById('typeChart');
+            if (!ctx) return;
+            
+            const labels = Object.keys(typeDistribution).slice(0, 10); // Top 10 types
+            const data = labels.map(type => typeDistribution[type].count);
+            
+            // Destroy old chart if exists
+            if (window.typeChartInstance) {
+                window.typeChartInstance.destroy();
+            }
+            
+            window.typeChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(251, 191, 36, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(14, 165, 233, 0.8)',
+                            'rgba(20, 184, 166, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(249, 115, 22, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#fff',
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Render daily activity chart
+        function renderDailyChart(dailyData) {
+            const ctx = document.getElementById('dailyChart');
+            if (!ctx) return;
+            
+            const labels = Object.keys(dailyData);
+            const counts = labels.map(date => dailyData[date].count);
+            const amounts = labels.map(date => dailyData[date].amount);
+            
+            // Destroy old chart if exists
+            if (window.dailyChartInstance) {
+                window.dailyChartInstance.destroy();
+            }
+            
+            window.dailyChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.map(d => {
+                        const date = new Date(d);
+                        return (date.getMonth() + 1) + '/' + date.getDate();
+                    }),
+                    datasets: [{
+                        label: 'Transactions',
+                        data: counts,
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Amount',
+                        data: amounts,
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: '#fff' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: '#fff' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.closeWalletModal = function() {
+            const modal = document.getElementById('wallet-modal');
+            modal.classList.remove('show');
+            
+            // Destroy charts to prevent memory leaks
+            const typeChartCanvas = document.getElementById('typeChart');
+            const dailyChartCanvas = document.getElementById('dailyChart');
+            if (typeChartCanvas && window.typeChartInstance) {
+                window.typeChartInstance.destroy();
+                window.typeChartInstance = null;
+            }
+            if (dailyChartCanvas && window.dailyChartInstance) {
+                window.dailyChartInstance.destroy();
+                window.dailyChartInstance = null;
+            }
+        }
+
+        // Close modal on background click
+        document.getElementById('wallet-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'wallet-modal') {
+                closeWalletModal();
+            }
+        });
+
+        // Load on page load
+        loadWalletBalances();
+        loadProjectTransactions();
+        startAutoUpdate();
+    </script>
+
+    <!-- Public Access - No Authentication Required -->
+</body>
+</html>
+

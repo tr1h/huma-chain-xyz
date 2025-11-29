@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Admin - Solana Tamagotchi</title>
+    <!-- Admin Password (for production) -->
+    <meta name="admin-password-hash" content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Admin Login Screen */
+        #adminLoginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-container h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        #adminPasswordInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        #adminPasswordInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #5568d3;
+        }
+
+        #adminLoginError {
+            color: red;
+            margin-top: 15px;
+            min-height: 20px;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(29, 53, 87, 0.9), rgba(69, 123, 157, 0.9));
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .admin-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .panel-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .panel-section h2 {
+            color: #FFB703;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #FFD700;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1em;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #FFB703;
+        }
+        
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #FFB703, #FB8500);
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 183, 3, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .articles-list {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .articles-list h2 {
+            color: #FFB703;
+            margin-bottom: 20px;
+        }
+        
+        .article-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .article-item-info h3 {
+            color: #FFD700;
+            margin-bottom: 5px;
+        }
+        
+        .article-item-info p {
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+        
+        .article-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-published {
+            background: rgba(138, 201, 38, 0.3);
+            color: #8AC926;
+        }
+        
+        .status-draft {
+            background: rgba(255, 183, 3, 0.3);
+            color: #FFB703;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: rgba(138, 201, 38, 0.2);
+            border: 2px solid #8AC926;
+            color: #8AC926;
+        }
+        
+        .alert-error {
+            background: rgba(230, 57, 70, 0.2);
+            border: 2px solid #E63946;
+            color: #E63946;
+        }
+        
+        @media (max-width: 968px) {
+            .admin-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Login Screen -->
+    <div id="adminLoginScreen">
+        <div class="login-container">
+            <h2>🔐 Admin Access</h2>
+            <input type="password" id="adminPasswordInput" placeholder="Enter password">
+            <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
+            <div id="adminLoginError"></div>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until authenticated) -->
+    <div id="adminContent" style="display: none;">
+    <div class="container">
+        <div class="header">
+            <h1>📚 Blog Admin Panel</h1>
+            <p>Manage articles for Solana Tamagotchi blog</p>
+        </div>
+        
+        <nav class="nav">
+            <a href="/">🏠 Home</a>
+            <a href="/blog/">📚 Blog</a>
+            <a href="/super-admin.html">⚙️ Super Admin</a>
+        </nav>
+        
+        <div id="alert" class="alert"></div>
+        
+        <div class="admin-panel">
+            <!-- Create/Edit Article -->
+            <div class="panel-section">
+                <h2 id="form-title">➕ Create New Article</h2>
+                <form id="article-form">
+                    <input type="hidden" id="article-id" value="">
+                    
+                    <div class="form-group">
+                        <label for="title">Title *</label>
+                        <input type="text" id="title" required placeholder="Article title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="slug">URL Slug *</label>
+                        <input type="text" id="slug" required placeholder="article-url-slug">
+                        <small style="opacity: 0.7; font-size: 0.85em;">Will be: /blog/article-url-slug.html</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" required>
+                            <option value="">Select category</option>
+                            <option value="Guide">Guide</option>
+                            <option value="News">News</option>
+                            <option value="Updates">Updates</option>
+                            <option value="Comparison">Comparison</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Meta Description *</label>
+                        <textarea id="description" required placeholder="SEO description (150-160 characters)"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="keywords">Keywords (comma-separated)</label>
+                        <input type="text" id="keywords" placeholder="keyword1, keyword2, keyword3">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="content">Article Content (HTML) *</label>
+                        <textarea id="content" required placeholder="<h2>Section</h2><p>Content...</p>"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status">
+                            <option value="published">Published</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">💾 Save Article</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Articles List -->
+            <div class="panel-section articles-list">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📝 Articles List</h2>
+                    <button onclick="initializeSampleArticles(); loadArticles(); showAlert('Sample articles initialized!', 'success');" class="btn btn-secondary btn-small">
+                        🔄 Initialize Sample Articles
+                    </button>
+                </div>
+                <div id="articles-container">
+                    <p style="opacity: 0.7; text-align: center; padding: 40px;">
+                        Loading articles...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize sample articles if localStorage is empty
+        function initializeSampleArticles() {
+            const existing = JSON.parse(localStorage.getItem('blog_articles') || '[]');
+            if (existing.length > 0) return; // Already has articles
+            
+            const sampleArticles = [
+                {
+                    id: '1',
+                    title: "How to Earn Crypto Playing Games in 2025: Complete Guide",
+                    slug: "how-to-earn-crypto-playing-games",
+                    category: "Guide",
+                    description: "Discover the best Play-to-Earn games, learn how to start earning crypto without investment, and find out which blockchain is best for gaming.",
+                    keywords: "earn crypto playing games, play to earn crypto, free crypto games, p2e games",
+                    content: `<h2>What is Play-to-Earn?</h2>
+<p>Play-to-Earn (P2E) is a gaming model where players can earn real cryptocurrency or NFTs by playing games. Unlike traditional games, P2E games reward players for their time and skill.</p>
+
+<h2>Top Play-to-Earn Games in 2025</h2>
+<p>Here are some of the best P2E games you can start playing today:</p>
+<ul>
+<li><strong>Solana Tamagotchi</strong> - Free-to-play pet game on Solana</li>
+<li>Axie Infinity - Battle and breed creatures</li>
+<li>The Sandbox - Virtual world building</li>
+<li>Decentraland - Virtual reality platform</li>
+</ul>
+
+<h2>How to Get Started</h2>
+<p>Starting with P2E games is easier than you think:</p>
+<ol>
+<li>Choose a game that fits your interests</li>
+<li>Create an account (usually free)</li>
+<li>Start playing and earning</li>
+<li>Withdraw your earnings to your wallet</li>
+</ol>
+
+<h2>Conclusion</h2>
+<p>Play-to-Earn gaming is revolutionizing how we think about gaming and earning. Start with free games like Solana Tamagotchi to get familiar with the concept!</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                },
+                {
+                    id: '2',
+                    title: "Solana vs Ethereum for Gaming: Which Blockchain is Better?",
+                    slug: "solana-vs-ethereum-gaming",
+                    category: "Comparison",
+                    description: "Compare transaction speed, fees, and ecosystem of Solana and Ethereum for blockchain gaming. Find out which network offers the best experience.",
+                    keywords: "solana vs ethereum, solana gaming, blockchain games comparison, ethereum gaming",
+                    content: `<h2>Transaction Speed</h2>
+<p><strong>Solana:</strong> Can process up to 65,000 transactions per second with sub-second finality.</p>
+<p><strong>Ethereum:</strong> Processes about 15-30 transactions per second, with 12-15 second block times.</p>
+<p><strong>Winner:</strong> Solana for speed ⚡</p>
+
+<h2>Transaction Fees</h2>
+<p><strong>Solana:</strong> Average fee is $0.00025 per transaction - extremely cheap!</p>
+<p><strong>Ethereum:</strong> Gas fees can range from $1 to $50+ depending on network congestion.</p>
+<p><strong>Winner:</strong> Solana for low fees 💰</p>
+
+<h2>Gaming Ecosystem</h2>
+<p><strong>Solana:</strong> Growing gaming ecosystem with projects like Star Atlas, Solana Tamagotchi, and more.</p>
+<p><strong>Ethereum:</strong> Established ecosystem with Axie Infinity, The Sandbox, Decentraland.</p>
+<p><strong>Winner:</strong> Ethereum for maturity, but Solana is catching up fast 🚀</p>
+
+<h2>Conclusion</h2>
+<p>For gaming, Solana offers better speed and lower fees, making it ideal for frequent in-game transactions. Ethereum has a more established ecosystem but higher costs.</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                },
+                {
+                    id: '3',
+                    title: "Top 10 Free Play-to-Earn Games in 2025 (No Investment Required)",
+                    slug: "top-10-free-play-to-earn-games-2025",
+                    category: "Guide",
+                    description: "Discover the best free Play-to-Earn games where you can start earning crypto without any initial investment. Complete list with reviews and comparisons.",
+                    keywords: "free play to earn games, no investment crypto games, best p2e games, free crypto games",
+                    content: `<h2>Best Free P2E Games 2025</h2>
+<p>Here are the top 10 free Play-to-Earn games you can start playing today without any investment:</p>
+
+<h3>1. Solana Tamagotchi</h3>
+<p>Free-to-play pet game on Solana. Earn TAMA tokens by caring for your virtual pet. No initial investment required!</p>
+
+<h3>2. Alien Worlds</h3>
+<p>Mine Trilium (TLM) tokens by exploring planets. Completely free to start.</p>
+
+<h3>3. Splinterlands</h3>
+<p>Free-to-play trading card game. Earn DEC tokens through battles.</p>
+
+<h3>4. Thetan Arena</h3>
+<p>Free MOBA game where you can earn THG tokens.</p>
+
+<h3>5. Gods Unchained</h3>
+<p>Free trading card game on Ethereum. Earn cards and trade them.</p>
+
+<h2>How to Choose</h2>
+<p>When choosing a free P2E game, consider:</p>
+<ul>
+<li>Earning potential</li>
+<li>Time investment required</li>
+<li>Gameplay enjoyment</li>
+<li>Blockchain network (fees matter!)</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>Free P2E games are a great way to get started in crypto gaming without risk. Start with Solana Tamagotchi for the easiest entry!</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                },
+                {
+                    id: '4',
+                    title: "How to Mint NFT Pets: Complete Guide to Solana Tamagotchi NFTs",
+                    slug: "how-to-mint-nft-pets-solana-tamagotchi",
+                    category: "Guide",
+                    description: "Learn how to mint NFT pets in Solana Tamagotchi. Understand the 5 tiers (Bronze to Diamond), benefits, and how to maximize your earning boost.",
+                    keywords: "mint nft pets, solana nft minting, tamagotchi nft guide, nft minting guide",
+                    content: `<h2>What are NFT Pets?</h2>
+<p>NFT Pets in Solana Tamagotchi are unique digital collectibles that give you permanent earning boosts. Each NFT is stored on the Solana blockchain and belongs to you.</p>
+
+<h2>The 5 NFT Tiers</h2>
+<h3>🥉 Bronze NFT</h3>
+<ul>
+<li>Price: 5,000 TAMA or 0.15 SOL</li>
+<li>Earning Boost: 2.0x</li>
+<li>Daily Reward: +50 TAMA/day</li>
+<li>Supply: 4,500 available</li>
+</ul>
+
+<h3>🥈 Silver NFT</h3>
+<ul>
+<li>Price: 1 SOL</li>
+<li>Earning Boost: 2.3x</li>
+<li>Daily Reward: +150 TAMA/day</li>
+<li>Supply: 350 available</li>
+</ul>
+
+<h3>🥇 Gold NFT</h3>
+<ul>
+<li>Price: 3 SOL</li>
+<li>Earning Boost: 2.7x</li>
+<li>Daily Reward: +500 TAMA/day</li>
+<li>Supply: 130 available</li>
+</ul>
+
+<h3>💎 Platinum NFT</h3>
+<ul>
+<li>Price: 10 SOL</li>
+<li>Earning Boost: 3.5x</li>
+<li>Daily Reward: +2000 TAMA/day</li>
+<li>Supply: Only 18!</li>
+</ul>
+
+<h3>🔷 Diamond NFT</h3>
+<ul>
+<li>Price: 50 SOL</li>
+<li>Earning Boost: 5.0x (Maximum!)</li>
+<li>Daily Reward: +10000 TAMA/day</li>
+<li>Supply: ONLY 2 EXIST!</li>
+</ul>
+
+<h2>How to Mint</h2>
+<ol>
+<li>Go to <a href="/mint.html" style="color: #FFB703;">Mint Page</a></li>
+<li>Connect your Phantom wallet</li>
+<li>Choose your tier</li>
+<li>Pay with TAMA or SOL</li>
+<li>Receive your NFT instantly!</li>
+</ol>
+
+<h2>Benefits of NFT Pets</h2>
+<ul>
+<li>Permanent earning boost</li>
+<li>Daily TAMA rewards</li>
+<li>Tradeable on secondary markets (coming soon)</li>
+<li>Unique collectible</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>Minting an NFT pet is the best way to maximize your earnings in Solana Tamagotchi. Start with Bronze if you're new, or go for higher tiers for maximum rewards!</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                },
+                {
+                    id: '5',
+                    title: "TAMA Token Explained: Everything You Need to Know",
+                    slug: "tama-token-explained",
+                    category: "News",
+                    description: "Complete guide to TAMA token: tokenomics, distribution, how to earn, and how to withdraw. Everything about the Solana Tamagotchi native token.",
+                    keywords: "tama token, solana token, crypto token guide, tama tokenomics",
+                    content: `<h2>What is TAMA Token?</h2>
+<p>TAMA is the native token of Solana Tamagotchi, an SPL token on the Solana blockchain. It's used for in-game transactions, rewards, and NFT minting.</p>
+
+<h2>Token Details</h2>
+<ul>
+<li><strong>Name:</strong> Solana Tamagotchi</li>
+<li><strong>Symbol:</strong> TAMA</li>
+<li><strong>Total Supply:</strong> 1,000,000,000 TAMA</li>
+<li><strong>Network:</strong> Solana Devnet (Mainnet Q1 2026)</li>
+<li><strong>Mint Address:</strong> Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY</li>
+</ul>
+
+<h2>Tokenomics</h2>
+<h3>Distribution:</h3>
+<ul>
+<li>40% - Play-to-Earn Pool (400M TAMA)</li>
+<li>20% - Team (200M TAMA, locked 4 years)</li>
+<li>15% - Marketing (150M TAMA)</li>
+<li>10% - Liquidity (100M TAMA, locked)</li>
+<li>10% - Community (100M TAMA)</li>
+<li>5% - Reserve (50M TAMA, locked)</li>
+</ul>
+
+<h2>How to Earn TAMA</h2>
+<ul>
+<li>Daily login: +25 TAMA</li>
+<li>Feed pet: +5 TAMA</li>
+<li>Play with pet: +10 TAMA</li>
+<li>Train pet: +15 TAMA</li>
+<li>Level up: +50 TAMA</li>
+<li>Referrals: +100 TAMA per friend</li>
+</ul>
+
+<h2>How to Withdraw</h2>
+<ol>
+<li>Connect Phantom wallet</li>
+<li>Click "Withdraw to Blockchain"</li>
+<li>Enter amount (minimum 100 TAMA)</li>
+<li>Confirm transaction</li>
+<li>Wait for confirmation</li>
+</ol>
+
+<h2>Future Plans</h2>
+<p>TAMA will be listed on DEXs (Raydium, Jupiter) after Mainnet launch in Q1 2026. You'll be able to trade TAMA for SOL and other tokens!</p>
+
+<h2>Conclusion</h2>
+<p>TAMA is the heart of Solana Tamagotchi's economy. Start earning today and be part of the growing community!</p>`,
+                    status: "draft",
+                    createdAt: "2025-11-13T00:00:00Z",
+                    updatedAt: "2025-11-13T00:00:00Z"
+                }
+            ];
+            
+            localStorage.setItem('blog_articles', JSON.stringify(sampleArticles));
+            return sampleArticles;
+        }
+        
+        // Load articles from localStorage (or Supabase in future)
+        function loadArticles() {
+            // Initialize sample articles if empty
+            initializeSampleArticles();
+            
+            const articles = JSON.parse(localStorage.getItem('blog_articles') || '[]');
+            const container = document.getElementById('articles-container');
+            
+            if (articles.length === 0) {
+                container.innerHTML = '<p style="opacity: 0.7; text-align: center; padding: 40px;">No articles yet. Create your first article!</p>';
+                return;
+            }
+            
+            // Sort articles: published first, then by date
+            const sortedArticles = [...articles].sort((a, b) => {
+                if (a.status === 'published' && b.status !== 'published') return -1;
+                if (a.status !== 'published' && b.status === 'published') return 1;
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+            
+            container.innerHTML = sortedArticles.map((article, index) => {
+                const originalIndex = articles.findIndex(a => a.id === article.id);
+                const date = article.createdAt ? new Date(article.createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                }) : 'No date';
+                
+                return `
+                <div class="article-item">
+                    <div class="article-item-info">
+                        <h3>${article.title} <span class="status-badge status-${article.status}">${article.status}</span></h3>
+                        <p>${article.category} • ${date}</p>
+                    </div>
+                    <div class="article-item-actions">
+                        <button class="btn btn-secondary btn-small" onclick="editArticle(${originalIndex})">✏️ Edit</button>
+                        <button class="btn btn-secondary btn-small" onclick="deleteArticle(${originalIndex})">🗑️ Delete</button>
+                        <button class="btn btn-primary btn-small" onclick="viewArticle('${article.slug}')">👁️ View</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+        
+        // Save article
+        document.getElementById('article-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const article = {
+                id: document.getElementById('article-id').value || Date.now().toString(),
+                title: document.getElementById('title').value,
+                slug: document.getElementById('slug').value,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                keywords: document.getElementById('keywords').value,
+                content: document.getElementById('content').value,
+                status: document.getElementById('status').value,
+                createdAt: document.getElementById('article-id').value ? 
+                    JSON.parse(localStorage.getItem('blog_articles') || '[]')
+                        .find(a => a.id === document.getElementById('article-id').value)?.createdAt || new Date().toISOString() :
+                    new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            let articles = JSON.parse(localStorage.getItem('blog_articles') || '[]');
+            
+            const existingIndex = articles.findIndex(a => a.id === article.id);
+            if (existingIndex >= 0) {
+                articles[existingIndex] = article;
+            } else {
+                articles.push(article);
+            }
+            
+            localStorage.setItem('blog_articles', JSON.stringify(articles));
+            
+            // Generate HTML file
+            generateArticleHTML(article);
+            
+            showAlert('Article saved successfully!', 'success');
+            resetForm();
+            loadArticles();
+        });
+        
+        // Generate article HTML file
+        function generateArticleHTML(article) {
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${article.title}</title>
+    <meta name="description" content="${article.description}">
+    <meta name="keywords" content="${article.keywords}">
+    <link rel="canonical" href="https://solanatamagotchi.com/blog/${article.slug}.html">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            color: #fff;
+            line-height: 1.8;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .article-header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: linear-gradient(135deg, rgba(29, 53, 87, 0.9), rgba(69, 123, 157, 0.9));
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+        .article-header h1 { font-size: 2.5em; margin-bottom: 20px; color: #FFD700; }
+        .article-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+        .article-content h2 { font-size: 2em; margin: 40px 0 20px; color: #FFB703; }
+        .article-content p { margin-bottom: 20px; opacity: 0.9; }
+        .nav { display: flex; gap: 15px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+        .nav a { color: #fff; text-decoration: none; padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="/">🏠 Home</a>
+            <a href="/blog/">📚 Blog</a>
+        </nav>
+        <div class="article-header">
+            <h1>${article.title}</h1>
+            <p style="opacity: 0.8;">${new Date(article.createdAt).toLocaleDateString()}</p>
+        </div>
+        <div class="article-content">
+            ${article.content}
+        </div>
+    </div>
+</body>
+</html>`;
+            
+            // In a real implementation, this would save to a file or upload to server
+            // For now, we'll just log it
+            console.log('Generated HTML for:', article.slug);
+            
+            // You can download it or send to server
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${article.slug}.html`;
+            // a.click(); // Uncomment to auto-download
+        }
+        
+        // Edit article
+        function editArticle(index) {
+            const articles = JSON.parse(localStorage.getItem('blog_articles') || '[]');
+            const article = articles[index];
+            
+            document.getElementById('article-id').value = article.id;
+            document.getElementById('title').value = article.title;
+            document.getElementById('slug').value = article.slug;
+            document.getElementById('category').value = article.category;
+            document.getElementById('description').value = article.description;
+            document.getElementById('keywords').value = article.keywords;
+            document.getElementById('content').value = article.content;
+            document.getElementById('status').value = article.status;
+            document.getElementById('form-title').textContent = '✏️ Edit Article';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Delete article
+        function deleteArticle(index) {
+            if (!confirm('Are you sure you want to delete this article?')) return;
+            
+            let articles = JSON.parse(localStorage.getItem('blog_articles') || '[]');
+            articles.splice(index, 1);
+            localStorage.setItem('blog_articles', JSON.stringify(articles));
+            
+            showAlert('Article deleted!', 'success');
+            loadArticles();
+        }
+        
+        // View article
+        function viewArticle(slug) {
+            window.open(`/blog/${slug}.html`, '_blank');
+        }
+        
+        // Reset form
+        function resetForm() {
+            document.getElementById('article-form').reset();
+            document.getElementById('article-id').value = '';
+            document.getElementById('form-title').textContent = '➕ Create New Article';
+        }
+        
+        // Show alert
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Auto-generate slug from title
+        document.getElementById('title').addEventListener('input', function() {
+            if (!document.getElementById('article-id').value) {
+                const slug = this.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                document.getElementById('slug').value = slug;
+            }
+        });
+        
+        // Load articles on page load
+        loadArticles();
+    </script>
+    </div> <!-- End of adminContent -->
+
+    <!-- Admin Authentication -->
+    <script src="admin-password.js"></script>
+    <script src="js/admin-auth.js"></script>
+</body>
+</html>
+
