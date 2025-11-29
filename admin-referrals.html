@@ -880,16 +880,21 @@
             currentTab = tab;
 
             // Hide all tabs
-            ['overview', 'active', 'pending', 'top', 'milestones'].forEach(t => {
-                document.getElementById(`tab-${t}`).style.display = 'none';
+            ['overview', 'active', 'pending', 'top', 'milestones', 'settings'].forEach(t => {
+                const tabEl = document.getElementById(`tab-${t}`);
+                if (tabEl) tabEl.style.display = 'none';
             });
 
             // Show current tab
-            document.getElementById(`tab-${tab}`).style.display = 'block';
+            const currentTabEl = document.getElementById(`tab-${tab}`);
+            if (currentTabEl) {
+                currentTabEl.style.display = 'block';
+            }
 
             // Update tab buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            const clickedBtn = event?.target || document.querySelector(`.tab-btn[onclick*="'${tab}'"]`);
+            if (clickedBtn) clickedBtn.classList.add('active');
 
             renderCurrentTab();
         }
