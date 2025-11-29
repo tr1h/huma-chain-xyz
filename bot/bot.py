@@ -979,7 +979,7 @@ def send_stats(message):
 
 🔗 *Your Referrals:*
 • 👥 Total Referrals: {total_referrals}
-• ✅ Total Referrals: {level1_count + pending_count} ({level1_earned + (pending_count * 1000)} TAMA earned)
+• ✅ Earned from referrals: {level1_earned + (pending_count * 1000)} TAMA
 • 💰 Total Earned: {total_earned} TAMA
 
 💳 *Wallet:*
