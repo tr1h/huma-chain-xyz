@@ -84,3 +84,14 @@ wallet-admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
 admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
 *.password.js
 ADMIN_PASSWORDS.txt  # ПРИВАТНЫЙ! Пароли от админок
+ 
+# Private folder with secrets (NEVER COMMIT!) 
+.private/ 
+.private/** 
+**/.private/ 
+ 
+# Archive folder 
+.archive/ 
+ 
+# Test folder 
+test/ 
