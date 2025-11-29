@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; url=https://t.me/gotchigamebot?start=ref">
+    
+    <!-- Primary Meta Tags -->
+    <title>🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</title>
+    <meta name="title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
+    <meta name="description" content="Join Solana Tamagotchi through your friend's referral link and get 1,000 TAMA bonus! Play-to-earn game on Solana blockchain.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://solanatamagotchi.com/s.html">
+    <meta property="og:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
+    <meta property="og:description" content="Join through referral link and get 1,000 TAMA bonus! Play-to-earn game on Solana blockchain.">
+    <meta property="og:image" content="https://solanatamagotchi.com/game-preview.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://solanatamagotchi.com/s.html">
+    <meta property="twitter:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
+    <meta property="twitter:description" content="Join through referral link and get 1,000 TAMA bonus!">
+    <meta property="twitter:image" content="https://solanatamagotchi.com/game-preview.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .telegram-link {
+            display: inline-block;
+            background: #0088cc;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+        }
+        
+        .telegram-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.6);
+        }
+        
+        .telegram-link:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🐾</div>
+        <h1>🎮 Redirecting to Telegram...</h1>
+        <p>You're being redirected to join Solana Tamagotchi!</p>
+        <p>Get your <strong>1,000 TAMA bonus</strong> when you join! 🎁</p>
+        <div class="loading"></div>
+        <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 20px;">
+            If you're not redirected automatically, click the button below:
+        </p>
+        <a href="#" id="telegram-link" class="telegram-link">🤖 Open Telegram Bot</a>
+    </div>
+    
+    <script>
+        // Get referral code from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        
+        // Build Telegram bot URL
+        let telegramUrl = 'https://t.me/gotchigamebot?start=';
+        
+        if (refCode) {
+            // Validate referral code format (TAMA + 6 alphanumeric)
+            const refPattern = /^TAMA[A-Z0-9]{6}$/;
+            if (refPattern.test(refCode)) {
+                telegramUrl += 'ref' + refCode;
+            } else {
+                console.warn('Invalid referral code format:', refCode);
+                telegramUrl += 'start';
+            }
+        } else {
+            telegramUrl += 'start';
+        }
+        
+        // Update link
+        const telegramLink = document.getElementById('telegram-link');
+        telegramLink.href = telegramUrl;
+        
+        // Auto-redirect after 1 second
+        setTimeout(() => {
+            window.location.href = telegramUrl;
+        }, 1000);
+        
+        // Also redirect on click (backup)
+        telegramLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = telegramUrl;
+        });
+        
+        // Log for debugging
+        console.log('🔗 Referral redirect:', {
+            refCode: refCode || 'none',
+            telegramUrl: telegramUrl
+        });
+    </script>
+</body>
+</html>
+
