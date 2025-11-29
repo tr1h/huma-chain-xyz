@@ -18,6 +18,7 @@
     <meta property="og:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
     <meta property="og:description" content="Join through referral link and get 1,000 TAMA bonus! Play-to-earn game on Solana blockchain.">
     <meta property="og:image" content="https://solanatamagotchi.com/logo.png">
+    <meta property="og:image:url" content="https://solanatamagotchi.com/logo.png">
     <meta property="og:image:secure_url" content="https://solanatamagotchi.com/logo.png">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
@@ -26,16 +27,20 @@
     <meta property="og:site_name" content="Solana Tamagotchi">
     <meta property="og:locale" content="en_US">
     
+    <!-- Additional Telegram-specific meta tags -->
+    <meta name="twitter:image:width" content="512">
+    <meta name="twitter:image:height" content="512">
+    
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://solanatamagotchi.com/s.html">
-    <meta property="twitter:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
-    <meta property="twitter:description" content="🐾 Play-to-earn game on Solana! Join through referral link and get 1,000 TAMA bonus instantly!">
-    <meta property="twitter:image" content="https://solanatamagotchi.com/logo.png">
-    <meta property="twitter:image:src" content="https://solanatamagotchi.com/logo.png">
-    <meta property="twitter:image:alt" content="Solana Tamagotchi - Join and earn 1,000 TAMA!">
-    <meta property="twitter:site" content="@GotchiGame">
-    <meta property="twitter:creator" content="@GotchiGame">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://solanatamagotchi.com/s.html">
+    <meta name="twitter:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
+    <meta name="twitter:description" content="🐾 Play-to-earn game on Solana! Join through referral link and get 1,000 TAMA bonus instantly!">
+    <meta name="twitter:image" content="https://solanatamagotchi.com/logo.png">
+    <meta name="twitter:image:src" content="https://solanatamagotchi.com/logo.png">
+    <meta name="twitter:image:alt" content="Solana Tamagotchi - Join and earn 1,000 TAMA!">
+    <meta name="twitter:site" content="@GotchiGame">
+    <meta name="twitter:creator" content="@GotchiGame">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -132,6 +137,12 @@
     </style>
 </head>
 <body>
+    <!-- Hidden image for Telegram bots to parse (must be visible in DOM) -->
+    <img src="https://solanatamagotchi.com/logo.png" 
+         alt="Solana Tamagotchi - Play-to-Earn Game" 
+         style="position: absolute; width: 512px; height: 512px; opacity: 0; pointer-events: none; left: -9999px;"
+         id="og-image-preview">
+    
     <div class="container">
         <div class="logo">🐾</div>
         <h1>🎮 Redirecting to Telegram...</h1>
@@ -152,13 +163,26 @@
         // Update Open Graph URL with referral code if present
         if (refCode) {
             const ogUrl = document.querySelector('meta[property="og:url"]');
-            const twitterUrl = document.querySelector('meta[property="twitter:url"]');
+            const twitterUrl = document.querySelector('meta[name="twitter:url"]');
             if (ogUrl) {
                 ogUrl.setAttribute('content', `https://solanatamagotchi.com/s.html?ref=${refCode}&v=30`);
             }
             if (twitterUrl) {
                 twitterUrl.setAttribute('content', `https://solanatamagotchi.com/s.html?ref=${refCode}&v=30`);
             }
+            
+            // Also update og:image URL to include referral code (for cache busting)
+            const ogImage = document.querySelector('meta[property="og:image"]');
+            if (ogImage) {
+                ogImage.setAttribute('content', `https://solanatamagotchi.com/logo.png?ref=${refCode}&v=30`);
+            }
+        }
+        
+        // Preload image to ensure it's available for Telegram bots
+        const img = document.getElementById('og-image-preview');
+        if (img) {
+            img.onload = () => console.log('✅ OG image loaded successfully');
+            img.onerror = () => console.error('❌ OG image failed to load');
         }
         
         // Build Telegram bot URL - use correct bot username
