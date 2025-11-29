@@ -803,6 +803,8 @@ def send_welcome(message):
 • 📋 **Quests** - Complete challenges for bonuses!
 
 💰 *Start earning TAMA today - no wallet needed!*
+
+📄 *Legal:* [Terms](https://solanatamagotchi.com/terms) • [Privacy](https://solanatamagotchi.com/privacy) • [Risk Warning](https://solanatamagotchi.com/disclaimer)
     """
     
     # Create inline keyboard with gamification
