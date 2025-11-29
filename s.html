@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="telegram:bot" content="GotchiGameBot">
-    <meta http-equiv="refresh" content="2; url=https://t.me/GotchiGameBot?start=ref">
+    <meta name="telegram:bot" content="gotchigamebot">
+    <meta http-equiv="refresh" content="2; url=https://t.me/gotchigamebot?start=ref">
     
     <!-- Primary Meta Tags -->
     <title>🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</title>
@@ -137,9 +137,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
         
-        // Build Telegram bot URL - try multiple bot usernames
-        const botUsernames = ['GotchiGameBot', 'gotchigamebot', 'GotchiGame'];
-        let telegramUrl = 'https://t.me/GotchiGameBot?start=';
+        // Build Telegram bot URL - use correct bot username
+        const botUsername = 'gotchigamebot';
+        let telegramUrl = 'https://t.me/gotchigamebot?start=';
         
         if (refCode) {
             // Validate referral code format (TAMA + 6 alphanumeric)
