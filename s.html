@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0; url=https://t.me/gotchigamebot?start=ref">
+    <meta name="telegram:bot" content="GotchiGameBot">
+    <meta http-equiv="refresh" content="2; url=https://t.me/GotchiGameBot?start=ref">
     
     <!-- Primary Meta Tags -->
     <title>🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</title>
@@ -136,8 +137,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
         
-        // Build Telegram bot URL
-        let telegramUrl = 'https://t.me/gotchigamebot?start=';
+        // Build Telegram bot URL - try multiple bot usernames
+        const botUsernames = ['GotchiGameBot', 'gotchigamebot', 'GotchiGame'];
+        let telegramUrl = 'https://t.me/GotchiGameBot?start=';
         
         if (refCode) {
             // Validate referral code format (TAMA + 6 alphanumeric)
@@ -152,14 +154,50 @@
             telegramUrl += 'start';
         }
         
+        // Try to detect correct bot username from page
+        // If we're on solanatamagotchi.com, try to get bot username from meta or config
+        try {
+            const botMeta = document.querySelector('meta[name="telegram:bot"]');
+            if (botMeta && botMeta.content) {
+                telegramUrl = `https://t.me/${botMeta.content}?start=${refCode ? 'ref' + refCode : 'start'}`;
+            }
+        } catch (e) {
+            // Use default
+        }
+        
         // Update link
         const telegramLink = document.getElementById('telegram-link');
         telegramLink.href = telegramUrl;
         
-        // Auto-redirect after 1 second
+        // Multiple redirect methods for maximum compatibility
+        // Method 1: Immediate redirect for mobile apps
+        if (window.location.protocol === 'https:' || window.location.protocol === 'http:') {
+            // Try immediate redirect
+            try {
+                window.location.replace(telegramUrl);
+            } catch (e) {
+                console.warn('Location replace failed, trying href:', e);
+            }
+        }
+        
+        // Method 2: Delayed redirect (fallback)
         setTimeout(() => {
-            window.location.href = telegramUrl;
-        }, 1000);
+            try {
+                window.location.href = telegramUrl;
+            } catch (e) {
+                console.error('Redirect failed:', e);
+                // Show manual link
+                document.getElementById('telegram-link').style.display = 'block';
+            }
+        }, 500);
+        
+        // Method 3: Click simulation (for some browsers)
+        setTimeout(() => {
+            const link = document.getElementById('telegram-link');
+            if (link && document.hasFocus()) {
+                link.click();
+            }
+        }, 1500);
         
         // Also redirect on click (backup)
         telegramLink.addEventListener('click', (e) => {
@@ -167,11 +205,36 @@
             window.location.href = telegramUrl;
         });
         
+        // Countdown timer
+        let countdown = 2;
+        const countdownEl = document.getElementById('countdown');
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            if (countdownEl) {
+                countdownEl.textContent = countdown;
+            }
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                if (countdownEl && countdownEl.parentElement) {
+                    countdownEl.parentElement.style.display = 'none';
+                }
+            }
+        }, 1000);
+        
         // Log for debugging
         console.log('🔗 Referral redirect:', {
             refCode: refCode || 'none',
-            telegramUrl: telegramUrl
+            telegramUrl: telegramUrl,
+            userAgent: navigator.userAgent
         });
+        
+        // Show link if redirect fails after 3 seconds
+        setTimeout(() => {
+            const link = document.getElementById('telegram-link');
+            if (link && document.hasFocus()) {
+                link.style.display = 'inline-block';
+            }
+        }, 3000);
     </script>
 </body>
 </html>
