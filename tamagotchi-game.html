@@ -11439,8 +11439,14 @@
                 const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodedText}`;
                 
                 // 🎁 INSTANT REWARD FOR SHARING!
-                addTama(100);
-                showNotification("🎉 +100 TAMA for sharing!");
+                if (typeof gameState !== 'undefined') {
+                    gameState.tama = (gameState.tama || 0) + 100;
+                    updateTamaDisplay();
+                    triggerAutoSave();
+                }
+                if (typeof showNotification === 'function') {
+                    showNotification("🎉 +100 TAMA for sharing!");
+                }
                 
                 // Send event to database
                 const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
