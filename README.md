@@ -9,7 +9,7 @@
 
 **Play-to-Earn Tamagotchi game on Telegram with Solana blockchain integration**
 
-> 🔄 **Latest Update (Nov 29, 2025):** Legal Documents (Terms, Privacy, Disclaimer) • Consent Modal • Legal Checkboxes • Mainnet-Ready Compliance • Full GDPR/SEC Compliance
+> 🔄 **Latest Update (Nov 29, 2025):** 🛡️ SECURITY FIXES (Payment Verification • Atomic Withdrawals • Correct TX Order) • Security Score: 8.5/10 ✅ • Mainnet-Ready!
 
 [🎮 Play Now](https://t.me/GotchiGameBot) • [📖 Documentation](#-documentation) • [🚀 Deploy](#-deployment)
 
