@@ -734,7 +734,6 @@ You were invited by a friend! 🎁
 🔗 *Start earning TAMA:*
 • Get your referral link below
 • Share with friends = 1,000 TAMA each!
-• Level 2 referrals = 500 TAMA each!
 • Milestone bonuses up to 100,000 TAMA!
 
 🎮 *Game Features:*
@@ -980,8 +979,7 @@ def send_stats(message):
 
 🔗 *Your Referrals:*
 • 👥 Total Referrals: {total_referrals}
-• ✅ Level 1 Direct: {level1_count + pending_count} ({level1_earned + (pending_count * 100)} TAMA)
-• ✅ Level 2 Indirect: {level2_count} ({level2_earned} TAMA)
+• ✅ Total Referrals: {level1_count + pending_count} ({level1_earned + (pending_count * 1000)} TAMA earned)
 • 💰 Total Earned: {total_earned} TAMA
 
 💳 *Wallet:*
@@ -1461,8 +1459,7 @@ def send_group_welcome(message):
 <b>Use /help</b> for bot commands
 
 💰 <b>Earn TAMA Tokens:</b>
-<b>1,000 TAMA</b> for each friend you refer
-<b>500 TAMA</b> for Level 2 referrals
+<b>1,000 TAMA</b> for each friend you refer instantly!
 <b>Milestone bonuses</b> up to 100,000 TAMA!
 
 📢 <b>Stay Updated:</b>
@@ -1570,7 +1567,6 @@ def send_group_referral_info(message):
 • Earn 1,000 TAMA for each friend\\!
 
 🎁 *Bonus Rewards:*
-• Level 2 referrals: 500 TAMA each
 • Milestone bonuses up to 100,000 TAMA\\!
 • Daily rewards & achievements
 
@@ -2324,7 +2320,7 @@ def test_promo_post(message):
 🚀 START PLAYING RIGHT NOW!
 🤖 Bot: @{BOT_USERNAME}
 📢 Channel: @GotchiGame
-💰м Chat: @gotchigamechat
+💰 Chat: @gotchigamechat
 
 #Solana #GameFi #Tamagotchi #Crypto #PlayToEarn""",
 
@@ -2340,7 +2336,6 @@ def test_promo_post(message):
 
 📊 Referral Program:
 • Level 1: 1,000 TAMA per friend
-• Level 2: 500 TAMA per sub-referral
 • Milestone bonuses up to 100,000 TAMA!
 
 🎮 5 Games Available (in main game):
@@ -2350,7 +2345,7 @@ def test_promo_post(message):
 💰 Start earning NOW - no wallet needed!
 🤖 Bot: @{BOT_USERNAME}
 📢 Channel: @GotchiGame
-💰м Chat: @gotchigamechat
+💰 Chat: @gotchigamechat
 
 #PlayToEarn #CryptoGame #TAMA #Solana""",
 
@@ -2359,7 +2354,6 @@ def test_promo_post(message):
 
 🎁 Referral Rewards:
 • 1,000 TAMA for each friend
-• 500 TAMA for Level 2 referrals
 • Unlimited earning potential!
 
 🏅 Milestone Bonuses:
@@ -2380,7 +2374,7 @@ def test_promo_post(message):
 🚀 Get your referral link now:
 🤖 Bot: @{BOT_USERNAME}
 📢 Channel: @GotchiGame
-💰м Chat: @gotchigamechat
+💰 Chat: @gotchigamechat
 
 #Referral #Crypto #PassiveIncome #Solana""",
 
@@ -2412,7 +2406,7 @@ def test_promo_post(message):
 💰 Everything earns you TAMA tokens!
 🤖 Bot: @{BOT_USERNAME}
 📢 Channel: @GotchiGame
-💰м Chat: @gotchigamechat
+💰 Chat: @gotchigamechat
 
 #Gaming #NFT #Tamagotchi #Blockchain #Fun"""
         ]
@@ -2845,7 +2839,7 @@ def post_daily_promo():
 🚀 START PLAYING RIGHT NOW!
 🤖 Bot: @{BOT_USERNAME}
 📢 Channel: @GotchiGame
-💰м Chat: @gotchigamechat
+💰 Chat: @gotchigamechat
 
 #Solana #GameFi #Tamagotchi #Crypto #PlayToEarn""",
 
@@ -2861,7 +2855,6 @@ def post_daily_promo():
 
 📊 Referral Program:
 • Level 1: 1,000 TAMA per friend
-• Level 2: 500 TAMA per sub-referral
 • Milestone bonuses up to 100,000 TAMA!
 
 🎮 5 Games Available (in main game):
@@ -2871,7 +2864,7 @@ def post_daily_promo():
 💰 Start earning NOW - no wallet needed!
 🤖 Bot: @{BOT_USERNAME}
 📢 Channel: @GotchiGame
-💰м Chat: @gotchigamechat
+💰 Chat: @gotchigamechat
 
 #PlayToEarn #CryptoGame #TAMA #Solana""",
 
@@ -2880,7 +2873,6 @@ def post_daily_promo():
 
 🎁 Referral Rewards:
 • 1,000 TAMA for each friend
-• 500 TAMA for Level 2 referrals
 • Unlimited earning potential!
 
 🏅 Milestone Bonuses:
@@ -2901,7 +2893,7 @@ def post_daily_promo():
 🚀 Get your referral link now:
 🤖 Bot: @{BOT_USERNAME}
 📢 Channel: @GotchiGame
-💰м Chat: @gotchigamechat
+💰 Chat: @gotchigamechat
 
 #Referral #Crypto #PassiveIncome #Solana""",
 
@@ -2933,7 +2925,7 @@ def post_daily_promo():
 💰 Everything earns you TAMA tokens!
 🤖 Bot: @{BOT_USERNAME}
 📢 Channel: @GotchiGame
-💰м Chat: @gotchigamechat
+💰 Chat: @gotchigamechat
 
 #Gaming #NFT #Tamagotchi #Blockchain #Fun"""
         ]
