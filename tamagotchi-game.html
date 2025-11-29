@@ -11436,7 +11436,9 @@
                 
                 // Encode text for URL
                 const encodedText = encodeURIComponent(shareText);
-                const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodedText}`;
+                // Add version parameter to force Telegram to refresh preview cache
+                const linkWithVersion = link.includes('v=') ? link : `${link}&v=${Date.now()}`;
+                const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(linkWithVersion)}&text=${encodedText}`;
                 
                 // 🎁 INSTANT REWARD FOR SHARING!
                 if (typeof gameState !== 'undefined') {
