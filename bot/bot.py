@@ -326,11 +326,22 @@ def generate_referral_code(telegram_id):
     if not telegram_id or not str(telegram_id).isdigit():
         raise ValueError("Invalid Telegram ID")
     
-    # Use SHA256 for better distribution
+    # Use SHA256 for better distribution (SAME as game)
     hash_bytes = hashlib.sha256(str(telegram_id).encode()).digest()
-    # Take first 3 bytes and convert to base36
+    # Take first 3 bytes and convert to base36 (SAME as game)
     hash_val = int.from_bytes(hash_bytes[:3], 'big')
-    code_part = format(hash_val % (36 ** 6), 'X').zfill(6)[:6]
+    code_num = hash_val % (36 ** 6)
+    
+    # Convert to base36 (0-9, A-Z) - SAME as game
+    def to_base36(num):
+        chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        result = ''
+        while num > 0:
+            result = chars[num % 36] + result
+            num //= 36
+        return result.zfill(6)[:6]
+    
+    code_part = to_base36(code_num)
     return f"TAMA{code_part}"
 
 # Validate referral code
