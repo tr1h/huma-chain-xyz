@@ -2335,7 +2335,7 @@ def test_promo_post(message):
 • Complete quests = Extra bonuses!
 
 📊 Referral Program:
-• Level 1: 1,000 TAMA per friend
+• 1,000 TAMA for each friend instantly!
 • Milestone bonuses up to 100,000 TAMA!
 
 🎮 5 Games Available (in main game):
@@ -2854,7 +2854,7 @@ def post_daily_promo():
 • Complete quests = Extra bonuses!
 
 📊 Referral Program:
-• Level 1: 1,000 TAMA per friend
+• 1,000 TAMA for each friend instantly!
 • Milestone bonuses up to 100,000 TAMA!
 
 🎮 5 Games Available (in main game):
