@@ -528,17 +528,19 @@
         let currentTab = 'overview';
 
         // Generate referral code (same algorithm as game)
-        function generateReferralCode(telegramId) {
-            const sha256 = str => {
-                const msgBuffer = new TextEncoder().encode(str);
-                return crypto.subtle.digest('SHA-256', msgBuffer).then(hashBuffer => {
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    return hashArray;
-                });
-            };
-
-            return sha256(telegramId.toString()).then(hashBytes => {
-                const hashVal = (hashBytes[0] << 16) | (hashBytes[1] << 8) | hashBytes[2];
+        async function generateReferralCode(telegramId) {
+            // Check if telegramId is valid
+            if (!telegramId || telegramId === null || telegramId === undefined) {
+                return 'TAMA000000';
+            }
+            
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(String(telegramId));
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = new Uint8Array(hashBuffer);
+                
+                const hashVal = (hashArray[0] << 16) | (hashArray[1] << 8) | hashArray[2];
                 const base36Chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                 let codePart = '';
                 let num = hashVal % (36 ** 6);
@@ -547,7 +549,10 @@
                     num = Math.floor(num / 36);
                 }
                 return 'TAMA' + codePart;
-            });
+            } catch (error) {
+                console.error('Error generating referral code:', error);
+                return 'TAMA000000';
+            }
         }
 
         async function loadData() {
@@ -646,12 +651,18 @@
             tbody.innerHTML = '';
 
             for (const user of allData.users) {
-                const activeCount = allData.activeReferrals.filter(r => r.referrer_telegram_id === user.telegram_id).length;
-                const pendingCount = allData.pendingReferrals.filter(r => r.referrer_telegram_id === user.telegram_id).length;
+                // Skip users without telegram_id
+                if (!user.telegram_id) {
+                    console.warn('User without telegram_id:', user);
+                    continue;
+                }
+                
+                const activeCount = allData.activeReferrals.filter(r => String(r.referrer_telegram_id) === String(user.telegram_id)).length;
+                const pendingCount = allData.pendingReferrals.filter(r => String(r.referrer_telegram_id) === String(user.telegram_id)).length;
                 const totalCount = activeCount + pendingCount;
                 
                 const earnings = allData.transactions
-                    .filter(t => t.user_id === user.telegram_id)
+                    .filter(t => String(t.user_id) === String(user.telegram_id))
                     .reduce((sum, t) => sum + (t.amount || 0), 0);
 
                 const refCode = await generateReferralCode(user.telegram_id);
