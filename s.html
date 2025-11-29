@@ -16,14 +16,21 @@
     <meta property="og:url" content="https://solanatamagotchi.com/s.html">
     <meta property="og:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
     <meta property="og:description" content="Join through referral link and get 1,000 TAMA bonus! Play-to-earn game on Solana blockchain.">
-    <meta property="og:image" content="https://solanatamagotchi.com/game-preview.png">
+    <meta property="og:image" content="https://solanatamagotchi.com/logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:site_name" content="Solana Tamagotchi">
+    <meta property="og:locale" content="en_US">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://solanatamagotchi.com/s.html">
     <meta property="twitter:title" content="🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!">
-    <meta property="twitter:description" content="Join through referral link and get 1,000 TAMA bonus!">
-    <meta property="twitter:image" content="https://solanatamagotchi.com/game-preview.png">
+    <meta property="twitter:description" content="Join through referral link and get 1,000 TAMA bonus! Play-to-earn game on Solana blockchain.">
+    <meta property="twitter:image" content="https://solanatamagotchi.com/logo.png">
+    <meta property="twitter:site" content="@GotchiGame">
+    <meta property="twitter:creator" content="@GotchiGame">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -133,9 +140,21 @@
     </div>
     
     <script>
-        // Get referral code from URL
+        // Get referral code from URL and update meta tags dynamically
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
+        
+        // Update Open Graph URL with referral code if present
+        if (refCode) {
+            const ogUrl = document.querySelector('meta[property="og:url"]');
+            const twitterUrl = document.querySelector('meta[property="twitter:url"]');
+            if (ogUrl) {
+                ogUrl.setAttribute('content', `https://solanatamagotchi.com/s.html?ref=${refCode}&v=30`);
+            }
+            if (twitterUrl) {
+                twitterUrl.setAttribute('content', `https://solanatamagotchi.com/s.html?ref=${refCode}&v=30`);
+            }
+        }
         
         // Build Telegram bot URL - use correct bot username
         const botUsername = 'gotchigamebot';
