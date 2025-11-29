@@ -16,6 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/config.php';
 
 try {
+    // Check if PDO connection exists
+    if (!isset($pdo) || !$pdo) {
+        throw new Exception('Database connection not available');
+    }
+    
     $method = $_SERVER['REQUEST_METHOD'];
     $json = file_get_contents('php://input');
     $data = json_decode($json, true) ?? [];
