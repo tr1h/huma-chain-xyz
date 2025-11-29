@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="telegram:bot" content="gotchigamebot">
-    <meta http-equiv="refresh" content="2; url=https://t.me/gotchigamebot?start=ref">
+    <!-- Removed meta refresh - Telegram needs time to parse Open Graph tags -->
+    <!-- Redirect will be handled by JavaScript after page load -->
     
     <!-- Primary Meta Tags -->
     <title>🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</title>
@@ -18,8 +19,8 @@
     <meta property="og:description" content="Join through referral link and get 1,000 TAMA bonus! Play-to-earn game on Solana blockchain.">
     <meta property="og:image" content="https://solanatamagotchi.com/logo.png">
     <meta property="og:image:secure_url" content="https://solanatamagotchi.com/logo.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:alt" content="Solana Tamagotchi - Play-to-Earn Game">
     <meta property="og:site_name" content="Solana Tamagotchi">
@@ -191,35 +192,20 @@
         const telegramLink = document.getElementById('telegram-link');
         telegramLink.href = telegramUrl;
         
-        // Multiple redirect methods for maximum compatibility
-        // Method 1: Immediate redirect for mobile apps
-        if (window.location.protocol === 'https:' || window.location.protocol === 'http:') {
-            // Try immediate redirect
-            try {
-                window.location.replace(telegramUrl);
-            } catch (e) {
-                console.warn('Location replace failed, trying href:', e);
-            }
-        }
-        
-        // Method 2: Delayed redirect (fallback)
+        // Delay redirect to allow Telegram to parse Open Graph tags
+        // Telegram needs at least 1-2 seconds to read meta tags before redirect
         setTimeout(() => {
             try {
                 window.location.href = telegramUrl;
             } catch (e) {
                 console.error('Redirect failed:', e);
                 // Show manual link
-                document.getElementById('telegram-link').style.display = 'block';
+                const link = document.getElementById('telegram-link');
+                if (link) {
+                    link.style.display = 'inline-block';
+                }
             }
-        }, 500);
-        
-        // Method 3: Click simulation (for some browsers)
-        setTimeout(() => {
-            const link = document.getElementById('telegram-link');
-            if (link && document.hasFocus()) {
-                link.click();
-            }
-        }, 1500);
+        }, 2000); // 2 seconds delay for Telegram to parse Open Graph tags
         
         // Also redirect on click (backup)
         telegramLink.addEventListener('click', (e) => {
