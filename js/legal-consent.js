@@ -377,6 +377,15 @@ class LegalConsent {
     }
 
     hideLegalSidebar() {
+        // Hide legal footer by ID (most reliable)
+        const legalFooter = document.getElementById('legal-footer');
+        if (legalFooter) {
+            legalFooter.style.display = 'none';
+            legalFooter.style.opacity = '0';
+            legalFooter.style.transition = 'opacity 0.3s ease, display 0.3s ease';
+            console.log('✅ Hidden legal footer by ID');
+        }
+
         // Try to find and hide legal sidebar/panel on the right side
         const selectors = [
             '.legal-sidebar',
@@ -419,6 +428,24 @@ class LegalConsent {
                 el.style.opacity = '0';
                 el.style.transition = 'opacity 0.3s ease';
                 console.log('✅ Hidden legal sidebar element');
+            }
+        });
+
+        // Also check for any element containing legal text that might be positioned incorrectly
+        const allElements = document.querySelectorAll('div, section, aside');
+        allElements.forEach(el => {
+            const text = el.textContent || '';
+            const style = window.getComputedStyle(el);
+            if ((text.includes('Privacy Policy') || text.includes('Terms of Service') || text.includes('Risk Warning')) && 
+                (style.position === 'fixed' || style.position === 'absolute')) {
+                // Check if it's on the right side
+                const rect = el.getBoundingClientRect();
+                if (rect.right > window.innerWidth || rect.left > window.innerWidth * 0.7) {
+                    el.style.display = 'none';
+                    el.style.opacity = '0';
+                    el.style.transition = 'opacity 0.3s ease';
+                    console.log('✅ Hidden legal element that was out of bounds');
+                }
             }
         });
     }
