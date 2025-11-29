@@ -3210,13 +3210,18 @@ def handle_callback(call):
 📤 <b>Share with friends and start earning!</b>
         """
         
+        # Share text with link for Telegram preview (text AFTER link!)
+        share_text = f"""🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
+
+🐾 Play-to-earn game on Solana blockchain
+💰 No wallet needed to start earning!
+
+🎁 Get 1,000 TAMA instantly when you join!
+🚀 Start playing and earning now!"""
+        
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
-            types.InlineKeyboardButton("🎮 Visit Site", url=short_link),
-            types.InlineKeyboardButton("📤 Share Link", url=f"https://t.me/share/url?url={short_link}&text=🎮 Join me in Solana Tamagotchi! Get 1,000 TAMA bonus! No wallet needed!")
-        )
-        keyboard.row(
-            types.InlineKeyboardButton("📱 Get QR Code", callback_data=f"qr_{ref_code}")
+            types.InlineKeyboardButton("📤 Share Link", url=f"https://t.me/share/url?url={short_link}&text={share_text.replace(chr(10), '%0A')}")
         )
         keyboard.row(
             types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
