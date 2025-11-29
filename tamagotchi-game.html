@@ -11484,28 +11484,6 @@
                         console.error('Failed to copy:', clipErr);
                     }
                 }
-                            text: text,
-                            url: link
-                        });
-                        shareReferralBtn.textContent = '✅ Shared!';
-                        setTimeout(() => {
-                            shareReferralBtn.textContent = '📤 Share Link';
-                        }, 2000);
-                    } catch (err) {
-                        console.log('Share cancelled or failed');
-                    }
-                } else {
-                    // Fallback: copy to clipboard
-                    try {
-                        await navigator.clipboard.writeText(text);
-                        shareReferralBtn.textContent = '✅ Shared!';
-                        setTimeout(() => {
-                            shareReferralBtn.textContent = '📤 Share Link';
-                        }, 2000);
-                    } catch (err) {
-                        console.error('Failed to share: ', err);
-                    }
-                }
             });
         }
 
