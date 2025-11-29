@@ -1373,7 +1373,11 @@ def send_referral(message):
     text = f"""
 🔗 <b>Your Personal Referral Link:</b>
 
-<code>{short_link}</code>
+{short_link}
+
+🎮 <b>Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</b>
+🐾 Play-to-earn game on Solana blockchain
+💰 No wallet needed to start earning!
 
 📊 <b>Your Stats:</b>
 • 👥 Total Referrals: {total_referrals + pending_count}
@@ -3184,7 +3188,11 @@ def handle_callback(call):
         text = f"""
 🔗 <b>Your Personal Referral Link:</b>
 
-<code>{short_link}</code>
+{short_link}
+
+🎮 <b>Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</b>
+🐾 Play-to-earn game on Solana blockchain
+💰 No wallet needed to start earning!
 
 📊 <b>Your Stats:</b>
 • 👥 Total Referrals: {total_referrals + pending_count}
