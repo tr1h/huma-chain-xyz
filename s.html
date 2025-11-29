@@ -20,10 +20,11 @@
     <meta property="og:image" content="https://solanatamagotchi.com/logo.png">
     <meta property="og:image:url" content="https://solanatamagotchi.com/logo.png">
     <meta property="og:image:secure_url" content="https://solanatamagotchi.com/logo.png">
-    <meta property="og:image:width" content="512">
-    <meta property="og:image:height" content="512">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:alt" content="Solana Tamagotchi - Play-to-Earn Game">
+    <meta property="og:image:secure_url" content="https://solanatamagotchi.com/logo.png">
     <meta property="og:site_name" content="Solana Tamagotchi">
     <meta property="og:locale" content="en_US">
     
@@ -137,11 +138,12 @@
     </style>
 </head>
 <body>
-    <!-- Hidden image for Telegram bots to parse (must be visible in DOM) -->
+    <!-- Visible image for Telegram bots to parse (Telegram needs to see it!) -->
     <img src="https://solanatamagotchi.com/logo.png" 
          alt="Solana Tamagotchi - Play-to-Earn Game" 
-         style="position: absolute; width: 512px; height: 512px; opacity: 0; pointer-events: none; left: -9999px;"
-         id="og-image-preview">
+         style="position: absolute; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; top: 0; left: 0;"
+         id="og-image-preview"
+         crossorigin="anonymous">
     
     <div class="container">
         <div class="logo">🐾</div>
