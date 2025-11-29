@@ -51,6 +51,17 @@
     <script src="js/legal-consent.js"></script>
     
     <style>
+        /* Hide legal footer if consent already given */
+        #legal-footer.hidden-consent {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
         /* CSS Variables for Themes 🎨 */
         :root {
             /* Kawai Theme (Default) 🌸 - DARKER VERSION */
@@ -14490,7 +14501,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 
     <!-- Legal Footer -->
-    <div id="legal-footer" style="margin-top: 60px; padding: 30px 20px; background: #f8f9fa; border-top: 2px solid #e0e0e0; text-align: center; color: #666; width: 100%; max-width: 100%; box-sizing: border-box; position: relative; overflow: hidden;">
+    <div id="legal-footer" style="margin-top: 60px; padding: 30px 20px; background: #f8f9fa; border-top: 2px solid #e0e0e0; text-align: center; color: #666; width: 100%; max-width: 100%; box-sizing: border-box; position: relative; overflow: hidden; display: block;">
         <p style="margin: 10px 0; font-size: 0.95em;">
             <a href="/terms" style="color: #9945FF; text-decoration: none; margin: 0 12px; font-weight: 500;">⚖️ Terms of Service</a> |
             <a href="/privacy" style="color: #9945FF; text-decoration: none; margin: 0 12px; font-weight: 500;">🔒 Privacy Policy</a> |

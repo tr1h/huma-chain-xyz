@@ -13,6 +13,18 @@ class LegalConsent {
         // Check if user has already consented
         if (!this.hasConsented()) {
             this.showModal();
+        } else {
+            // User already consented - hide footer immediately
+            setTimeout(() => {
+                this.hideLegalSidebar();
+            }, 100);
+        }
+        
+        // Also hide on page load if consented (double check)
+        if (this.hasConsented()) {
+            window.addEventListener('load', () => {
+                this.hideLegalSidebar();
+            });
         }
     }
 
@@ -380,8 +392,20 @@ class LegalConsent {
         // Hide legal footer by ID (most reliable)
         const legalFooter = document.getElementById('legal-footer');
         if (legalFooter) {
+            // Add class for CSS rule
+            legalFooter.classList.add('hidden-consent');
+            
+            // Force hide with inline styles
             legalFooter.style.display = 'none';
+            legalFooter.style.visibility = 'hidden';
             legalFooter.style.opacity = '0';
+            legalFooter.style.height = '0';
+            legalFooter.style.overflow = 'hidden';
+            legalFooter.style.padding = '0';
+            legalFooter.style.margin = '0';
+            legalFooter.style.position = 'absolute';
+            legalFooter.style.left = '-9999px';
+            legalFooter.style.width = '0';
             legalFooter.style.transition = 'opacity 0.3s ease, display 0.3s ease';
             console.log('✅ Hidden legal footer by ID');
         }
