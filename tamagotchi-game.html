@@ -13044,7 +13044,9 @@
                         // Update gameState if database balance is higher (might have passive income)
                         if (dbBalance > gameState.tama) {
                             gameState.tama = dbBalance;
-                            updateTamaDisplay();
+                            if (typeof updateUI === 'function') {
+                                updateUI();
+                            }
                             console.log('✅ TAMA balance synced from database:', dbBalance);
                         }
                     }
