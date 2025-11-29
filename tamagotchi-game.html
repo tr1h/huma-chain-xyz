@@ -11441,8 +11441,18 @@
                 // 🎁 INSTANT REWARD FOR SHARING!
                 if (typeof gameState !== 'undefined') {
                     gameState.tama = (gameState.tama || 0) + 100;
-                    updateTamaDisplay();
-                    triggerAutoSave();
+                    // Update display if updateUI exists
+                    if (typeof updateUI === 'function') {
+                        updateUI();
+                    } else if (typeof tamaDisplay !== 'undefined' && tamaDisplay) {
+                        tamaDisplay.textContent = typeof formatNumber === 'function' 
+                            ? formatNumber(gameState.tama) 
+                            : gameState.tama.toLocaleString();
+                    }
+                    // Auto-save if function exists
+                    if (typeof triggerAutoSave === 'function') {
+                        triggerAutoSave();
+                    }
                 }
                 if (typeof showNotification === 'function') {
                     showNotification("🎉 +100 TAMA for sharing!");
