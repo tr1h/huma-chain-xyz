@@ -1371,17 +1371,13 @@ def send_referral(message):
     short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}&v=30"
     
     text = f"""
-🔗 <b>Your Personal Referral Link:</b>
+🔗 <b>Your Referral Code:</b>
 
-{short_link}
-
-🎮 <b>Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</b>
-🐾 Play-to-earn game on Solana blockchain
-💰 No wallet needed to start earning!
+<code>{ref_code}</code>
 
 📊 <b>Your Stats:</b>
 • 👥 Total Referrals: {total_referrals + pending_count}
-• 💰 Total Earned: {total_earnings} TAMA
+• 💰 Total Earned: {total_earnings:,} TAMA
 
 💰 <b>Earn instantly (NO WALLET NEEDED!):</b>
 • 1,000 TAMA for each friend instantly!
@@ -1395,16 +1391,21 @@ def send_referral(message):
 • 50 referrals → +30,000 TAMA
 • 100 referrals → +100,000 TAMA + Legendary Badge!
 
-📤 <b>Share with friends and start earning!</b>
+📤 <b>Click "Share Link" to share with friends!</b>
     """
+    
+    # Share text with link for Telegram preview (text AFTER link!)
+    share_text = f"""🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
+
+🐾 Play-to-earn game on Solana blockchain
+💰 No wallet needed to start earning!
+
+🎁 Get 1,000 TAMA instantly when you join!
+🚀 Start playing and earning now!"""
     
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
-        types.InlineKeyboardButton("🎮 Visit Site", url=game_link),
-        types.InlineKeyboardButton("📤 Share Link", url=f"https://t.me/share/url?url={short_link}&text=🎮 Join me in Solana Tamagotchi! Get 1,000 TAMA bonus! No wallet needed!")
-    )
-    keyboard.row(
-        types.InlineKeyboardButton("📱 Get QR Code", callback_data=f"qr_{ref_code}")
+        types.InlineKeyboardButton("📤 Share Link", url=f"https://t.me/share/url?url={short_link}&text={share_text.replace(chr(10), '%0A')}")
     )
     
     bot.reply_to(message, text, parse_mode='HTML', reply_markup=keyboard)
@@ -3186,17 +3187,13 @@ def handle_callback(call):
             total_earnings = 0
         
         text = f"""
-🔗 <b>Your Personal Referral Link:</b>
+🔗 <b>Your Referral Code:</b>
 
-{short_link}
-
-🎮 <b>Join Solana Tamagotchi - Get 1,000 TAMA Bonus!</b>
-🐾 Play-to-earn game on Solana blockchain
-💰 No wallet needed to start earning!
+<code>{ref_code}</code>
 
 📊 <b>Your Stats:</b>
 • 👥 Total Referrals: {total_referrals + pending_count}
-• 💰 Total Earned: {total_earnings} TAMA
+• 💰 Total Earned: {total_earnings:,} TAMA
 
 💰 <b>Earn instantly (NO WALLET NEEDED!):</b>
 • 1,000 TAMA for each friend instantly!
