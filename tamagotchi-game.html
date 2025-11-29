@@ -4992,7 +4992,13 @@
                 <button class="close-btn" id="close-referral">✕</button>
             </div>
             <div class="referral-body">
-                <div class="referral-link-container">
+                <div class="referral-code-container" style="margin-bottom: 20px; text-align: center;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">🔗 Your Referral Code:</h3>
+                    <div style="background: rgba(102, 126, 234, 0.2); padding: 15px; border-radius: 10px; border: 2px solid #667eea;">
+                        <code id="referral-code-display" style="font-size: 24px; font-weight: bold; color: #4ade80; letter-spacing: 2px;">TAMA000000</code>
+                    </div>
+                </div>
+                <div class="referral-link-container" style="display: none;">
                     <input type="text" id="referral-link-input" readonly class="referral-link-input">
                     <button class="copy-btn" id="copy-referral-btn">📋 Copy</button>
                 </div>
@@ -11235,8 +11241,8 @@
         const copyReferralBtn = document.getElementById('copy-referral-btn');
         const shareReferralBtn = document.getElementById('share-referral-btn');
 
-        // Generate referral link (SAME algorithm as bot.py!)
-        async function generateReferralLink() {
+        // Generate referral code (SAME algorithm as bot.py!)
+        async function generateReferralCode() {
             const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
             if (telegramUser && telegramUser.id) {
                 const telegramId = String(telegramUser.id);
@@ -11250,11 +11256,23 @@
                 // Take first 3 bytes and convert to base36 (same as bot.py)
                 const hashVal = (hashArray[0] << 16) | (hashArray[1] << 8) | hashArray[2];
                 const codeNum = hashVal % (36 ** 6);
-                const code = 'TAMA' + codeNum.toString(36).toUpperCase().padStart(6, '0').slice(0, 6);
+                const base36Chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                let codePart = '';
+                let num = codeNum;
+                for (let i = 0; i < 6; i++) {
+                    codePart = base36Chars[num % 36] + codePart;
+                    num = Math.floor(num / 36);
+                }
                 
-                return `https://solanatamagotchi.com/s.html?ref=${code}&v=30`;
+                return 'TAMA' + codePart;
             }
-            return 'https://solanatamagotchi.com/s.html';
+            return 'TAMA000000';
+        }
+
+        // Generate referral link (SAME algorithm as bot.py!)
+        async function generateReferralLink() {
+            const code = await generateReferralCode();
+            return `https://solanatamagotchi.com/s.html?ref=${code}&v=30`;
         }
 
         // Update referral progress bar
@@ -11346,7 +11364,15 @@
         // Open referral modal
         if (referralBtn && referralModal) {
             referralBtn.addEventListener('click', async () => {
+                const code = await generateReferralCode();
                 const link = await generateReferralLink();
+                
+                // Display code
+                const codeDisplay = document.getElementById('referral-code-display');
+                if (codeDisplay) {
+                    codeDisplay.textContent = code;
+                }
+                
                 referralLinkInput.value = link;
                 
                 // Update referral progress bar
@@ -11398,13 +11424,26 @@
         if (shareReferralBtn) {
             shareReferralBtn.addEventListener('click', async () => {
                 const link = referralLinkInput.value;
-                const text = `🎮 Join me in Solana Tamagotchi! Get 1,000 TAMA welcome bonus! 💰\n\n${link}`;
+                
+                // Share text with link for Telegram preview (text AFTER link!)
+                const shareText = `🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
+
+🐾 Play-to-earn game on Solana blockchain
+💰 No wallet needed to start earning!
+
+🎁 Get 1,000 TAMA instantly when you join!
+🚀 Start playing and earning now!`;
+                
+                // Encode text for URL
+                const encodedText = encodeURIComponent(shareText);
+                const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodedText}`;
                 
                 // 🎁 INSTANT REWARD FOR SHARING!
                 addTama(100);
                 showNotification("🎉 +100 TAMA for sharing!");
                 
                 // Send event to database
+                const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
                 try {
                     await fetch(`${SUPABASE_URL}/rest/v1/sharing_events`, {
                         method: 'POST',
@@ -11425,10 +11464,26 @@
                     console.log('Sharing event tracking failed:', error);
                 }
                 
-                if (navigator.share) {
+                // Open Telegram share URL (works in Telegram WebApp)
+                try {
+                    window.open(telegramShareUrl, '_blank');
+                    shareReferralBtn.textContent = '✅ Shared!';
+                    setTimeout(() => {
+                        shareReferralBtn.textContent = '📤 Share Link';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to open share:', err);
+                    // Fallback: copy to clipboard
                     try {
-                        await navigator.share({
-                            title: 'Solana Tamagotchi',
+                        await navigator.clipboard.writeText(link + '\n\n' + shareText);
+                        shareReferralBtn.textContent = '✅ Copied!';
+                        setTimeout(() => {
+                            shareReferralBtn.textContent = '📤 Share Link';
+                        }, 2000);
+                    } catch (clipErr) {
+                        console.error('Failed to copy:', clipErr);
+                    }
+                }
                             text: text,
                             url: link
                         });
