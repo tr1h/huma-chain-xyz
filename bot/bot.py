@@ -922,7 +922,7 @@ def send_analytics(message):
         text = f"""
 📊 *Referral Analytics:*
 
-ЁЯУИ *Overview:*
+🎯 *Overview:*
 • Total Referrals: {total_refs}
 • Active: {active_refs}
 • Pending: {pending_refs}
@@ -2107,7 +2107,7 @@ def send_user_stats(message):
 👥 **Total Referrals:** {total_referrals + pending_count}
 🔗 **Referral Code:** {player.get('referral_code', 'Generate with /ref')}
 🏅 **Level:** {player.get('level', 1)}
-ЁЯУИ **XP:** {player.get('xp', 0):,}
+🎯 **XP:** {player.get('xp', 0):,}
 
 💰 **Earn more TAMA with /earn!**
             """
@@ -2385,7 +2385,7 @@ def test_promo_post(message):
 ✅ Real earning opportunities
 ✅ Daily rewards & games (in main game)
 
-ЁЯУИ Top referrers earning 100,000+ TAMA!
+🎯 Top referrers earning 100,000+ TAMA!
 
 🚀 Get your referral link now:
 🤖 Bot: @{BOT_USERNAME}
@@ -2477,7 +2477,7 @@ def show_monitoring_stats(message):
 • Errors Count: {monitoring_stats['errors_count']}
 • Requests This Minute: {requests_this_minute}
 
-ЁЯУИ **Activity:**
+🎯 **Activity:**
 • Referrals Today: {monitoring_stats['referrals_today']}
 
 ЁЯХР **Last Updated:** {datetime.now().strftime("%H:%M:%S")}
@@ -2646,7 +2646,10 @@ def show_user_rank(message):
                 next_rank = (r_id, r_data)
                 break
         
-        progress_bar = "тЦ░" * (total_refs % 5) + "тЦ▒" * (5 - (total_refs % 5))
+        # Progress bar with proper emoji
+        filled = "▓" * (total_refs % 5)
+        empty = "░" * (5 - (total_refs % 5))
+        progress_bar = filled + empty
         
         text = f"""
 {rank_data['emoji']} **Your Rank: {rank_data['name']}**
@@ -2661,10 +2664,10 @@ def show_user_rank(message):
             text += f"""
 
 📋 **Next rank:** {next_rank[1]['name']}
-ЁЯУИ **Needed:** {refs_needed} referrals
+🎯 **Needed:** {refs_needed} referrals
         """
         else:
-            text += "\n\nЁЯСС **Maximum rank achieved!**"
+            text += "\n\n🏆 **Maximum rank achieved!**"
         
         bot.reply_to(message, text, parse_mode='Markdown')
         
@@ -2904,7 +2907,7 @@ def post_daily_promo():
 ✅ Real earning opportunities
 ✅ Daily rewards & games (in main game)
 
-ЁЯУИ Top referrers earning 100,000+ TAMA!
+🎯 Top referrers earning 100,000+ TAMA!
 
 🚀 Get your referral link now:
 🤖 Bot: @{BOT_USERNAME}
@@ -4221,7 +4224,10 @@ Please try again later!
                 next_rank = (r_id, r_data)
                 break
         
-        progress_bar = "тЦ░" * min(total_refs % 5, 5) + "тЦ▒" * max(5 - (total_refs % 5), 0)
+        # Progress bar with proper characters
+        filled = "▓" * min(total_refs % 5, 5)
+        empty = "░" * max(5 - (total_refs % 5), 0)
+        progress_bar = filled + empty
         
         text = f"""
 {rank_data['emoji']} **Your Rank: {rank_data['name']}**
@@ -4236,10 +4242,10 @@ Please try again later!
             text += f"""
 
 📋 **Next rank:** {next_rank[1]['name']}
-ЁЯУИ **Needed:** {refs_needed} referrals
+🎯 **Needed:** {refs_needed} referrals
         """
         else:
-            text += "\n\nЁЯСС **Maximum rank achieved!**"
+            text += "\n\n🏆 **Maximum rank achieved!**"
         
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
