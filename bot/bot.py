@@ -661,14 +661,17 @@ def handle_start(message):
                                 else:
                                     # ╨б╨╛╨╖╨┤╨░╤В╤М ╨╜╨╛╨▓╨╛╨│╨╛ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П ╨╡╤Б╨╗╨╕ ╨╡╨│╨╛ ╨╜╨╡╤В
                                     referrer_ref_code = generate_referral_code(referrer_telegram_id)
+                                    # Get referral reward from settings
+                                    settings = get_referral_settings()
+                                    referral_reward = settings.get('referral_reward', 1000)
                                     supabase.table('leaderboard').insert({
                                         'telegram_id': str(referrer_telegram_id),
                                         'telegram_username': referrer_username,
                                         'wallet_address': f'telegram_{referrer_telegram_id}',  # Placeholder
-                                        'tama': 1000,
+                                        'tama': referral_reward,
                                         'referral_code': referrer_ref_code
                                     }).execute()
-                                    print(f"💰 Created new user and awarded 1,000 TAMA to {referrer_telegram_id}")
+                                    print(f"💰 Created new user and awarded {referral_reward} TAMA to {referrer_telegram_id}")
                                 
                                 # ╨б╨╛╨╖╨┤╨░╤В╤М ╨╖╨░╨┐╨╕╤Б╤М ╨▓ referrals ╨┤╨╗╤П ╨╛╤В╤Б╨╗╨╡╨╢╨╕╨▓╨░╨╜╨╕╤П (NO WALLET!)
                                 # Check if referral record already exists
