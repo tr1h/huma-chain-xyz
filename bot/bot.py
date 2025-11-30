@@ -2313,6 +2313,93 @@ def kick_user(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
+@bot.message_handler(commands=['delete_user', 'deluser'])
+def delete_user_for_testing(message):
+    """Delete user and all their referrals for testing purposes - Admin only"""
+    if not is_admin(message.from_user.id):
+        bot.reply_to(message, "❌ Admin only")
+        return
+    
+    try:
+        # Parse command: /delete_user TELEGRAM_ID or reply to message
+        if message.reply_to_message:
+            user_id = str(message.reply_to_message.from_user.id)
+        else:
+            parts = message.text.split()
+            if len(parts) < 2:
+                bot.reply_to(message, "❌ Usage: /delete_user TELEGRAM_ID\nOr reply to a user's message")
+                return
+            user_id = parts[1]
+        
+        telegram_id = str(user_id)
+        
+        # Get user info before deletion
+        user_data = supabase.table('leaderboard').select('telegram_username, tama, referral_code').eq('telegram_id', telegram_id).execute()
+        username = user_data.data[0].get('telegram_username', 'Unknown') if user_data.data else 'Unknown'
+        tama_balance = user_data.data[0].get('tama', 0) if user_data.data else 0
+        
+        # Count referrals before deletion
+        referrals_count = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
+        total_referrals = referrals_count.count or 0
+        
+        # Count referred users (users who were referred by this user)
+        referred_count = supabase.table('referrals').select('*', count='exact').eq('referred_telegram_id', telegram_id).execute()
+        total_referred = referred_count.count or 0
+        
+        # Delete all referrals where this user is the referrer
+        supabase.table('referrals').delete().eq('referrer_telegram_id', telegram_id).execute()
+        
+        # Delete all referrals where this user was referred
+        supabase.table('referrals').delete().eq('referred_telegram_id', telegram_id).execute()
+        
+        # Delete pending referrals
+        supabase.table('pending_referrals').delete().eq('referrer_telegram_id', telegram_id).execute()
+        supabase.table('pending_referrals').delete().eq('referred_telegram_id', telegram_id).execute()
+        
+        # Delete user from leaderboard
+        supabase.table('leaderboard').delete().eq('telegram_id', telegram_id).execute()
+        
+        # Delete from other tables if they exist
+        try:
+            supabase.table('user_nfts').delete().eq('telegram_id', telegram_id).execute()
+        except:
+            pass
+        
+        try:
+            supabase.table('tama_economy').delete().eq('telegram_id', telegram_id).execute()
+        except:
+            pass
+        
+        result_text = f"""✅ **User Deleted for Testing**
+
+👤 **User Info:**
+• ID: `{telegram_id}`
+• Username: @{username}
+• Balance: {tama_balance:,} TAMA (deleted)
+
+📊 **Deleted Data:**
+• Referrals made: {total_referrals}
+• Was referred by: {total_referred}
+• All referral records deleted
+• Leaderboard entry deleted
+
+🔄 **Now you can:**
+• Invite this user again as a new referral
+• Test the referral system from scratch
+• User will be treated as completely new
+
+⚠️ **Note:** This is for testing only!"""
+        
+        bot.reply_to(message, result_text, parse_mode='Markdown')
+        
+        # Log the deletion
+        print(f"🗑️ Admin {message.from_user.id} deleted user {telegram_id} for testing")
+        
+    except Exception as e:
+        error_msg = str(e)
+        bot.reply_to(message, f"❌ Error deleting user: {error_msg}")
+        print(f"❌ Error in delete_user: {error_msg}")
+
 @bot.message_handler(commands=['broadcast'])
 def broadcast_message(message):
     if not is_admin(message.from_user.id):
