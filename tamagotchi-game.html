@@ -7874,10 +7874,32 @@
         }
         
         // ===========================================
-        // 🔊 CASINO SOUND EFFECTS (Web Audio API)
+        // 🔊 SOUND EFFECTS
         // ===========================================
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
+        
+        // Withdrawal success sound
+        let withdrawalSuccessSound = null;
+        
+        function playWithdrawalSuccessSound() {
+            try {
+                if (!withdrawalSuccessSound) {
+                    withdrawalSuccessSound = new Audio('Soundroll-Twinkle-cute-upward-flourish.mp3');
+                    withdrawalSuccessSound.volume = 0.5; // 50% volume
+                    withdrawalSuccessSound.preload = 'auto';
+                }
+                
+                // Reset to beginning and play
+                withdrawalSuccessSound.currentTime = 0;
+                withdrawalSuccessSound.play().catch(error => {
+                    console.warn('Could not play withdrawal success sound:', error);
+                    // Some browsers require user interaction first
+                });
+            } catch (error) {
+                console.warn('Error playing withdrawal success sound:', error);
+            }
+        }
         
         // Initialize audio context on first user interaction
         function initAudio() {
