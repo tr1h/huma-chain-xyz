@@ -657,7 +657,7 @@ def handle_start(message):
                                         'tama': new_tama
                                     }).eq('telegram_id', str(referrer_telegram_id)).execute()
                                     
-                                    print(f"💰 Awarded 1,000 TAMA to {referrer_telegram_id} (new balance: {new_tama})")
+                                    print(f"💰 Awarded {referral_reward} TAMA to {referrer_telegram_id} (new balance: {new_tama})")
                                 else:
                                     # ╨б╨╛╨╖╨┤╨░╤В╤М ╨╜╨╛╨▓╨╛╨│╨╛ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П ╨╡╤Б╨╗╨╕ ╨╡╨│╨╛ ╨╜╨╡╤В
                                     referrer_ref_code = generate_referral_code(referrer_telegram_id)
