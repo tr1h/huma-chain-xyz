@@ -2336,7 +2336,7 @@ def start_tournament(message):
 🥉 3rd place: 3,000 TAMA + Rare Pet
 4-10 places: 1,000 TAMA each
 
-тП░ Tournament ends in 7 days!
+⏰ Tournament ends in 7 days!
 📋 Start playing now: @{BOT_USERNAME}
 
 #Tournament #GameFi #Solana"""
@@ -2368,7 +2368,7 @@ def test_promo_post(message):
         # Get the promo post
         promo_posts = [
             # Post 1: General intro (Day 1, 5, 9...)
-            """🐾 SOLANA TAMAGOTCHI - YOUR VIRTUAL PET! 🐾
+            f"""🐾 SOLANA TAMAGOTCHI - YOUR VIRTUAL PET! 🐾
 
 🎮 What is it?
 • Virtual pet in Telegram
@@ -2379,7 +2379,7 @@ def test_promo_post(message):
 💰 Earning:
 • Clicks = TAMA tokens
 • Playing games = bonuses (in main game)
-• Referrals = 10% of income
+• Referrals = 1,000 TAMA per friend!
 • Daily rewards
 
 🏅 Features:
@@ -2396,7 +2396,7 @@ def test_promo_post(message):
 #Solana #GameFi #Tamagotchi #Crypto #PlayToEarn""",
 
             # Post 2: Focus on earning (Day 2, 6, 10...)
-            """💰 EARN TAMA TOKENS WHILE PLAYING! 💰
+            f"""💰 EARN TAMA TOKENS WHILE PLAYING! 💰
 
 📋 How to Earn:
 • Click your pet = Instant TAMA!
@@ -2407,7 +2407,7 @@ def test_promo_post(message):
 
 📊 Referral Program:
 • 1,000 TAMA for each friend instantly!
-• Milestone bonuses up to 100,000 TAMA!
+• Milestone bonuses up to 500,000 TAMA!
 
 🎮 5 Games Available (in main game):
 • Guess Number • Trivia Quiz
@@ -2421,7 +2421,7 @@ def test_promo_post(message):
 #PlayToEarn #CryptoGame #TAMA #Solana""",
 
             # Post 3: Focus on referrals (Day 3, 7, 11...)
-            """🔗 INVITE FRIENDS = EARN BIG! 🔗
+            f"""🔗 INVITE FRIENDS = EARN BIG! 🔗
 
 🎁 Referral Rewards:
 • 1,000 TAMA for each friend
@@ -2891,7 +2891,7 @@ def post_daily_promo():
         # Different promo posts
         promo_posts = [
             # Post 1: General intro (Day 1, 5, 9...)
-            """🐾 SOLANA TAMAGOTCHI - YOUR VIRTUAL PET! 🐾
+            f"""🐾 SOLANA TAMAGOTCHI - YOUR VIRTUAL PET! 🐾
 
 🎮 What is it?
 • Virtual pet in Telegram
@@ -2902,7 +2902,7 @@ def post_daily_promo():
 💰 Earning:
 • Clicks = TAMA tokens
 • Playing games = bonuses (in main game)
-• Referrals = 10% of income
+• Referrals = 1,000 TAMA per friend!
 • Daily rewards
 
 🏅 Features:
@@ -2919,7 +2919,7 @@ def post_daily_promo():
 #Solana #GameFi #Tamagotchi #Crypto #PlayToEarn""",
 
             # Post 2: Focus on earning (Day 2, 6, 10...)
-            """💰 EARN TAMA TOKENS WHILE PLAYING! 💰
+            f"""💰 EARN TAMA TOKENS WHILE PLAYING! 💰
 
 📋 How to Earn:
 • Click your pet = Instant TAMA!
@@ -2930,7 +2930,7 @@ def post_daily_promo():
 
 📊 Referral Program:
 • 1,000 TAMA for each friend instantly!
-• Milestone bonuses up to 100,000 TAMA!
+• Milestone bonuses up to 500,000 TAMA!
 
 🎮 5 Games Available (in main game):
 • Guess Number • Trivia Quiz
@@ -2944,7 +2944,7 @@ def post_daily_promo():
 #PlayToEarn #CryptoGame #TAMA #Solana""",
 
             # Post 3: Focus on referrals (Day 3, 7, 11...)
-            """🔗 INVITE FRIENDS = EARN BIG! 🔗
+            f"""🔗 INVITE FRIENDS = EARN BIG! 🔗
 
 🎁 Referral Rewards:
 • 1,000 TAMA for each friend
