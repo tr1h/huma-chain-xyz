@@ -193,6 +193,38 @@ def escape_markdown(text):
     return str(text).replace('\\', '\\\\').replace('_', '\\_').replace('*', '\\*').replace('[', '\\[').replace(']', '\\]').replace('(', '\\(').replace(')', '\\)').replace('~', '\\~').replace('`', '\\`').replace('>', '\\>').replace('#', '\\#').replace('+', '\\+').replace('-', '\\-').replace('=', '\\=').replace('|', '\\|').replace('{', '\\{').replace('}', '\\}').replace('.', '\\.').replace('!', '\\!')
 
 # TAMA API Functions
+def get_referral_settings():
+    """Get referral settings from database (with caching)"""
+    try:
+        # Try to get from Supabase referral_settings table
+        response = supabase.table('referral_settings').select('*').execute()
+        
+        if response.data:
+            settings = {}
+            for s in response.data:
+                settings[s['setting_key']] = int(s['setting_value'])
+            return settings
+    except Exception as e:
+        print(f"Error getting referral settings: {e}")
+    
+    # Fallback to defaults if DB not available
+    return {
+        'referral_reward': 1000,
+        'milestone_1': 500,
+        'milestone_3': 750,
+        'milestone_5': 1000,
+        'milestone_10': 3000,
+        'milestone_15': 5000,
+        'milestone_25': 10000,
+        'milestone_50': 30000,
+        'milestone_75': 50000,
+        'milestone_100': 100000,
+        'milestone_150': 150000,
+        'milestone_250': 250000,
+        'milestone_500': 500000,
+        'milestone_1000': 1000000
+    }
+
 def get_tama_balance(telegram_id):
     """╨Я╨╛╨╗╤Г╤З╨╕╤В╤М ╨▒╨░╨╗╨░╨╜╤Б TAMA ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"""
     try:
@@ -614,7 +646,11 @@ def handle_start(message):
                                 if referrer_data.data and len(referrer_data.data) > 0:
                                     referrer = referrer_data.data[0]
                                     current_tama = referrer.get('tama', 0) or 0
-                                    new_tama = current_tama + 1000  # 1,000 TAMA ╨╖╨░ ╤А╨╡╤Д╨╡╤А╨░╨╗╨░
+                                    
+                                    # Get referral reward from settings (or default 1000)
+                                    settings = get_referral_settings()
+                                    referral_reward = settings.get('referral_reward', 1000)
+                                    new_tama = current_tama + referral_reward
                                     
                                     # ╨Ю╨▒╨╜╨╛╨▓╨╕╤В╤М TAMA ╨▒╨░╨╗╨░╨╜╤Б
                                     supabase.table('leaderboard').update({
@@ -646,9 +682,9 @@ def handle_start(message):
                                         'referred_address': f'telegram_{user_id}',
                                         'referral_code': ref_code,
                                         'level': 1,
-                                        'signup_reward': 1000,
+                                        'signup_reward': get_referral_settings().get('referral_reward', 1000),
                                         'status': 'completed',
-                                        'reward_given': 1000
+                                        'reward_given': get_referral_settings().get('referral_reward', 1000)
                                     }).execute()
                                     print(f"✅ Created referral record for {referrer_telegram_id} -> {user_id}")
                                     
@@ -664,46 +700,29 @@ def handle_start(message):
                                         milestone_bonus = 0
                                         milestone_text = ""
                                         
-                                        # Expanded milestone system (hybrid)
-                                        if total_referrals == 1:
-                                            milestone_bonus = 500
-                                            milestone_text = "🎉 **FIRST STEP!**\n\n🎯 **1 Referral → +500 TAMA Bonus!**"
-                                        elif total_referrals == 3:
-                                            milestone_bonus = 750
-                                            milestone_text = "🎉 **GETTING STARTED!**\n\n🎯 **3 Referrals → +750 TAMA Bonus!**"
-                                        elif total_referrals == 5:
-                                            milestone_bonus = 1000
-                                            milestone_text = "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **5 Referrals → +1,000 TAMA Bonus!**"
-                                        elif total_referrals == 10:
-                                            milestone_bonus = 3000
-                                            milestone_text = "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **10 Referrals → +3,000 TAMA Bonus!**"
-                                        elif total_referrals == 15:
-                                            milestone_bonus = 5000
-                                            milestone_text = "🎉 **HALFWAY TO GOLD!**\n\n🏅 **15 Referrals → +5,000 TAMA Bonus!**"
-                                        elif total_referrals == 25:
-                                            milestone_bonus = 10000
-                                            milestone_text = "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **25 Referrals → +10,000 TAMA Bonus!**"
-                                        elif total_referrals == 50:
-                                            milestone_bonus = 30000
-                                            milestone_text = "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **50 Referrals → +30,000 TAMA Bonus!**"
-                                        elif total_referrals == 75:
-                                            milestone_bonus = 50000
-                                            milestone_text = "🎉 **PLATINUM PROGRESS!**\n\n🏅 **75 Referrals → +50,000 TAMA Bonus!**"
-                                        elif total_referrals == 100:
-                                            milestone_bonus = 100000
-                                            milestone_text = "🎉 **DIAMOND MILESTONE!**\n\n🏅 **100 Referrals → +100,000 TAMA + Legendary Badge!**"
-                                        elif total_referrals == 150:
-                                            milestone_bonus = 150000
-                                            milestone_text = "🎉 **DIAMOND PROGRESS!**\n\n🏅 **150 Referrals → +150,000 TAMA Bonus!**"
-                                        elif total_referrals == 250:
-                                            milestone_bonus = 250000
-                                            milestone_text = "🎉 **MASTER MILESTONE!**\n\n👑 **250 Referrals → +250,000 TAMA + Master Badge!**"
-                                        elif total_referrals == 500:
-                                            milestone_bonus = 500000
-                                            milestone_text = "🎉 **LEGENDARY MILESTONE!**\n\n🌟 **500 Referrals → +500,000 TAMA + Legend Badge!**"
-                                        elif total_referrals == 1000:
-                                            milestone_bonus = 1000000
-                                            milestone_text = "🎉 **MYTHIC MILESTONE!**\n\n⚡ **1,000 Referrals → +1,000,000 TAMA + Mythic Badge!**"
+                                        # Expanded milestone system (hybrid) - using settings from DB
+                                        settings = get_referral_settings()
+                                        
+                                        milestone_map = {
+                                            1: ('milestone_1', "🎉 **FIRST STEP!**\n\n🎯 **1 Referral → +{amount} TAMA Bonus!**"),
+                                            3: ('milestone_3', "🎉 **GETTING STARTED!**\n\n🎯 **3 Referrals → +{amount} TAMA Bonus!**"),
+                                            5: ('milestone_5', "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **5 Referrals → +{amount} TAMA Bonus!**"),
+                                            10: ('milestone_10', "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **10 Referrals → +{amount} TAMA Bonus!**"),
+                                            15: ('milestone_15', "🎉 **HALFWAY TO GOLD!**\n\n🏅 **15 Referrals → +{amount} TAMA Bonus!**"),
+                                            25: ('milestone_25', "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **25 Referrals → +{amount} TAMA Bonus!**"),
+                                            50: ('milestone_50', "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **50 Referrals → +{amount} TAMA Bonus!**"),
+                                            75: ('milestone_75', "🎉 **PLATINUM PROGRESS!**\n\n🏅 **75 Referrals → +{amount} TAMA Bonus!**"),
+                                            100: ('milestone_100', "🎉 **DIAMOND MILESTONE!**\n\n🏅 **100 Referrals → +{amount} TAMA + Legendary Badge!**"),
+                                            150: ('milestone_150', "🎉 **DIAMOND PROGRESS!**\n\n🏅 **150 Referrals → +{amount} TAMA Bonus!**"),
+                                            250: ('milestone_250', "🎉 **MASTER MILESTONE!**\n\n👑 **250 Referrals → +{amount} TAMA + Master Badge!**"),
+                                            500: ('milestone_500', "🎉 **LEGENDARY MILESTONE!**\n\n🌟 **500 Referrals → +{amount} TAMA + Legend Badge!**"),
+                                            1000: ('milestone_1000', "🎉 **MYTHIC MILESTONE!**\n\n⚡ **1,000 Referrals → +{amount} TAMA + Mythic Badge!**")
+                                        }
+                                        
+                                        if total_referrals in milestone_map:
+                                            setting_key, text_template = milestone_map[total_referrals]
+                                            milestone_bonus = settings.get(setting_key, 0)
+                                            milestone_text = text_template.format(amount=f"{milestone_bonus:,}")
                                         
                                         # ╨Э╨░╤З╨╕╤Б╨╗╨╕╤В╤М ╨╝╨╕╨╗╨╡╤Б╤В╨╛╤Г╨╜ ╨▒╨╛╨╜╤Г╤Б
                                         if milestone_bonus > 0:
