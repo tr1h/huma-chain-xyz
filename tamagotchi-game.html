@@ -14444,6 +14444,9 @@
 
                     // Show success message in game
                     showMessage(`✅ Withdrawal successful! ${formatNumber(netAmount)} TAMA sent to wallet!`);
+                    
+                    // 🎵 Play success sound
+                    playWithdrawalSuccessSound();
 
                     // Сохранить адрес кошелька для будущих выводов
                     if (wallet && wallet.length >= 32) {
