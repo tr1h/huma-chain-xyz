@@ -23,7 +23,9 @@ RANKS = {
     'silver': {'name': 'Silver', 'emoji': '🥈', 'min_refs': 10},
     'gold': {'name': 'Gold', 'emoji': '🥇', 'min_refs': 25},
     'platinum': {'name': 'Platinum', 'emoji': '💎', 'min_refs': 50},
-    'diamond': {'name': 'Diamond', 'emoji': '💠', 'min_refs': 100}
+    'diamond': {'name': 'Diamond', 'emoji': '💠', 'min_refs': 100},
+    'master': {'name': 'Master', 'emoji': '👑', 'min_refs': 250},
+    'legend': {'name': 'Legend', 'emoji': '🌟', 'min_refs': 500}
 }
 
 QUESTS = {

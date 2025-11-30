@@ -50,14 +50,22 @@ try {
                 );
             ");
             
-            // Вставляем дефолтные значения
+            // Вставляем дефолтные значения (гибридная система - расширенные милстоуны)
             $defaults = [
-                ['referral_reward', '1000', 'TAMA reward for each referral'],
+                ['referral_reward', '1000', 'TAMA reward for each referral (Level 1 only)'],
+                ['milestone_1', '500', 'TAMA bonus for 1 referral'],
+                ['milestone_3', '750', 'TAMA bonus for 3 referrals'],
                 ['milestone_5', '1000', 'TAMA bonus for 5 referrals'],
                 ['milestone_10', '3000', 'TAMA bonus for 10 referrals'],
+                ['milestone_15', '5000', 'TAMA bonus for 15 referrals'],
                 ['milestone_25', '10000', 'TAMA bonus for 25 referrals'],
                 ['milestone_50', '30000', 'TAMA bonus for 50 referrals'],
-                ['milestone_100', '100000', 'TAMA bonus for 100 referrals']
+                ['milestone_75', '50000', 'TAMA bonus for 75 referrals'],
+                ['milestone_100', '100000', 'TAMA bonus for 100 referrals'],
+                ['milestone_150', '150000', 'TAMA bonus for 150 referrals'],
+                ['milestone_250', '250000', 'TAMA bonus for 250 referrals (Master)'],
+                ['milestone_500', '500000', 'TAMA bonus for 500 referrals (Legend)'],
+                ['milestone_1000', '1000000', 'TAMA bonus for 1000 referrals (Mythic)']
             ];
             
             $stmt = $pdo->prepare("

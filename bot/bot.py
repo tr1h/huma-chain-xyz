@@ -664,21 +664,46 @@ def handle_start(message):
                                         milestone_bonus = 0
                                         milestone_text = ""
                                         
-                                        if total_referrals == 5:
+                                        # Expanded milestone system (hybrid)
+                                        if total_referrals == 1:
+                                            milestone_bonus = 500
+                                            milestone_text = "🎉 **FIRST STEP!**\n\n🎯 **1 Referral → +500 TAMA Bonus!**"
+                                        elif total_referrals == 3:
+                                            milestone_bonus = 750
+                                            milestone_text = "🎉 **GETTING STARTED!**\n\n🎯 **3 Referrals → +750 TAMA Bonus!**"
+                                        elif total_referrals == 5:
                                             milestone_bonus = 1000
                                             milestone_text = "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **5 Referrals → +1,000 TAMA Bonus!**"
                                         elif total_referrals == 10:
                                             milestone_bonus = 3000
                                             milestone_text = "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **10 Referrals → +3,000 TAMA Bonus!**"
+                                        elif total_referrals == 15:
+                                            milestone_bonus = 5000
+                                            milestone_text = "🎉 **HALFWAY TO GOLD!**\n\n🏅 **15 Referrals → +5,000 TAMA Bonus!**"
                                         elif total_referrals == 25:
                                             milestone_bonus = 10000
                                             milestone_text = "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **25 Referrals → +10,000 TAMA Bonus!**"
                                         elif total_referrals == 50:
                                             milestone_bonus = 30000
                                             milestone_text = "🎉 **MILESTONE ACHIEVED!**\n\n🏅 **50 Referrals → +30,000 TAMA Bonus!**"
+                                        elif total_referrals == 75:
+                                            milestone_bonus = 50000
+                                            milestone_text = "🎉 **PLATINUM PROGRESS!**\n\n🏅 **75 Referrals → +50,000 TAMA Bonus!**"
                                         elif total_referrals == 100:
                                             milestone_bonus = 100000
-                                            milestone_text = "🎉 **LEGENDARY MILESTONE!**\n\n🏅 **100 Referrals → +100,000 TAMA + Legendary Badge!**"
+                                            milestone_text = "🎉 **DIAMOND MILESTONE!**\n\n🏅 **100 Referrals → +100,000 TAMA + Legendary Badge!**"
+                                        elif total_referrals == 150:
+                                            milestone_bonus = 150000
+                                            milestone_text = "🎉 **DIAMOND PROGRESS!**\n\n🏅 **150 Referrals → +150,000 TAMA Bonus!**"
+                                        elif total_referrals == 250:
+                                            milestone_bonus = 250000
+                                            milestone_text = "🎉 **MASTER MILESTONE!**\n\n👑 **250 Referrals → +250,000 TAMA + Master Badge!**"
+                                        elif total_referrals == 500:
+                                            milestone_bonus = 500000
+                                            milestone_text = "🎉 **LEGENDARY MILESTONE!**\n\n🌟 **500 Referrals → +500,000 TAMA + Legend Badge!**"
+                                        elif total_referrals == 1000:
+                                            milestone_bonus = 1000000
+                                            milestone_text = "🎉 **MYTHIC MILESTONE!**\n\n⚡ **1,000 Referrals → +1,000,000 TAMA + Mythic Badge!**"
                                         
                                         # ╨Э╨░╤З╨╕╤Б╨╗╨╕╤В╤М ╨╝╨╕╨╗╨╡╤Б╤В╨╛╤Г╨╜ ╨▒╨╛╨╜╤Г╤Б
                                         if milestone_bonus > 0:
@@ -1385,11 +1410,19 @@ def send_referral(message):
 • TAMA accumulates in your account
 
 🎁 <b>Milestone Bonuses:</b>
+• 1 referral → +500 TAMA
+• 3 referrals → +750 TAMA
 • 5 referrals → +1,000 TAMA
 • 10 referrals → +3,000 TAMA
+• 15 referrals → +5,000 TAMA
 • 25 referrals → +10,000 TAMA
 • 50 referrals → +30,000 TAMA
-• 100 referrals → +100,000 TAMA + Legendary Badge!
+• 75 referrals → +50,000 TAMA
+• 100 referrals → +100,000 TAMA
+• 150 referrals → +150,000 TAMA
+• 250 referrals → +250,000 TAMA (Master!)
+• 500 referrals → +500,000 TAMA (Legend!)
+• 1,000 referrals → +1,000,000 TAMA (Mythic!)
 
 📤 <b>Click "Share Link" to share with friends!</b>
     """
@@ -2373,11 +2406,12 @@ def test_promo_post(message):
 • Unlimited earning potential!
 
 🏅 Milestone Bonuses:
-• 5 refs = +1,000 TAMA bonus
-• 10 refs = +3,000 TAMA bonus
-• 25 refs = +10,000 TAMA bonus
-• 50 refs = +30,000 TAMA bonus
-• 100 refs = +100,000 TAMA + Badge!
+• 1 ref = +500 TAMA | 3 refs = +750 TAMA
+• 5 refs = +1,000 TAMA | 10 refs = +3,000 TAMA
+• 15 refs = +5,000 TAMA | 25 refs = +10,000 TAMA
+• 50 refs = +30,000 TAMA | 75 refs = +50,000 TAMA
+• 100 refs = +100,000 TAMA | 150 refs = +150,000 TAMA
+• 250 refs = +250,000 TAMA (Master!) | 500 refs = +500,000 TAMA (Legend!)
 
 💰 Why Friends Love It:
 ✅ Free to start - no investment
@@ -2895,11 +2929,12 @@ def post_daily_promo():
 • Unlimited earning potential!
 
 🏅 Milestone Bonuses:
-• 5 refs = +1,000 TAMA bonus
-• 10 refs = +3,000 TAMA bonus
-• 25 refs = +10,000 TAMA bonus
-• 50 refs = +30,000 TAMA bonus
-• 100 refs = +100,000 TAMA + Badge!
+• 1 ref = +500 TAMA | 3 refs = +750 TAMA
+• 5 refs = +1,000 TAMA | 10 refs = +3,000 TAMA
+• 15 refs = +5,000 TAMA | 25 refs = +10,000 TAMA
+• 50 refs = +30,000 TAMA | 75 refs = +50,000 TAMA
+• 100 refs = +100,000 TAMA | 150 refs = +150,000 TAMA
+• 250 refs = +250,000 TAMA (Master!) | 500 refs = +500,000 TAMA (Legend!)
 
 💰 Why Friends Love It:
 ✅ Free to start - no investment
@@ -3204,11 +3239,19 @@ def handle_callback(call):
 • TAMA accumulates in your account
 
 🎁 <b>Milestone Bonuses:</b>
+• 1 referral → +500 TAMA
+• 3 referrals → +750 TAMA
 • 5 referrals → +1,000 TAMA
 • 10 referrals → +3,000 TAMA
+• 15 referrals → +5,000 TAMA
 • 25 referrals → +10,000 TAMA
 • 50 referrals → +30,000 TAMA
-• 100 referrals → +100,000 TAMA + Legendary Badge!
+• 75 referrals → +50,000 TAMA
+• 100 referrals → +100,000 TAMA
+• 150 referrals → +150,000 TAMA
+• 250 referrals → +250,000 TAMA (Master!)
+• 500 referrals → +500,000 TAMA (Legend!)
+• 1,000 referrals → +1,000,000 TAMA (Mythic!)
 
 📤 <b>Share with friends and start earning!</b>
         """
