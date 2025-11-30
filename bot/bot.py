@@ -2451,7 +2451,7 @@ def test_promo_post(message):
 #Referral #Crypto #PassiveIncome #Solana""",
 
             # Post 4: Focus on gameplay (Day 4, 8, 12...)
-            """🎮 CHILDHOOD MEMORIES + CRYPTO = FUN! 🎮
+            f"""🎮 CHILDHOOD MEMORIES + CRYPTO = FUN! 🎮
 
 🐾 Remember Tamagotchi? Now with earnings!
 
@@ -2463,10 +2463,10 @@ def test_promo_post(message):
 • Emotions - Happy, Sad, Hungry, Angry, Surprised
 
 📋 Games (in main game):
-• ЁЯО▓ Guess Number
+• 🎯 Guess Number
 • ❓ Solana Quiz
 • 🎰 Fortune Wheel
-• ЁЯПБ Pet Race
+• 🏁 Pet Race
 • 📋 Darts
 
 🏅 Progression:
@@ -2974,7 +2974,7 @@ def post_daily_promo():
 #Referral #Crypto #PassiveIncome #Solana""",
 
             # Post 4: Focus on gameplay (Day 4, 8, 12...)
-            """🎮 CHILDHOOD MEMORIES + CRYPTO = FUN! 🎮
+            f"""🎮 CHILDHOOD MEMORIES + CRYPTO = FUN! 🎮
 
 🐾 Remember Tamagotchi? Now with earnings!
 
@@ -2986,10 +2986,10 @@ def post_daily_promo():
 • Emotions - Happy, Sad, Hungry, Angry, Surprised
 
 📋 Games (in main game):
-• ЁЯО▓ Guess Number
+• 🎯 Guess Number
 • ❓ Solana Quiz
 • 🎰 Fortune Wheel
-• ЁЯПБ Pet Race
+• 🏁 Pet Race
 • 📋 Darts
 
 🏅 Progression:
