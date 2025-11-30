@@ -658,6 +658,35 @@ def handle_start(message):
                                     }).eq('telegram_id', str(referrer_telegram_id)).execute()
                                     
                                     print(f"💰 Awarded {referral_reward} TAMA to {referrer_telegram_id} (new balance: {new_tama})")
+                                    
+                                    # 🔔 Notify admins about new referral
+                                    try:
+                                        referrer_username_display = referrer.get('telegram_username', 'Unknown')
+                                        new_user_username = message.from_user.username or message.from_user.first_name or 'Unknown'
+                                        admin_notification = f"""🎉 **NEW REFERRAL!**
+
+👤 **Referrer:**
+• ID: `{referrer_telegram_id}`
+• Username: @{referrer_username_display}
+• New Balance: {new_tama:,} TAMA
+
+👥 **New User:**
+• ID: `{user_id}`
+• Username: @{new_user_username}
+• Code: `{ref_code}`
+
+💰 **Reward:**
+• +{referral_reward:,} TAMA awarded
+• Total Referrals: {total_referrals + 1}
+
+⏰ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
+                                        for admin_id in ADMIN_IDS:
+                                            try:
+                                                bot.send_message(admin_id, admin_notification, parse_mode='Markdown')
+                                            except Exception as admin_err:
+                                                print(f"⚠️ Failed to notify admin {admin_id}: {admin_err}")
+                                    except Exception as notify_err:
+                                        print(f"⚠️ Error sending admin notification: {notify_err}")
                                 else:
                                     # ╨б╨╛╨╖╨┤╨░╤В╤М ╨╜╨╛╨▓╨╛╨│╨╛ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П ╨╡╤Б╨╗╨╕ ╨╡╨│╨╛ ╨╜╨╡╤В
                                     referrer_ref_code = generate_referral_code(referrer_telegram_id)
