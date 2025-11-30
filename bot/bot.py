@@ -1519,7 +1519,7 @@ def send_group_welcome(message):
 🎮 <b>What's this about?</b>
 <b>Play-to-Earn NFT pet game</b> on Solana blockchain <i>(Coming Soon!)</i>
 <b>Mint unique pets</b> and earn TAMA tokens <i>(Pre-launch)</i>
-<b>Multi-level referral system</b> (1,000+500 TAMA per friend!)
+<b>Referral system</b> (1,000 TAMA per friend + milestone bonuses!)
 <b>Daily rewards & achievements</b> <i>(Coming Soon)</i>
 <b>Community-driven gameplay</b>
 
