@@ -1444,7 +1444,7 @@ def send_referral(message):
         pending_count = 0
     
     # Create super short beautiful referral link with preview (using query parameters for GitHub Pages)
-    short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}&v=30"
+    short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}"
     
     text = f"""
 🔗 <b>Your Referral Code:</b>
@@ -3343,7 +3343,7 @@ def handle_callback(call):
         
         # Generate referral code
         ref_code = generate_referral_code(telegram_id)
-        short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}&v=30"
+        short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}"
         
         # Get referral stats
         try:
@@ -4249,7 +4249,7 @@ Please try again later!
     
     elif call.data.startswith("qr_"):
         ref_code = call.data[3:]
-        short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}&v=30"
+        short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}"
         
         # Generate QR code
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
