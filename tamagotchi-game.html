@@ -11447,19 +11447,21 @@
             shareReferralBtn.addEventListener('click', async () => {
                 const link = referralLinkInput.value;
                 
-                // Share text with link for Telegram preview (text AFTER link!)
+                // Share text with link for Telegram preview (text BEFORE link for better preview!)
                 const shareText = `🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
 
 🐾 Play-to-earn game on Solana blockchain
 💰 No wallet needed to start earning!
 
 🎁 Get 1,000 TAMA instantly when you join!
-🚀 Start playing and earning now!`;
+🚀 Start playing and earning now!
+
+${link}`;
                 
-                // Encode text for URL
-                const encodedText = encodeURIComponent(shareText);
                 // Add version parameter to force Telegram to refresh preview cache
                 const linkWithVersion = link.includes('v=') ? link : `${link}&v=${Date.now()}`;
+                // Use text parameter with link included for better preview
+                const encodedText = encodeURIComponent(shareText);
                 const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(linkWithVersion)}&text=${encodedText}`;
                 
                 // 🎁 INSTANT REWARD FOR SHARING!
@@ -11513,9 +11515,9 @@
                     }, 2000);
                 } catch (err) {
                     console.error('Failed to open share:', err);
-                    // Fallback: copy to clipboard
+                    // Fallback: copy to clipboard (text with link included)
                     try {
-                        await navigator.clipboard.writeText(link + '\n\n' + shareText);
+                        await navigator.clipboard.writeText(shareText);
                         shareReferralBtn.textContent = '✅ Copied!';
                         setTimeout(() => {
                             shareReferralBtn.textContent = '📤 Share Link';
