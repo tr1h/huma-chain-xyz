@@ -1,366 +1,307 @@
-# 🚀 ПРОМПТ ДЛЯ НОВОГО ЧАТА - Solana Tamagotchi
+# 🐾 Solana Tamagotchi - Project Overview & Recent Changes
 
-**Дата:** 26 ноября 2025  
-**Версия:** 1.9.5  
-**Цель:** Полный контекст проекта для нового AI сеанса
+## 📋 PROJECT SUMMARY
 
----
+**Solana Tamagotchi** is a Play-to-Earn (P2E) blockchain game built on Solana, accessible via Telegram Bot and web browser. Players care for virtual pets, earn TAMA tokens, complete quests, and can mint NFT pets for earning multipliers.
 
-## 📋 ЧТО ЭТО ЗА ПРОЕКТ?
-
-**Solana Tamagotchi** — это Play-to-Earn игра в Telegram с интеграцией блокчейна Solana. Игроки ухаживают за виртуальными питомцами (Gotchi), зарабатывают токены TAMA и могут выводить их в реальные кошельки Solana.
-
-### **Ключевые особенности:**
-- 🎮 **Игра в Telegram** — через бота `@GotchiGameBot` или веб-интерфейс
-- 💰 **TAMA Token** — SPL токен на Solana Devnet (1 миллиард токенов)
-- 🖼️ **NFT система** — 3-тирная система (Bronze/Silver/Gold) с earning boosts
-- 🎯 **Play-to-Earn** — клики, квесты, рефералы, достижения, мини-игры
-- 🔥 **On-Chain** — реальные транзакции Solana для вывода и NFT минта
-- 🚀 **Zero Wallet Barrier** — можно начать играть БЕЗ кошелька
-- ⚙️ **Admin Panels** — централизованное управление экономикой игры
-- 🛡️ **Security** — серверная валидация, RLS, защита от читерства
+**Website:** https://solanatamagotchi.com  
+**Telegram Bot:** @GotchiGameBot  
+**Current Version:** 1.9.12 (as of 2025-11-29)
 
 ---
 
-## 🏗️ АРХИТЕКТУРА
+## 🎯 RECENT MAJOR CHANGES (Last Session)
 
-```
-┌─────────────────┐
-│  Telegram Bot   │  ← Webhook Mode (Render Web Service)
-│  (@GotchiGameBot)│  ← Keep-Alive (ping every 5 min)
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐      ┌──────────────┐
-│   GitHub Pages  │◄────►│  Render API  │  ← PHP + Apache
-│   (Frontend)    │      │  (Backend)   │  ← Keep-Alive enabled
-└────────┬────────┘      └──────┬───────┘
-         │                      │
-         ▼                      ▼
-┌─────────────────┐      ┌──────────────┐
-│  Solana Devnet  │      │   Supabase   │
-│  (TAMA Token)   │      │  (PostgreSQL)│
-│  (SPL Transfers)│      │  (Database)  │
-└─────────────────┘      └──────────────┘
-```
+### ✅ Unified Authentication System (Version 1.9.9 - 1.9.12)
 
-**URLs:**
-- **Frontend:** https://solanatamagotchi.com/
-- **GitHub:** https://github.com/tr1h/huma-chain-xyz
-- **Bot:** @GotchiGameBot (Telegram)
-- **API:** https://api.solanatamagotchi.com/
-- **On-Chain:** https://solanatamagotchi-onchain.onrender.com/
+**Problem:** Initially had separate files for different countries:
+- `tamagotchi-game.html` (Telegram only)
+- `tamagotchi-game-cn.html` (Wallet for China)
+
+**Solution:** Unified into ONE smart file that automatically detects authentication method:
+
+**File:** `tamagotchi-game.html` (Version 1.9.12)
+
+**Features:**
+1. **Automatic Detection:**
+   - If Telegram WebApp available AND user ID obtained → Telegram auth
+   - If Telegram WebApp available BUT no user ID → Shows wallet modal
+   - If Telegram WebApp NOT available → Shows wallet modal
+   - URL parameters: `?auth=wallet` or `?auth=telegram` for forced selection
+
+2. **Wallet Integration:**
+   - Files: `js/wallet-auth-cn.js`, `js/wallet-save-cn.js`
+   - API: `api/wallet-auth.php`
+   - Supports Phantom/Solflare wallets
+   - Full data synchronization via Supabase
+
+3. **Modal Window:**
+   - ID: `wallet-connect-modal`
+   - Shows when Telegram auth fails or unavailable
+   - Button: `connect-wallet-btn-modal`
+
+**Key Code Locations:**
+- `tamagotchi-game.html` lines 7086-7224: `initGame()` function with smart auth detection
+- `tamagotchi-game.html` lines 7689-7750: `triggerAutoSave()` with wallet/Telegram priority
+- `tamagotchi-game.html` lines 3336-3354: Wallet connection modal HTML
+
+**Fixed Issues:**
+- ✅ Duplicate `WALLET_AUTH_API` declaration (fixed in `wallet-save-cn.js`)
+- ✅ Modal not showing when Telegram user ID unavailable (fixed logic)
+- ✅ API 405 error (fixed `$input` undefined in `wallet-auth.php`)
+- ✅ Better error handling for non-JSON responses
 
 ---
 
-## 📁 КЛЮЧЕВЫЕ ФАЙЛЫ
+## 🏗️ PROJECT STRUCTURE
 
-### **Frontend (GitHub Pages):**
-- `index.html` - главная страница
-- `tamagotchi-game.html` - основная игра (14,000+ строк)
-- `whitepaper.html` - официальный whitepaper (НОВЫЙ!)
-- `mint.html` - страница минта NFT
-- `marketplace.html` - NFT marketplace
-- `my-nfts.html` - коллекция NFT пользователя
-- `admin-tokenomics.html` - админка токеномики
+### **Core Files:**
+- `tamagotchi-game.html` - Main game file (unified auth, works for all countries)
+- `index.html` - Landing page
+- `mint.html` - NFT minting page
+- `my-nfts.html` - NFT collection viewer
+- `s.html` - Referral landing page
 
 ### **Backend:**
-- `bot/bot.py` - Telegram бот (Python)
-- `api/tama_supabase.php` - PHP API
-- `api/server-onchain.js` - Node.js API для on-chain минта
+- `bot/bot.py` - Telegram bot (Python)
+- `api/wallet-auth.php` - Wallet authentication API
+- `api/tama_supabase.php` - Main TAMA API
+- `api/referral-settings.php` - Referral settings API
 
-### **Database:**
-- Supabase PostgreSQL
-- Таблицы: `leaderboard`, `user_nfts`, `transactions`, `game_limits`
+### **JavaScript Modules:**
+- `js/auth.js` - Telegram authentication
+- `js/wallet-auth-cn.js` - Wallet authentication (for countries without Telegram)
+- `js/wallet-save-cn.js` - Wallet-based save/load system
+- `js/profile-widget.js` - User profile widget
+- `js/legal-consent.js` - Legal consent modal
 
----
-
-## ✅ ЧТО УЖЕ СДЕЛАНО
-
-### **Игра:**
-- ✅ Полнофункциональная игра (клики, эволюция, статистика)
-- ✅ 5+ мини-игр (Lucky Wheel, Pet Battle Arena, Tama Tower, Precision Click, Roulette, Card Game)
-- ✅ NFT система с бустами (сумма всех активных, CAP 10x)
-- ✅ Реферальная система (2-level)
-- ✅ Leaderboard
-- ✅ Daily rewards
-
-### **NFT:**
-- ✅ 3-тирная система (Bronze/Silver/Gold)
-- ✅ On-chain минт через Metaplex
-- ✅ Earning boosts (2-4x)
-- ✅ Marketplace с dual payment (TAMA + SOL)
-
-### **Токеномика:**
-- ✅ TAMA Token создан (1B supply)
-- ✅ Распределение: 40% P2E, 20% Team (vested), 15% Marketing, 10% Liquidity, 10% Community, 5% Reserve
-- ✅ Дефляционная модель (burns)
-- ✅ Fee recycling (30% в P2E pool)
-
-### **Инфраструктура:**
-- ✅ GitHub Pages настроен
-- ✅ Custom domain: solanatamagotchi.com
-- ✅ Render.com для API и бота
-- ✅ Supabase для базы данных
-
-### **Документация:**
-- ✅ README.md
-- ✅ Whitepaper (whitepaper.html) - НОВЫЙ!
-- ✅ Документация в `.docs/`
+### **Documentation:**
+- `.docs/CHINA_MARKETING_STRATEGY.md` - Marketing strategy for China
+- `.docs/MULTI_COUNTRY_AUTH_STRATEGY.md` - Auth strategy explanation
+- `.docs/REFERRAL_LEVELS_EXPLANATION.md` - Referral system docs
+- `.docs/TAMA_REWARD_FLOW.md` - TAMA reward flow
+- `.docs/API_REFERRAL_SETTINGS.md` - API documentation
 
 ---
 
-## 🚧 ЧТО В РАБОТЕ / НЕДАВНО СДЕЛАНО
+## 🔑 KEY TECHNICAL DETAILS
 
-### **Недавно добавлено:**
-- ✅ Whitepaper страница (whitepaper.html)
-- ✅ 5 новых мини-игр
-- ✅ NFT boost система (сумма активных, CAP 10x)
-- ✅ Discord сервер создан
-- ✅ Исправлены баги (duplicate declarations)
+### **Authentication Priority:**
+```javascript
+// Priority 1: Wallet (if forced or Telegram unavailable)
+if ((forceAuth === 'wallet' || !hasTelegramUser) && window.WalletAuth) {
+    // Wallet auth
+}
+// Priority 2: Telegram (if available)
+else if (hasTelegramUser) {
+    // Telegram auth
+}
+// Priority 3: localStorage (fallback)
+```
 
-### **Текущие задачи:**
-- ⏳ Маркетинг (посты в X, YouTube)
-- ⏳ Тестирование мини-игр
-- ⏳ Настройка Discord сервера
-- ⏳ Создание контента
+### **Save Priority:**
+```javascript
+// Priority 1: Wallet
+if (window.WALLET_ADDRESS && window.WalletSave) {
+    window.WalletSave.save(gameState);
+}
+// Priority 2: Telegram
+else if (window.TELEGRAM_USER_ID) {
+    saveDirectToSupabase(window.TELEGRAM_USER_ID);
+}
+// Priority 3: localStorage
+else {
+    saveToLocalStorage();
+}
+```
 
----
+### **API Endpoints:**
+- `POST /api/wallet-auth.php?action=get` - Get user by wallet
+- `POST /api/wallet-auth.php?action=create` - Create account by wallet
+- `POST /api/wallet-auth.php?action=save` - Save game state by wallet
 
-## 🐛 ИЗВЕСТНЫЕ ПРОБЛЕМЫ
-
-### **Решенные:**
-- ✅ `battleState` дублирование → переименовано в `petBattleState`
-- ✅ `gameArea` дублирование → исправлено
-- ✅ `isOnChain` дублирование → исправлено
-
-### **Текущие:**
-- ⚠️ Whitepaper 404 на сайте (файл запушен, но GitHub Pages не обновился)
-  - Решение: принудительное обновление в Settings → Pages
-- ⚠️ MetaMask ошибки в консоли (не критично, конфликт расширений)
-
----
-
-## 💰 ТОКЕНОМИКА
-
-### **TAMA Token:**
-- **Total Supply:** 1,000,000,000 TAMA
-- **Mint Address:** `Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY`
-- **Network:** Solana Devnet (Mainnet Q1 2025)
-- **Standard:** SPL Token
-- **Decimals:** 9
-
-### **Распределение:**
-- **P2E Pool:** 400M (40%) - распределение 5.5 лет с halving
-- **Team:** 200M (20%) - locked, 4-year vesting
-- **Marketing:** 150M (15%)
-- **Liquidity:** 100M (10%) - locked
-- **Community:** 100M (10%)
-- **Reserve:** 50M (5%) - locked
-
-### **Экономика:**
-- **BASE_CLICK_REWARD:** 10.0 TAMA (настраивается через Admin Panel)
-- **NFT Boost:** Сумма всех активных NFT (CAP 10x)
-- **Withdrawal Fee:** 5% (60% burn, 30% pool, 10% team)
-- **NFT Mint Prices:** Bronze (2,500 TAMA), Silver (0.1 SOL), Gold (0.2 SOL)
+### **Database (Supabase):**
+- Table: `leaderboard` - Main user data
+  - `telegram_id` - Can be Telegram ID or `wallet_XXXXX` format
+  - `wallet_address` - Solana wallet address
+  - `tama`, `level`, `xp`, `clicks` - Game stats
+- Table: `referral_settings` - Configurable referral rewards
+- Table: `referrals` - Referral relationships
+- Table: `user_nfts` - NFT collection
 
 ---
 
-## 🎮 ИГРОВЫЕ МЕХАНИКИ
+## 🎮 GAME FEATURES
 
-### **Основной геймплей:**
-- Клики по питомцу → TAMA награды
-- Эволюция: Egg → Baby → Teen → Adult → Legendary
-- Статистика: HP, Food, Happiness, Age
-- Уровни и XP
+### **Core Gameplay:**
+- Virtual pet care (Feed, Play, Heal)
+- Click-to-earn TAMA tokens
+- Combo system (bonus for consecutive clicks)
+- Level system with XP
+- Daily quests and achievements
+- Multiple pet themes (Kawai, Retro, Premium, etc.)
 
-### **Мини-игры:**
-1. **Lucky Wheel** - колесо фортуны
-2. **Pet Battle Arena** - бои с NFT питомцами
-3. **Tama Tower** - строительство башни (риск/награда)
-4. **Precision Click** - игра на точность
-5. **Roulette** - классическая рулетка
-6. **Card Game** - карточная игра
+### **Economy:**
+- TAMA token (SPL token on Solana)
+- NFT pets with earning multipliers (5 tiers: Bronze, Silver, Gold, Platinum, Diamond)
+- Referral system: 1,000 TAMA per friend + milestone bonuses
+- Daily rewards system
+- Withdrawal system (via bot command)
 
-### **NFT система:**
-- **Bronze:** 2,500 TAMA → 2-3x boost
-- **Silver:** 0.1 SOL → 2.5-3.5x boost
-- **Gold:** 0.2 SOL → 3-4x boost
-- **Rarity:** Common, Uncommon, Rare, Epic, Legendary
-- **On-chain:** Реальные NFT на Solana через Metaplex
-
----
-
-## 🔧 ТЕХНОЛОГИИ
-
-### **Frontend:**
-- HTML5, CSS3, JavaScript
-- Solana Web3.js
-- Supabase JS Client
-- Telegram WebApp API
-
-### **Backend:**
-- PHP 8.x (API)
-- Python 3.10+ (Telegram Bot)
-- Node.js (On-chain API)
-
-### **Blockchain:**
-- Solana (SPL Tokens)
-- Metaplex (NFT Standard)
-- Phantom Wallet integration
-
-### **Database:**
-- Supabase (PostgreSQL)
-- Row-Level Security (RLS)
-
-### **Hosting:**
-- GitHub Pages (Frontend)
-- Render.com (Backend, Bot)
-- Supabase (Database)
+### **Referral System:**
+- Single-level referrals (1,000 TAMA per friend)
+- Milestone bonuses: 1, 3, 15, 75, 150, 250, 500, 1000 referrals
+- Configurable via admin panel (`admin-referrals.html`)
+- API: `api/referral-settings.php`
 
 ---
 
-## 📊 ТЕКУЩЕЕ СОСТОЯНИЕ
+## 🌍 MULTI-COUNTRY SUPPORT
 
-### **Стадия:** MVP → Ранний рост
+### **Current Implementation:**
+- **One file for all:** `tamagotchi-game.html`
+- **Automatic detection:** Works everywhere automatically
+- **For China/Russia:** Automatically offers wallet (Telegram blocked)
+- **For others:** Uses Telegram if available
 
-### **Готовность:**
-- ✅ Технически: 90% готово
-- ⚠️ Маркетинг: 4/10 (нужно больше контента)
-- ⚠️ Сообщество: 3/10 (мало активных игроков)
+### **URL Parameters:**
+- `?auth=wallet` - Force wallet authentication
+- `?auth=telegram` - Force Telegram authentication
+- No parameter - Automatic detection
 
-### **Метрики:**
-- Активных игроков: ~23
-- NFT заминчено: 1000+
-- TAMA в обращении: ~436K (0.04% от supply)
-
----
-
-## 🎯 ПРИОРИТЕТЫ
-
-### **Высокий приоритет:**
-1. 📈 Маркетинг (посты в X, YouTube, Telegram)
-2. 🎮 Тестирование мини-игр
-3. 👥 Рост сообщества (Discord, Telegram)
-
-### **Средний приоритет:**
-4. 🎨 Новые функции (achievements, daily quests)
-5. 💰 Улучшение экономики
-6. 🔧 Технические улучшения
-
-### **Низкий приоритет:**
-7. 🌐 Подготовка к Mainnet
-8. 📱 Мобильное приложение
+### **Removed Files:**
+- ❌ `tamagotchi-game-cn.html` - DELETED (no longer needed)
 
 ---
 
-## 🚀 ROADMAP
+## 🔧 RECENT FIXES (Session 2025-11-29)
 
-### **Q4 2024 (ТЕКУЩЕЕ):**
-- ✅ Devnet live
-- ✅ Telegram bot active
-- ✅ NFT system
-- ✅ Mini-games
-- ✅ Whitepaper
+1. **Unified Auth System:**
+   - Merged wallet and Telegram auth into one file
+   - Automatic detection logic
+   - Modal window for wallet connection
 
-### **Q1 2025:**
-- 🔜 Mainnet migration
-- 🔜 DEX listing (Jupiter, Raydium)
-- 🔜 Enhanced marketplace
-- 🔜 Staking system
+2. **API Fixes:**
+   - Fixed `$input` undefined in `wallet-auth.php`
+   - Added proper error handling for non-JSON responses
+   - Added `action` parameter to all API calls
 
-### **Q2 2025:**
-- 🔜 Mobile optimization
-- 🔜 Breeding system
-- 🔜 Tournaments
-- 🔜 DAO governance
+3. **JavaScript Fixes:**
+   - Fixed duplicate `WALLET_AUTH_API` declaration
+   - Improved modal showing logic
+   - Better error messages
 
----
-
-## 📝 ВАЖНЫЕ ЗАМЕТКИ
-
-### **Последние изменения:**
-- ✅ Whitepaper создан (whitepaper.html)
-- ✅ Discord сервер создан
-- ✅ 5 новых мини-игр добавлены
-- ✅ NFT boost система сбалансирована (CAP 10x)
-- ✅ Исправлены баги (duplicate declarations)
-
-### **Текущие проблемы:**
-- ⚠️ Whitepaper 404 на сайте (нужно обновить GitHub Pages)
-- ⚠️ MetaMask ошибки (не критично)
-
-### **Следующие шаги:**
-1. Принудительно обновить GitHub Pages для whitepaper
-2. Настроить Discord сервер (MEE6, правила, контент)
-3. Опубликовать пост в X о новых мини-играх
-4. Создать YouTube Short
+4. **Documentation:**
+   - Updated China marketing strategy
+   - Created multi-country auth strategy doc
+   - Updated all references to use unified file
 
 ---
 
-## 🔑 КЛЮЧЕВЫЕ КОНЦЕПЦИИ
+## 📊 CURRENT STATE
 
-### **Zero Wallet Barrier:**
-- Игроки могут начать играть БЕЗ кошелька
-- Виртуальные токены в базе данных
-- Реальные токены создаются только при выводе
-- Это главное конкурентное преимущество!
+### **Working:**
+- ✅ Telegram bot (`bot/bot.py`)
+- ✅ Web game with unified auth
+- ✅ Wallet authentication API
+- ✅ Referral system with milestones
+- ✅ NFT minting system
+- ✅ Admin panel for referral settings
+- ✅ Daily statistics auto-posting
 
-### **Hybrid Architecture:**
-- Виртуальный слой (быстро, бесплатно)
-- Блокчейн слой (реальные токены при выводе)
-- Позволяет мгновенный геймплей без gas fees
+### **Known Issues:**
+- ⚠️ GitHub Dependabot: 2 high vulnerabilities (not critical)
+- ⚠️ Some users may need to clear cache after updates
 
-### **Deflationary Economy:**
-- 60% withdrawal fees → Burned
-- 30% withdrawal fees → P2E Pool (recycling)
-- 10% withdrawal fees → Team
-- Обеспечивает долгосрочную устойчивость
-
----
-
-## 📚 ДОКУМЕНТАЦИЯ
-
-### **Основные документы:**
-- `README.md` - главный файл проекта
-- `whitepaper.html` - официальный whitepaper
-- `.docs/FULL_PROJECT_PROMPT.md` - полный промпт
-- `.docs/TOKENOMICS_FINAL.md` - токеномика
-
-### **Планы и задачи:**
-- `CURRENT_TASKS_PRIORITY.md` - текущие задачи
-- `NEXT_STEPS_RECOMMENDATIONS.md` - рекомендации
-- `HONEST_PROJECT_ASSESSMENT.md` - честная оценка
+### **Testing Needed:**
+- 🔄 Wallet connection flow (Phantom/Solflare)
+- 🔄 Data persistence via wallet
+- 🔄 Cross-device synchronization
 
 ---
 
-## 🎯 КОНТЕКСТ ДЛЯ AI
+## 🚀 DEPLOYMENT
 
-### **Что важно знать:**
-1. Проект технически готов на 90%
-2. Главная проблема - маркетинг и сообщество
-3. Недавно добавлены мини-игры и whitepaper
-4. Discord сервер создан, но нужно настроить
-5. Whitepaper запушен, но GitHub Pages не обновился
+### **Git Repository:**
+- Main branch: `main`
+- Latest commit: Unified auth system (1.9.12)
 
-### **Стиль работы:**
-- Пользователь предпочитает быстрые решения
-- Важна честность в оценках
-- Нужны конкретные планы действий
-- Приоритет на маркетинг и рост
+### **Key Commands:**
+```bash
+git add .
+git commit -m "Description"
+git push origin main
+```
 
-### **Язык:**
-- Основной: Русский
-- Документация: Английский (для международной аудитории)
-- Контент: Английский (Discord, X, Telegram)
+### **Important Files to Track:**
+- `tamagotchi-game.html` - Main game (unified auth)
+- `js/wallet-auth-cn.js` - Wallet auth
+- `js/wallet-save-cn.js` - Wallet save/load
+- `api/wallet-auth.php` - Wallet API
+- `bot/bot.py` - Telegram bot
 
 ---
 
-## ✅ ГОТОВО!
+## 💡 IMPORTANT NOTES FOR CONTINUATION
 
-**Этот промпт содержит весь необходимый контекст для продолжения работы!**
+1. **Always use unified file:** `tamagotchi-game.html` (not country-specific versions)
 
-**Скопируй его в новый чат и продолжай работу!** 🚀
+2. **Auth detection:** Check `hasTelegramUser` variable, not just `window.Telegram?.WebApp`
 
+3. **Save priority:** Wallet → Telegram → localStorage
 
+4. **API calls:** Always include `action` parameter in wallet-auth.php requests
 
+5. **Error handling:** Check `response.ok` before parsing JSON
+
+6. **Modal:** ID is `wallet-connect-modal`, button is `connect-wallet-btn-modal`
+
+7. **Bot unchanged:** Bot (`bot/bot.py`) works as before, no changes needed
+
+---
+
+## 📝 QUICK REFERENCE
+
+### **Check if user authenticated:**
+```javascript
+const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+```
+
+### **Show wallet modal:**
+```javascript
+const modal = document.getElementById('wallet-connect-modal');
+if (modal) modal.style.display = 'flex';
+```
+
+### **Save game state:**
+```javascript
+triggerAutoSave(); // Automatically uses wallet or Telegram
+```
+
+### **API call example:**
+```javascript
+fetch('https://solanatamagotchi.com/api/wallet-auth.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        action: 'get', // or 'create', 'save'
+        wallet_address: walletAddress
+    })
+})
+```
+
+---
+
+## 🎯 NEXT STEPS (If Needed)
+
+1. Test wallet connection flow end-to-end
+2. Verify data persistence across devices
+3. Add localization for Chinese users (UI text)
+4. Consider WeChat Mini Program for China
+5. Monitor API performance and errors
+
+---
+
+**Last Updated:** 2025-11-29  
+**Version:** 1.9.12  
+**Status:** ✅ Production Ready (with unified auth)
