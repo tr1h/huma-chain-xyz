@@ -41,9 +41,22 @@ try {
     error_log('Config load error: ' . $e->getMessage());
 }
 
-// Supabase config
-$SUPABASE_URL = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
-$SUPABASE_KEY = getenv('SUPABASE_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+// Supabase config - Priority: config.php constants > environment variables > fallback
+$SUPABASE_URL = defined('SUPABASE_URL') && SUPABASE_URL 
+    ? SUPABASE_URL 
+    : (getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co');
+
+$SUPABASE_KEY = defined('SUPABASE_KEY') && SUPABASE_KEY 
+    ? SUPABASE_KEY 
+    : (getenv('SUPABASE_KEY') ?: null);
+
+// Log configuration status (without exposing keys)
+if (!$SUPABASE_KEY) {
+    error_log('❌ CRITICAL: SUPABASE_KEY is not set! Check environment variables or config.php');
+    error_log('📍 Config check: defined=' . (defined('SUPABASE_KEY') ? 'yes' : 'no') . ', env=' . (getenv('SUPABASE_KEY') ? 'yes' : 'no'));
+} else {
+    error_log('✅ Supabase config loaded: URL=' . $SUPABASE_URL . ', KEY=' . substr($SUPABASE_KEY, 0, 20) . '...');
+}
 
 /**
  * Supabase request helper
@@ -301,11 +314,16 @@ function handleSaveGameState($url, $key, $input = null) {
                 'message' => 'Game state saved successfully'
             ]);
         } else {
+            // Log detailed error for debugging
+            error_log('❌ Save game state failed: HTTP ' . $result['code']);
+            error_log('❌ Error details: ' . json_encode($result['data']));
+            
             http_response_code(500);
             echo json_encode([
                 'success' => false,
                 'error' => 'Failed to save game state',
-                'details' => $result['data'] ?? 'Unknown error'
+                'details' => $result['data'] ?? 'Unknown error',
+                'http_code' => $result['code']
             ]);
         }
         
