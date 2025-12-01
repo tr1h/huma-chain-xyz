@@ -292,7 +292,22 @@ $path = $_SERVER['REQUEST_URI'];
 $pathParts = explode('/', trim($path, '/'));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Parse input to get action
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
     $action = $input['action'] ?? end($pathParts);
+    
+    // If action is still not found, try to get from URL path
+    if (!$action || !in_array($action, ['create', 'get', 'save'])) {
+        // Try to extract from URL: /api/wallet-auth.php?action=get or /api/wallet-auth/get
+        if (isset($_GET['action'])) {
+            $action = $_GET['action'];
+        } elseif (in_array('wallet-auth', $pathParts)) {
+            $actionIndex = array_search('wallet-auth', $pathParts);
+            if ($actionIndex !== false && isset($pathParts[$actionIndex + 1])) {
+                $action = $pathParts[$actionIndex + 1];
+            }
+        }
+    }
     
     switch ($action) {
         case 'create':
@@ -305,8 +320,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             handleSaveGameState($SUPABASE_URL, $SUPABASE_KEY);
             break;
         default:
-            http_response_code(404);
-            echo json_encode(['success' => false, 'error' => 'Invalid action. Use: create, get, or save']);
+            http_response_code(400);
+            echo json_encode([
+                'success' => false, 
+                'error' => 'Invalid action. Use: create, get, or save',
+                'received_action' => $action,
+                'path' => $path
+            ]);
     }
 } else {
     http_response_code(405);
