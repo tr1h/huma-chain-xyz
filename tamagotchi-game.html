@@ -7679,6 +7679,7 @@
             
             // ✅ ПРИОРИТЕТ 1: Wallet (для стран без Telegram)
             if (window.WALLET_ADDRESS && window.WalletSave) {
+                console.log('💾 Saving via wallet:', { address: window.WALLET_ADDRESS, userId: window.WALLET_USER_ID });
                 window.WalletSave.save(gameState).then(success => {
                     if (success) {
                         console.log('💾 Auto-save successful (Wallet API)');
@@ -7737,7 +7738,12 @@
             }
             // ✅ ПРИОРИТЕТ 3: LocalStorage (fallback)
             else {
-                console.warn('⚠️ No user ID or wallet, saving only to localStorage');
+                console.warn('⚠️ No user ID or wallet, saving only to localStorage', {
+                    hasWalletAddress: !!window.WALLET_ADDRESS,
+                    hasWalletSave: !!window.WalletSave,
+                    hasTelegramId: !!window.TELEGRAM_USER_ID,
+                    hasWalletUserId: !!window.WALLET_USER_ID
+                });
                 saveToLocalStorage();
             }
                 
@@ -11750,10 +11756,10 @@ ${link}`;
             try {
                 leaderboardList.innerHTML = '<div class="loading">⏳ Loading leaderboard...</div>';
                 
-                // Get current user's Telegram ID (use globally stored ID)
-                let currentUserId = window.TELEGRAM_USER_ID || null;
+                // Get current user's ID (Telegram or Wallet)
+                let currentUserId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID || null;
                 
-                // Fallback to trying initDataUnsafe again
+                // Fallback to trying initDataUnsafe again (only for Telegram)
                 if (!currentUserId && window.Telegram && window.Telegram.WebApp) {
                     const user = window.Telegram.WebApp.initDataUnsafe?.user;
                     if (user && user.id) {
@@ -11949,9 +11955,9 @@ ${link}`;
 
         // 🎨 Load NFT boost for user
         async function loadUserNFTBoost() {
-            const userId = window.TELEGRAM_USER_ID;
+            const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
             if (!userId) {
-                console.warn('⚠️ No user ID, cannot load NFT boost.');
+                console.warn('⚠️ No user ID (Telegram or Wallet), cannot load NFT boost.');
                 window.userNFTBoost = 0;
                 return;
             }
