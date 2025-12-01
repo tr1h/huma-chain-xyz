@@ -39,6 +39,13 @@ async function saveGameStateToWallet(gameState) {
             })
         });
         
+        // Check if response is OK and is JSON
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Save API Error:', response.status, errorText);
+            throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+        }
+        
         const result = await response.json();
         
         if (result.success) {
@@ -72,6 +79,13 @@ async function loadGameStateFromWallet() {
                 wallet_address: window.WALLET_ADDRESS
             })
         });
+        
+        // Check if response is OK and is JSON
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Load API Error:', response.status, errorText);
+            throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
+        }
         
         const result = await response.json();
         
