@@ -209,6 +209,13 @@
             };
         }
         
+        // Also add a visible but tiny image in body for Telegram parsing
+        const hiddenImg = document.createElement('img');
+        hiddenImg.src = 'https://solanatamagotchi.com/logo.png?v=' + Date.now();
+        hiddenImg.alt = 'Solana Tamagotchi';
+        hiddenImg.style.cssText = 'width: 1px; height: 1px; opacity: 0.01; position: absolute; top: 0; left: 0; pointer-events: none;';
+        document.body.appendChild(hiddenImg);
+        
         // Build Telegram bot URL - use correct bot username
         const botUsername = 'gotchigamebot';
         let telegramUrl = 'https://t.me/gotchigamebot?start=';
