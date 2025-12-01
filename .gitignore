@@ -94,4 +94,8 @@ ADMIN_PASSWORDS.txt  # ПРИВАТНЫЙ! Пароли от админок
 .archive/ 
  
 # Test folder 
-test/ 
+test/
+
+# Large executable files
+*.exe
+dolphin-anty-win-latest.exe 

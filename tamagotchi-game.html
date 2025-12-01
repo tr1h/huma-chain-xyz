@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- VERSION: 1.9.7 | BUILD: 2025-11-29 17:00 | FIX: Remove v=30 parameter to match bot format (solanatamagotchi.com/s.html?ref=CODE) -->
+<!-- VERSION: 1.9.9 | BUILD: 2025-11-29 19:00 | Unified Auth: Telegram + Wallet (works for all countries) -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -42,10 +42,14 @@
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Unified Auth System -->
+    <!-- Unified Auth System (Telegram + Wallet) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/auth.js"></script>
     <script src="js/profile-widget.js"></script>
+    
+    <!-- Wallet Auth System (for countries without Telegram) -->
+    <script src="js/wallet-auth-cn.js"></script>
+    <script src="js/wallet-save-cn.js"></script>
     
     <!-- Legal Consent Modal -->
     <script src="js/legal-consent.js"></script>
@@ -3329,6 +3333,26 @@
     </style>
 </head>
 <body>
+    <!-- Wallet Connection Modal (for countries without Telegram) -->
+    <div id="wallet-connect-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center; flex-direction: column;">
+        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 40px; border-radius: 20px; max-width: 450px; text-align: center; box-shadow: 0 10px 50px rgba(0,0,0,0.5); border: 2px solid #9333EA;">
+            <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">🔐 Connect Wallet</h2>
+            <p style="color: #E9D5FF; margin-bottom: 30px; line-height: 1.6;">
+                Connect your Phantom or Solflare wallet to start playing and save your progress<br>
+                <span style="font-size: 14px; opacity: 0.8;">Your game data will be securely saved on the blockchain</span>
+            </p>
+            <button id="connect-wallet-btn-modal" style="padding: 18px 40px; background: linear-gradient(135deg, #9945FF, #9333EA); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(153, 69, 255, 0.4); transition: transform 0.2s; width: 100%;">
+                👛 Connect Wallet
+            </button>
+            <p style="color: #999; font-size: 12px; margin-top: 20px;">
+                Don't have a wallet? <a href="https://phantom.app/" target="_blank" style="color: #9945FF; text-decoration: none;">Download Phantom</a>
+            </p>
+            <p style="color: #666; font-size: 11px; margin-top: 15px;">
+                💡 Your game data will be securely saved on the blockchain
+            </p>
+        </div>
+    </div>
+
     <!-- Logo 🎨 -->
     <a href="/" class="game-logo" title="Back to Home">
         <img src="logo.png" alt="Solana Tamagotchi">
@@ -6284,7 +6308,8 @@
             checkLevelUp();
             
             // Log transaction to Supabase immediately
-            if (window.TELEGRAM_USER_ID) {
+            const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+            if (userId) {
                 logTransaction('earn_click', earnedTama, balanceBefore, balanceAfter, {
                     combo: gameState.combo,
                     xp_gained: earnedXP,
@@ -6391,10 +6416,11 @@
                 showMessage(`🎊 LEVEL UP! You are now Level ${gameState.level}! Earned ${levelBonus} TAMA!`);
                 
                 // Log level up transaction
-                if (window.TELEGRAM_USER_ID && typeof TransactionLogger !== 'undefined') {
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                if (userId && typeof TransactionLogger !== 'undefined') {
                     TransactionLogger.logLevelUp(
-                        window.TELEGRAM_USER_ID,
-                        window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'user',
+                        userId,
+                        window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.WALLET_ADDRESS?.substring(0, 8) || 'user',
                         gameState.level,
                         levelBonus,
                         balanceBefore,
@@ -6448,7 +6474,8 @@
                 updateUI();
                 
                 // Log transaction immediately
-                if (window.TELEGRAM_USER_ID) {
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                if (userId) {
                     logTransaction('spend_feed', cost, balanceBefore, balanceAfter, {
                         food_gained: 30,
                         xp_gained: 10
@@ -6477,7 +6504,8 @@
                 updateUI();
                 
                 // Log transaction immediately
-                if (window.TELEGRAM_USER_ID) {
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                if (userId) {
                     logTransaction('spend_play', cost, balanceBefore, balanceAfter, {
                         happy_gained: 40,
                         food_lost: 10,
@@ -6507,7 +6535,8 @@
                 updateUI();
                 
                 // Log transaction immediately
-                if (window.TELEGRAM_USER_ID) {
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                if (userId) {
                     logTransaction('spend_heal', cost, balanceBefore, balanceAfter, {
                         hp_gained: 50,
                         xp_gained: 20,
@@ -6617,7 +6646,8 @@
                     gameState.tama += 100; // Bonus TAMA for achievement
                     const balanceAfter = gameState.tama;
                     
-                    if (window.TELEGRAM_USER_ID) {
+                    const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                    if (userId) {
                         logTransaction('achievement_bonus', 100, balanceBefore, balanceAfter, {
                             achievement_id: ach.id,
                             achievement_name: ach.name
@@ -6653,7 +6683,8 @@
                 gameState.tama += 500;
                 const balanceAfter = gameState.tama;
                 
-                if (window.TELEGRAM_USER_ID) {
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                if (userId) {
                     logTransaction('quest_complete', 500, balanceBefore, balanceAfter, {
                         quest_id: 'click_master',
                         quest_name: 'Click Master',
@@ -6675,7 +6706,8 @@
                 gameState.tama += 1000;
                 const balanceAfter = gameState.tama;
                 
-                if (window.TELEGRAM_USER_ID) {
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                if (userId) {
                     logTransaction('quest_complete', 1000, balanceBefore, balanceAfter, {
                         quest_id: 'level_up',
                         quest_name: 'Level Up!',
@@ -7051,18 +7083,59 @@
             let userId = null;
             
             try {
-                // Debug: Log Telegram WebApp state
-                console.log('🔍 Telegram WebApp check:', {
-                    telegramExists: !!window.Telegram,
-                    webAppExists: !!window.Telegram?.WebApp,
-                    initData: window.Telegram?.WebApp?.initData?.substring(0, 100) + '...',
-                    initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe,
-                    user: window.Telegram?.WebApp?.initDataUnsafe?.user
-                });
+                // ✅ УМНОЕ ОПРЕДЕЛЕНИЕ: Проверяем параметр URL для принудительного выбора метода
+                const urlParams = new URLSearchParams(window.location.search);
+                const forceAuth = urlParams.get('auth'); // 'telegram', 'wallet', или null
                 
-                // Try to load from Supabase first (cloud save)
+                // ✅ ПРИОРИТЕТ 1: Wallet авторизация (если принудительно или Telegram недоступен)
+                if ((forceAuth === 'wallet' || (forceAuth !== 'telegram' && !window.Telegram?.WebApp)) && window.WalletAuth) {
+                    console.log('🔐 Attempting wallet authentication...');
+                    const walletInit = await window.WalletAuth.init();
+                    
+                    if (walletInit.success && walletInit.walletAddress) {
+                        console.log('✅ Wallet authenticated:', walletInit.walletAddress);
+                        window.WALLET_ADDRESS = walletInit.walletAddress;
+                        window.WALLET_USER_ID = walletInit.userData?.user_id || 'wallet_' + walletInit.walletAddress.substring(0, 12);
+                        
+                        // Load game state from wallet
+                        if (window.WalletSave && typeof window.WalletSave.load === 'function') {
+                            const walletData = await window.WalletSave.load();
+                            if (walletData && walletData.exists) {
+                                // Update game state from wallet data
+                                gameState.tama = walletData.tama || gameState.tama;
+                                gameState.level = walletData.level || gameState.level;
+                                gameState.xp = walletData.xp || gameState.xp;
+                                gameState.totalClicks = walletData.clicks || gameState.totalClicks;
+                                if (walletData.pet_name) gameState.petName = walletData.pet_name;
+                                if (walletData.pet_type) gameState.petType = walletData.pet_type;
+                                cloudLoaded = true;
+                                console.log('✅ Game state loaded from wallet');
+                            } else {
+                                console.log('ℹ️ No saved game state for wallet, starting fresh');
+                            }
+                        }
+                    } else if (walletInit.needsConnection) {
+                        // Show wallet connection modal
+                        console.log('📱 Wallet connection needed');
+                        const modal = document.getElementById('wallet-connect-modal');
+                        if (modal) {
+                            modal.style.display = 'flex';
+                        }
+                    }
+                }
                 
-                if (window.Telegram && window.Telegram.WebApp) {
+                // ✅ ПРИОРИТЕТ 2: Telegram авторизация (если доступна и не принудительно wallet)
+                if (!cloudLoaded && (forceAuth === 'telegram' || (!forceAuth && window.Telegram && window.Telegram.WebApp))) {
+                    // Debug: Log Telegram WebApp state
+                    console.log('🔍 Telegram WebApp check:', {
+                        telegramExists: !!window.Telegram,
+                        webAppExists: !!window.Telegram?.WebApp,
+                        initData: window.Telegram?.WebApp?.initData?.substring(0, 100) + '...',
+                        initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe,
+                        user: window.Telegram?.WebApp?.initDataUnsafe?.user
+                    });
+                    
+                    if (window.Telegram && window.Telegram.WebApp) {
                     // Method 1: Try initDataUnsafe.user
                     const user = window.Telegram.WebApp.initDataUnsafe?.user;
                     if (user && user.id) {
@@ -7131,9 +7204,19 @@
                         console.warn('⚠️ Could not get user ID from Telegram WebApp');
                         console.warn('   This is OK - game will run in offline/demo mode');
                     }
+                    }
                 } else {
-                    console.warn('⚠️ Telegram WebApp not available - running in browser/demo mode');
-                    console.warn('   Game will work with localStorage only');
+                    if (!window.WALLET_ADDRESS) {
+                        console.warn('⚠️ Telegram WebApp not available and no wallet connected');
+                        console.warn('   Game will work with localStorage only');
+                        // Show wallet connection modal if not already shown
+                        const modal = document.getElementById('wallet-connect-modal');
+                        if (modal && modal.style.display !== 'flex') {
+                            modal.style.display = 'flex';
+                        }
+                    } else {
+                        console.log('✅ Using wallet authentication (no Telegram needed)');
+                    }
                 }
                 
                 // Fallback to localStorage ONLY if cloud load failed
@@ -7320,11 +7403,15 @@
 
         // Save game when page is about to close
         window.addEventListener('beforeunload', () => {
-            // ⚠️ IMPORTANT: Supabase is PRIMARY, localStorage is backup
-            const userId = window.TELEGRAM_USER_ID;
-            if (userId) {
-                // Try to save to Supabase first (primary)
-                saveDirectToSupabase(userId).then(() => {
+            // ⚠️ IMPORTANT: Wallet/Telegram is PRIMARY, localStorage is backup
+            if (window.WALLET_ADDRESS && window.WalletSave) {
+                // Try to save via wallet API first
+                window.WalletSave.save(gameState).catch(err => {
+                    console.error('Wallet save on unload failed:', err);
+                });
+            } else if (window.TELEGRAM_USER_ID) {
+                // Try to save to Supabase (primary)
+                saveDirectToSupabase(window.TELEGRAM_USER_ID).then(() => {
                     // Save to localStorage as backup
                     saveToLocalStorage();
                 }).catch(() => {
@@ -7576,13 +7663,11 @@
                 return; // No changes, skip save
             }
             
-                // ⚠️ IMPORTANT: Supabase is PRIMARY, localStorage is backup
-                // Save to Supabase FIRST (primary source of truth)
-                const userId = window.TELEGRAM_USER_ID;
-                if (userId) {
-                    saveDirectToSupabase(userId).then(success => {
-                        if (success) {
-                            console.log('💾 Auto-save successful (Supabase)');
+            // ✅ ПРИОРИТЕТ 1: Wallet (для стран без Telegram)
+            if (window.WALLET_ADDRESS && window.WalletSave) {
+                window.WalletSave.save(gameState).then(success => {
+                    if (success) {
+                        console.log('💾 Auto-save successful (Wallet API)');
                         // Update last saved state
                         lastSavedState = {
                             tama: gameState.tama,
@@ -7595,21 +7680,52 @@
                             maxCombo: gameState.maxCombo,
                             achievements: JSON.stringify(gameState.achievements.sort())
                         };
-                            // Only save to localStorage AFTER successful Supabase save (as backup)
-                            saveToLocalStorage();
-                        } else {
-                            console.warn('⚠️ Auto-save to Supabase failed, saving to localStorage as backup');
-                            saveToLocalStorage();
-                        }
-                    }).catch(error => {
-                        console.error('❌ Auto-save error:', error);
-                        // Fallback to localStorage if Supabase fails
+                        saveToLocalStorage(); // Backup
+                    } else {
+                        console.warn('⚠️ Wallet save failed, using localStorage');
                         saveToLocalStorage();
-                    });
-                } else {
-                    console.warn('⚠️ No user ID, saving only to localStorage');
+                    }
+                }).catch(error => {
+                    console.error('❌ Wallet save error:', error);
                     saveToLocalStorage();
-                }
+                });
+            }
+            // ✅ ПРИОРИТЕТ 2: Telegram (для остальных пользователей)
+            else if (window.TELEGRAM_USER_ID) {
+                // ⚠️ IMPORTANT: Supabase is PRIMARY, localStorage is backup
+                // Save to Supabase FIRST (primary source of truth)
+                saveDirectToSupabase(window.TELEGRAM_USER_ID).then(success => {
+                    if (success) {
+                        console.log('💾 Auto-save successful (Supabase)');
+                        // Update last saved state
+                        lastSavedState = {
+                            tama: gameState.tama,
+                            level: gameState.level,
+                            xp: gameState.xp,
+                            hp: gameState.hp,
+                            food: gameState.food,
+                            happy: gameState.happy,
+                            totalClicks: gameState.totalClicks,
+                            maxCombo: gameState.maxCombo,
+                            achievements: JSON.stringify(gameState.achievements.sort())
+                        };
+                        // Only save to localStorage AFTER successful Supabase save (as backup)
+                        saveToLocalStorage();
+                    } else {
+                        console.warn('⚠️ Auto-save to Supabase failed, saving to localStorage as backup');
+                        saveToLocalStorage();
+                    }
+                }).catch(error => {
+                    console.error('❌ Auto-save error:', error);
+                    // Fallback to localStorage if Supabase fails
+                    saveToLocalStorage();
+                });
+            }
+            // ✅ ПРИОРИТЕТ 3: LocalStorage (fallback)
+            else {
+                console.warn('⚠️ No user ID or wallet, saving only to localStorage');
+                saveToLocalStorage();
+            }
                 
                 lastSaveTime = now;
         }
@@ -9974,15 +10090,18 @@
             updateUI();
             
                 if (typeof TransactionLogger !== 'undefined') {
-                    TransactionLogger.logEarn(
-                        window.TELEGRAM_USER_ID,
-                        window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'user',
-                        'platformer_complete',
-                        totalReward,
-                        gameState.tama - totalReward,
-                        gameState.tama,
-                        { coins: this.coinsCollected, timeBonus, finished: true }
-                    );
+                    const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                    if (userId && typeof TransactionLogger !== 'undefined') {
+                        TransactionLogger.logEarn(
+                            userId,
+                            window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.WALLET_ADDRESS?.substring(0, 8) || 'user',
+                            'platformer_complete',
+                            totalReward,
+                            gameState.tama - totalReward,
+                            gameState.tama,
+                            { coins: this.coinsCollected, timeBonus, finished: true }
+                        );
+                    }
                 }
                 
                 const mobileControls = document.getElementById('mobile-controls');
@@ -11306,10 +11425,10 @@
                 // Get user's referral count (BOTH confirmed and pending!)
                 const [referralsResponse, pendingResponse] = await Promise.all([
                     fetch(`${SUPABASE_URL}/rest/v1/referrals?referrer_telegram_id=eq.${telegramUser.id}&select=count`, {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
                     }),
                     fetch(`${SUPABASE_URL}/rest/v1/pending_referrals?referrer_telegram_id=eq.${telegramUser.id}&status=eq.pending&select=count`, {
                         headers: {
@@ -11480,7 +11599,7 @@ ${link}`;
                     }
                 }
                 if (typeof showNotification === 'function') {
-                    showNotification("🎉 +100 TAMA for sharing!");
+                showNotification("🎉 +100 TAMA for sharing!");
                 }
                 
                 // Send event to database
@@ -11508,11 +11627,11 @@ ${link}`;
                 // Open Telegram share URL (works in Telegram WebApp)
                 try {
                     window.open(telegramShareUrl, '_blank');
-                    shareReferralBtn.textContent = '✅ Shared!';
-                    setTimeout(() => {
-                        shareReferralBtn.textContent = '📤 Share Link';
-                    }, 2000);
-                } catch (err) {
+                        shareReferralBtn.textContent = '✅ Shared!';
+                        setTimeout(() => {
+                            shareReferralBtn.textContent = '📤 Share Link';
+                        }, 2000);
+                    } catch (err) {
                     console.error('Failed to open share:', err);
                     // Fallback: copy to clipboard (text with link included)
                     try {
@@ -11893,9 +12012,31 @@ ${link}`;
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                console.log('%c🎮 GAME VERSION: 1.9.3 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
-                console.log('%c📅 BUILD: 2025-11-20 23:30 | FIX: Debug initialization', 'font-size: 14px; color: #ffff00;');
+                console.log('%c🎮 GAME VERSION: 1.9.9 🎮', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
+                console.log('%c📅 BUILD: 2025-11-29 19:00 | Unified Auth: Telegram + Wallet', 'font-size: 14px; color: #ffff00;');
                 console.log('✅ DOM loaded, initializing game...');
+                
+                // Initialize wallet connection button
+                const connectBtn = document.getElementById('connect-wallet-btn-modal');
+                if (connectBtn) {
+                    connectBtn.addEventListener('click', async () => {
+                        if (window.WalletAuth && typeof window.WalletAuth.connect === 'function') {
+                            const result = await window.WalletAuth.connect();
+                            if (result.success) {
+                                const modal = document.getElementById('wallet-connect-modal');
+                                if (modal) {
+                                    modal.style.display = 'none';
+                                }
+                                // Reload game state after wallet connection
+                                location.reload();
+                            } else {
+                                alert('Failed to connect wallet. Please try again.');
+                            }
+                        } else {
+                            alert('Wallet authentication not available. Please install Phantom or Solflare wallet.');
+                        }
+                    });
+                }
                 
                 // Check if critical elements exist
                 const gameContainer = document.querySelector('.game-container');
