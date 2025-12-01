@@ -422,13 +422,34 @@ def find_telegram_by_referral_code(ref_code):
 # Get stats from MySQL
 def get_stats():
     try:
+        # Get total players
         response = supabase.table('leaderboard').select('*', count='exact').execute()
         players = response.count or 0
         pets = players  # Same as players for now
         
-        return {'players': players, 'pets': pets, 'price': '0.3 SOL'}
+        # Get total NFTs minted
+        try:
+            nft_response = supabase.table('user_nfts').select('*', count='exact').execute()
+            nfts_minted = nft_response.count or 0
+        except:
+            nfts_minted = 0
+        
+        # Get total TAMA in circulation (sum of all balances)
+        try:
+            tama_response = supabase.table('leaderboard').select('tama').execute()
+            total_tama = sum(row.get('tama', 0) or 0 for row in tama_response.data) if tama_response.data else 0
+        except:
+            total_tama = 0
+        
+        return {
+            'players': players, 
+            'pets': pets, 
+            'price': '0.3 SOL',
+            'nfts_minted': nfts_minted,
+            'total_tama': total_tama
+        }
     except:
-        return {'players': 0, 'pets': 0, 'price': '0.3 SOL'}
+        return {'players': 0, 'pets': 0, 'price': '0.3 SOL', 'nfts_minted': 0, 'total_tama': 0}
 
 # Get wallet address by Telegram ID
 def get_wallet_by_telegram(telegram_id):
@@ -2985,16 +3006,27 @@ A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
 def post_daily_stats():
     try:
         stats = get_stats()
+        # Format TAMA with K/M suffixes
+        total_tama = stats.get('total_tama', 0)
+        if total_tama >= 1000000:
+            tama_display = f"{total_tama / 1000000:.1f}M"
+        elif total_tama >= 1000:
+            tama_display = f"{total_tama / 1000:.1f}K"
+        else:
+            tama_display = str(total_tama)
+        
         stats_text = f"""📊 **Daily Statistics**
 
 👥 Total Players: {stats['players']}
 🐾 Total Pets: {stats['pets']}
-💰 NFT Price: {stats['price']}
+🎨 NFTs Minted: {stats.get('nfts_minted', 0)}
+💰 NFT Price: {stats['price']} (devnet pricing for testing)
+💎 Total TAMA in Circulation: {tama_display}
 
-🎮 Play: Coming Soon!
-⭐ Mint: Coming Soon!
+🎮 Play: Live on Solana devnet
+⭐ Mint: Available now on devnet
 
-🚀 Join the community!"""
+The game is live for testing. NFT prices are set low for early access. Join the community and start playing!"""
         
         # Post to group instead of channel
         bot.send_message(GROUP_ID, stats_text, parse_mode='Markdown')
