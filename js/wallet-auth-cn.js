@@ -132,14 +132,29 @@ async function getOrCreateAccount(walletAddress) {
         // Try to parse as JSON
         let getResult;
         try {
-            getResult = await getResponse.json();
+            // First get text to check for HTML warnings
+            const responseText = await getResponse.text();
+            
+            // Remove any HTML warnings at the beginning
+            const jsonStart = responseText.indexOf('{');
+            const cleanText = jsonStart > 0 ? responseText.substring(jsonStart) : responseText;
+            
+            getResult = JSON.parse(cleanText);
         } catch (jsonError) {
             // If JSON parse fails, try to read error text from clone
             try {
                 const errorText = await getResponseClone.text();
-                console.error('❌ Failed to parse JSON response:', errorText);
-                throw new Error('Invalid server response. Please try again later.');
+                console.error('❌ Failed to parse JSON response:', errorText.substring(0, 200));
+                
+                // Try to extract JSON from HTML+JSON mix
+                const jsonMatch = errorText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    getResult = JSON.parse(jsonMatch[0]);
+                } else {
+                    throw new Error('Invalid server response. Please try again later.');
+                }
             } catch (e) {
+                console.error('❌ JSON parse error:', e);
                 throw new Error('Invalid server response. Please try again later.');
             }
         }

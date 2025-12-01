@@ -11,6 +11,16 @@
  * - POST /api/wallet-auth/save - Save game state by wallet address
  */
 
+// ⚠️ CRITICAL: Suppress PHP errors to prevent HTML output (MUST BE FIRST!)
+error_reporting(E_ALL);
+ini_set('display_errors', '0');  // Don't output errors to response
+ini_set('log_errors', '1');      // Log errors to error_log instead
+
+// ⚠️ CRITICAL: Suppress PHP warnings to prevent HTML output
+error_reporting(E_ALL);
+ini_set('display_errors', '0');  // Don't output errors to response
+ini_set('log_errors', '1');      // Log errors to error_log instead
+
 // Set headers FIRST - before any output or errors
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -21,9 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
-
-// Don't use error handler - let errors be logged naturally
-// Only catch fatal errors at the script level
 
 // Try to load config, but don't fail if missing
 try {
@@ -213,7 +220,8 @@ function handleGetUser($url, $key, $input = null) {
             'limit' => '1'
         ]);
         
-        if (empty($result['data'])) {
+        // Check if result has data and it's an array with at least one element
+        if (empty($result['data']) || !is_array($result['data']) || count($result['data']) === 0) {
             // User doesn't exist - return default values
             echo json_encode([
                 'success' => true,
