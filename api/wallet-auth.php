@@ -369,11 +369,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
     }
 } else {
+    // Allow GET for health check / info endpoint
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        echo json_encode([
+            'success' => true,
+            'service' => 'Wallet Authentication API',
+            'version' => '1.0',
+            'endpoints' => [
+                'POST /api/wallet-auth.php?action=get' => 'Get user by wallet address',
+                'POST /api/wallet-auth.php?action=create' => 'Create account by wallet address',
+                'POST /api/wallet-auth.php?action=save' => 'Save game state by wallet address'
+            ],
+            'method_required' => 'POST',
+            'note' => 'This API requires POST requests with action parameter in JSON body'
+        ]);
+        exit;
+    }
+    
     http_response_code(405);
     echo json_encode([
         'success' => false, 
         'error' => 'Method not allowed. Use POST',
-        'method' => $_SERVER['REQUEST_METHOD']
+        'method' => $_SERVER['REQUEST_METHOD'],
+        'info' => 'This API accepts only POST requests with JSON body containing action parameter'
     ]);
 }
 
