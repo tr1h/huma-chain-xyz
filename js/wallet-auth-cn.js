@@ -101,6 +101,13 @@ async function getOrCreateAccount(walletAddress) {
             })
         });
         
+        // Check if response is OK and is JSON
+        if (!getResponse.ok) {
+            const errorText = await getResponse.text();
+            console.error('❌ API Error:', getResponse.status, errorText);
+            throw new Error(`API error: ${getResponse.status} - ${errorText.substring(0, 100)}`);
+        }
+        
         const getResult = await getResponse.json();
         
         if (getResult.success && getResult.exists) {
@@ -117,6 +124,13 @@ async function getOrCreateAccount(walletAddress) {
                 wallet_address: walletAddress
             })
         });
+        
+        // Check if response is OK and is JSON
+        if (!createResponse.ok) {
+            const errorText = await createResponse.text();
+            console.error('❌ API Error:', createResponse.status, errorText);
+            throw new Error(`API error: ${createResponse.status} - ${errorText.substring(0, 100)}`);
+        }
         
         const createResult = await createResponse.json();
         
