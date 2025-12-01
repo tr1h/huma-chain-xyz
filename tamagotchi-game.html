@@ -7087,8 +7087,12 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const forceAuth = urlParams.get('auth'); // 'telegram', 'wallet', или null
                 
-                // ✅ ПРИОРИТЕТ 1: Wallet авторизация (если принудительно или Telegram недоступен)
-                if ((forceAuth === 'wallet' || (forceAuth !== 'telegram' && !window.Telegram?.WebApp)) && window.WalletAuth) {
+                // ✅ ПРИОРИТЕТ 1: Wallet авторизация (если принудительно или Telegram недоступен/не авторизован)
+                // Проверяем не только наличие Telegram WebApp, но и наличие user ID
+                const hasTelegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 
+                                       (window.Telegram?.WebApp?.initData && window.Telegram.WebApp.initData.includes('user='));
+                
+                if ((forceAuth === 'wallet' || (forceAuth !== 'telegram' && !hasTelegramUser)) && window.WalletAuth) {
                     console.log('🔐 Attempting wallet authentication...');
                     const walletInit = await window.WalletAuth.init();
                     
@@ -7125,7 +7129,7 @@
                 }
                 
                 // ✅ ПРИОРИТЕТ 2: Telegram авторизация (если доступна и не принудительно wallet)
-                if (!cloudLoaded && (forceAuth === 'telegram' || (!forceAuth && window.Telegram && window.Telegram.WebApp))) {
+                if (!cloudLoaded && (forceAuth === 'telegram' || (!forceAuth && hasTelegramUser))) {
                     // Debug: Log Telegram WebApp state
                     console.log('🔍 Telegram WebApp check:', {
                         telegramExists: !!window.Telegram,
@@ -7202,20 +7206,30 @@
                         }, 1000);
                     } else {
                         console.warn('⚠️ Could not get user ID from Telegram WebApp');
-                        console.warn('   This is OK - game will run in offline/demo mode');
+                        console.warn('   Offering wallet connection as alternative');
+                        // Telegram WebApp есть, но user ID не получен - предлагаем wallet
+                        if (!window.WALLET_ADDRESS && window.WalletAuth) {
+                            const modal = document.getElementById('wallet-connect-modal');
+                            if (modal && modal.style.display !== 'flex') {
+                                modal.style.display = 'flex';
+                                console.log('📱 Showing wallet connection modal (Telegram user ID not available)');
+                            }
+                        }
                     }
                     }
                 } else {
-                    if (!window.WALLET_ADDRESS) {
-                        console.warn('⚠️ Telegram WebApp not available and no wallet connected');
-                        console.warn('   Game will work with localStorage only');
-                        // Show wallet connection modal if not already shown
+                    // Telegram WebApp недоступен - предлагаем wallet
+                    if (!window.WALLET_ADDRESS && window.WalletAuth) {
+                        console.warn('⚠️ Telegram WebApp not available - offering wallet connection');
                         const modal = document.getElementById('wallet-connect-modal');
                         if (modal && modal.style.display !== 'flex') {
                             modal.style.display = 'flex';
+                            console.log('📱 Showing wallet connection modal (no Telegram)');
                         }
-                    } else {
+                    } else if (window.WALLET_ADDRESS) {
                         console.log('✅ Using wallet authentication (no Telegram needed)');
+                    } else {
+                        console.warn('⚠️ No authentication method available - game will work with localStorage only');
                     }
                 }
                 
