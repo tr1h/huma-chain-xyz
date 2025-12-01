@@ -5,12 +5,11 @@
  * Integrates with wallet-auth-cn.js
  */
 
-// Use WALLET_AUTH_API from wallet-auth-cn.js (loaded first), or define it if not available
+// Use WALLET_AUTH_API from wallet-auth-cn.js (loaded first), or use default
 // Note: wallet-auth-cn.js is loaded before this file, so WALLET_AUTH_API should already exist
-// But we check to avoid errors if loading order changes
-if (typeof WALLET_AUTH_API === 'undefined') {
-    var WALLET_AUTH_API = 'https://api.solanatamagotchi.com/api/wallet-auth.php';
-}
+const WALLET_AUTH_API_SAVE = typeof WALLET_AUTH_API !== 'undefined' 
+    ? WALLET_AUTH_API 
+    : 'https://api.solanatamagotchi.com/api/wallet-auth.php';
 
 /**
  * Save game state using wallet address
@@ -22,7 +21,7 @@ async function saveGameStateToWallet(gameState) {
     }
     
     try {
-        const response = await fetch(WALLET_AUTH_API, {
+        const response = await fetch(WALLET_AUTH_API_SAVE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -71,7 +70,7 @@ async function loadGameStateFromWallet() {
     }
     
     try {
-        const response = await fetch(WALLET_AUTH_API, {
+        const response = await fetch(WALLET_AUTH_API_SAVE, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

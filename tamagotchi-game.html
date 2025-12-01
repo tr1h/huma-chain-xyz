@@ -48,8 +48,8 @@
     <script src="js/profile-widget.js"></script>
     
     <!-- Wallet Auth System (for countries without Telegram) -->
-    <script src="js/wallet-auth-cn.js?v=2"></script>
-    <script src="js/wallet-save-cn.js?v=2"></script>
+    <script src="js/wallet-auth-cn.js?v=3"></script>
+    <script src="js/wallet-save-cn.js?v=3"></script>
     
     <!-- Legal Consent Modal -->
     <script src="js/legal-consent.js"></script>
@@ -3336,20 +3336,37 @@
     <!-- Wallet Connection Modal (for countries without Telegram) -->
     <div id="wallet-connect-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center; flex-direction: column;">
         <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 40px; border-radius: 20px; max-width: 450px; text-align: center; box-shadow: 0 10px 50px rgba(0,0,0,0.5); border: 2px solid #9333EA;">
-            <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">🔐 Connect Wallet</h2>
-            <p style="color: #E9D5FF; margin-bottom: 30px; line-height: 1.6;">
-                Connect your Phantom or Solflare wallet to start playing and save your progress<br>
-                <span style="font-size: 14px; opacity: 0.8;">Your game data will be securely saved on the blockchain</span>
-            </p>
-            <button id="connect-wallet-btn-modal" style="padding: 18px 40px; background: linear-gradient(135deg, #9945FF, #9333EA); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(153, 69, 255, 0.4); transition: transform 0.2s; width: 100%;">
-                👛 Connect Wallet
-            </button>
-            <p style="color: #999; font-size: 12px; margin-top: 20px;">
-                Don't have a wallet? <a href="https://phantom.app/" target="_blank" style="color: #9945FF; text-decoration: none;">Download Phantom</a>
-            </p>
-            <p style="color: #666; font-size: 11px; margin-top: 15px;">
-                💡 Your game data will be securely saved on the blockchain
-            </p>
+            <!-- Connected State (hidden by default) -->
+            <div id="wallet-connected-info" style="display: none;">
+                <h2 style="color: #10B981; margin-bottom: 20px; font-size: 24px;">✅ Wallet Connected</h2>
+                <p style="color: #E9D5FF; margin-bottom: 15px; font-size: 14px;">
+                    <span id="wallet-modal-address" style="font-weight: bold; color: #FFCA3A;"></span>
+                </p>
+                <button id="disconnect-wallet-btn-modal" style="padding: 12px 30px; background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transition: transform 0.2s; width: 100%;">
+                    🔌 Disconnect Wallet
+                </button>
+                <button id="close-wallet-modal" style="padding: 10px 20px; background: rgba(255,255,255,0.1); color: #E9D5FF; border: 2px solid #9333EA; border-radius: 12px; font-size: 14px; cursor: pointer; width: 100%;">
+                    ✕ Close
+                </button>
+            </div>
+            
+            <!-- Not Connected State -->
+            <div id="wallet-not-connected-info">
+                <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">🔐 Connect Wallet</h2>
+                <p style="color: #E9D5FF; margin-bottom: 30px; line-height: 1.6;">
+                    Connect your Phantom or Solflare wallet to start playing and save your progress<br>
+                    <span style="font-size: 14px; opacity: 0.8;">Your game data will be securely saved on the blockchain</span>
+                </p>
+                <button id="connect-wallet-btn-modal" style="padding: 18px 40px; background: linear-gradient(135deg, #9945FF, #9333EA); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(153, 69, 255, 0.4); transition: transform 0.2s; width: 100%;">
+                    👛 Connect Wallet
+                </button>
+                <p style="color: #999; font-size: 12px; margin-top: 20px;">
+                    Don't have a wallet? <a href="https://phantom.app/" target="_blank" style="color: #9945FF; text-decoration: none;">Download Phantom</a>
+                </p>
+                <p style="color: #666; font-size: 11px; margin-top: 15px;">
+                    💡 Your game data will be securely saved on the blockchain
+                </p>
+            </div>
         </div>
     </div>
 
@@ -12043,15 +12060,9 @@ ${link}`;
                         if (window.WalletAuth && typeof window.WalletAuth.connect === 'function') {
                             const result = await window.WalletAuth.connect();
                             if (result.success) {
-                                // Close modal
-                                const modal = document.getElementById('wallet-connect-modal');
-                                if (modal) {
-                                    modal.style.display = 'none';
-                                }
-                                
-                                console.log('✅ Wallet connected successfully, reloading game...');
-                                // Reload page to initialize game with wallet
-                                location.reload();
+                                // Update modal UI to show connected state
+                                updateWalletModalUI(result.walletAddress);
+                                // Don't close modal immediately - let user see connected state
                             } else {
                                 // Error already shown by wallet-auth-cn.js
                                 console.error('❌ Wallet connection failed:', result.error);
@@ -12060,6 +12071,77 @@ ${link}`;
                             alert('Wallet authentication not available. Please install Phantom or Solflare wallet.');
                         }
                     });
+                }
+                
+                // Initialize wallet disconnect button
+                const disconnectBtn = document.getElementById('disconnect-wallet-btn-modal');
+                if (disconnectBtn) {
+                    disconnectBtn.addEventListener('click', async () => {
+                        if (window.WalletAuth && typeof window.WalletAuth.disconnect === 'function') {
+                            const result = await window.WalletAuth.disconnect();
+                            if (result.success) {
+                                console.log('✅ Wallet disconnected successfully');
+                                // Update modal UI to show not connected state
+                                updateWalletModalUI(null);
+                                // Close modal and reload to reset game state
+                                const modal = document.getElementById('wallet-connect-modal');
+                                if (modal) {
+                                    modal.style.display = 'none';
+                                }
+                                location.reload();
+                            } else {
+                                console.error('❌ Wallet disconnection failed:', result.error);
+                            }
+                        }
+                    });
+                }
+                
+                // Close wallet modal button
+                const closeWalletModalBtn = document.getElementById('close-wallet-modal');
+                if (closeWalletModalBtn) {
+                    closeWalletModalBtn.addEventListener('click', () => {
+                        const modal = document.getElementById('wallet-connect-modal');
+                        if (modal) {
+                            modal.style.display = 'none';
+                            // If wallet is connected, reload to initialize game
+                            if (window.WALLET_ADDRESS) {
+                                location.reload();
+                            }
+                        }
+                    });
+                }
+                
+                // Update wallet modal UI based on connection state
+                function updateWalletModalUI(walletAddress) {
+                    const connectedInfo = document.getElementById('wallet-connected-info');
+                    const notConnectedInfo = document.getElementById('wallet-not-connected-info');
+                    const walletAddressEl = document.getElementById('wallet-modal-address');
+                    
+                    if (walletAddress) {
+                        // Show connected state
+                        if (connectedInfo) connectedInfo.style.display = 'block';
+                        if (notConnectedInfo) notConnectedInfo.style.display = 'none';
+                        if (walletAddressEl) {
+                            walletAddressEl.textContent = walletAddress.substring(0, 6) + '...' + walletAddress.substring(walletAddress.length - 6);
+                        }
+                    } else {
+                        // Show not connected state
+                        if (connectedInfo) connectedInfo.style.display = 'none';
+                        if (notConnectedInfo) notConnectedInfo.style.display = 'block';
+                    }
+                }
+                
+                // Check wallet status on modal open and update UI
+                const walletModal = document.getElementById('wallet-connect-modal');
+                if (walletModal) {
+                    // Update UI when modal is shown
+                    const observer = new MutationObserver(() => {
+                        if (walletModal.style.display !== 'none') {
+                            const walletAddress = window.WALLET_ADDRESS || (window.WalletAuth && window.WalletAuth.getState && window.WalletAuth.getState().walletAddress);
+                            updateWalletModalUI(walletAddress);
+                        }
+                    });
+                    observer.observe(walletModal, { attributes: true, attributeFilter: ['style'] });
                 }
                 
                 // Check if critical elements exist

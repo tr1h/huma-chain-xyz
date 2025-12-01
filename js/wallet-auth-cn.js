@@ -328,9 +328,42 @@ async function initWalletAuth() {
     return { success: false, needsConnection: true };
 }
 
+/**
+ * Disconnect wallet
+ */
+async function disconnectWallet() {
+    try {
+        // Disconnect from Phantom/Solflare
+        if (window.solana && window.solana.isPhantom && window.solana.isConnected) {
+            await window.solana.disconnect();
+        } else if (window.solflare && window.solflare.isConnected) {
+            await window.solflare.disconnect();
+        }
+        
+        // Clear wallet state
+        walletAuthState = {
+            isAuthenticated: false,
+            walletAddress: null,
+            userId: null,
+            userData: null
+        };
+        
+        // Clear global variables
+        window.WALLET_ADDRESS = null;
+        window.WALLET_USER_ID = null;
+        
+        console.log('✅ Wallet disconnected');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Wallet disconnection error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 // Export functions
 window.WalletAuth = {
     connect: connectWallet,
+    disconnect: disconnectWallet,
     init: initWalletAuth,
     save: saveGameStateToWallet,
     load: loadGameStateFromWallet,
