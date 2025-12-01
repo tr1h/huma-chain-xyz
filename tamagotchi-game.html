@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- VERSION: 1.9.6 | BUILD: 2025-11-29 16:00 | FIX: Ensure referral link matches bot format (solanatamagotchi.com/s.html?ref=CODE&v=30) -->
+<!-- VERSION: 1.9.7 | BUILD: 2025-11-29 17:00 | FIX: Remove v=30 parameter to match bot format (solanatamagotchi.com/s.html?ref=CODE) -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11294,7 +11294,7 @@
         // Generate referral link (SAME algorithm as bot.py!)
         async function generateReferralLink() {
             const code = await generateReferralCode();
-            return `https://solanatamagotchi.com/s.html?ref=${code}&v=30`;
+            return `https://solanatamagotchi.com/s.html?ref=${code}`;
         }
 
         // Update referral progress bar
@@ -11458,11 +11458,10 @@
 
 ${link}`;
                 
-                // Add version parameter to force Telegram to refresh preview cache
-                const linkWithVersion = link.includes('v=') ? link : `${link}&v=${Date.now()}`;
+                // Use link as-is (no version parameter to match bot format)
                 // Use text parameter with link included for better preview
                 const encodedText = encodeURIComponent(shareText);
-                const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(linkWithVersion)}&text=${encodedText}`;
+                const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodedText}`;
                 
                 // 🎁 INSTANT REWARD FOR SHARING!
                 if (typeof gameState !== 'undefined') {
