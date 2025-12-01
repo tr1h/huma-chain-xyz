@@ -113,6 +113,9 @@ async function getOrCreateAccount(walletAddress) {
             })
         });
         
+        // Clone response to avoid "body already read" error
+        const getResponseClone = getResponse.clone();
+        
         // Check if response is OK
         if (!getResponse.ok) {
             const errorText = await getResponse.text();
@@ -131,9 +134,14 @@ async function getOrCreateAccount(walletAddress) {
         try {
             getResult = await getResponse.json();
         } catch (jsonError) {
-            const errorText = await getResponse.text();
-            console.error('❌ Failed to parse JSON response:', errorText);
-            throw new Error('Invalid server response. Please try again later.');
+            // If JSON parse fails, try to read error text from clone
+            try {
+                const errorText = await getResponseClone.text();
+                console.error('❌ Failed to parse JSON response:', errorText);
+                throw new Error('Invalid server response. Please try again later.');
+            } catch (e) {
+                throw new Error('Invalid server response. Please try again later.');
+            }
         }
         
         if (getResult.success && getResult.exists) {
@@ -150,6 +158,9 @@ async function getOrCreateAccount(walletAddress) {
                 wallet_address: walletAddress
             })
         });
+        
+        // Clone response to avoid "body already read" error
+        const createResponseClone = createResponse.clone();
         
         // Check if response is OK
         if (!createResponse.ok) {
@@ -169,9 +180,14 @@ async function getOrCreateAccount(walletAddress) {
         try {
             createResult = await createResponse.json();
         } catch (jsonError) {
-            const errorText = await createResponse.text();
-            console.error('❌ Failed to parse JSON response:', errorText);
-            throw new Error('Invalid server response. Please try again later.');
+            // If JSON parse fails, try to read error text from clone
+            try {
+                const errorText = await createResponseClone.text();
+                console.error('❌ Failed to parse JSON response:', errorText);
+                throw new Error('Invalid server response. Please try again later.');
+            } catch (e) {
+                throw new Error('Invalid server response. Please try again later.');
+            }
         }
         
         if (createResult.success) {
