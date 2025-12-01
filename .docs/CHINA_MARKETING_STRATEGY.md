@@ -4,6 +4,40 @@
 
 **Telegram заблокирован в Китае** → нужно найти альтернативные каналы для китайской аудитории.
 
+**⚠️ КРИТИЧЕСКИЙ ВОПРОС: Как китайские пользователи будут играть?**
+
+### ✅ РЕШЕНИЕ: У вас УЖЕ ЕСТЬ web-версия игры!
+
+**1. Web-версия игры (РАБОТАЕТ ПРЯМО СЕЙЧАС) ✅**
+- **Ссылка:** `https://solanatamagotchi.com/tamagotchi-game.html`
+- ✅ Работает в любом браузере (Chrome, Safari, WeChat Browser)
+- ✅ Не требует Telegram
+- ✅ Можно играть прямо на сайте
+- ✅ Поддерживает мобильные устройства
+- ✅ Все функции доступны (игра, NFT, рефералы)
+
+**2. Telegram Bot (для тех, кто использует VPN) 🤖**
+- Ссылка: `@GotchiGameBot`
+- Работает только с VPN
+- Меньшинство китайских пользователей
+
+**3. QR-коды для быстрого доступа 📱**
+- Создать QR-коды, которые ведут на `solanatamagotchi.com/tamagotchi-game.html`
+- Размещать в постах Weibo
+- Пользователи сканируют и сразу попадают в игру
+
+**4. WeChat Mini Program (В БУДУЩЕМ, опционально) 🎯**
+- Это как Telegram Bot, но для Китая
+- Работает внутри WeChat (1.3+ миллиарда пользователей)
+- Можно адаптировать ваш HTML/JS код
+- Игроки могут играть прямо в WeChat
+- **Стоимость:** ~$2000-5000 для разработки
+
+**РЕКОМЕНДАЦИЯ:** 
+- ✅ **СЕЙЧАС:** Продвигать web-версию (`solanatamagotchi.com/tamagotchi-game.html`) - это работает для всех!
+- ✅ **В постах:** Всегда указывать прямую ссылку на игру
+- ✅ **В будущем:** Разработать WeChat Mini Program для еще большего охвата
+
 ---
 
 ## 📱 ПЛАТФОРМЫ ДЛЯ КИТАЯ
@@ -141,12 +175,13 @@
 🎮 大家好！欢迎来到 Solana Tamagotchi！
 
 🐾 我们是一个基于Solana区块链的虚拟宠物游戏
-✨ 在Telegram中养宠物、玩游戏、完成任务
+✨ 在浏览器中养宠物、玩游戏、完成任务（支持手机和电脑）
 🎁 推荐好友即可获得1000 TAMA奖励
 💎 5层NFT系统，稀有度决定收益倍数
 
 🚀 完全免费开始，无需投资！
-立即体验：solanatamagotchi.com
+🌐 直接在浏览器中玩：solanatamagotchi.com/tamagotchi-game.html
+📱 或扫描二维码快速开始
 
 #Solana #区块链游戏 #NFT #GameFi #Web3游戏 #PlayToEarn
 ```
@@ -171,7 +206,7 @@
 ```
 🎯 如何开始玩 Solana Tamagotchi？
 
-1️⃣ 打开Telegram，搜索 @GotchiGameBot
+1️⃣ 打开浏览器，访问 solanatamagotchi.com/tamagotchi-game.html
 2️⃣ 点击"开始游戏"，创建你的宠物
 3️⃣ 完成任务，获得TAMA代币
 4️⃣ 推荐朋友，获得额外奖励！
@@ -179,7 +214,10 @@
 💡 小贴士：每天登录可获得每日奖励
 🎁 推荐1个朋友 = 1000 TAMA
 
-立即开始：solanatamagotchi.com
+🌐 直接在浏览器中玩（无需Telegram）：
+solanatamagotchi.com/tamagotchi-game.html
+
+💡 提示：游戏完全在浏览器中运行，支持手机和电脑！
 
 #Solana #游戏教程 #GameFi #新手入门
 ```
@@ -378,15 +416,15 @@
 ```
 👍 关注Solana生态！我们也在Solana上做项目 - Solana Tamagotchi，一个虚拟宠物游戏 🐾
 
-在Telegram中养宠物就能获得TAMA代币，完全免费开始！
-感兴趣可以看看：solanatamagotchi.com
+在浏览器中养宠物就能获得TAMA代币，完全免费开始！
+🌐 直接玩：solanatamagotchi.com/tamagotchi-game.html
 
 #Solana #GameFi
 ```
 
 **ОТВЕТ 2 - На пост про GameFi/NFT:**
 ```
-🎮 我们也做GameFi项目！Solana Tamagotchi - 在Telegram中养宠物、收集NFT、获得代币奖励
+🎮 我们也做GameFi项目！Solana Tamagotchi - 在浏览器中养宠物、收集NFT、获得代币奖励
 
 5层NFT系统，稀有度决定收益倍数 💎
 完全免费开始，无需投资！
@@ -411,7 +449,7 @@
 
 **ОТВЕТ 4 - Короткий и дружелюбный:**
 ```
-🐾 我们也做Solana项目！Solana Tamagotchi - 虚拟宠物游戏，在Telegram中玩就能获得代币
+🐾 我们也做Solana项目！Solana Tamagotchi - 虚拟宠物游戏，在浏览器中玩就能获得代币
 
 免费开始：solanatamagotchi.com
 #Solana #GameFi
@@ -432,7 +470,7 @@
 ```
 👍 看到提到SOL了！我们也做Solana生态项目 - Solana Tamagotchi 🐾
 
-这是GameFi游戏项目，不是投资建议。在Telegram中养宠物、收集NFT、获得TAMA代币奖励。
+这是GameFi游戏项目，不是投资建议。在浏览器中养宠物、收集NFT、获得TAMA代币奖励。
 完全免费开始，纯娱乐和游戏性质。
 
 感兴趣可以看看：solanatamagotchi.com
