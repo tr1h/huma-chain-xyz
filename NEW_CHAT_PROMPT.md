@@ -280,7 +280,7 @@ triggerAutoSave(); // Automatically uses wallet or Telegram
 
 ### **API call example:**
 ```javascript
-fetch('https://solanatamagotchi.com/api/wallet-auth.php', {
+fetch('https://api.solanatamagotchi.com/api/wallet-auth.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

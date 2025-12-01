@@ -9,7 +9,7 @@
 // Note: wallet-auth-cn.js is loaded before this file, so WALLET_AUTH_API should already exist
 // But we check to avoid errors if loading order changes
 if (typeof WALLET_AUTH_API === 'undefined') {
-    var WALLET_AUTH_API = 'https://solanatamagotchi.com/api/wallet-auth.php';
+    var WALLET_AUTH_API = 'https://api.solanatamagotchi.com/api/wallet-auth.php';
 }
 
 /**

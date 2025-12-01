@@ -12037,14 +12037,18 @@ ${link}`;
                         if (window.WalletAuth && typeof window.WalletAuth.connect === 'function') {
                             const result = await window.WalletAuth.connect();
                             if (result.success) {
+                                // Close modal
                                 const modal = document.getElementById('wallet-connect-modal');
                                 if (modal) {
                                     modal.style.display = 'none';
                                 }
-                                // Reload game state after wallet connection
+                                
+                                console.log('✅ Wallet connected successfully, reloading game...');
+                                // Reload page to initialize game with wallet
                                 location.reload();
                             } else {
-                                alert('Failed to connect wallet. Please try again.');
+                                // Error already shown by wallet-auth-cn.js
+                                console.error('❌ Wallet connection failed:', result.error);
                             }
                         } else {
                             alert('Wallet authentication not available. Please install Phantom or Solflare wallet.');

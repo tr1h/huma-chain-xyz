@@ -11,6 +11,7 @@
  * - POST /api/wallet-auth/save - Save game state by wallet address
  */
 
+// Set headers FIRST - before any output or errors
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -21,7 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/config.php';
+// Don't use error handler - let errors be logged naturally
+// Only catch fatal errors at the script level
+
+// Try to load config, but don't fail if missing
+try {
+    if (file_exists(__DIR__ . '/config.php')) {
+        require_once __DIR__ . '/config.php';
+    }
+} catch (Exception $e) {
+    error_log('Config load error: ' . $e->getMessage());
+}
 
 // Supabase config
 $SUPABASE_URL = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
@@ -88,9 +99,12 @@ function generateReferralCodeFromWallet($walletAddress) {
  * Create account by wallet address
  * POST /api/wallet-auth/create
  */
-function handleCreateAccount($url, $key) {
+function handleCreateAccount($url, $key, $input = null) {
     try {
-        $input = json_decode(file_get_contents('php://input'), true);
+        // Read input if not provided
+        if ($input === null) {
+            $input = json_decode(file_get_contents('php://input'), true);
+        }
         $walletAddress = $input['wallet_address'] ?? null;
         
         if (!$walletAddress) {
@@ -180,9 +194,12 @@ function handleCreateAccount($url, $key) {
  * Get user data by wallet address
  * POST /api/wallet-auth/get
  */
-function handleGetUser($url, $key) {
+function handleGetUser($url, $key, $input = null) {
     try {
-        $input = json_decode(file_get_contents('php://input'), true);
+        // Read input if not provided
+        if ($input === null) {
+            $input = json_decode(file_get_contents('php://input'), true);
+        }
         $walletAddress = $input['wallet_address'] ?? null;
         
         if (!$walletAddress) {
@@ -235,9 +252,12 @@ function handleGetUser($url, $key) {
  * Save game state by wallet address
  * POST /api/wallet-auth/save
  */
-function handleSaveGameState($url, $key) {
+function handleSaveGameState($url, $key, $input = null) {
     try {
-        $input = json_decode(file_get_contents('php://input'), true);
+        // Read input if not provided
+        if ($input === null) {
+            $input = json_decode(file_get_contents('php://input'), true);
+        }
         $walletAddress = $input['wallet_address'] ?? null;
         $gameState = $input['game_state'] ?? null;
         
@@ -292,11 +312,18 @@ $path = $_SERVER['REQUEST_URI'];
 $pathParts = explode('/', trim($path, '/'));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Read input ONCE - php://input can only be read once!
+    $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
+    if ($input === null && !empty($rawInput)) {
+        // If JSON decode failed, try to parse as query string or log error
+        error_log('Failed to parse JSON input: ' . substr($rawInput, 0, 200));
+        $input = [];
+    }
     // Parse input to get action
-    $input = json_decode(file_get_contents('php://input'), true) ?? [];
-    $action = $input['action'] ?? end($pathParts);
+    $action = $input['action'] ?? null;
     
-    // If action is still not found, try to get from URL path
+    // If action is still not found, try to get from URL path or query
     if (!$action || !in_array($action, ['create', 'get', 'save'])) {
         // Try to extract from URL: /api/wallet-auth.php?action=get or /api/wallet-auth/get
         if (isset($_GET['action'])) {
@@ -306,30 +333,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($actionIndex !== false && isset($pathParts[$actionIndex + 1])) {
                 $action = $pathParts[$actionIndex + 1];
             }
+        } else {
+            // Try last path part as action
+            $action = end($pathParts);
+            if ($action === 'wallet-auth.php' || empty($action)) {
+                $action = null;
+            }
         }
+    }
+    
+    // Log for debugging
+    error_log("Wallet Auth API - Method: POST, Action: " . ($action ?? 'NULL') . ", Path: $path");
+    
+    if (!$action || !in_array($action, ['create', 'get', 'save'])) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false, 
+            'error' => 'Invalid action. Use: create, get, or save',
+            'received_action' => $action,
+            'path' => $path,
+            'input_keys' => array_keys($input ?? [])
+        ]);
+        exit;
     }
     
     switch ($action) {
         case 'create':
-            handleCreateAccount($SUPABASE_URL, $SUPABASE_KEY);
+            handleCreateAccount($SUPABASE_URL, $SUPABASE_KEY, $input);
             break;
         case 'get':
-            handleGetUser($SUPABASE_URL, $SUPABASE_KEY);
+            handleGetUser($SUPABASE_URL, $SUPABASE_KEY, $input);
             break;
         case 'save':
-            handleSaveGameState($SUPABASE_URL, $SUPABASE_KEY);
+            handleSaveGameState($SUPABASE_URL, $SUPABASE_KEY, $input);
             break;
-        default:
-            http_response_code(400);
-            echo json_encode([
-                'success' => false, 
-                'error' => 'Invalid action. Use: create, get, or save',
-                'received_action' => $action,
-                'path' => $path
-            ]);
     }
 } else {
     http_response_code(405);
-    echo json_encode(['success' => false, 'error' => 'Method not allowed. Use POST']);
+    echo json_encode([
+        'success' => false, 
+        'error' => 'Method not allowed. Use POST',
+        'method' => $_SERVER['REQUEST_METHOD']
+    ]);
 }
 

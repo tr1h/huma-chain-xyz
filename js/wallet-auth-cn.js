@@ -11,7 +11,7 @@
  * - All data stored in Supabase
  */
 
-const WALLET_AUTH_API = 'https://solanatamagotchi.com/api/wallet-auth.php';
+const WALLET_AUTH_API = 'https://api.solanatamagotchi.com/api/wallet-auth.php';
 
 // Global wallet state
 let walletAuthState = {
@@ -82,7 +82,19 @@ async function connectWallet() {
         }
     } catch (error) {
         console.error('❌ Wallet connection error:', error);
-        return { success: false, error: error.message };
+        
+        // Show user-friendly error message
+        let errorMessage = error.message;
+        if (errorMessage.includes('405') || errorMessage.includes('Not Allowed')) {
+            errorMessage = 'Server error: Cannot connect to authentication service. Please try again later or contact support.';
+        }
+        
+        // Show alert only if it's not a user cancellation
+        if (!error.message.includes('User rejected') && !error.message.includes('User cancelled')) {
+            alert(`❌ Failed to connect wallet\n\n${errorMessage}`);
+        }
+        
+        return { success: false, error: errorMessage };
     }
 }
 
@@ -101,14 +113,28 @@ async function getOrCreateAccount(walletAddress) {
             })
         });
         
-        // Check if response is OK and is JSON
+        // Check if response is OK
         if (!getResponse.ok) {
             const errorText = await getResponse.text();
             console.error('❌ API Error:', getResponse.status, errorText);
+            
+            // If server returns HTML (405 page), it means routing issue
+            if (getResponse.status === 405 || errorText.includes('<html>')) {
+                throw new Error('Server configuration error: API endpoint not accessible. Please contact support.');
+            }
+            
             throw new Error(`API error: ${getResponse.status} - ${errorText.substring(0, 100)}`);
         }
         
-        const getResult = await getResponse.json();
+        // Try to parse as JSON
+        let getResult;
+        try {
+            getResult = await getResponse.json();
+        } catch (jsonError) {
+            const errorText = await getResponse.text();
+            console.error('❌ Failed to parse JSON response:', errorText);
+            throw new Error('Invalid server response. Please try again later.');
+        }
         
         if (getResult.success && getResult.exists) {
             // Account exists
@@ -125,14 +151,28 @@ async function getOrCreateAccount(walletAddress) {
             })
         });
         
-        // Check if response is OK and is JSON
+        // Check if response is OK
         if (!createResponse.ok) {
             const errorText = await createResponse.text();
             console.error('❌ API Error:', createResponse.status, errorText);
+            
+            // If server returns HTML (405 page), it means routing issue
+            if (createResponse.status === 405 || errorText.includes('<html>')) {
+                throw new Error('Server configuration error: API endpoint not accessible. Please contact support.');
+            }
+            
             throw new Error(`API error: ${createResponse.status} - ${errorText.substring(0, 100)}`);
         }
         
-        const createResult = await createResponse.json();
+        // Try to parse as JSON
+        let createResult;
+        try {
+            createResult = await createResponse.json();
+        } catch (jsonError) {
+            const errorText = await createResponse.text();
+            console.error('❌ Failed to parse JSON response:', errorText);
+            throw new Error('Invalid server response. Please try again later.');
+        }
         
         if (createResult.success) {
             return createResult;
