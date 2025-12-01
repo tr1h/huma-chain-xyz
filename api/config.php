@@ -19,7 +19,8 @@ define('SUPABASE_DB_PASSWORD', getenv('SUPABASE_DB_PASSWORD'));
 
 // Supabase REST API Settings (for REST API calls)
 define('SUPABASE_URL', getenv('SUPABASE_URL'));
-define('SUPABASE_KEY', getenv('SUPABASE_KEY'));
+define('SUPABASE_KEY', getenv('SUPABASE_KEY')); // Anon key for read operations
+define('SUPABASE_SERVICE_ROLE_KEY', getenv('SUPABASE_SERVICE_ROLE_KEY')); // Service role key for write operations (bypasses RLS)
 
 // Validate required environment variables
 if (!SUPABASE_URL || !SUPABASE_KEY) {

@@ -46,16 +46,31 @@ $SUPABASE_URL = defined('SUPABASE_URL') && SUPABASE_URL
     ? SUPABASE_URL 
     : (getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co');
 
+// Anon key for read operations
 $SUPABASE_KEY = defined('SUPABASE_KEY') && SUPABASE_KEY 
     ? SUPABASE_KEY 
     : (getenv('SUPABASE_KEY') ?: null);
+
+// Service role key for write operations (bypasses RLS)
+$SUPABASE_SERVICE_ROLE_KEY = defined('SUPABASE_SERVICE_ROLE_KEY') && SUPABASE_SERVICE_ROLE_KEY
+    ? SUPABASE_SERVICE_ROLE_KEY
+    : (getenv('SUPABASE_SERVICE_ROLE_KEY') ?: null);
+
+// Use service_role key for writes, fallback to anon key if not set
+$SUPABASE_WRITE_KEY = $SUPABASE_SERVICE_ROLE_KEY ?: $SUPABASE_KEY;
 
 // Log configuration status (without exposing keys)
 if (!$SUPABASE_KEY) {
     error_log('❌ CRITICAL: SUPABASE_KEY is not set! Check environment variables or config.php');
     error_log('📍 Config check: defined=' . (defined('SUPABASE_KEY') ? 'yes' : 'no') . ', env=' . (getenv('SUPABASE_KEY') ? 'yes' : 'no'));
 } else {
-    error_log('✅ Supabase config loaded: URL=' . $SUPABASE_URL . ', KEY=' . substr($SUPABASE_KEY, 0, 20) . '...');
+    error_log('✅ Supabase config loaded: URL=' . $SUPABASE_URL);
+    error_log('✅ Anon key: ' . substr($SUPABASE_KEY, 0, 20) . '...');
+    if ($SUPABASE_SERVICE_ROLE_KEY) {
+        error_log('✅ Service role key: ' . substr($SUPABASE_SERVICE_ROLE_KEY, 0, 20) . '...');
+    } else {
+        error_log('⚠️ Service role key not set - will use anon key for writes (may fail with RLS)');
+    }
 }
 
 /**
@@ -304,7 +319,11 @@ function handleSaveGameState($url, $key, $input = null) {
             return $value !== null;
         });
         
-        $result = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+        // Use service_role key for write operations (PATCH/UPDATE)
+        // This bypasses RLS and allows updates
+        $writeKey = $GLOBALS['SUPABASE_WRITE_KEY'] ?? $key;
+        
+        $result = supabaseRequest($url, $writeKey, 'PATCH', 'leaderboard', [
             'wallet_address' => 'eq.' . $walletAddress
         ], $updateData);
         
@@ -383,15 +402,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
+    // Use service_role key for write operations (create/save), anon key for reads
+    $writeKey = defined('SUPABASE_SERVICE_ROLE_KEY') && SUPABASE_SERVICE_ROLE_KEY 
+        ? SUPABASE_SERVICE_ROLE_KEY 
+        : (getenv('SUPABASE_SERVICE_ROLE_KEY') ?: $SUPABASE_KEY);
+    
     switch ($action) {
         case 'create':
-            handleCreateAccount($SUPABASE_URL, $SUPABASE_KEY, $input);
+            handleCreateAccount($SUPABASE_URL, $writeKey, $input);
             break;
         case 'get':
             handleGetUser($SUPABASE_URL, $SUPABASE_KEY, $input);
             break;
         case 'save':
-            handleSaveGameState($SUPABASE_URL, $SUPABASE_KEY, $input);
+            handleSaveGameState($SUPABASE_URL, $writeKey, $input);
             break;
     }
 } else {
