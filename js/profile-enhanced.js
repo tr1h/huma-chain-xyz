@@ -52,61 +52,21 @@ async function loadProfile() {
             return;
         }
         
-        // TEMPORARY: Use wallet-auth API until profile-data.php is deployed
-        // Check if it's a wallet user
-        const isWalletUser = userId.startsWith('wallet_');
+        // Fetch user data from enhanced profile API
+        const response = await fetch(`${API_BASE}/api/profile-data.php?user_id=${userId}`);
         
-        if (isWalletUser) {
-            // Use wallet-auth API
-            const walletAddress = userId.replace('wallet_', '');
-            const response = await fetch(`${API_BASE}/api/wallet-auth.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'get',
-                    wallet_address: walletAddress
-                })
-            });
-            const data = await response.json();
-            
-            if (!data.success) {
-                throw new Error(data.error || 'Failed to load profile');
-            }
-            
-            // Convert wallet-auth response to expected format
-            userData = {
-                wallet_address: data.wallet_address,
-                username: data.username || 'Player',
-                created_at: data.created_at || new Date().toISOString()
-            };
-            
-            userStats = {
-                level: data.level || 1,
-                tama: data.tama || 0,
-                totalClicks: data.totalClicks || 0,
-                playtime: 0, // Not available in wallet-auth
-                rank: 0, // Fetch separately
-                nfts: 0, // Fetch separately
-                referrals: 0,
-                referralEarnings: 0,
-                walletLinked: true,
-                twitterLinked: false,
-                daysPlayed: 0,
-                nftCollection: [],
-                transactions: [],
-                activities: []
-            };
-        } else {
-            // Telegram user - show error for now
-            throw new Error('Telegram users not yet supported in enhanced profile. Use regular profile page.');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        // TODO: When profile-data.php is deployed, replace above with:
-        // const response = await fetch(`${API_BASE}/api/profile-data.php?user_id=${userId}`);
-        // const data = await response.json();
-        // if (!data.success) throw new Error(data.error || 'Failed to load profile');
-        // userData = data.user;
-        // userStats = data.stats;
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to load profile');
+        }
+        
+        userData = data.user;
+        userStats = data.stats;
         
         // Render all sections
         renderStatistics();
