@@ -2437,8 +2437,19 @@
         // ==============================================
         // LOAD PRICES & STATS
         // ==============================================
+        // ⚡ Loading flags to prevent duplicate requests
+        let isLoadingPrices = false;
+        let isLoadingBalance = false;
+        
         async function loadPricesAndStats() {
+            // Prevent duplicate requests
+            if (isLoadingPrices) {
+                console.log('⏳ Prices already loading, skipping...');
+                return;
+            }
+            
             try {
+                isLoadingPrices = true;
                 console.log('📊 Loading prices and stats...');
 
                 // Get bonding state
@@ -2457,15 +2468,14 @@
                 bondingData.forEach(tier => {
                     updateTierUI(tier);
                 });
-
-                // Get TAMA balance
-                await loadTAMABalance();
                 
                 // Update all USD prices with current SOL/USD rate
                 updateAllUSDPrices();
 
             } catch (err) {
                 console.error('❌ Error loading prices:', err);
+            } finally {
+                isLoadingPrices = false;
             }
         }
 
@@ -2543,6 +2553,13 @@
         let balanceModified = false;
 
         async function loadTAMABalance() {
+            // Prevent duplicate requests
+            if (isLoadingBalance) {
+                console.log('⏳ Balance already loading, skipping...');
+                return;
+            }
+            
+            isLoadingBalance = true;
             try {
                 // If balance was modified (after mint/withdrawal), always fetch from API
                 // Otherwise, use URL parameter on first load for faster UX
@@ -2572,12 +2589,14 @@
                         console.warn('⚠️ Wallet user not found, setting balance to 0');
                         tamaBalance = 0;
                         document.getElementById('tama-balance').textContent = '0';
+                        isLoadingBalance = false;
                         return;
                     }
                     
                     tamaBalance = parseFloat(walletData.tama_balance) || 0;
                     document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
                     console.log('✅ TAMA balance loaded from wallet_users:', tamaBalance);
+                    isLoadingBalance = false;
                     return;
                 }
                 
@@ -2585,6 +2604,7 @@
                     console.warn('⚠️ No Telegram User ID or Wallet Address, setting balance to 0');
                     tamaBalance = 0;
                     document.getElementById('tama-balance').textContent = '0';
+                    isLoadingBalance = false;
                     return;
                 }
 
@@ -2612,6 +2632,8 @@
                 console.error('❌ Error loading TAMA balance:', err);
                 tamaBalance = 0;
                 document.getElementById('tama-balance').textContent = '0';
+            } finally {
+                isLoadingBalance = false;
             }
         }
 
@@ -4322,55 +4344,64 @@
             console.log('🚀 NFT Mint Page loaded');
             console.log('👤 Telegram User ID:', TELEGRAM_USER_ID);
 
-            // Load initial data
-            loadCollectionStats();
-            loadRecentMints();
-
-            // Restore wallet connection if exists
-            try {
-                const savedWallet = localStorage.getItem('phantom_wallet_address');
-                if (savedWallet && window.solana && window.solana.isPhantom) {
-                    try {
-                        const resp = await window.solana.connect({ onlyIfTrusted: true });
-                        if (resp && resp.publicKey) {
-                            walletAddress = resp.publicKey.toString();
-                            walletConnected = true;
-                            console.log('✅ Wallet auto-connected:', walletAddress);
-                            
-                            // Save wallet address to database on auto-connect
-                            try {
-                                const saveWalletUrl = `${TAMA_API_BASE}/update-wallet`;
-                                const saveWalletResponse = await fetch(saveWalletUrl, {
+            // ⚡ PARALLEL LOADING: Load all data simultaneously for faster startup
+            const loadPromises = [
+                // Load collection stats and recent mints in parallel
+                loadCollectionStats(),
+                loadRecentMints(),
+                // Fetch SOL/USD price (needed for price calculations)
+                fetchSOLPrice()
+            ];
+            
+            // Restore wallet connection in parallel (non-blocking)
+            const walletPromise = (async () => {
+                try {
+                    const savedWallet = localStorage.getItem('phantom_wallet_address');
+                    if (savedWallet && window.solana && window.solana.isPhantom) {
+                        try {
+                            const resp = await window.solana.connect({ onlyIfTrusted: true });
+                            if (resp && resp.publicKey) {
+                                walletAddress = resp.publicKey.toString();
+                                walletConnected = true;
+                                console.log('✅ Wallet auto-connected:', walletAddress);
+                                
+                                // Save wallet address to database on auto-connect (non-blocking)
+                                fetch(`${TAMA_API_BASE}/update-wallet`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
                                         telegram_id: TELEGRAM_USER_ID,
                                         wallet_address: walletAddress
                                     })
+                                }).then(response => {
+                                    if (response.ok) {
+                                        return response.json();
+                                    }
+                                }).then(result => {
+                                    if (result) console.log('✅ Wallet address saved to database (auto-connect):', result);
+                                }).catch(err => {
+                                    console.warn('⚠️ Error saving wallet to database (auto-connect):', err);
                                 });
                                 
-                                if (saveWalletResponse.ok) {
-                                    const saveResult = await saveWalletResponse.json();
-                                    console.log('✅ Wallet address saved to database (auto-connect):', saveResult);
-                                }
-                            } catch (err) {
-                                console.warn('⚠️ Error saving wallet to database (auto-connect):', err);
+                                updateWalletUI();
                             }
-                            
-                            updateWalletUI();
+                        } catch (err) {
+                            console.log('ℹ️ Wallet not auto-connected (user needs to connect manually)');
                         }
-                    } catch (err) {
-                        console.log('ℹ️ Wallet not auto-connected (user needs to connect manually)');
                     }
+                } catch (err) {
+                    console.warn('⚠️ Failed to restore wallet:', err);
                 }
-            } catch (err) {
-                console.warn('⚠️ Failed to restore wallet:', err);
-            }
-
-            // Fetch SOL/USD price first, then load prices
-            await fetchSOLPrice();
-            await loadPricesAndStats();
-            await loadTAMABalance(); // 🔥 FIX: Load TAMA balance!
+            })();
+            
+            // Wait for initial data to load
+            await Promise.allSettled(loadPromises);
+            
+            // ⚡ Load prices and balance in parallel (after SOL price is fetched)
+            await Promise.allSettled([
+                loadPricesAndStats(),
+                loadTAMABalance()
+            ]);
 
             // ============================================
             // 🚀 REAL-TIME BALANCE UPDATES (WebSocket)
@@ -4429,14 +4460,19 @@
                 });
             }
 
-            // Auto-refresh prices every 10 seconds
-            setInterval(loadPricesAndStats, 10000);
+            // ⚡ Optimized auto-refresh intervals (longer to reduce server load)
+            // Auto-refresh prices every 30 seconds (was 10s - too frequent)
+            setInterval(() => {
+                if (!isLoadingPrices) loadPricesAndStats();
+            }, 30000);
             
-            // Auto-refresh balance every 30 seconds (fallback if WebSocket fails)
-            setInterval(loadTAMABalance, 30000);
+            // Auto-refresh balance every 60 seconds (was 30s - too frequent)
+            setInterval(() => {
+                if (!isLoadingBalance) loadTAMABalance();
+            }, 60000);
             
-            // Update SOL/USD rate every 60 seconds (less frequent to avoid rate limits)
-            setInterval(fetchSOLPrice, 60000);
+            // Update SOL/USD rate every 5 minutes (was 60s - too frequent)
+            setInterval(fetchSOLPrice, 300000);
         });
     </script>
 
