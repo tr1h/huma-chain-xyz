@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Testing Wallet Auth API</h1>
+    <button onclick="testAPI()">Test API</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testAPI() {
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = 'Testing...';
+            
+            try {
+                // Test 1: Health check
+                const healthResponse = await fetch('https://api.solanatamagotchi.com/api/wallet-auth.php');
+                const healthData = await healthResponse.text();
+                
+                resultEl.textContent = '=== Health Check ===\n';
+                resultEl.textContent += 'Status: ' + healthResponse.status + '\n';
+                resultEl.textContent += 'Response: ' + healthData + '\n\n';
+                
+                // Test 2: Create account
+                const testWallet = 'TestWallet' + Date.now();
+                
+                resultEl.textContent += '=== Create Account ===\n';
+                resultEl.textContent += 'Wallet: ' + testWallet + '\n';
+                
+                const createResponse = await fetch('https://api.solanatamagotchi.com/api/wallet-auth.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'create',
+                        wallet_address: testWallet,
+                        username: 'Test User'
+                    })
+                });
+                
+                const createData = await createResponse.json();
+                
+                resultEl.textContent += 'Status: ' + createResponse.status + '\n';
+                resultEl.textContent += 'Response: ' + JSON.stringify(createData, null, 2) + '\n\n';
+                
+                // Test 3: Get account
+                resultEl.textContent += '=== Get Account ===\n';
+                
+                const getResponse = await fetch('https://api.solanatamagotchi.com/api/wallet-auth.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'get',
+                        wallet_address: testWallet
+                    })
+                });
+                
+                const getData = await getResponse.json();
+                
+                resultEl.textContent += 'Status: ' + getResponse.status + '\n';
+                resultEl.textContent += 'Response: ' + JSON.stringify(getData, null, 2) + '\n';
+                
+            } catch (error) {
+                resultEl.textContent += '\n\nERROR: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
+
