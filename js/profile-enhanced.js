@@ -52,17 +52,42 @@ async function loadProfile() {
             return;
         }
         
-        // Fetch user data from enhanced profile API
-        const response = await fetch(`${API_BASE}/api/profile-data.php?user_id=${userId}`);
+        // Try simple API first, fallback to full API
+        let response;
+        let data;
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (!data.success) {
-            throw new Error(data.error || 'Failed to load profile');
+        try {
+            // Try simplified API first
+            response = await fetch(`${API_BASE}/api/profile-data-simple.php?user_id=${userId}`);
+            
+            if (!response.ok) {
+                throw new Error(`Simple API failed: ${response.status}`);
+            }
+            
+            data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to load profile from simple API');
+            }
+            
+            console.log('✅ Loaded from simple API');
+        } catch (simpleError) {
+            console.warn('⚠️ Simple API failed, trying full API:', simpleError);
+            
+            // Fallback to full API
+            response = await fetch(`${API_BASE}/api/profile-data.php?user_id=${userId}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to load profile');
+            }
+            
+            console.log('✅ Loaded from full API');
         }
         
         userData = data.user;
