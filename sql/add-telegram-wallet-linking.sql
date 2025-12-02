@@ -216,9 +216,9 @@ BEGIN
         UPDATE leaderboard
         SET 
             tama = NEW.tama_balance,
-            level = NEW.level,
+            level = NEW.level
             -- clicks not synced (leaderboard doesn't have clicks column)
-            linked_wallet = NEW.wallet_address
+            -- linked_wallet update removed - it's set separately via link_telegram_with_wallet function
         WHERE telegram_id = NEW.telegram_id;
     END IF;
     
