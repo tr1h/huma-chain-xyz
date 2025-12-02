@@ -1901,6 +1901,17 @@
         
         // Use unified auth system
         let TELEGRAM_USER_ID = null;
+        let WALLET_ADDRESS = null;
+        let WALLET_USER_ID = null;
+        let isWalletUser = false;
+        
+        // Check for wallet authentication
+        if (window.WALLET_ADDRESS) {
+            WALLET_ADDRESS = window.WALLET_ADDRESS;
+            WALLET_USER_ID = window.WALLET_USER_ID;
+            isWalletUser = true;
+            console.log('✅ Wallet user detected:', WALLET_ADDRESS);
+        }
         
         // Wait for auth to initialize
         window.addEventListener('gotchiAuthReady', (e) => {
@@ -1913,6 +1924,17 @@
                 }
             }
         });
+        
+        // Also check for wallet auth on page load
+        if (window.WalletAuth && window.WalletAuth.isAuthenticated && window.WalletAuth.isAuthenticated()) {
+            WALLET_ADDRESS = window.WalletAuth.getWalletAddress();
+            WALLET_USER_ID = window.WalletAuth.getUserId();
+            isWalletUser = true;
+            console.log('✅ Wallet auth detected:', WALLET_ADDRESS);
+            if (WALLET_ADDRESS) {
+                loadTAMABalance();
+            }
+        }
         
         // Fallback to old method if auth not ready
         function getTelegramUserId() {
@@ -2535,8 +2557,32 @@
                 }
 
                 // Use API endpoint to get balance (after modifications or if no URL param)
+                // Check for wallet user first, then Telegram
+                if (WALLET_ADDRESS && isWalletUser) {
+                    // Load balance from wallet_users table
+                    console.log('📡 Loading TAMA balance for wallet user:', WALLET_ADDRESS);
+                    
+                    const { data: walletData, error: walletError } = await supabase
+                        .from('wallet_users')
+                        .select('tama_balance, clicks')
+                        .eq('wallet_address', WALLET_ADDRESS)
+                        .single();
+                    
+                    if (walletError || !walletData) {
+                        console.warn('⚠️ Wallet user not found, setting balance to 0');
+                        tamaBalance = 0;
+                        document.getElementById('tama-balance').textContent = '0';
+                        return;
+                    }
+                    
+                    tamaBalance = parseFloat(walletData.tama_balance) || 0;
+                    document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
+                    console.log('✅ TAMA balance loaded from wallet_users:', tamaBalance);
+                    return;
+                }
+                
                 if (!TELEGRAM_USER_ID) {
-                    console.warn('⚠️ No Telegram User ID, setting balance to 0');
+                    console.warn('⚠️ No Telegram User ID or Wallet Address, setting balance to 0');
                     tamaBalance = 0;
                     document.getElementById('tama-balance').textContent = '0';
                     return;
@@ -2656,8 +2702,49 @@
                 isMintingBronze = true;
                 console.log('🟫 Minting Bronze NFT...');
 
-                // Check if user came from game (has telegram_id)
-                if (!TELEGRAM_USER_ID || TELEGRAM_USER_ID === 123456789) {
+                // Check if user came from game (has telegram_id OR wallet with activity)
+                let userHasPlayed = false;
+                let userIdentifier = null;
+                
+                if (WALLET_ADDRESS && isWalletUser) {
+                    // Check if wallet user has played (clicks > 0)
+                    const { data: walletData, error: walletError } = await supabase
+                        .from('wallet_users')
+                        .select('clicks, tama_balance')
+                        .eq('wallet_address', WALLET_ADDRESS)
+                        .single();
+                    
+                    if (walletError || !walletData) {
+                        showNotification('warning', 'Game Required', 
+                            'To mint with TAMA, you need to play the game first!\n\n' +
+                            '🎮 Play the game in browser\n' +
+                            '💰 Earn TAMA tokens by clicking\n' +
+                            '🔗 Then come back here to mint NFT\n\n' +
+                            '💡 Or mint with SOL instead (no game required)!'
+                        );
+                        return;
+                    }
+                    
+                    // Check if user has activity (clicks > 0)
+                    if (walletData.clicks > 0) {
+                        userHasPlayed = true;
+                        userIdentifier = 'wallet';
+                    } else {
+                        showNotification('warning', 'Game Required', 
+                            'To mint with TAMA, you need to play the game first!\n\n' +
+                            '🎮 Play the game in browser (click your pet!)\n' +
+                            '💰 Earn TAMA tokens\n' +
+                            '🔗 Then come back here to mint NFT\n\n' +
+                            '💡 Or mint with SOL instead (no game required)!'
+                        );
+                        return;
+                    }
+                } else if (TELEGRAM_USER_ID && TELEGRAM_USER_ID !== 123456789) {
+                    userHasPlayed = true;
+                    userIdentifier = 'telegram';
+                }
+                
+                if (!userHasPlayed) {
                     showNotification('warning', 'Game Required', 
                         'To mint with TAMA, you need to play the game first!\n\n' +
                         '🎮 Go to Telegram bot and play the game\n' +
@@ -2691,39 +2778,81 @@
                 // DIRECT SUPABASE APPROACH (bypasses PHP API)
                 // ============================================
                 updateLoadingProgress('💰 Checking TAMA balance...');
-                console.log('📊 Checking balance from leaderboard...');
                 
-                // 1. Get current TAMA balance from leaderboard
-                const { data: leaderboardData, error: leaderboardError } = await supabase
-                    .from('leaderboard')
-                    .select('tama')
-                    .eq('telegram_id', Number(TELEGRAM_USER_ID))
-                    .single();
+                let currentTama = 0;
+                let newTama = 0;
                 
-                if (leaderboardError || !leaderboardData) {
-                    throw new Error('Could not fetch TAMA balance. Please try again.');
+                if (userIdentifier === 'wallet' && WALLET_ADDRESS) {
+                    // Wallet user: use wallet_users table
+                    console.log('📊 Checking balance from wallet_users...');
+                    
+                    const { data: walletData, error: walletError } = await supabase
+                        .from('wallet_users')
+                        .select('tama_balance')
+                        .eq('wallet_address', WALLET_ADDRESS)
+                        .single();
+                    
+                    if (walletError || !walletData) {
+                        throw new Error('Could not fetch TAMA balance. Please try again.');
+                    }
+                    
+                    currentTama = parseFloat(walletData.tama_balance) || 0;
+                    if (currentTama < 5000) {
+                        throw new Error(`Insufficient TAMA balance. You have ${currentTama}, need 5000.`);
+                    }
+                    
+                    console.log('💰 Current TAMA balance:', currentTama);
+                    
+                    // Deduct 5000 TAMA from wallet_users
+                    updateLoadingProgress('💳 Deducting 5000 TAMA...');
+                    newTama = currentTama - 5000;
+                    const { error: updateError } = await supabase
+                        .from('wallet_users')
+                        .update({ tama_balance: newTama })
+                        .eq('wallet_address', WALLET_ADDRESS);
+                    
+                    if (updateError) {
+                        throw new Error('Failed to deduct TAMA: ' + updateError.message);
+                    }
+                    
+                    console.log('✅ Deducted 5000 TAMA, new balance:', newTama);
+                } else if (userIdentifier === 'telegram' && TELEGRAM_USER_ID) {
+                    // Telegram user: use leaderboard table
+                    console.log('📊 Checking balance from leaderboard...');
+                    
+                    const { data: leaderboardData, error: leaderboardError } = await supabase
+                        .from('leaderboard')
+                        .select('tama')
+                        .eq('telegram_id', Number(TELEGRAM_USER_ID))
+                        .single();
+                    
+                    if (leaderboardError || !leaderboardData) {
+                        throw new Error('Could not fetch TAMA balance. Please try again.');
+                    }
+                    
+                    currentTama = leaderboardData.tama || 0;
+                    if (currentTama < 5000) {
+                        throw new Error(`Insufficient TAMA balance. You have ${currentTama}, need 5000.`);
+                    }
+                    
+                    console.log('💰 Current TAMA balance:', currentTama);
+                    
+                    // Deduct 5000 TAMA from leaderboard
+                    updateLoadingProgress('💳 Deducting 5000 TAMA...');
+                    newTama = currentTama - 5000;
+                    const { error: updateError } = await supabase
+                        .from('leaderboard')
+                        .update({ tama: newTama })
+                        .eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    
+                    if (updateError) {
+                        throw new Error('Failed to deduct TAMA: ' + updateError.message);
+                    }
+                    
+                    console.log('✅ Deducted 5000 TAMA, new balance:', newTama);
+                } else {
+                    throw new Error('Invalid user identifier');
                 }
-                
-                const currentTama = leaderboardData.tama || 0;
-                if (currentTama < 5000) {
-                    throw new Error(`Insufficient TAMA balance. You have ${currentTama}, need 5000.`);
-                }
-                
-                console.log('💰 Current TAMA balance:', currentTama);
-                
-                // 2. Deduct 5000 TAMA from leaderboard
-                updateLoadingProgress('💳 Deducting 5000 TAMA...');
-                const newTama = currentTama - 5000;
-                const { error: updateError } = await supabase
-                    .from('leaderboard')
-                    .update({ tama: newTama })
-                    .eq('telegram_id', Number(TELEGRAM_USER_ID));
-                
-                if (updateError) {
-                    throw new Error('Failed to deduct TAMA: ' + updateError.message);
-                }
-                
-                console.log('✅ Deducted 5000 TAMA, new balance:', newTama);
                 
                 // Mark balance as modified to force API fetch on next loadTAMABalance()
                 balanceModified = true;
@@ -3044,13 +3173,16 @@
                 // ✅ Record transaction with balance_after (for admin panel)
                 // 🛡️ PROTECTION: Check for duplicate transaction first
                 try {
-                    const transactionId = `nft_mint_${TELEGRAM_USER_ID}_${Date.now()}`;
+                    const userId = userIdentifier === 'wallet' ? WALLET_USER_ID : String(TELEGRAM_USER_ID);
+                    const transactionId = userIdentifier === 'wallet' 
+                        ? `nft_mint_wallet_${WALLET_ADDRESS}_${Date.now()}`
+                        : `nft_mint_${TELEGRAM_USER_ID}_${Date.now()}`;
                     
                     // Check if similar transaction exists in last 5 seconds (prevent duplicates)
                     const { data: recentTx } = await supabase
                         .from('transactions')
                         .select('id')
-                        .eq('user_id', String(TELEGRAM_USER_ID))
+                        .eq('user_id', userId)
                         .eq('type', 'nft_mint_tama')
                         .gte('created_at', new Date(Date.now() - 5000).toISOString())
                         .limit(1);
@@ -3061,7 +3193,7 @@
                     const { error: txError } = await supabase
                         .from('transactions')
                         .insert({
-                            user_id: String(TELEGRAM_USER_ID),
+                            user_id: userId,
                             type: 'nft_mint_tama',
                                 amount: -5000, // ✅ NEGATIVE: User SPENDS TAMA to mint NFT
                             balance_before: currentTama,
@@ -3076,7 +3208,9 @@
                                     treasury: treasuryAmount,
                                     pool: poolAmount
                                 },
-                                onchain_transfers: onchainTransfers // Include blockchain signatures
+                                onchain_transfers: onchainTransfers, // Include blockchain signatures
+                                wallet_address: userIdentifier === 'wallet' ? WALLET_ADDRESS : null,
+                                telegram_id: userIdentifier === 'telegram' ? TELEGRAM_USER_ID : null
                             }
                         });
                     
@@ -3102,50 +3236,92 @@
                 
                 if (designError || !designs || designs.length === 0) {
                     // Rollback TAMA deduction
-                    await mintSupabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    if (userIdentifier === 'wallet' && WALLET_ADDRESS) {
+                        await mintSupabase.from('wallet_users').update({ tama_balance: currentTama }).eq('wallet_address', WALLET_ADDRESS);
+                    } else if (userIdentifier === 'telegram' && TELEGRAM_USER_ID) {
+                        await mintSupabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                    }
                     throw new Error('No Bronze NFT designs available');
                 }
                 
                 const randomDesign = designs[Math.floor(Math.random() * designs.length)];
                 console.log('🎨 Selected design:', randomDesign);
                 
-                // 4. Create NFT record using RPC function (bypasses type issues)
+                // 4. Create NFT record
                 updateLoadingProgress('💾 Creating NFT record...');
-                const nftMintAddress = `bronze_${TELEGRAM_USER_ID}_${Date.now()}_${randomDesign.id}`;
+                let nftMintAddress;
+                let nftData;
                 
-                // CRITICAL: Send telegram_id as STRING to RPC function
-                // The RPC function accepts TEXT and casts to BIGINT internally
-                // This completely bypasses PostgREST's type conversion issues
-                const telegramIdString = String(TELEGRAM_USER_ID);
-                console.log('🔍 Creating NFT with telegram_id as STRING:', telegramIdString, 'type:', typeof telegramIdString);
-                
-                // Use RPC function with TEXT parameter (bypasses PostgREST type conversion issues)
-                const { data: rpcResult, error: nftError } = await supabase.rpc('insert_user_nft', {
-                    p_telegram_id: telegramIdString,  // Send as STRING, RPC function will cast to BIGINT
-                    p_nft_design_id: randomDesign.id,
-                    p_nft_mint_address: nftMintAddress,
-                    p_tier_name: 'Bronze',
-                    p_rarity: 'Common',
-                    p_earning_multiplier: 2.0,
-                    p_purchase_price_tama: 5000,
-                    p_is_active: true
-                });
-                
-                // RPC function returns array
-                const nftData = Array.isArray(rpcResult) && rpcResult.length > 0 ? rpcResult[0] : rpcResult;
-                
-                if (nftData) {
-                    console.log('✅ NFT created via RPC:', nftData);
+                if (userIdentifier === 'wallet' && WALLET_ADDRESS) {
+                    // Wallet user: use direct INSERT (RPC function doesn't support wallet_address)
+                    nftMintAddress = `bronze_wallet_${WALLET_ADDRESS.substring(0, 8)}_${Date.now()}_${randomDesign.id}`;
+                    console.log('🔍 Creating NFT for wallet user:', WALLET_ADDRESS);
+                    
+                    const { data: insertResult, error: nftError } = await supabase
+                        .from('user_nfts')
+                        .insert({
+                            wallet_address: WALLET_ADDRESS,
+                            telegram_id: null,
+                            nft_design_id: randomDesign.id,
+                            nft_mint_address: nftMintAddress,
+                            tier_name: 'Bronze',
+                            rarity: 'Common',
+                            earning_multiplier: 2.0,
+                            purchase_price_tama: 5000,
+                            is_active: true
+                        })
+                        .select()
+                        .single();
+                    
+                    if (nftError) {
+                        console.error('❌ NFT creation error:', nftError);
+                        // Rollback TAMA deduction
+                        await supabase.from('wallet_users').update({ tama_balance: currentTama }).eq('wallet_address', WALLET_ADDRESS);
+                        throw new Error('Failed to create NFT: ' + nftError.message);
+                    }
+                    
+                    nftData = insertResult;
+                    console.log('✅ NFT created for wallet user:', nftData);
+                } else if (userIdentifier === 'telegram' && TELEGRAM_USER_ID) {
+                    // Telegram user: use RPC function
+                    nftMintAddress = `bronze_${TELEGRAM_USER_ID}_${Date.now()}_${randomDesign.id}`;
+                    
+                    // CRITICAL: Send telegram_id as STRING to RPC function
+                    // The RPC function accepts TEXT and casts to BIGINT internally
+                    // This completely bypasses PostgREST's type conversion issues
+                    const telegramIdString = String(TELEGRAM_USER_ID);
+                    console.log('🔍 Creating NFT with telegram_id as STRING:', telegramIdString, 'type:', typeof telegramIdString);
+                    
+                    // Use RPC function with TEXT parameter (bypasses PostgREST type conversion issues)
+                    const { data: rpcResult, error: nftError } = await supabase.rpc('insert_user_nft', {
+                        p_telegram_id: telegramIdString,  // Send as STRING, RPC function will cast to BIGINT
+                        p_nft_design_id: randomDesign.id,
+                        p_nft_mint_address: nftMintAddress,
+                        p_tier_name: 'Bronze',
+                        p_rarity: 'Common',
+                        p_earning_multiplier: 2.0,
+                        p_purchase_price_tama: 5000,
+                        p_is_active: true
+                    });
+                    
+                    // RPC function returns array
+                    nftData = Array.isArray(rpcResult) && rpcResult.length > 0 ? rpcResult[0] : rpcResult;
+                    
+                    if (nftData) {
+                        console.log('✅ NFT created via RPC:', nftData);
+                    }
+                    
+                    if (nftError) {
+                        console.error('❌ NFT creation error:', nftError);
+                        // Rollback TAMA deduction
+                        await supabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
+                        throw new Error('Failed to create NFT: ' + nftError.message);
+                    }
+                    
+                    console.log('✅ NFT created:', nftData);
+                } else {
+                    throw new Error('Invalid user identifier for NFT creation');
                 }
-                
-                if (nftError) {
-                    console.error('❌ NFT creation error:', nftError);
-                    // Rollback TAMA deduction
-                    await mintSupabase.from('leaderboard').update({ tama: currentTama }).eq('telegram_id', Number(TELEGRAM_USER_ID));
-                    throw new Error('Failed to create NFT: ' + nftError.message);
-                }
-                
-                console.log('✅ NFT created:', nftData);
                 
                 // 🔥 NEW: Mint real on-chain NFT (same as SOL mint)
                 if (nftData && nftData.id) {
