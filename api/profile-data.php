@@ -30,38 +30,62 @@ if (!$SUPABASE_URL || !$SUPABASE_KEY) {
     exit;
 }
 
-// Helper function for Supabase requests
-function supabaseRequest($url, $key, $method, $table, $params = [], $body = null) {
-    $endpoint = $url . '/rest/v1/' . $table;
+// Helper function for Supabase requests (matching wallet-auth.php format)
+function supabaseRequest($url, $apiKey, $method, $table, $filters = [], $data = null) {
+    $ch = curl_init();
     
-    if (!empty($params)) {
-        $endpoint .= '?' . http_build_query($params);
+    $queryString = '';
+    if (!empty($filters)) {
+        $queryParts = [];
+        foreach ($filters as $filterKey => $value) {
+            if ($filterKey === 'select') {
+                $queryParts[] = 'select=' . urlencode($value);
+            } else {
+                $queryParts[] = urlencode($filterKey) . '=' . urlencode($value);
+            }
+        }
+        $queryString = '?' . implode('&', $queryParts);
     }
     
+    $fullUrl = $url . '/rest/v1/' . $table . $queryString;
+    
     $headers = [
-        'apikey: ' . $key,
-        'Authorization: Bearer ' . $key,
-        'Content-Type: application/json'
+        'apikey: ' . $apiKey,
+        'Authorization: Bearer ' . $apiKey,
+        'Content-Type: application/json',
+        'Prefer: return=representation'
     ];
     
-    $ch = curl_init($endpoint);
+    curl_setopt($ch, CURLOPT_URL, $fullUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     
-    if ($method === 'POST' || $method === 'PATCH') {
+    if ($method === 'POST' || $method === 'PATCH' || $method === 'PUT') {
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        if ($body) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        if ($data) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         }
     }
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
     curl_close($ch);
+    
+    if ($error) {
+        error_log("❌ CURL Error in profile-data.php: " . $error);
+        return [
+            'code' => 500,
+            'data' => null,
+            'error' => $error
+        ];
+    }
+    
+    $decoded = json_decode($response, true);
     
     return [
         'code' => $httpCode,
-        'data' => json_decode($response, true)
+        'data' => $decoded
     ];
 }
 
@@ -126,37 +150,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
         }
         
-        // Fetch NFTs
-        $nftsResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'user_nfts', [
-            'user_id' => 'eq.' . $userId,
-            'select' => '*'
-        ]);
-        $nfts = $nftsResult['code'] === 200 ? $nftsResult['data'] : [];
-        
-        // Fetch referrals
-        $referralsResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'leaderboard', [
-            'referred_by' => 'eq.' . $userId,
-            'select' => 'count'
-        ]);
-        $referralCount = 0;
-        if ($referralsResult['code'] === 200 && isset($referralsResult['data'][0]['count'])) {
-            $referralCount = (int)$referralsResult['data'][0]['count'];
+        // Fetch NFTs (try user_nfts table, fallback to empty array)
+        $nfts = [];
+        try {
+            $nftsResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'user_nfts', [
+                'user_id' => 'eq.' . ($isTelegramUser ? $userId : $walletAddress),
+                'select' => '*'
+            ]);
+            if ($nftsResult['code'] === 200 && is_array($nftsResult['data'])) {
+                $nfts = $nftsResult['data'];
+            }
+        } catch (Exception $e) {
+            error_log("⚠️ Failed to fetch NFTs: " . $e->getMessage());
         }
         
-        // Get user rank from unified leaderboard
-        $rankResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'unified_leaderboard', [
-            'user_id' => 'eq.' . $userId,
-            'select' => 'rank'
-        ]);
-        $rank = ($rankResult['code'] === 200 && !empty($rankResult['data'])) 
-            ? ($rankResult['data'][0]['rank'] ?? 0) 
-            : 0;
+        // Fetch referrals count
+        $referralCount = 0;
+        try {
+            $referralField = $isTelegramUser ? 'referred_by' : 'referrer_wallet';
+            $referralValue = $isTelegramUser ? $userId : $walletAddress;
+            $referralsResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'leaderboard', [
+                $referralField => 'eq.' . $referralValue,
+                'select' => '*'
+            ]);
+            if ($referralsResult['code'] === 200 && is_array($referralsResult['data'])) {
+                $referralCount = count($referralsResult['data']);
+            }
+        } catch (Exception $e) {
+            error_log("⚠️ Failed to fetch referrals: " . $e->getMessage());
+        }
+        
+        // Get user rank (try unified_leaderboard, fallback to 0)
+        $rank = 0;
+        try {
+            $rankUserId = $isTelegramUser ? $userId : ($user['user_id'] ?? $walletAddress);
+            $rankResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'unified_leaderboard', [
+                'user_id' => 'eq.' . $rankUserId,
+                'select' => 'rank'
+            ]);
+            if ($rankResult['code'] === 200 && !empty($rankResult['data']) && is_array($rankResult['data'])) {
+                $rank = (int)($rankResult['data'][0]['rank'] ?? 0);
+            }
+        } catch (Exception $e) {
+            error_log("⚠️ Failed to fetch rank: " . $e->getMessage());
+        }
         
         // Extract data from user object and game_state
-        $level = $user['level'] ?? $gameState['level'] ?? 1;
-        $tama = $user['tama_balance'] ?? $gameState['tama'] ?? 0;
-        $totalClicks = $user['clicks'] ?? $gameState['clicks'] ?? $gameState['totalClicks'] ?? 0;
-        $xp = $user['experience'] ?? $gameState['xp'] ?? 0;
+        $level = isset($user['level']) ? (int)$user['level'] : (isset($gameState['level']) ? (int)$gameState['level'] : 1);
+        $tama = isset($user['tama_balance']) ? (int)$user['tama_balance'] : (isset($gameState['tama']) ? (int)$gameState['tama'] : 0);
+        $totalClicks = isset($user['clicks']) ? (int)$user['clicks'] : (isset($gameState['clicks']) ? (int)$gameState['clicks'] : (isset($gameState['totalClicks']) ? (int)$gameState['totalClicks'] : 0));
+        $xp = isset($user['experience']) ? (int)$user['experience'] : (isset($gameState['xp']) ? (int)$gameState['xp'] : 0);
         
         // Calculate statistics
         $stats = [
