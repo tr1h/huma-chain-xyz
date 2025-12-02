@@ -7123,27 +7123,27 @@
                         window.WALLET_ADDRESS = walletInit.walletAddress;
                         window.WALLET_USER_ID = walletInit.userData?.user_id || 'wallet_' + walletInit.walletAddress.substring(0, 12);
                         
-                        // 🔗 Check for referral code and process bonus
-                        if (window.ReferralSystem) {
-                            await window.ReferralSystem.processReferralBonus(walletInit.walletAddress);
-                        }
+                        // ⚡ PARALLEL LOADING: Load referral and game state simultaneously
+                        const [referralResult, walletData] = await Promise.allSettled([
+                            // Referral processing (non-blocking)
+                            window.ReferralSystem ? window.ReferralSystem.processReferralBonus(walletInit.walletAddress) : Promise.resolve(),
+                            // Game state loading (critical)
+                            window.WalletSave && typeof window.WalletSave.load === 'function' ? window.WalletSave.load() : Promise.resolve(null)
+                        ]);
                         
-                        // Load game state from wallet
-                        if (window.WalletSave && typeof window.WalletSave.load === 'function') {
-                            const walletData = await window.WalletSave.load();
-                            if (walletData && walletData.exists) {
-                                // Update game state from wallet data
-                                gameState.tama = walletData.tama || gameState.tama;
-                                gameState.level = walletData.level || gameState.level;
-                                gameState.xp = walletData.xp || gameState.xp;
-                                gameState.totalClicks = walletData.clicks || gameState.totalClicks;
-                                if (walletData.pet_name) gameState.petName = walletData.pet_name;
-                                if (walletData.pet_type) gameState.petType = walletData.pet_type;
-                                cloudLoaded = true;
-                                console.log('✅ Game state loaded from wallet');
-                            } else {
-                                console.log('ℹ️ No saved game state for wallet, starting fresh');
-                            }
+                        // Process game state
+                        if (walletData.status === 'fulfilled' && walletData.value && walletData.value.exists) {
+                            const data = walletData.value;
+                            gameState.tama = data.tama || gameState.tama;
+                            gameState.level = data.level || gameState.level;
+                            gameState.xp = data.xp || gameState.xp;
+                            gameState.totalClicks = data.clicks || gameState.totalClicks;
+                            if (data.pet_name) gameState.petName = data.pet_name;
+                            if (data.pet_type) gameState.petType = data.pet_type;
+                            cloudLoaded = true;
+                            console.log('✅ Game state loaded from wallet');
+                        } else {
+                            console.log('ℹ️ No saved game state for wallet, starting fresh');
                         }
                         
                         // 🎓 Start onboarding for new users
@@ -7230,14 +7230,12 @@
                         // Store userId globally for leaderboard (always as string)
                         window.TELEGRAM_USER_ID = userIdStr;
                         
-                        // Load rank after user ID is set (with small delay to ensure DOM is ready)
-                        setTimeout(() => {
-                            if (rankDisplay && (!rankDisplay.textContent || rankDisplay.textContent === '#---')) {
-                                loadLeaderboard().catch(() => {
-                                    console.log('Rank load failed, will retry later');
-                                });
-                            }
-                        }, 1000);
+                        // ⚡ Load rank immediately (no delay needed)
+                        if (rankDisplay && (!rankDisplay.textContent || rankDisplay.textContent === '#---')) {
+                            loadLeaderboard().catch(() => {
+                                console.log('Rank load failed, will retry later');
+                            });
+                        }
                     } else {
                         console.warn('⚠️ Could not get user ID from Telegram WebApp');
                         console.warn('   Offering wallet connection as alternative');
@@ -7298,18 +7296,20 @@
                     console.error('❌ updateUI function not found!');
                 }
                 
-                // ✅ Update player name display after UI update (ensures customUsername is loaded)
-                if (typeof updatePlayerNameDisplay === 'function') {
-                    setTimeout(() => updatePlayerNameDisplay(), 200);
-                }
+                // ⚡ PARALLEL: Update UI elements and load leaderboard simultaneously
+                const uiUpdates = [
+                    // Update player name (immediate, no delay needed)
+                    typeof updatePlayerNameDisplay === 'function' ? updatePlayerNameDisplay() : Promise.resolve(),
+                    // Update quest progress
+                    checkQuests(),
+                    // Load leaderboard (non-blocking)
+                    loadLeaderboard().catch(() => {
+                        console.log('Leaderboard load failed, continuing with game');
+                    })
+                ];
                 
-                // ✅ Update quest progress in UI after loading
-                checkQuests();
-                
-                // Load rank immediately on start
-                loadLeaderboard().catch(() => {
-                    console.log('Leaderboard load failed, continuing with game');
-                });
+                // Don't await - let them run in parallel
+                Promise.allSettled(uiUpdates);
                 
                 if (cloudLoaded) {
                     showMessage('☁️ Cloud progress loaded!');
@@ -11384,7 +11384,8 @@
         }
 
         // Call on init
-        setTimeout(updatePlayerNameDisplay, 500);
+        // ⚡ Update player name immediately (no delay needed)
+        updatePlayerNameDisplay();
 
         // Help Modal Event Listeners
         if (helpBtn && helpModal) {
@@ -12121,8 +12122,11 @@ ${link}`;
             console.log('BroadcastChannel not supported, using localStorage only');
         }
         
-        // Load economy config from API on startup
-        loadEconomyConfig();
+        // ⚡ Load economy config in parallel (non-blocking)
+        // Don't await - let it load in background
+        loadEconomyConfig().catch(err => {
+            console.warn('Economy config load failed:', err);
+        });
 
         // 🎨 Load NFT boost for user
         async function loadUserNFTBoost() {
@@ -12440,16 +12444,14 @@ ${link}`;
                     }
                 }
             
-            // 🎨 Load NFT boost for user (after user ID is set)
-                setTimeout(() => {
-                    try {
-                        if (typeof loadUserNFTBoost === 'function') {
-                            loadUserNFTBoost();
-                        }
-                    } catch (e) {
-                        console.warn('NFT boost load failed:', e);
-                    }
-                }, 500);
+            // ⚡ Load NFT boost immediately (no delay needed)
+            try {
+                if (typeof loadUserNFTBoost === 'function') {
+                    loadUserNFTBoost();
+                }
+            } catch (e) {
+                console.warn('NFT boost load failed:', e);
+            }
             
             // Wait for Telegram WebApp to initialize
             if (window.Telegram && window.Telegram.WebApp) {
