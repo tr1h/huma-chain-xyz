@@ -154,14 +154,14 @@ BEGIN
         
         UNION ALL
         
-        -- Get Wallet users (including linked ones)
+        -- Get Wallet users (don't use telegram_id - may be invalid)
         SELECT 
-            w.user_id::TEXT,
+            w.user_id as user_id,
             COALESCE(w.username, 'Player') as username,
             w.tama_balance,
             w.level,
-            w.telegram_id as tg_id,
-            w.wallet_address::TEXT as wallet_addr,
+            NULL::BIGINT as tg_id,
+            w.wallet_address as wallet_addr,
             w.created_at
         FROM wallet_users w
         
@@ -207,9 +207,9 @@ BEGIN
     FROM ranked_users r
     CROSS JOIN total_count t
     WHERE 
-        (p_telegram_id IS NOT NULL AND r.tg_id = p_telegram_id)
-        OR (p_wallet_address IS NOT NULL AND r.wallet_addr = p_wallet_address)
-        OR (p_user_id IS NOT NULL AND r.user_id = p_user_id)
+        (p_telegram_id IS NOT NULL AND r.tg_id IS NOT NULL AND r.tg_id = p_telegram_id)
+        OR (p_wallet_address IS NOT NULL AND r.wallet_addr IS NOT NULL AND r.wallet_addr = p_wallet_address)
+        OR (p_user_id IS NOT NULL AND r.user_id IS NOT NULL AND r.user_id = p_user_id)
     LIMIT 1;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
