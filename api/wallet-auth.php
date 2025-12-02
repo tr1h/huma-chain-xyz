@@ -46,10 +46,10 @@ $SUPABASE_URL = defined('SUPABASE_URL') && SUPABASE_URL
     ? SUPABASE_URL 
     : (getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co');
 
-// Anon key for read operations
+// Anon key for read operations - use fallback if not set in env
 $SUPABASE_KEY = defined('SUPABASE_KEY') && SUPABASE_KEY 
     ? SUPABASE_KEY 
-    : (getenv('SUPABASE_KEY') ?: null);
+    : (getenv('SUPABASE_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU');
 
 // Service role key for write operations (bypasses RLS)
 $SUPABASE_SERVICE_ROLE_KEY = defined('SUPABASE_SERVICE_ROLE_KEY') && SUPABASE_SERVICE_ROLE_KEY
@@ -402,25 +402,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    // Use service_role key for write operations (create/save), anon key for reads
-    // Priority: SUPABASE_SERVICE_ROLE_KEY constant > environment variable > fallback to anon key
-    $serviceRoleKey = null;
-    if (defined('SUPABASE_SERVICE_ROLE_KEY') && SUPABASE_SERVICE_ROLE_KEY) {
-        $serviceRoleKey = SUPABASE_SERVICE_ROLE_KEY;
-    } elseif (getenv('SUPABASE_SERVICE_ROLE_KEY')) {
-        $serviceRoleKey = getenv('SUPABASE_SERVICE_ROLE_KEY');
-    }
-    
-    $writeKey = $serviceRoleKey ?: $SUPABASE_KEY;
-    
-    // Log which key is being used (for debugging)
-    if ($action === 'save' || $action === 'create') {
-        if (!$serviceRoleKey) {
-            error_log('⚠️ WARNING: SUPABASE_SERVICE_ROLE_KEY not set! Using anon key for write operation. This may fail with RLS enabled.');
-        } else {
-            error_log('✅ Using service_role key for write operation');
-        }
-    }
+    // Use the same key for all operations (as it was before)
+    // Try service_role first if available, otherwise use anon key
+    $writeKey = defined('SUPABASE_SERVICE_ROLE_KEY') && SUPABASE_SERVICE_ROLE_KEY 
+        ? SUPABASE_SERVICE_ROLE_KEY 
+        : (getenv('SUPABASE_SERVICE_ROLE_KEY') ?: $SUPABASE_KEY);
     
     switch ($action) {
         case 'create':
