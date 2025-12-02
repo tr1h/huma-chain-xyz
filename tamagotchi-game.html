@@ -70,6 +70,9 @@
     <!-- Keep-Alive Ping (prevents Render.com free instance from spinning down) - defer -->
     <script src="js/keep-alive.js?v=1" defer></script>
     
+    <!-- DappRadar Metrics Tracker (for DappRadar listing) - defer -->
+    <script src="js/dappradar-tracker.js?v=1" defer></script>
+    
     <!-- Platform detection & features for non-Telegram users - defer -->
     <script src="js/platform-detector.js?v=1" defer></script>
     <script src="js/referral-system-web.js?v=1" defer></script>
@@ -7784,6 +7787,12 @@
             // ✅ ПРИОРИТЕТ 1: Wallet (для стран без Telegram)
             if (window.WALLET_ADDRESS && window.WalletSave) {
                 console.log('💾 Saving via wallet:', { address: window.WALLET_ADDRESS, userId: window.WALLET_USER_ID });
+                
+                // 📊 Track wallet activity for DappRadar
+                if (window.DappRadarTracker) {
+                    window.DappRadarTracker.trackWalletActivity(window.WALLET_ADDRESS);
+                }
+                
                 window.WalletSave.save(gameState).then(success => {
                     if (success) {
                         console.log('💾 Auto-save successful (Wallet API)');

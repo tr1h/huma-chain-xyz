@@ -30,7 +30,7 @@ BEGIN
     RETURN QUERY
     WITH combined_users AS (
         -- Telegram users (non-linked) - USE REAL USERNAME
-        SELECT 
+        SELECT др
             'tg_' || l.telegram_id::TEXT as user_id,
             COALESCE(l.telegram_username, 'Player') as username, -- USE telegram_username!
             l.tama as tama_balance,
