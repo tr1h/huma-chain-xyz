@@ -1814,6 +1814,53 @@
         .nav-btn:active {
             transform: translateY(0);
         }
+        
+        /* More Menu Styles */
+        .more-menu-container {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            max-width: none;
+            margin: 0 2px;
+        }
+        
+        .more-menu-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            right: 0;
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            border: 2px solid #4a5568;
+            border-radius: 10px;
+            padding: 10px;
+            min-width: 150px;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+        
+        .more-menu-dropdown.show {
+            display: block;
+        }
+        
+        .more-menu-item {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid #8b5cf6;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .more-menu-item:hover {
+            background: rgba(139, 92, 246, 0.4);
+            transform: translateX(5px);
+        }
 
         /* Individual nav button styles - UNIFIED DESIGN */
         .nav-btn.help-btn {
