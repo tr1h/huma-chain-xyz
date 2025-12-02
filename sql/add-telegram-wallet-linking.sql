@@ -54,7 +54,7 @@ SELECT
     COALESCE(w.created_at, l.created_at) as created_at
 FROM wallet_users w
 FULL OUTER JOIN leaderboard l ON (
-    l.telegram_id = w.telegram_id 
+    l.telegram_id::BIGINT = w.telegram_id 
     OR l.linked_wallet = w.wallet_address
 );
 
