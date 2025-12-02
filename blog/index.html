@@ -352,6 +352,14 @@
             // Hardcoded articles (fallback) - only published ones
             const hardcodedArticles = [
                 {
+                    title: "Solana Tamagotchi Updates: New Features November 2025",
+                    slug: "solana-tamagotchi-updates-november-2025",
+                    category: "Updates",
+                    excerpt: "Discover the latest updates to Solana Tamagotchi! Enhanced profile dashboard, unified leaderboard, DappRadar integration, and exciting new features. Stay ahead of the game!",
+                    status: "published",
+                    createdAt: "2025-12-02T00:00:00Z"
+                },
+                {
                     title: "How to Play Solana Tamagotchi: Complete Beginner's Guide 2025",
                     slug: "how-to-play-solana-tamagotchi-guide",
                     category: "Guide",
@@ -374,8 +382,14 @@
                 !savedArticles.find(sa => sa.slug === a.slug)
             )];
             
-            // Filter published articles
-            const publishedArticles = allArticles.filter(a => a.status === 'published');
+            // Filter published articles and sort by date (newest first)
+            const publishedArticles = allArticles
+                .filter(a => a.status === 'published')
+                .sort((a, b) => {
+                    const dateA = new Date(a.createdAt || 0);
+                    const dateB = new Date(b.createdAt || 0);
+                    return dateB - dateA; // Newest first
+                });
             
             if (publishedArticles.length === 0) {
                 articlesGrid.innerHTML = `
