@@ -104,6 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         exit;
     }
     
+    error_log("📊 Profile Data API - Request for user_id: " . $userId);
+    
     try {
         // Determine if it's Telegram user or Wallet user
         $isTelegramUser = preg_match('/^\d+$/', $userId);
@@ -114,6 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $walletAddress = substr($userId, 7); // Remove "wallet_" prefix
             $isTelegramUser = false;
         }
+        
+        error_log("🔍 User type: " . ($isTelegramUser ? 'Telegram' : 'Wallet') . " | Address: " . $walletAddress);
         
         // Fetch user data
         if ($isTelegramUser) {
@@ -136,20 +140,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'select' => '*'
             ]);
             
+            error_log("🔍 Checking wallet_users table for: " . $walletAddress);
+            error_log("📡 Response code: " . $userResult['code']);
+            
             if ($userResult['code'] === 200 && !empty($userResult['data'])) {
                 $user = $userResult['data'][0];
                 $gameState = json_decode($user['game_state'] ?? '{}', true);
+                error_log("✅ Found user in wallet_users table");
             } else {
                 // Try leaderboard table with wallet_address field
+                error_log("⚠️ Not found in wallet_users, trying leaderboard table");
                 $userResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'leaderboard', [
                     'wallet_address' => 'eq.' . $walletAddress,
                     'select' => '*'
                 ]);
                 
+                error_log("📡 Leaderboard response code: " . $userResult['code']);
+                
                 if ($userResult['code'] === 200 && !empty($userResult['data'])) {
                     $user = $userResult['data'][0];
                     $gameState = json_decode($user['game_state'] ?? '{}', true);
+                    error_log("✅ Found user in leaderboard table");
                 } else {
+                    error_log("❌ User not found in both tables");
                     throw new Exception('Wallet user not found: ' . $walletAddress);
                 }
             }
@@ -206,6 +219,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $totalClicks = isset($user['clicks']) ? (int)$user['clicks'] : (isset($gameState['clicks']) ? (int)$gameState['clicks'] : (isset($gameState['totalClicks']) ? (int)$gameState['totalClicks'] : 0));
         $xp = isset($user['experience']) ? (int)$user['experience'] : (isset($gameState['xp']) ? (int)$gameState['xp'] : 0);
         
+        error_log("📊 Extracted stats - Level: $level, TAMA: $tama, Clicks: $totalClicks");
+        
         // Calculate statistics
         $stats = [
             'level' => $level,
@@ -235,6 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             // Sample activity timeline (last 15)
             'activities' => generateSampleActivities($user, $gameState)
         ];
+        
+        error_log("✅ Successfully generated stats for user");
         
         echo json_encode([
             'success' => true,
