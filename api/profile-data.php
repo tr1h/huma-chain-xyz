@@ -253,11 +253,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         
         error_log("✅ Successfully generated stats for user");
         
-        echo json_encode([
-            'success' => true,
-            'user' => $user,
-            'stats' => $stats
-        ]);
+        // Clean user data for JSON encoding (remove any non-serializable data)
+        $userForJson = $user;
+        if (isset($userForJson['game_state']) && is_string($userForJson['game_state'])) {
+            // Keep as string for JSON
+        } elseif (isset($userForJson['game_state']) && is_array($userForJson['game_state'])) {
+            // Convert to JSON string
+            $userForJson['game_state'] = json_encode($userForJson['game_state']);
+        }
+        
+        try {
+            $jsonResponse = json_encode([
+                'success' => true,
+                'user' => $userForJson,
+                'stats' => $stats
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            
+            if ($jsonResponse === false) {
+                throw new Exception('JSON encoding failed: ' . json_last_error_msg());
+            }
+            
+            echo $jsonResponse;
+        } catch (Exception $jsonError) {
+            error_log("❌ JSON encoding error: " . $jsonError->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to encode response',
+                'details' => $jsonError->getMessage()
+            ]);
+        }
         
     } catch (Exception $e) {
         http_response_code(500);
@@ -331,10 +356,11 @@ function getBoostMultiplier($tier) {
 }
 
 function generateSampleTransactions($gameState, $user = null) {
-    $transactions = [];
-    $tama = $user['tama_balance'] ?? $gameState['tama'] ?? 0;
-    $clicks = $user['clicks'] ?? $gameState['clicks'] ?? $gameState['totalClicks'] ?? 0;
-    $lastLogin = $user['last_login'] ?? null;
+    try {
+        $transactions = [];
+        $tama = isset($user['tama_balance']) ? (int)$user['tama_balance'] : (isset($gameState['tama']) ? (int)$gameState['tama'] : 0);
+        $clicks = isset($user['clicks']) ? (int)$user['clicks'] : (isset($gameState['clicks']) ? (int)$gameState['clicks'] : (isset($gameState['totalClicks']) ? (int)$gameState['totalClicks'] : 0));
+        $lastLogin = isset($user['last_login']) ? $user['last_login'] : null;
     
     // Generate based on actual game state
     if ($clicks > 0) {
@@ -364,15 +390,20 @@ function generateSampleTransactions($gameState, $user = null) {
         ];
     }
     
-    return $transactions;
+        return $transactions;
+    } catch (Exception $e) {
+        error_log("⚠️ Error in generateSampleTransactions: " . $e->getMessage());
+        return [];
+    }
 }
 
 function generateSampleActivities($user, $gameState) {
-    $activities = [];
-    $level = $user['level'] ?? $gameState['level'] ?? 1;
-    $clicks = $user['clicks'] ?? $gameState['clicks'] ?? $gameState['totalClicks'] ?? 0;
-    $lastLogin = $user['last_login'] ?? null;
-    $createdAt = $user['created_at'] ?? date('c');
+    try {
+        $activities = [];
+        $level = isset($user['level']) ? (int)$user['level'] : (isset($gameState['level']) ? (int)$gameState['level'] : 1);
+        $clicks = isset($user['clicks']) ? (int)$user['clicks'] : (isset($gameState['clicks']) ? (int)$gameState['clicks'] : (isset($gameState['totalClicks']) ? (int)$gameState['totalClicks'] : 0));
+        $lastLogin = isset($user['last_login']) ? $user['last_login'] : null;
+        $createdAt = isset($user['created_at']) ? $user['created_at'] : date('c');
     
     // Last login
     if ($lastLogin) {
@@ -409,12 +440,16 @@ function generateSampleActivities($user, $gameState) {
         ];
     }
     
-    // Sort by timestamp (newest first)
-    usort($activities, function($a, $b) {
-        return strtotime($b['timestamp']) - strtotime($a['timestamp']);
-    });
-    
-    return array_slice($activities, 0, 15); // Return last 15
+        // Sort by timestamp (newest first)
+        usort($activities, function($a, $b) {
+            return strtotime($b['timestamp']) - strtotime($a['timestamp']);
+        });
+        
+        return array_slice($activities, 0, 15); // Return last 15
+    } catch (Exception $e) {
+        error_log("⚠️ Error in generateSampleActivities: " . $e->getMessage());
+        return [];
+    }
 }
 
 http_response_code(405);
