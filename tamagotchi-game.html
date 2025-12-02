@@ -11973,19 +11973,56 @@ ${link}`;
                 renderLeaderboard(leaderboardData, currentUserId);
                 
             } catch (error) {
-                console.error('Error loading leaderboard:', error);
-                leaderboardList.innerHTML = `<div class="loading">❌ Error loading leaderboard<br><small>${error.message}</small></div>`;
+                console.error('Error loading unified leaderboard:', error);
+                console.log('⚠️ Falling back to Telegram-only leaderboard...');
                 
-                // Fallback to mock data
-                const mockLeaderboard = [
-                    { rank: 1, name: 'You', level: gameState.level, tama: gameState.tama, telegram_id: currentUserId },
-                    { rank: 2, name: 'Player #2', level: 8, tama: 5420, telegram_id: '12345' },
-                    { rank: 3, name: 'Player #3', level: 7, tama: 4890, telegram_id: '67890' },
-                    { rank: 4, name: 'Player #4', level: 6, tama: 4200, telegram_id: '11111' },
-                    { rank: 5, name: 'Player #5', level: 5, tama: 3500, telegram_id: '22222' }
-                ];
-                console.log('Using fallback leaderboard data');
-                renderLeaderboard(mockLeaderboard, currentUserId);
+                // Fallback to old Telegram-only leaderboard
+                try {
+                    const fallbackResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=tama.desc&limit=50`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    
+                    if (fallbackResponse.ok) {
+                        const data = await fallbackResponse.json();
+                        const leaderboardData = data.map((player, index) => {
+                            let displayName = 'Player';
+                            if (player.telegram_username) {
+                                displayName = player.telegram_username.replace('@', '');
+                            }
+                            
+                            return {
+                                rank: index + 1,
+                                name: displayName,
+                                level: player.level || 1,
+                                tama: player.tama || 0,
+                                telegram_id: player.telegram_id,
+                                badge: '📱' // Telegram badge
+                            };
+                        });
+                        
+                        console.log('✅ Loaded Telegram-only leaderboard (fallback)');
+                        renderLeaderboard(leaderboardData, currentUserId);
+                        
+                        // Update rank if needed
+                        if (currentUserId && rankDisplay) {
+                            const userInList = leaderboardData.find(p => String(p.telegram_id) === String(currentTelegramId));
+                            if (userInList) {
+                                rankDisplay.textContent = `#${userInList.rank}`;
+                            } else {
+                                rankDisplay.textContent = '#---';
+                            }
+                        }
+                        return;
+                    }
+                } catch (fallbackError) {
+                    console.error('❌ Fallback also failed:', fallbackError);
+                }
+                
+                // Last resort: show error message
+                leaderboardList.innerHTML = `<div class="loading">❌ Error loading leaderboard<br><small>${error.message}</small><br><br>Please run SQL: sql/create-unified-leaderboard.sql in Supabase</div>`;
             }
         }
 
