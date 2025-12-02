@@ -11396,15 +11396,20 @@
             console.error('Leaderboard elements not found!');
         }
 
-        // Open Profile
-        if (profileBtn) {
-            profileBtn.addEventListener('click', () => {
+        // Open Profile (from dropdown)
+        const dropdownProfileBtn = document.getElementById('dropdown-profile-btn');
+        if (dropdownProfileBtn) {
+            dropdownProfileBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
                 if (userId) {
                     window.location.href = `profile.html?user_id=${userId}`;
                 } else {
                     showMessage('🔐 Please connect your wallet or open in Telegram to view profile!', 'error');
                 }
+                // Close dropdown
+                const dropdown = document.getElementById('more-dropdown-content');
+                if (dropdown) dropdown.classList.remove('show');
             });
         }
         
