@@ -21,7 +21,7 @@ RETURNS TABLE (
 BEGIN
     RETURN QUERY
     WITH combined_users AS (
-        -- Telegram users (non-linked)
+        -- Telegram users (non-linked) - filter out invalid telegram_id
         SELECT 
             ('tg_' || l.telegram_id::TEXT)::TEXT as user_id,
             'Player'::TEXT as username,
@@ -32,6 +32,8 @@ BEGIN
             l.created_at::TIMESTAMP WITH TIME ZONE as created_at
         FROM leaderboard l
         WHERE l.linked_wallet IS NULL
+        AND l.telegram_id IS NOT NULL
+        AND l.telegram_id > 0
         
         UNION ALL
         
@@ -48,7 +50,7 @@ BEGIN
         
         UNION ALL
         
-        -- Telegram users (linked, not in wallet_users)
+        -- Telegram users (linked, not in wallet_users) - filter out invalid telegram_id
         SELECT 
             ('tg_' || l.telegram_id::TEXT)::TEXT as user_id,
             'Player'::TEXT as username,
@@ -59,6 +61,8 @@ BEGIN
             l.created_at::TIMESTAMP WITH TIME ZONE as created_at
         FROM leaderboard l
         WHERE l.linked_wallet IS NOT NULL
+        AND l.telegram_id IS NOT NULL
+        AND l.telegram_id > 0
         AND NOT EXISTS (
             SELECT 1 FROM wallet_users w 
             WHERE w.wallet_address = l.linked_wallet
