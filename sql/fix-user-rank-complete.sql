@@ -33,7 +33,7 @@ BEGIN
         FROM leaderboard l
         WHERE l.linked_wallet IS NULL
         AND l.telegram_id IS NOT NULL
-        AND l.telegram_id > 0
+        AND l.telegram_id::TEXT ~ '^\d+$'
         
         UNION ALL
         
@@ -62,7 +62,7 @@ BEGIN
         FROM leaderboard l
         WHERE l.linked_wallet IS NOT NULL
         AND l.telegram_id IS NOT NULL
-        AND l.telegram_id > 0
+        AND l.telegram_id::TEXT ~ '^\d+$'
         AND NOT EXISTS (
             SELECT 1 FROM wallet_users w 
             WHERE w.wallet_address = l.linked_wallet
