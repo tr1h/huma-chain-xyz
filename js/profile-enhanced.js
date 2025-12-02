@@ -35,8 +35,40 @@ let userData = null;
 let userStats = null;
 let tamaChart = null;
 
-// Initialize
+// Initialize - wait for auth to be ready
 document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for auth initialization if it's a wallet user
+    const urlParams = new URLSearchParams(window.location.search);
+    const userIdParam = urlParams.get('user_id');
+    
+    if (userIdParam && userIdParam.startsWith('wallet_')) {
+        // Wait for auth to set window.WALLET_ADDRESS
+        console.log('⏳ Waiting for wallet auth to initialize...');
+        
+        // Wait for authReady event or timeout after 5 seconds
+        const authReady = new Promise((resolve) => {
+            if (window.WALLET_ADDRESS) {
+                resolve();
+            } else {
+                const handler = () => {
+                    console.log('✅ Auth ready event received');
+                    window.removeEventListener('authReady', handler);
+                    resolve();
+                };
+                window.addEventListener('authReady', handler);
+                
+                // Timeout after 5 seconds
+                setTimeout(() => {
+                    console.warn('⚠️ Auth timeout, proceeding anyway');
+                    window.removeEventListener('authReady', handler);
+                    resolve();
+                }, 5000);
+            }
+        });
+        
+        await authReady;
+    }
+    
     await loadProfile();
 });
 
@@ -427,4 +459,106 @@ function showError(message) {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }
+
+// Disconnect Wallet Button
+document.addEventListener('DOMContentLoaded', () => {
+    const disconnectBtn = document.getElementById('disconnect-btn');
+    
+    // Show disconnect button only for wallet users
+    if (window.WALLET_ADDRESS) {
+        disconnectBtn.style.display = 'block';
+    }
+    
+    // Also check after auth is ready
+    window.addEventListener('authReady', () => {
+        if (window.WALLET_ADDRESS) {
+            disconnectBtn.style.display = 'block';
+        }
+    });
+    
+    // Disconnect handler
+    disconnectBtn.addEventListener('click', async () => {
+        if (!confirm('🔌 Disconnect wallet and return to main page?')) {
+            return;
+        }
+        
+        try {
+            // Clear all auth data
+            if (typeof window.GotchiAuth !== 'undefined' && window.GotchiAuth.logout) {
+                await window.GotchiAuth.logout();
+            }
+            
+            // Clear localStorage
+            localStorage.removeItem('walletAddress');
+            localStorage.removeItem('authTimestamp');
+            localStorage.removeItem('gameState');
+            
+            // Clear session storage
+            sessionStorage.clear();
+            
+            showMessage('👋 Wallet disconnected!');
+            
+            // Redirect to main page after 1 second
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+            
+        } catch (error) {
+            console.error('❌ Disconnect error:', error);
+            showError('Failed to disconnect wallet');
+        }
+    });
+    
+    // Share Profile Button
+    const shareBtn = document.getElementById('share-profile-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', async () => {
+            const profileUrl = window.location.href;
+            const shareData = {
+                title: '🎮 My Solana Tamagotchi Profile',
+                text: `Check out my Solana Tamagotchi profile! Level ${userData?.level || '?'}, ${userData?.tama || 0} TAMA earned!`,
+                url: profileUrl
+            };
+            
+            // Try Web Share API first (mobile)
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                    showMessage('📤 Profile shared!');
+                    
+                    // Track share event
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'share', {
+                            method: 'Web Share API',
+                            content_type: 'profile',
+                            item_id: userData?.userId || 'unknown'
+                        });
+                    }
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error('Share failed:', error);
+                    }
+                }
+            } else {
+                // Fallback: Copy to clipboard
+                try {
+                    await navigator.clipboard.writeText(profileUrl);
+                    showMessage('📋 Profile link copied to clipboard!');
+                    
+                    // Track copy event
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'share', {
+                            method: 'Clipboard',
+                            content_type: 'profile',
+                            item_id: userData?.userId || 'unknown'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Copy failed:', error);
+                    showError('Failed to copy link');
+                }
+            }
+        });
+    }
+});
 

@@ -6,6 +6,16 @@
     <title>My Profile - Solana Tamagotchi</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SVMJPQMZPT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-SVMJPQMZPT');
+    </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -69,6 +79,34 @@
         .back-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 0 #8AC926, 0 8px 20px rgba(0,0,0,0.4);
+        }
+        
+        .disconnect-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 10000;
+            font-family: 'Press Start 2P', cursive;
+            background: linear-gradient(135deg, #FF6B6B, #C92A2A);
+            color: white;
+            padding: 10px 20px;
+            border: 4px solid #1D3557;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            box-shadow: 0 4px 0 #8AC926, 0 6px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .disconnect-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 #8AC926, 0 8px 20px rgba(0,0,0,0.4);
+            background: linear-gradient(135deg, #C92A2A, #A61E1E);
+        }
+        
+        .disconnect-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #8AC926, 0 4px 8px rgba(0,0,0,0.3);
         }
         
         .header {
@@ -496,12 +534,75 @@
         
         /* Responsive */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .back-btn, .disconnect-btn {
+                font-size: 0.6rem;
+                padding: 8px 15px;
+                top: 10px;
+            }
+            
+            .back-btn {
+                left: 10px;
+            }
+            
+            .disconnect-btn {
+                right: 10px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+                line-height: 1.6;
+            }
+            
+            .header p {
+                font-size: 12px !important;
+            }
+            
+            #share-profile-btn {
+                font-size: 0.6rem !important;
+                padding: 10px 20px !important;
+            }
+            
             .profile-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .profile-section {
+                padding: 20px;
+            }
+            
+            .profile-section h2 {
+                font-size: 0.75rem;
             }
             
             .stat-cards {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-icon {
+                font-size: 1.5rem;
+            }
+            
+            .stat-value {
+                font-size: 1rem;
+            }
+            
+            .stat-label {
+                font-size: 0.6rem;
             }
             
             .referral-stats {
@@ -512,12 +613,26 @@
 </head>
 <body>
     <a href="tamagotchi-game.html" class="back-btn">🏠 BACK TO GAME</a>
+    <button id="disconnect-btn" class="disconnect-btn" style="display: none;">🔌 DISCONNECT</button>
     
     <div class="container">
         <!-- Header -->
         <div class="header">
             <h1>👤 MY PROFILE</h1>
             <p style="color: #666; font-size: 16px; margin-top: 10px;">Complete dashboard for your Solana Tamagotchi adventure</p>
+            <button id="share-profile-btn" style="
+                margin-top: 20px;
+                padding: 12px 30px;
+                background: linear-gradient(135deg, #8AC926, #6FA01A);
+                color: white;
+                border: 3px solid #1D3557;
+                border-radius: 10px;
+                font-family: 'Press Start 2P', cursive;
+                font-size: 0.7rem;
+                cursor: pointer;
+                box-shadow: 0 4px 0 #1D3557, 0 6px 15px rgba(0,0,0,0.3);
+                transition: all 0.2s;
+            ">📤 SHARE PROFILE</button>
         </div>
         
         <div id="loading" class="loading">
