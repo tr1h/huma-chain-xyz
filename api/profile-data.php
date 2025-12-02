@@ -152,16 +152,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             ? ($rankResult['data'][0]['rank'] ?? 0) 
             : 0;
         
+        // Extract data from user object and game_state
+        $level = $user['level'] ?? $gameState['level'] ?? 1;
+        $tama = $user['tama_balance'] ?? $gameState['tama'] ?? 0;
+        $totalClicks = $user['clicks'] ?? $gameState['clicks'] ?? $gameState['totalClicks'] ?? 0;
+        $xp = $user['experience'] ?? $gameState['xp'] ?? 0;
+        
         // Calculate statistics
         $stats = [
-            'level' => $gameState['level'] ?? 1,
-            'tama' => $gameState['tama'] ?? 0,
-            'totalClicks' => $gameState['totalClicks'] ?? 0,
+            'level' => $level,
+            'tama' => $tama,
+            'totalClicks' => $totalClicks,
             'playtime' => $gameState['playtime'] ?? 0,
             'rank' => $rank,
             'nfts' => count($nfts),
-            'referrals' => $referralCount,
-            'referralEarnings' => $referralCount * 100, // 100 TAMA per referral
+            'referrals' => $user['referral_count'] ?? $referralCount,
+            'referralEarnings' => $user['referral_earnings'] ?? ($referralCount * 100),
             'walletLinked' => isset($user['wallet_address']) && !empty($user['wallet_address']),
             'twitterLinked' => isset($user['twitter_username']) && !empty($user['twitter_username']),
             'daysPlayed' => calculateDaysPlayed($user['created_at'] ?? date('c')),
@@ -176,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }, $nfts),
             
             // Sample transaction history (last 20)
-            'transactions' => generateSampleTransactions($gameState),
+            'transactions' => generateSampleTransactions($gameState, $user),
             
             // Sample activity timeline (last 15)
             'activities' => generateSampleActivities($user, $gameState)
@@ -259,18 +265,19 @@ function getBoostMultiplier($tier) {
     return $boosts[$tier] ?? 2;
 }
 
-function generateSampleTransactions($gameState) {
+function generateSampleTransactions($gameState, $user = null) {
     $transactions = [];
-    $tama = $gameState['tama'] ?? 0;
-    $clicks = $gameState['totalClicks'] ?? 0;
+    $tama = $user['tama_balance'] ?? $gameState['tama'] ?? 0;
+    $clicks = $user['clicks'] ?? $gameState['clicks'] ?? $gameState['totalClicks'] ?? 0;
+    $lastLogin = $user['last_login'] ?? null;
     
     // Generate based on actual game state
     if ($clicks > 0) {
         $transactions[] = [
             'type' => 'click',
-            'description' => 'Clicked pet',
-            'amount' => 1,
-            'timestamp' => date('c', strtotime('-5 minutes'))
+            'description' => 'Clicked pet (' . $clicks . ' total)',
+            'amount' => $clicks,
+            'timestamp' => $lastLogin ? date('c', strtotime($lastLogin . ' -5 minutes')) : date('c', strtotime('-5 minutes'))
         ];
     }
     
@@ -279,16 +286,16 @@ function generateSampleTransactions($gameState) {
             'type' => 'bonus',
             'description' => 'Daily bonus',
             'amount' => 500,
-            'timestamp' => date('c', strtotime('-1 hour'))
+            'timestamp' => $lastLogin ? date('c', strtotime($lastLogin . ' -1 hour')) : date('c', strtotime('-1 hour'))
         ];
     }
     
-    if ($clicks > 100) {
+    if ($clicks >= 100) {
         $transactions[] = [
             'type' => 'quest',
-            'description' => 'Quest completed',
+            'description' => 'Quest completed (100 clicks)',
             'amount' => 1000,
-            'timestamp' => date('c', strtotime('-2 hours'))
+            'timestamp' => $lastLogin ? date('c', strtotime($lastLogin . ' -2 hours')) : date('c', strtotime('-2 hours'))
         ];
     }
     
@@ -297,30 +304,52 @@ function generateSampleTransactions($gameState) {
 
 function generateSampleActivities($user, $gameState) {
     $activities = [];
+    $level = $user['level'] ?? $gameState['level'] ?? 1;
+    $clicks = $user['clicks'] ?? $gameState['clicks'] ?? $gameState['totalClicks'] ?? 0;
+    $lastLogin = $user['last_login'] ?? null;
+    $createdAt = $user['created_at'] ?? date('c');
     
-    $activities[] = [
-        'type' => 'login',
-        'description' => 'Logged into game',
-        'timestamp' => date('c', strtotime('-30 minutes'))
-    ];
-    
-    if (($gameState['level'] ?? 1) >= 2) {
+    // Last login
+    if ($lastLogin) {
         $activities[] = [
-            'type' => 'level_up',
-            'description' => 'Reached level ' . ($gameState['level'] ?? 1),
-            'timestamp' => date('c', strtotime('-2 hours'))
+            'type' => 'login',
+            'description' => 'Logged into game',
+            'timestamp' => $lastLogin
         ];
     }
     
-    if (($gameState['totalClicks'] ?? 0) >= 100) {
+    // Level up
+    if ($level >= 2) {
+        $activities[] = [
+            'type' => 'level_up',
+            'description' => 'Reached level ' . $level,
+            'timestamp' => date('c', strtotime($createdAt . ' +' . ($level * 2) . ' hours'))
+        ];
+    }
+    
+    // Achievements based on clicks
+    if ($clicks >= 100) {
         $activities[] = [
             'type' => 'achievement',
             'description' => 'Unlocked "100 Clicks" achievement',
-            'timestamp' => date('c', strtotime('-4 hours'))
+            'timestamp' => date('c', strtotime($createdAt . ' +' . ($clicks / 10) . ' hours'))
         ];
     }
     
-    return $activities;
+    if ($clicks >= 1) {
+        $activities[] = [
+            'type' => 'achievement',
+            'description' => 'Unlocked "First Click" achievement',
+            'timestamp' => $createdAt
+        ];
+    }
+    
+    // Sort by timestamp (newest first)
+    usort($activities, function($a, $b) {
+        return strtotime($b['timestamp']) - strtotime($a['timestamp']);
+    });
+    
+    return array_slice($activities, 0, 15); // Return last 15
 }
 
 http_response_code(405);
