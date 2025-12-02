@@ -217,17 +217,17 @@ DECLARE
 BEGIN
     WITH combined_users AS (
         -- Telegram users (non-linked)
-        SELECT telegram_id FROM leaderboard WHERE linked_wallet IS NULL
+        SELECT 1 as player FROM leaderboard WHERE linked_wallet IS NULL
         
         UNION
         
         -- Wallet users
-        SELECT NULL::BIGINT FROM wallet_users
+        SELECT 1 as player FROM wallet_users
         
         UNION
         
         -- Telegram users (linked, but not in wallet_users)
-        SELECT l.telegram_id 
+        SELECT 1 as player
         FROM leaderboard l
         WHERE l.linked_wallet IS NOT NULL
         AND NOT EXISTS (
