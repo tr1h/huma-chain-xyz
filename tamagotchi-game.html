@@ -3447,6 +3447,7 @@
             <button class="nav-btn minigames-btn" id="minigames-btn">🎮 Games</button>
             <button class="nav-btn leaderboard-btn" id="leaderboard-btn">🏆 Top</button>
             <button class="nav-btn referral-btn" id="referral-btn">🔗 My Link</button>
+            <button class="nav-btn profile-btn" id="profile-btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">👤 Profile</button>
             <button class="nav-btn nft-btn" id="nft-btn">🖼️ NFT</button>
             <button class="nav-btn withdraw-btn" id="withdraw-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold;">💸 Cash</button>
         </div>
@@ -11273,6 +11274,9 @@
         const helpBtn = document.getElementById('help-btn');
         const helpModal = document.getElementById('help-modal');
         const closeHelp = document.getElementById('close-help');
+        
+        // Profile Button
+        const profileBtn = document.getElementById('profile-btn');
         const helpTabs = document.querySelectorAll('.help-tab');
         const helpTabContents = document.querySelectorAll('.help-tab-content');
         
@@ -11289,6 +11293,18 @@
             console.error('Leaderboard elements not found!');
         }
 
+        // Open Profile
+        if (profileBtn) {
+            profileBtn.addEventListener('click', () => {
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                if (userId) {
+                    window.location.href = `profile.html?user_id=${userId}`;
+                } else {
+                    showMessage('🔐 Please connect your wallet or open in Telegram to view profile!', 'error');
+                }
+            });
+        }
+        
         // Close leaderboard
         if (closeLeaderboard && leaderboardModal) {
             closeLeaderboard.addEventListener('click', () => {
