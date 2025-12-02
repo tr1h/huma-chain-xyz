@@ -183,6 +183,7 @@ function handleCreateAccount($url, $key, $input = null) {
         if (!empty($existingUser['data'])) {
             // User exists - return existing data
             $user = $existingUser['data'][0];
+            $existingGameState = is_string($user['game_state'] ?? null) ? json_decode($user['game_state'], true) : ($user['game_state'] ?? []);
             echo json_encode([
                 'success' => true,
                 'user_id' => $user['user_id'] ?? 'wallet_' . substr($walletAddress, 0, 12),
@@ -191,8 +192,10 @@ function handleCreateAccount($url, $key, $input = null) {
                 'level' => (int)($user['level'] ?? 1),
                 'xp' => (int)($user['experience'] ?? 0),
                 'clicks' => (int)($user['clicks'] ?? 0),
-                'pet_name' => $user['game_state']['pet_name'] ?? null,
-                'pet_type' => $user['game_state']['pet_type'] ?? null,
+                'pet_name' => $existingGameState['pet_name'] ?? null,
+                'pet_type' => $existingGameState['pet_type'] ?? null,
+                'questClicksCompleted' => (bool)($existingGameState['questClicksCompleted'] ?? false),
+                'questLevelCompleted' => (bool)($existingGameState['questLevelCompleted'] ?? false),
                 'message' => 'Account already exists'
             ]);
             return;
@@ -294,7 +297,9 @@ function handleGetUser($url, $key, $input = null) {
             'xp' => (int)($user['experience'] ?? 0),
             'clicks' => (int)($user['clicks'] ?? 0),
             'pet_name' => $gameState['pet_name'] ?? null,
-            'pet_type' => $gameState['pet_type'] ?? null
+            'pet_type' => $gameState['pet_type'] ?? null,
+            'questClicksCompleted' => (bool)($gameState['questClicksCompleted'] ?? false),
+            'questLevelCompleted' => (bool)($gameState['questLevelCompleted'] ?? false)
         ]);
         
     } catch (Exception $e) {

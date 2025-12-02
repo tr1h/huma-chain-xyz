@@ -33,7 +33,9 @@ async function saveGameStateToWallet(gameState) {
                     xp: gameState.xp || 0,
                     clicks: gameState.totalClicks || 0,
                     pet_name: gameState.petName || null,
-                    pet_type: gameState.petType || null
+                    pet_type: gameState.petType || null,
+                    questClicksCompleted: gameState.questClicksCompleted || false,
+                    questLevelCompleted: gameState.questLevelCompleted || false
                 }
             })
         });

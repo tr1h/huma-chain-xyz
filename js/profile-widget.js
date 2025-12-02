@@ -99,9 +99,6 @@ function createProfileWidget() {
  * Update profile widget with auth state
  */
 function updateProfileWidget() {
-    if (!window.GotchiAuth) return;
-    
-    const authState = window.GotchiAuth.getState();
     const widget = document.getElementById('profile-widget');
     
     if (!widget) {
@@ -109,7 +106,11 @@ function updateProfileWidget() {
         return;
     }
     
-    if (!authState.isAuthenticated) {
+    // ✅ Check authentication: Telegram or Wallet
+    const hasTelegram = window.TELEGRAM_USER_ID && window.Telegram?.WebApp?.initDataUnsafe?.user;
+    const hasWallet = window.WALLET_ADDRESS;
+    
+    if (!hasTelegram && !hasWallet) {
         widget.style.display = 'none';
         return;
     }
@@ -124,28 +125,36 @@ function updateProfileWidget() {
     const tamaEl = document.getElementById('profile-tama');
     const walletEl = document.getElementById('profile-wallet');
     
+    // ✅ Update username: Telegram or Wallet
     if (usernameEl) {
-        if (authState.telegramUsername) {
-            usernameEl.textContent = `@${authState.telegramUsername}`;
-        } else if (authState.telegramFirstName) {
-            usernameEl.textContent = authState.telegramFirstName;
-        } else if (authState.telegramId) {
-            usernameEl.textContent = `ID: ${authState.telegramId.substring(0, 8)}...`;
+        if (hasTelegram) {
+            const user = window.Telegram.WebApp.initDataUnsafe.user;
+            if (user.username) {
+                usernameEl.textContent = `@${user.username}`;
+            } else if (user.first_name) {
+                usernameEl.textContent = user.first_name;
+            } else {
+                usernameEl.textContent = `ID: ${window.TELEGRAM_USER_ID.substring(0, 8)}...`;
+            }
+        } else if (hasWallet) {
+            usernameEl.textContent = `Wallet: ${window.WALLET_ADDRESS.substring(0, 6)}...`;
         } else {
             usernameEl.textContent = 'Guest';
         }
     }
     
-    if (tamaEl && authState.userProfile) {
-        tamaEl.textContent = (authState.userProfile.tama || 0).toLocaleString();
+    // ✅ Update TAMA balance from gameState (if available)
+    if (tamaEl && typeof gameState !== 'undefined') {
+        tamaEl.textContent = (gameState.tama || 0).toLocaleString();
     }
     
+    // ✅ Update wallet address
     if (walletEl) {
-        if (authState.walletAddress) {
-            walletEl.textContent = `${authState.walletAddress.substring(0, 6)}...${authState.walletAddress.substring(authState.walletAddress.length - 4)}`;
+        if (hasWallet) {
+            walletEl.textContent = `💎 ${window.WALLET_ADDRESS.substring(0, 6)}...${window.WALLET_ADDRESS.substring(window.WALLET_ADDRESS.length - 4)}`;
             walletEl.style.color = '#8AC926';
         } else {
-            walletEl.textContent = 'No wallet';
+            walletEl.textContent = '🔗 No wallet';
             walletEl.style.color = '#999';
         }
     }
@@ -154,9 +163,10 @@ function updateProfileWidget() {
     const links = widget.querySelectorAll('a');
     links.forEach(link => {
         const href = link.getAttribute('href');
-        if (href && authState.telegramId && !href.includes('user_id=')) {
+        const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+        if (href && userId && !href.includes('user_id=')) {
             const separator = href.includes('?') ? '&' : '?';
-            link.setAttribute('href', `${href}${separator}user_id=${authState.telegramId}`);
+            link.setAttribute('href', `${href}${separator}user_id=${userId}`);
         }
     });
 }
@@ -165,25 +175,26 @@ function updateProfileWidget() {
  * Initialize profile widget
  */
 function initProfileWidget() {
-    // Wait for auth to be ready
-    if (window.GotchiAuth && window.GotchiAuth.isAuthenticated()) {
-        createProfileWidget();
-        updateProfileWidget();
-    } else {
-        window.addEventListener('gotchiAuthReady', () => {
+    // Wait for DOM to be ready
+    setTimeout(() => {
+        const hasTelegram = window.TELEGRAM_USER_ID && window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const hasWallet = window.WALLET_ADDRESS;
+        
+        if (hasTelegram || hasWallet) {
             createProfileWidget();
             updateProfileWidget();
-        });
-    }
-    
-    // Update periodically
-    setInterval(() => {
-        if (window.GotchiAuth && window.GotchiAuth.isAuthenticated()) {
-            window.GotchiAuth.syncProfile().then(() => {
-                updateProfileWidget();
-            });
         }
-    }, 30000); // Every 30 seconds
+    }, 1000); // Wait 1 second for auth to complete
+    
+    // Update periodically (refresh TAMA balance)
+    setInterval(() => {
+        const hasTelegram = window.TELEGRAM_USER_ID && window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const hasWallet = window.WALLET_ADDRESS;
+        
+        if (hasTelegram || hasWallet) {
+            updateProfileWidget();
+        }
+    }, 10000); // Every 10 seconds (faster refresh for TAMA balance)
 }
 
 // Auto-initialize

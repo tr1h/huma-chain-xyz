@@ -6122,6 +6122,22 @@
         // }
 
         function clickPet(e) {
+            // ✅ CHECK AUTHENTICATION: Require Telegram or Wallet to play
+            if (!window.TELEGRAM_USER_ID && !window.WALLET_ADDRESS) {
+                console.warn('⚠️ Authentication required to play');
+                // Show wallet connection modal for non-Telegram users
+                if (window.WalletAuth && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                    const modal = document.getElementById('wallet-connect-modal');
+                    if (modal) {
+                        modal.style.display = 'flex';
+                        showMessage('🔐 Please connect your wallet to play!', 'error');
+                    }
+                } else {
+                    showMessage('🔐 Please open the game in Telegram or connect your wallet!', 'error');
+                }
+                return; // Block clicking
+            }
+            
             const now = Date.now();
             
             // ⚡ RESET CLICK EFFICIENCY TO 1.0 AT START OF EACH CLICK
@@ -7152,6 +7168,9 @@
                             gameState.totalClicks = data.clicks || gameState.totalClicks;
                             if (data.pet_name) gameState.petName = data.pet_name;
                             if (data.pet_type) gameState.petType = data.pet_type;
+                            // ✅ Load quest completion status
+                            if (data.questClicksCompleted !== undefined) gameState.questClicksCompleted = data.questClicksCompleted;
+                            if (data.questLevelCompleted !== undefined) gameState.questLevelCompleted = data.questLevelCompleted;
                             cloudLoaded = true;
                             console.log('✅ Game state loaded from wallet');
                         } else {
