@@ -79,6 +79,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Determine if it's Telegram user or Wallet user
         $isTelegramUser = preg_match('/^\d+$/', $userId);
         
+        // Handle "wallet_XXX" format from profile widget
+        $walletAddress = $userId;
+        if (strpos($userId, 'wallet_') === 0) {
+            $walletAddress = substr($userId, 7); // Remove "wallet_" prefix
+            $isTelegramUser = false;
+        }
+        
         // Fetch user data
         if ($isTelegramUser) {
             // Telegram user from leaderboard table
@@ -91,12 +98,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $user = $userResult['data'][0];
                 $gameState = json_decode($user['game_state'] ?? '{}', true);
             } else {
-                throw new Exception('User not found');
+                throw new Exception('Telegram user not found');
             }
         } else {
             // Wallet user from wallet_users table
             $userResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'wallet_users', [
-                'wallet_address' => 'eq.' . $userId,
+                'wallet_address' => 'eq.' . $walletAddress,
                 'select' => '*'
             ]);
             
@@ -104,7 +111,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $user = $userResult['data'][0];
                 $gameState = json_decode($user['game_state'] ?? '{}', true);
             } else {
-                throw new Exception('User not found');
+                // Try leaderboard table with wallet_address field
+                $userResult = supabaseRequest($SUPABASE_URL, $SUPABASE_KEY, 'GET', 'leaderboard', [
+                    'wallet_address' => 'eq.' . $walletAddress,
+                    'select' => '*'
+                ]);
+                
+                if ($userResult['code'] === 200 && !empty($userResult['data'])) {
+                    $user = $userResult['data'][0];
+                    $gameState = json_decode($user['game_state'] ?? '{}', true);
+                } else {
+                    throw new Exception('Wallet user not found: ' . $walletAddress);
+                }
             }
         }
         
