@@ -5045,11 +5045,11 @@
                     </div>
                 </div>
                 <div class="referral-actions" style="margin-bottom: 20px; text-align: center;">
-                    <button class="share-btn" id="share-referral-btn" style="width: 100%; max-width: 300px; padding: 15px; font-size: 18px;">📤 Share Link</button>
+                    <button class="share-btn" id="share-referral-btn" style="width: 100%; max-width: 300px; padding: 15px; font-size: 18px; margin-bottom: 10px;">📤 Share Link</button>
+                    <button class="copy-btn" id="copy-referral-link-btn" style="width: 100%; max-width: 300px; padding: 15px; font-size: 18px;">📋 Copy Link</button>
                 </div>
-                <div class="referral-link-container" style="display: none;">
-                    <input type="text" id="referral-link-input" readonly class="referral-link-input">
-                    <button class="copy-btn" id="copy-referral-btn">📋 Copy</button>
+                <div class="referral-link-container" style="text-align: center; margin-bottom: 20px;">
+                    <input type="text" id="referral-link-display" readonly class="referral-link-input" style="width: 100%; padding: 10px; font-size: 14px; text-align: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: white;" placeholder="Connect wallet to get your link...">
                 </div>
                 <div class="referral-progress">
                     <h4>🏆 Your Referral Progress</h4>
@@ -7123,6 +7123,11 @@
                         window.WALLET_ADDRESS = walletInit.walletAddress;
                         window.WALLET_USER_ID = walletInit.userData?.user_id || 'wallet_' + walletInit.walletAddress.substring(0, 12);
                         
+                        // 🔗 Check for referral code and process bonus
+                        if (window.ReferralSystem) {
+                            await window.ReferralSystem.processReferralBonus(walletInit.walletAddress);
+                        }
+                        
                         // Load game state from wallet
                         if (window.WalletSave && typeof window.WalletSave.load === 'function') {
                             const walletData = await window.WalletSave.load();
@@ -7139,6 +7144,13 @@
                             } else {
                                 console.log('ℹ️ No saved game state for wallet, starting fresh');
                             }
+                        }
+                        
+                        // 🎓 Start onboarding for new users
+                        if (window.OnboardingTutorial && !cloudLoaded) {
+                            setTimeout(() => {
+                                window.OnboardingTutorial.start();
+                            }, 1000);
                         }
                     } else if (walletInit.needsConnection) {
                         // Show wallet connection modal
@@ -11420,8 +11432,8 @@
         const referralBtn = document.getElementById('referral-btn');
         const referralModal = document.getElementById('referral-modal');
         const closeReferral = document.getElementById('close-referral');
-        const referralLinkInput = document.getElementById('referral-link-input');
-        const copyReferralBtn = document.getElementById('copy-referral-btn');
+        const referralLinkDisplay = document.getElementById('referral-link-display');
+        const copyReferralLinkBtn = document.getElementById('copy-referral-link-btn');
         const shareReferralBtn = document.getElementById('share-referral-btn');
 
         // Generate referral code (SAME algorithm as bot.py!)
@@ -11454,6 +11466,12 @@
 
         // Generate referral link (SAME algorithm as bot.py!)
         async function generateReferralLink() {
+            // Check if using wallet (for non-Telegram users)
+            if (window.WALLET_ADDRESS && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                return window.ReferralSystem?.getReferralLink(window.WALLET_ADDRESS) || '';
+            }
+            
+            // Telegram referral link
             const code = await generateReferralCode();
             return `https://solanatamagotchi.com/s.html?ref=${code}`;
         }
@@ -11553,10 +11571,18 @@
                 // Display code
                 const codeDisplay = document.getElementById('referral-code-display');
                 if (codeDisplay) {
-                    codeDisplay.textContent = code;
+                    if (window.WALLET_ADDRESS && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                        // For wallet users, show shortened address
+                        codeDisplay.textContent = window.WALLET_ADDRESS.substring(0, 12) + '...';
+                    } else {
+                        codeDisplay.textContent = code;
+                    }
                 }
                 
-                referralLinkInput.value = link;
+                // Display link
+                if (referralLinkDisplay) {
+                    referralLinkDisplay.value = link;
+                }
                 
                 // Update referral progress bar
                 await updateReferralProgress();
@@ -11581,32 +11607,43 @@
             });
         }
 
-        // Copy referral link
-        if (copyReferralBtn && referralLinkInput) {
-            copyReferralBtn.addEventListener('click', async () => {
-                try {
-                    await navigator.clipboard.writeText(referralLinkInput.value);
-                    copyReferralBtn.textContent = '✅ Copied!';
-                    setTimeout(() => {
-                        copyReferralBtn.textContent = '📋 Copy';
-                    }, 2000);
-                } catch (err) {
-                    console.error('Failed to copy: ', err);
-                    // Fallback for older browsers
-                    referralLinkInput.select();
-                    document.execCommand('copy');
-                    copyReferralBtn.textContent = '✅ Copied!';
-                    setTimeout(() => {
-                        copyReferralBtn.textContent = '📋 Copy';
-                    }, 2000);
+        // Copy referral link (updated for wallet support)
+        if (copyReferralLinkBtn && referralLinkDisplay) {
+            copyReferralLinkBtn.addEventListener('click', async () => {
+                // Use ReferralSystem if available (for wallet users)
+                if (window.ReferralSystem && window.WALLET_ADDRESS && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                    window.ReferralSystem.copyReferralLink(window.WALLET_ADDRESS);
+                } else {
+                    // Fallback for Telegram users
+                    try {
+                        await navigator.clipboard.writeText(referralLinkDisplay.value);
+                        copyReferralLinkBtn.textContent = '✅ Copied!';
+                        setTimeout(() => {
+                            copyReferralLinkBtn.textContent = '📋 Copy Link';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy: ', err);
+                        referralLinkDisplay.select();
+                        document.execCommand('copy');
+                        copyReferralLinkBtn.textContent = '✅ Copied!';
+                        setTimeout(() => {
+                            copyReferralLinkBtn.textContent = '📋 Copy Link';
+                        }, 2000);
+                    }
                 }
             });
         }
 
-        // Share referral link
+        // Share referral link (updated for wallet support)
         if (shareReferralBtn) {
             shareReferralBtn.addEventListener('click', async () => {
-                const link = referralLinkInput.value;
+                // Use ReferralSystem if available (for wallet users with Web Share API)
+                if (window.ReferralSystem && window.WALLET_ADDRESS && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                    window.ReferralSystem.shareReferralLink(window.WALLET_ADDRESS);
+                    return;
+                }
+                
+                const link = referralLinkDisplay?.value || '';
                 
                 // Share text with link for Telegram preview (text BEFORE link for better preview!)
                 const shareText = `🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
