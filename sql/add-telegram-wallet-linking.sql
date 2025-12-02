@@ -43,7 +43,7 @@ SELECT
     COALESCE(l.linked_wallet, w.wallet_address) as wallet_address,
     COALESCE(w.user_id, 'tg_' || l.telegram_id::TEXT) as user_id,
     w.username as username, -- Only use wallet_users username (leaderboard doesn't have username column)
-    COALESCE(w.tama_balance, l.balance) as tama_balance,
+    COALESCE(w.tama_balance, l.tama) as tama_balance,
     COALESCE(w.level, l.level) as level,
     COALESCE(w.clicks, l.clicks) as clicks,
     CASE 
@@ -102,7 +102,7 @@ BEGIN
     END IF;
     
     -- Get telegram user data (leaderboard doesn't have username, use 'Player' as default)
-    SELECT balance, level, clicks, 'Player', NULL::jsonb
+    SELECT tama, level, clicks, 'Player', NULL::jsonb
     INTO v_telegram_balance, v_telegram_level, v_telegram_clicks, v_telegram_username, v_telegram_game_state
     FROM leaderboard
     WHERE telegram_id = p_telegram_id;
@@ -215,10 +215,9 @@ BEGIN
     IF TG_TABLE_NAME = 'wallet_users' AND NEW.telegram_id IS NOT NULL THEN
         UPDATE leaderboard
         SET 
-            balance = NEW.tama_balance,
+            tama = NEW.tama_balance,
             level = NEW.level,
             clicks = NEW.clicks,
-            username = NEW.username,
             linked_wallet = NEW.wallet_address
         WHERE telegram_id = NEW.telegram_id;
     END IF;
@@ -227,7 +226,7 @@ BEGIN
     IF TG_TABLE_NAME = 'leaderboard' AND NEW.linked_wallet IS NOT NULL THEN
         UPDATE wallet_users
         SET 
-            tama_balance = NEW.balance,
+            tama_balance = NEW.tama,
             level = NEW.level,
             clicks = NEW.clicks,
             -- username not updated (leaderboard doesn't have username column)
