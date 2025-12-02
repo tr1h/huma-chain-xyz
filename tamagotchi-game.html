@@ -3443,13 +3443,19 @@
             
         <!-- Navigation Buttons -->
         <div class="nav-buttons">
-            <button class="nav-btn help-btn" id="help-btn">📚 Help</button>
             <button class="nav-btn minigames-btn" id="minigames-btn">🎮 Games</button>
             <button class="nav-btn leaderboard-btn" id="leaderboard-btn">🏆 Top</button>
-            <button class="nav-btn referral-btn" id="referral-btn">🔗 My Link</button>
-            <button class="nav-btn profile-btn" id="profile-btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">👤 Profile</button>
             <button class="nav-btn nft-btn" id="nft-btn">🖼️ NFT</button>
             <button class="nav-btn withdraw-btn" id="withdraw-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold;">💸 Cash</button>
+            <!-- More Menu Button -->
+            <div class="more-menu-container" style="position: relative;">
+                <button class="nav-btn more-btn" id="more-btn" style="background: linear-gradient(135deg, #6b7280, #4b5563); color: white;">⋯ More</button>
+                <div class="more-menu-dropdown" id="more-menu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 5px; background: linear-gradient(135deg, #1a202c, #2d3748); border: 2px solid #4a5568; border-radius: 10px; padding: 10px; min-width: 150px; z-index: 1000; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+                    <button class="more-menu-item" id="more-help-btn" style="width: 100%; padding: 12px; margin: 5px 0; background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; border-radius: 8px; color: white; cursor: pointer; text-align: left; font-size: 14px;">📚 Help</button>
+                    <button class="more-menu-item" id="more-referral-btn" style="width: 100%; padding: 12px; margin: 5px 0; background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea; border-radius: 8px; color: white; cursor: pointer; text-align: left; font-size: 14px;">🔗 My Link</button>
+                    <button class="more-menu-item" id="more-profile-btn" style="width: 100%; padding: 12px; margin: 5px 0; background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea; border-radius: 8px; color: white; cursor: pointer; text-align: left; font-size: 14px;">👤 Profile</button>
+                </div>
+            </div>
         </div>
 
         <!-- Pet Area -->
@@ -11275,8 +11281,58 @@
         const helpModal = document.getElementById('help-modal');
         const closeHelp = document.getElementById('close-help');
         
-        // Profile Button
-        const profileBtn = document.getElementById('profile-btn');
+        // More Menu Button
+        const moreBtn = document.getElementById('more-btn');
+        const moreMenu = document.getElementById('more-menu');
+        const moreHelpBtn = document.getElementById('more-help-btn');
+        const moreReferralBtn = document.getElementById('more-referral-btn');
+        const moreProfileBtn = document.getElementById('more-profile-btn');
+        
+        // Toggle More Menu
+        if (moreBtn && moreMenu) {
+            moreBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                moreMenu.classList.toggle('show');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!moreMenu.contains(e.target) && e.target !== moreBtn) {
+                    moreMenu.classList.remove('show');
+                }
+            });
+        }
+        
+        // More Menu Items
+        if (moreHelpBtn && helpModal) {
+            moreHelpBtn.addEventListener('click', () => {
+                helpModal.classList.add('show');
+                moreMenu.classList.remove('show');
+            });
+        }
+        
+        if (moreReferralBtn) {
+            moreReferralBtn.addEventListener('click', () => {
+                const referralModal = document.getElementById('referral-modal');
+                if (referralModal) {
+                    referralModal.classList.add('show');
+                }
+                moreMenu.classList.remove('show');
+            });
+        }
+        
+        // Profile Button (from More Menu)
+        if (moreProfileBtn) {
+            moreProfileBtn.addEventListener('click', () => {
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+                if (userId) {
+                    window.location.href = `profile.html?user_id=${userId}`;
+                } else {
+                    showMessage('🔐 Please connect your wallet or open in Telegram to view profile!', 'error');
+                }
+                moreMenu.classList.remove('show');
+            });
+        }
         const helpTabs = document.querySelectorAll('.help-tab');
         const helpTabContents = document.querySelectorAll('.help-tab-content');
         
