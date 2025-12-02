@@ -3357,20 +3357,20 @@
             
             <!-- Not Connected State -->
             <div id="wallet-not-connected-info">
-                <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">🔐 Connect Wallet</h2>
-                <p style="color: #E9D5FF; margin-bottom: 30px; line-height: 1.6;">
-                    Connect your Phantom or Solflare wallet to start playing and save your progress<br>
-                    <span style="font-size: 14px; opacity: 0.8;">Your game data will be securely saved on the blockchain</span>
-                </p>
-                <button id="connect-wallet-btn-modal" style="padding: 18px 40px; background: linear-gradient(135deg, #9945FF, #9333EA); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(153, 69, 255, 0.4); transition: transform 0.2s; width: 100%;">
-                    👛 Connect Wallet
-                </button>
-                <p style="color: #999; font-size: 12px; margin-top: 20px;">
-                    Don't have a wallet? <a href="https://phantom.app/" target="_blank" style="color: #9945FF; text-decoration: none;">Download Phantom</a>
-                </p>
-                <p style="color: #666; font-size: 11px; margin-top: 15px;">
-                    💡 Your game data will be securely saved on the blockchain
-                </p>
+            <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">🔐 Connect Wallet</h2>
+            <p style="color: #E9D5FF; margin-bottom: 30px; line-height: 1.6;">
+                Connect your Phantom or Solflare wallet to start playing and save your progress<br>
+                <span style="font-size: 14px; opacity: 0.8;">Your game data will be securely saved on the blockchain</span>
+            </p>
+            <button id="connect-wallet-btn-modal" style="padding: 18px 40px; background: linear-gradient(135deg, #9945FF, #9333EA); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(153, 69, 255, 0.4); transition: transform 0.2s; width: 100%;">
+                👛 Connect Wallet
+            </button>
+            <p style="color: #999; font-size: 12px; margin-top: 20px;">
+                Don't have a wallet? <a href="https://phantom.app/" target="_blank" style="color: #9945FF; text-decoration: none;">Download Phantom</a>
+            </p>
+            <p style="color: #666; font-size: 11px; margin-top: 15px;">
+                💡 Your game data will be securely saved on the blockchain
+            </p>
             </div>
         </div>
     </div>
@@ -11575,7 +11575,7 @@
                         // For wallet users, show shortened address
                         codeDisplay.textContent = window.WALLET_ADDRESS.substring(0, 12) + '...';
                     } else {
-                        codeDisplay.textContent = code;
+                    codeDisplay.textContent = code;
                     }
                 }
                 
@@ -11618,17 +11618,17 @@
                     try {
                         await navigator.clipboard.writeText(referralLinkDisplay.value);
                         copyReferralLinkBtn.textContent = '✅ Copied!';
-                        setTimeout(() => {
+                    setTimeout(() => {
                             copyReferralLinkBtn.textContent = '📋 Copy Link';
-                        }, 2000);
-                    } catch (err) {
-                        console.error('Failed to copy: ', err);
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
                         referralLinkDisplay.select();
-                        document.execCommand('copy');
+                    document.execCommand('copy');
                         copyReferralLinkBtn.textContent = '✅ Copied!';
-                        setTimeout(() => {
+                    setTimeout(() => {
                             copyReferralLinkBtn.textContent = '📋 Copy Link';
-                        }, 2000);
+                    }, 2000);
                     }
                 }
             });
@@ -11742,6 +11742,52 @@ ${link}`;
         const SOL_USD_RATE = 164; // Approximate
 
         // Fetch user's rank even if not in top 50
+        /**
+         * Fetch user rank from UNIFIED leaderboard
+         * Supports Telegram ID, Wallet Address, or User ID
+         */
+        async function fetchUserRankUnified(telegramId, walletAddress, userId) {
+            try {
+                let url = 'https://api.solanatamagotchi.com/api/unified-leaderboard.php?action=rank';
+                
+                if (telegramId) {
+                    url += `&telegram_id=${telegramId}`;
+                } else if (walletAddress) {
+                    url += `&wallet_address=${walletAddress}`;
+                } else if (userId) {
+                    url += `&user_id=${userId}`;
+                } else {
+                    console.warn('⚠️ No user identifier provided');
+                    return null;
+                }
+                
+                console.log('🔍 Fetching unified rank:', { telegramId, walletAddress, userId });
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch rank: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('📊 Unified rank result:', result);
+                
+                if (result.success && result.found && result.data) {
+                    return result.data.rank;
+                } else {
+                    console.warn('⚠️ User not found in unified leaderboard');
+                    return null;
+                }
+            } catch (error) {
+                console.error('❌ Error fetching unified rank:', error);
+                return null;
+            }
+        }
+        
+        /**
+         * Legacy function - fetch rank from Telegram-only leaderboard
+         * Kept for backwards compatibility
+         */
         async function fetchUserRank(telegramId) {
             try {
                 // ⚠️ CRITICAL: Ensure telegramId is always a string
@@ -11817,69 +11863,90 @@ ${link}`;
                 
                 // Get current user's ID (Telegram or Wallet)
                 let currentUserId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID || null;
+                let currentTelegramId = window.TELEGRAM_USER_ID || null;
+                let currentWalletAddress = window.WALLET_ADDRESS || null;
                 
                 // Fallback to trying initDataUnsafe again (only for Telegram)
-                if (!currentUserId && window.Telegram && window.Telegram.WebApp) {
+                if (!currentTelegramId && window.Telegram && window.Telegram.WebApp) {
                     const user = window.Telegram.WebApp.initDataUnsafe?.user;
                     if (user && user.id) {
-                        currentUserId = user.id.toString();
+                        currentTelegramId = user.id.toString();
+                        currentUserId = currentTelegramId;
                     }
                 }
                 
-                console.log('📊 Loading leaderboard for user:', currentUserId);
+                console.log('📊 Loading UNIFIED leaderboard for user:', currentUserId);
+                console.log('📊 Telegram ID:', currentTelegramId, 'Wallet:', currentWalletAddress);
                 
-                // Fetch from Supabase
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=tama.desc&limit=50`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
+                // Fetch from Unified Leaderboard API
+                const response = await fetch(`https://api.solanatamagotchi.com/api/unified-leaderboard.php?action=leaderboard&limit=100`);
                 
-                console.log('Leaderboard response status:', response.status);
+                console.log('Unified Leaderboard response status:', response.status);
                 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch leaderboard: ${response.status} ${response.statusText}`);
                 }
                 
-                const data = await response.json();
-                console.log('Leaderboard data:', data);
+                const result = await response.json();
+                console.log('Unified Leaderboard result:', result);
                 
-                // Add ranks
-                const leaderboardData = data.map((player, index) => {
-                    // Shortened name logic: username > pet_name > "Player"
+                if (!result.success || !result.data) {
+                    throw new Error('Invalid leaderboard response');
+                }
+                
+                const data = result.data;
+                
+                // Format leaderboard data
+                const leaderboardData = data.map((player) => {
+                    // Display name logic: username > wallet (shortened) > "Player"
                     let displayName = 'Player';
                     
-                    if (player.telegram_username) {
-                        // Use telegram username (without @)
-                        displayName = player.telegram_username.replace('@', '');
-                    } else if (player.pet_name && player.pet_name !== 'Gotchi') {
-                        // Use pet name if not default
-                        displayName = player.pet_name;
-                    } else {
-                        // Fallback: just "Player" with rank number
-                        displayName = `Player`;
+                    if (player.username && player.username !== 'Player') {
+                        displayName = player.username;
+                    } else if (player.wallet_address) {
+                        // Shorten wallet address: D8iL...aUFy
+                        displayName = player.wallet_address.substring(0, 4) + '...' + player.wallet_address.substring(player.wallet_address.length - 4);
+                    }
+                    
+                    // Add account type badge
+                    let badge = '';
+                    if (player.account_type === 'telegram') {
+                        badge = '📱';
+                    } else if (player.account_type === 'wallet') {
+                        badge = '💻';
+                    } else if (player.account_type === 'linked') {
+                        badge = '🔗';
                     }
                     
                     return {
-                        rank: index + 1,
+                        rank: player.rank,
                         name: displayName,
-                        level: player.level || Math.floor((player.tama || 0) / 1000) + 1,
-                        tama: player.tama || 0,
-                        telegram_id: player.telegram_id
+                        level: player.level || 1,
+                        tama: player.tama_balance || 0,
+                        telegram_id: player.telegram_id,
+                        wallet_address: player.wallet_address,
+                        user_id: player.user_id,
+                        account_type: player.account_type,
+                        badge: badge
                     };
                 });
                 
                 // Update current user's rank in header
                 if (currentUserId && rankDisplay) {
-                    const currentUserData = leaderboardData.find(p => String(p.telegram_id) === String(currentUserId));
+                    // Try to find user in leaderboard data
+                    const currentUserData = leaderboardData.find(p => 
+                        String(p.telegram_id) === String(currentTelegramId) ||
+                        String(p.wallet_address) === String(currentWalletAddress) ||
+                        String(p.user_id) === String(currentUserId)
+                    );
+                    
                     if (currentUserData) {
                         rankDisplay.textContent = `#${currentUserData.rank}`;
                         console.log('✅ Rank updated:', currentUserData.rank);
                     } else {
-                        // User not in top 50, fetch their rank separately
-                        console.log('⚠️ User not found in top 50, fetching rank separately...');
-                        fetchUserRank(currentUserId).then(rank => {
+                        // User not in top 100, fetch their rank separately from unified API
+                        console.log('⚠️ User not found in top 100, fetching rank separately...');
+                        fetchUserRankUnified(currentTelegramId, currentWalletAddress, currentUserId).then(rank => {
                             if (rank && rankDisplay) {
                                 rankDisplay.textContent = `#${rank}`;
                                 console.log('✅ Rank fetched separately:', rank);
@@ -11931,15 +11998,23 @@ ${link}`;
             let html = '';
             
             data.forEach((player) => {
-                const isCurrentUser = player.telegram_id === currentUserId;
+                // Check if current user matches by any identifier
+                const isCurrentUser = 
+                    player.telegram_id === currentUserId ||
+                    player.wallet_address === window.WALLET_ADDRESS ||
+                    player.user_id === currentUserId;
+                    
                 const rankClass = player.rank === 1 ? 'gold' : player.rank === 2 ? 'silver' : player.rank === 3 ? 'bronze' : '';
                 const rankEmoji = player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : `${player.rank}.`;
+                
+                // Add badge if exists
+                const badge = player.badge ? ` ${player.badge}` : '';
                 
                 html += `
                     <div class="leaderboard-item ${isCurrentUser ? 'me' : ''}">
                         <div class="leaderboard-rank ${rankClass}">${rankEmoji}</div>
                         <div class="leaderboard-player">
-                            <div class="leaderboard-name">${player.name}${isCurrentUser ? ' (You)' : ''}</div>
+                            <div class="leaderboard-name">${player.name}${badge}${isCurrentUser ? ' (You)' : ''}</div>
                             <div class="leaderboard-level">Level ${player.level}</div>
                         </div>
                         <div class="leaderboard-tama">${formatNumber(player.tama)} 💰</div>
@@ -12165,8 +12240,8 @@ ${link}`;
                         if (notConnectedInfo) notConnectedInfo.style.display = 'none';
                         if (walletAddressEl) {
                             walletAddressEl.textContent = walletAddress.substring(0, 6) + '...' + walletAddress.substring(walletAddress.length - 6);
-                        }
-                    } else {
+                            }
+                        } else {
                         // Show not connected state
                         if (connectedInfo) connectedInfo.style.display = 'none';
                         if (notConnectedInfo) notConnectedInfo.style.display = 'block';
