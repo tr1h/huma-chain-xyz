@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Try to load config, but don't fail if missing
 try {
     if (file_exists(__DIR__ . '/config.php')) {
-        require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/config.php';
     }
 } catch (Exception $e) {
     error_log('Config load error: ' . $e->getMessage());
@@ -157,7 +157,7 @@ function handleCreateAccount($url, $key, $input = null) {
     try {
         // Read input if not provided
         if ($input === null) {
-            $input = json_decode(file_get_contents('php://input'), true);
+        $input = json_decode(file_get_contents('php://input'), true);
         }
         $walletAddress = $input['wallet_address'] ?? null;
         
@@ -251,7 +251,7 @@ function handleGetUser($url, $key, $input = null) {
     try {
         // Read input if not provided
         if ($input === null) {
-            $input = json_decode(file_get_contents('php://input'), true);
+        $input = json_decode(file_get_contents('php://input'), true);
         }
         $walletAddress = $input['wallet_address'] ?? null;
         
@@ -311,7 +311,7 @@ function handleSaveGameState($url, $key, $input = null) {
     try {
         // Read input if not provided
         if ($input === null) {
-            $input = json_decode(file_get_contents('php://input'), true);
+        $input = json_decode(file_get_contents('php://input'), true);
         }
         $walletAddress = $input['wallet_address'] ?? null;
         $gameState = $input['game_state'] ?? null;
@@ -334,9 +334,9 @@ function handleSaveGameState($url, $key, $input = null) {
             'game_state' => json_encode([
                 'pet_name' => $gameState['pet_name'] ?? null,
                 'pet_type' => $gameState['pet_type'] ?? null,
-                'tama' => (int)($gameState['tama'] ?? 0),
-                'level' => (int)($gameState['level'] ?? 1),
-                'xp' => (int)($gameState['xp'] ?? 0),
+            'tama' => (int)($gameState['tama'] ?? 0),
+            'level' => (int)($gameState['level'] ?? 1),
+            'xp' => (int)($gameState['xp'] ?? 0),
                 'clicks' => (int)($gameState['clicks'] ?? 0)
             ]),
             'last_login' => date('c')
@@ -586,26 +586,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
     }
 } else {
-    // Allow GET for health check / info endpoint
+    // Allow GET for health check / info endpoint (also used for keep-alive ping)
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $isPing = isset($_GET['ping']) || isset($_GET['keepalive']) || isset($_GET['health']);
+        
+        // Log keep-alive pings (but don't spam logs)
+        if ($isPing) {
+            error_log('🔄 Keep-Alive ping received');
+        }
+        
         echo json_encode([
             'success' => true,
             'service' => 'Wallet Authentication API',
             'version' => '1.0',
+            'status' => 'online',
+            'timestamp' => date('c'),
             'endpoints' => [
                 'POST /api/wallet-auth.php?action=get' => 'Get user by wallet address',
                 'POST /api/wallet-auth.php?action=create' => 'Create account by wallet address',
                 'POST /api/wallet-auth.php?action=save' => 'Save game state by wallet address'
             ],
             'method_required' => 'POST',
-            'note' => 'This API requires POST requests with action parameter in JSON body'
+            'note' => 'This API requires POST requests with action parameter in JSON body',
+            'keep_alive' => $isPing ? 'ping received' : null
         ]);
         exit;
     }
     
     http_response_code(405);
-    echo json_encode([
-        'success' => false, 
+            echo json_encode([
+                'success' => false, 
         'error' => 'Method not allowed. Use POST',
         'method' => $_SERVER['REQUEST_METHOD'],
         'info' => 'This API accepts only POST requests with JSON body containing action parameter'
