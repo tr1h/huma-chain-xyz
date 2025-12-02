@@ -156,7 +156,7 @@ function handleCreateAccount($url, $key, $input = null) {
         }
         
         // Check if user already exists by wallet address
-        $existingUser = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+        $existingUser = supabaseRequest($url, $key, 'GET', 'wallet_users', [
             'wallet_address' => 'eq.' . $walletAddress,
             'limit' => '1'
         ]);
@@ -166,38 +166,37 @@ function handleCreateAccount($url, $key, $input = null) {
             $user = $existingUser['data'][0];
             echo json_encode([
                 'success' => true,
-                'user_id' => $user['telegram_id'] ?? 'wallet_' . substr($walletAddress, 0, 8),
+                'user_id' => $user['user_id'] ?? 'wallet_' . substr($walletAddress, 0, 12),
                 'wallet_address' => $walletAddress,
-                'tama' => (int)($user['tama'] ?? 0),
+                'tama' => (int)($user['tama_balance'] ?? 0),
                 'level' => (int)($user['level'] ?? 1),
-                'xp' => (int)($user['xp'] ?? 0),
-                'pet_name' => $user['pet_name'] ?? null,
-                'pet_type' => $user['pet_type'] ?? null,
-                'referral_code' => $user['referral_code'] ?? generateReferralCodeFromWallet($walletAddress),
+                'xp' => (int)($user['experience'] ?? 0),
+                'clicks' => (int)($user['clicks'] ?? 0),
+                'pet_name' => $user['game_state']['pet_name'] ?? null,
+                'pet_type' => $user['game_state']['pet_type'] ?? null,
                 'message' => 'Account already exists'
             ]);
             return;
         }
         
         // Create new account
-        $referralCode = generateReferralCodeFromWallet($walletAddress);
         $userId = 'wallet_' . substr($walletAddress, 0, 12); // Use wallet prefix as user ID
         
         $newUser = [
-            'telegram_id' => $userId, // Use wallet-based ID
             'wallet_address' => $walletAddress,
-            'telegram_username' => 'wallet_user',
-            'tama' => 0,
+            'user_id' => $userId,
+            'username' => $input['username'] ?? 'Player',
+            'tama_balance' => 0,
             'level' => 1,
-            'xp' => 0,
+            'experience' => 0,
             'clicks' => 0,
-            'referral_code' => $referralCode,
-            'pet_name' => null,
-            'pet_type' => null,
-            'created_at' => date('c')
+            'health' => 100,
+            'food' => 100,
+            'happiness' => 100,
+            'game_state' => json_encode(['pet_name' => null, 'pet_type' => null])
         ];
         
-        $result = supabaseRequest($url, $key, 'POST', 'leaderboard', [], $newUser);
+        $result = supabaseRequest($url, $key, 'POST', 'wallet_users', [], $newUser);
         
         if ($result['code'] >= 200 && $result['code'] < 300) {
             echo json_encode([
@@ -243,7 +242,7 @@ function handleGetUser($url, $key, $input = null) {
             return;
         }
         
-        $result = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+        $result = supabaseRequest($url, $key, 'GET', 'wallet_users', [
             'wallet_address' => 'eq.' . $walletAddress,
             'limit' => '1'
         ]);
@@ -264,18 +263,19 @@ function handleGetUser($url, $key, $input = null) {
         }
         
         $user = $result['data'][0];
+        $gameState = is_string($user['game_state'] ?? null) ? json_decode($user['game_state'], true) : ($user['game_state'] ?? []);
+        
         echo json_encode([
             'success' => true,
             'exists' => true,
-            'user_id' => $user['telegram_id'] ?? 'wallet_' . substr($walletAddress, 0, 8),
+            'user_id' => $user['user_id'] ?? 'wallet_' . substr($walletAddress, 0, 12),
             'wallet_address' => $walletAddress,
-            'tama' => (int)($user['tama'] ?? 0),
+            'tama' => (int)($user['tama_balance'] ?? 0),
             'level' => (int)($user['level'] ?? 1),
-            'xp' => (int)($user['xp'] ?? 0),
+            'xp' => (int)($user['experience'] ?? 0),
             'clicks' => (int)($user['clicks'] ?? 0),
-            'pet_name' => $user['pet_name'] ?? null,
-            'pet_type' => $user['pet_type'] ?? null,
-            'referral_code' => $user['referral_code'] ?? null
+            'pet_name' => $gameState['pet_name'] ?? null,
+            'pet_type' => $gameState['pet_type'] ?? null
         ]);
         
     } catch (Exception $e) {
@@ -303,27 +303,31 @@ function handleSaveGameState($url, $key, $input = null) {
             return;
         }
         
-        // Prepare update data
+        // Prepare update data for wallet_users table
         $updateData = [
-            'tama' => (int)($gameState['tama'] ?? 0),
+            'tama_balance' => (int)($gameState['tama'] ?? 0),
             'level' => (int)($gameState['level'] ?? 1),
-            'xp' => (int)($gameState['xp'] ?? 0),
+            'experience' => (int)($gameState['xp'] ?? 0),
             'clicks' => (int)($gameState['clicks'] ?? 0),
-            'pet_name' => $gameState['pet_name'] ?? null,
-            'pet_type' => $gameState['pet_type'] ?? null,
-            'last_activity' => date('c')
+            'health' => (int)($gameState['health'] ?? 100),
+            'food' => (int)($gameState['food'] ?? 100),
+            'happiness' => (int)($gameState['happiness'] ?? 100),
+            'game_state' => json_encode([
+                'pet_name' => $gameState['pet_name'] ?? null,
+                'pet_type' => $gameState['pet_type'] ?? null,
+                'tama' => (int)($gameState['tama'] ?? 0),
+                'level' => (int)($gameState['level'] ?? 1),
+                'xp' => (int)($gameState['xp'] ?? 0),
+                'clicks' => (int)($gameState['clicks'] ?? 0)
+            ]),
+            'last_login' => date('c')
         ];
-        
-        // Remove null values
-        $updateData = array_filter($updateData, function($value) {
-            return $value !== null;
-        });
         
         // Use the key passed to function (should be service_role key for writes)
         // Log which key is being used
         error_log('💾 Saving game state with key: ' . substr($key, 0, 20) . '...');
         
-        $result = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+        $result = supabaseRequest($url, $key, 'PATCH', 'wallet_users', [
             'wallet_address' => 'eq.' . $walletAddress
         ], $updateData);
         
