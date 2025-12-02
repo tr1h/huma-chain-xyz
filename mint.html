@@ -35,6 +35,9 @@
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://api.solanatamagotchi.com">
     <link rel="dns-prefetch" href="https://api.devnet.solana.com">
     <link rel="dns-prefetch" href="https://zfrazyupameidxpjihrh.supabase.co">
     
@@ -1843,25 +1846,27 @@
         </div>
     </div>
     
-    <!-- Solana Web3.js -->
-    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <!-- Solana Web3.js - defer (not critical for first render) -->
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js" defer></script>
     
-    <!-- Metaplex SDK -->
-    <script src="https://unpkg.com/@metaplex-foundation/js@latest/dist/index.umd.js"></script>
+    <!-- Metaplex SDK - defer (not critical for first render) -->
+    <script src="https://unpkg.com/@metaplex-foundation/js@latest/dist/index.umd.js" defer></script>
     
-    <!-- Metaplex Minter Module -->
-    <script src="js/metaplex-mint.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Metaplex Minter Module - defer -->
+    <script src="js/metaplex-mint.js" defer></script>
     
-    <!-- Unified Auth System -->
-    <script src="js/auth.js"></script>
-    <script src="js/profile-widget.js"></script>
+    <!-- Supabase - defer -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     
-    <!-- Keep-Alive Ping (prevents Render.com free instance from spinning down) -->
-    <script src="js/keep-alive.js?v=1"></script>
+    <!-- Unified Auth System - defer -->
+    <script src="js/auth.js" defer></script>
+    <script src="js/profile-widget.js" defer></script>
     
-    <!-- Legal Checkbox for Minting -->
-    <script src="js/legal-checkbox.js"></script>
+    <!-- Keep-Alive Ping (prevents Render.com free instance from spinning down) - defer -->
+    <script src="js/keep-alive.js?v=1" defer></script>
+    
+    <!-- Legal Checkbox for Minting - defer -->
+    <script src="js/legal-checkbox.js" defer></script>
     
     <script>
         // ==============================================
