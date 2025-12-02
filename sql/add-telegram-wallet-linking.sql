@@ -213,23 +213,21 @@ RETURNS TRIGGER AS $$
 BEGIN
     -- If wallet_users updated and has telegram_id, update leaderboard
     IF TG_TABLE_NAME = 'wallet_users' AND NEW.telegram_id IS NOT NULL THEN
+        -- Only update leaderboard if telegram_id exists
         UPDATE leaderboard
         SET 
             tama = NEW.tama_balance,
             level = NEW.level
-            -- clicks not synced (leaderboard doesn't have clicks column)
-            -- linked_wallet update removed - it's set separately via link_telegram_with_wallet function
         WHERE telegram_id = NEW.telegram_id;
     END IF;
     
     -- If leaderboard updated and has linked_wallet, update wallet_users
     IF TG_TABLE_NAME = 'leaderboard' AND NEW.linked_wallet IS NOT NULL THEN
+        -- Only update wallet_users if linked_wallet exists
         UPDATE wallet_users
         SET 
             tama_balance = NEW.tama,
             level = NEW.level,
-            -- clicks not synced (leaderboard doesn't have clicks column)
-            -- username not updated (leaderboard doesn't have username column)
             telegram_id = NEW.telegram_id
         WHERE wallet_address = NEW.linked_wallet;
     END IF;
@@ -239,20 +237,32 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create triggers for auto-sync
+-- Drop existing triggers first
 DROP TRIGGER IF EXISTS trigger_sync_wallet_users ON wallet_users;
+DROP TRIGGER IF EXISTS trigger_sync_leaderboard ON leaderboard;
+
+-- Create trigger for wallet_users -> leaderboard sync
+-- Only syncs when telegram_id exists (accounts are linked)
 CREATE TRIGGER trigger_sync_wallet_users
     AFTER UPDATE ON wallet_users
     FOR EACH ROW
-    WHEN (OLD.tama_balance IS DISTINCT FROM NEW.tama_balance 
-       OR OLD.level IS DISTINCT FROM NEW.level)
+    WHEN (
+        (OLD.tama_balance IS DISTINCT FROM NEW.tama_balance 
+         OR OLD.level IS DISTINCT FROM NEW.level)
+        AND NEW.telegram_id IS NOT NULL
+    )
     EXECUTE FUNCTION sync_linked_accounts();
 
-DROP TRIGGER IF EXISTS trigger_sync_leaderboard ON leaderboard;
+-- Create trigger for leaderboard -> wallet_users sync
+-- Only syncs when linked_wallet exists (accounts are linked)
 CREATE TRIGGER trigger_sync_leaderboard
     AFTER UPDATE ON leaderboard
     FOR EACH ROW
-    WHEN (OLD.tama IS DISTINCT FROM NEW.tama 
-       OR OLD.level IS DISTINCT FROM NEW.level)
+    WHEN (
+        (OLD.tama IS DISTINCT FROM NEW.tama 
+         OR OLD.level IS DISTINCT FROM NEW.level)
+        AND NEW.linked_wallet IS NOT NULL
+    )
     EXECUTE FUNCTION sync_linked_accounts();
 
 -- ============================================
