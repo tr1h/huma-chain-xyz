@@ -94,6 +94,9 @@ function supabaseRequest($url, $key, $method, $table, $filters = [], $data = nul
     
     $fullUrl = $url . '/rest/v1/' . $table . $queryString;
     
+    // Log request details (without exposing full key)
+    error_log("🔍 Supabase Request: $method $table | Key: " . substr($key, 0, 20) . "... | URL: " . $fullUrl);
+    
     curl_setopt_array($ch, [
         CURLOPT_URL => $fullUrl,
         CURLOPT_RETURNTRANSFER => true,
@@ -107,16 +110,32 @@ function supabaseRequest($url, $key, $method, $table, $filters = [], $data = nul
     ]);
     
     if ($data && in_array($method, ['POST', 'PATCH', 'PUT'])) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        $jsonData = json_encode($data);
+        error_log("📤 Request body: " . substr($jsonData, 0, 200));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     }
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
+    
+    if ($curlError) {
+        error_log("❌ CURL Error: $curlError");
+    }
+    
+    $responseData = json_decode($response, true);
+    
+    // Log response for debugging
+    if ($httpCode >= 400) {
+        error_log("❌ Supabase Error Response ($httpCode): " . substr($response, 0, 500));
+    } else {
+        error_log("✅ Supabase Success ($httpCode)");
+    }
     
     return [
         'code' => $httpCode,
-        'data' => json_decode($response, true)
+        'data' => $responseData
     ];
 }
 
