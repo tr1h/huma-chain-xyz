@@ -319,11 +319,11 @@ function handleSaveGameState($url, $key, $input = null) {
             return $value !== null;
         });
         
-        // Use service_role key for write operations (PATCH/UPDATE)
-        // This bypasses RLS and allows updates
-        $writeKey = $GLOBALS['SUPABASE_WRITE_KEY'] ?? $key;
+        // Use the key passed to function (should be service_role key for writes)
+        // Log which key is being used
+        error_log('💾 Saving game state with key: ' . substr($key, 0, 20) . '...');
         
-        $result = supabaseRequest($url, $writeKey, 'PATCH', 'leaderboard', [
+        $result = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
             'wallet_address' => 'eq.' . $walletAddress
         ], $updateData);
         
@@ -403,9 +403,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     // Use service_role key for write operations (create/save), anon key for reads
-    $writeKey = defined('SUPABASE_SERVICE_ROLE_KEY') && SUPABASE_SERVICE_ROLE_KEY 
-        ? SUPABASE_SERVICE_ROLE_KEY 
-        : (getenv('SUPABASE_SERVICE_ROLE_KEY') ?: $SUPABASE_KEY);
+    // Priority: SUPABASE_SERVICE_ROLE_KEY constant > environment variable > fallback to anon key
+    $serviceRoleKey = null;
+    if (defined('SUPABASE_SERVICE_ROLE_KEY') && SUPABASE_SERVICE_ROLE_KEY) {
+        $serviceRoleKey = SUPABASE_SERVICE_ROLE_KEY;
+    } elseif (getenv('SUPABASE_SERVICE_ROLE_KEY')) {
+        $serviceRoleKey = getenv('SUPABASE_SERVICE_ROLE_KEY');
+    }
+    
+    $writeKey = $serviceRoleKey ?: $SUPABASE_KEY;
+    
+    // Log which key is being used (for debugging)
+    if ($action === 'save' || $action === 'create') {
+        if (!$serviceRoleKey) {
+            error_log('⚠️ WARNING: SUPABASE_SERVICE_ROLE_KEY not set! Using anon key for write operation. This may fail with RLS enabled.');
+        } else {
+            error_log('✅ Using service_role key for write operation');
+        }
+    }
     
     switch ($action) {
         case 'create':
