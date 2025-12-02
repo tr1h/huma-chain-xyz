@@ -1824,6 +1824,10 @@
             margin: 0 2px;
         }
         
+        .more-menu-container {
+            position: relative;
+        }
+        
         .more-menu-dropdown {
             display: none;
             position: absolute;
@@ -1836,10 +1840,22 @@
             min-width: 150px;
             z-index: 1000;
             box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            animation: fadeIn 0.2s ease-in-out;
         }
         
         .more-menu-dropdown.show {
-            display: block;
+            display: block !important;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .more-menu-item {
