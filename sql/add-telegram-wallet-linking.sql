@@ -45,7 +45,7 @@ SELECT
     w.username as username, -- Only use wallet_users username (leaderboard doesn't have username column)
     COALESCE(w.tama_balance, l.tama) as tama_balance,
     COALESCE(w.level, l.level) as level,
-    COALESCE(w.clicks, l.clicks) as clicks,
+    w.clicks as clicks, -- Only wallet_users has clicks column
     CASE 
         WHEN w.wallet_address IS NOT NULL AND l.telegram_id IS NOT NULL THEN 'linked'
         WHEN w.wallet_address IS NOT NULL THEN 'wallet_only'
@@ -101,8 +101,8 @@ BEGIN
         RETURN jsonb_build_object('success', false, 'error', 'Telegram account already linked to another wallet');
     END IF;
     
-    -- Get telegram user data (leaderboard doesn't have username, use 'Player' as default)
-    SELECT tama, level, clicks, 'Player', NULL::jsonb
+    -- Get telegram user data (leaderboard doesn't have username/clicks, use defaults)
+    SELECT tama, level, 0, 'Player', NULL::jsonb
     INTO v_telegram_balance, v_telegram_level, v_telegram_clicks, v_telegram_username, v_telegram_game_state
     FROM leaderboard
     WHERE telegram_id = p_telegram_id;
@@ -217,7 +217,7 @@ BEGIN
         SET 
             tama = NEW.tama_balance,
             level = NEW.level,
-            clicks = NEW.clicks,
+            -- clicks not synced (leaderboard doesn't have clicks column)
             linked_wallet = NEW.wallet_address
         WHERE telegram_id = NEW.telegram_id;
     END IF;
@@ -228,7 +228,7 @@ BEGIN
         SET 
             tama_balance = NEW.tama,
             level = NEW.level,
-            clicks = NEW.clicks,
+            -- clicks not synced (leaderboard doesn't have clicks column)
             -- username not updated (leaderboard doesn't have username column)
             telegram_id = NEW.telegram_id
         WHERE wallet_address = NEW.linked_wallet;
@@ -244,17 +244,15 @@ CREATE TRIGGER trigger_sync_wallet_users
     AFTER UPDATE ON wallet_users
     FOR EACH ROW
     WHEN (OLD.tama_balance IS DISTINCT FROM NEW.tama_balance 
-       OR OLD.level IS DISTINCT FROM NEW.level 
-       OR OLD.clicks IS DISTINCT FROM NEW.clicks)
+       OR OLD.level IS DISTINCT FROM NEW.level)
     EXECUTE FUNCTION sync_linked_accounts();
 
 DROP TRIGGER IF EXISTS trigger_sync_leaderboard ON leaderboard;
 CREATE TRIGGER trigger_sync_leaderboard
     AFTER UPDATE ON leaderboard
     FOR EACH ROW
-    WHEN (OLD.balance IS DISTINCT FROM NEW.balance 
-       OR OLD.level IS DISTINCT FROM NEW.level 
-       OR OLD.clicks IS DISTINCT FROM NEW.clicks)
+    WHEN (OLD.tama IS DISTINCT FROM NEW.tama 
+       OR OLD.level IS DISTINCT FROM NEW.level)
     EXECUTE FUNCTION sync_linked_accounts();
 
 -- ============================================
