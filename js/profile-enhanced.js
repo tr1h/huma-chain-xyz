@@ -45,7 +45,13 @@ async function loadProfile() {
     try {
         // Get user ID from URL or auth
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('user_id') || window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+        let userId = urlParams.get('user_id') || window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+        
+        // If it's a wallet user, use full wallet address instead of user_id
+        if (userId && userId.startsWith('wallet_') && window.WALLET_ADDRESS) {
+            userId = window.WALLET_ADDRESS; // Use full wallet address
+            console.log('🔍 Using full wallet address for profile:', userId);
+        }
         
         if (!userId) {
             showError('No user ID found. Please login.');
