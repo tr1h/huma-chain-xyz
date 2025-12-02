@@ -76,17 +76,17 @@ if (!$SUPABASE_KEY) {
 /**
  * Supabase request helper
  */
-function supabaseRequest($url, $key, $method, $table, $filters = [], $data = null) {
+function supabaseRequest($url, $apiKey, $method, $table, $filters = [], $data = null) {
     $ch = curl_init();
     
     $queryString = '';
     if (!empty($filters)) {
         $queryParts = [];
-        foreach ($filters as $key => $value) {
-            if ($key === 'select') {
+        foreach ($filters as $filterKey => $value) {
+            if ($filterKey === 'select') {
                 $queryParts[] = 'select=' . urlencode($value);
             } else {
-                $queryParts[] = urlencode($key) . '=' . urlencode($value);
+                $queryParts[] = urlencode($filterKey) . '=' . urlencode($value);
             }
         }
         $queryString = '?' . implode('&', $queryParts);
@@ -95,14 +95,14 @@ function supabaseRequest($url, $key, $method, $table, $filters = [], $data = nul
     $fullUrl = $url . '/rest/v1/' . $table . $queryString;
     
     // Log request details (without exposing full key)
-    error_log("🔍 Supabase Request: $method $table | Key: " . substr($key, 0, 20) . "... | URL: " . $fullUrl);
+    error_log("🔍 Supabase Request: $method $table | Key: " . substr($apiKey, 0, 20) . "... | URL: " . $fullUrl);
     
     curl_setopt_array($ch, [
         CURLOPT_URL => $fullUrl,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER => [
-            'apikey: ' . $key,
-            'Authorization: Bearer ' . $key,
+            'apikey: ' . $apiKey,
+            'Authorization: Bearer ' . $apiKey,
             'Content-Type: application/json',
             'Prefer: return=representation'
         ],
