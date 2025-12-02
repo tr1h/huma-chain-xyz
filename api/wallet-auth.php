@@ -352,6 +352,143 @@ function handleSaveGameState($url, $key, $input = null) {
     }
 }
 
+/**
+ * Link Telegram account with Wallet
+ */
+function handleLinkAccounts($url, $key, $input) {
+    $telegram_id = $input['telegram_id'] ?? null;
+    $wallet_address = $input['wallet_address'] ?? null;
+    
+    if (!$telegram_id || !$wallet_address) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'telegram_id and wallet_address are required'
+        ]);
+        return;
+    }
+    
+    try {
+        // Call Supabase function to link accounts
+        $ch = curl_init();
+        
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url . '/rest/v1/rpc/link_telegram_with_wallet',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'apikey: ' . $key,
+                'Authorization: Bearer ' . $key,
+                'Content-Type: application/json'
+            ],
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode([
+                'p_telegram_id' => (int)$telegram_id,
+                'p_wallet_address' => $wallet_address
+            ])
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode === 200) {
+            $result = json_decode($response, true);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Accounts linked successfully',
+                'data' => $result
+            ]);
+        } else {
+            http_response_code($httpCode);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to link accounts',
+                'details' => json_decode($response, true),
+                'http_code' => $httpCode
+            ]);
+        }
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Process referral bonus
+ */
+function handleProcessReferral($url, $key, $input) {
+    $referrer_wallet = $input['referrer_wallet'] ?? null;
+    $new_user_wallet = $input['new_user_wallet'] ?? null;
+    $bonus_amount = $input['bonus_amount'] ?? 1000;
+    
+    if (!$referrer_wallet || !$new_user_wallet) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'referrer_wallet and new_user_wallet are required'
+        ]);
+        return;
+    }
+    
+    try {
+        // Call Supabase function to process referral
+        $ch = curl_init();
+        
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url . '/rest/v1/rpc/process_referral_bonus',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'apikey: ' . $key,
+                'Authorization: Bearer ' . $key,
+                'Content-Type: application/json'
+            ],
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode([
+                'p_referrer_wallet' => $referrer_wallet,
+                'p_new_user_wallet' => $new_user_wallet,
+                'p_bonus_amount' => (float)$bonus_amount
+            ])
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode === 200) {
+            $result = json_decode($response, true);
+            
+            // Check if result indicates success
+            if (isset($result['success']) && $result['success'] === true) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Referral bonus processed successfully',
+                    'data' => $result
+                ]);
+            } else {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => $result['error'] ?? 'Failed to process referral',
+                    'details' => $result
+                ]);
+            }
+        } else {
+            http_response_code($httpCode);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Failed to process referral bonus',
+                'details' => json_decode($response, true),
+                'http_code' => $httpCode
+            ]);
+        }
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
 // Route requests
 $path = $_SERVER['REQUEST_URI'];
 $pathParts = explode('/', trim($path, '/'));
@@ -369,7 +506,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $input['action'] ?? null;
     
     // If action is still not found, try to get from URL path or query
-    if (!$action || !in_array($action, ['create', 'get', 'save'])) {
+    if (!$action || !in_array($action, ['create', 'get', 'save', 'link_accounts', 'process_referral'])) {
         // Try to extract from URL: /api/wallet-auth.php?action=get or /api/wallet-auth/get
         if (isset($_GET['action'])) {
             $action = $_GET['action'];
@@ -390,11 +527,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Log for debugging
     error_log("Wallet Auth API - Method: POST, Action: " . ($action ?? 'NULL') . ", Path: $path");
     
-    if (!$action || !in_array($action, ['create', 'get', 'save'])) {
+    if (!$action || !in_array($action, ['create', 'get', 'save', 'link_accounts', 'process_referral'])) {
         http_response_code(400);
         echo json_encode([
             'success' => false, 
-            'error' => 'Invalid action. Use: create, get, or save',
+            'error' => 'Invalid action. Use: create, get, save, link_accounts, or process_referral',
             'received_action' => $action,
             'path' => $path,
             'input_keys' => array_keys($input ?? [])
@@ -417,6 +554,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         case 'save':
             handleSaveGameState($SUPABASE_URL, $writeKey, $input);
+            break;
+        case 'link_accounts':
+            handleLinkAccounts($SUPABASE_URL, $writeKey, $input);
+            break;
+        case 'process_referral':
+            handleProcessReferral($SUPABASE_URL, $writeKey, $input);
             break;
     }
 } else {
