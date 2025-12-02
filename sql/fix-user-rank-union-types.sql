@@ -41,7 +41,11 @@ BEGIN
             COALESCE(w.username, 'Player') as username,
             w.tama_balance,
             w.level,
-            w.telegram_id::BIGINT as tg_id,
+            CASE 
+                WHEN w.telegram_id IS NOT NULL AND w.telegram_id ~ '^[0-9]+$' 
+                THEN w.telegram_id::BIGINT 
+                ELSE NULL 
+            END as tg_id,
             w.wallet_address::TEXT as wallet_addr,
             w.created_at
         FROM wallet_users w
