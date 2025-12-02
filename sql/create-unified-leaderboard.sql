@@ -146,8 +146,8 @@ BEGIN
             'Player' as username,
             l.tama as tama_balance,
             l.level,
-            l.telegram_id as tg_id,
-            l.linked_wallet as wallet_addr,
+            l.telegram_id::BIGINT as tg_id,
+            l.linked_wallet::TEXT as wallet_addr,
             l.created_at
         FROM leaderboard l
         WHERE l.linked_wallet IS NULL
@@ -156,12 +156,12 @@ BEGIN
         
         -- Get Wallet users (including linked ones)
         SELECT 
-            w.user_id,
+            w.user_id::TEXT,
             COALESCE(w.username, 'Player') as username,
             w.tama_balance,
             w.level,
-            w.telegram_id as tg_id,
-            w.wallet_address as wallet_addr,
+            w.telegram_id::BIGINT as tg_id,
+            w.wallet_address::TEXT as wallet_addr,
             w.created_at
         FROM wallet_users w
         
@@ -173,8 +173,8 @@ BEGIN
             'Player' as username,
             l.tama as tama_balance,
             l.level,
-            l.telegram_id as tg_id,
-            l.linked_wallet as wallet_addr,
+            l.telegram_id::BIGINT as tg_id,
+            l.linked_wallet::TEXT as wallet_addr,
             l.created_at
         FROM leaderboard l
         WHERE l.linked_wallet IS NOT NULL
