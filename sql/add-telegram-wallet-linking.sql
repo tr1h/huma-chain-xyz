@@ -42,7 +42,7 @@ SELECT
     COALESCE(l.telegram_id::TEXT, w.telegram_id::TEXT) as telegram_id,
     COALESCE(l.linked_wallet, w.wallet_address) as wallet_address,
     COALESCE(w.user_id, 'tg_' || l.telegram_id::TEXT) as user_id,
-    COALESCE(w.username, l.username) as username,
+    w.username as username, -- Only use wallet_users username (leaderboard doesn't have username column)
     COALESCE(w.tama_balance, l.balance) as tama_balance,
     COALESCE(w.level, l.level) as level,
     COALESCE(w.clicks, l.clicks) as clicks,
@@ -101,8 +101,8 @@ BEGIN
         RETURN jsonb_build_object('success', false, 'error', 'Telegram account already linked to another wallet');
     END IF;
     
-    -- Get telegram user data
-    SELECT balance, level, clicks, username, game_state::jsonb
+    -- Get telegram user data (leaderboard doesn't have username, use 'Player' as default)
+    SELECT balance, level, clicks, 'Player', NULL::jsonb
     INTO v_telegram_balance, v_telegram_level, v_telegram_clicks, v_telegram_username, v_telegram_game_state
     FROM leaderboard
     WHERE telegram_id = p_telegram_id;
@@ -230,7 +230,7 @@ BEGIN
             tama_balance = NEW.balance,
             level = NEW.level,
             clicks = NEW.clicks,
-            username = NEW.username,
+            -- username not updated (leaderboard doesn't have username column)
             telegram_id = NEW.telegram_id
         WHERE wallet_address = NEW.linked_wallet;
     END IF;
