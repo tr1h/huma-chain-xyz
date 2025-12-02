@@ -342,56 +342,75 @@
     </div>
     
     <script>
-        // Load articles from localStorage or hardcoded list
-        function loadArticles() {
+        // List of all blog articles - automatically collected from blog/ folder
+        // Add new articles here when creating new HTML files
+        const BLOG_ARTICLES = [
+            {
+                slug: "solana-tamagotchi-updates-november-2025",
+                category: "Updates"
+            },
+            {
+                slug: "how-to-play-solana-tamagotchi-guide",
+                category: "Guide"
+            },
+            {
+                slug: "how-to-earn-crypto-playing-games",
+                category: "Guide"
+            }
+        ];
+        
+        // Load articles by fetching their HTML and extracting metadata
+        async function loadArticles() {
             const articlesGrid = document.getElementById('articles-grid');
+            articlesGrid.innerHTML = '<p style="text-align: center; padding: 40px; opacity: 0.7;">Loading articles...</p>';
             
-            // Try to load from localStorage first
-            const savedArticles = JSON.parse(localStorage.getItem('blog_articles') || '[]');
+            const articles = [];
             
-            // Hardcoded articles (fallback) - only published ones
-            const hardcodedArticles = [
-                {
-                    title: "Solana Tamagotchi Updates: New Features November 2025",
-                    slug: "solana-tamagotchi-updates-november-2025",
-                    category: "Updates",
-                    excerpt: "Discover the latest updates to Solana Tamagotchi! Enhanced profile dashboard, unified leaderboard, DappRadar integration, and exciting new features. Stay ahead of the game!",
-                    status: "published",
-                    createdAt: "2025-12-03T00:00:00Z"
-                },
-                {
-                    title: "How to Play Solana Tamagotchi: Complete Beginner's Guide 2025",
-                    slug: "how-to-play-solana-tamagotchi-guide",
-                    category: "Guide",
-                    excerpt: "Learn everything you need to know to start playing Solana Tamagotchi. Step-by-step tutorial for beginners, earning strategies, and tips to maximize your TAMA rewards.",
-                    status: "published",
-                    createdAt: "2025-11-20T00:00:00Z"
-                },
-                {
-                    title: "How to Earn Crypto Playing Games in 2025: Complete Guide",
-                    slug: "how-to-earn-crypto-playing-games",
-                    category: "Guide",
-                    excerpt: "Discover the best Play-to-Earn games, learn how to start earning crypto without investment, and find out which blockchain is best for gaming.",
-                    status: "published",
-                    createdAt: "2025-11-20T00:00:00Z"
+            // Load each article's metadata
+            for (const articleInfo of BLOG_ARTICLES) {
+                try {
+                    const response = await fetch(`/blog/${articleInfo.slug}.html`);
+                    if (!response.ok) continue;
+                    
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Extract metadata from meta tags
+                    const title = doc.querySelector('meta[property="og:title"]')?.content || 
+                                 doc.querySelector('title')?.textContent || 
+                                 'Untitled Article';
+                    const description = doc.querySelector('meta[property="og:description"]')?.content || 
+                                       doc.querySelector('meta[name="description"]')?.content || 
+                                       '';
+                    const publishedTime = doc.querySelector('meta[property="article:published_time"]')?.content || 
+                                        doc.querySelector('meta[property="article:published_time"]')?.content || 
+                                        new Date().toISOString();
+                    const category = doc.querySelector('meta[property="article:section"]')?.content || 
+                                    articleInfo.category || 
+                                    'General';
+                    
+                    articles.push({
+                        title: title,
+                        slug: articleInfo.slug,
+                        category: category,
+                        excerpt: description,
+                        status: 'published',
+                        createdAt: publishedTime
+                    });
+                } catch (error) {
+                    console.warn(`Failed to load article: ${articleInfo.slug}`, error);
                 }
-            ];
+            }
             
-            // Merge saved articles with hardcoded (saved take priority)
-            const allArticles = [...savedArticles, ...hardcodedArticles.filter(a => 
-                !savedArticles.find(sa => sa.slug === a.slug)
-            )];
+            // Sort by date (newest first)
+            articles.sort((a, b) => {
+                const dateA = new Date(a.createdAt || 0);
+                const dateB = new Date(b.createdAt || 0);
+                return dateB - dateA;
+            });
             
-            // Filter published articles and sort by date (newest first)
-            const publishedArticles = allArticles
-                .filter(a => a.status === 'published')
-                .sort((a, b) => {
-                    const dateA = new Date(a.createdAt || 0);
-                    const dateB = new Date(b.createdAt || 0);
-                    return dateB - dateA; // Newest first
-                });
-            
-            if (publishedArticles.length === 0) {
+            if (articles.length === 0) {
                 articlesGrid.innerHTML = `
                     <div class="coming-soon" style="grid-column: 1 / -1;">
                         <h2>🚀 Articles Coming Soon!</h2>
@@ -401,7 +420,7 @@
                 return;
             }
             
-            articlesGrid.innerHTML = publishedArticles.map(article => {
+            articlesGrid.innerHTML = articles.map(article => {
                 const date = article.createdAt ? new Date(article.createdAt).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'long', 
