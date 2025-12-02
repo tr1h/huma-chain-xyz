@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Solana Tamagotchi API - Интерактивная Демонстрация</title>
+    <title>🚀 Solana Tamagotchi API - Interactive Demo</title>
     <style>
         * {
             margin: 0;
@@ -37,6 +37,21 @@
             color: rgba(255,255,255,0.9);
             font-size: 1.2em;
             margin-bottom: 30px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: #856404;
+        }
+
+        .warning strong {
+            display: block;
+            font-size: 1.2em;
+            margin-bottom: 10px;
         }
 
         .grid {
@@ -256,36 +271,52 @@
         .string { color: #ce9178; }
         .function { color: #dcdcaa; }
         .comment { color: #6a9955; }
+
+        .private-note {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🚀 Solana Tamagotchi API</h1>
-        <p class="subtitle">Интерактивная демонстрация работы API в реальном времени</p>
+        <p class="subtitle">Interactive Real-Time API Demonstration</p>
 
-        <!-- Живая статистика -->
+        <!-- Security Warning -->
+        <div class="warning">
+            <strong>⚠️ Public API Endpoints Only</strong>
+            <p>This page demonstrates <strong>PUBLIC</strong> API endpoints that are safe to expose. Private endpoints (account creation, linking, referrals, withdrawals, admin functions) are not shown for security reasons.</p>
+            <p style="margin-top: 10px;"><strong>All endpoints shown here:</strong> ✅ Safe for public use | ✅ Read-only or user-specific operations | ✅ No sensitive data exposure</p>
+        </div>
+
+        <!-- Live Stats -->
         <div class="stats">
-            <h2 style="color: #667eea; margin-bottom: 10px;">📊 Живая Статистика</h2>
-            <p style="color: #666; margin-bottom: 20px;">Данные обновляются в реальном времени при нажатии кнопок ниже</p>
+            <h2 style="color: #667eea; margin-bottom: 10px;">📊 Live Statistics</h2>
+            <p style="color: #666; margin-bottom: 20px;">Data updates in real-time when you click the buttons below</p>
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-value" id="total-players">-</div>
-                    <div class="stat-label">Всего Игроков</div>
+                    <div class="stat-label">Total Players</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="top-balance">-</div>
-                    <div class="stat-label">Топ Баланс (TAMA)</div>
+                    <div class="stat-label">Top Balance (TAMA)</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="api-status">-</div>
-                    <div class="stat-label">Статус API</div>
+                    <div class="stat-label">API Status</div>
                 </div>
             </div>
         </div>
 
-        <!-- Архитектура -->
+        <!-- Architecture -->
         <div class="architecture">
-            <h2 style="color: #667eea; margin-bottom: 20px;">🏗️ Архитектура Системы</h2>
+            <h2 style="color: #667eea; margin-bottom: 20px;">🏗️ System Architecture</h2>
             <div class="flow-diagram">
                 <div class="flow-box">
                     <div style="font-size: 2em; margin-bottom: 10px;">🌐</div>
@@ -306,28 +337,28 @@
                 </div>
             </div>
 
-            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">📝 Как Работает Запрос:</h3>
+            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">📝 How a Request Works:</h3>
             <div class="code-example">
-<span class="comment">// 1. Frontend отправляет запрос</span>
+<span class="comment">// 1. Frontend sends request</span>
 <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'https://api.solanatamagotchi.com/api/unified-leaderboard.php?action=leaderboard'</span>);
 
-<span class="comment">// 2. API (PHP) получает запрос и вызывает Supabase функцию</span>
+<span class="comment">// 2. API (PHP) receives request and calls Supabase function</span>
 <span class="keyword">$result</span> = <span class="function">callSupabaseRPC</span>(<span class="keyword">$url</span>, <span class="keyword">$key</span>, <span class="string">'get_unified_leaderboard'</span>, [<span class="string">'p_limit'</span> => 100]);
 
-<span class="comment">// 3. Supabase выполняет SQL-функцию</span>
+<span class="comment">// 3. Supabase executes SQL function</span>
 <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> get_unified_leaderboard(100, 0);
 
-<span class="comment">// 4. SQL объединяет данные из 2 таблиц:</span>
+<span class="comment">// 4. SQL combines data from 2 tables:</span>
 <span class="comment">//    - leaderboard (Telegram users)</span>
 <span class="comment">//    - wallet_users (Wallet users)</span>
 
-<span class="comment">// 5. API возвращает JSON на Frontend</span>
+<span class="comment">// 5. API returns JSON to Frontend</span>
 <span class="keyword">return</span> { <span class="string">"success"</span>: <span class="keyword">true</span>, <span class="string">"data"</span>: [...] };
             </div>
         </div>
 
         <!-- API Endpoints -->
-        <h2 style="color: white; text-align: center; margin-bottom: 20px; font-size: 2em;">🎯 Доступные API</h2>
+        <h2 style="color: white; text-align: center; margin-bottom: 20px; font-size: 2em;">🎯 Available Public APIs</h2>
         
         <div class="grid">
             <!-- 1. Unified Leaderboard -->
@@ -337,13 +368,13 @@
                     <div class="card-title">Unified Leaderboard</div>
                 </div>
                 <div class="card-description">
-                    Получить топ игроков из ОБЕИХ таблиц (Telegram + Wallet) в едином рейтинге.
+                    Get top players from BOTH tables (Telegram + Wallet) in a unified ranking.
                 </div>
                 <div class="endpoint">
                     <span class="method get">GET</span>
                     /api/unified-leaderboard.php?action=leaderboard&limit=10
                 </div>
-                <button onclick="testUnifiedLeaderboard()">🚀 Протестировать API</button>
+                <button onclick="testUnifiedLeaderboard()">🚀 Test API</button>
                 <div class="loader" id="loader-1"></div>
                 <div class="response" id="response-1"></div>
             </div>
@@ -355,13 +386,13 @@
                     <div class="card-title">User Rank</div>
                 </div>
                 <div class="card-description">
-                    Получить ранг конкретного пользователя по wallet address или telegram_id.
+                    Get specific user's rank by wallet address or telegram_id.
                 </div>
                 <div class="endpoint">
                     <span class="method get">GET</span>
                     /api/unified-leaderboard.php?action=rank&wallet_address=...
                 </div>
-                <button onclick="testUserRank()">🚀 Протестировать API</button>
+                <button onclick="testUserRank()">🚀 Test API</button>
                 <div class="loader" id="loader-2"></div>
                 <div class="response" id="response-2"></div>
             </div>
@@ -373,13 +404,13 @@
                     <div class="card-title">Total Players</div>
                 </div>
                 <div class="card-description">
-                    Получить общее количество уникальных игроков в системе.
+                    Get total count of unique players in the system.
                 </div>
                 <div class="endpoint">
                     <span class="method get">GET</span>
                     /api/unified-leaderboard.php?action=total
                 </div>
-                <button onclick="testTotalPlayers()">🚀 Протестировать API</button>
+                <button onclick="testTotalPlayers()">🚀 Test API</button>
                 <div class="loader" id="loader-3"></div>
                 <div class="response" id="response-3"></div>
             </div>
@@ -391,13 +422,13 @@
                     <div class="card-title">Wallet Auth - Get User</div>
                 </div>
                 <div class="card-description">
-                    Получить данные пользователя по wallet address (для авторизации).
+                    Get user data by wallet address (for authentication). Returns public user profile.
                 </div>
                 <div class="endpoint">
                     <span class="method post">POST</span>
                     /api/wallet-auth.php (action: get)
                 </div>
-                <button onclick="testWalletAuthGet()">🚀 Протестировать API</button>
+                <button onclick="testWalletAuthGet()">🚀 Test API</button>
                 <div class="loader" id="loader-4"></div>
                 <div class="response" id="response-4"></div>
             </div>
@@ -409,13 +440,13 @@
                     <div class="card-title">Wallet Auth - Save Game</div>
                 </div>
                 <div class="card-description">
-                    Сохранить состояние игры для wallet-пользователя в БД.
+                    Save game state for wallet user in database. Requires valid wallet signature.
                 </div>
                 <div class="endpoint">
                     <span class="method post">POST</span>
                     /api/wallet-auth.php (action: save)
                 </div>
-                <button onclick="testWalletAuthSave()">🚀 Протестировать API</button>
+                <button onclick="testWalletAuthSave()">🚀 Test API</button>
                 <div class="loader" id="loader-5"></div>
                 <div class="response" id="response-5"></div>
             </div>
@@ -427,28 +458,43 @@
                     <div class="card-title">NFT Minting</div>
                 </div>
                 <div class="card-description">
-                    Минтинг NFT питомца на Solana блокчейне (on-chain метадата).
+                    Mint NFT pet on Solana blockchain (on-chain metadata stored in Arweave).
                 </div>
                 <div class="endpoint">
                     <span class="method post">POST</span>
                     /api/mint-nft-onchain
                 </div>
-                <button onclick="alert('NFT Minting требует подключенный кошелек и SOL токены!')">ℹ️ Информация</button>
+                <button onclick="alert('NFT Minting requires connected wallet and SOL tokens!')">ℹ️ Info</button>
                 <div class="response" id="response-6" style="display: block; background: #fff3cd; color: #856404; border: 1px solid #ffc107;">
-⚠️ NFT Minting работает только с подключенным Phantom кошельком и требует:
-• 0.1-0.5 SOL на аккаунте
-• Подтверждение транзакции
-• Метадата загружается в Arweave (децентрализованное хранилище)
+⚠️ NFT Minting works only with connected Phantom wallet and requires:
+• 0.1-0.5 SOL in account
+• Transaction confirmation
+• Metadata uploaded to Arweave (decentralized storage)
                 </div>
             </div>
         </div>
 
-        <!-- Таблицы БД -->
+        <!-- Private APIs Note -->
         <div class="architecture">
-            <h2 style="color: #667eea; margin-bottom: 20px;">🗄️ Структура Базы Данных</h2>
+            <div class="private-note">
+                <strong>🔒 Private APIs (Not Shown)</strong>
+                <p style="margin-top: 10px;">For security reasons, the following endpoints are <strong>NOT</strong> publicly documented:</p>
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li><code>create</code> - Account creation (prevents spam)</li>
+                    <li><code>link_accounts</code> - Link Telegram + Wallet (private operation)</li>
+                    <li><code>process_referral</code> - Referral bonuses (private operation)</li>
+                    <li><code>withdrawal</code> - TAMA withdrawal (requires authentication)</li>
+                    <li>Admin functions - Database exports, balance management, etc.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Database Structure -->
+        <div class="architecture">
+            <h2 style="color: #667eea; margin-bottom: 20px;">🗄️ Database Structure</h2>
             
-            <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">📱 Таблица: <code>leaderboard</code></h3>
-            <p style="color: #666; margin-bottom: 15px;">Хранит данные Telegram-пользователей</p>
+            <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">📱 Table: <code>leaderboard</code></h3>
+            <p style="color: #666; margin-bottom: 15px;">Stores Telegram user data</p>
             <div class="code-example">
 <span class="keyword">CREATE TABLE</span> leaderboard (
     telegram_id BIGINT <span class="keyword">PRIMARY KEY</span>,
@@ -456,13 +502,13 @@
     level INTEGER <span class="keyword">DEFAULT</span> 1,
     pet_name TEXT,
     telegram_username TEXT,
-    linked_wallet TEXT,  <span class="comment">-- Если связан с кошельком</span>
+    linked_wallet TEXT,  <span class="comment">-- If linked to wallet</span>
     created_at TIMESTAMP
 );
             </div>
 
-            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 10px;">💻 Таблица: <code>wallet_users</code></h3>
-            <p style="color: #666; margin-bottom: 15px;">Хранит данных Wallet-пользователей (без Telegram)</p>
+            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 10px;">💻 Table: <code>wallet_users</code></h3>
+            <p style="color: #666; margin-bottom: 15px;">Stores Wallet user data (non-Telegram users)</p>
             <div class="code-example">
 <span class="keyword">CREATE TABLE</span> wallet_users (
     id BIGSERIAL <span class="keyword">PRIMARY KEY</span>,
@@ -472,14 +518,14 @@
     tama_balance NUMERIC <span class="keyword">DEFAULT</span> 0,
     level INTEGER <span class="keyword">DEFAULT</span> 1,
     clicks INTEGER <span class="keyword">DEFAULT</span> 0,
-    telegram_id BIGINT,  <span class="comment">-- Если связан с Telegram</span>
+    telegram_id BIGINT,  <span class="comment">-- If linked to Telegram</span>
     game_state JSONB,
     created_at TIMESTAMP
 );
             </div>
 
-            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 10px;">🔗 Функция: <code>get_unified_leaderboard()</code></h3>
-            <p style="color: #666; margin-bottom: 15px;">Объединяет обе таблицы в единый рейтинг</p>
+            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 10px;">🔗 Function: <code>get_unified_leaderboard()</code></h3>
+            <p style="color: #666; margin-bottom: 15px;">Combines both tables into unified ranking</p>
             <div class="code-example">
 <span class="keyword">WITH</span> combined_users <span class="keyword">AS</span> (
     <span class="comment">-- Telegram users (non-linked)</span>
@@ -503,7 +549,7 @@
         <!-- Footer -->
         <div style="text-align: center; color: white; margin-top: 40px; padding: 20px;">
             <p style="font-size: 1.2em; margin-bottom: 10px;">🎮 Solana Tamagotchi API Demo</p>
-            <p style="opacity: 0.8;">Создано для демонстрации работы RESTful API в реальном времени</p>
+            <p style="opacity: 0.8;">Created to demonstrate RESTful API functionality in real-time</p>
             <p style="margin-top: 20px; opacity: 0.7;">🔗 <a href="https://solanatamagotchi.com" style="color: #fff; text-decoration: none;">solanatamagotchi.com</a></p>
         </div>
     </div>
@@ -521,11 +567,11 @@
             responseEl.classList.add('show');
             
             if (error) {
-                responseEl.textContent = `❌ Ошибка:\n${JSON.stringify(data, null, 2)}`;
+                responseEl.textContent = `❌ Error:\n${JSON.stringify(data, null, 2)}`;
                 responseEl.style.background = '#dc3545';
                 responseEl.style.color = 'white';
             } else {
-                responseEl.textContent = `✅ Успешно:\n${JSON.stringify(data, null, 2)}`;
+                responseEl.textContent = `✅ Success:\n${JSON.stringify(data, null, 2)}`;
                 responseEl.style.background = '#1e1e1e';
                 responseEl.style.color = '#d4d4d4';
             }
@@ -636,10 +682,10 @@
                 const data = await response.json();
                 if (data.success) {
                     document.getElementById('total-players').textContent = data.total_players;
-                    document.getElementById('api-status').textContent = '✅ Онлайн';
+                    document.getElementById('api-status').textContent = '✅ Online';
                 }
             } catch (error) {
-                document.getElementById('api-status').textContent = '❌ Офлайн';
+                document.getElementById('api-status').textContent = '❌ Offline';
             }
 
             // Load top balance
@@ -656,4 +702,3 @@
     </script>
 </body>
 </html>
-
