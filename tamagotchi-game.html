@@ -5515,8 +5515,10 @@
 
         // Auto-save variables
         let lastSaveTime = 0;
-        const SAVE_COOLDOWN = 10000; // 10 seconds minimum between saves (optimized to reduce API load)
+        const SAVE_COOLDOWN = 3000; // 3 seconds minimum between saves (reduced for faster saves)
+        const CRITICAL_SAVE_COOLDOWN = 1000; // 1 second for critical changes (tama, clicks)
         let lastSavedState = null; // Track last saved state to avoid unnecessary saves
+        let pendingCriticalSave = false; // Flag for critical changes that need immediate save
 
         // ⏰ HALVING SYSTEM - Daily Pool Calculation
         const LAUNCH_DATE = new Date('2025-11-01T00:00:00Z'); // Project launch date (UTC)
@@ -6408,8 +6410,8 @@
 
             updateUI();
             
-            // Trigger auto-save after significant action
-            triggerAutoSave();
+            // Trigger auto-save after significant action (force critical for tama/clicks)
+            triggerAutoSave(true); // Force critical save for tama and clicks
         }
 
         function showClickEffect(x, y, text) {
@@ -7706,20 +7708,50 @@
                 Math.abs(currentState.happy - lastSavedState.happy) > 1 // Happy changes gradually
             );
         }
-
-        function triggerAutoSave() {
-            const now = Date.now();
+        
+        // Check if changes are critical (tama, clicks) - need faster save
+        function hasCriticalChanges() {
+            if (!lastSavedState) return false;
             
-            // Check cooldown
-            if (now - lastSaveTime < SAVE_COOLDOWN) {
-                return; // Still in cooldown
-            }
+            return (
+                gameState.tama !== lastSavedState.tama ||
+                gameState.totalClicks !== lastSavedState.totalClicks ||
+                gameState.level !== lastSavedState.level
+            );
+        }
+
+        function triggerAutoSave(forceCritical = false) {
+            const now = Date.now();
             
             // Check if state has changed (optimization to reduce unnecessary API calls)
             if (!hasStateChanged()) {
-                console.log('⏭️ Skipping save: no changes detected');
-                return; // No changes, skip save
+                if (!forceCritical) {
+                    console.log('⏭️ Skipping save: no changes detected');
+                    return; // No changes, skip save
+                }
             }
+            
+            // Determine cooldown based on change type
+            const isCriticalChange = forceCritical || hasCriticalChanges();
+            const cooldown = isCriticalChange ? CRITICAL_SAVE_COOLDOWN : SAVE_COOLDOWN;
+            
+            // Check cooldown
+            if (now - lastSaveTime < cooldown) {
+                if (isCriticalChange) {
+                    pendingCriticalSave = true; // Mark for save after cooldown
+                    // Schedule save after cooldown expires
+                    setTimeout(() => {
+                        if (pendingCriticalSave && hasStateChanged()) {
+                            pendingCriticalSave = false;
+                            triggerAutoSave(true);
+                        }
+                    }, cooldown - (now - lastSaveTime));
+                }
+                return; // Still in cooldown
+            }
+            
+            // Clear pending flag
+            pendingCriticalSave = false;
             
             // ✅ ПРИОРИТЕТ 1: Wallet (для стран без Telegram)
             if (window.WALLET_ADDRESS && window.WalletSave) {
@@ -7727,6 +7759,7 @@
                 window.WalletSave.save(gameState).then(success => {
                     if (success) {
                         console.log('💾 Auto-save successful (Wallet API)');
+                        lastSaveTime = Date.now(); // Update save time
                         // Update last saved state
                         lastSavedState = {
                             tama: gameState.tama,
