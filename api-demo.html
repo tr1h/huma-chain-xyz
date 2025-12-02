@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Solana Tamagotchi API - Интерактивная Демонстрация</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .endpoint {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.85em;
+        }
+
+        .method.get {
+            background: #28a745;
+            color: white;
+        }
+
+        .method.post {
+            background: #007bff;
+            color: white;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .response {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: none;
+        }
+
+        .response.show {
+            display: block;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+            display: none;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .architecture {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .flow-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 150px;
+            position: relative;
+        }
+
+        .flow-arrow {
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .code-example {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+
+        .keyword { color: #569cd6; }
+        .string { color: #ce9178; }
+        .function { color: #dcdcaa; }
+        .comment { color: #6a9955; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Solana Tamagotchi API</h1>
+        <p class="subtitle">Интерактивная демонстрация работы API в реальном времени</p>
+
+        <!-- Живая статистика -->
+        <div class="stats">
+            <h2 style="color: #667eea; margin-bottom: 10px;">📊 Живая Статистика</h2>
+            <p style="color: #666; margin-bottom: 20px;">Данные обновляются в реальном времени при нажатии кнопок ниже</p>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-players">-</div>
+                    <div class="stat-label">Всего Игроков</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="top-balance">-</div>
+                    <div class="stat-label">Топ Баланс (TAMA)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="api-status">-</div>
+                    <div class="stat-label">Статус API</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Архитектура -->
+        <div class="architecture">
+            <h2 style="color: #667eea; margin-bottom: 20px;">🏗️ Архитектура Системы</h2>
+            <div class="flow-diagram">
+                <div class="flow-box">
+                    <div style="font-size: 2em; margin-bottom: 10px;">🌐</div>
+                    <strong>Frontend</strong>
+                    <div style="font-size: 0.8em; margin-top: 5px;">GitHub Pages</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">
+                    <div style="font-size: 2em; margin-bottom: 10px;">⚙️</div>
+                    <strong>API</strong>
+                    <div style="font-size: 0.8em; margin-top: 5px;">Render.com (PHP)</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">
+                    <div style="font-size: 2em; margin-bottom: 10px;">🗄️</div>
+                    <strong>Database</strong>
+                    <div style="font-size: 0.8em; margin-top: 5px;">Supabase (PostgreSQL)</div>
+                </div>
+            </div>
+
+            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 15px;">📝 Как Работает Запрос:</h3>
+            <div class="code-example">
+<span class="comment">// 1. Frontend отправляет запрос</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'https://api.solanatamagotchi.com/api/unified-leaderboard.php?action=leaderboard'</span>);
+
+<span class="comment">// 2. API (PHP) получает запрос и вызывает Supabase функцию</span>
+<span class="keyword">$result</span> = <span class="function">callSupabaseRPC</span>(<span class="keyword">$url</span>, <span class="keyword">$key</span>, <span class="string">'get_unified_leaderboard'</span>, [<span class="string">'p_limit'</span> => 100]);
+
+<span class="comment">// 3. Supabase выполняет SQL-функцию</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> get_unified_leaderboard(100, 0);
+
+<span class="comment">// 4. SQL объединяет данные из 2 таблиц:</span>
+<span class="comment">//    - leaderboard (Telegram users)</span>
+<span class="comment">//    - wallet_users (Wallet users)</span>
+
+<span class="comment">// 5. API возвращает JSON на Frontend</span>
+<span class="keyword">return</span> { <span class="string">"success"</span>: <span class="keyword">true</span>, <span class="string">"data"</span>: [...] };
+            </div>
+        </div>
+
+        <!-- API Endpoints -->
+        <h2 style="color: white; text-align: center; margin-bottom: 20px; font-size: 2em;">🎯 Доступные API</h2>
+        
+        <div class="grid">
+            <!-- 1. Unified Leaderboard -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🏆</div>
+                    <div class="card-title">Unified Leaderboard</div>
+                </div>
+                <div class="card-description">
+                    Получить топ игроков из ОБЕИХ таблиц (Telegram + Wallet) в едином рейтинге.
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    /api/unified-leaderboard.php?action=leaderboard&limit=10
+                </div>
+                <button onclick="testUnifiedLeaderboard()">🚀 Протестировать API</button>
+                <div class="loader" id="loader-1"></div>
+                <div class="response" id="response-1"></div>
+            </div>
+
+            <!-- 2. User Rank -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">User Rank</div>
+                </div>
+                <div class="card-description">
+                    Получить ранг конкретного пользователя по wallet address или telegram_id.
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    /api/unified-leaderboard.php?action=rank&wallet_address=...
+                </div>
+                <button onclick="testUserRank()">🚀 Протестировать API</button>
+                <div class="loader" id="loader-2"></div>
+                <div class="response" id="response-2"></div>
+            </div>
+
+            <!-- 3. Total Players -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">👥</div>
+                    <div class="card-title">Total Players</div>
+                </div>
+                <div class="card-description">
+                    Получить общее количество уникальных игроков в системе.
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    /api/unified-leaderboard.php?action=total
+                </div>
+                <button onclick="testTotalPlayers()">🚀 Протестировать API</button>
+                <div class="loader" id="loader-3"></div>
+                <div class="response" id="response-3"></div>
+            </div>
+
+            <!-- 4. Wallet Auth (Get User) -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">👛</div>
+                    <div class="card-title">Wallet Auth - Get User</div>
+                </div>
+                <div class="card-description">
+                    Получить данные пользователя по wallet address (для авторизации).
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    /api/wallet-auth.php (action: get)
+                </div>
+                <button onclick="testWalletAuthGet()">🚀 Протестировать API</button>
+                <div class="loader" id="loader-4"></div>
+                <div class="response" id="response-4"></div>
+            </div>
+
+            <!-- 5. Wallet Auth (Save Game) -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">💾</div>
+                    <div class="card-title">Wallet Auth - Save Game</div>
+                </div>
+                <div class="card-description">
+                    Сохранить состояние игры для wallet-пользователя в БД.
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    /api/wallet-auth.php (action: save)
+                </div>
+                <button onclick="testWalletAuthSave()">🚀 Протестировать API</button>
+                <div class="loader" id="loader-5"></div>
+                <div class="response" id="response-5"></div>
+            </div>
+
+            <!-- 6. NFT Mint -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🎨</div>
+                    <div class="card-title">NFT Minting</div>
+                </div>
+                <div class="card-description">
+                    Минтинг NFT питомца на Solana блокчейне (on-chain метадата).
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    /api/mint-nft-onchain
+                </div>
+                <button onclick="alert('NFT Minting требует подключенный кошелек и SOL токены!')">ℹ️ Информация</button>
+                <div class="response" id="response-6" style="display: block; background: #fff3cd; color: #856404; border: 1px solid #ffc107;">
+⚠️ NFT Minting работает только с подключенным Phantom кошельком и требует:
+• 0.1-0.5 SOL на аккаунте
+• Подтверждение транзакции
+• Метадата загружается в Arweave (децентрализованное хранилище)
+                </div>
+            </div>
+        </div>
+
+        <!-- Таблицы БД -->
+        <div class="architecture">
+            <h2 style="color: #667eea; margin-bottom: 20px;">🗄️ Структура Базы Данных</h2>
+            
+            <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">📱 Таблица: <code>leaderboard</code></h3>
+            <p style="color: #666; margin-bottom: 15px;">Хранит данные Telegram-пользователей</p>
+            <div class="code-example">
+<span class="keyword">CREATE TABLE</span> leaderboard (
+    telegram_id BIGINT <span class="keyword">PRIMARY KEY</span>,
+    tama NUMERIC <span class="keyword">DEFAULT</span> 0,
+    level INTEGER <span class="keyword">DEFAULT</span> 1,
+    pet_name TEXT,
+    telegram_username TEXT,
+    linked_wallet TEXT,  <span class="comment">-- Если связан с кошельком</span>
+    created_at TIMESTAMP
+);
+            </div>
+
+            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 10px;">💻 Таблица: <code>wallet_users</code></h3>
+            <p style="color: #666; margin-bottom: 15px;">Хранит данных Wallet-пользователей (без Telegram)</p>
+            <div class="code-example">
+<span class="keyword">CREATE TABLE</span> wallet_users (
+    id BIGSERIAL <span class="keyword">PRIMARY KEY</span>,
+    wallet_address TEXT <span class="keyword">UNIQUE NOT NULL</span>,
+    user_id TEXT <span class="keyword">UNIQUE NOT NULL</span>,
+    username TEXT <span class="keyword">DEFAULT</span> <span class="string">'Player'</span>,
+    tama_balance NUMERIC <span class="keyword">DEFAULT</span> 0,
+    level INTEGER <span class="keyword">DEFAULT</span> 1,
+    clicks INTEGER <span class="keyword">DEFAULT</span> 0,
+    telegram_id BIGINT,  <span class="comment">-- Если связан с Telegram</span>
+    game_state JSONB,
+    created_at TIMESTAMP
+);
+            </div>
+
+            <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 10px;">🔗 Функция: <code>get_unified_leaderboard()</code></h3>
+            <p style="color: #666; margin-bottom: 15px;">Объединяет обе таблицы в единый рейтинг</p>
+            <div class="code-example">
+<span class="keyword">WITH</span> combined_users <span class="keyword">AS</span> (
+    <span class="comment">-- Telegram users (non-linked)</span>
+    <span class="keyword">SELECT</span> <span class="string">'tg_'</span> || telegram_id <span class="keyword">as</span> user_id, tama <span class="keyword">as</span> tama_balance, ...
+    <span class="keyword">FROM</span> leaderboard
+    <span class="keyword">WHERE</span> linked_wallet <span class="keyword">IS NULL</span>
+    
+    <span class="keyword">UNION ALL</span>
+    
+    <span class="comment">-- Wallet users</span>
+    <span class="keyword">SELECT</span> user_id, tama_balance, ...
+    <span class="keyword">FROM</span> wallet_users
+)
+<span class="keyword">SELECT</span> 
+    <span class="function">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER BY</span> tama_balance <span class="keyword">DESC</span>) <span class="keyword">as</span> rank,
+    user_id, username, tama_balance, level
+<span class="keyword">FROM</span> combined_users;
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; color: white; margin-top: 40px; padding: 20px;">
+            <p style="font-size: 1.2em; margin-bottom: 10px;">🎮 Solana Tamagotchi API Demo</p>
+            <p style="opacity: 0.8;">Создано для демонстрации работы RESTful API в реальном времени</p>
+            <p style="margin-top: 20px; opacity: 0.7;">🔗 <a href="https://solanatamagotchi.com" style="color: #fff; text-decoration: none;">solanatamagotchi.com</a></p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.solanatamagotchi.com';
+        const WALLET_ADDRESS = 'AtDKj5NxBsJk67FQgRuVAd3Yig17jzUC7x4hNuFADrvA';
+
+        // Helper function to display response
+        function showResponse(id, data, error = false) {
+            const responseEl = document.getElementById(`response-${id}`);
+            const loaderEl = document.getElementById(`loader-${id}`);
+            
+            loaderEl.classList.remove('show');
+            responseEl.classList.add('show');
+            
+            if (error) {
+                responseEl.textContent = `❌ Ошибка:\n${JSON.stringify(data, null, 2)}`;
+                responseEl.style.background = '#dc3545';
+                responseEl.style.color = 'white';
+            } else {
+                responseEl.textContent = `✅ Успешно:\n${JSON.stringify(data, null, 2)}`;
+                responseEl.style.background = '#1e1e1e';
+                responseEl.style.color = '#d4d4d4';
+            }
+        }
+
+        function showLoader(id) {
+            document.getElementById(`loader-${id}`).classList.add('show');
+            document.getElementById(`response-${id}`).classList.remove('show');
+        }
+
+        // Test 1: Unified Leaderboard
+        async function testUnifiedLeaderboard() {
+            showLoader(1);
+            try {
+                const response = await fetch(`${API_BASE}/api/unified-leaderboard.php?action=leaderboard&limit=10`);
+                const data = await response.json();
+                showResponse(1, data);
+                
+                // Update stats
+                if (data.success && data.data.length > 0) {
+                    document.getElementById('top-balance').textContent = data.data[0].tama_balance.toLocaleString();
+                }
+            } catch (error) {
+                showResponse(1, { error: error.message }, true);
+            }
+        }
+
+        // Test 2: User Rank
+        async function testUserRank() {
+            showLoader(2);
+            try {
+                const response = await fetch(`${API_BASE}/api/unified-leaderboard.php?action=rank&wallet_address=${WALLET_ADDRESS}`);
+                const data = await response.json();
+                showResponse(2, data);
+            } catch (error) {
+                showResponse(2, { error: error.message }, true);
+            }
+        }
+
+        // Test 3: Total Players
+        async function testTotalPlayers() {
+            showLoader(3);
+            try {
+                const response = await fetch(`${API_BASE}/api/unified-leaderboard.php?action=total`);
+                const data = await response.json();
+                showResponse(3, data);
+                
+                // Update stats
+                if (data.success) {
+                    document.getElementById('total-players').textContent = data.total_players;
+                }
+            } catch (error) {
+                showResponse(3, { error: error.message }, true);
+            }
+        }
+
+        // Test 4: Wallet Auth - Get User
+        async function testWalletAuthGet() {
+            showLoader(4);
+            try {
+                const response = await fetch(`${API_BASE}/api/wallet-auth.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'get',
+                        wallet_address: WALLET_ADDRESS
+                    })
+                });
+                const data = await response.json();
+                showResponse(4, data);
+            } catch (error) {
+                showResponse(4, { error: error.message }, true);
+            }
+        }
+
+        // Test 5: Wallet Auth - Save Game (Demo)
+        async function testWalletAuthSave() {
+            showLoader(5);
+            try {
+                const response = await fetch(`${API_BASE}/api/wallet-auth.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save',
+                        wallet_address: WALLET_ADDRESS,
+                        game_state: {
+                            tama: 1000,
+                            level: 5,
+                            xp: 250,
+                            clicks: 500,
+                            health: 100,
+                            food: 100,
+                            happiness: 100
+                        }
+                    })
+                });
+                const data = await response.json();
+                showResponse(5, data);
+            } catch (error) {
+                showResponse(5, { error: error.message }, true);
+            }
+        }
+
+        // Auto-load stats on page load
+        window.onload = async function() {
+            try {
+                const response = await fetch(`${API_BASE}/api/unified-leaderboard.php?action=total`);
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('total-players').textContent = data.total_players;
+                    document.getElementById('api-status').textContent = '✅ Онлайн';
+                }
+            } catch (error) {
+                document.getElementById('api-status').textContent = '❌ Офлайн';
+            }
+
+            // Load top balance
+            try {
+                const response = await fetch(`${API_BASE}/api/unified-leaderboard.php?action=leaderboard&limit=1`);
+                const data = await response.json();
+                if (data.success && data.data.length > 0) {
+                    document.getElementById('top-balance').textContent = data.data[0].tama_balance.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Failed to load top balance:', error);
+            }
+        };
+    </script>
+</body>
+</html>
+
