@@ -87,20 +87,31 @@ BEGIN
     ),
     ranked_users AS (
         SELECT 
-            ROW_NUMBER() OVER (ORDER BY tama_balance DESC, created_at ASC) as rank,
-            user_id,
-            username,
-            tama_balance,
-            level,
-            clicks,
-            account_type,
-            wallet_address,
-            telegram_id,
-            created_at
-        FROM combined_users
+            ROW_NUMBER() OVER (ORDER BY c.tama_balance DESC, c.created_at ASC) as rank,
+            c.user_id,
+            c.username,
+            c.tama_balance,
+            c.level,
+            c.clicks,
+            c.account_type,
+            c.wallet_address,
+            c.telegram_id,
+            c.created_at
+        FROM combined_users c
     )
-    SELECT * FROM ranked_users
-    ORDER BY rank
+    SELECT 
+        r.rank,
+        r.user_id,
+        r.username,
+        r.tama_balance,
+        r.level,
+        r.clicks,
+        r.account_type,
+        r.wallet_address,
+        r.telegram_id,
+        r.created_at
+    FROM ranked_users r
+    ORDER BY r.rank
     LIMIT p_limit
     OFFSET p_offset;
 END;
