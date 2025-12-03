@@ -17,6 +17,9 @@
     <meta name="admin-password-hash" content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3">
     <!-- For local development, use admin-password.js file with plain password -->
     
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
     <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
@@ -721,11 +724,14 @@
         <div class="tab-content active" id="tab-overview">
             <!-- Stats Grid -->
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" style="grid-column: span 1;">
                     <div class="stat-icon">👥</div>
                     <div class="stat-label">Total Players</div>
                     <div class="stat-value" id="total-players">0</div>
                     <div class="stat-change positive" id="players-change">+0 today</div>
+                    <div style="margin-top: 15px; height: 120px; position: relative;">
+                        <canvas id="players-growth-chart"></canvas>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">💰</div>
@@ -1465,6 +1471,127 @@
             document.getElementById('avg-level').textContent = avgLevel;
             document.getElementById('level-change').textContent = `Max: ${maxLevel}`;
             document.getElementById('active-today').textContent = activeToday;
+            
+            // Update players growth chart
+            updatePlayersGrowthChart(players);
+        }
+        
+        // Players Growth Chart
+        let playersChart = null;
+        
+        function updatePlayersGrowthChart(players) {
+            // Group players by creation date
+            const playersByDate = {};
+            
+            players.forEach(player => {
+                if (player.created_at) {
+                    const date = new Date(player.created_at);
+                    const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                    
+                    if (!playersByDate[dateKey]) {
+                        playersByDate[dateKey] = 0;
+                    }
+                    playersByDate[dateKey]++;
+                }
+            });
+            
+            // Sort dates
+            const sortedDates = Object.keys(playersByDate).sort();
+            
+            // Calculate cumulative growth
+            let cumulative = 0;
+            const labels = [];
+            const data = [];
+            
+            sortedDates.forEach(date => {
+                cumulative += playersByDate[date];
+                labels.push(new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                data.push(cumulative);
+            });
+            
+            // If no data, show last 7 days with 0
+            if (labels.length === 0) {
+                const today = new Date();
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                    data.push(0);
+                }
+            }
+            
+            // Get canvas context
+            const ctx = document.getElementById('players-growth-chart');
+            if (!ctx) return;
+            
+            // Destroy existing chart if it exists
+            if (playersChart) {
+                playersChart.destroy();
+            }
+            
+            // Create new chart
+            playersChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Players',
+                        data: data,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 8,
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 11 },
+                            callbacks: {
+                                label: function(context) {
+                                    return `Players: ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: Math.max(1, Math.ceil(Math.max(...data) / 5)),
+                                font: { size: 10 }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: { size: 9 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function updateTopPlayersTable(players) {
