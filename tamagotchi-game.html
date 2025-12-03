@@ -6257,6 +6257,7 @@
                 } else {
                     showMessage('🔐 Please open the game in Telegram or connect your wallet!', 'error');
                 }
+                setTimeout(() => { isProcessingClick = false; }, 10);
                 return; // Block clicking
             }
             
@@ -6284,19 +6285,19 @@
             
             // NEW: Check if pet is too weak to interact
             if (gameState.hp <= 0) {
-                isProcessingClick = false; // Reset flag
+                setTimeout(() => { isProcessingClick = false; }, 10);
                 showMessage('💀 Your pet is unconscious! Heal it first!');
                 return;
             }
             
             if (gameState.food <= 0) {
-                isProcessingClick = false; // Reset flag
+                setTimeout(() => { isProcessingClick = false; }, 10);
                 showMessage('🍽️ Your pet is starving! Feed it first!');
                 return;
             }
             
             if (gameState.happy <= 0) {
-                isProcessingClick = false; // Reset flag
+                setTimeout(() => { isProcessingClick = false; }, 10);
                 showMessage('😢 Your pet is too depressed! Play with it first!');
                 return;
             }
@@ -6436,7 +6437,7 @@
             const availableToday = gameState.personalDailyLimit - gameState.dailyEarned;
             if (availableToday <= 0) {
                 // Daily limit reached!
-                isProcessingClick = false; // Reset flag
+                setTimeout(() => { isProcessingClick = false; }, 10);
                 showMessage('⏰ Daily limit reached! Come back tomorrow!', 'error');
                 console.log('🚫 Daily limit reached! Earned today:', gameState.dailyEarned, '/ Limit:', gameState.personalDailyLimit);
                 
@@ -8011,8 +8012,11 @@
                     customUsername: gameState.customUsername,  // ✅ Save custom username
                     lastSave: Date.now()
                 };
-                localStorage.setItem('tamagotchi_save', JSON.stringify(saveData));
-                console.log('Game saved to localStorage');
+                // 🔑 Use user-specific key to prevent data conflicts between accounts
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_ADDRESS || 'default';
+                const storageKey = `tamagotchi_save_${userId}`;
+                localStorage.setItem(storageKey, JSON.stringify(saveData));
+                console.log(`💾 Game saved to localStorage with key: ${storageKey}`);
             } catch (error) {
                 console.error('Failed to save to localStorage:', error);
             }
@@ -8020,7 +8024,11 @@
 
         function loadFromLocalStorage() {
             try {
-                const saveData = localStorage.getItem('tamagotchi_save');
+                // 🔑 Use user-specific key to load correct user's data
+                const userId = window.TELEGRAM_USER_ID || window.WALLET_ADDRESS || 'default';
+                const storageKey = `tamagotchi_save_${userId}`;
+                console.log(`💾 Loading from localStorage with key: ${storageKey}`);
+                const saveData = localStorage.getItem(storageKey);
                 if (saveData) {
                     const data = JSON.parse(saveData);
                     
