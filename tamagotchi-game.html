@@ -12239,11 +12239,28 @@ ${link}`;
                     });
                     
                     // Try to find user in leaderboard data
-                    const currentUserData = leaderboardData.find(p => 
-                        String(p.telegram_id) === String(currentTelegramId) ||
-                        String(p.wallet_address) === String(currentWalletAddress) ||
-                        String(p.user_id) === String(currentUserId)
-                    );
+                    const currentUserData = leaderboardData.find(p => {
+                        const matches = (
+                            (currentTelegramId && p.telegram_id && String(p.telegram_id) === String(currentTelegramId)) ||
+                            (currentWalletAddress && p.wallet_address && String(p.wallet_address) === String(currentWalletAddress)) ||
+                            (currentUserId && p.user_id && String(p.user_id) === String(currentUserId))
+                        );
+                        
+                        if (matches) {
+                            console.log('🔍 Match found:', {
+                                p_telegram_id: p.telegram_id,
+                                p_wallet_address: p.wallet_address,
+                                p_user_id: p.user_id,
+                                currentTelegramId,
+                                currentWalletAddress,
+                                currentUserId,
+                                matchedBy: (currentTelegramId && p.telegram_id && String(p.telegram_id) === String(currentTelegramId)) ? 'telegram_id' :
+                                          (currentWalletAddress && p.wallet_address && String(p.wallet_address) === String(currentWalletAddress)) ? 'wallet_address' : 'user_id'
+                            });
+                        }
+                        
+                        return matches;
+                    });
                     
                     if (currentUserData) {
                         console.log('✅ Found user in leaderboard:', {
