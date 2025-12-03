@@ -11701,9 +11701,20 @@
 
         // Generate referral code (SAME algorithm as bot.py!)
         async function generateReferralCode() {
+            // ✅ Try multiple sources for Telegram ID
             const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+            let telegramId = null;
+            
             if (telegramUser && telegramUser.id) {
-                const telegramId = String(telegramUser.id);
+                telegramId = String(telegramUser.id);
+            } else if (window.TELEGRAM_USER_ID) {
+                // Fallback to global TELEGRAM_USER_ID from auth.js
+                telegramId = String(window.TELEGRAM_USER_ID);
+                console.log('📱 Using TELEGRAM_USER_ID from auth.js:', telegramId);
+            }
+            
+            if (telegramId) {
+                console.log('🔑 Generating referral code for Telegram ID:', telegramId);
                 
                 // Use SHA256 for better distribution (same as bot.py)
                 const encoder = new TextEncoder();
@@ -11722,8 +11733,12 @@
                     num = Math.floor(num / 36);
                 }
                 
-                return 'TAMA' + codePart;
+                const code = 'TAMA' + codePart;
+                console.log('✅ Generated referral code:', code);
+                return code;
             }
+            
+            console.warn('⚠️ No Telegram ID found, returning default code');
             return 'TAMA000000';
         }
 
