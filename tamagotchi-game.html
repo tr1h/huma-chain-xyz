@@ -5706,6 +5706,9 @@
         const CLICK_WINDOW = 60000; // 1 minute
         const MAX_CLICKS_PER_WINDOW = 50;
         let clickEfficiency = 1.0; // 1.0 = normal, 0.5 = fatigued
+        let isProcessingClick = false; // Prevent double-click processing
+        let lastClickProcessTime = 0;
+        const MIN_CLICK_INTERVAL = 100; // Minimum 100ms between clicks
 
         // Pet evolution stages (based on level)
         const EVOLUTION_STAGES = [
@@ -6209,9 +6212,41 @@
         // }
 
         function clickPet(e) {
+            // 🛡️ PREVENT DOUBLE-CLICK: Block if already processing or too soon
+            const now = Date.now();
+            if (isProcessingClick) {
+                console.warn('⚠️ Click already processing, ignoring duplicate');
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                return;
+            }
+            
+            // Check minimum interval between clicks
+            if (now - lastClickProcessTime < MIN_CLICK_INTERVAL) {
+                console.warn('⚠️ Click too soon, ignoring (spam protection)');
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                return;
+            }
+            
+            // Set processing flag
+            isProcessingClick = true;
+            lastClickProcessTime = now;
+            
+            // Prevent event bubbling
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
             // ✅ CHECK AUTHENTICATION: Require Telegram or Wallet to play
             if (!window.TELEGRAM_USER_ID && !window.WALLET_ADDRESS) {
                 console.warn('⚠️ Authentication required to play');
+                isProcessingClick = false; // Reset flag
                 // Show wallet connection modal for non-Telegram users
                 if (window.WalletAuth && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
                     const modal = document.getElementById('wallet-connect-modal');
@@ -6224,8 +6259,6 @@
                 }
                 return; // Block clicking
             }
-            
-            const now = Date.now();
             
             // ⚡ RESET CLICK EFFICIENCY TO 1.0 AT START OF EACH CLICK
             // This prevents accumulation of penalties from previous clicks
@@ -6251,16 +6284,19 @@
             
             // NEW: Check if pet is too weak to interact
             if (gameState.hp <= 0) {
+                isProcessingClick = false; // Reset flag
                 showMessage('💀 Your pet is unconscious! Heal it first!');
                 return;
             }
             
             if (gameState.food <= 0) {
+                isProcessingClick = false; // Reset flag
                 showMessage('🍽️ Your pet is starving! Feed it first!');
                 return;
             }
             
             if (gameState.happy <= 0) {
+                isProcessingClick = false; // Reset flag
                 showMessage('😢 Your pet is too depressed! Play with it first!');
                 return;
             }
@@ -6400,6 +6436,7 @@
             const availableToday = gameState.personalDailyLimit - gameState.dailyEarned;
             if (availableToday <= 0) {
                 // Daily limit reached!
+                isProcessingClick = false; // Reset flag
                 showMessage('⏰ Daily limit reached! Come back tomorrow!', 'error');
                 console.log('🚫 Daily limit reached! Earned today:', gameState.dailyEarned, '/ Limit:', gameState.personalDailyLimit);
                 
@@ -6515,6 +6552,12 @@
             
             // Trigger auto-save after significant action (force critical for tama/clicks)
             triggerAutoSave(true); // Force critical save for tama and clicks
+            
+            // Reset processing flag after all operations complete
+            // Use setTimeout to ensure flag resets even if there's an error
+            setTimeout(() => {
+                isProcessingClick = false;
+            }, 50); // Small delay to ensure all operations complete
         }
 
         function showClickEffect(x, y, text) {
@@ -12551,6 +12594,8 @@ ${link}`;
                     if (petArea) {
                         petArea.addEventListener('click', (e) => {
                             if (e.target.closest('.pet-emoji') || e.target.closest('#pet-sprite') || e.target.closest('#vector-pet')) {
+                                e.preventDefault();
+                                e.stopPropagation();
                                 clickPet(e);
                             }
                         });
