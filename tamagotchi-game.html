@@ -11431,9 +11431,39 @@
         }
         
         if (moreReferralBtn) {
-            moreReferralBtn.addEventListener('click', () => {
+            moreReferralBtn.addEventListener('click', async () => {
+                console.log('🔗 Referral button clicked from More menu!');
                 const referralModal = document.getElementById('referral-modal');
                 if (referralModal) {
+                    // Generate referral code and link BEFORE opening modal
+                    const code = await generateReferralCode();
+                    const link = await generateReferralLink();
+                    
+                    console.log('🔗 Generated:', { code, link });
+                    
+                    // Display code
+                    const codeDisplay = document.getElementById('referral-code-display');
+                    if (codeDisplay) {
+                        if (window.WALLET_ADDRESS && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                            // For wallet users, show shortened address
+                            codeDisplay.textContent = window.WALLET_ADDRESS.substring(0, 12) + '...';
+                            console.log('💼 Showing wallet address:', window.WALLET_ADDRESS.substring(0, 12) + '...');
+                        } else {
+                            codeDisplay.textContent = code;
+                            console.log('📱 Showing referral code:', code);
+                        }
+                    }
+                    
+                    // Display link
+                    const referralLinkDisplay = document.getElementById('referral-link-display');
+                    if (referralLinkDisplay) {
+                        referralLinkDisplay.value = link;
+                    }
+                    
+                    // Update referral progress bar
+                    await updateReferralProgress();
+                    
+                    // Now open modal
                     referralModal.classList.add('show');
                 }
                 moreMenu.classList.remove('show');
