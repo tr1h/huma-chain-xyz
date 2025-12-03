@@ -11701,16 +11701,31 @@
 
         // Generate referral code (SAME algorithm as bot.py!)
         async function generateReferralCode() {
+            console.log('🔑 generateReferralCode() called');
+            
             // ✅ Try multiple sources for Telegram ID
             const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+            
+            console.log('🔍 Checking Telegram sources:', {
+                'Telegram exists': !!window.Telegram,
+                'WebApp exists': !!window.Telegram?.WebApp,
+                'initDataUnsafe exists': !!window.Telegram?.WebApp?.initDataUnsafe,
+                'user exists': !!telegramUser,
+                'user.id': telegramUser?.id,
+                'window.TELEGRAM_USER_ID': window.TELEGRAM_USER_ID
+            });
+            
             let telegramId = null;
             
             if (telegramUser && telegramUser.id) {
                 telegramId = String(telegramUser.id);
+                console.log('✅ Got Telegram ID from WebApp.initDataUnsafe:', telegramId);
             } else if (window.TELEGRAM_USER_ID) {
                 // Fallback to global TELEGRAM_USER_ID from auth.js
                 telegramId = String(window.TELEGRAM_USER_ID);
-                console.log('📱 Using TELEGRAM_USER_ID from auth.js:', telegramId);
+                console.log('✅ Using TELEGRAM_USER_ID from auth.js:', telegramId);
+            } else {
+                console.error('❌ NO TELEGRAM ID FOUND! Both sources are null/undefined');
             }
             
             if (telegramId) {
@@ -11843,8 +11858,11 @@
         // Open referral modal
         if (referralBtn && referralModal) {
             referralBtn.addEventListener('click', async () => {
+                console.log('🔗 Referral button clicked!');
                 const code = await generateReferralCode();
                 const link = await generateReferralLink();
+                
+                console.log('🔗 Generated:', { code, link });
                 
                 // Display code
                 const codeDisplay = document.getElementById('referral-code-display');
@@ -11852,8 +11870,10 @@
                     if (window.WALLET_ADDRESS && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
                         // For wallet users, show shortened address
                         codeDisplay.textContent = window.WALLET_ADDRESS.substring(0, 12) + '...';
+                        console.log('💼 Showing wallet address:', window.WALLET_ADDRESS.substring(0, 12) + '...');
                     } else {
-                    codeDisplay.textContent = code;
+                        codeDisplay.textContent = code;
+                        console.log('📱 Showing referral code:', code);
                     }
                 }
                 
