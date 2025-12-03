@@ -12211,6 +12211,13 @@ ${link}`;
                 
                 // Update current user's rank in header
                 if (currentUserId && rankDisplay) {
+                    console.log('🔍 Looking for user rank:', {
+                        currentUserId,
+                        currentTelegramId,
+                        currentWalletAddress,
+                        leaderboardDataCount: leaderboardData.length
+                    });
+                    
                     // Try to find user in leaderboard data
                     const currentUserData = leaderboardData.find(p => 
                         String(p.telegram_id) === String(currentTelegramId) ||
@@ -12219,6 +12226,13 @@ ${link}`;
                     );
                     
                     if (currentUserData) {
+                        console.log('✅ Found user in leaderboard:', {
+                            rank: currentUserData.rank,
+                            user_id: currentUserData.user_id,
+                            telegram_id: currentUserData.telegram_id,
+                            tama: currentUserData.tama_balance,
+                            level: currentUserData.level
+                        });
                         rankDisplay.textContent = `#${currentUserData.rank}`;
                         console.log('✅ Rank updated:', currentUserData.rank);
                     } else {
