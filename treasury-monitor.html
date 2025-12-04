@@ -1180,14 +1180,15 @@
             'burn_from_bronze_nft_onchain',
             'treasury_income_from_nft_onchain',
             'p2e_pool_refund_from_nft_onchain',
-            'nft_mint_sol',
+            'nft_mint_sol', // ✅ SOL-based NFT mints (wallet)
+            'nft_mint_tama', // ✅ TAMA-based NFT mints (Telegram + wallet)
+            'nft_mint', // ✅ Generic NFT mints
             'treasury_main_income_from_nft_sol',
             'treasury_liquidity_income_from_nft_sol',
             'treasury_team_income_from_nft_sol',
             'nft_revenue_main', // ✅ New type from mint-nft-sol-rest.php
             'nft_revenue_liquidity', // ✅ New type from mint-nft-sol-rest.php
             'nft_revenue_team', // ✅ New type from mint-nft-sol-rest.php
-            'nft_mint',
             'withdrawal',
             'tama_burn',
             'spend_game',
@@ -1379,8 +1380,12 @@
               // 2. Include by type (case insensitive) - все типы, связанные с пулами
               const typeStr = String(t.type || '').toLowerCase();
               if (typeStr) {
-                // NFT mint транзакции содержат распределение
+                // NFT mint транзакции (все типы: nft_mint_sol, nft_mint_tama, nft_mint)
+                // Эти транзакции показывают кто заминтил NFT (Telegram или Wallet)
                 if (
+                  typeStr === 'nft_mint_sol' ||
+                  typeStr === 'nft_mint_tama' ||
+                  typeStr === 'nft_mint' ||
                   typeStr.includes('nft') ||
                   typeStr.includes('mint') ||
                   typeStr.includes('revenue')
