@@ -19,6 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     
     <!-- Unified Auth System -->
     <script src="js/auth.js"></script>
@@ -641,6 +642,28 @@
         </div>
         
         <div id="profile-content" style="display: none;">
+            <!-- Wallet Info Section (NEW!) -->
+            <div class="profile-section" id="wallet-info-section" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(138,201,38,0.2), rgba(255,202,58,0.2)); border: 3px solid #8AC926;">
+                <h2>👛 WALLET INFO</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div style="background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; border: 2px solid #1D3557;">
+                        <div style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; color: #666; margin-bottom: 10px;">🔗 Wallet Address</div>
+                        <div id="wallet-address" style="font-family: monospace; font-size: 0.85rem; color: #1D3557; word-break: break-all; margin-bottom: 10px;">Not connected</div>
+                        <button id="copy-wallet-btn" style="padding: 8px 16px; background: #8AC926; color: white; border: 2px solid #1D3557; border-radius: 8px; font-size: 0.7rem; cursor: pointer; font-family: 'Press Start 2P', cursive;" onclick="copyWalletAddress()">📋 COPY</button>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; border: 2px solid #1D3557;">
+                        <div style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; color: #666; margin-bottom: 10px;">💰 SOL Balance</div>
+                        <div id="sol-balance" style="font-size: 1.8rem; color: #8AC926; font-weight: bold; font-family: 'Press Start 2P', cursive;">--.-- SOL</div>
+                        <div style="font-size: 0.7rem; color: #666; margin-top: 5px;">≈ $<span id="sol-usd">--</span> USD</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; border: 2px solid #1D3557;">
+                        <div style="font-family: 'Press Start 2P', cursive; font-size: 0.7rem; color: #666; margin-bottom: 10px;">🔐 Auth Method</div>
+                        <div id="auth-method" style="font-size: 1rem; color: #1D3557; font-weight: bold; font-family: 'Press Start 2P', cursive; margin-bottom: 5px;">Loading...</div>
+                        <div id="auth-details" style="font-size: 0.7rem; color: #666;">Detecting...</div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Statistics Dashboard -->
             <div class="profile-section" style="grid-column: 1 / -1;">
                 <h2>📊 STATISTICS DASHBOARD</h2>
