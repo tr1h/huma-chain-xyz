@@ -948,6 +948,11 @@
       const TREASURY_LIQUIDITY = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
       const TREASURY_TEAM = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
       const SOLANA_RPC = 'https://api.devnet.solana.com';
+      
+      // Cache settings for RPC requests (avoid 429 errors)
+      const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+      const MAX_RETRIES = 3;
+      const INITIAL_RETRY_DELAY = 1000; // 1 second
 
       let allTransactions = [];
       let filteredTransactions = [];
@@ -987,8 +992,51 @@
         }
       }
 
-      // Get TAMA token balance from Solana RPC
-      async function getTamaBalance(address) {
+      // Helper: Sleep function for retry delays
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      // Helper: Get cached balance from localStorage
+      function getCachedBalance(cacheKey) {
+        try {
+          const cached = localStorage.getItem(cacheKey);
+          if (cached) {
+            const { value, timestamp } = JSON.parse(cached);
+            const age = Date.now() - timestamp;
+            if (age < CACHE_DURATION_MS) {
+              console.log(`📦 Using cached balance for ${cacheKey} (age: ${Math.round(age / 1000)}s)`);
+              return value;
+            }
+          }
+        } catch (e) {
+          console.warn('Cache read error:', e);
+        }
+        return null;
+      }
+
+      // Helper: Save balance to localStorage cache
+      function setCachedBalance(cacheKey, value) {
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({
+            value,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          console.warn('Cache write error:', e);
+        }
+      }
+
+      // Get TAMA token balance from Solana RPC with caching and retry
+      async function getTamaBalance(address, retryCount = 0) {
+        const cacheKey = `tama_balance_${address}`;
+        
+        // Try cache first
+        const cached = getCachedBalance(cacheKey);
+        if (cached !== null) {
+          return cached;
+        }
+
         try {
           const response = await fetch(SOLANA_RPC, {
             method: 'POST',
@@ -1001,6 +1049,14 @@
             }),
           });
 
+          // Handle 429 Too Many Requests with exponential backoff
+          if (response.status === 429 && retryCount < MAX_RETRIES) {
+            const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+            console.warn(`⏳ Rate limited (429). Retrying in ${delay}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+            await sleep(delay);
+            return getTamaBalance(address, retryCount + 1);
+          }
+
           if (response.ok) {
             const data = await response.json();
             if (data.result && data.result.value && data.result.value.length > 0) {
@@ -1010,13 +1066,27 @@
 
               if (amount && parseInt(amount) > 0) {
                 // Convert from raw units to TAMA (divide by 10^decimals)
-                return parseInt(amount) / Math.pow(10, TAMA_DECIMALS);
+                const balance = parseInt(amount) / Math.pow(10, TAMA_DECIMALS);
+                setCachedBalance(cacheKey, balance);
+                return balance;
               }
             }
           }
+          
+          // Cache zero balance too (avoid repeated requests for empty wallets)
+          setCachedBalance(cacheKey, 0);
           return 0;
         } catch (error) {
           console.error(`Failed to get TAMA balance for ${address}:`, error);
+          
+          // Return cached value even if expired (better than nothing)
+          const expiredCache = localStorage.getItem(cacheKey);
+          if (expiredCache) {
+            const { value } = JSON.parse(expiredCache);
+            console.log(`⚠️ Using expired cache for ${address}`);
+            return value;
+          }
+          
           return 0;
         }
       }
