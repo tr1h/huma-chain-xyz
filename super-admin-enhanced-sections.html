@@ -1,0 +1,261 @@
+<!--
+    📊 ДОПОЛНИТЕЛЬНЫЕ СЕКЦИИ ДЛЯ SUPER-ADMIN.HTML
+
+    Добавьте эти секции в tab-overview ПЕРЕД "Quick Access - Admin Panels"
+
+    Подключите скрипт: <script src="js/super-admin-charts.js"></script>
+
+    В функции loadData() добавьте:
+    initAdvancedCharts();
+-->
+
+<!-- 📈 DAU (Daily Active Users) Chart -->
+<div class="chart-container" style="margin: 30px 0;">
+    <h3>📈 Daily Active Users (Last 30 Days)</h3>
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div style="text-align: center; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 10px;">
+                <div style="font-size: 0.9em; color: #666;">Today's DAU</div>
+                <div style="font-size: 2em; font-weight: bold; color: #667eea;" id="dau-today">0</div>
+                <div style="font-size: 0.85em; margin-top: 5px;" id="dau-change">Loading...</div>
+            </div>
+        </div>
+        <div style="height: 300px; position: relative;">
+            <canvas id="dau-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- 💰 Revenue Chart (SOL + TAMA) -->
+<div class="chart-container" style="margin: 30px 0;">
+    <h3>💰 Revenue Analytics (Last 30 Days)</h3>
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(138, 201, 38, 0.05)); border-radius: 10px; border: 2px solid rgba(138, 201, 38, 0.3);">
+                <div style="font-size: 2.5em; margin-bottom: 5px;">💎</div>
+                <div style="font-size: 0.9em; color: #666;">Total SOL Revenue</div>
+                <div style="font-size: 2em; font-weight: bold; color: #8AC926;" id="total-sol-revenue">0 SOL</div>
+            </div>
+            <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(255, 183, 3, 0.1), rgba(255, 183, 3, 0.05)); border-radius: 10px; border: 2px solid rgba(255, 183, 3, 0.3);">
+                <div style="font-size: 2.5em; margin-bottom: 5px;">🪙</div>
+                <div style="font-size: 0.9em; color: #666;">Total TAMA Revenue</div>
+                <div style="font-size: 2em; font-weight: bold; color: #FFB703;" id="total-tama-revenue">0 TAMA</div>
+            </div>
+        </div>
+        <div style="height: 350px; position: relative;">
+            <canvas id="revenue-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- 🌳 Referral Tree Visualization -->
+<div class="data-table" style="margin: 30px 0;">
+    <div class="table-header">
+        <h3>🌳 Referral Tree - Top Referrers</h3>
+    </div>
+    <div id="referral-tree" style="min-height: 300px;">
+        <div style="text-align: center; padding: 40px;">
+            <div style="font-size: 2em; margin-bottom: 10px;">⏳</div>
+            <div>Loading referral data...</div>
+        </div>
+    </div>
+</div>
+
+<!-- 📊 Site Visits & Unique Visitors Chart -->
+<div class="chart-container" style="margin: 30px 0;">
+    <h3>📊 Site Traffic Analytics (Last 30 Days)</h3>
+    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <div style="height: 300px; position: relative;">
+            <canvas id="site-visits-chart"></canvas>
+        </div>
+        <div style="margin-top: 20px; padding: 15px; background: rgba(153, 69, 255, 0.05); border-radius: 10px;">
+            <div style="font-size: 0.9em; color: #666; margin-bottom: 10px;">
+                <strong>Legend:</strong>
+            </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 3px; background: #14F195;"></div>
+                    <span style="font-size: 0.9em;">Site Visits (Total page views)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 3px; background: #9945FF;"></div>
+                    <span style="font-size: 0.9em;">Unique Visitors (Distinct users)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 💡 ENHANCED NFT REVENUE DISPLAY -->
+<div class="data-table" style="margin: 30px 0; background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 183, 3, 0.05));">
+    <div class="table-header" style="background: rgba(255, 215, 0, 0.1);">
+        <h3>💎 NFT Sales & Revenue Breakdown</h3>
+        <button class="refresh-btn" onclick="loadNFTRevenueDetails()" style="background: linear-gradient(135deg, #FFD700, #FFB703);">🔄 Refresh</button>
+    </div>
+    <div style="padding: 30px;">
+        <!-- Revenue Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <!-- Bronze TAMA Revenue -->
+            <div style="background: rgba(205, 127, 50, 0.1); border: 2px solid #CD7F32; border-radius: 15px; padding: 25px; text-align: center;">
+                <div style="font-size: 2em; margin-bottom: 10px;">🟫</div>
+                <h4 style="color: #CD7F32; margin: 0 0 15px 0;">Bronze TAMA Sales</h4>
+                <div style="font-size: 2.5em; font-weight: bold; color: #CD7F32;" id="bronze-tama-revenue">0</div>
+                <div style="font-size: 0.9em; opacity: 0.7; margin-top: 5px;">TAMA</div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(205, 127, 50, 0.3); font-size: 0.85em;">
+                    <div><strong id="bronze-count">0</strong> NFTs sold</div>
+                </div>
+            </div>
+
+            <!-- Silver/Gold/Platinum/Diamond SOL Revenue -->
+            <div style="background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(255, 215, 0, 0.1)); border: 2px solid #C0C0C0; border-radius: 15px; padding: 25px; text-align: center;">
+                <div style="font-size: 2em; margin-bottom: 10px;">💎</div>
+                <h4 style="color: #FFD700; margin: 0 0 15px 0;">Premium SOL Sales</h4>
+                <div style="font-size: 2.5em; font-weight: bold; color: #FFD700;" id="premium-sol-revenue">0</div>
+                <div style="font-size: 0.9em; opacity: 0.7; margin-top: 5px;">SOL</div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 215, 0, 0.3); font-size: 0.85em;">
+                    <div><strong id="premium-count">0</strong> Premium NFTs sold</div>
+                </div>
+            </div>
+
+            <!-- Total Revenue (USD Equivalent) -->
+            <div style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(20, 241, 149, 0.1)); border: 2px solid #14F195; border-radius: 15px; padding: 25px; text-align: center;">
+                <div style="font-size: 2em; margin-bottom: 10px;">💰</div>
+                <h4 style="color: #14F195; margin: 0 0 15px 0;">Total Revenue (Est.)</h4>
+                <div style="font-size: 2.5em; font-weight: bold; color: #14F195;" id="total-revenue-usd">$0</div>
+                <div style="font-size: 0.9em; opacity: 0.7; margin-top: 5px;">USD (@ $164/SOL)</div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(20, 241, 149, 0.3); font-size: 0.85em;">
+                    <div><strong id="total-nft-count">0</strong> Total NFTs sold</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier Breakdown Table -->
+        <div style="background: white; border-radius: 10px; padding: 20px;">
+            <h4 style="margin-bottom: 15px; color: #1D3557;">Sales by Tier</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: rgba(153, 69, 255, 0.05);">
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid rgba(153, 69, 255, 0.3);">Tier</th>
+                        <th style="padding: 12px; text-align: center; border-bottom: 2px solid rgba(153, 69, 255, 0.3);">Count</th>
+                        <th style="padding: 12px; text-align: right; border-bottom: 2px solid rgba(153, 69, 255, 0.3);">Revenue</th>
+                        <th style="padding: 12px; text-align: right; border-bottom: 2px solid rgba(153, 69, 255, 0.3);">Avg Price</th>
+                    </tr>
+                </thead>
+                <tbody id="tier-breakdown-tbody">
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 20px; color: #666;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Revenue Distribution (On-chain) -->
+        <div style="margin-top: 30px; padding: 20px; background: rgba(153, 69, 255, 0.05); border-radius: 10px; border-left: 4px solid #9945FF;">
+            <h4 style="margin: 0 0 15px 0; color: #9945FF;">🔗 On-Chain Revenue Distribution</h4>
+            <div style="font-size: 0.9em; line-height: 1.8;">
+                <p><strong>Bronze TAMA Mints (2,500 TAMA each):</strong></p>
+                <ul style="margin: 10px 0 20px 20px;">
+                    <li>40% → 🔥 Burned (deflationary)</li>
+                    <li>30% → 💰 Treasury (development)</li>
+                    <li>30% → 🎮 P2E Pool (rewards recycling)</li>
+                </ul>
+
+                <p><strong>Premium SOL Mints (Silver/Gold/Platinum/Diamond):</strong></p>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>50% → 💼 Main Wallet (operations)</li>
+                    <li>30% → 💧 Liquidity Pool (DEX listing)</li>
+                    <li>20% → 👥 Team (development)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для загрузки NFT revenue details -->
+<script>
+async function loadNFTRevenueDetails() {
+    try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*`, {
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch NFTs');
+
+        const nfts = await response.json();
+
+        // Calculate totals
+        let bronzeTAMA = 0, bronzeCount = 0;
+        let premiumSOL = 0, premiumCount = 0;
+        const tierBreakdown = {
+            Bronze: { count: 0, revenue: 0, type: 'TAMA' },
+            Silver: { count: 0, revenue: 0, type: 'SOL' },
+            Gold: { count: 0, revenue: 0, type: 'SOL' },
+            Platinum: { count: 0, revenue: 0, type: 'SOL' },
+            Diamond: { count: 0, revenue: 0, type: 'SOL' }
+        };
+
+        nfts.forEach(nft => {
+            const tier = nft.tier_name || 'Bronze';
+
+            if (!tierBreakdown[tier]) {
+                tierBreakdown[tier] = { count: 0, revenue: 0, type: 'TAMA' };
+            }
+
+            tierBreakdown[tier].count++;
+
+            if (nft.cost_tama && parseFloat(nft.cost_tama) > 0) {
+                tierBreakdown[tier].revenue += parseFloat(nft.cost_tama);
+                tierBreakdown[tier].type = 'TAMA';
+                bronzeTAMA += parseFloat(nft.cost_tama);
+                bronzeCount++;
+            } else if (nft.cost_sol && parseFloat(nft.cost_sol) > 0) {
+                tierBreakdown[tier].revenue += parseFloat(nft.cost_sol);
+                tierBreakdown[tier].type = 'SOL';
+                premiumSOL += parseFloat(nft.cost_sol);
+                premiumCount++;
+            }
+        });
+
+        // Update cards
+        document.getElementById('bronze-tama-revenue').textContent = Math.round(bronzeTAMA).toLocaleString();
+        document.getElementById('bronze-count').textContent = bronzeCount;
+
+        document.getElementById('premium-sol-revenue').textContent = premiumSOL.toFixed(2);
+        document.getElementById('premium-count').textContent = premiumCount;
+
+        const totalUSD = premiumSOL * 164; // Assuming $164/SOL
+        document.getElementById('total-revenue-usd').textContent = '$' + Math.round(totalUSD).toLocaleString();
+        document.getElementById('total-nft-count').textContent = nfts.length;
+
+        // Update table
+        const tbody = document.getElementById('tier-breakdown-tbody');
+        tbody.innerHTML = Object.entries(tierBreakdown)
+            .filter(([_, data]) => data.count > 0)
+            .map(([tier, data]) => {
+                const avgPrice = data.count > 0 ? (data.revenue / data.count).toFixed(2) : '0';
+                const revenue = data.type === 'SOL'
+                    ? data.revenue.toFixed(2) + ' SOL'
+                    : Math.round(data.revenue).toLocaleString() + ' TAMA';
+                const avgPriceFormatted = data.type === 'SOL'
+                    ? avgPrice + ' SOL'
+                    : Math.round(avgPrice).toLocaleString() + ' TAMA';
+
+                return `
+                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                        <td style="padding: 12px;"><strong>${tier}</strong></td>
+                        <td style="padding: 12px; text-align: center;">${data.count}</td>
+                        <td style="padding: 12px; text-align: right; font-weight: bold;">${revenue}</td>
+                        <td style="padding: 12px; text-align: right; opacity: 0.8;">${avgPriceFormatted}</td>
+                    </tr>
+                `;
+            }).join('');
+
+    } catch (error) {
+        console.error('Error loading NFT revenue details:', error);
+    }
+}
+</script>
+

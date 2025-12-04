@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Проверка пользователя</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .suspicious {
+            color: red;
+            font-weight: bold;
+        }
+        .ok {
+            color: green;
+        }
+        .warning {
+            color: orange;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Проверка пользователя</h1>
+        <div>
+            <input type="text" id="username" placeholder="Username" value="L'arc">
+            <button onclick="analyzeUser()">Проверить</button>
+        </div>
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function analyzeUser() {
+            const username = document.getElementById('username').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ Загрузка...';
+
+            try {
+                const response = await fetch(`https://api.solanatamagotchi.com/api/analyze-user.php?username=${encodeURIComponent(username)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = `<span class="suspicious">❌ Ошибка: ${data.error}</span>`;
+                    return;
+                }
+
+                let html = '<h2>📊 Результаты анализа</h2>\n\n';
+                
+                // Информация о пользователе
+                html += `<h3>👤 Пользователь:</h3>`;
+                html += `ID: ${data.user.telegram_id}\n`;
+                html += `Username: ${data.user.username}\n`;
+                html += `Текущий баланс: ${data.user.current_balance.toLocaleString()} TAMA\n`;
+                html += `Уровень: ${data.user.level}\n`;
+                html += `Всего транзакций: ${data.user.total_transactions}\n\n`;
+
+                // Статистика заработка
+                html += `<h3>💰 Статистика:</h3>`;
+                html += `Всего заработано: ${data.earnings.total_earned.toLocaleString()} TAMA\n`;
+                html += `Всего потрачено: ${data.earnings.total_spent.toLocaleString()} TAMA\n`;
+                html += `Чистый баланс (расчетный): ${data.earnings.net_balance.toLocaleString()} TAMA\n`;
+                const balanceDiff = Math.abs(data.user.current_balance - data.earnings.net_balance);
+                const diffPercent = data.earnings.net_balance > 0 ? ((balanceDiff / data.earnings.net_balance) * 100).toFixed(1) : 'N/A';
+                const isSuspicious = balanceDiff > 1000 || (data.earnings.net_balance > 0 && balanceDiff / data.earnings.net_balance > 0.1);
+                const diffClass = isSuspicious ? 'suspicious' : 'ok';
+                html += `<span class="${diffClass}">Разница с фактическим: ${balanceDiff.toLocaleString()} TAMA (${diffPercent}%)</span>\n`;
+                if (isSuspicious) {
+                    html += `<span class="suspicious">⚠️ ПОДОЗРИТЕЛЬНО! Баланс не соответствует транзакциям!</span>\n`;
+                }
+                html += '\n';
+
+                // По типам
+                html += `<h3>📈 По типам транзакций:</h3>`;
+                for (const [type, stats] of Object.entries(data.earnings.by_type)) {
+                    html += `${type}: ${stats.count} транзакций, ${stats.total.toLocaleString()} TAMA\n`;
+                }
+                html += '\n';
+
+                // Подозрительные паттерны
+                html += `<h3>🚨 Подозрительные паттерны (${data.suspicious_patterns.length}):</h3>`;
+                if (data.suspicious_patterns.length === 0) {
+                    html += `<span class="ok">✅ Подозрительных паттернов не найдено!</span>\n\n`;
+                } else {
+                    data.suspicious_patterns.forEach((pattern, i) => {
+                        const severityClass = pattern.severity === 'high' ? 'suspicious' : 'warning';
+                        html += `<span class="${severityClass}">${i+1}. [${pattern.severity.toUpperCase()}] ${pattern.type}</span>\n`;
+                        html += `   Дата: ${pattern.date}\n`;
+                        html += `   ${pattern.description}\n`;
+                        if (pattern.amount) html += `   Сумма: ${pattern.amount.toLocaleString()} TAMA\n`;
+                        html += '\n';
+                    });
+                }
+
+                // Крупнейшие транзакции
+                html += `<h3>💎 Крупнейшие транзакции (топ 10):</h3>`;
+                data.largest_transactions.slice(0, 10).forEach((tx, i) => {
+                    html += `${i+1}. ${tx.date}: ${tx.type} - ${tx.amount.toLocaleString()} TAMA (баланс после: ${tx.balance_after.toLocaleString()})\n`;
+                });
+                html += '\n';
+
+                // Разбивка по дням
+                html += `<h3>📅 Разбивка по дням (топ 10 дней):</h3>`;
+                const dailyEntries = Object.entries(data.daily_breakdown)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10);
+                dailyEntries.forEach(([date, amount]) => {
+                    const isSuspicious = amount > 10000;
+                    const className = isSuspicious ? 'suspicious' : 'ok';
+                    html += `<span class="${className}">${date}: ${amount.toLocaleString()} TAMA</span>\n`;
+                });
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="suspicious">❌ Ошибка: ${error.message}</span>`;
+            }
+        }
+
+        // Автоматически проверить при загрузке
+        window.onload = () => {
+            analyzeUser();
+        };
+    </script>
+</body>
+</html>
+

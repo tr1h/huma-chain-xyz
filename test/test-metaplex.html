@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Metaplex SDK</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0e27;
+            color: #fff;
+        }
+        .test-section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            background: #8AC926;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #7AB816;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .status.success { background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; }
+        .status.error { background: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; }
+        .status.info { background: rgba(52, 152, 219, 0.2); border: 1px solid #3498db; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Metaplex SDK Test</h1>
+    <p>Проверка зависимостей для on-chain NFT minting</p>
+    
+    <div class="test-section" style="background: rgba(138, 201, 38, 0.2); border: 2px solid #8AC926; padding: 15px; margin-bottom: 20px;">
+        <strong>✅ Backend API Solution (ACTIVE & WORKING)</strong><br>
+        On-chain minting is handled by backend API at:<br>
+        <code>https://api.solanatamagotchi.com/api/mint-nft-onchain</code><br>
+        <small>✅ This page is for testing dependencies only. Actual minting uses backend API automatically in <code>mint.html</code>.</small><br>
+        <small>⚠️ <strong>Metaplex SDK CDN failure is EXPECTED</strong> - it requires bundling. Backend API works without it!</small>
+    </div>
+
+    <div class="test-section">
+        <h2>1. Check Dependencies</h2>
+        <button onclick="checkDependencies()">Check Dependencies</button>
+        <div id="deps-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Connect Wallet</h2>
+        <button onclick="connectWallet()">Connect Phantom</button>
+        <div id="wallet-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Initialize Metaplex</h2>
+        <button onclick="initMetaplex()">Initialize Metaplex</button>
+        <div id="metaplex-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test Mint (Devnet)</h2>
+        <button onclick="testMint()">Test Mint NFT</button>
+        <div id="mint-status"></div>
+    </div>
+
+    <!-- Solana Web3.js -->
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    
+    <!-- Define fallback function BEFORE using it -->
+    <script>
+        function loadMetaplexFallback() {
+            console.warn('⚠️ Primary Metaplex CDN failed, trying alternative...');
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@metaplex-foundation/js@3.0.0/dist/index.umd.js';
+            script.onerror = function() {
+                console.error('❌ All Metaplex CDN sources failed. Metaplex SDK may not be available via CDN.');
+                console.warn('✅ Backend API is already set up and working!');
+                console.warn('💡 Backend API: https://api.solanatamagotchi.com/api/mint-nft-onchain');
+                console.warn('💡 Frontend automatically uses backend API (see mint.html)');
+                console.warn('💡 This is expected - Metaplex SDK requires bundling, CDN does not work');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    
+    <!-- Metaplex SDK - Try multiple CDN sources -->
+    <script src="https://unpkg.com/@metaplex-foundation/js@3.0.0/dist/index.umd.js" onerror="loadMetaplexFallback()"></script>
+    
+    <!-- Metaplex Minter Module -->
+    <script src="js/metaplex-mint.js"></script>
+
+    <script>
+        let walletAddress = null;
+        let metaplexMinter = null;
+
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function checkDependencies() {
+            let html = '';
+            
+            // Check Solana Web3.js
+            if (typeof window.solanaWeb3 !== 'undefined') {
+                html += '<div class="status success">✅ Solana Web3.js loaded</div>';
+            } else {
+                html += '<div class="status error">❌ Solana Web3.js NOT loaded</div>';
+            }
+
+            // Check Metaplex SDK
+            if (typeof window.Metaplex !== 'undefined' && window.Metaplex !== null) {
+                html += '<div class="status success">✅ Metaplex SDK loaded</div>';
+                console.log('Metaplex:', window.Metaplex);
+            } else {
+                html += '<div class="status error">❌ Metaplex SDK NOT loaded<br><small>⚠️ Metaplex JS SDK requires bundling (npm install). CDN version does not work.</small></div>';
+                html += '<div class="status info">✅ <strong>Backend API is already set up!</strong><br>';
+                html += '📍 Endpoint: <code>https://api.solanatamagotchi.com/api/mint-nft-onchain</code><br>';
+                html += '💡 Frontend automatically uses backend API (see mint.html)</div>';
+            }
+
+            // Check MetaplexMinter class
+            if (typeof window.MetaplexMinter !== 'undefined') {
+                html += '<div class="status success">✅ MetaplexMinter class loaded</div>';
+            } else {
+                html += '<div class="status error">❌ MetaplexMinter class NOT loaded</div>';
+            }
+
+            // Check Phantom
+            if (window.solana && window.solana.isPhantom) {
+                html += '<div class="status success">✅ Phantom wallet detected</div>';
+            } else {
+                html += '<div class="status error">❌ Phantom wallet NOT detected</div>';
+            }
+
+            document.getElementById('deps-status').innerHTML = html;
+        }
+
+        async function connectWallet() {
+            try {
+                showStatus('wallet-status', '🔄 Connecting to Phantom...', 'info');
+
+                if (!window.solana || !window.solana.isPhantom) {
+                    throw new Error('Phantom wallet not found! Install: https://phantom.app');
+                }
+
+                const resp = await window.solana.connect();
+                walletAddress = resp.publicKey.toString();
+
+                showStatus('wallet-status', `✅ Wallet connected: ${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 8)}`, 'success');
+            } catch (error) {
+                showStatus('wallet-status', `❌ Wallet connection failed: ${error.message}`, 'error');
+                console.error('Wallet error:', error);
+            }
+        }
+
+        async function initMetaplex() {
+            try {
+                showStatus('metaplex-status', '🔄 Initializing Metaplex...', 'info');
+
+                if (!walletAddress) {
+                    throw new Error('Connect wallet first!');
+                }
+
+                // Wait a bit for Metaplex to load if it's still loading
+                let attempts = 0;
+                while (!window.Metaplex && attempts < 10) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+
+                if (!window.Metaplex) {
+                    throw new Error('Metaplex SDK not loaded! CDN version does not work. Use backend API instead: https://api.solanatamagotchi.com/api/mint-nft-onchain');
+                }
+
+                console.log('✅ Metaplex SDK found:', window.Metaplex);
+
+                // Create connection
+                const { Connection, PublicKey } = window.solanaWeb3;
+                const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+
+                // Create wallet adapter
+                const wallet = {
+                    publicKey: new PublicKey(walletAddress),
+                    signTransaction: async (tx) => {
+                        return await window.solana.signTransaction(tx);
+                    },
+                    signAllTransactions: async (txs) => {
+                        return await window.solana.signAllTransactions(txs);
+                    }
+                };
+
+                // Initialize MetaplexMinter
+                metaplexMinter = new MetaplexMinter(connection, wallet);
+                await metaplexMinter.init();
+
+                showStatus('metaplex-status', `✅ Metaplex initialized successfully!<br>Connection: Devnet<br>Wallet: ${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 8)}`, 'success');
+            } catch (error) {
+                showStatus('metaplex-status', `❌ Metaplex initialization failed: ${error.message}`, 'error');
+                console.error('Metaplex error:', error);
+            }
+        }
+
+        async function testMint() {
+            try {
+                showStatus('mint-status', '🔄 Testing NFT mint...', 'info');
+
+                if (!metaplexMinter || !metaplexMinter.initialized) {
+                    throw new Error('Initialize Metaplex first!');
+                }
+
+                // Test with placeholder image
+                const result = await metaplexMinter.mintNFT({
+                    tier: 'Bronze',
+                    rarity: 'Common',
+                    multiplier: 2.0,
+                    imageUrl: 'https://via.placeholder.com/512',
+                    telegramId: '123456789',
+                    creatorWallet: '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM'
+                });
+
+                showStatus('mint-status', `
+                    ✅ NFT minted successfully!<br>
+                    📍 Mint Address: ${result.mintAddress}<br>
+                    🔗 Transaction: <a href="${result.explorerUrl}" target="_blank">View on Explorer</a><br>
+                    🎨 NFT: <a href="${result.nftUrl}" target="_blank">View NFT</a>
+                `, 'success');
+
+                console.log('Mint result:', result);
+            } catch (error) {
+                showStatus('mint-status', `❌ Mint failed: ${error.message}`, 'error');
+                console.error('Mint error:', error);
+            }
+        }
+
+        // Auto-check dependencies on load
+        window.addEventListener('load', () => {
+            setTimeout(checkDependencies, 1000);
+        });
+    </script>
+</body>
+</html>
+
