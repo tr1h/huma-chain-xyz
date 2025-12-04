@@ -1895,6 +1895,10 @@
                 ? 'type-sol'
                 : 'type-treasury';
 
+            // Extract signature from metadata
+            const metadata = t.metadata ? (typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata) : {};
+            const signature = metadata.transaction_signature || null;
+
             // On-Chain badge
             const hasSignature = signature !== null;
             const onChainBadge = hasSignature
@@ -1931,22 +1935,9 @@
                 ? ' SOL'
                 : ' TAMA';
 
-            // Source (from metadata) and destination wallet for withdrawals
-            let source = 'System';
-            let destinationWallet = null;
-            if (t.metadata && typeof t.metadata === 'object') {
-              source = t.metadata.reason || t.metadata.source || 'NFT Mint';
-              destinationWallet = t.metadata.wallet_address || t.metadata.destination;
-            } else if (typeof t.metadata === 'string') {
-              // Try to parse JSON string
-              try {
-                const parsed = JSON.parse(t.metadata);
-                source = parsed.reason || parsed.source || 'NFT Mint';
-                destinationWallet = parsed.wallet_address || parsed.destination;
-              } catch (e) {
-                // Invalid JSON, keep 'System'
-              }
-            }
+            // Source (from metadata) and destination wallet for withdrawals (reuse metadata variable from above)
+            let source = metadata.reason || metadata.source || 'NFT Mint';
+            let destinationWallet = metadata.wallet_address || metadata.destination || null;
 
             // Add destination wallet to source if exists (for withdrawals)
             if (destinationWallet) {
@@ -1956,22 +1947,8 @@
               )}...${destinationWallet.substring(destinationWallet.length - 4)}</small>`;
             }
 
-            // Explorer link (from metadata) - using Solscan
+            // Explorer link (from metadata) - using Solscan (reuse signature variable from above)
             let explorerLink = '-';
-            let signature = null;
-
-            if (t.metadata && typeof t.metadata === 'object') {
-              signature = t.metadata.onchain_signature || t.metadata.transaction_signature;
-            } else if (typeof t.metadata === 'string') {
-              // Try to parse JSON string
-              try {
-                const parsed = JSON.parse(t.metadata);
-                signature = parsed.onchain_signature || parsed.transaction_signature;
-              } catch (e) {
-                // Invalid JSON, keep null
-              }
-            }
-
             if (signature) {
               explorerLink = `<a href="https://solscan.io/tx/${signature}?cluster=devnet"
                                       target="_blank" class="explorer-link"
