@@ -2422,11 +2422,12 @@
                             })
                         });
 
-                    if (saveWalletResponse.ok) {
-                        const saveResult = await saveWalletResponse.json();
-                        console.log('✅ Wallet address saved to database:', saveResult);
-                    } else {
-                        console.warn('⚠️ Failed to save wallet to database:', saveWalletResponse.status);
+                        if (saveWalletResponse.ok) {
+                            const saveResult = await saveWalletResponse.json();
+                            console.log('✅ Wallet address saved to database:', saveResult);
+                        } else {
+                            console.warn('⚠️ Failed to save wallet to database:', saveWalletResponse.status);
+                        }
                     }
                 } catch (err) {
                     console.warn('⚠️ Error saving wallet to database:', err);
