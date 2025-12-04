@@ -2191,14 +2191,14 @@
 
           // Calculate SOL distribution (all SOL-related transactions)
           if (
-            type.includes('_sol') || 
-            type.includes('sol_') || 
-            type.includes('nft_revenue') || 
+            type.includes('_sol') ||
+            type.includes('sol_') ||
+            type.includes('nft_revenue') ||
             type.includes('revenue_')
           ) {
             // SOL transaction (amount is already in SOL)
             totalSolDistributed += amount;
-          } 
+          }
           // Calculate TAMA distribution (non-SOL transactions)
           else if (
             type.includes('treasury_income') ||

@@ -692,23 +692,34 @@
             const daysLeft = poolInfo.daysLeft;
             const progress = (poolInfo.daysInPeriod / 180) * 100;
 
-            document.getElementById('days-left').textContent = daysLeft;
-            document.getElementById('halving-progress').style.width = progress + '%';
-            document.getElementById('halving-progress').textContent = progress.toFixed(1) + '%';
+            // Safely update DOM elements with null checks
+            const daysLeftEl = document.getElementById('days-left');
+            const halvingProgressEl = document.getElementById('halving-progress');
+            const halvingTextEl = document.getElementById('halving-text');
+            const halvingNote = document.getElementById('halving-countdown');
+
+            if (daysLeftEl) daysLeftEl.textContent = daysLeft;
+            if (halvingProgressEl) {
+                halvingProgressEl.style.width = progress + '%';
+                halvingProgressEl.textContent = progress.toFixed(1) + '%';
+            }
 
             // Update halving text
-            const halvingNote = document.getElementById('halving-countdown');
             if (poolInfo.nextPeriod !== 'End') {
-                document.getElementById('halving-text').innerHTML =
-                    `Next halving in <strong>${daysLeft}</strong> days<br>` +
-                    `<small>Current: ${poolInfo.currentPeriod} → Next: ${poolInfo.nextPeriod}</small>`;
+                if (halvingTextEl) {
+                    halvingTextEl.innerHTML =
+                        `Next halving in <strong>${daysLeft}</strong> days<br>` +
+                        `<small>Current: ${poolInfo.currentPeriod} → Next: ${poolInfo.nextPeriod}</small>`;
+                }
                 if (halvingNote) {
                     halvingNote.textContent = `After halving: Daily Pool will be ${poolInfo.nextDailyPool.toLocaleString()} TAMA/day`;
                 }
             } else {
-                document.getElementById('halving-text').innerHTML =
-                    `<strong>All halvings completed</strong><br>` +
-                    `<small>Current: ${poolInfo.currentPeriod}</small>`;
+                if (halvingTextEl) {
+                    halvingTextEl.innerHTML =
+                        `<strong>All halvings completed</strong><br>` +
+                        `<small>Current: ${poolInfo.currentPeriod}</small>`;
+                }
                 if (halvingNote) {
                     halvingNote.textContent = `Final period: ${poolInfo.currentPeriod}`;
                 }
