@@ -1177,20 +1177,27 @@
           // Запрашиваем транзакции для каждого кошелька
           const allProjectTxs = [];
           const projectTypes = [
+            // On-chain NFT distribution (from on-chain TAMA transfers)
             'burn_from_bronze_nft_onchain',
             'treasury_income_from_nft_onchain',
             'p2e_pool_refund_from_nft_onchain',
+            // Off-chain NFT distribution (from TAMA NFT mints)
+            'treasury_income_from_nft', // ✅ TAMA NFT mint distribution (30% to Treasury)
+            'p2e_pool_refund_from_nft', // ✅ TAMA NFT mint distribution (30% to P2E Pool)
+            // NFT mint transactions
             'nft_mint_sol', // ✅ SOL-based NFT mints (wallet)
             'nft_mint_tama', // ✅ TAMA-based NFT mints (Telegram + wallet)
             'nft_mint', // ✅ Generic NFT mints
+            // SOL NFT distribution
             'treasury_main_income_from_nft_sol',
             'treasury_liquidity_income_from_nft_sol',
             'treasury_team_income_from_nft_sol',
             'nft_revenue_main', // ✅ New type from mint-nft-sol-rest.php
             'nft_revenue_liquidity', // ✅ New type from mint-nft-sol-rest.php
             'nft_revenue_team', // ✅ New type from mint-nft-sol-rest.php
+            // Other transaction types
             'withdrawal',
-            'tama_burn',
+            'tama_burn', // ✅ TAMA burns (40% from TAMA NFT mints)
             'spend_game',
             'transfer_out',
             'p2e_pool_withdrawal',
@@ -1883,7 +1890,7 @@
             else if (userId === RESERVE_WALLET) walletName = '🏦 Reserve';
             else if (userId === TREASURY_LIQUIDITY) walletName = '💧 Treasury Liquidity V2';
             else if (userId === TREASURY_TEAM) walletName = '👥 Treasury Team V2';
-            
+
             // 🔍 If username is "Unknown" or missing, try to get wallet_address from metadata
             if ((!walletName || walletName === 'Unknown' || walletName === userId) && metadata && metadata.wallet_address) {
               const walletAddr = metadata.wallet_address;
@@ -1964,13 +1971,13 @@
 
             // Source (from metadata) and destination wallet for withdrawals (reuse metadata variable from above)
             let source = metadata.reason || metadata.source || 'NFT Mint';
-            
+
             // For NFT mints, show wallet address in source if available (wallet-based mints)
             if (t.type && t.type.includes('nft_mint') && metadata.wallet_address) {
                 const walletAddr = metadata.wallet_address;
                 source = `NFT Mint (👛 ${walletAddr.substring(0, 8)}...${walletAddr.substring(walletAddr.length - 6)})`;
             }
-            
+
             let destinationWallet = metadata.wallet_address || metadata.destination || null;
 
             // Add destination wallet to source if exists (for withdrawals, but not for NFT mints where it's already shown)
