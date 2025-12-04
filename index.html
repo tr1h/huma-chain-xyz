@@ -2301,9 +2301,13 @@
         (function() {
             try {
                 // Get or create session ID
+                // 🔐 SECURITY: Use crypto.getRandomValues() instead of Math.random() for secure randomness
                 let sessionId = sessionStorage.getItem('visit_session_id');
                 if (!sessionId) {
-                    sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const randomBytes = new Uint8Array(9);
+                    crypto.getRandomValues(randomBytes);
+                    const randomString = Array.from(randomBytes, byte => byte.toString(36)).join('').substring(0, 9);
+                    sessionId = 'session_' + Date.now() + '_' + randomString;
                     sessionStorage.setItem('visit_session_id', sessionId);
                 }
                 

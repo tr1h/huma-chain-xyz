@@ -57,16 +57,28 @@
     <script>
         // Initialize Supabase
         const supabaseUrl = 'https://zfrazyupameidxpjihrh.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        // 🔐 SECURITY: Use environment variable or placeholder
+        // In production, load from secure config or environment
+        const supabaseKey = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // 🔐 SECURITY: HTML escape function to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
         
         function addOutput(title, data, isError = false) {
             const output = document.getElementById('output');
             const div = document.createElement('div');
             div.className = 'result' + (isError ? ' error' : '');
+            // 🔐 SECURITY: Sanitize HTML to prevent XSS
+            const titleEscaped = escapeHtml(title);
+            const dataEscaped = escapeHtml(JSON.stringify(data, null, 2));
             div.innerHTML = `
-                <h3>${title}</h3>
-                <pre>${JSON.stringify(data, null, 2)}</pre>
+                <h3>${titleEscaped}</h3>
+                <pre>${dataEscaped}</pre>
             `;
             output.appendChild(div);
         }

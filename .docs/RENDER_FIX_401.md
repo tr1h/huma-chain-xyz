@@ -25,8 +25,9 @@ Failed to save game state
 
 ```
 Name: SUPABASE_KEY
-Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU
+Value: YOUR_SUPABASE_ANON_KEY_HERE
 ```
+**⚠️ SECURITY:** Replace `YOUR_SUPABASE_ANON_KEY_HERE` with your actual anon key from Supabase Dashboard → Settings → API → Project API keys → `anon` `public`
 
 **Это anon key из Supabase** → Settings → API → Project API keys → `anon` `public`
 
@@ -34,8 +35,9 @@ Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpm
 
 ```
 Name: SUPABASE_SERVICE_ROLE_KEY
-Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTkzNzU1MCwiZXhwIjoyMDc1NTEzNTUwfQ.YOUR_SERVICE_ROLE_KEY_HERE
+Value: YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE
 ```
+**⚠️ SECURITY:** Replace `YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE` with your actual service_role key from Supabase Dashboard → Settings → API → Project API keys → `service_role` `secret`
 
 **Это service_role key из Supabase** → Settings → API → Project API keys → `service_role` `secret`
 

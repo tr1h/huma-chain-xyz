@@ -1072,12 +1072,15 @@
             
             // Render NFTs
             if (!nfts || nfts.length === 0) {
+                // 🔐 SECURITY: Escape telegramUserId to prevent XSS
+                const safeUserId = telegramUserId ? escapeHtml(String(telegramUserId)) : '';
+                const mintUrl = safeUserId ? `mint.html?user_id=${encodeURIComponent(safeUserId)}` : 'mint.html';
                 document.getElementById('nft-container').innerHTML = `
                     <div class="empty-state">
                         <h2>📦</h2>
                         <p>You don't have any NFTs yet!</p>
                         <p>Start your collection by minting your first NFT</p>
-                        <a href="mint.html${telegramUserId ? '?user_id=' + telegramUserId : ''}" class="mint-btn">
+                        <a href="${mintUrl}" class="mint-btn">
                             🎨 Mint Your First NFT
                         </a>
                     </div>
@@ -1566,10 +1569,12 @@
         
         // Show error
         function showError(message) {
+            // 🔐 SECURITY: Escape error message to prevent XSS
+            const safeMessage = escapeHtml(String(message || 'Unknown error'));
             document.getElementById('nft-container').innerHTML = `
                 <div class="error-message">
                     <strong>❌ Error</strong><br>
-                    ${message}
+                    ${safeMessage}
                 </div>
                 <div class="empty-state">
                     <p>Something went wrong. Please try again or contact support.</p>

@@ -338,9 +338,19 @@
 
     <script>
         // Supabase config (CORRECT URL)
-        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        // 🔐 SECURITY: Load Supabase credentials from environment or secure config
+        // In production, these should be set via environment variables or secure meta tags
+        const SUPABASE_URL = window.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // 🔐 SECURITY: HTML escape function to prevent XSS
+        function escapeHtml(text) {
+            if (text == null) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
 
         // State
         let selectedTier = null;
@@ -1018,25 +1028,31 @@
                 'Legendary': '🟠'
             };
             
+            // 🔐 SECURITY: Escape all user-controlled data to prevent XSS
+            const tierEscaped = escapeHtml(data.tier || '');
+            const rarityEscaped = escapeHtml(data.rarity || '');
+            const multiplierEscaped = escapeHtml(String(data.multiplier || '1'));
+            const explorerUrlEscaped = data.explorerUrl ? escapeHtml(data.explorerUrl) : '';
+            
             content.innerHTML = `
                 <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
                 <h1 style="margin-bottom: 15px; font-size: 32px;">SUCCESS!</h1>
-                <p style="font-size: 18px; margin-bottom: 25px;">You minted ${rarityEmoji[data.rarity] || '🎨'} ${data.tier} <strong>${data.rarity}</strong> NFT!</p>
+                <p style="font-size: 18px; margin-bottom: 25px;">You minted ${rarityEmoji[data.rarity] || '🎨'} ${tierEscaped} <strong>${rarityEscaped}</strong> NFT!</p>
                 
                 <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-bottom: 25px;">
-                    <p style="font-size: 20px; margin-bottom: 10px;">💰 <strong>Earning Boost: ${data.multiplier}x</strong></p>
-                    <p style="font-size: 14px; opacity: 0.8;">Your earnings are now multiplied by ${data.multiplier}x!</p>
+                    <p style="font-size: 20px; margin-bottom: 10px;">💰 <strong>Earning Boost: ${multiplierEscaped}x</strong></p>
+                    <p style="font-size: 14px; opacity: 0.8;">Your earnings are now multiplied by ${multiplierEscaped}x!</p>
                 </div>
                 
-                ${data.explorerUrl ? `
-                    <a href="${data.explorerUrl}" target="_blank" style="display: inline-block; background: rgba(255,255,255,0.2); padding: 12px 20px; border-radius: 10px; color: white; text-decoration: none; margin-bottom: 20px; font-size: 14px;">
+                ${explorerUrlEscaped ? `
+                    <a href="${explorerUrlEscaped}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: rgba(255,255,255,0.2); padding: 12px 20px; border-radius: 10px; color: white; text-decoration: none; margin-bottom: 20px; font-size: 14px;">
                         🔗 View Transaction on Solscan
                     </a><br/>
                 ` : ''}
                 
                 <p style="font-size: 16px; margin-bottom: 20px;">Redirecting to MY NFTs in <span id="countdown">3</span> seconds...</p>
                 
-                <button onclick="window.location.href='my-nfts.html?user_id=${data.userId}&new_nft=true'" style="background: white; color: #667eea; border: none; padding: 15px 40px; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                <button onclick="window.location.href='my-nfts.html?user_id=${escapeHtml(String(data.userId || ''))}&new_nft=true'" style="background: white; color: #667eea; border: none; padding: 15px 40px; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                     🎨 View My NFTs
                 </button>
             `;
