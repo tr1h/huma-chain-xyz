@@ -929,6 +929,9 @@
                                  t.type === 'nft_mint_sol' ? 'type-nft-sol' :
                                  t.type === 'nft_mint' ? 'type-spend' :
                                  t.type === 'nft_mint_onchain' ? 'type-spend' :
+                                 t.type === 'nft_revenue_main' ? 'type-treasury-sol' :
+                                 t.type === 'nft_revenue_liquidity' ? 'type-treasury-sol' :
+                                 t.type === 'nft_revenue_team' ? 'type-treasury-sol' :
                                  t.type.startsWith('burn') ? 'type-burn' :
                                  t.type === 'treasury_income_from_nft' ? 'type-treasury' :
                                  t.type === 'treasury_income_from_nft_sol' ? 'type-treasury-sol' :
@@ -962,9 +965,13 @@
                 const currency = isSOL ? ' SOL' : ' TAMA';
                 
                 // Format metadata: NFT mints show tier, rarity, boost
+                // NFT revenue transactions show distribution info
                 let metadata = '';
                 if (t.type.includes('nft_mint') && t.metadata && typeof t.metadata === 'object') {
                     metadata = `${t.metadata.tier_name || ''} ${t.metadata.rarity || ''} (${t.metadata.earning_multiplier || 1}x)`;
+                } else if (t.type.includes('nft_revenue') && t.metadata) {
+                    const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
+                    metadata = `💰 ${meta.percentage || ''}% from ${meta.tier || 'NFT'} mint | Total: ${meta.total_price_sol || meta.amount_sol || 0} SOL`;
                 } else {
                     metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
                 }
@@ -1126,8 +1133,8 @@
                 if (userFilter && !t.user_id.toLowerCase().includes(userFilter) && !(t.username || '').toLowerCase().includes(userFilter)) {
                     return false;
                 }
-                // Handle NFT filter separately
-                if (typeFilter === 'nft' && !t.type.includes('nft_mint')) {
+                // Handle NFT filter separately (include revenue transactions)
+                if (typeFilter === 'nft' && !t.type.includes('nft_mint') && !t.type.includes('nft_revenue')) {
                     return false;
                 } else if (typeFilter && typeFilter !== 'nft' && !t.type.includes(typeFilter)) {
                     return false;
