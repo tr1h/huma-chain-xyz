@@ -89,49 +89,104 @@
         h1 { text-align: center; margin-bottom: 30px; font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
             border: 2px solid rgba(255,255,255,0.2);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-card h3 { font-size: 0.9em; opacity: 0.9; margin-bottom: 10px; }
-        .stat-card .big-number { font-size: 2em; font-weight: bold; margin: 10px 0; }
-        .stat-card small { opacity: 0.8; font-size: 0.85em; }
+        .stat-card:hover { 
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+        .stat-card h3 { 
+            font-size: 0.95em; 
+            opacity: 0.95; 
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-card .big-number { 
+            font-size: 2.5em; 
+            font-weight: 800; 
+            margin: 15px 0;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-card small { 
+            opacity: 0.85; 
+            font-size: 0.9em;
+            display: block;
+            margin-top: 8px;
+        }
         .chart-container {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
             margin-bottom: 30px;
             border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
         .withdrawal-table {
             width: 100%;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
             overflow: hidden;
             border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 15px; text-align: left; }
-        th { background: rgba(0,0,0,0.3); font-weight: 600; }
-        tr:nth-child(even) { background: rgba(255,255,255,0.05); }
+        th, td { 
+            padding: 18px 15px; 
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        th { 
+            background: linear-gradient(135deg, rgba(102,126,234,0.3) 0%, rgba(118,75,162,0.3) 100%);
+            font-weight: 700;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tr:nth-child(even) { background: rgba(255,255,255,0.03); }
+        tr:hover { 
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        td code {
+            background: rgba(0,0,0,0.2);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
         .btn {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 1em;
+            font-weight: 600;
             margin: 10px 5px;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16,185,129,0.3);
         }
-        .btn:hover { transform: scale(1.05); }
+        .btn:hover { 
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(16,185,129,0.5);
+        }
+        .btn:active { transform: translateY(0) scale(1); }
         .progress-bar {
             width: 100%;
             height: 30px;
@@ -416,59 +471,123 @@
             }
         }
 
-        // Load withdrawals
+        // Load withdrawals (check multiple sources for accuracy)
         async function loadWithdrawals() {
             try {
                 const tbody = document.getElementById('withdrawals-list');
-                let result = null;
+                let allWithdrawals = [];
 
-                // Try multiple table names
-                // 1. Try tama_economy with transaction_type
-                result = await supabase
+                // 1. Try tama_economy table (primary source)
+                let result1 = await supabase
                     .from('tama_economy')
                     .select('*')
                     .eq('transaction_type', 'withdrawal')
                     .order('created_at', { ascending: false })
-                    .limit(50);
+                    .limit(100);
 
-                if (result.error && result.error.code !== 'PGRST116') {
-                    // 2. Try withdrawals table
-                    result = await supabase
-                        .from('withdrawals')
-                        .select('*')
-                        .order('created_at', { ascending: false })
-                        .limit(50);
+                if (!result1.error && result1.data) {
+                    allWithdrawals = result1.data.map(tx => ({
+                        telegram_id: tx.telegram_id,
+                        amount: Math.abs(tx.amount || 0),
+                        fee: tx.fee || Math.floor(Math.abs(tx.amount || 0) * 0.05),
+                        net: tx.amount_sent || (Math.abs(tx.amount || 0) - (tx.fee || Math.floor(Math.abs(tx.amount || 0) * 0.05))),
+                        signature: tx.signature || tx.tx_signature,
+                        created_at: tx.created_at,
+                        source: 'tama_economy'
+                    }));
                 }
 
-                if (result.error) {
-                    console.error('Supabase error:', result.error);
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;">Table not found. Please create tama_economy or withdrawals table in Supabase.</td></tr>';
-                    return;
+                // 2. Try withdrawals table (alternative source)
+                let result2 = await supabase
+                    .from('withdrawals')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                if (!result2.error && result2.data) {
+                    const withdrawals2 = result2.data.map(tx => ({
+                        telegram_id: tx.telegram_id,
+                        amount: Math.abs(tx.amount || 0),
+                        fee: Math.floor(Math.abs(tx.amount || 0) * 0.05),
+                        net: Math.abs(tx.amount || 0) - Math.floor(Math.abs(tx.amount || 0) * 0.05),
+                        signature: tx.tx_signature || tx.signature,
+                        created_at: tx.created_at || tx.completed_at,
+                        source: 'withdrawals'
+                    }));
+                    
+                    // Merge, avoiding duplicates by signature
+                    const existingSigs = new Set(allWithdrawals.map(w => w.signature).filter(Boolean));
+                    withdrawals2.forEach(w => {
+                        if (!w.signature || !existingSigs.has(w.signature)) {
+                            allWithdrawals.push(w);
+                        }
+                    });
                 }
 
-                const data = result.data || [];
+                // 3. Try transactions table (fallback - check metadata)
+                let result3 = await supabase
+                    .from('transactions')
+                    .select('*')
+                    .eq('type', 'withdrawal')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
 
-                if (data.length === 0) {
+                if (!result3.error && result3.data) {
+                    const withdrawals3 = result3.data.map(tx => {
+                        let metadata = {};
+                        try {
+                            metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : (tx.metadata || {});
+                        } catch (e) {}
+                        
+                        const amount = Math.abs(tx.amount || 0);
+                        const fee = metadata.fee || Math.floor(amount * 0.05);
+                        
+                        return {
+                            telegram_id: tx.user_id || tx.telegram_id,
+                            amount: amount,
+                            fee: fee,
+                            net: metadata.amount_sent || (amount - fee),
+                            signature: metadata.transaction_signature || metadata.signature,
+                            created_at: tx.created_at,
+                            source: 'transactions'
+                        };
+                    });
+                    
+                    // Merge, avoiding duplicates
+                    const existingSigs = new Set(allWithdrawals.map(w => w.signature).filter(Boolean));
+                    withdrawals3.forEach(w => {
+                        if (!w.signature || !existingSigs.has(w.signature)) {
+                            allWithdrawals.push(w);
+                        }
+                    });
+                }
+
+                // Sort by date (newest first) and limit to 50
+                allWithdrawals.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                allWithdrawals = allWithdrawals.slice(0, 50);
+
+                if (allWithdrawals.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No withdrawals yet</td></tr>';
                     return;
                 }
 
-                tbody.innerHTML = data.map(tx => {
-                    const amount = Math.abs(tx.amount || 0);
-                    const fee = Math.floor(amount * 0.05);
-                    const net = amount - fee;
-                    const time = new Date(tx.created_at || tx.completed_at || Date.now()).toLocaleString();
-                    const sig = (tx.signature || tx.tx_signature || '').substring(0, 8) + '...' || 'N/A';
-                    const telegramId = tx.telegram_id || 'N/A';
+                tbody.innerHTML = allWithdrawals.map(tx => {
+                    const time = new Date(tx.created_at || Date.now()).toLocaleString();
+                    const sig = tx.signature 
+                        ? `${tx.signature.substring(0, 8)}...${tx.signature.substring(tx.signature.length - 4)}`
+                        : 'N/A';
+                    const explorerUrl = tx.signature
+                        ? `https://solscan.io/tx/${tx.signature}?cluster=devnet`
+                        : '#';
 
                     return `
                         <tr>
                             <td>${time}</td>
-                            <td>${telegramId}</td>
-                            <td>${amount.toLocaleString()} TAMA</td>
-                            <td>${fee.toLocaleString()} TAMA</td>
-                            <td>${net.toLocaleString()} TAMA</td>
-                            <td><code>${sig}</code></td>
+                            <td><strong>${tx.telegram_id || 'N/A'}</strong></td>
+                            <td style="font-weight: bold; color: #fbbf24;">${tx.amount.toLocaleString()} TAMA</td>
+                            <td style="color: #ef4444;">${tx.fee.toLocaleString()} TAMA</td>
+                            <td style="font-weight: bold; color: #10b981;">${tx.net.toLocaleString()} TAMA</td>
+                            <td>${tx.signature ? `<a href="${explorerUrl}" target="_blank" style="color: #14F195; text-decoration: none; font-weight: 600;"><code>${sig}</code> 🔗</a>` : '<span style="opacity: 0.5;">No signature</span>'}</td>
                         </tr>
                     `;
                 }).join('');
@@ -485,13 +604,13 @@
             try {
                 const tbody = document.getElementById('nft-mints-list');
 
-                // Load NFT mint transactions
+                // Load NFT mint transactions (TAMA-based only, exclude SOL-based)
                 const result = await supabase
                     .from('transactions')
                     .select('*')
                     .eq('type', 'nft_mint')
                     .order('created_at', { ascending: false })
-                    .limit(50);
+                    .limit(100);
 
                 if (result.error) {
                     console.error('Supabase error:', result.error);
@@ -508,29 +627,45 @@
                     return;
                 }
 
-                // Calculate totals
+                // Calculate totals (only TAMA-based mints)
                 const totalNFTs = data.length;
                 const totalTAMA = data.reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
                 document.getElementById('total-nfts').textContent = totalNFTs.toLocaleString();
                 document.getElementById('total-tama-spent').textContent = totalTAMA.toLocaleString() + ' TAMA';
 
-                // Render table
+                // Render table with improved styling
                 tbody.innerHTML = data.map(tx => {
-                    const metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
+                    let metadata = {};
+                    try {
+                        metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : (tx.metadata || {});
+                    } catch (e) {
+                        console.warn('Failed to parse metadata for tx:', tx.id);
+                    }
+                    
                     const time = new Date(tx.created_at || Date.now()).toLocaleString();
                     const tier = metadata?.tier || 'N/A';
                     const rarity = metadata?.rarity || 'N/A';
                     const multiplier = metadata?.multiplier || 'N/A';
                     const price = Math.abs(tx.amount || 0);
+                    
+                    // Tier colors
+                    const tierColors = {
+                        'Bronze': '#cd7f32',
+                        'Silver': '#c0c0c0',
+                        'Gold': '#ffd700',
+                        'Platinum': '#e5e4e2',
+                        'Diamond': '#b9f2ff'
+                    };
+                    const tierColor = tierColors[tier] || '#fff';
 
                     return `
                         <tr>
                             <td>${time}</td>
-                            <td>${tx.user_id || 'N/A'}</td>
-                            <td><strong>${tier}</strong></td>
+                            <td><strong>${tx.user_id || tx.username || 'N/A'}</strong></td>
+                            <td><strong style="color: ${tierColor};">${tier}</strong></td>
                             <td>${rarity}</td>
                             <td style="color: #10b981; font-weight: bold;">${multiplier}x</td>
-                            <td><strong>${price.toLocaleString()} TAMA</strong></td>
+                            <td style="font-weight: bold; color: #fbbf24;">${price.toLocaleString()} TAMA</td>
                         </tr>
                     `;
                 }).join('');
@@ -571,10 +706,10 @@
                     return;
                 }
 
-                // Calculate totals
-                const p2eTotal = data.filter(tx => tx.type === 'p2e_pool_refund').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
-                const treasuryTotal = data.filter(tx => tx.type === 'treasury_income').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
-                const burnedTotal = data.filter(tx => tx.type.includes('burn')).reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+                // Calculate totals (using correct type names from database)
+                const p2eTotal = data.filter(tx => tx.type === 'p2e_pool_refund_from_nft_onchain' || tx.type === 'p2e_pool_withdrawal').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+                const treasuryTotal = data.filter(tx => tx.type === 'treasury_income_from_nft_onchain' || tx.type === 'nft_revenue_main').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
+                const burnedTotal = data.filter(tx => tx.type.includes('burn') || tx.type === 'tama_burn').reduce((sum, tx) => sum + Math.abs(tx.amount || 0), 0);
 
                 document.getElementById('total-p2e-refunds').textContent = p2eTotal.toLocaleString() + ' TAMA';
                 document.getElementById('total-treasury').textContent = treasuryTotal.toLocaleString() + ' TAMA';
@@ -582,19 +717,39 @@
 
                 // Render table
                 tbody.innerHTML = data.map(tx => {
-                    const metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
+                    let metadata = {};
+                    try {
+                        metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : (tx.metadata || {});
+                    } catch (e) {
+                        metadata = {};
+                    }
+                    
                     const time = new Date(tx.created_at || Date.now()).toLocaleString();
                     const amount = Math.abs(tx.amount || 0);
-                    const signature = metadata?.transaction_signature?.substring(0, 8) + '...' || 'N/A';
-                    const explorerUrl = metadata?.transaction_signature
-                        ? `https://explorer.solana.com/tx/${metadata.transaction_signature}?cluster=devnet`
+                    
+                    // Extract signature from metadata (multiple possible fields)
+                    const signature = metadata?.transaction_signature || 
+                                     metadata?.onchain_signature || 
+                                     metadata?.signature || 
+                                     tx.signature || 
+                                     null;
+                    
+                    const signatureDisplay = signature 
+                        ? `${signature.substring(0, 8)}...${signature.substring(signature.length - 4)}`
+                        : 'N/A';
+                    
+                    const explorerUrl = signature
+                        ? `https://solscan.io/tx/${signature}?cluster=devnet`
                         : '#';
 
-                    // Type labels with emojis
+                    // Type labels with emojis (updated to match actual DB types)
                     const typeLabels = {
-                        'p2e_pool_refund': '🎮 P2E Pool Refund',
-                        'treasury_income': '🏦 Treasury Income',
-                        'burn_from_bronze_nft': '🔥 NFT Burn',
+                        'p2e_pool_refund_from_nft_onchain': '🎮 P2E Pool Refund',
+                        'p2e_pool_withdrawal': '🎮 P2E Withdrawal',
+                        'treasury_income_from_nft_onchain': '🏦 Treasury Income',
+                        'nft_revenue_main': '💰 NFT Revenue (Main)',
+                        'burn_from_bronze_nft_onchain': '🔥 NFT Burn',
+                        'tama_burn': '🔥 TAMA Burn',
                         'burn_from_withdrawal': '🔥 Withdrawal Burn'
                     };
                     const typeLabel = typeLabels[tx.type] || tx.type;
@@ -604,8 +759,8 @@
                             <td>${time}</td>
                             <td><strong>${typeLabel}</strong></td>
                             <td style="font-weight: bold;">${amount.toLocaleString()} TAMA</td>
-                            <td><a href="${explorerUrl}" target="_blank" style="color: #a78bfa;"><code>${signature}</code></a></td>
-                            <td>${metadata?.tier || metadata?.source || 'N/A'}</td>
+                            <td>${signature ? `<a href="${explorerUrl}" target="_blank" style="color: #14F195; text-decoration: none; font-weight: 600;"><code>${signatureDisplay}</code> 🔗</a>` : '<span style="opacity: 0.5;">No signature</span>'}</td>
+                            <td>${metadata?.tier || metadata?.source || metadata?.reason || 'N/A'}</td>
                         </tr>
                     `;
                 }).join('');
@@ -780,7 +935,7 @@
     </div> <!-- End of adminContent -->
 
     <!-- Admin Authentication -->
-    <script src="admin-password.js"></script>
+    <!-- admin-password.js is optional (for local dev only, not on production) -->
     <script src="js/admin-auth.js"></script>
 </body>
 </html>
