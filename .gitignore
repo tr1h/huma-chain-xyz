@@ -1,101 +1,32 @@
-# Dependencies
+# Node modules
 node_modules/
-__pycache__/
 
-# Environment
+# Environment variables
 .env
 .env.local
-.env.*.local
-*.env
-*.log
-bot/bot_monitoring.log
-**/*.log
+.env.production
 
-# Keypairs (ВАЖНО! НИКОГДА НЕ КОММИТИТЬ!)
-*-keypair.json
-*.json.keypair
-*keypair*.json
-payer-keypair.json
-tama-mint-keypair.json
-p2e-pool-keypair.json
-team-wallet-keypair.json
-marketing-wallet-keypair.json
-liquidity-pool-keypair.json
-community-wallet-keypair.json
-reserve-wallet-keypair.json
+# Admin password (NEVER commit this!)
+admin-password.js
+
+# Keypairs (NEVER commit these!)
+*.json
+!package.json
+!package-lock.json
+!tama-token-info.json
+!tokenomics.json
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
 .idea/
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Build
+# Build files
 dist/
 build/
-
-# Docs
-# .docs/ - документация проекта (публикуется на GitHub)
-# docs/ - старая папка, больше не используется
-docs/
-
-# Backup files
-*.bak
-*-old.html
-*-OLD.html
-backups/
-*.zip
-*.tar.gz
-
-# Temporary files
-*.tmp
-*.temp
-check_*.txt
-check_*.md
-*_SUMMARY.md
-DEBUG_*.md
-QUICK_*.md
-test-*.md
-TESTING_*.md
-NEXT_STEPS.md
-
-# Private keys and secrets
-*-private-key.txt
-*.private-key.txt
-*.secret
-*secret*.json
-*secret*.txt
-*secret*.env
-*token*.txt
-*credentials.json
-secrets.json
-credentials.json
-*.pem
-*.key
-*.crt
-*.p12
-*.pfx
-
-# Admin panels with passwords (local only)
-wallet-admin.html  # ПРИВАТНЫЙ! Только локально, НЕ в Git!
-wallet-admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
-admin-password.js  # ПРИВАТНЫЙ! НЕ коммитить в Git!
-*.password.js
-ADMIN_PASSWORDS.txt  # ПРИВАТНЫЙ! Пароли от админок
- 
-# Private folder with secrets (NEVER COMMIT!) 
-.private/ 
-.private/** 
-**/.private/ 
- 
-# Archive folder 
-.archive/ 
- 
-# Test folder 
-test/
-
-# Large executable files
-*.exe
-dolphin-anty-win-latest.exe 
