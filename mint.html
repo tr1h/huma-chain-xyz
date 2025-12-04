@@ -2600,19 +2600,10 @@
                     userId = WALLET_ADDRESS;
                     console.log('🔐 Using WALLET_ADDRESS:', userId);
                 }
-                // Priority 4: URL параметры (только на первую загрузку)
+                // Priority 4: URL параметры
                 else {
                     const urlParams = new URLSearchParams(window.location.search);
                     const urlUserId = urlParams.get('user_id');
-                    const urlTama = urlParams.get('tama');
-                    
-                    if (urlTama && !balanceModified) {
-                        tamaBalance = parseInt(urlTama) || 0;
-                        document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
-                        console.log('✅ TAMA balance from URL (first load):', tamaBalance);
-                        isLoadingBalance = false;
-                        return;
-                    }
                     
                     if (urlUserId) {
                         userId = urlUserId;
@@ -2628,65 +2619,36 @@
                     return;
                 }
 
-                // Determine if it's a wallet address or telegram_id
-                const isWalletAddress = /^[A-Za-z0-9]{32,44}$/.test(userId);
+                // 🆕 USE UNIFIED BALANCE API
+                console.log('📡 Loading balance from UNIFIED API:', userId);
                 
-                if (isWalletAddress) {
-                    // Load balance from wallet_users table
-                    console.log('📡 Loading TAMA balance for wallet user:', userId);
-                    
-                    const { data: walletData, error: walletError } = await supabase
-                        .from('wallet_users')
-                        .select('tama_balance, clicks')
-                        .eq('wallet_address', userId)
-                        .single();
-                    
-                    if (walletError || !walletData) {
-                        console.warn('⚠️ Wallet user not found in DB, creating entry...');
-                        // Create entry if doesn't exist
-                        const { error: insertError } = await supabase
-                            .from('wallet_users')
-                            .insert([{
-                                wallet_address: userId,
-                                tama_balance: 0,
-                                clicks: 0
-                            }]);
-                        
-                        if (!insertError) {
-                            console.log('✅ Created new wallet_users entry');
-                        }
-                        
-                        tamaBalance = 0;
-                        document.getElementById('tama-balance').textContent = '0';
-                        isLoadingBalance = false;
-                        return;
-                    }
-                    
-                    tamaBalance = parseFloat(walletData.tama_balance) || 0;
+                const unifiedApiUrl = `${TAMA_API_BASE}/unified-balance.php?user_id=${userId}`;
+                const response = await fetch(unifiedApiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`Unified API error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    tamaBalance = result.tama || 0;
                     document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
-                    console.log('✅ TAMA balance loaded from wallet_users:', tamaBalance);
+                    
+                    console.log('✅ TAMA balance loaded from Unified API:', {
+                        tama: tamaBalance,
+                        account_type: result.account_type,
+                        telegram_id: result.telegram_id,
+                        wallet: result.wallet_address,
+                        source: result.source
+                    });
+                    
+                    // Store account info globally for linking purposes
+                    window.UNIFIED_ACCOUNT = result;
                 } else {
-                    // Load balance from API for Telegram user
-                    const apiUrl = `${TAMA_API_BASE}/balance?telegram_id=${userId}`;
-                    console.log('📡 Loading TAMA balance from API:', apiUrl);
-
-                    const response = await fetch(apiUrl);
-                    
-                    if (!response.ok) {
-                        throw new Error(`API error: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        tamaBalance = result.database_tama || result.total_tama || 0;
-                        document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
-                        console.log('✅ TAMA balance loaded from API:', tamaBalance);
-                    } else {
-                        console.warn('⚠️ API returned error:', result.error);
-                        tamaBalance = 0;
-                        document.getElementById('tama-balance').textContent = '0';
-                    }
+                    console.warn('⚠️ Unified API returned error:', result.error);
+                    tamaBalance = 0;
+                    document.getElementById('tama-balance').textContent = '0';
                 }
             } catch (err) {
                 console.error('❌ Error loading TAMA balance:', err);
