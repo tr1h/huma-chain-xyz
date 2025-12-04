@@ -79,47 +79,102 @@ async function loadProfile() {
         const urlParams = new URLSearchParams(window.location.search);
         const userIdFromUrl = urlParams.get('user_id');
         
-        // Get authenticated user ID from auth state
-        const authenticatedUserId = window.authState?.telegramId || 
-                                    window.authState?.walletAddress || 
-                                    window.TELEGRAM_USER_ID || 
-                                    window.WALLET_ADDRESS;
+        // Determine if URL has wallet address or telegram ID
+        const isUrlWallet = userIdFromUrl && /^[A-Za-z0-9]{32,44}$/.test(userIdFromUrl);
+        const isUrlTelegram = userIdFromUrl && /^\d+$/.test(userIdFromUrl);
         
+        // Get authenticated user ID from all possible sources
+        let authenticatedUserId = null;
+        let authenticatedWallet = null;
+        
+        // Priority 1: authState
+        if (window.authState) {
+            authenticatedUserId = window.authState.telegramId || null;
+            authenticatedWallet = window.authState.walletAddress || null;
+        }
+        
+        // Priority 2: Global variables
         if (!authenticatedUserId) {
+            authenticatedUserId = window.TELEGRAM_USER_ID || null;
+        }
+        if (!authenticatedWallet) {
+            authenticatedWallet = window.WALLET_ADDRESS || null;
+        }
+        
+        // Priority 3: localStorage (for wallet)
+        if (!authenticatedWallet && window.localStorage) {
+            authenticatedWallet = localStorage.getItem('phantom_wallet_address') || null;
+        }
+        
+        // Priority 4: Check if wallet is connected via Solana
+        if (!authenticatedWallet && window.solana && window.solana.publicKey) {
+            authenticatedWallet = window.solana.publicKey.toString();
+        }
+        
+        // If URL has wallet address, check if it matches connected wallet
+        if (isUrlWallet) {
+            if (authenticatedWallet && authenticatedWallet === userIdFromUrl) {
+                // ✅ Wallet matches - allow access
+                console.log('✅ Wallet address matches connected wallet:', authenticatedWallet);
+                authenticatedUserId = userIdFromUrl; // Use wallet address as user ID
+            } else if (authenticatedWallet && authenticatedWallet !== userIdFromUrl) {
+                // ❌ Different wallet - block access
+                console.warn('🚨 SECURITY: URL wallet does not match connected wallet!');
+                console.warn('  URL wallet:', userIdFromUrl);
+                console.warn('  Connected wallet:', authenticatedWallet);
+                showError('🚨 ACCESS DENIED! This wallet address does not match your connected wallet.', true);
+                setTimeout(() => {
+                    window.location.href = `profile.html?user_id=${authenticatedWallet}`;
+                }, 3000);
+                return;
+            } else {
+                // ⚠️ Wallet in URL but not connected - ask to connect
+                console.warn('⚠️ Wallet address in URL but wallet not connected');
+                showError('❌ Please connect your wallet first! The wallet address in URL must match your connected wallet.', true);
+                setTimeout(() => {
+                    window.location.href = 'tamagotchi-game.html';
+                }, 3000);
+                return;
+            }
+        }
+        
+        // If URL has Telegram ID, check if it matches authenticated Telegram ID
+        if (isUrlTelegram) {
+            if (authenticatedUserId && authenticatedUserId.toString() === userIdFromUrl) {
+                // ✅ Telegram ID matches - allow access
+                console.log('✅ Telegram ID matches authenticated user:', authenticatedUserId);
+            } else if (authenticatedUserId && authenticatedUserId.toString() !== userIdFromUrl) {
+                // ❌ Different Telegram ID - block access
+                console.warn('🚨 SECURITY: URL Telegram ID does not match authenticated user!');
+                console.warn('  URL Telegram ID:', userIdFromUrl);
+                console.warn('  Authenticated Telegram ID:', authenticatedUserId);
+                showError('🚨 ACCESS DENIED! You can only view your own profile.', true);
+                setTimeout(() => {
+                    window.location.href = `profile.html?user_id=${authenticatedUserId}`;
+                }, 3000);
+                return;
+            } else {
+                // ⚠️ Telegram ID in URL but not authenticated - allow if from bot
+                console.log('ℹ️ Telegram ID from URL (likely from bot), allowing access');
+                authenticatedUserId = parseInt(userIdFromUrl);
+            }
+        }
+        
+        // Final check: must have at least one authenticated ID
+        if (!authenticatedUserId && !authenticatedWallet) {
             showError('❌ Please login first! Connect your wallet or use Telegram bot.', true);
-            // Redirect to game page after 3 seconds
             setTimeout(() => {
                 window.location.href = 'tamagotchi-game.html';
             }, 3000);
             return;
         }
         
-        // 🔐 SECURITY: If user_id in URL doesn't match authenticated user, BLOCK ACCESS
-        if (userIdFromUrl && userIdFromUrl !== authenticatedUserId) {
-            // Check if it's a Telegram user trying to access wallet profile or vice versa
-            const isTelegramAuth = /^\d+$/.test(authenticatedUserId);
-            const isWalletAuth = /^[A-Za-z0-9]{32,44}$/.test(authenticatedUserId);
-            
-            // If URL has different user_id than authenticated - BLOCK
-            console.warn('🚨 SECURITY: Attempt to access another user profile!');
-            console.warn('  Authenticated:', authenticatedUserId);
-            console.warn('  URL user_id:', userIdFromUrl);
-            
-            showError('🚨 ACCESS DENIED! You can only view your own profile.', true);
-            
-            // Redirect to own profile after 3 seconds
-            setTimeout(() => {
-                window.location.href = `profile.html?user_id=${authenticatedUserId}`;
-            }, 3000);
-            return;
-        }
-        
-        // Use authenticated user ID (not from URL!)
-        let userId = authenticatedUserId;
+        // Use authenticated user ID (prioritize Telegram if both exist)
+        let userId = authenticatedUserId || authenticatedWallet;
         
         // If it's a wallet user, ensure full wallet address
-        if (userId && userId.startsWith('wallet_') && window.WALLET_ADDRESS) {
-            userId = window.WALLET_ADDRESS; // Use full wallet address
+        if (userId && userId.startsWith('wallet_') && authenticatedWallet) {
+            userId = authenticatedWallet; // Use full wallet address
             console.log('🔍 Using full wallet address for profile:', userId);
         }
         
