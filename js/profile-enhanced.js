@@ -75,20 +75,55 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load Profile Data
 async function loadProfile() {
     try {
-        // Get user ID from URL or auth
+        // 🔐 SECURITY CHECK: Verify real authentication
         const urlParams = new URLSearchParams(window.location.search);
-        let userId = urlParams.get('user_id') || window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+        const userIdFromUrl = urlParams.get('user_id');
         
-        // If it's a wallet user, use full wallet address instead of user_id
+        // Get authenticated user ID from auth state
+        const authenticatedUserId = window.authState?.telegramId || 
+                                    window.authState?.walletAddress || 
+                                    window.TELEGRAM_USER_ID || 
+                                    window.WALLET_ADDRESS;
+        
+        if (!authenticatedUserId) {
+            showError('❌ Please login first! Connect your wallet or use Telegram bot.', true);
+            // Redirect to game page after 3 seconds
+            setTimeout(() => {
+                window.location.href = 'tamagotchi-game.html';
+            }, 3000);
+            return;
+        }
+        
+        // 🔐 SECURITY: If user_id in URL doesn't match authenticated user, BLOCK ACCESS
+        if (userIdFromUrl && userIdFromUrl !== authenticatedUserId) {
+            // Check if it's a Telegram user trying to access wallet profile or vice versa
+            const isTelegramAuth = /^\d+$/.test(authenticatedUserId);
+            const isWalletAuth = /^[A-Za-z0-9]{32,44}$/.test(authenticatedUserId);
+            
+            // If URL has different user_id than authenticated - BLOCK
+            console.warn('🚨 SECURITY: Attempt to access another user profile!');
+            console.warn('  Authenticated:', authenticatedUserId);
+            console.warn('  URL user_id:', userIdFromUrl);
+            
+            showError('🚨 ACCESS DENIED! You can only view your own profile.', true);
+            
+            // Redirect to own profile after 3 seconds
+            setTimeout(() => {
+                window.location.href = `profile.html?user_id=${authenticatedUserId}`;
+            }, 3000);
+            return;
+        }
+        
+        // Use authenticated user ID (not from URL!)
+        let userId = authenticatedUserId;
+        
+        // If it's a wallet user, ensure full wallet address
         if (userId && userId.startsWith('wallet_') && window.WALLET_ADDRESS) {
             userId = window.WALLET_ADDRESS; // Use full wallet address
             console.log('🔍 Using full wallet address for profile:', userId);
         }
         
-        if (!userId) {
-            showError('No user ID found. Please login.');
-            return;
-        }
+        console.log('✅ Security check passed. Loading profile for:', userId);
         
         // Try simple API first, fallback to full API
         let response;
@@ -585,12 +620,26 @@ function showSuccess(message) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-function showError(message) {
-    const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#f44336;color:white;padding:15px 25px;border-radius:10px;font-family:Press Start 2P;font-size:0.8rem;z-index:10000;animation:slideIn 0.3s;';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+function showError(message, isCritical = false) {
+    if (isCritical) {
+        // Show big error message for security/critical errors
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        
+        if (loading) loading.style.display = 'none';
+        if (errorDiv) {
+            errorDiv.style.display = 'block';
+            if (errorText) errorText.textContent = message;
+        }
+    } else {
+        // Show toast notification for minor errors
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#f44336;color:white;padding:15px 25px;border-radius:10px;font-family:Press Start 2P;font-size:0.8rem;z-index:10000;animation:slideIn 0.3s;';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
 }
 
 // Disconnect Wallet Button
