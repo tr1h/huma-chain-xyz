@@ -1959,10 +1959,17 @@
 
             // Source (from metadata) and destination wallet for withdrawals (reuse metadata variable from above)
             let source = metadata.reason || metadata.source || 'NFT Mint';
+            
+            // For NFT mints, show wallet address in source if available (wallet-based mints)
+            if (t.type && t.type.includes('nft_mint') && metadata.wallet_address) {
+                const walletAddr = metadata.wallet_address;
+                source = `NFT Mint (👛 ${walletAddr.substring(0, 8)}...${walletAddr.substring(walletAddr.length - 6)})`;
+            }
+            
             let destinationWallet = metadata.wallet_address || metadata.destination || null;
 
-            // Add destination wallet to source if exists (for withdrawals)
-            if (destinationWallet) {
+            // Add destination wallet to source if exists (for withdrawals, but not for NFT mints where it's already shown)
+            if (destinationWallet && !(t.type && t.type.includes('nft_mint'))) {
               source += `<br><small style="opacity: 0.7;">→ ${destinationWallet.substring(
                 0,
                 6
