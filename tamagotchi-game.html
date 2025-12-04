@@ -13466,7 +13466,8 @@ ${link}`;
                         const xp = gameState.xp || 0;
                         
                         // Build mint page URL
-                        const mintUrl = `https://solanatamagotchi.com/mint.html?user_id=${userIdStr}&tama=${tamaBalance}&level=${level}&xp=${xp}&mobile=true`;
+                        // 🔐 SECURITY: Don't pass tama in URL - it will be loaded from DB
+                        const mintUrl = `https://solanatamagotchi.com/mint.html?user_id=${userIdStr}&level=${level}&xp=${xp}&mobile=true`;
                         
                         // Try to open Phantom wallet first (mobile deep link)
                         // Phantom mobile deep link format: https://phantom.app/ul/v1/...
@@ -13540,7 +13541,8 @@ ${link}`;
                 }
                 
                 // Build URL with all important data
-                const nftUrl = `https://solanatamagotchi.com/mint.html?user_id=${userIdStr}&tama=${tamaBalance}&level=${level}&xp=${xp}`;
+                // 🔐 SECURITY: Don't pass tama in URL - it will be loaded from DB
+                const nftUrl = `https://solanatamagotchi.com/mint.html?user_id=${userIdStr}&level=${level}&xp=${xp}`;
                 
                 if (window.Telegram && window.Telegram.WebApp) {
                     // In Telegram, open external link

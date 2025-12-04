@@ -2622,7 +2622,11 @@
                 // 🆕 USE UNIFIED BALANCE API
                 console.log('📡 Loading balance from UNIFIED API:', userId);
                 
-                const unifiedApiUrl = `${TAMA_API_BASE}/unified-balance.php?user_id=${userId}`;
+                // Unified API is in /api/ directory, not /api/tama/
+                const apiBase = TAMA_API_BASE.replace('/api/tama', '/api');
+                const unifiedApiUrl = `${apiBase}/unified-balance.php?user_id=${userId}`;
+                console.log('🔗 Unified API URL:', unifiedApiUrl);
+                
                 const response = await fetch(unifiedApiUrl);
                 
                 if (!response.ok) {
