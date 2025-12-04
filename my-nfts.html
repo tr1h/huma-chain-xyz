@@ -1,1011 +1,1050 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My NFT Collection - Solana Tamagotchi</title>
-    <meta property="og:title" content="My NFT Collection - Solana Tamagotchi">
-    <meta property="og:description" content="View your NFT collection with beautiful images and earning boosts!">
-    <meta property="og:type" content="website">
+    <meta property="og:title" content="My NFT Collection - Solana Tamagotchi" />
+    <meta
+      property="og:description"
+      content="View your NFT collection with beautiful images and earning boosts!"
+    />
+    <meta property="og:type" content="website" />
     <!-- Favicon - Google prefers .ico format -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <!-- Unified Auth System -->
     <script src="js/auth.js"></script>
     <script src="js/profile-widget.js"></script>
-    
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1d3557 0%, #2d4564 100%);
+        min-height: 100vh;
+        padding: 20px;
+        font-family: 'Arial', sans-serif;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none"/><circle cx="50" cy="50" r="2" fill="rgba(255,202,58,0.1)"/></svg>');
+        opacity: 0.5;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 8px 0 #8ac926, 0 20px 60px rgba(0, 0, 0, 0.4);
+        border: 4px solid #1d3557;
+        position: relative;
+        z-index: 1;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      h1 {
+        font-family: 'Press Start 2P', cursive;
+        color: #ffca3a;
+        margin-bottom: 15px;
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        text-shadow: 4px 4px 0 #1d3557;
+        line-height: 1.4;
+      }
+
+      .login-section {
+        background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(29, 53, 87, 0.1));
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 2px solid #8ac926;
+      }
+
+      .login-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .login-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+      }
+
+      .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        border-color: #8ac926;
+      }
+
+      .login-card h3 {
+        color: #1d3557;
+        margin-bottom: 15px;
+        font-size: 20px;
+      }
+
+      .login-card p {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      .connect-btn {
+        font-family: 'Press Start 2P', cursive;
+        background: linear-gradient(135deg, #ffca3a, #ffa500);
+        color: #1d3557;
+        border: 4px solid #1d3557;
+        box-shadow: 0 6px 0 #8ac926, 0 10px 20px rgba(0, 0, 0, 0.3);
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+
+      .connect-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 0 #8ac926, 0 14px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      .connect-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 4px 0 #8ac926, 0 8px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .connect-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .user-info {
+        background: linear-gradient(135deg, #8ac926, #1d3557);
+        color: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .user-info-item {
+        flex: 1;
+        min-width: 150px;
+      }
+
+      .user-info-label {
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 5px;
+      }
+
+      .user-info-value {
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #8ac926 0%, #6fa01a 100%);
+        color: #1d3557;
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 6px 0 #6fa01a, 0 10px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        border: 3px solid #1d3557;
+        font-family: 'Press Start 2P', cursive;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 0 #6fa01a, 0 14px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      .stat-card:active {
+        transform: translateY(2px);
+        box-shadow: 0 4px 0 #6fa01a, 0 8px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+        margin-bottom: 10px;
+        opacity: 0.9;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .nft-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+      }
+
+      @media (max-width: 768px) {
+        .nft-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+      }
+
+      @media (min-width: 1400px) {
+        .nft-grid {
+          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+      }
+
+      .nft-card {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 6px 0 #8ac926, 0 12px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        border: 4px solid #1d3557;
+        position: relative;
+      }
+
+      .nft-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 0 #8ac926, 0 16px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .nft-card:active {
+        transform: translateY(2px);
+        box-shadow: 0 4px 0 #8ac926, 0 8px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .nft-image {
+        width: 100%;
+        height: 320px;
+        background: linear-gradient(135deg, #1d3557, #2d4564);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 4px solid #1d3557;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
+      }
+
+      .nft-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
+        filter: contrast(1.1) brightness(1.05);
+      }
+
+      .nft-emoji {
+        font-size: 120px;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .nft-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: #1d3557;
+        color: #ffca3a;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 0.6rem;
+        font-weight: bold;
+        font-family: 'Press Start 2P', cursive;
+        box-shadow: 0 4px 0 #0f1f3a, 0 6px 10px rgba(0, 0, 0, 0.3);
+        border: 2px solid #0f1f3a;
+        z-index: 2;
+        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+      }
+
+      .onchain-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: #8ac926;
+        color: #1d3557;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 0.5rem;
+        font-weight: bold;
+        font-family: 'Press Start 2P', cursive;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 4px 0 #6fa01a, 0 6px 10px rgba(0, 0, 0, 0.3);
+        border: 2px solid #1d3557;
+        z-index: 2;
+        text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      .offchain-badge {
+        background: #ffca3a;
+        color: #1d3557;
+        box-shadow: 0 4px 0 #ffa500, 0 6px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .nft-info {
+        padding: 25px;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 1));
+      }
+
+      .nft-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .nft-tier {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 1rem;
+        font-weight: bold;
+        color: #1d3557;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .nft-rarity {
+        background: #8ac926;
+        color: #1d3557;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.6rem;
+        font-weight: bold;
+        font-family: 'Press Start 2P', cursive;
+        border: 2px solid #1d3557;
+        box-shadow: 0 3px 0 #6fa01a;
+        text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      .nft-details {
+        margin: 15px 0;
+        color: #666;
+        font-size: 14px;
+        line-height: 1.8;
+      }
+
+      .nft-detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .nft-detail-row:last-child {
+        border-bottom: none;
+      }
+
+      .nft-multiplier {
+        background: linear-gradient(135deg, #ffca3a, #ffa500);
+        color: #1d3557;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: bold;
+        font-family: 'Press Start 2P', cursive;
+        margin: 15px 0;
+        box-shadow: 0 5px 0 #ffa500, 0 8px 15px rgba(0, 0, 0, 0.3);
+        border: 3px solid #1d3557;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .nft-mint-address {
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 10px;
+        font-family: monospace;
+        font-size: 12px;
+        word-break: break-all;
+        margin: 15px 0;
+        border: 1px solid #e0e0e0;
+      }
+
+      .nft-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .nft-btn {
+        padding: 14px;
+        border: 3px solid #1d3557;
+        border-radius: 10px;
+        font-weight: bold;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 0.6rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .nft-btn:hover {
+        transform: translateY(-3px);
+      }
+
+      .nft-btn:active {
+        transform: translateY(2px);
+      }
+
+      .view-btn {
+        background: linear-gradient(135deg, #1982c4, #1d3557);
+        color: white;
+        box-shadow: 0 4px 0 #0f5a8a, 0 6px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .view-btn:hover {
+        box-shadow: 0 6px 0 #0f5a8a, 0 8px 15px rgba(0, 0, 0, 0.4);
+      }
+
+      .view-btn:active {
+        box-shadow: 0 2px 0 #0f5a8a, 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .explorer-btn {
+        background: linear-gradient(135deg, #8ac926, #6fa01a);
+        color: #1d3557;
+        box-shadow: 0 4px 0 #6fa01a, 0 6px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .explorer-btn:hover {
+        box-shadow: 0 6px 0 #6fa01a, 0 8px 15px rgba(0, 0, 0, 0.4);
+      }
+
+      .explorer-btn:active {
+        box-shadow: 0 2px 0 #6fa01a, 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #666;
+      }
+
+      .empty-state h2 {
+        font-size: 64px;
+        margin-bottom: 20px;
+      }
+
+      .empty-state p {
+        font-size: 18px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      .mint-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #8ac926 0%, #1d3557 100%);
+        color: white;
+        padding: 18px 40px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 18px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .mint-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(138, 201, 38, 0.5);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+        font-size: 18px;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #8ac926;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        background: #ffebee;
+        color: #c62828;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 5px solid #c62828;
+      }
+
+      .success-message {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 5px solid #2e7d32;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px;
         }
 
-        body {
-            background: linear-gradient(135deg, #1D3557 0%, #2D4564 100%);
-            min-height: 100vh;
-            padding: 20px;
-            font-family: 'Arial', sans-serif;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none"/><circle cx="50" cy="50" r="2" fill="rgba(255,202,58,0.1)"/></svg>');
-            opacity: 0.5;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 8px 0 #8AC926, 0 20px 60px rgba(0,0,0,0.4);
-            border: 4px solid #1D3557;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
         h1 {
-            font-family: 'Press Start 2P', cursive;
-            color: #FFCA3A;
-            margin-bottom: 15px;
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            text-shadow: 4px 4px 0 #1D3557;
-            line-height: 1.4;
+          font-size: 24px;
         }
-        
-        .login-section {
-            background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(29, 53, 87, 0.1));
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 2px solid #8AC926;
-        }
-        
-        .login-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .login-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        
-        .login-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border-color: #8AC926;
-        }
-        
-        .login-card h3 {
-            color: #1D3557;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-        
-        .login-card p {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-        
-        .connect-btn {
-            font-family: 'Press Start 2P', cursive;
-            background: linear-gradient(135deg, #FFCA3A, #FFA500);
-            color: #1D3557;
-            border: 4px solid #1D3557;
-            box-shadow: 0 6px 0 #8AC926, 0 10px 20px rgba(0,0,0,0.3);
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-        
-        .connect-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 0 #8AC926, 0 14px 30px rgba(0,0,0,0.4);
-        }
-        
-        .connect-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 4px 0 #8AC926, 0 8px 15px rgba(0,0,0,0.3);
-        }
-        
-        .connect-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .user-info {
-            background: linear-gradient(135deg, #8AC926, #1D3557);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .user-info-item {
-            flex: 1;
-            min-width: 150px;
-        }
-        
-        .user-info-label {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-        
-        .user-info-value {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        
-        .stats-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #8AC926 0%, #6FA01A 100%);
-            color: #1D3557;
-            padding: 25px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 6px 0 #6FA01A, 0 10px 20px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-            position: relative;
-            border: 3px solid #1D3557;
-            font-family: 'Press Start 2P', cursive;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 0 #6FA01A, 0 14px 30px rgba(0,0,0,0.4);
-        }
-        
-        .stat-card:active {
-            transform: translateY(2px);
-            box-shadow: 0 4px 0 #6FA01A, 0 8px 15px rgba(0,0,0,0.3);
-        }
-        
-        .stat-label {
-            font-size: 0.7rem;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
-        }
-        
+
         .nft-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
+          grid-template-columns: 1fr;
         }
-        
-        @media (max-width: 768px) {
-            .nft-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
+
+        .stats-bar {
+          grid-template-columns: 1fr;
         }
-        
-        @media (min-width: 1400px) {
-            .nft-grid {
-                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            }
+
+        .login-options {
+          grid-template-columns: 1fr;
         }
-        
-        .nft-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 6px 0 #8AC926, 0 12px 30px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-            border: 4px solid #1D3557;
-            position: relative;
-        }
-        
-        .nft-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 10px 0 #8AC926, 0 16px 40px rgba(0,0,0,0.4);
-        }
-        
-        .nft-card:active {
-            transform: translateY(2px);
-            box-shadow: 0 4px 0 #8AC926, 0 8px 20px rgba(0,0,0,0.3);
-        }
-        
-        .nft-image {
-            width: 100%;
-            height: 320px;
-            background: linear-gradient(135deg, #1D3557, #2D4564);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            border-bottom: 4px solid #1D3557;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-        }
-        
-        .nft-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-            filter: contrast(1.1) brightness(1.05);
-        }
-        
-        .nft-emoji {
-            font-size: 120px;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .nft-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #1D3557;
-            color: #FFCA3A;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.6rem;
-            font-weight: bold;
-            font-family: 'Press Start 2P', cursive;
-            box-shadow: 0 4px 0 #0F1F3A, 0 6px 10px rgba(0,0,0,0.3);
-            border: 2px solid #0F1F3A;
-            z-index: 2;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
-        }
-        
-        .onchain-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: #8AC926;
-            color: #1D3557;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.5rem;
-            font-weight: bold;
-            font-family: 'Press Start 2P', cursive;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 4px 0 #6FA01A, 0 6px 10px rgba(0,0,0,0.3);
-            border: 2px solid #1D3557;
-            z-index: 2;
-            text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
-        }
-        
-        .offchain-badge {
-            background: #FFCA3A;
-            color: #1D3557;
-            box-shadow: 0 4px 0 #FFA500, 0 6px 10px rgba(0,0,0,0.3);
-        }
-        
-        .nft-info {
-            padding: 25px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,1));
-        }
-        
-        .nft-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .nft-tier {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
-            font-weight: bold;
-            color: #1D3557;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
-        }
-        
-        .nft-rarity {
-            background: #8AC926;
-            color: #1D3557;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.6rem;
-            font-weight: bold;
-            font-family: 'Press Start 2P', cursive;
-            border: 2px solid #1D3557;
-            box-shadow: 0 3px 0 #6FA01A;
-            text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
-        }
-        
-        .nft-details {
-            margin: 15px 0;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.8;
-        }
-        
-        .nft-detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .nft-detail-row:last-child {
-            border-bottom: none;
-        }
-        
-        .nft-multiplier {
-            background: linear-gradient(135deg, #FFCA3A, #FFA500);
-            color: #1D3557;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-            font-family: 'Press Start 2P', cursive;
-            margin: 15px 0;
-            box-shadow: 0 5px 0 #FFA500, 0 8px 15px rgba(0,0,0,0.3);
-            border: 3px solid #1D3557;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
-        }
-        
-        .nft-mint-address {
-            background: #f5f5f5;
-            padding: 12px;
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 12px;
-            word-break: break-all;
-            margin: 15px 0;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .nft-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        
-        .nft-btn {
-            padding: 14px;
-            border: 3px solid #1D3557;
-            border-radius: 10px;
-            font-weight: bold;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.6rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
-        }
-        
-        .nft-btn:hover {
-            transform: translateY(-3px);
-        }
-        
-        .nft-btn:active {
-            transform: translateY(2px);
-        }
-        
-        .view-btn {
-            background: linear-gradient(135deg, #1982C4, #1D3557);
-            color: white;
-            box-shadow: 0 4px 0 #0F5A8A, 0 6px 10px rgba(0,0,0,0.3);
-        }
-        
-        .view-btn:hover {
-            box-shadow: 0 6px 0 #0F5A8A, 0 8px 15px rgba(0,0,0,0.4);
-        }
-        
-        .view-btn:active {
-            box-shadow: 0 2px 0 #0F5A8A, 0 4px 8px rgba(0,0,0,0.3);
-        }
-        
-        .explorer-btn {
-            background: linear-gradient(135deg, #8AC926, #6FA01A);
-            color: #1D3557;
-            box-shadow: 0 4px 0 #6FA01A, 0 6px 10px rgba(0,0,0,0.3);
-        }
-        
-        .explorer-btn:hover {
-            box-shadow: 0 6px 0 #6FA01A, 0 8px 15px rgba(0,0,0,0.4);
-        }
-        
-        .explorer-btn:active {
-            box-shadow: 0 2px 0 #6FA01A, 0 4px 8px rgba(0,0,0,0.3);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: #666;
-        }
-        
-        .empty-state h2 {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-        
-        .empty-state p {
-            font-size: 18px;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        
-        .mint-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #8AC926 0%, #1D3557 100%);
-            color: white;
-            padding: 18px 40px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .mint-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(138, 201, 38, 0.5);
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-            font-size: 18px;
-        }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #8AC926;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid #c62828;
-        }
-        
-        .success-message {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid #2e7d32;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-            
-            .nft-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-bar {
-                grid-template-columns: 1fr;
-            }
-            
-            .login-options {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Logo Styles 🎨 */
+      }
+
+      /* Logo Styles 🎨 */
+      .game-logo {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 10000;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      .game-logo:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+
+      .game-logo img {
+        height: 70px;
+        width: auto;
+        display: block;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 5px;
+      }
+
+      @media (max-width: 768px) {
         .game-logo {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 10000;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+          top: 10px;
+          left: 10px;
         }
-        
-        .game-logo:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
-        
+
         .game-logo img {
-            height: 70px;
-            width: auto;
-            display: block;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 5px;
+          height: 50px;
         }
-        
-        @media (max-width: 768px) {
-            .game-logo {
-                top: 10px;
-                left: 10px;
-            }
-            
-            .game-logo img {
-                height: 50px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Logo 🎨 -->
     <a href="index.html" class="game-logo" title="Back to Home">
-        <img src="logo.png" alt="Solana Tamagotchi">
+      <img src="logo.png" alt="Solana Tamagotchi" />
     </a>
-    
+
     <div class="container">
-        <div class="header">
-            <h1>🖼️ MY NFT COLLECTION</h1>
-            <p style="color: #666; font-size: 16px;">View your Solana Tamagotchi NFTs</p>
+      <div class="header">
+        <h1>🖼️ MY NFT COLLECTION</h1>
+        <p style="color: #666; font-size: 16px">View your Solana Tamagotchi NFTs</p>
+      </div>
+
+      <!-- Login Section -->
+      <div id="login-section" class="login-section" style="display: none">
+        <h2 style="text-align: center; color: #1d3557; margin-bottom: 10px">
+          🔐 Connect Your Account
+        </h2>
+        <p style="text-align: center; color: #666; margin-bottom: 20px">
+          Choose how you want to view your NFT collection
+        </p>
+
+        <div class="login-options">
+          <!-- Telegram Login -->
+          <div class="login-card">
+            <div style="font-size: 48px; margin-bottom: 15px">📱</div>
+            <h3>Telegram Game Player</h3>
+            <p>
+              If you play Solana Tamagotchi game in Telegram, your NFTs will be loaded automatically
+              from your account.
+            </p>
+            <button class="connect-btn" onclick="loginViaTelegram()" disabled>
+              🎮 Open from Telegram Bot
+            </button>
+            <p style="margin-top: 15px; font-size: 12px; color: #999">
+              This page must be opened from @GotchiGameBot
+            </p>
+          </div>
+
+          <!-- Wallet Login -->
+          <div class="login-card">
+            <div style="font-size: 48px; margin-bottom: 15px">👛</div>
+            <h3>NFT Owner (Wallet)</h3>
+            <p>
+              If you bought NFTs with your Solana wallet, connect Phantom to see your on-chain
+              collection.
+            </p>
+            <button id="connect-wallet-btn" class="connect-btn" onclick="connectWallet()">
+              🔗 Connect Phantom Wallet
+            </button>
+            <p style="margin-top: 15px; font-size: 12px; color: #999">
+              Works without Telegram account
+            </p>
+          </div>
         </div>
-        
-        <!-- Login Section -->
-        <div id="login-section" class="login-section" style="display: none;">
-            <h2 style="text-align: center; color: #1D3557; margin-bottom: 10px;">🔐 Connect Your Account</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 20px;">Choose how you want to view your NFT collection</p>
-            
-            <div class="login-options">
-                <!-- Telegram Login -->
-                <div class="login-card">
-                    <div style="font-size: 48px; margin-bottom: 15px;">📱</div>
-                    <h3>Telegram Game Player</h3>
-                    <p>If you play Solana Tamagotchi game in Telegram, your NFTs will be loaded automatically from your account.</p>
-                    <button class="connect-btn" onclick="loginViaTelegram()" disabled>
-                        🎮 Open from Telegram Bot
-                    </button>
-                    <p style="margin-top: 15px; font-size: 12px; color: #999;">This page must be opened from @GotchiGameBot</p>
-                </div>
-                
-                <!-- Wallet Login -->
-                <div class="login-card">
-                    <div style="font-size: 48px; margin-bottom: 15px;">👛</div>
-                    <h3>NFT Owner (Wallet)</h3>
-                    <p>If you bought NFTs with your Solana wallet, connect Phantom to see your on-chain collection.</p>
-                    <button id="connect-wallet-btn" class="connect-btn" onclick="connectWallet()">
-                        🔗 Connect Phantom Wallet
-                    </button>
-                    <p style="margin-top: 15px; font-size: 12px; color: #999;">Works without Telegram account</p>
-                </div>
-            </div>
+      </div>
+
+      <!-- User Info (shown after login) -->
+      <div id="user-info" class="user-info" style="display: none">
+        <div class="user-info-item">
+          <div class="user-info-label">Connected As</div>
+          <div class="user-info-value" id="connected-as">-</div>
         </div>
-        
-        <!-- User Info (shown after login) -->
-        <div id="user-info" class="user-info" style="display: none;">
-            <div class="user-info-item">
-                <div class="user-info-label">Connected As</div>
-                <div class="user-info-value" id="connected-as">-</div>
-            </div>
-            <div class="user-info-item">
-                <div class="user-info-label">Connection Type</div>
-                <div class="user-info-value" id="connection-type">-</div>
-            </div>
-            <div class="user-info-item">
-                <button class="connect-btn" onclick="disconnect()" style="margin: 0;">
-                    🚪 Disconnect
-                </button>
-            </div>
+        <div class="user-info-item">
+          <div class="user-info-label">Connection Type</div>
+          <div class="user-info-value" id="connection-type">-</div>
         </div>
-        
-        <!-- Stats Bar -->
-        <div id="stats-bar" class="stats-bar" style="display: none;">
-            <div class="stat-card">
-                <div class="stat-label">💎 Total NFTs</div>
-                <div class="stat-value" id="total-nfts">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">🚀 Active Boost</div>
-                <div class="stat-value" id="active-boost">1.0x</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">💰 TAMA Balance</div>
-                <div class="stat-value" id="tama-balance">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">✅ Real On-Chain</div>
-                <div class="stat-value" id="onchain-count">0</div>
-            </div>
+        <div class="user-info-item">
+          <button class="connect-btn" onclick="disconnect()" style="margin: 0">
+            🚪 Disconnect
+          </button>
         </div>
-        
-        <!-- Mint New NFT Button -->
-        <div id="mint-new-nft-section" style="display: none; text-align: center; margin: 30px 0;">
-            <a href="mint" id="mint-new-nft-btn" class="mint-btn" style="display: inline-block;">
-                ✨ Mint New NFT Pet
-            </a>
+      </div>
+
+      <!-- Stats Bar -->
+      <div id="stats-bar" class="stats-bar" style="display: none">
+        <div class="stat-card">
+          <div class="stat-label">💎 Total NFTs</div>
+          <div class="stat-value" id="total-nfts">0</div>
         </div>
-        
-        <!-- NFT Container -->
-        <div id="nft-container">
-            <div class="loading">
-                <div class="loading-spinner"></div>
-                <p>Initializing...</p>
-            </div>
+        <div class="stat-card">
+          <div class="stat-label">🚀 Active Boost</div>
+          <div class="stat-value" id="active-boost">1.0x</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-label">💰 TAMA Balance</div>
+          <div class="stat-value" id="tama-balance">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">✅ Real On-Chain</div>
+          <div class="stat-value" id="onchain-count">0</div>
+        </div>
+      </div>
+
+      <!-- Mint New NFT Button -->
+      <div id="mint-new-nft-section" style="display: none; text-align: center; margin: 30px 0">
+        <a href="mint" id="mint-new-nft-btn" class="mint-btn" style="display: inline-block">
+          ✨ Mint New NFT Pet
+        </a>
+      </div>
+
+      <!-- NFT Container -->
+      <div id="nft-container">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Initializing...</p>
+        </div>
+      </div>
     </div>
-    
+
     <script>
-        // Supabase config - Use shared client from auth.js or create separate one
-        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
-        
-        // Create separate Supabase client for NFT page to avoid conflicts with auth.js
-        // Use different storage key to prevent session conflicts
-        const nftSupabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      // Supabase config - Use shared client from auth.js or create separate one
+      const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+      const SUPABASE_ANON_KEY =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+
+      // Create separate Supabase client for NFT page to avoid conflicts with auth.js
+      // Use different storage key to prevent session conflicts
+      const nftSupabase = window.supabase
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
-                storageKey: 'nft-supabase-auth-token',
-                autoRefreshToken: true,
-                persistSession: false
-            }
-        }) : null;
-        
-        // Check for Telegram WebApp init data
-        const urlParams = new URLSearchParams(window.location.search);
-        const telegramUserId = urlParams.get('user_id');
-        
-        // State
-        let currentUser = null;
-        let currentWallet = null;
-        let connectionType = null;
-        
-        // Tier colors
-        const tierColors = {
-            'Bronze': '#CD7F32',
-            'Silver': '#C0C0C0',
-            'Gold': '#FFD700',
-            'Platinum': '#E5E4E2',
-            'Diamond': '#B9F2FF'
-        };
-        
-        // Rarity colors
-        const rarityColors = {
-            'Common': '#9E9E9E',
-            'Uncommon': '#4CAF50',
-            'Rare': '#2196F3',
-            'Epic': '#9C27B0',
-            'Legendary': '#FF9800'
-        };
-        
-        // Utility function to escape HTML (defined globally)
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = String(text);
-            return div.innerHTML;
-        }
-        
-        // Initialize with Smart Auto-Detect
-        async function init() {
-            console.log('🚀 Initializing My NFTs page with Smart Auto-Detect...');
-            
-            // Show brief loading state during auto-detect
-            document.getElementById('nft-container').innerHTML = `
+              storageKey: 'nft-supabase-auth-token',
+              autoRefreshToken: true,
+              persistSession: false,
+            },
+          })
+        : null;
+
+      // Check for Telegram WebApp init data
+      const urlParams = new URLSearchParams(window.location.search);
+      const telegramUserId = urlParams.get('user_id');
+
+      // State
+      let currentUser = null;
+      let currentWallet = null;
+      let connectionType = null;
+
+      // Tier colors
+      const tierColors = {
+        Bronze: '#CD7F32',
+        Silver: '#C0C0C0',
+        Gold: '#FFD700',
+        Platinum: '#E5E4E2',
+        Diamond: '#B9F2FF',
+      };
+
+      // Rarity colors
+      const rarityColors = {
+        Common: '#9E9E9E',
+        Uncommon: '#4CAF50',
+        Rare: '#2196F3',
+        Epic: '#9C27B0',
+        Legendary: '#FF9800',
+      };
+
+      // Utility function to escape HTML (defined globally)
+      function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = String(text);
+        return div.innerHTML;
+      }
+
+      // Initialize with Smart Auto-Detect
+      async function init() {
+        console.log('🚀 Initializing My NFTs page with Smart Auto-Detect...');
+
+        // Show brief loading state during auto-detect
+        document.getElementById('nft-container').innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
                     <p style="margin-top: 20px; color: #666;">Checking for connected accounts...</p>
                 </div>
             `;
-            
-            // STEP 1: Check if opened from Telegram (highest priority)
-            if (telegramUserId) {
-                console.log('📱 Telegram User ID detected:', telegramUserId);
-                console.log('✅ Auto-connecting via Telegram (no login screen needed)');
-                await loginViaTelegramAuto(telegramUserId);
-                return; // Skip login screen
+
+        // STEP 1: Check if opened from Telegram (highest priority)
+        if (telegramUserId) {
+          console.log('📱 Telegram User ID detected:', telegramUserId);
+          console.log('✅ Auto-connecting via Telegram (no login screen needed)');
+          await loginViaTelegramAuto(telegramUserId);
+          return; // Skip login screen
+        }
+
+        // STEP 2: Check if Phantom Wallet is already connected
+        if (window.solana && window.solana.isPhantom) {
+          try {
+            // Try to silently connect if already authorized
+            const response = await window.solana.connect({ onlyIfTrusted: true });
+            if (response && response.publicKey) {
+              console.log('👛 Phantom Wallet already connected:', response.publicKey.toString());
+              console.log('✅ Auto-connecting via Phantom (no login screen needed)');
+
+              const walletAddress = response.publicKey.toString();
+              currentWallet = walletAddress;
+              connectionType = 'wallet';
+
+              document.getElementById('login-section').style.display = 'none';
+              document.getElementById('user-info').style.display = 'flex';
+              document.getElementById('connected-as').textContent = `${walletAddress.substring(
+                0,
+                8
+              )}...${walletAddress.substring(walletAddress.length - 6)}`;
+              document.getElementById('connection-type').textContent = '👛 Phantom Wallet';
+
+              await loadNFTsByWallet(walletAddress);
+              return; // Skip login screen
             }
-            
-            // STEP 2: Check if Phantom Wallet is already connected
-            if (window.solana && window.solana.isPhantom) {
-                try {
-                    // Try to silently connect if already authorized
-                    const response = await window.solana.connect({ onlyIfTrusted: true });
-                    if (response && response.publicKey) {
-                        console.log('👛 Phantom Wallet already connected:', response.publicKey.toString());
-                        console.log('✅ Auto-connecting via Phantom (no login screen needed)');
-                        
-                        const walletAddress = response.publicKey.toString();
-                        currentWallet = walletAddress;
-                        connectionType = 'wallet';
-                        
-                        document.getElementById('login-section').style.display = 'none';
-                        document.getElementById('user-info').style.display = 'flex';
-                        document.getElementById('connected-as').textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}`;
-                        document.getElementById('connection-type').textContent = '👛 Phantom Wallet';
-                        
-                        await loadNFTsByWallet(walletAddress);
-                        return; // Skip login screen
-                    }
-                } catch (err) {
-                    // Wallet not connected yet or user denied, continue to login screen
-                    console.log('ℹ️ Phantom not auto-connected:', err.message);
-                }
-            }
-            
-            // STEP 3: Nothing detected - show login options
-            console.log('👋 New user - showing login options');
-            document.getElementById('login-section').style.display = 'block';
-            document.getElementById('nft-container').innerHTML = `
+          } catch (err) {
+            // Wallet not connected yet or user denied, continue to login screen
+            console.log('ℹ️ Phantom not auto-connected:', err.message);
+          }
+        }
+
+        // STEP 3: Nothing detected - show login options
+        console.log('👋 New user - showing login options');
+        document.getElementById('login-section').style.display = 'block';
+        document.getElementById('nft-container').innerHTML = `
                 <div class="empty-state">
                     <h2>👋</h2>
                     <p>Welcome to Solana Tamagotchi NFT Gallery!</p>
                     <p style="font-size: 16px; color: #999;">Please connect your account to view your NFTs</p>
                 </div>
             `;
+      }
+
+      // Login via Telegram (auto)
+      async function loginViaTelegramAuto(userId) {
+        try {
+          currentUser = userId;
+          connectionType = 'telegram';
+
+          document.getElementById('login-section').style.display = 'none';
+          document.getElementById('user-info').style.display = 'flex';
+          document.getElementById('connected-as').textContent = `Telegram ID: ${userId}`;
+          document.getElementById('connection-type').textContent = '📱 Telegram Game';
+
+          await loadNFTsByTelegram(userId);
+        } catch (error) {
+          showError('Failed to load Telegram user data: ' + error.message);
         }
-        
-        // Login via Telegram (auto)
-        async function loginViaTelegramAuto(userId) {
-            try {
-                currentUser = userId;
-                connectionType = 'telegram';
-                
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('user-info').style.display = 'flex';
-                document.getElementById('connected-as').textContent = `Telegram ID: ${userId}`;
-                document.getElementById('connection-type').textContent = '📱 Telegram Game';
-                
-                await loadNFTsByTelegram(userId);
-            } catch (error) {
-                showError('Failed to load Telegram user data: ' + error.message);
-            }
+      }
+
+      // Connect Phantom Wallet
+      async function connectWallet() {
+        try {
+          if (!window.solana || !window.solana.isPhantom) {
+            alert('Please install Phantom Wallet!\n\nVisit: https://phantom.app');
+            window.open('https://phantom.app', '_blank');
+            return;
+          }
+
+          const resp = await window.solana.connect();
+          const walletAddress = resp.publicKey.toString();
+
+          currentWallet = walletAddress;
+          connectionType = 'wallet';
+
+          document.getElementById('login-section').style.display = 'none';
+          document.getElementById('user-info').style.display = 'flex';
+          document.getElementById('connected-as').textContent = `${walletAddress.substring(
+            0,
+            8
+          )}...${walletAddress.substring(walletAddress.length - 6)}`;
+          document.getElementById('connection-type').textContent = '👛 Phantom Wallet';
+
+          await loadNFTsByWallet(walletAddress);
+        } catch (error) {
+          showError('Failed to connect wallet: ' + error.message);
         }
-        
-        // Connect Phantom Wallet
-        async function connectWallet() {
-            try {
-                if (!window.solana || !window.solana.isPhantom) {
-                    alert('Please install Phantom Wallet!\n\nVisit: https://phantom.app');
-                    window.open('https://phantom.app', '_blank');
-                    return;
-                }
-                
-                const resp = await window.solana.connect();
-                const walletAddress = resp.publicKey.toString();
-                
-                currentWallet = walletAddress;
-                connectionType = 'wallet';
-                
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('user-info').style.display = 'flex';
-                document.getElementById('connected-as').textContent = `${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}`;
-                document.getElementById('connection-type').textContent = '👛 Phantom Wallet';
-                
-                await loadNFTsByWallet(walletAddress);
-            } catch (error) {
-                showError('Failed to connect wallet: ' + error.message);
-            }
-        }
-        
-        // Load NFTs by Telegram ID
-        async function loadNFTsByTelegram(userId) {
-            document.getElementById('nft-container').innerHTML = `
+      }
+
+      // Load NFTs by Telegram ID
+      async function loadNFTsByTelegram(userId) {
+        document.getElementById('nft-container').innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
                     <p>Loading your NFTs from Telegram account...</p>
                 </div>
             `;
-            
-            try {
-                const { data: nfts, error } = await nftSupabase
-                    .from('user_nfts')
-                    .select('*')
-                    .eq('telegram_id', userId)
-                    .eq('is_active', true)
-                    .order('minted_at', { ascending: false });
-                
-                if (error) throw error;
-                
-                // Load TAMA balance
-                const { data: userData } = await nftSupabase
-                    .from('leaderboard')
-                    .select('tama')
-                    .eq('telegram_id', userId)
-                    .single();
-                
-                const tamaBalance = userData?.tama || 0;
-                
-                displayNFTs(nfts, tamaBalance);
-            } catch (error) {
-                showError('Failed to load NFTs: ' + error.message);
-            }
+
+        try {
+          const { data: nfts, error } = await nftSupabase
+            .from('user_nfts')
+            .select('*')
+            .eq('telegram_id', userId)
+            .eq('is_active', true)
+            .order('minted_at', { ascending: false });
+
+          if (error) throw error;
+
+          // Load TAMA balance
+          const { data: userData } = await nftSupabase
+            .from('leaderboard')
+            .select('tama')
+            .eq('telegram_id', userId)
+            .single();
+
+          const tamaBalance = userData?.tama || 0;
+
+          displayNFTs(nfts, tamaBalance);
+        } catch (error) {
+          showError('Failed to load NFTs: ' + error.message);
         }
-        
-        // Load NFTs by Wallet Address
-        async function loadNFTsByWallet(walletAddress) {
-            document.getElementById('nft-container').innerHTML = `
+      }
+
+      // Load NFTs by Wallet Address
+      async function loadNFTsByWallet(walletAddress) {
+        document.getElementById('nft-container').innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
                     <p>Loading your NFTs from blockchain...</p>
                 </div>
             `;
-            
-            try {
-                console.log('🔍 Loading NFTs for wallet:', walletAddress);
-                
-                // Method 1: Check if wallet is linked to Telegram account
-                const { data: linkedUser } = await nftSupabase
-                    .from('leaderboard')
-                    .select('telegram_id, wallet_address, tama')
-                    .eq('wallet_address', walletAddress)
-                    .single();
-                
-                let nfts = [];
-                let tamaBalance = 0;
-                
-                if (linkedUser && linkedUser.telegram_id) {
-                    // User has linked wallet - show their NFTs by telegram_id
-                    console.log('✅ Found linked Telegram account:', linkedUser.telegram_id);
-                    
-                    // Load TAMA balance from linked account
-                    tamaBalance = linkedUser.tama || 0;
-                    console.log('💰 TAMA balance from linked account:', tamaBalance);
-                    
-                    const { data: telegramNfts, error } = await nftSupabase
-                        .from('user_nfts')
-                        .select('*')
-                        .eq('telegram_id', linkedUser.telegram_id)
-                        .eq('is_active', true)
-                        .order('minted_at', { ascending: false});
-                    
-                    if (error) throw error;
-                    nfts = telegramNfts || [];
-                    
-                } else {
-                    // Method 2: No linked account - find NFTs minted directly with this wallet (telegram_id = null)
-                    console.log('⚠️ No linked Telegram account. Searching for NFTs minted with this wallet...');
-                    
-                    // Query NFTs with NULL telegram_id but matching wallet_address
-                    // Since Supabase doesn't support direct wallet_address query in user_nfts,
-                    // we'll check transactions table for SOL purchases with this wallet
-                    const { data: solTransactions } = await nftSupabase
-                        .from('transactions')
-                        .select('metadata')
-                        .eq('type', 'nft_mint_sol')
-                        .order('created_at', { ascending: false });
-                    
-                    // Find NFT IDs from transactions metadata
-                    const nftIds = [];
-                    if (solTransactions) {
-                        solTransactions.forEach(tx => {
-                            if (tx.metadata && typeof tx.metadata === 'object') {
-                                const metadata = tx.metadata;
-                                if (metadata.wallet_address === walletAddress && metadata.nft_id) {
-                                    nftIds.push(metadata.nft_id);
-                                }
-                            } else if (typeof tx.metadata === 'string') {
-                                try {
-                                    const metadata = JSON.parse(tx.metadata);
-                                    if (metadata.wallet_address === walletAddress && metadata.nft_id) {
-                                        nftIds.push(metadata.nft_id);
-                                    }
-                                } catch (e) {}
-                            }
-                        });
+
+        try {
+          console.log('🔍 Loading NFTs for wallet:', walletAddress);
+
+          // Method 1: Check if wallet is linked to Telegram account
+          const { data: linkedUser } = await nftSupabase
+            .from('leaderboard')
+            .select('telegram_id, wallet_address, tama')
+            .eq('wallet_address', walletAddress)
+            .single();
+
+          let nfts = [];
+          let tamaBalance = 0;
+
+          if (linkedUser && linkedUser.telegram_id) {
+            // User has linked wallet - show their NFTs by telegram_id
+            console.log('✅ Found linked Telegram account:', linkedUser.telegram_id);
+
+            // Load TAMA balance from linked account
+            tamaBalance = linkedUser.tama || 0;
+            console.log('💰 TAMA balance from linked account:', tamaBalance);
+
+            const { data: telegramNfts, error } = await nftSupabase
+              .from('user_nfts')
+              .select('*')
+              .eq('telegram_id', linkedUser.telegram_id)
+              .eq('is_active', true)
+              .order('minted_at', { ascending: false });
+
+            if (error) throw error;
+            nfts = telegramNfts || [];
+          } else {
+            // Method 2: No linked account - find NFTs minted directly with this wallet (telegram_id = null)
+            console.log(
+              '⚠️ No linked Telegram account. Searching for NFTs minted with this wallet...'
+            );
+
+            // Query NFTs with NULL telegram_id but matching wallet_address
+            // Since Supabase doesn't support direct wallet_address query in user_nfts,
+            // we'll check transactions table for SOL purchases with this wallet
+            const { data: solTransactions } = await nftSupabase
+              .from('transactions')
+              .select('metadata')
+              .eq('type', 'nft_mint_sol')
+              .order('created_at', { ascending: false });
+
+            // Find NFT IDs from transactions metadata
+            const nftIds = [];
+            if (solTransactions) {
+              solTransactions.forEach((tx) => {
+                if (tx.metadata && typeof tx.metadata === 'object') {
+                  const metadata = tx.metadata;
+                  if (metadata.wallet_address === walletAddress && metadata.nft_id) {
+                    nftIds.push(metadata.nft_id);
+                  }
+                } else if (typeof tx.metadata === 'string') {
+                  try {
+                    const metadata = JSON.parse(tx.metadata);
+                    if (metadata.wallet_address === walletAddress && metadata.nft_id) {
+                      nftIds.push(metadata.nft_id);
                     }
-                    
-                    // Fetch NFTs by IDs
-                    if (nftIds.length > 0) {
-                        const { data: walletNfts, error } = await nftSupabase
-                            .from('user_nfts')
-                            .select('*')
-                            .in('id', nftIds)
-                            .eq('is_active', true)
-                            .order('minted_at', { ascending: false });
-                        
-                        if (error) throw error;
-                        nfts = walletNfts || [];
-                        console.log(`✅ Found ${nfts.length} NFTs minted with this wallet`);
-                    }
-                    
-                    // If still no NFTs found, show help message
-                    if (nfts.length === 0) {
-                        showLinkWalletMessage(walletAddress);
-                        return;
-                    }
-                    
-                    // Try to get TAMA balance if wallet has any transactions
-                    // Check if wallet has any leaderboard entry (even without telegram_id)
-                    const { data: walletUser } = await nftSupabase
-                        .from('leaderboard')
-                        .select('tama')
-                        .eq('wallet_address', walletAddress)
-                        .single();
-                    
-                    if (walletUser) {
-                        tamaBalance = walletUser.tama || 0;
-                        console.log('💰 TAMA balance from wallet entry:', tamaBalance);
-                    }
+                  } catch (e) {}
                 }
-                
-                displayNFTs(nfts, tamaBalance);
-            } catch (error) {
-                showError('Failed to load NFTs: ' + error.message);
+              });
             }
+
+            // Fetch NFTs by IDs
+            if (nftIds.length > 0) {
+              const { data: walletNfts, error } = await nftSupabase
+                .from('user_nfts')
+                .select('*')
+                .in('id', nftIds)
+                .eq('is_active', true)
+                .order('minted_at', { ascending: false });
+
+              if (error) throw error;
+              nfts = walletNfts || [];
+              console.log(`✅ Found ${nfts.length} NFTs minted with this wallet`);
+            }
+
+            // If still no NFTs found, show help message
+            if (nfts.length === 0) {
+              showLinkWalletMessage(walletAddress);
+              return;
+            }
+
+            // Try to get TAMA balance if wallet has any transactions
+            // Check if wallet has any leaderboard entry (even without telegram_id)
+            const { data: walletUser } = await nftSupabase
+              .from('leaderboard')
+              .select('tama')
+              .eq('wallet_address', walletAddress)
+              .single();
+
+            if (walletUser) {
+              tamaBalance = walletUser.tama || 0;
+              console.log('💰 TAMA balance from wallet entry:', tamaBalance);
+            }
+          }
+
+          displayNFTs(nfts, tamaBalance);
+        } catch (error) {
+          showError('Failed to load NFTs: ' + error.message);
         }
-        
-        // Show message about linking wallet
-        function showLinkWalletMessage(walletAddress) {
-            document.getElementById('stats-bar').style.display = 'none';
-            document.getElementById('nft-container').innerHTML = `
+      }
+
+      // Show message about linking wallet
+      function showLinkWalletMessage(walletAddress) {
+        document.getElementById('stats-bar').style.display = 'none';
+        document.getElementById('nft-container').innerHTML = `
                 <div class="empty-state">
                     <h2>🔗</h2>
                     <p><strong>Wallet Not Linked</strong></p>
@@ -1017,65 +1056,73 @@
                         <li>Then you can view all your NFTs here!</li>
                     </ol>
                     <p style="font-size: 14px; color: #999; margin-top: 30px;">
-                        Your wallet: <code style="background: #f5f5f5; padding: 5px 10px; border-radius: 5px; font-family: monospace;">${walletAddress.substring(0, 8)}...${walletAddress.substring(walletAddress.length - 6)}</code>
+                        Your wallet: <code style="background: #f5f5f5; padding: 5px 10px; border-radius: 5px; font-family: monospace;">${walletAddress.substring(
+                          0,
+                          8
+                        )}...${walletAddress.substring(walletAddress.length - 6)}</code>
                     </p>
                     <a href="tamagotchi-game.html" class="mint-btn" style="margin-top: 20px;">
                         🎮 Open Game & Link Wallet
                     </a>
                 </div>
             `;
+      }
+
+      // Display NFTs
+      function displayNFTs(nfts, tamaBalance) {
+        document.getElementById('stats-bar').style.display = 'grid';
+
+        // Show mint button
+        const mintSection = document.getElementById('mint-new-nft-section');
+        if (mintSection) {
+          mintSection.style.display = 'block';
+          // Add user_id to mint URL if available
+          const telegramUserId = window.GotchiAuth?.getTelegramId();
+          const mintBtn = document.getElementById('mint-new-nft-btn');
+          if (mintBtn && telegramUserId) {
+            mintBtn.href = `mint?user_id=${telegramUserId}`;
+          }
         }
-        
-        // Display NFTs
-        function displayNFTs(nfts, tamaBalance) {
-            document.getElementById('stats-bar').style.display = 'grid';
-            
-            // Show mint button
-            const mintSection = document.getElementById('mint-new-nft-section');
-            if (mintSection) {
-                mintSection.style.display = 'block';
-                // Add user_id to mint URL if available
-                const telegramUserId = window.GotchiAuth?.getTelegramId();
-                const mintBtn = document.getElementById('mint-new-nft-btn');
-                if (mintBtn && telegramUserId) {
-                    mintBtn.href = `mint?user_id=${telegramUserId}`;
-                }
-            }
-            
-            // Update stats
-            const totalNFTs = nfts?.length || 0;
-            const bestMultiplier = nfts && nfts.length > 0 
-                ? Math.max(...nfts.map(nft => parseFloat(nft.earning_multiplier || 1.0)))
-                : 1.0;
-            const onchainCount = nfts?.filter(nft => 
-                nft.nft_mint_address && 
-                nft.nft_mint_address.length > 30 && 
-                !nft.nft_mint_address.includes('_')
-            ).length || 0;
-            
-            document.getElementById('total-nfts').textContent = totalNFTs;
-            document.getElementById('active-boost').textContent = bestMultiplier.toFixed(1) + 'x';
-            document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
-            document.getElementById('onchain-count').textContent = onchainCount;
-            
-            // Add pulse animation to stats update
-            const statsElements = ['total-nfts', 'active-boost', 'tama-balance', 'onchain-count'];
-            statsElements.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.style.animation = 'none';
-                    setTimeout(() => {
-                        el.style.animation = 'pulse 0.5s ease';
-                    }, 10);
-                }
-            });
-            
-            // Render NFTs
-            if (!nfts || nfts.length === 0) {
-                // 🔐 SECURITY: Escape telegramUserId to prevent XSS
-                const safeUserId = telegramUserId ? escapeHtml(String(telegramUserId)) : '';
-                const mintUrl = safeUserId ? `mint.html?user_id=${encodeURIComponent(safeUserId)}` : 'mint.html';
-                document.getElementById('nft-container').innerHTML = `
+
+        // Update stats
+        const totalNFTs = nfts?.length || 0;
+        const bestMultiplier =
+          nfts && nfts.length > 0
+            ? Math.max(...nfts.map((nft) => parseFloat(nft.earning_multiplier || 1.0)))
+            : 1.0;
+        const onchainCount =
+          nfts?.filter(
+            (nft) =>
+              nft.nft_mint_address &&
+              nft.nft_mint_address.length > 30 &&
+              !nft.nft_mint_address.includes('_')
+          ).length || 0;
+
+        document.getElementById('total-nfts').textContent = totalNFTs;
+        document.getElementById('active-boost').textContent = bestMultiplier.toFixed(1) + 'x';
+        document.getElementById('tama-balance').textContent = tamaBalance.toLocaleString();
+        document.getElementById('onchain-count').textContent = onchainCount;
+
+        // Add pulse animation to stats update
+        const statsElements = ['total-nfts', 'active-boost', 'tama-balance', 'onchain-count'];
+        statsElements.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.style.animation = 'none';
+            setTimeout(() => {
+              el.style.animation = 'pulse 0.5s ease';
+            }, 10);
+          }
+        });
+
+        // Render NFTs
+        if (!nfts || nfts.length === 0) {
+          // 🔐 SECURITY: Escape telegramUserId to prevent XSS
+          const safeUserId = telegramUserId ? escapeHtml(String(telegramUserId)) : '';
+          const mintUrl = safeUserId
+            ? `mint.html?user_id=${encodeURIComponent(safeUserId)}`
+            : 'mint.html';
+          document.getElementById('nft-container').innerHTML = `
                     <div class="empty-state">
                         <h2>📦</h2>
                         <p>You don't have any NFTs yet!</p>
@@ -1085,76 +1132,94 @@
                         </a>
                     </div>
                 `;
-                return;
-            }
-            
-            const nftGrid = document.createElement('div');
-            nftGrid.className = 'nft-grid';
-            
-            nfts.forEach(nft => {
-                const isRealOnChain = nft.nft_mint_address && 
-                    nft.nft_mint_address.length > 30 && 
-                    !nft.nft_mint_address.includes('_');
-                
-                const tierColor = tierColors[nft.tier_name] || '#666';
-                const rarityColor = rarityColors[nft.rarity] || '#666';
-                
-                const mintedDate = nft.minted_at ? new Date(nft.minted_at).toLocaleDateString() : 'Unknown';
-                const explorerUrl = isRealOnChain 
-                    ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
-                    : '#';
-                
-                const nftCard = document.createElement('div');
-                nftCard.className = 'nft-card';
-                nftCard.style.cursor = 'pointer';
-                nftCard.addEventListener('click', () => showNFTDetails(nft));
-                
-                // Get initial image URL - use static IPFS for now, will update from blockchain if on-chain
-                let imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
-                
-                // Clean and escape tier_name and rarity to remove any HTML code
-                const tierNameClean = String(nft.tier_name || '').replace(/<[^>]*>/g, '').trim();
-                const rarityClean = String(nft.rarity || '').replace(/<[^>]*>/g, '').trim();
-                const tierNameEscaped = escapeHtml(tierNameClean);
-                const rarityEscaped = escapeHtml(rarityClean);
-                
-                // Create unique ID for image element to update later
-                const imageId = `nft-image-${nft.id || nft.nft_mint_address || Math.random()}`;
-                
-                const imageHtml = imageUrl 
-                    ? `<img id="${imageId}" src="${imageUrl}" alt="${tierNameEscaped} ${rarityEscaped}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                       <div class="nft-emoji" style="display: none;">${getTierEmoji(nft.tier_name || '')}</div>`
-                    : `<div class="nft-emoji">${getTierEmoji(nft.tier_name || '')}</div>`;
-                
-                // If on-chain NFT, fetch image from blockchain asynchronously
-                if (isRealOnChain && nft.nft_mint_address) {
-                    getOnChainNFTImage(nft.nft_mint_address).then(blockchainImageUrl => {
-                        if (blockchainImageUrl) {
-                            const imgElement = document.getElementById(imageId);
-                            if (imgElement) {
-                                imgElement.src = blockchainImageUrl;
-                                imgElement.onerror = function() {
-                                    // If blockchain image fails, keep the fallback
-                                    console.warn('⚠️ Blockchain image failed, using fallback for:', nft.nft_mint_address);
-                                };
-                            }
-                        }
-                    }).catch(err => {
-                        console.warn('⚠️ Failed to fetch blockchain image for:', nft.nft_mint_address, err);
-                    });
+          return;
+        }
+
+        const nftGrid = document.createElement('div');
+        nftGrid.className = 'nft-grid';
+
+        nfts.forEach((nft) => {
+          const isRealOnChain =
+            nft.nft_mint_address &&
+            nft.nft_mint_address.length > 30 &&
+            !nft.nft_mint_address.includes('_');
+
+          const tierColor = tierColors[nft.tier_name] || '#666';
+          const rarityColor = rarityColors[nft.rarity] || '#666';
+
+          const mintedDate = nft.minted_at
+            ? new Date(nft.minted_at).toLocaleDateString()
+            : 'Unknown';
+          const explorerUrl = isRealOnChain
+            ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
+            : '#';
+
+          const nftCard = document.createElement('div');
+          nftCard.className = 'nft-card';
+          nftCard.style.cursor = 'pointer';
+          nftCard.addEventListener('click', () => showNFTDetails(nft));
+
+          // Get initial image URL - use static IPFS for now, will update from blockchain if on-chain
+          let imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
+
+          // Clean and escape tier_name and rarity to remove any HTML code
+          const tierNameClean = String(nft.tier_name || '')
+            .replace(/<[^>]*>/g, '')
+            .trim();
+          const rarityClean = String(nft.rarity || '')
+            .replace(/<[^>]*>/g, '')
+            .trim();
+          const tierNameEscaped = escapeHtml(tierNameClean);
+          const rarityEscaped = escapeHtml(rarityClean);
+
+          // Create unique ID for image element to update later
+          const imageId = `nft-image-${nft.id || nft.nft_mint_address || Math.random()}`;
+
+          const imageHtml = imageUrl
+            ? `<img id="${imageId}" src="${imageUrl}" alt="${tierNameEscaped} ${rarityEscaped}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                       <div class="nft-emoji" style="display: none;">${getTierEmoji(
+                         nft.tier_name || ''
+                       )}</div>`
+            : `<div class="nft-emoji">${getTierEmoji(nft.tier_name || '')}</div>`;
+
+          // If on-chain NFT, fetch image from blockchain asynchronously
+          if (isRealOnChain && nft.nft_mint_address) {
+            getOnChainNFTImage(nft.nft_mint_address)
+              .then((blockchainImageUrl) => {
+                if (blockchainImageUrl) {
+                  const imgElement = document.getElementById(imageId);
+                  if (imgElement) {
+                    imgElement.src = blockchainImageUrl;
+                    imgElement.onerror = function () {
+                      // If blockchain image fails, keep the fallback
+                      console.warn(
+                        '⚠️ Blockchain image failed, using fallback for:',
+                        nft.nft_mint_address
+                      );
+                    };
+                  }
                 }
-                
-                nftCard.innerHTML = `
+              })
+              .catch((err) => {
+                console.warn('⚠️ Failed to fetch blockchain image for:', nft.nft_mint_address, err);
+              });
+          }
+
+          nftCard.innerHTML = `
                     <div class="nft-image" style="background: linear-gradient(135deg, ${tierColor}, ${rarityColor});">
-                        ${isRealOnChain ? `
+                        ${
+                          isRealOnChain
+                            ? `
                             <div class="onchain-badge">
                                 ✅ Real On-Chain
                             </div>
-                        ` : `
+                        `
+                            : `
                             <div class="onchain-badge offchain-badge">
                                 ⚠️ Off-Chain Only
                             </div>
-                        `}
+                        `
+                        }
                         <div class="nft-badge">${rarityEscaped}</div>
                         ${imageHtml}
                     </div>
@@ -1163,11 +1228,11 @@
                             <div class="nft-tier" style="color: ${tierColor};">${tierNameEscaped}</div>
                             <div class="nft-rarity" style="background: ${rarityColor};">${rarityEscaped}</div>
                         </div>
-                        
+
                         <div class="nft-multiplier">
                             🚀 ${nft.earning_multiplier || 1.0}x Earning Boost
                         </div>
-                        
+
                         <div class="nft-details">
                             <div class="nft-detail-row">
                                 <span>🎨 Design:</span>
@@ -1177,171 +1242,207 @@
                                 <span>📅 Minted:</span>
                                 <strong>${escapeHtml(mintedDate)}</strong>
                             </div>
-                            ${nft.price_paid_sol ? `
+                            ${
+                              nft.price_paid_sol
+                                ? `
                                 <div class="nft-detail-row">
                                     <span>💎 Price Paid:</span>
                                     <strong>${escapeHtml(String(nft.price_paid_sol))} SOL</strong>
                                 </div>
-                            ` : ''}
-                            ${nft.price_paid_tama ? `
+                            `
+                                : ''
+                            }
+                            ${
+                              nft.price_paid_tama
+                                ? `
                                 <div class="nft-detail-row">
                                     <span>💰 Price Paid:</span>
-                                    <strong>${escapeHtml(String(nft.price_paid_tama.toLocaleString()))} TAMA</strong>
+                                    <strong>${escapeHtml(
+                                      String(nft.price_paid_tama.toLocaleString())
+                                    )} TAMA</strong>
                                 </div>
-                            ` : ''}
+                            `
+                                : ''
+                            }
                         </div>
-                        
-                        ${isRealOnChain ? `
+
+                        ${
+                          isRealOnChain
+                            ? `
                             <div class="nft-mint-address">
                                 <strong>📍 Mint Address:</strong><br>
-                                <code style="font-size: 11px; word-break: break-all; display: block; padding: 5px; background: rgba(0,0,0,0.1); border-radius: 4px;">${escapeHtml(String(nft.nft_mint_address || ''))}</code>
+                                <code style="font-size: 11px; word-break: break-all; display: block; padding: 5px; background: rgba(0,0,0,0.1); border-radius: 4px;">${escapeHtml(
+                                  String(nft.nft_mint_address || '')
+                                )}</code>
                             </div>
-                        ` : `
+                        `
+                            : `
                             <div class="nft-mint-address" style="background: #fff3cd; border-color: #ffc107;">
                                 <strong>⚠️ Internal ID:</strong><br>
-                                <code style="font-size: 11px; word-break: break-all; display: block; padding: 5px; background: rgba(0,0,0,0.1); border-radius: 4px;">${escapeHtml(String(nft.nft_mint_address || 'N/A'))}</code>
+                                <code style="font-size: 11px; word-break: break-all; display: block; padding: 5px; background: rgba(0,0,0,0.1); border-radius: 4px;">${escapeHtml(
+                                  String(nft.nft_mint_address || 'N/A')
+                                )}</code>
                             </div>
-                        `}
-                        
+                        `
+                        }
+
                         <div class="nft-actions">
-                            ${isRealOnChain ? `
+                            ${
+                              isRealOnChain
+                                ? `
                                 <button class="nft-btn explorer-btn" onclick="window.open('${explorerUrl}', '_blank')">
                                     🔗 View on Explorer
                                 </button>
                                 <button class="nft-btn view-btn" onclick="viewInPhantom('${nft.nft_mint_address}')">
                                     👛 View in Phantom
                                 </button>
-                            ` : `
+                            `
+                                : `
                                 <button class="nft-btn view-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
                                     ⚠️ Not on Blockchain
                                 </button>
                                 <button class="nft-btn explorer-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
                                     🔗 No Explorer Link
                                 </button>
-                            `}
+                            `
+                            }
                         </div>
                     </div>
                 `;
-                
-                nftGrid.appendChild(nftCard);
-            });
-            
-            document.getElementById('nft-container').innerHTML = '';
-            document.getElementById('nft-container').appendChild(nftGrid);
-        }
-        
-        // Get tier emoji
-        function getTierEmoji(tier) {
-            const emojis = {
-                'Bronze': '🥉',
-                'Silver': '🥈',
-                'Gold': '🥇',
-                'Platinum': '💎',
-                'Diamond': '🔷'
-            };
-            return emojis[tier] || '🎨';
-        }
-        
-        // Get on-chain NFT image from blockchain metadata
-        async function getOnChainNFTImage(mintAddress) {
-            try {
-                // Fetch from our API endpoint which uses Metaplex to get metadata
-                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? `http://localhost:3001/api/get-nft-metadata?mint=${encodeURIComponent(mintAddress)}`
-                    : `https://solanatamagotchi-onchain.onrender.com/api/get-nft-metadata?mint=${encodeURIComponent(mintAddress)}`;
-                
-                console.log('🔍 Fetching NFT image from blockchain:', mintAddress);
-                
-                const apiResponse = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (apiResponse.ok) {
-                    const apiData = await apiResponse.json();
-                    if (apiData?.image) {
-                        console.log('✅ Got image from blockchain for:', mintAddress, '→', apiData.image);
-                        return apiData.image;
-                    } else {
-                        console.warn('⚠️ API returned no image for:', mintAddress);
-                    }
-                } else {
-                    const errorText = await apiResponse.text();
-                    console.warn('⚠️ API request failed:', apiResponse.status, errorText);
-                }
-                
-                // Fallback: return null to use static IPFS image
-                return null;
-                
-            } catch (error) {
-                console.error('❌ Failed to fetch on-chain NFT image:', error);
-                return null;
+
+          nftGrid.appendChild(nftCard);
+        });
+
+        document.getElementById('nft-container').innerHTML = '';
+        document.getElementById('nft-container').appendChild(nftGrid);
+      }
+
+      // Get tier emoji
+      function getTierEmoji(tier) {
+        const emojis = {
+          Bronze: '🥉',
+          Silver: '🥈',
+          Gold: '🥇',
+          Platinum: '💎',
+          Diamond: '🔷',
+        };
+        return emojis[tier] || '🎨';
+      }
+
+      // Get on-chain NFT image from blockchain metadata
+      async function getOnChainNFTImage(mintAddress) {
+        try {
+          // Fetch from our API endpoint which uses Metaplex to get metadata
+          const apiUrl =
+            window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+              ? `http://localhost:3001/api/get-nft-metadata?mint=${encodeURIComponent(mintAddress)}`
+              : `https://solanatamagotchi-onchain.onrender.com/api/get-nft-metadata?mint=${encodeURIComponent(
+                  mintAddress
+                )}`;
+
+          console.log('🔍 Fetching NFT image from blockchain:', mintAddress);
+
+          const apiResponse = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (apiResponse.ok) {
+            const apiData = await apiResponse.json();
+            if (apiData?.image) {
+              console.log('✅ Got image from blockchain for:', mintAddress, '→', apiData.image);
+              return apiData.image;
+            } else {
+              console.warn('⚠️ API returned no image for:', mintAddress);
             }
+          } else {
+            const errorText = await apiResponse.text();
+            console.warn('⚠️ API request failed:', apiResponse.status, errorText);
+          }
+
+          // Fallback: return null to use static IPFS image
+          return null;
+        } catch (error) {
+          console.error('❌ Failed to fetch on-chain NFT image:', error);
+          return null;
         }
-        
-        // Get NFT image URL from IPFS (fallback for off-chain or when blockchain fetch fails)
-        function getNFTImageUrl(tier, rarity) {
-            const ipfsUrls = {
-                'bronze': {
-                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i',
-                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq',
-                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq',
-                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i' // TODO: Upload real Legendary image
-                },
-                'silver': {
-                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
-                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
-                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreigywjdjw3vxopv4blicqioyx5fyqpwcvs22s2ea377rofvh2sslnm'
-                },
-                'gold': {
-                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreicywzvyse3immuhakmd4dvv22gxsikmzhn4q7cjkmzjpp7253ftse',
-                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
-                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
-                },
-                'platinum': {
-                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4',
-                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreihrwin3ld34uner7rpwggke2pfnn5beb3eyrw7vrjmw6n5hen5hie'
-                },
-                'diamond': {
-                    'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq',
-                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreidtqr62aeflchsghhdoo4m7tv33j7za5w3ttzqziwkl4u4cmgz7tq'
-                }
-            };
-            
-            const tierLower = (tier || '').toLowerCase();
-            const rarityLower = (rarity || '').toLowerCase();
-            
-            return ipfsUrls[tierLower]?.[rarityLower] || null;
-        }
-        
-        // View in Phantom
-        function viewInPhantom(mintAddress) {
-            alert(`To view this NFT in Phantom Wallet:\n\n1. Open Phantom Wallet\n2. Switch to Devnet (Settings → Network → Devnet)\n3. Go to Collectibles tab\n4. You should see your NFT!\n\nMint Address: ${mintAddress}`);
-        }
-        
-        // Show NFT details modal
-        function showNFTDetails(nft) {
-            const isRealOnChain = nft.nft_mint_address && 
-                nft.nft_mint_address.length > 30 && 
-                !nft.nft_mint_address.includes('_');
-            
-            const tierColor = tierColors[nft.tier_name] || '#666';
-            const rarityColor = rarityColors[nft.rarity] || '#666';
-            const imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
-            const explorerUrl = isRealOnChain 
-                ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
-                : '#';
-            
-            const modal = document.createElement('div');
-            modal.id = 'nft-details-modal';
-            modal.style.cssText = `
+      }
+
+      // Get NFT image URL from IPFS (fallback for off-chain or when blockchain fetch fails)
+      function getNFTImageUrl(tier, rarity) {
+        const ipfsUrls = {
+          bronze: {
+            common:
+              'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i',
+            uncommon:
+              'https://gateway.lighthouse.storage/ipfs/bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq',
+            rare: 'https://gateway.lighthouse.storage/ipfs/bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y',
+            epic: 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq',
+            legendary:
+              'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i', // TODO: Upload real Legendary image
+          },
+          silver: {
+            uncommon:
+              'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+            rare: 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+            epic: 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
+            legendary:
+              'https://gateway.lighthouse.storage/ipfs/bafkreigywjdjw3vxopv4blicqioyx5fyqpwcvs22s2ea377rofvh2sslnm',
+          },
+          gold: {
+            common:
+              'https://gateway.lighthouse.storage/ipfs/bafkreicywzvyse3immuhakmd4dvv22gxsikmzhn4q7cjkmzjpp7253ftse',
+            uncommon:
+              'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
+            rare: 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
+            epic: 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
+          },
+          platinum: {
+            rare: 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
+            epic: 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4',
+            legendary:
+              'https://gateway.lighthouse.storage/ipfs/bafkreihrwin3ld34uner7rpwggke2pfnn5beb3eyrw7vrjmw6n5hen5hie',
+          },
+          diamond: {
+            rare: 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
+            epic: 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq',
+            legendary:
+              'https://gateway.lighthouse.storage/ipfs/bafkreidtqr62aeflchsghhdoo4m7tv33j7za5w3ttzqziwkl4u4cmgz7tq',
+          },
+        };
+
+        const tierLower = (tier || '').toLowerCase();
+        const rarityLower = (rarity || '').toLowerCase();
+
+        return ipfsUrls[tierLower]?.[rarityLower] || null;
+      }
+
+      // View in Phantom
+      function viewInPhantom(mintAddress) {
+        alert(
+          `To view this NFT in Phantom Wallet:\n\n1. Open Phantom Wallet\n2. Switch to Devnet (Settings → Network → Devnet)\n3. Go to Collectibles tab\n4. You should see your NFT!\n\nMint Address: ${mintAddress}`
+        );
+      }
+
+      // Show NFT details modal
+      function showNFTDetails(nft) {
+        const isRealOnChain =
+          nft.nft_mint_address &&
+          nft.nft_mint_address.length > 30 &&
+          !nft.nft_mint_address.includes('_');
+
+        const tierColor = tierColors[nft.tier_name] || '#666';
+        const rarityColor = rarityColors[nft.rarity] || '#666';
+        const imageUrl = getNFTImageUrl(nft.tier_name, nft.rarity);
+        const explorerUrl = isRealOnChain
+          ? `https://solscan.io/token/${nft.nft_mint_address}?cluster=devnet`
+          : '#';
+
+        const modal = document.createElement('div');
+        modal.id = 'nft-details-modal';
+        modal.style.cssText = `
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -1356,12 +1457,12 @@
                 padding: 20px;
                 animation: fadeIn 0.3s ease;
             `;
-            
-            // Add animations if not exists
-            if (!document.getElementById('modal-animations')) {
-                const style = document.createElement('style');
-                style.id = 'modal-animations';
-                style.textContent = `
+
+        // Add animations if not exists
+        if (!document.getElementById('modal-animations')) {
+          const style = document.createElement('style');
+          style.id = 'modal-animations';
+          style.textContent = `
                     @keyframes fadeIn {
                         from { opacity: 0; }
                         to { opacity: 1; }
@@ -1371,14 +1472,14 @@
                         to { transform: translateY(0) scale(1); opacity: 1; }
                     }
                 `;
-                document.head.appendChild(style);
-            }
-            
-            // Remove old modal if exists
-            const oldModal = document.getElementById('nft-details-modal');
-            if (oldModal) oldModal.remove();
-            
-            modal.innerHTML = `
+          document.head.appendChild(style);
+        }
+
+        // Remove old modal if exists
+        const oldModal = document.getElementById('nft-details-modal');
+        if (oldModal) oldModal.remove();
+
+        modal.innerHTML = `
                 <div style="
                     background: white;
                     border-radius: 25px;
@@ -1410,7 +1511,7 @@
                         justify-content: center;
                         line-height: 1;
                     " onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(244, 67, 54, 0.6)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(244, 67, 54, 0.4)';" title="Close">×</button>
-                    
+
                     <div style="padding: 40px;">
                         <div style="
                             width: 100%;
@@ -1425,42 +1526,58 @@
                             overflow: hidden;
                             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
                         ">
-                            ${imageUrl ? `
-                                <img src="${imageUrl}" alt="${escapeHtml(nft.tier_name)} ${escapeHtml(nft.rarity)}" 
+                            ${
+                              imageUrl
+                                ? `
+                                <img src="${imageUrl}" alt="${escapeHtml(
+                                    nft.tier_name
+                                  )} ${escapeHtml(nft.rarity)}"
                                      style="width: 100%; height: 100%; object-fit: cover; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; transition: transform 0.5s ease;"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                      onmouseover="this.style.transform='scale(1.05)';"
                                      onmouseout="this.style.transform='scale(1)';">
-                                <div style="display: none; font-size: 140px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">${getTierEmoji(nft.tier_name)}</div>
-                            ` : `
-                                <div style="font-size: 140px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">${getTierEmoji(nft.tier_name)}</div>
-                            `}
-                            ${isRealOnChain ? `
+                                <div style="display: none; font-size: 140px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">${getTierEmoji(
+                                  nft.tier_name
+                                )}</div>
+                            `
+                                : `
+                                <div style="font-size: 140px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">${getTierEmoji(
+                                  nft.tier_name
+                                )}</div>
+                            `
+                            }
+                            ${
+                              isRealOnChain
+                                ? `
                                 <div style="position: absolute; top: 15px; left: 15px; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 8px 15px; border-radius: 20px; font-size: 11px; font-weight: bold; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); display: flex; align-items: center; gap: 5px;">
                                     ✅ Real On-Chain
                                 </div>
-                            ` : `
+                            `
+                                : `
                                 <div style="position: absolute; top: 15px; left: 15px; background: linear-gradient(135deg, #FF9800, #F57C00); color: white; padding: 8px 15px; border-radius: 20px; font-size: 11px; font-weight: bold; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);">
                                     ⚠️ Off-Chain Only
                                 </div>
-                            `}
+                            `
+                            }
                             <div style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                                 ${escapeHtml(nft.rarity || 'Unknown')}
                             </div>
                         </div>
-                        
+
                         <h2 style="color: ${tierColor}; margin-bottom: 15px; font-size: 32px; font-weight: bold; text-align: center;">
                             ${escapeHtml(nft.tier_name || 'Unknown')} NFT
                         </h2>
                         <div style="text-align: center; margin-bottom: 15px;">
                             <span style="font-size: 24px;">${getTierEmoji(nft.tier_name)}</span>
                         </div>
-                        
+
                         <div style="background: linear-gradient(135deg, #FFD700, #FF8C00); color: white; padding: 18px; border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; margin: 25px 0; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); position: relative; overflow: hidden;">
                             <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent); animation: shine 3s infinite;"></div>
-                            <span style="position: relative; z-index: 1;">🚀 ${nft.earning_multiplier || 1.0}x Earning Boost</span>
+                            <span style="position: relative; z-index: 1;">🚀 ${
+                              nft.earning_multiplier || 1.0
+                            }x Earning Boost</span>
                         </div>
-                        
+
                         <div style="background: linear-gradient(to bottom, #f9f9f9, #f5f5f5); padding: 25px; border-radius: 15px; margin: 25px 0; border: 2px solid #e0e0e0; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                             <h3 style="margin-bottom: 20px; color: #1D3557; font-size: 20px; display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 24px;">📋</span> Details
@@ -1468,47 +1585,75 @@
                             <div style="line-height: 2.2; color: #555;">
                                 <div style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between;">
                                     <span style="font-weight: 600;">🎨 Design:</span>
-                                    <strong style="color: ${tierColor};">#${escapeHtml(String(nft.design_number || 'N/A'))}</strong>
+                                    <strong style="color: ${tierColor};">#${escapeHtml(
+          String(nft.design_number || 'N/A')
+        )}</strong>
                                 </div>
                                 <div style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between;">
                                     <span style="font-weight: 600;">📅 Minted:</span>
-                                    <strong>${escapeHtml(nft.minted_at ? new Date(nft.minted_at).toLocaleString() : 'Unknown')}</strong>
+                                    <strong>${escapeHtml(
+                                      nft.minted_at
+                                        ? new Date(nft.minted_at).toLocaleString()
+                                        : 'Unknown'
+                                    )}</strong>
                                 </div>
-                                ${nft.price_paid_sol ? `
+                                ${
+                                  nft.price_paid_sol
+                                    ? `
                                     <div style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between;">
                                         <span style="font-weight: 600;">💎 Price Paid:</span>
-                                        <strong style="color: #667eea;">${escapeHtml(String(nft.price_paid_sol))} SOL</strong>
+                                        <strong style="color: #667eea;">${escapeHtml(
+                                          String(nft.price_paid_sol)
+                                        )} SOL</strong>
                                     </div>
-                                ` : ''}
-                                ${nft.price_paid_tama ? `
+                                `
+                                    : ''
+                                }
+                                ${
+                                  nft.price_paid_tama
+                                    ? `
                                     <div style="padding: 8px 0; display: flex; justify-content: space-between;">
                                         <span style="font-weight: 600;">💰 Price Paid:</span>
-                                        <strong style="color: #8AC926;">${escapeHtml(String(nft.price_paid_tama.toLocaleString()))} TAMA</strong>
+                                        <strong style="color: #8AC926;">${escapeHtml(
+                                          String(nft.price_paid_tama.toLocaleString())
+                                        )} TAMA</strong>
                                     </div>
-                                ` : ''}
+                                `
+                                    : ''
+                                }
                             </div>
                         </div>
-                        
-                        ${isRealOnChain ? `
+
+                        ${
+                          isRealOnChain
+                            ? `
                             <div style="background: linear-gradient(to right, #e8f5e9, #f1f8f4); padding: 18px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #4CAF50; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                     <span style="font-size: 20px;">✅</span>
                                     <strong style="color: #2e7d32; font-size: 16px;">Real On-Chain NFT</strong>
                                 </div>
-                                <code style="font-size: 11px; word-break: break-all; color: #555; background: rgba(255,255,255,0.7); padding: 8px; border-radius: 6px; display: block; font-family: 'Courier New', monospace;">${escapeHtml(nft.nft_mint_address || '')}</code>
+                                <code style="font-size: 11px; word-break: break-all; color: #555; background: rgba(255,255,255,0.7); padding: 8px; border-radius: 6px; display: block; font-family: 'Courier New', monospace;">${escapeHtml(
+                                  nft.nft_mint_address || ''
+                                )}</code>
                             </div>
-                        ` : `
+                        `
+                            : `
                             <div style="background: linear-gradient(to right, #fff3cd, #fffbf0); padding: 18px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #ffc107; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                                     <span style="font-size: 20px;">⚠️</span>
                                     <strong style="color: #f57c00; font-size: 16px;">Off-Chain Only</strong>
                                 </div>
-                                <code style="font-size: 11px; word-break: break-all; color: #555; background: rgba(255,255,255,0.7); padding: 8px; border-radius: 6px; display: block; font-family: 'Courier New', monospace;">${escapeHtml(nft.nft_mint_address || 'N/A')}</code>
+                                <code style="font-size: 11px; word-break: break-all; color: #555; background: rgba(255,255,255,0.7); padding: 8px; border-radius: 6px; display: block; font-family: 'Courier New', monospace;">${escapeHtml(
+                                  nft.nft_mint_address || 'N/A'
+                                )}</code>
                             </div>
-                        `}
-                        
+                        `
+                        }
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
-                            ${isRealOnChain ? `
+                            ${
+                              isRealOnChain
+                                ? `
                                 <button onclick="window.open('${explorerUrl}', '_blank')" style="
                                     padding: 12px;
                                     background: linear-gradient(135deg, #8AC926, #1D3557);
@@ -1518,7 +1663,9 @@
                                     font-weight: bold;
                                     cursor: pointer;
                                 ">🔗 View on Solscan</button>
-                                <button onclick="viewInPhantom('${escapeHtml(nft.nft_mint_address)}'); this.closest('div[style*=\"position: fixed\"]').remove();" style="
+                                <button onclick="viewInPhantom('${escapeHtml(
+                                  nft.nft_mint_address
+                                )}'); this.closest('div[style*=\"position: fixed\"]').remove();" style="
                                     padding: 12px;
                                     background: linear-gradient(135deg, #667eea, #764ba2);
                                     color: white;
@@ -1527,7 +1674,8 @@
                                     font-weight: bold;
                                     cursor: pointer;
                                 ">👛 View in Phantom</button>
-                            ` : `
+                            `
+                                : `
                                 <button disabled style="
                                     padding: 12px;
                                     background: #ccc;
@@ -1538,40 +1686,41 @@
                                     cursor: not-allowed;
                                     opacity: 0.5;
                                 ">⚠️ Not on Blockchain</button>
-                            `}
+                            `
+                            }
                         </div>
                     </div>
                 </div>
             `;
-            
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.remove();
-                }
-            });
-            
-            document.body.appendChild(modal);
+
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.remove();
+          }
+        });
+
+        document.body.appendChild(modal);
+      }
+
+      // Disconnect
+      function disconnect() {
+        currentUser = null;
+        currentWallet = null;
+        connectionType = null;
+
+        if (window.solana && window.solana.isConnected) {
+          window.solana.disconnect();
         }
-        
-        // Disconnect
-        function disconnect() {
-            currentUser = null;
-            currentWallet = null;
-            connectionType = null;
-            
-            if (window.solana && window.solana.isConnected) {
-                window.solana.disconnect();
-            }
-            
-            // Reload page to reset
-            window.location.href = 'my-nfts.html';
-        }
-        
-        // Show error
-        function showError(message) {
-            // 🔐 SECURITY: Escape error message to prevent XSS
-            const safeMessage = escapeHtml(String(message || 'Unknown error'));
-            document.getElementById('nft-container').innerHTML = `
+
+        // Reload page to reset
+        window.location.href = 'my-nfts.html';
+      }
+
+      // Show error
+      function showError(message) {
+        // 🔐 SECURITY: Escape error message to prevent XSS
+        const safeMessage = escapeHtml(String(message || 'Unknown error'));
+        document.getElementById('nft-container').innerHTML = `
                 <div class="error-message">
                     <strong>❌ Error</strong><br>
                     ${safeMessage}
@@ -1581,29 +1730,33 @@
                     <button class="mint-btn" onclick="window.location.reload()">🔄 Reload Page</button>
                 </div>
             `;
-        }
-        
-        // Initialize on load - wait for auth.js to be ready
-        window.addEventListener('gotchiAuthReady', (event) => {
-            console.log('✅ Auth ready, initializing NFT page...');
+      }
+
+      // Initialize on load - wait for auth.js to be ready
+      window.addEventListener('gotchiAuthReady', (event) => {
+        console.log('✅ Auth ready, initializing NFT page...');
+        init();
+      });
+
+      // Fallback: if auth is already ready, init immediately
+      if (
+        window.GotchiAuth &&
+        window.GotchiAuth.isAuthenticated &&
+        window.GotchiAuth.isAuthenticated()
+      ) {
+        console.log('✅ Auth already initialized, starting NFT page...');
+        init();
+      } else {
+        // Wait a bit for auth.js to load
+        setTimeout(() => {
+          if (window.GotchiAuth) {
             init();
-        });
-        
-        // Fallback: if auth is already ready, init immediately
-        if (window.GotchiAuth && window.GotchiAuth.isAuthenticated && window.GotchiAuth.isAuthenticated()) {
-            console.log('✅ Auth already initialized, starting NFT page...');
+          } else {
+            console.warn('⚠️ Auth.js not loaded, initializing without auth...');
             init();
-        } else {
-            // Wait a bit for auth.js to load
-            setTimeout(() => {
-                if (window.GotchiAuth) {
-                    init();
-                } else {
-                    console.warn('⚠️ Auth.js not loaded, initializing without auth...');
-                    init();
-                }
-            }, 500);
-        }
+          }
+        }, 500);
+      }
     </script>
-</body>
+  </body>
 </html>
