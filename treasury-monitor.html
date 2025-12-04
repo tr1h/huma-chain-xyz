@@ -1877,6 +1877,26 @@
               String(t.type || '').includes('spend') ||
               String(t.type || '').includes('transfer_out');
 
+            // Extract signature and metadata FIRST (before using them)
+            let signature = null;
+            let metadata = {};
+            try {
+              metadata = t.metadata
+                ? typeof t.metadata === 'string'
+                  ? JSON.parse(t.metadata)
+                  : t.metadata
+                : {};
+              signature = metadata.transaction_signature ||
+                         metadata.onchain_signature ||
+                         metadata.signature ||
+                         metadata.tx_signature ||
+                         null;
+            } catch (e) {
+              console.warn('Error parsing metadata:', e);
+              metadata = {};
+              signature = null;
+            }
+
             // Determine wallet name
             let walletName = t.username || t.user_id || 'Unknown';
             const userId = String(t.user_id || '');
@@ -1895,26 +1915,6 @@
             if ((!walletName || walletName === 'Unknown' || walletName === userId) && metadata && metadata.wallet_address) {
               const walletAddr = metadata.wallet_address;
               walletName = `👛 Wallet: ${walletAddr.substring(0, 8)}...${walletAddr.substring(walletAddr.length - 6)}`;
-            }
-
-            // Extract signature from metadata FIRST (before using it)
-            let signature = null;
-            let metadata = {};
-            try {
-              metadata = t.metadata
-                ? typeof t.metadata === 'string'
-                  ? JSON.parse(t.metadata)
-                  : t.metadata
-                : {};
-              signature = metadata.transaction_signature ||
-                         metadata.onchain_signature ||
-                         metadata.signature ||
-                         metadata.tx_signature ||
-                         null;
-            } catch (e) {
-              console.warn('Error parsing metadata:', e);
-              metadata = {};
-              signature = null;
             }
 
             // Type badge + On-Chain badge
