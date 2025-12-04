@@ -489,8 +489,8 @@
                 const result = await supabase
                     .from('transactions')
                     .select('*')
-                    .eq('type', 'nft_mint_onchain')
-                    .order('timestamp', { ascending: false })
+                    .eq('type', 'nft_mint')
+                    .order('created_at', { ascending: false })
                     .limit(50);
 
                 if (result.error) {
@@ -517,7 +517,7 @@
                 // Render table
                 tbody.innerHTML = data.map(tx => {
                     const metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
-                    const time = new Date(tx.timestamp || Date.now()).toLocaleString();
+                    const time = new Date(tx.created_at || Date.now()).toLocaleString();
                     const tier = metadata?.tier || 'N/A';
                     const rarity = metadata?.rarity || 'N/A';
                     const multiplier = metadata?.multiplier || 'N/A';
@@ -551,8 +551,8 @@
                 const result = await supabase
                     .from('transactions')
                     .select('*')
-                    .in('type', ['p2e_pool_refund', 'treasury_income', 'burn_from_bronze_nft', 'burn_from_withdrawal'])
-                    .order('timestamp', { ascending: false })
+                    .in('type', ['p2e_pool_refund_from_nft_onchain', 'treasury_income_from_nft_onchain', 'burn_from_bronze_nft_onchain', 'tama_burn'])
+                    .order('created_at', { ascending: false })
                     .limit(50);
 
                 if (result.error) {
@@ -583,7 +583,7 @@
                 // Render table
                 tbody.innerHTML = data.map(tx => {
                     const metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : tx.metadata;
-                    const time = new Date(tx.timestamp || Date.now()).toLocaleString();
+                    const time = new Date(tx.created_at || Date.now()).toLocaleString();
                     const amount = Math.abs(tx.amount || 0);
                     const signature = metadata?.transaction_signature?.substring(0, 8) + '...' || 'N/A';
                     const explorerUrl = metadata?.transaction_signature
@@ -623,6 +623,19 @@
             const now = new Date();
             const daysSinceLaunch = Math.floor((now - launchDate) / (1000 * 60 * 60 * 24));
 
+            // Периоды и их пулы (400M всего, согласно whitepaper)
+            // Каждое полугодие = 180 дней
+            const periods = [
+                { name: 'Year 1 H1', pool: 200000000, daily: 1111111, days: 180 }, // 200M / 180 = 1.1M/day
+                { name: 'Year 1 H2', pool: 100000000, daily: 555556, days: 180 },  // 100M / 180 = 555K/day
+                { name: 'Year 2 H1', pool: 50000000, daily: 277778, days: 180 },   // 50M / 180 = 278K/day
+                { name: 'Year 2 H2', pool: 25000000, daily: 138889, days: 180 },   // 25M / 180 = 139K/day
+                { name: 'Year 3 H1', pool: 12500000, daily: 69444, days: 180 },    // 12.5M / 180 = 69K/day
+                { name: 'Year 3 H2', pool: 6250000, daily: 34722, days: 180 },     // 6.25M / 180 = 35K/day
+                { name: 'Year 4 H1', pool: 3125000, daily: 17361, days: 180 },     // 3.125M / 180 = 17K/day
+                { name: 'Year 4 H2', pool: 3125000, daily: 17361, days: 180 }      // 3.125M / 180 = 17K/day
+            ];
+
             // Определить текущий период (с учетом разных длительностей периодов)
             let periodNumber = 0;
             let daysInPeriod = daysSinceLaunch;
@@ -644,20 +657,6 @@
                 daysInPeriod = periods[periodNumber].days;
                 daysLeftInPeriod = 0;
             }
-
-            // Периоды и их пулы (400M всего, правильное распределение)
-            // Daily Pool уменьшен на ~30% для увеличения времени майнинга с 4 до 5.5 лет
-            // Year 4 H2 увеличен до 3.125M для точного распределения всех 400M
-            const periods = [
-                { name: 'Year 1 H1', pool: 200000000, daily: 800000, days: 250 },
-                { name: 'Year 1 H2', pool: 100000000, daily: 392157, days: 255 },
-                { name: 'Year 2 H1', pool: 50000000, daily: 200000, days: 250 },
-                { name: 'Year 2 H2', pool: 25000000, daily: 98039, days: 255 },
-                { name: 'Year 3 H1', pool: 12500000, daily: 50000, days: 250 },
-                { name: 'Year 3 H2', pool: 6250000, daily: 24510, days: 255 },
-                { name: 'Year 4 H1', pool: 3125000, daily: 12500, days: 250 },
-                { name: 'Year 4 H2', pool: 3125000, daily: 12255, days: 255 } // 3.125M вместо 1.5625M для точных 400M
-            ];
 
             const currentPeriod = periods[periodNumber] || periods[periods.length - 1];
             const nextPeriod = periods[periodNumber + 1] || null;
