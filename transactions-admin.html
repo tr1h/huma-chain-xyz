@@ -140,7 +140,7 @@
             align-items: center;
             margin-bottom: 30px;
         }
-        
+
         .back-btn {
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -154,7 +154,7 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateX(-5px);
@@ -309,27 +309,27 @@
             background: #ef4444;
             color: #fff;
         }
-        
+
         .type-burn {
             background: #ff6b35;
             color: #fff;
         }
-        
+
         .type-treasury {
             background: #8b5cf6;
             color: #fff;
         }
-        
+
         .type-p2e {
             background: #3b82f6;
             color: #fff;
         }
-        
+
         .type-sol {
             background: #f59e0b;
             color: #fff;
         }
-        
+
         .type-treasury-sol {
             background: #a855f7;
             color: #fff;
@@ -369,7 +369,7 @@
             color: #ef4444;
             font-weight: bold;
         }
-        
+
         .amount-burn {
             color: #ff6b35;
             font-weight: bold;
@@ -660,7 +660,7 @@
         const SUPABASE_URL = window.AdminEnv?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_ANON_KEY = window.AdminEnv?.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
         const TAMA_API_BASE = window.AdminEnv?.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
-        
+
         console.log('✅ Admin Environment loaded:', { supabase: SUPABASE_URL, api: TAMA_API_BASE });
 
         let allTransactions = [];
@@ -713,7 +713,7 @@
                 if (payload && payload.data) {
                     // Ensure data is an array
                     const newTransactions = Array.isArray(payload.data) ? payload.data : [];
-                    
+
                     // For live updates: check if we have new transactions
                     if (updateOnly && lastTransactionTime && newTransactions.length > 0) {
                         const latestTime = new Date(newTransactions[0].created_at);
@@ -725,14 +725,14 @@
                         }
                         return; // No new transactions
                     }
-                    
+
                     allTransactions = newTransactions;
-                    
+
                     // Update last transaction time for live updates
                     if (allTransactions.length > 0) {
                         lastTransactionTime = new Date(allTransactions[0].created_at);
                     }
-                    
+
                     // Use count from API if available, otherwise estimate
                     if (payload.count !== undefined) {
                         totalCount = payload.count;
@@ -751,11 +751,11 @@
                     }
                 }
                 console.log(`✅ Loaded page ${currentPage}: ${allTransactions.length} TAMA transactions (Total: ~${totalCount})`);
-                
+
                 // Load users data (only on full load, not on updates)
                 if (!updateOnly) {
                     await loadUsersData();
-                    
+
                     // Load and merge NFT mints
                     const nftMints = await loadNFTMints();
                     if (nftMints && nftMints.length > 0) {
@@ -765,7 +765,7 @@
                         allTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                     }
                 }
-                
+
                 updateStats();
                 renderTransactions(allTransactions);
                 updateLastUpdateTime();
@@ -812,12 +812,12 @@
                 if (response.ok) {
                     const nftMints = await response.json();
                     console.log('✅ Loaded NFT mints:', nftMints.length);
-                    
+
                     // Convert NFT mints to transaction format
                     return nftMints.map(nft => {
                         const paymentType = nft.payment_type || (nft.purchase_price_tama > 0 ? 'TAMA' : 'SOL');
                         const amount = paymentType === 'TAMA' ? nft.purchase_price_tama : nft.price_paid_sol;
-                        
+
                         return {
                             created_at: nft.minted_at,
                             user_id: String(nft.telegram_id),
@@ -851,26 +851,26 @@
                 console.warn('⚠️ allTransactions is not an array, resetting to []');
                 allTransactions = [];
             }
-            
+
             // ✅ CORRECTED LOGIC: Calculate by sign of amount, not by type
             let totalEarned = 0;
             let totalSpent = 0;
             let nftMintCount = 0;
             let burnCount = 0;
-            
+
             allTransactions.forEach(t => {
                 const amount = t.amount || 0;
-                
+
                 // Count NFT mints
                 if (t.type.includes('nft_mint')) {
                     nftMintCount++;
                 }
-                
+
                 // Count burns separately
                 if (t.type.includes('burn')) {
                     burnCount++;
                 }
-                
+
                 // ✅ EARN: Positive amounts (user gained TAMA)
                 if (amount > 0) {
                     totalEarned += amount;
@@ -880,7 +880,7 @@
                     totalSpent += Math.abs(amount); // Convert to positive for display
                 }
             });
-            
+
             const uniqueUsers = new Set(allTransactions.map(t => t.user_id)).size;
             const netFlow = totalEarned - totalSpent;
 
@@ -891,7 +891,7 @@
             document.getElementById('nft-mints').textContent = nftMintCount.toLocaleString();
             document.getElementById('net-flow').textContent = Math.round(netFlow).toLocaleString() + ' TAMA';
             document.getElementById('active-users').textContent = uniqueUsers;
-            
+
             // 📊 Console stats for debugging
             console.log('📊 STATS UPDATE:', {
                 totalTransactions: totalCount,
@@ -902,14 +902,14 @@
                 netFlow: Math.round(netFlow),
                 activeUsers: uniqueUsers
             });
-            
+
             // Update pagination info
             updatePaginationInfo();
         }
 
         function renderTransactions(transactions) {
             const tbody = document.getElementById('transactions-body');
-            
+
             if (transactions.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="loading">No transactions found</td></tr>';
                 return;
@@ -918,13 +918,13 @@
             tbody.innerHTML = transactions.map(t => {
                 const date = new Date(t.created_at).toLocaleString();
                 const amount = t.amount || 0;
-                
+
                 // ✅ CORRECTED: Determine by SIGN, not by type
                 const isBurn = t.type.includes('burn');
                 const isSOL = t.type.includes('_sol') || (t.metadata && typeof t.metadata === 'string' && t.metadata.includes('"payment_method":"SOL"'));
-                
+
                 // Type badge color
-                const typeClass = t.type.startsWith('earn') ? 'type-earn' : 
+                const typeClass = t.type.startsWith('earn') ? 'type-earn' :
                                  t.type === 'nft_mint_tama' ? 'type-nft-tama' :
                                  t.type === 'nft_mint_sol' ? 'type-nft-sol' :
                                  t.type === 'nft_mint' ? 'type-spend' :
@@ -945,7 +945,7 @@
                                  t.type === 'quest_complete' ? 'type-quest' :
                                  t.type === 'referral_bonus' ? 'type-referral' :
                                  t.type === 'achievement_bonus' ? 'type-earn' : 'type-earn';
-                
+
                 // ✅ Amount color & prefix BY SIGN
                 let amountClass, amountPrefix, displayAmount;
                 if (isBurn) {
@@ -961,26 +961,40 @@
                     amountPrefix = '-';
                     displayAmount = Math.abs(amount);
                 }
-                
+
                 const currency = isSOL ? ' SOL' : ' TAMA';
-                
+
                 // Format metadata: NFT mints show tier, rarity, boost
                 // NFT revenue transactions show distribution info
+                let metadataObj = {};
+                try {
+                    metadataObj = t.metadata && typeof t.metadata === 'object' 
+                        ? t.metadata 
+                        : (t.metadata && typeof t.metadata === 'string' ? JSON.parse(t.metadata) : {});
+                } catch (e) {
+                    metadataObj = {};
+                }
+                
                 let metadata = '';
-                if (t.type.includes('nft_mint') && t.metadata && typeof t.metadata === 'object') {
-                    metadata = `${t.metadata.tier_name || ''} ${t.metadata.rarity || ''} (${t.metadata.earning_multiplier || 1}x)`;
-                } else if (t.type.includes('nft_revenue') && t.metadata) {
-                    const meta = typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata;
-                    metadata = `💰 ${meta.percentage || ''}% from ${meta.tier || 'NFT'} mint | Total: ${meta.total_price_sol || meta.amount_sol || 0} SOL`;
+                if (t.type.includes('nft_mint') && metadataObj) {
+                    metadata = `${metadataObj.tier_name || metadataObj.tier || ''} ${metadataObj.rarity || ''} (${metadataObj.earning_multiplier || 1}x)`;
+                } else if (t.type.includes('nft_revenue') && metadataObj) {
+                    metadata = `💰 ${metadataObj.percentage || ''}% from ${metadataObj.tier || 'NFT'} mint | Total: ${metadataObj.total_price_sol || metadataObj.amount_sol || 0} SOL`;
                 } else {
                     metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
                 }
-                const username = t.username || t.user_id;
                 
+                // 🔍 Show wallet address if username is Unknown or missing
+                let username = t.username || t.user_id || 'Unknown';
+                if ((!username || username === 'Unknown' || username === t.user_id) && metadataObj && metadataObj.wallet_address) {
+                    const walletAddr = metadataObj.wallet_address;
+                    username = `👛 ${walletAddr.substring(0, 8)}...${walletAddr.substring(walletAddr.length - 6)}`;
+                }
+
                 // Explorer link (from metadata) - using Solscan
                 let explorerLink = '-';
                 let signature = null;
-                
+
                 if (t.metadata && typeof t.metadata === 'object') {
                     signature = t.metadata.onchain_signature || t.metadata.transaction_signature;
                 } else if (typeof t.metadata === 'string') {
@@ -992,12 +1006,12 @@
                         // Invalid JSON, keep null
                     }
                 }
-                
+
                 if (signature) {
-                    explorerLink = `<a href="https://solscan.io/tx/${signature}?cluster=devnet" 
+                    explorerLink = `<a href="https://solscan.io/tx/${signature}?cluster=devnet"
                                       target="_blank" class="explorer-link" onclick="event.stopPropagation();">View 🔗</a>`;
                 }
-                
+
                 return `
                     <tr onclick="showUserDetails('${t.user_id}')">
                         <td>${date}</td>
@@ -1015,23 +1029,23 @@
         async function showUserDetails(userId) {
             const modal = document.getElementById('user-modal');
             const content = document.getElementById('user-details-content');
-            
+
             modal.classList.add('show');
             content.innerHTML = '<div class="loading">⏳ Loading user data...</div>';
 
             try {
                 // Get user from leaderboard
                 const user = allUsers[userId];
-                
+
                 // Get user transactions (ensure allTransactions is array)
-                const userTransactions = Array.isArray(allTransactions) 
+                const userTransactions = Array.isArray(allTransactions)
                     ? allTransactions.filter(t => t.user_id === userId)
                     : [];
-                
+
                 // ✅ CORRECTED: Calculate by SIGN, not by type
                 let totalEarned = 0;
                 let totalSpent = 0;
-                
+
                 userTransactions.forEach(t => {
                     const amount = t.amount || 0;
                     if (amount > 0) {
@@ -1123,7 +1137,7 @@
                 console.warn('⚠️ allTransactions is not an array, resetting to []');
                 allTransactions = [];
             }
-            
+
             const userFilter = document.getElementById('filter-user').value.toLowerCase();
             const typeFilter = document.getElementById('filter-type').value;
             const dateFrom = document.getElementById('filter-date-from').value;
@@ -1197,10 +1211,10 @@
         function changePage(direction) {
             const totalPages = Math.ceil(totalCount / PAGE_SIZE);
             currentPage += direction;
-            
+
             if (currentPage < 1) currentPage = 1;
             if (currentPage > totalPages) currentPage = totalPages;
-            
+
             loadTransactions();
         }
 
@@ -1208,11 +1222,11 @@
             const totalPages = totalCount > 0 ? Math.ceil(totalCount / PAGE_SIZE) : 1;
             const start = (currentPage - 1) * PAGE_SIZE + 1;
             const end = Math.min(currentPage * PAGE_SIZE, totalCount);
-            
+
             // Update button states
             const prevBtn = document.querySelector('button[onclick="changePage(-1)"]');
             const nextBtn = document.querySelector('button[onclick="changePage(1)"]');
-            
+
             if (prevBtn) {
                 prevBtn.disabled = currentPage <= 1;
                 prevBtn.style.opacity = currentPage <= 1 ? '0.5' : '1';
@@ -1221,7 +1235,7 @@
                 nextBtn.disabled = currentPage >= totalPages || allTransactions.length < PAGE_SIZE;
                 nextBtn.style.opacity = (currentPage >= totalPages || allTransactions.length < PAGE_SIZE) ? '0.5' : '1';
             }
-            
+
             document.getElementById('page-info').innerHTML = `
                 Page ${currentPage} of ${totalPages > 0 ? totalPages : '?'}<br>
                 <span style="font-size: 14px; opacity: 0.8;">

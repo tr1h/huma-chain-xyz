@@ -1878,6 +1878,12 @@
             else if (userId === RESERVE_WALLET) walletName = '🏦 Reserve';
             else if (userId === TREASURY_LIQUIDITY) walletName = '💧 Treasury Liquidity V2';
             else if (userId === TREASURY_TEAM) walletName = '👥 Treasury Team V2';
+            
+            // 🔍 If username is "Unknown" or missing, try to get wallet_address from metadata
+            if ((!walletName || walletName === 'Unknown' || walletName === userId) && metadata && metadata.wallet_address) {
+              const walletAddr = metadata.wallet_address;
+              walletName = `👛 Wallet: ${walletAddr.substring(0, 8)}...${walletAddr.substring(walletAddr.length - 6)}`;
+            }
 
             // Extract signature from metadata FIRST (before using it)
             let signature = null;
@@ -1888,10 +1894,10 @@
                   ? JSON.parse(t.metadata)
                   : t.metadata
                 : {};
-              signature = metadata.transaction_signature || 
-                         metadata.onchain_signature || 
-                         metadata.signature || 
-                         metadata.tx_signature || 
+              signature = metadata.transaction_signature ||
+                         metadata.onchain_signature ||
+                         metadata.signature ||
+                         metadata.tx_signature ||
                          null;
             } catch (e) {
               console.warn('Error parsing metadata:', e);
