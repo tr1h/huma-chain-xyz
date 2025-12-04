@@ -1896,7 +1896,11 @@
                 : 'type-treasury';
 
             // Extract signature from metadata
-            const metadata = t.metadata ? (typeof t.metadata === 'string' ? JSON.parse(t.metadata) : t.metadata) : {};
+            const metadata = t.metadata
+              ? typeof t.metadata === 'string'
+                ? JSON.parse(t.metadata)
+                : t.metadata
+              : {};
             const signature = metadata.transaction_signature || null;
 
             // On-Chain badge
@@ -2185,22 +2189,25 @@
             nftMintCount++;
           }
 
-          // Calculate TAMA distribution
+          // Calculate SOL distribution (all SOL-related transactions)
           if (
+            type.includes('_sol') || 
+            type.includes('sol_') || 
+            type.includes('nft_revenue') || 
+            type.includes('revenue_')
+          ) {
+            // SOL transaction (amount is already in SOL)
+            totalSolDistributed += amount;
+          } 
+          // Calculate TAMA distribution (non-SOL transactions)
+          else if (
             type.includes('treasury_income') ||
             type.includes('p2e_pool') ||
             type.includes('treasury_main') ||
             type.includes('treasury_liquidity') ||
             type.includes('treasury_team')
           ) {
-            // Check if it's TAMA or SOL
-            if (type.includes('_sol') || type.includes('sol_')) {
-              // SOL transaction - convert to TAMA equivalent (1 SOL = 32,800 TAMA)
-              const solAmount = amount / 32800;
-              totalSolDistributed += solAmount;
-            } else {
-              totalTamaDistributed += amount;
-            }
+            totalTamaDistributed += amount;
           }
 
           // Calculate burned
