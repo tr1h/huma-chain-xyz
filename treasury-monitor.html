@@ -964,8 +964,16 @@
       const TAMA_MINT = 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY';
       const TAMA_DECIMALS = 9;
 
-      // Get SOL balance from Solana RPC
-      async function getSolBalance(address) {
+      // Get SOL balance from Solana RPC with caching and retry
+      async function getSolBalance(address, retryCount = 0) {
+        const cacheKey = `sol_balance_${address}`;
+        
+        // Try cache first
+        const cached = getCachedBalance(cacheKey);
+        if (cached !== null) {
+          return cached;
+        }
+
         try {
           const response = await fetch(SOLANA_RPC, {
             method: 'POST',
@@ -978,16 +986,37 @@
             }),
           });
 
+          // Handle 429 Too Many Requests with exponential backoff
+          if (response.status === 429 && retryCount < MAX_RETRIES) {
+            const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+            console.warn(`⏳ Rate limited (429). Retrying in ${delay}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+            await sleep(delay);
+            return getSolBalance(address, retryCount + 1);
+          }
+
           if (response.ok) {
             const data = await response.json();
             if (data.result && data.result.value !== undefined) {
               // Convert lamports to SOL (1 SOL = 1,000,000,000 lamports)
-              return data.result.value / 1e9;
+              const balance = data.result.value / 1e9;
+              setCachedBalance(cacheKey, balance);
+              return balance;
             }
           }
+          
+          setCachedBalance(cacheKey, 0);
           return 0;
         } catch (error) {
           console.error(`Failed to get SOL balance for ${address}:`, error);
+          
+          // Return cached value even if expired (better than nothing)
+          const expiredCache = localStorage.getItem(cacheKey);
+          if (expiredCache) {
+            const { value } = JSON.parse(expiredCache);
+            console.log(`⚠️ Using expired cache for ${address}`);
+            return value;
+          }
+          
           return 0;
         }
       }
