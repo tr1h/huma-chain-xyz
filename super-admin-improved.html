@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Solana Tamagotchi - Super Admin Dashboard</title>
+    
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 0.85em;
+            color: #10b981;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #d1fae5;
+            color: #059669;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .data-table {
+            margin: 20px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .data-table h3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .badge.success {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge.warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge.danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>
+            <span>🎮 Solana Tamagotchi - Super Admin Dashboard</span>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="connection-status">
+                    <div class="status-dot"></div>
+                    <span id="connection-status">Connected</span>
+                </div>
+                <button class="refresh-btn" onclick="loadAllData()">🔄 Refresh</button>
+            </div>
+        </h1>
+
+        <div id="loading" class="loading">
+            <span class="spinner">⏳</span> Loading data...
+        </div>
+
+        <div id="content" style="display: none;">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">Total Players</div>
+                    <div class="stat-value" id="total-players">0</div>
+                    <div class="stat-change positive" id="players-change">+0 today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Total TAMA</div>
+                    <div class="stat-value" id="total-tama">0</div>
+                    <div class="stat-change positive" id="tama-change">+0 today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-label">Avg Level</div>
+                    <div class="stat-value" id="avg-level">0</div>
+                    <div class="stat-change" id="level-change">Max: 0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎨</div>
+                    <div class="stat-label">NFT Holders</div>
+                    <div class="stat-value" id="nft-holders">0</div>
+                    <div class="stat-change" id="nft-change">View Table 👇</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-container">
+                <h3>📈 Player Growth (Last 30 Days)</h3>
+                <canvas id="playerGrowthChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>💰 TAMA Distribution</h3>
+                <canvas id="tamaDistributionChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>🏆 Level Distribution</h3>
+                <canvas id="levelDistributionChart"></canvas>
+            </div>
+
+            <!-- Top 10 Players -->
+            <div class="data-table">
+                <h3>🏆 Top 10 Players (Live)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Telegram ID</th>
+                            <th>Username</th>
+                            <th>Level</th>
+                            <th>TAMA</th>
+                            <th>Last Active</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-players-tbody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px;">
+                                Loading players...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- NFT Holders -->
+            <div class="data-table">
+                <h3>🎨 NFT Holders</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Telegram ID</th>
+                            <th>Tier</th>
+                            <th>Rarity</th>
+                            <th>NFT Mint Address</th>
+                            <th>Minted At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nft-holders-tbody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                Loading NFT holders...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="error" style="display: none;" class="error"></div>
+    </div>
+
+    <script>
+        // Configuration
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+
+        // Global charts
+        let playerGrowthChart, tamaDistributionChart, levelDistributionChart;
+
+        // Load all data
+        async function loadAllData() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('content').style.display = 'none';
+                document.getElementById('error').style.display = 'none';
+
+                // Fetch leaderboard data
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=tama.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const players = await response.json();
+                console.log('✅ Loaded players:', players.length);
+
+                // Fetch NFT data
+                const nftResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*&order=created_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                const nfts = nftResponse.ok ? await nftResponse.json() : [];
+                console.log('✅ Loaded NFTs:', nfts.length);
+
+                // Update stats
+                updateStats(players, nfts);
+
+                // Update tables
+                updateTopPlayersTable(players.slice(0, 10));
+                updateNFTHoldersTable(nfts);
+
+                // Update charts
+                createCharts(players);
+
+                // Show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').innerHTML = `
+                    <strong>❌ Error loading data:</strong><br>
+                    ${error.message}<br><br>
+                    <small>Check console for details. Make sure Supabase is configured correctly.</small>
+                `;
+            }
+        }
+
+        // Update stats
+        function updateStats(players, nfts) {
+            const totalPlayers = players.length;
+            const totalTAMA = players.reduce((sum, p) => sum + (parseFloat(p.tama) || 0), 0);
+            const avgLevel = totalPlayers > 0 ? (players.reduce((sum, p) => sum + (parseInt(p.level) || 0), 0) / totalPlayers).toFixed(2) : 0;
+            const maxLevel = totalPlayers > 0 ? Math.max(...players.map(p => parseInt(p.level) || 0)) : 0;
+
+            document.getElementById('total-players').textContent = totalPlayers.toLocaleString();
+            document.getElementById('total-tama').textContent = Math.round(totalTAMA).toLocaleString();
+            document.getElementById('avg-level').textContent = avgLevel;
+            document.getElementById('level-change').textContent = `Max: ${maxLevel}`;
+            document.getElementById('nft-holders').textContent = nfts.length;
+
+            // TODO: Calculate daily changes (need historical data)
+            document.getElementById('players-change').textContent = '+0 today';
+            document.getElementById('tama-change').textContent = '+0 today';
+        }
+
+        // Update top players table
+        function updateTopPlayersTable(players) {
+            const tbody = document.getElementById('top-players-tbody');
+            
+            if (players.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No players yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = players.map((player, index) => {
+                const username = player.telegram_username || 'Anonymous';
+                const lastActive = player.last_activity ? new Date(player.last_activity).toLocaleString() : 'Never';
+                const status = player.last_activity && (Date.now() - new Date(player.last_activity).getTime() < 3600000) 
+                    ? '<span class="badge success">Active</span>' 
+                    : '<span class="badge warning">Inactive</span>';
+
+                return `
+                    <tr>
+                        <td><strong>${index + 1}</strong></td>
+                        <td>${player.telegram_id}</td>
+                        <td>${username}</td>
+                        <td>${player.level || 0}</td>
+                        <td><strong>${Math.round(player.tama || 0).toLocaleString()}</strong></td>
+                        <td>${lastActive}</td>
+                        <td>${status}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update NFT holders table
+        function updateNFTHoldersTable(nfts) {
+            const tbody = document.getElementById('nft-holders-tbody');
+            
+            if (nfts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No NFT holders yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = nfts.map((nft, index) => {
+                const mintedAt = new Date(nft.created_at).toLocaleString();
+                const mintAddress = nft.mint_address ? `${nft.mint_address.substring(0, 8)}...${nft.mint_address.substring(nft.mint_address.length - 8)}` : 'N/A';
+
+                return `
+                    <tr>
+                        <td><strong>${index + 1}</strong></td>
+                        <td>${nft.telegram_id}</td>
+                        <td>${nft.tier_name || 'Bronze'}</td>
+                        <td>${nft.rarity || 'Common'}</td>
+                        <td><code>${mintAddress}</code></td>
+                        <td>${mintedAt}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Create charts
+        function createCharts(players) {
+            // Player Growth Chart (last 30 days)
+            const dates = [];
+            const counts = [];
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                // Count players created before or on this date
+                const count = players.filter(p => {
+                    if (!p.created_at) return false;
+                    return new Date(p.created_at) <= date;
+                }).length;
+                counts.push(count);
+            }
+
+            if (playerGrowthChart) playerGrowthChart.destroy();
+            const ctx1 = document.getElementById('playerGrowthChart').getContext('2d');
+            playerGrowthChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Total Players',
+                        data: counts,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // TAMA Distribution Chart
+            const tamaRanges = ['0-1K', '1K-10K', '10K-100K', '100K-1M', '1M+'];
+            const tamaCount = [
+                players.filter(p => p.tama < 1000).length,
+                players.filter(p => p.tama >= 1000 && p.tama < 10000).length,
+                players.filter(p => p.tama >= 10000 && p.tama < 100000).length,
+                players.filter(p => p.tama >= 100000 && p.tama < 1000000).length,
+                players.filter(p => p.tama >= 1000000).length
+            ];
+
+            if (tamaDistributionChart) tamaDistributionChart.destroy();
+            const ctx2 = document.getElementById('tamaDistributionChart').getContext('2d');
+            tamaDistributionChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: tamaRanges,
+                    datasets: [{
+                        label: 'Players',
+                        data: tamaCount,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(255, 183, 3, 0.8)',
+                            'rgba(251, 133, 0, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Level Distribution Chart
+            const levelRanges = ['1-5', '6-10', '11-15', '16-20', '20+'];
+            const levelCount = [
+                players.filter(p => p.level >= 1 && p.level <= 5).length,
+                players.filter(p => p.level >= 6 && p.level <= 10).length,
+                players.filter(p => p.level >= 11 && p.level <= 15).length,
+                players.filter(p => p.level >= 16 && p.level <= 20).length,
+                players.filter(p => p.level > 20).length
+            ];
+
+            if (levelDistributionChart) levelDistributionChart.destroy();
+            const ctx3 = document.getElementById('levelDistributionChart').getContext('2d');
+            levelDistributionChart = new Chart(ctx3, {
+                type: 'doughnut',
+                data: {
+                    labels: levelRanges,
+                    datasets: [{
+                        data: levelCount,
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#FFB703',
+                            '#FB8500',
+                            '#EF4444'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', loadAllData);
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadAllData, 30000);
+    </script>
+</body>
+</html>
+
