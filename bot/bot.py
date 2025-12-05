@@ -576,6 +576,10 @@ def handle_group_message(message):
     except UnicodeEncodeError:
         print(f"Group message from user {user_id} in chat {chat_id}")
     
+    # IMPORTANT: Ignore messages from the bot itself!
+    if message.from_user.is_bot:
+        return
+    
     # FAQ AUTO-RESPONSE (process BEFORE anti-spam for admins too)
     if FAQ_ENABLED and faq_handler and message.text:
         try:
