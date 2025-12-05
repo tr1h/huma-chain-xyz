@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎄 НОВОГОДНИЕ СКИНЫ + Улучшенные дизайны</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 56px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(255,255,255,0.6);
+            animation: pulse 2s infinite;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a78bfa;
+            font-size: 22px;
+            margin-bottom: 50px;
+            font-weight: 500;
+        }
+
+        .section-title {
+            color: #fbbf24;
+            font-size: 36px;
+            margin: 60px 0 30px 0;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+
+        .skins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 35px;
+            margin-bottom: 40px;
+        }
+
+        .skin-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            padding: 35px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skin-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .skin-card:hover::before {
+            opacity: 1;
+        }
+
+        .skin-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 25px 70px rgba(139, 92, 246, 0.5);
+        }
+
+        .skin-name {
+            color: white;
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .skin-rarity {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 900;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .rarity-common {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+        .rarity-rare {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        .rarity-epic {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+            color: white;
+        }
+        .rarity-legendary {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #dc2626);
+            color: white;
+            animation: rainbow 3s linear infinite;
+        }
+        .rarity-xmas {
+            background: linear-gradient(135deg, #dc2626, #16a34a, #fbbf24);
+            color: white;
+            animation: xmasGlow 2s infinite;
+        }
+
+        @keyframes rainbow {
+            0%, 100% { filter: hue-rotate(0deg) brightness(1.2); }
+            50% { filter: hue-rotate(45deg) brightness(1.5); }
+        }
+
+        @keyframes xmasGlow {
+            0%, 100% { box-shadow: 0 4px 25px rgba(220, 38, 38, 0.6); }
+            50% { box-shadow: 0 4px 25px rgba(22, 163, 74, 0.6); }
+        }
+
+        .pet-preview {
+            width: 240px;
+            height: 240px;
+            margin: 25px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .skin-price {
+            color: #fbbf24;
+            font-size: 32px;
+            font-weight: 900;
+            margin: 18px 0;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        .skin-bonus {
+            background: rgba(139, 92, 246, 0.4);
+            border: 2px solid #a78bfa;
+            border-radius: 15px;
+            padding: 12px;
+            color: #e9d5ff;
+            font-size: 15px;
+            margin-top: 18px;
+            font-weight: 600;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buy-button {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .buy-button:hover {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            transform: scale(1.08);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6);
+        }
+
+        .buy-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 15px currentColor); }
+            50% { filter: drop-shadow(0 0 30px currentColor); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes snow {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: white;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 10000;
+            animation: snow linear infinite;
+            opacity: 0.7;
+        }
+
+        /* Label для новых скинов */
+        .new-label {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ef4444;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            animation: pulse 1.5s infinite;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowflakes -->
+    <div class="snowflake" style="left: 10%; animation-duration: 8s;">❄️</div>
+    <div class="snowflake" style="left: 20%; animation-duration: 10s; animation-delay: 2s;">❄️</div>
+    <div class="snowflake" style="left: 30%; animation-duration: 12s; animation-delay: 4s;">❄️</div>
+    <div class="snowflake" style="left: 40%; animation-duration: 9s; animation-delay: 1s;">❄️</div>
+    <div class="snowflake" style="left: 50%; animation-duration: 11s; animation-delay: 3s;">❄️</div>
+    <div class="snowflake" style="left: 60%; animation-duration: 10s; animation-delay: 5s;">❄️</div>
+    <div class="snowflake" style="left: 70%; animation-duration: 13s; animation-delay: 2s;">❄️</div>
+    <div class="snowflake" style="left: 80%; animation-duration: 9s; animation-delay: 6s;">❄️</div>
+    <div class="snowflake" style="left: 90%; animation-duration: 11s; animation-delay: 4s;">❄️</div>
+
+    <div class="container">
+        <h1>🎄 НОВОГОДНИЕ СКИНЫ 2025 🎄</h1>
+        <p class="subtitle">Лимитированная коллекция + улучшенные дизайны!</p>
+
+        <!-- НОВОГОДНИЕ СКИНЫ -->
+        <div class="section-title">🎅 НОВОГОДНЯЯ КОЛЛЕКЦИЯ (LIMITED EDITION)</div>
+
+        <div class="skins-grid">
+            <!-- XMAS 1: Santa Pet -->
+            <div class="skin-card">
+                <div class="new-label">NEW!</div>
+                <div class="skin-name">🎅 Santa Pet</div>
+                <div class="skin-rarity rarity-xmas">XMAS LIMITED</div>
+                <div class="pet-preview" style="animation: float 3s infinite;">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <defs>
+                            <radialGradient id="santa-body">
+                                <stop offset="0%" style="stop-color:#FEE2E2"/>
+                                <stop offset="100%" style="stop-color:#FCA5A5"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body (red suit) -->
+                        <circle cx="120" cy="130" r="60" fill="#DC2626" stroke="#991B1B" stroke-width="4"/>
+                        <!-- Head -->
+                        <circle cx="120" cy="80" r="50" fill="url(#santa-body)" stroke="#FCA5A5" stroke-width="3"/>
+                        <!-- Santa hat -->
+                        <path d="M 70 70 L 85 30 L 170 70 Z" fill="#DC2626" stroke="#991B1B" stroke-width="3"/>
+                        <ellipse cx="127" cy="72" rx="45" ry="12" fill="#FFFFFF"/>
+                        <circle cx="82" cy="25" r="12" fill="#FFFFFF"/>
+                        <!-- Eyes -->
+                        <circle cx="100" cy="75" r="10" fill="#000000"/>
+                        <circle cx="97" cy="72" r="4" fill="#FFFFFF"/>
+                        <circle cx="140" cy="75" r="10" fill="#000000"/>
+                        <circle cx="137" cy="72" r="4" fill="#FFFFFF"/>
+                        <!-- Rosy cheeks -->
+                        <circle cx="85" cy="85" r="10" fill="#EF4444" opacity="0.6"/>
+                        <circle cx="155" cy="85" r="10" fill="#EF4444" opacity="0.6"/>
+                        <!-- Beard -->
+                        <ellipse cx="120" cy="105" rx="35" ry="25" fill="#FFFFFF"/>
+                        <circle cx="100" cy="100" r="12" fill="#FFFFFF"/>
+                        <circle cx="140" cy="100" r="12" fill="#FFFFFF"/>
+                        <circle cx="120" cy="115" r="15" fill="#FFFFFF"/>
+                        <!-- Belt -->
+                        <rect x="90" y="125" width="60" height="10" fill="#1F2937"/>
+                        <rect x="115" y="120" width="10" height="20" fill="#FCD34D"/>
+                        <!-- Buttons -->
+                        <circle cx="120" cy="145" r="5" fill="#FCD34D"/>
+                        <circle cx="120" cy="165" r="5" fill="#FCD34D"/>
+                        <!-- Gift -->
+                        <text x="155" y="150" style="font-size: 35px;">🎁</text>
+                        <!-- Snowflakes -->
+                        <text x="50" y="100" style="font-size: 22px;">❄️</text>
+                        <text x="175" y="110" style="font-size: 20px;">❄️</text>
+                    </svg>
+                </div>
+                <div class="skin-price">10,000 TAMA</div>
+                <div class="skin-bonus">+50% TAMA 24-31 декабря 🎅</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- XMAS 2: Snowman Pet -->
+            <div class="skin-card">
+                <div class="new-label">NEW!</div>
+                <div class="skin-name">⛄ Snowman Pet</div>
+                <div class="skin-rarity rarity-xmas">XMAS LIMITED</div>
+                <div class="pet-preview">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <!-- Bottom snowball -->
+                        <circle cx="120" cy="165" r="45" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="3"/>
+                        <!-- Middle snowball -->
+                        <circle cx="120" cy="110" r="38" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="3"/>
+                        <!-- Top snowball (head) -->
+                        <circle cx="120" cy="65" r="32" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="3"/>
+                        <!-- Top hat -->
+                        <rect x="95" y="35" width="50" height="8" fill="#1F2937"/>
+                        <rect x="100" y="10" width="40" height="25" fill="#1F2937"/>
+                        <rect x="98" y="33" width="44" height="4" fill="#DC2626"/>
+                        <!-- Eyes (coal) -->
+                        <circle cx="108" cy="60" r="5" fill="#000000"/>
+                        <circle cx="132" cy="60" r="5" fill="#000000"/>
+                        <!-- Carrot nose -->
+                        <path d="M 120 68 L 145 72 L 120 76 Z" fill="#F97316"/>
+                        <!-- Smile (coal) -->
+                        <circle cx="108" cy="75" r="3" fill="#000000"/>
+                        <circle cx="115" cy="78" r="3" fill="#000000"/>
+                        <circle cx="125" cy="78" r="3" fill="#000000"/>
+                        <circle cx="132" cy="75" r="3" fill="#000000"/>
+                        <!-- Buttons (coal) -->
+                        <circle cx="120" cy="105" r="4" fill="#000000"/>
+                        <circle cx="120" cy="120" r="4" fill="#000000"/>
+                        <circle cx="120" cy="150" r="4" fill="#000000"/>
+                        <circle cx="120" cy="170" r="4" fill="#000000"/>
+                        <!-- Stick arms -->
+                        <line x1="75" y1="100" x2="50" y2="85" stroke="#78350F" stroke-width="5" stroke-linecap="round"/>
+                        <line x1="165" y1="100" x2="190" y2="85" stroke="#78350F" stroke-width="5" stroke-linecap="round"/>
+                        <!-- Scarf -->
+                        <rect x="100" y="90" width="40" height="12" rx="6" fill="#DC2626"/>
+                        <rect x="135" y="94" width="25" height="8" rx="4" fill="#DC2626"/>
+                        <rect x="137" y="102" width="3" height="15" fill="#DC2626"/>
+                        <rect x="145" y="102" width="3" height="18" fill="#DC2626"/>
+                        <rect x="153" y="102" width="3" height="12" fill="#DC2626"/>
+                        <!-- Snowflakes -->
+                        <text x="50" y="120" style="font-size: 20px;">❄️</text>
+                        <text x="180" y="130" style="font-size: 18px;">❄️</text>
+                    </svg>
+                </div>
+                <div class="skin-price">8,000 TAMA</div>
+                <div class="skin-bonus">Неуязвим к холоду! ⛄</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- XMAS 3: Reindeer Pet -->
+            <div class="skin-card">
+                <div class="new-label">NEW!</div>
+                <div class="skin-name">🦌 Reindeer Pet</div>
+                <div class="skin-rarity rarity-xmas">XMAS LIMITED</div>
+                <div class="pet-preview" style="animation: float 2.5s infinite;">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <defs>
+                            <radialGradient id="reindeer-body">
+                                <stop offset="0%" style="stop-color:#92400E"/>
+                                <stop offset="100%" style="stop-color:#78350F"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body -->
+                        <ellipse cx="120" cy="135" rx="50" ry="45" fill="url(#reindeer-body)" stroke="#451A03" stroke-width="3"/>
+                        <!-- Head -->
+                        <circle cx="120" cy="80" r="42" fill="url(#reindeer-body)" stroke="#451A03" stroke-width="3"/>
+                        <!-- Antlers -->
+                        <path d="M 90 55 L 85 40 M 85 40 L 75 35 M 85 40 L 82 50" stroke="#78350F" stroke-width="5" stroke-linecap="round" fill="none"/>
+                        <path d="M 150 55 L 155 40 M 155 40 L 165 35 M 155 40 L 158 50" stroke="#78350F" stroke-width="5" stroke-linecap="round" fill="none"/>
+                        <!-- Bells on antlers -->
+                        <circle cx="75" cy="35" r="5" fill="#FCD34D" stroke="#CA8A04" stroke-width="2"/>
+                        <circle cx="165" cy="35" r="5" fill="#FCD34D" stroke="#CA8A04" stroke-width="2"/>
+                        <!-- Ears -->
+                        <ellipse cx="95" cy="60" rx="10" ry="18" fill="#92400E" stroke="#451A03" stroke-width="2"/>
+                        <ellipse cx="145" cy="60" rx="10" ry="18" fill="#92400E" stroke="#451A03" stroke-width="2"/>
+                        <!-- Eyes -->
+                        <circle cx="105" cy="75" r="10" fill="#000000"/>
+                        <circle cx="102" cy="72" r="4" fill="#FFFFFF"/>
+                        <circle cx="135" cy="75" r="10" fill="#000000"/>
+                        <circle cx="132" cy="72" r="4" fill="#FFFFFF"/>
+                        <!-- Red nose (Rudolph!) -->
+                        <circle cx="120" cy="92" r="12" fill="#EF4444" opacity="0.9">
+                            <animate attributeName="opacity" values="0.7;1;0.7" dur="1s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="115" cy="88" r="4" fill="#FFFFFF" opacity="0.7"/>
+                        <!-- Smile -->
+                        <path d="M 105 100 Q 120 108 135 100" stroke="#451A03" stroke-width="3" fill="none"/>
+                        <!-- Red scarf -->
+                        <rect x="95" y="115" width="50" height="15" rx="7" fill="#DC2626"/>
+                        <rect x="140" y="118" width="30" height="10" rx="5" fill="#DC2626"/>
+                        <!-- Legs -->
+                        <rect x="95" y="175" width="12" height="35" rx="6" fill="#92400E"/>
+                        <rect x="133" y="175" width="12" height="35" rx="6" fill="#92400E"/>
+                        <!-- Hooves -->
+                        <ellipse cx="101" cy="210" rx="8" ry="5" fill="#1F2937"/>
+                        <ellipse cx="139" cy="210" rx="8" ry="5" fill="#1F2937"/>
+                        <!-- Sparkles -->
+                        <text x="55" y="95" style="font-size: 22px;">✨</text>
+                        <text x="175" y="100" style="font-size: 20px;">⭐</text>
+                    </svg>
+                </div>
+                <div class="skin-price">12,000 TAMA</div>
+                <div class="skin-bonus">+30% скорость + светится! 🦌</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- XMAS 4: Christmas Tree Pet -->
+            <div class="skin-card">
+                <div class="new-label">NEW!</div>
+                <div class="skin-name">🎄 Tree Pet</div>
+                <div class="skin-rarity rarity-xmas">XMAS LIMITED</div>
+                <div class="pet-preview">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <defs>
+                            <linearGradient id="tree-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#22C55E"/>
+                                <stop offset="100%" style="stop-color:#15803D"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Tree trunk -->
+                        <rect x="105" y="180" width="30" height="40" fill="#78350F"/>
+                        <!-- Tree layers -->
+                        <path d="M 120 40 L 70 95 L 90 95 L 55 140 L 80 140 L 40 190 L 200 190 L 160 140 L 185 140 L 150 95 L 170 95 Z"
+                              fill="url(#tree-grad)" stroke="#15803D" stroke-width="3"/>
+                        <!-- Star on top -->
+                        <text x="105" y="52" style="font-size: 35px;">⭐</text>
+                        <!-- Ornaments -->
+                        <circle cx="95" cy="110" r="8" fill="#EF4444"/>
+                        <circle cx="145" cy="115" r="8" fill="#3B82F6"/>
+                        <circle cx="120" cy="130" r="8" fill="#FCD34D"/>
+                        <circle cx="85" cy="155" r="8" fill="#A855F7"/>
+                        <circle cx="155" cy="160" r="8" fill="#F97316"/>
+                        <circle cx="110" cy="175" r="8" fill="#EC4899"/>
+                        <circle cx="130" cy="172" r="8" fill="#10B981"/>
+                        <!-- Lights (glowing) -->
+                        <circle cx="100" cy="125" r="5" fill="#FCD34D" opacity="0.9">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="140" cy="145" r="5" fill="#FFFFFF" opacity="0.9">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="1.2s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="120" cy="165" r="5" fill="#EF4444" opacity="0.9">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="0.8s" repeatCount="indefinite"/>
+                        </circle>
+                        <!-- Cute face -->
+                        <circle cx="105" cy="105" r="6" fill="#000000"/>
+                        <circle cx="135" cy="105" r="6" fill="#000000"/>
+                        <path d="M 110 118 Q 120 125 130 118" stroke="#000000" stroke-width="3" fill="none"/>
+                        <!-- Garland -->
+                        <path d="M 75 100 Q 120 110 165 100" stroke="#FCD34D" stroke-width="4" fill="none" opacity="0.8"/>
+                        <path d="M 60 145 Q 120 155 180 145" stroke="#EF4444" stroke-width="4" fill="none" opacity="0.8"/>
+                    </svg>
+                </div>
+                <div class="skin-price">15,000 TAMA</div>
+                <div class="skin-bonus">+40% TAMA + подарки каждый час! 🎄</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- XMAS 5: Gingerbread Pet -->
+            <div class="skin-card">
+                <div class="new-label">NEW!</div>
+                <div class="skin-name">🍪 Gingerbread Pet</div>
+                <div class="skin-rarity rarity-rare">RARE</div>
+                <div class="pet-preview" style="animation: float 2.8s infinite;">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <defs>
+                            <radialGradient id="ginger-grad">
+                                <stop offset="0%" style="stop-color:#D97706"/>
+                                <stop offset="100%" style="stop-color:#92400E"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body (gingerbread shape) -->
+                        <ellipse cx="120" cy="130" rx="50" ry="55" fill="url(#ginger-grad)" stroke="#78350F" stroke-width="4"/>
+                        <!-- Head -->
+                        <circle cx="120" cy="75" r="40" fill="url(#ginger-grad)" stroke="#78350F" stroke-width="4"/>
+                        <!-- Arms -->
+                        <ellipse cx="70" cy="125" rx="18" ry="35" fill="url(#ginger-grad)" stroke="#78350F" stroke-width="3" transform="rotate(-30 70 125)"/>
+                        <ellipse cx="170" cy="125" rx="18" ry="35" fill="url(#ginger-grad)" stroke="#78350F" stroke-width="3" transform="rotate(30 170 125)"/>
+                        <!-- Legs -->
+                        <ellipse cx="100" cy="185" rx="18" ry="30" fill="url(#ginger-grad)" stroke="#78350F" stroke-width="3"/>
+                        <ellipse cx="140" cy="185" rx="18" ry="30" fill="url(#ginger-grad)" stroke="#78350F" stroke-width="3"/>
+                        <!-- White icing (head) -->
+                        <path d="M 95 50 Q 90 48 88 52 Q 87 55 90 57 Q 120 60 150 57 Q 153 55 152 52 Q 150 48 145 50 Z" fill="#FFFFFF"/>
+                        <!-- Icing smile -->
+                        <path d="M 105 85 Q 120 93 135 85" stroke="#FFFFFF" stroke-width="5" fill="none" stroke-linecap="round"/>
+                        <!-- Eyes (candy) -->
+                        <circle cx="105" cy="70" r="8" fill="#FFFFFF"/>
+                        <circle cx="105" cy="70" r="6" fill="#3B82F6"/>
+                        <circle cx="135" cy="70" r="8" fill="#FFFFFF"/>
+                        <circle cx="135" cy="70" r="6" fill="#3B82F6"/>
+                        <!-- Buttons (candy) -->
+                        <circle cx="120" cy="115" r="7" fill="#EF4444"/>
+                        <circle cx="120" cy="135" r="7" fill="#10B981"/>
+                        <circle cx="120" cy="155" r="7" fill="#F59E0B"/>
+                        <!-- Icing decorations -->
+                        <circle cx="100" cy="130" r="4" fill="#FFFFFF"/>
+                        <circle cx="140" cy="130" r="4" fill="#FFFFFF"/>
+                        <circle cx="110" cy="145" r="4" fill="#FFFFFF"/>
+                        <circle cx="130" cy="145" r="4" fill="#FFFFFF"/>
+                        <!-- Bow tie -->
+                        <path d="M 120 100 L 105 95 L 105 105 Z" fill="#EF4444"/>
+                        <path d="M 120 100 L 135 95 L 135 105 Z" fill="#EF4444"/>
+                        <circle cx="120" cy="100" r="5" fill="#DC2626"/>
+                    </svg>
+                </div>
+                <div class="skin-price">6,000 TAMA</div>
+                <div class="skin-bonus">+20% Food efficiency 🍪</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- XMAS 6: Elf Pet -->
+            <div class="skin-card">
+                <div class="new-label">NEW!</div>
+                <div class="skin-name">🧝 Elf Pet</div>
+                <div class="skin-rarity rarity-epic">EPIC</div>
+                <div class="pet-preview">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <defs>
+                            <radialGradient id="elf-body">
+                                <stop offset="0%" style="stop-color:#FEF3C7"/>
+                                <stop offset="100%" style="stop-color:#FDE68A"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body (green outfit) -->
+                        <ellipse cx="120" cy="140" rx="48" ry="50" fill="#16A34A" stroke="#15803D" stroke-width="3"/>
+                        <!-- Head -->
+                        <circle cx="120" cy="80" r="38" fill="url(#elf-body)" stroke="#FCD34D" stroke-width="3"/>
+                        <!-- Pointy elf ears -->
+                        <path d="M 80 70 L 65 55 L 85 75 Z" fill="url(#elf-body)" stroke="#FCD34D" stroke-width="2"/>
+                        <path d="M 160 70 L 175 55 L 155 75 Z" fill="url(#elf-body)" stroke="#FCD34D" stroke-width="2"/>
+                        <!-- Elf hat -->
+                        <path d="M 85 60 L 95 25 L 155 60 Z" fill="#DC2626" stroke="#991B1B" stroke-width="3"/>
+                        <ellipse cx="120" cy="62" rx="38" ry="10" fill="#FFFFFF"/>
+                        <circle cx="93" cy="22" r="10" fill="#FFFFFF"/>
+                        <!-- Eyes (big and sparkly) -->
+                        <ellipse cx="105" cy="80" rx="12" ry="15" fill="#FFFFFF"/>
+                        <ellipse cx="105" cy="82" rx="9" ry="12" fill="#10B981"/>
+                        <circle cx="102" cy="78" r="4" fill="#FFFFFF"/>
+                        <ellipse cx="135" cy="80" rx="12" ry="15" fill="#FFFFFF"/>
+                        <ellipse cx="135" cy="82" rx="9" ry="12" fill="#10B981"/>
+                        <circle cx="132" cy="78" r="4" fill="#FFFFFF"/>
+                        <!-- Rosy cheeks -->
+                        <circle cx="88" cy="88" r="8" fill="#EF4444" opacity="0.5"/>
+                        <circle cx="152" cy="88" r="8" fill="#EF4444" opacity="0.5"/>
+                        <!-- Smile -->
+                        <path d="M 105 95 Q 120 102 135 95" stroke="#D97706" stroke-width="3" fill="none"/>
+                        <!-- Green tunic with belt -->
+                        <rect x="95" y="135" width="50" height="12" fill="#FCD34D"/>
+                        <rect x="115" y="130" width="10" height="22" fill="#DC2626"/>
+                        <!-- Striped stockings -->
+                        <rect x="95" y="185" width="15" height="8" fill="#DC2626"/>
+                        <rect x="95" y="193" width="15" height="8" fill="#FFFFFF"/>
+                        <rect x="95" y="201" width="15" height="8" fill="#DC2626"/>
+                        <rect x="130" y="185" width="15" height="8" fill="#DC2626"/>
+                        <rect x="130" y="193" width="15" height="8" fill="#FFFFFF"/>
+                        <rect x="130" y="201" width="15" height="8" fill="#DC2626"/>
+                        <!-- Curly shoes -->
+                        <path d="M 95 210 L 80 215 Q 75 218 78 220 L 110 220" fill="#16A34A" stroke="#15803D" stroke-width="2"/>
+                        <path d="M 145 210 L 160 215 Q 165 218 162 220 L 130 220" fill="#16A34A" stroke="#15803D" stroke-width="2"/>
+                        <!-- Bells on shoes -->
+                        <circle cx="78" cy="218" r="4" fill="#FCD34D"/>
+                        <circle cx="162" cy="218" r="4" fill="#FCD34D"/>
+                    </svg>
+                </div>
+                <div class="skin-price">12,000 TAMA</div>
+                <div class="skin-bonus">+25% crafting speed 🧝</div>
+                <button class="buy-button">Купить</button>
+            </div>
+        </div>
+
+        <!-- УЛУЧШЕННЫЕ ВЕРСИИ СУЩЕСТВУЮЩИХ СКИНОВ -->
+        <div class="section-title">✨ УЛУЧШЕННЫЕ ДИЗАЙНЫ (v2.0)</div>
+
+        <div class="skins-grid">
+            <!-- Improved Fire Cat -->
+            <div class="skin-card">
+                <div class="skin-name">🔥 Fire Cat DELUXE</div>
+                <div class="skin-rarity rarity-epic">EPIC</div>
+                <div class="pet-preview" style="animation: glow 2s infinite; color: #F97316;">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <defs>
+                            <radialGradient id="fire-v2">
+                                <stop offset="0%" style="stop-color:#FFEDD5"/>
+                                <stop offset="40%" style="stop-color:#FED7AA"/>
+                                <stop offset="70%" style="stop-color:#FB923C"/>
+                                <stop offset="100%" style="stop-color:#EA580C"/>
+                            </radialGradient>
+                            <filter id="fire-glow">
+                                <feGaussianBlur stdDeviation="8"/>
+                                <feComposite operator="out" in2="SourceGraphic"/>
+                            </filter>
+                        </defs>
+                        <!-- Fire aura (animated) -->
+                        <circle cx="120" cy="120" r="90" fill="#FB923C" opacity="0.3" filter="url(#fire-glow)">
+                            <animate attributeName="r" values="85;95;85" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <!-- Body -->
+                        <circle cx="120" cy="120" r="55" fill="url(#fire-v2)" stroke="#EA580C" stroke-width="4"/>
+                        <!-- Head -->
+                        <circle cx="120" cy="85" r="45" fill="url(#fire-v2)" stroke="#EA580C" stroke-width="4"/>
+                        <!-- Cat ears (pointed, with fire tips) -->
+                        <path d="M 85 55 L 75 25 L 95 50 Z" fill="#FB923C" stroke="#EA580C" stroke-width="3"/>
+                        <path d="M 155 55 L 165 25 L 145 50 Z" fill="#FB923C" stroke="#EA580C" stroke-width="3"/>
+                        <circle cx="75" cy="25" r="8" fill="#FFEDD5" opacity="0.9">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="1s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="165" cy="25" r="8" fill="#FFEDD5" opacity="0.9">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="1.2s" repeatCount="indefinite"/>
+                        </circle>
+                        <!-- Eyes (glowing) -->
+                        <ellipse cx="100" cy="82" rx="14" ry="18" fill="#FFFFFF"/>
+                        <ellipse cx="100" cy="85" rx="11" ry="15" fill="#DC2626"/>
+                        <circle cx="97" cy="80" r="5" fill="#FFFFFF"/>
+                        <ellipse cx="140" cy="82" rx="14" ry="18" fill="#FFFFFF"/>
+                        <ellipse cx="140" cy="85" rx="11" ry="15" fill="#DC2626"/>
+                        <circle cx="137" cy="80" r="5" fill="#FFFFFF"/>
+                        <!-- Whiskers -->
+                        <line x1="70" y1="90" x2="45" y2="88" stroke="#EA580C" stroke-width="3"/>
+                        <line x1="70" y1="95" x2="45" y2="98" stroke="#EA580C" stroke-width="3"/>
+                        <line x1="170" y1="90" x2="195" y2="88" stroke="#EA580C" stroke-width="3"/>
+                        <line x1="170" y1="95" x2="195" y2="98" stroke="#EA580C" stroke-width="3"/>
+                        <!-- Nose -->
+                        <path d="M 120 98 L 115 105 L 125 105 Z" fill="#DC2626"/>
+                        <!-- Mouth -->
+                        <path d="M 120 105 Q 112 110 105 108" stroke="#EA580C" stroke-width="3" fill="none"/>
+                        <path d="M 120 105 Q 128 110 135 108" stroke="#EA580C" stroke-width="3" fill="none"/>
+                        <!-- Flame patterns on body -->
+                        <path d="M 110 135 Q 115 125 120 135 Q 125 125 130 135" fill="#FBBF24" opacity="0.7"/>
+                        <path d="M 105 150 Q 120 140 135 150" fill="#F59E0B" opacity="0.6"/>
+                        <!-- Tail (fire) -->
+                        <path d="M 170 130 Q 195 125 200 115 Q 205 105 195 100" stroke="#FB923C" stroke-width="12" fill="none" stroke-linecap="round"/>
+                        <path d="M 175 128 Q 195 123 198 115" stroke="#FBBF24" stroke-width="8" fill="none" stroke-linecap="round"/>
+                        <!-- Fire particles -->
+                        <circle cx="60" cy="95" r="6" fill="#FBBF24" opacity="0.8">
+                            <animate attributeName="cy" values="95;75;95" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="180" cy="100" r="5" fill="#FB923C" opacity="0.8">
+                            <animate attributeName="cy" values="100;80;100" dur="1.8s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="120" cy="180" r="7" fill="#F59E0B" opacity="0.7">
+                            <animate attributeName="cy" values="180;160;180" dur="2.2s" repeatCount="indefinite"/>
+                        </circle>
+                    </svg>
+                </div>
+                <div class="skin-price">18,000 TAMA</div>
+                <div class="skin-bonus">+30% TAMA + огненный урон 🔥</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- Improved Dragon -->
+            <div class="skin-card">
+                <div class="skin-name">🐉 Platinum Dragon</div>
+                <div class="skin-rarity rarity-legendary">LEGENDARY</div>
+                <div class="pet-preview" style="animation: glow 2s infinite; color: #C0C0C0;">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <defs>
+                            <linearGradient id="platinum-grad">
+                                <stop offset="0%" style="stop-color:#F8FAFC"/>
+                                <stop offset="50%" style="stop-color:#CBD5E1"/>
+                                <stop offset="100%" style="stop-color:#94A3B8"/>
+                            </linearGradient>
+                            <filter id="platinum-glow">
+                                <feGaussianBlur stdDeviation="5"/>
+                            </filter>
+                        </defs>
+                        <!-- Wings (spread) -->
+                        <path d="M 60 110 Q 30 100 25 80 Q 20 60 35 55 Q 50 50 60 65 Z"
+                              fill="url(#platinum-grad)" stroke="#64748B" stroke-width="3" opacity="0.9"/>
+                        <path d="M 180 110 Q 210 100 215 80 Q 220 60 205 55 Q 190 50 180 65 Z"
+                              fill="url(#platinum-grad)" stroke="#64748B" stroke-width="3" opacity="0.9"/>
+                        <!-- Body -->
+                        <ellipse cx="120" cy="130" rx="55" ry="50" fill="url(#platinum-grad)" stroke="#475569" stroke-width="4"/>
+                        <!-- Head -->
+                        <circle cx="120" cy="80" r="48" fill="url(#platinum-grad)" stroke="#475569" stroke-width="4"/>
+                        <!-- Dragon horns (curved) -->
+                        <path d="M 85 50 Q 75 35 70 20 Q 68 15 72 13 Q 76 15 78 20 L 88 45 Z"
+                              fill="#F59E0B" stroke="#D97706" stroke-width="3"/>
+                        <path d="M 155 50 Q 165 35 170 20 Q 172 15 168 13 Q 164 15 162 20 L 152 45 Z"
+                              fill="#F59E0B" stroke="#D97706" stroke-width="3"/>
+                        <!-- Eyes (fierce dragon eyes) -->
+                        <ellipse cx="100" cy="75" rx="14" ry="20" fill="#DC2626" opacity="0.9">
+                            <animate attributeName="fill" values="#DC2626;#EF4444;#DC2626" dur="2s" repeatCount="indefinite"/>
+                        </ellipse>
+                        <ellipse cx="98" cy="72" rx="6" ry="10" fill="#000000"/>
+                        <circle cx="96" cy="68" r="3" fill="#FFFFFF"/>
+                        <ellipse cx="140" cy="75" rx="14" ry="20" fill="#DC2626" opacity="0.9">
+                            <animate attributeName="fill" values="#DC2626;#EF4444;#DC2626" dur="2s" repeatCount="indefinite"/>
+                        </ellipse>
+                        <ellipse cx="142" cy="72" rx="6" ry="10" fill="#000000"/>
+                        <circle cx="144" cy="68" r="3" fill="#FFFFFF"/>
+                        <!-- Nostrils -->
+                        <ellipse cx="110" cy="95" rx="5" ry="3" fill="#1F2937"/>
+                        <ellipse cx="130" cy="95" rx="5" ry="3" fill="#1F2937"/>
+                        <!-- Dragon spikes on back -->
+                        <path d="M 95 110 L 90 95 L 100 105 Z" fill="#E11D48"/>
+                        <path d="M 110 105 L 108 90 L 115 100 Z" fill="#DC2626"/>
+                        <path d="M 125 100 L 125 85 L 130 98 Z" fill="#E11D48"/>
+                        <path d="M 140 105 L 142 90 L 145 103 Z" fill="#DC2626"/>
+                        <!-- Scales on body -->
+                        <ellipse cx="100" cy="135" rx="8" ry="10" fill="#E2E8F0" opacity="0.6"/>
+                        <ellipse cx="115" cy="145" rx="8" ry="10" fill="#E2E8F0" opacity="0.6"/>
+                        <ellipse cx="125" cy="145" rx="8" ry="10" fill="#E2E8F0" opacity="0.6"/>
+                        <ellipse cx="140" cy="135" rx="8" ry="10" fill="#E2E8F0" opacity="0.6"/>
+                        <!-- Tail (powerful) -->
+                        <path d="M 165 150 Q 190 145 210 135 Q 220 130 215 120"
+                              stroke="#94A3B8" stroke-width="18" fill="none" stroke-linecap="round"/>
+                        <path d="M 210 135 L 220 125 L 218 140 Z" fill="#E11D48"/>
+                        <!-- Magic sparkles -->
+                        <circle cx="50" cy="90" r="5" fill="#FBBF24" filter="url(#platinum-glow)">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="190" cy="95" r="6" fill="#FDE047" filter="url(#platinum-glow)">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="120" cy="40" r="4" fill="#FFFFFF" filter="url(#platinum-glow)">
+                            <animate attributeName="opacity" values="0.5;1;0.5" dur="1.2s" repeatCount="indefinite"/>
+                        </circle>
+                    </svg>
+                </div>
+                <div class="skin-price">60,000 TAMA</div>
+                <div class="skin-bonus">+100% TAMA + летает + огненное дыхание! 🐉</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- Improved Angel -->
+            <div class="skin-card">
+                <div class="skin-name">👼 Divine Angel</div>
+                <div class="skin-rarity rarity-legendary">LEGENDARY</div>
+                <div class="pet-preview" style="animation: float 3.5s infinite;">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <defs>
+                            <radialGradient id="divine-grad">
+                                <stop offset="0%" style="stop-color:#FFFBEB"/>
+                                <stop offset="100%" style="stop-color:#FEF3C7"/>
+                            </radialGradient>
+                            <filter id="divine-glow">
+                                <feGaussianBlur stdDeviation="10"/>
+                            </filter>
+                        </defs>
+                        <!-- Divine light aura -->
+                        <circle cx="120" cy="120" r="100" fill="#FEF3C7" opacity="0.3" filter="url(#divine-glow)">
+                            <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite"/>
+                        </circle>
+                        <!-- Large wings (detailed) -->
+                        <ellipse cx="50" cy="120" rx="35" ry="60" fill="#FFFFFF" opacity="0.9" stroke="#FCD34D" stroke-width="2"/>
+                        <ellipse cx="55" cy="115" rx="28" ry="50" fill="#FEF3C7" opacity="0.7"/>
+                        <ellipse cx="60" cy="120" rx="22" ry="40" fill="#FFFFFF" opacity="0.8"/>
+                        <ellipse cx="190" cy="120" rx="35" ry="60" fill="#FFFFFF" opacity="0.9" stroke="#FCD34D" stroke-width="2"/>
+                        <ellipse cx="185" cy="115" rx="28" ry="50" fill="#FEF3C7" opacity="0.7"/>
+                        <ellipse cx="180" cy="120" rx="22" ry="40" fill="#FFFFFF" opacity="0.8"/>
+                        <!-- Body -->
+                        <circle cx="120" cy="125" r="58" fill="url(#divine-grad)" stroke="#FBBF24" stroke-width="3"/>
+                        <!-- Head -->
+                        <circle cx="120" cy="75" r="45" fill="url(#divine-grad)" stroke="#FBBF24" stroke-width="3"/>
+                        <!-- Halo (glowing) -->
+                        <ellipse cx="120" cy="28" rx="45" ry="10" fill="none" stroke="#FBBF24" stroke-width="5">
+                            <animate attributeName="stroke" values="#FBBF24;#FDE047;#FBBF24" dur="2s" repeatCount="indefinite"/>
+                        </ellipse>
+                        <ellipse cx="120" cy="28" rx="48" ry="11" fill="none" stroke="#FEF3C7" stroke-width="2" opacity="0.6"/>
+                        <!-- Eyes (peaceful, closed) -->
+                        <path d="M 93 72 Q 103 68 113 72" stroke="#92400E" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <path d="M 127 72 Q 137 68 147 72" stroke="#92400E" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <!-- Long eyelashes -->
+                        <line x1="95" y1="70" x2="90" y2="65" stroke="#92400E" stroke-width="2"/>
+                        <line x1="100" y1="68" x2="98" y2="62" stroke="#92400E" stroke-width="2"/>
+                        <line x1="110" y1="68" x2="112" y2="62" stroke="#92400E" stroke-width="2"/>
+                        <line x1="130" y1="68" x2="128" y2="62" stroke="#92400E" stroke-width="2"/>
+                        <line x1="140" y1="68" x2="142" y2="62" stroke="#92400E" stroke-width="2"/>
+                        <line x1="145" y1="70" x2="150" y2="65" stroke="#92400E" stroke-width="2"/>
+                        <!-- Rosy cheeks -->
+                        <circle cx="85" cy="80" r="12" fill="#FBBF24" opacity="0.4"/>
+                        <circle cx="155" cy="80" r="12" fill="#FBBF24" opacity="0.4"/>
+                        <!-- Gentle smile -->
+                        <path d="M 100 92 Q 120 100 140 92" stroke="#F59E0B" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <!-- Divine robe -->
+                        <ellipse cx="120" cy="145" rx="48" ry="35" fill="#FFFFFF" opacity="0.8"/>
+                        <path d="M 80 140 Q 120 155 160 140" fill="#FEF3C7" opacity="0.6"/>
+                        <!-- Stars around -->
+                        <text x="60" y="70" style="font-size: 20px;">⭐</text>
+                        <text x="170" y="75" style="font-size: 18px;">✨</text>
+                        <text x="90" y="40" style="font-size: 16px;">🌟</text>
+                        <text x="145" y="42" style="font-size: 18px;">💫</text>
+                        <text x="120" y="190" style="font-size: 16px;">✨</text>
+                        <!-- Light rays -->
+                        <line x1="120" y1="28" x2="120" y2="10" stroke="#FDE047" stroke-width="3" opacity="0.6">
+                            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="95" y1="30" x2="85" y2="15" stroke="#FDE047" stroke-width="2" opacity="0.5">
+                            <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2.2s" repeatCount="indefinite"/>
+                        </line>
+                        <line x1="145" y1="30" x2="155" y2="15" stroke="#FDE047" stroke-width="2" opacity="0.5">
+                            <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2.5s" repeatCount="indefinite"/>
+                        </line>
+                    </svg>
+                </div>
+                <div class="skin-price">80,000 TAMA</div>
+                <div class="skin-bonus">+80% TAMA + автолечение + благословение! 👼</div>
+                <button class="buy-button">Купить</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px; padding-bottom: 40px;">
+            <p style="color: white; font-size: 24px; font-weight: bold; margin-bottom: 15px;">
+                🎄 6 НОВОГОДНИХ + 3 УЛУЧШЕННЫХ СКИНА 🎄
+            </p>
+            <p style="color: #a78bfa; font-size: 18px; margin-bottom: 30px;">
+                ✨ Все скины SVG векторная графика<br>
+                💰 Цены: 6,000 - 80,000 TAMA<br>
+                🎁 Каждый скин имеет уникальные бонусы!<br>
+                ⏰ Новогодние скины доступны только в декабре!
+            </p>
+            <button class="buy-button" style="font-size: 20px; padding: 18px 50px;">
+                🎅 НАЧАТЬ РЕАЛИЗАЦИЮ В ИГРЕ!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Animation effects
+        document.querySelectorAll('.skin-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const preview = card.querySelector('.pet-preview');
+                if (preview) {
+                    preview.style.transform = 'scale(1.15)';
+                }
+            });
+            card.addEventListener('mouseleave', () => {
+                const preview = card.querySelector('.pet-preview');
+                if (preview) {
+                    preview.style.transform = 'scale(1)';
+                }
+            });
+        });
+
+        // Buy button alerts
+        document.querySelectorAll('.buy-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const card = e.target.closest('.skin-card');
+                const name = card.querySelector('.skin-name').textContent;
+                const price = card.querySelector('.skin-price').textContent;
+                alert(`🎉 Скин "${name}" (${price}) будет добавлен в игру!\n\nГотов интегрировать? 🚀`);
+            });
+        });
+
+        // Add more snowflakes dynamically
+        for (let i = 0; i < 15; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.textContent = '❄️';
+            snowflake.style.left = Math.random() * 100 + '%';
+            snowflake.style.animationDuration = (Math.random() * 5 + 7) + 's';
+            snowflake.style.animationDelay = Math.random() * 5 + 's';
+            snowflake.style.fontSize = (Math.random() * 10 + 15) + 'px';
+            document.body.appendChild(snowflake);
+        }
+    </script>
+</body>
+</html>
+
+
