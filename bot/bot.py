@@ -48,6 +48,21 @@ except Exception as e:
     faq_handler = None
     print(f"⚠️ FAQ Handler disabled: {e}")
 
+# Import localization system (RU/EN support)
+try:
+    from localization import t, detect_language
+    from language_selector import (
+        create_language_keyboard,
+        get_language_selection_message,
+        handle_language_callback,
+        get_language_changed_message
+    )
+    LOCALIZATION_ENABLED = True
+    print("✅ Localization enabled (RU/EN support)")
+except Exception as e:
+    LOCALIZATION_ENABLED = False
+    print(f"⚠️ Localization disabled: {e}")
+
 # Load environment variables (optional .env)
 import codecs
 env_path = '../.env'
@@ -235,6 +250,109 @@ def get_referral_settings():
         'milestone_500': 500000,
         'milestone_1000': 1000000
     }
+
+# Language Management Functions
+def get_user_language(user_id):
+    """
+    Get user's preferred language from database
+    
+    Args:
+        user_id: Telegram user ID
+    
+    Returns:
+        Language code ('en', 'ru') or None if not set
+    """
+    try:
+        response = supabase.table('telegram_users') \
+            .select('preferred_language') \
+            .eq('telegram_id', str(user_id)) \
+            .execute()
+        
+        if response.data and len(response.data) > 0:
+            return response.data[0].get('preferred_language')
+    except Exception as e:
+        print(f"Error getting user language: {e}")
+    
+    return None
+
+
+def save_user_language(user_id, lang):
+    """
+    Save user's language preference to database
+    
+    Args:
+        user_id: Telegram user ID
+        lang: Language code ('en' or 'ru')
+    
+    Returns:
+        True if saved successfully, False otherwise
+    """
+    try:
+        # Check if user exists in telegram_users
+        existing = supabase.table('telegram_users') \
+            .select('telegram_id') \
+            .eq('telegram_id', str(user_id)) \
+            .execute()
+        
+        if existing.data:
+            # Update existing user
+            response = supabase.table('telegram_users') \
+                .update({'preferred_language': lang}) \
+                .eq('telegram_id', str(user_id)) \
+                .execute()
+        else:
+            # Insert new user
+            response = supabase.table('telegram_users') \
+                .insert({
+                    'telegram_id': str(user_id),
+                    'preferred_language': lang
+                }) \
+                .execute()
+        
+        print(f"✅ Saved language '{lang}' for user {user_id}")
+        return True
+    except Exception as e:
+        print(f"Error saving user language: {e}")
+        return False
+
+
+def determine_user_language(message):
+    """
+    Determine user's language with priority:
+    1. Saved preference (from DB)
+    2. Telegram language code
+    3. Auto-detection from message text
+    4. Default: 'en'
+    
+    Args:
+        message: Telegram message object
+    
+    Returns:
+        Language code ('en' or 'ru')
+    """
+    user_id = message.from_user.id
+    
+    # 1. Check saved preference
+    saved_lang = get_user_language(user_id)
+    if saved_lang:
+        return saved_lang
+    
+    # 2. Check Telegram language code
+    if hasattr(message.from_user, 'language_code') and message.from_user.language_code:
+        telegram_lang = message.from_user.language_code.lower()
+        # Russian and CIS languages
+        if telegram_lang in ['ru', 'uk', 'be', 'kk', 'uz', 'ky']:
+            return 'ru'
+    
+    # 3. Auto-detect from message text
+    if LOCALIZATION_ENABLED and message.text:
+        detected = detect_language(message.text)
+        if detected:
+            return detected
+    
+    # 4. Default
+    return 'en'
+
 
 def get_tama_balance(telegram_id):
     """╨Я╨╛╨╗╤Г╤З╨╕╤В╤М ╨▒╨░╨╗╨░╨╜╤Б TAMA ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"""
@@ -871,8 +989,31 @@ def handle_start(message):
                 except Exception as e:
                     print(f"Error saving pending referral: {e}")
                 
-                # Send welcome with referral info
-                welcome_text = f"""
+                # Determine language
+                lang = determine_user_language(message)
+                
+                # Send welcome with referral info (localized)
+                if lang == 'ru':
+                    welcome_text = f"""
+🎉 *Добро пожаловать в Solana Tamagotchi!*
+
+Тебя пригласил друг! 🎁
+
+🔗 *Начни зарабатывать TAMA:*
+• Получи свою реферальную ссылку ниже
+• Делись с друзьями = 1,000 TAMA за каждого!
+• Бонусы за вехи до 100,000 TAMA!
+
+🎮 *Возможности игры:*
+• 🐾 Усыновляй и растя NFT питомцев
+• 🏅 Поднимайся в лидербордах
+• 🎨 Минти уникальные NFT питомцев
+• 💰 Ежедневные награды и достижения
+
+🚀 *Готов начать зарабатывать?*
+                    """
+                else:
+                    welcome_text = f"""
 🎉 *Welcome to Solana Tamagotchi!*
 
 You were invited by a friend! 🎁
@@ -889,7 +1030,7 @@ You were invited by a friend! 🎁
 • 💰 Daily rewards & achievements
 
 🚀 *Ready to start earning?*
-                """
+                    """
                 
                 keyboard = types.InlineKeyboardMarkup()
                 keyboard.row(
@@ -911,8 +1052,104 @@ You were invited by a friend! 🎁
     send_welcome(message)
 
 # Commands - Private chat only
+
+# Language selection command
+@bot.message_handler(commands=['language', 'lang'], func=lambda message: message.chat.type == 'private')
+def choose_language_command(message):
+    """Allow user to choose their preferred language"""
+    user_id = message.from_user.id
+    
+    # Get current language
+    current_lang = determine_user_language(message)
+    
+    if LOCALIZATION_ENABLED:
+        # Show language selection keyboard
+        text = get_language_selection_message(current_lang)
+        keyboard = create_language_keyboard()
+        
+        bot.send_message(
+            user_id,
+            text,
+            reply_markup=keyboard,
+            parse_mode='Markdown'
+        )
+    else:
+        bot.reply_to(message, "⚠️ Localization system is not available.")
+
+
+# Callback handler for language selection button
+@bot.callback_query_handler(func=lambda call: call.data == 'lang_select')
+def show_language_selector(call):
+    """Show language selection when user clicks Language button"""
+    user_id = call.from_user.id
+    
+    if not LOCALIZATION_ENABLED:
+        bot.answer_callback_query(call.id, "⚠️ Not available")
+        return
+    
+    # Get current language
+    current_lang = get_user_language(user_id) or 'en'
+    
+    # Show language selection keyboard
+    text = get_language_selection_message(current_lang)
+    keyboard = create_language_keyboard()
+    
+    try:
+        bot.edit_message_text(
+            text,
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=keyboard,
+            parse_mode='Markdown'
+        )
+        bot.answer_callback_query(call.id)
+    except:
+        bot.answer_callback_query(call.id, "⚠️ Error")
+
+
+# Callback handler for language selection (from inline buttons)
+@bot.callback_query_handler(func=lambda call: call.data.startswith('lang_'))
+def handle_language_selection_callback(call):
+    """Handle language selection from inline keyboard"""
+    user_id = call.from_user.id
+    
+    if not LOCALIZATION_ENABLED:
+        bot.answer_callback_query(call.id, "⚠️ Not available")
+        return
+    
+    # Get selected language
+    new_lang = handle_language_callback(call.data)  # 'en' or 'ru'
+    
+    # Save to database
+    if save_user_language(user_id, new_lang):
+        # Confirmation message
+        confirmation = get_language_changed_message(new_lang)
+        bot.answer_callback_query(call.id, "✅")
+        
+        try:
+            bot.edit_message_text(
+                confirmation,
+                call.message.chat.id,
+                call.message.message_id,
+                parse_mode='Markdown'
+            )
+        except:
+            pass
+        
+        # Show updated welcome message
+        # Create a temporary message object to use with send_welcome
+        temp_message = call.message
+        temp_message.from_user = call.from_user
+        send_welcome(temp_message)
+    else:
+        bot.answer_callback_query(call.id, "❌ Error saving language")
+
+
 @bot.message_handler(commands=['help'], func=lambda message: message.chat.type == 'private')
 def send_welcome(message):
+    # Determine user language
+    lang = determine_user_language(message)
+    
     # Get user stats
     telegram_id = str(message.from_user.id)
     streak_days = daily_rewards.get_streak(telegram_id)
@@ -927,12 +1164,25 @@ def send_welcome(message):
         xp = user_data.get('xp', 0)
         
         # Show balance in welcome message
-        balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
+        if lang == 'ru':
+            balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})"
+        else:
+            balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
     except Exception as e:
         print(f"⚠️ Failed to fetch balance in send_welcome: {e}")
-        balance_text = "💰 *Your Balance:* Loading..."
+        balance_text = "💰 *Your Balance:* Loading..." if lang == 'en' else "💰 *Твой баланс:* Загрузка..."
     
-    welcome_text = f"""
+    # Use localized welcome text if available
+    if LOCALIZATION_ENABLED:
+        welcome_text = t('help', lang)
+        # Add balance and streak info
+        if lang == 'ru':
+            welcome_text = welcome_text.replace('/stats - Твоя статистика', f'/stats - Твоя статистика\n\n{balance_text}\n🔥 Серия: {streak_days} дн.')
+        else:
+            welcome_text = welcome_text.replace('/stats - Check your stats', f'/stats - Check your stats\n\n{balance_text}\n🔥 Streak: {streak_days} days')
+    else:
+        # Fallback to old text
+        welcome_text = f"""
 🎮 *Welcome to Solana Tamagotchi!*
 
 *The ultimate Play-to-Earn NFT pet game on Solana!*
@@ -969,49 +1219,81 @@ def send_welcome(message):
         game_url = GAME_URL
         mint_url = MINT_URL
     
+    # Localized button texts
+    if lang == 'ru':
+        daily_text = "Ежедневная награда"
+        my_nfts_text = "Мои NFT"
+        mint_nft_text = "Минт NFT"
+        withdraw_text = "Вывести TAMA"
+        referral_text = "Реферальная"
+        stats_text = "Статистика"
+        quests_text = "Квесты"
+        badges_text = "Значки"
+        rank_text = "Рейтинг"
+        leaderboard_text = "Лидерборд"
+        community_text = "Сообщество"
+    else:
+        daily_text = "Daily Reward"
+        my_nfts_text = "My NFTs"
+        mint_nft_text = "Mint NFT"
+        withdraw_text = "Withdraw TAMA"
+        referral_text = "Referral"
+        stats_text = "My Stats"
+        quests_text = "Quests"
+        badges_text = "Badges"
+        rank_text = "My Rank"
+        leaderboard_text = "Leaderboard"
+        community_text = "Community"
+    
     # Row 1: Daily Reward (highlight if available)
     daily_emoji = "🎁⭐" if can_claim else "🎁"
     keyboard.row(
-        types.InlineKeyboardButton(f"{daily_emoji} Daily Reward", callback_data="daily_reward")
+        types.InlineKeyboardButton(f"{daily_emoji} {daily_text}", callback_data="daily_reward")
     )
     
     # Row 2: NFT Menu (NEW!)
     keyboard.row(
-        types.InlineKeyboardButton("🖼️ My NFTs", callback_data="my_nfts"),
-        types.InlineKeyboardButton("🎨 Mint NFT", callback_data="mint_nft")
+        types.InlineKeyboardButton(f"🖼️ {my_nfts_text}", callback_data="my_nfts"),
+        types.InlineKeyboardButton(f"🎨 {mint_nft_text}", callback_data="mint_nft")
     )
     
     # Row 3: Withdrawal Button (NEW!)
     keyboard.row(
-        types.InlineKeyboardButton("💸 Withdraw TAMA", callback_data="withdraw_tama")
+        types.InlineKeyboardButton(f"💸 {withdraw_text}", callback_data="withdraw_tama")
     )
     
     # Row 4: Referral (Mini-Games removed - available in main game)
     keyboard.row(
-        types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
+        types.InlineKeyboardButton(f"🔗 {referral_text}", callback_data="get_referral")
     )
     
     # Row 5: Stats & Quests
     keyboard.row(
-        types.InlineKeyboardButton("📊 My Stats", callback_data="my_stats_detailed"),
-        types.InlineKeyboardButton("📋 Quests", callback_data="view_quests")
+        types.InlineKeyboardButton(f"📊 {stats_text}", callback_data="my_stats_detailed"),
+        types.InlineKeyboardButton(f"📋 {quests_text}", callback_data="view_quests")
     )
     
     # Row 6: Badges & Rank
     keyboard.row(
-        types.InlineKeyboardButton("🏆 Badges", callback_data="view_badges"),
-        types.InlineKeyboardButton("🎖️ My Rank", callback_data="view_rank")
+        types.InlineKeyboardButton(f"🏆 {badges_text}", callback_data="view_badges"),
+        types.InlineKeyboardButton(f"🎖️ {rank_text}", callback_data="view_rank")
     )
     
     # Row 7: Leaderboard only (Play Game moved to bottom menu)
     keyboard.row(
-        types.InlineKeyboardButton("🏅 Leaderboard", callback_data="leaderboard")
+        types.InlineKeyboardButton(f"🏅 {leaderboard_text}", callback_data="leaderboard")
     )
     
-    # Row 8: Community
+    # Row 8: Community + Language
     keyboard.row(
-        types.InlineKeyboardButton("👥 Community", url="https://t.me/gotchigamechat")
+        types.InlineKeyboardButton(f"👥 {community_text}", url="https://t.me/gotchigamechat"),
+        types.InlineKeyboardButton("🌍 Language", callback_data="lang_select")
     )
+    
+    # Add language hint
+    if LOCALIZATION_ENABLED:
+        lang_hint = t('language_command_info', lang)
+        welcome_text += f"\n\n{lang_hint}"
     
     bot.reply_to(message, welcome_text, parse_mode='Markdown', reply_markup=keyboard)
 
