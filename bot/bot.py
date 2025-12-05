@@ -37,6 +37,17 @@ except ImportError:
     TWITTER_ENABLED = False
     print("⚠️ Twitter posting disabled (tweepy not installed)")
 
+# Import FAQ handler for community support
+try:
+    from faq_handler import FAQHandler
+    faq_handler = FAQHandler()
+    FAQ_ENABLED = True
+    print("✅ FAQ Handler enabled for community support")
+except Exception as e:
+    FAQ_ENABLED = False
+    faq_handler = None
+    print(f"⚠️ FAQ Handler disabled: {e}")
+
 # Load environment variables (optional .env)
 import codecs
 env_path = '../.env'
@@ -564,6 +575,29 @@ def handle_group_message(message):
         print(f"Group message: {message.chat.title} (ID: {chat_id}) from {message.from_user.first_name}")
     except UnicodeEncodeError:
         print(f"Group message from user {user_id} in chat {chat_id}")
+    
+    # FAQ AUTO-RESPONSE (process BEFORE anti-spam for admins too)
+    if FAQ_ENABLED and faq_handler and message.text:
+        try:
+            response_type, response_text = faq_handler.process_message(message.text)
+            
+            if response_type in ['spam', 'faq', 'default'] and response_text:
+                # Send FAQ response
+                bot.reply_to(message, response_text, parse_mode='Markdown')
+                print(f"✅ FAQ response sent: {response_type}")
+                
+                # If it's spam, also notify admins
+                if response_type == 'spam':
+                    admin_alert = f"🚨 SPAM DETECTED in {message.chat.title}\n\n"
+                    admin_alert += f"User: {message.from_user.first_name} (@{message.from_user.username or 'no username'})\n"
+                    admin_alert += f"Message: {message.text[:200]}\n\n"
+                    admin_alert += f"Auto-response sent: {response_text[:100]}..."
+                    send_admin_alert(admin_alert)
+                
+                # Don't continue with other checks if FAQ handled it
+                return
+        except Exception as e:
+            print(f"⚠️ FAQ handler error: {e}")
     
     # Skip if admin - no anti-spam for admins
     if is_admin(user_id):
