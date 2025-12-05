@@ -263,6 +263,18 @@ def get_user_language(user_id):
         Language code ('en', 'ru') or None if not set
     """
     try:
+        # Try leaderboard first (main user table)
+        response = supabase.table('leaderboard') \
+            .select('preferred_language') \
+            .eq('telegram_id', str(user_id)) \
+            .execute()
+        
+        if response.data and len(response.data) > 0:
+            lang = response.data[0].get('preferred_language')
+            if lang:
+                return lang
+        
+        # Fallback to telegram_users
         response = supabase.table('telegram_users') \
             .select('preferred_language') \
             .eq('telegram_id', str(user_id)) \
@@ -288,31 +300,34 @@ def save_user_language(user_id, lang):
         True if saved successfully, False otherwise
     """
     try:
-        # Check if user exists in telegram_users
-        existing = supabase.table('telegram_users') \
-            .select('telegram_id') \
-            .eq('telegram_id', str(user_id)) \
-            .execute()
-        
-        if existing.data:
-            # Update existing user
-            response = supabase.table('telegram_users') \
-                .update({'preferred_language': lang}) \
-                .eq('telegram_id', str(user_id)) \
-                .execute()
-        else:
-            # Insert new user
-            response = supabase.table('telegram_users') \
-                .insert({
+        # Use UPSERT to handle both insert and update
+        # First, try to update in leaderboard table (main user table)
+        try:
+            leaderboard_update = supabase.table('leaderboard') \
+                .upsert({
                     'telegram_id': str(user_id),
                     'preferred_language': lang
-                }) \
+                }, on_conflict='telegram_id') \
                 .execute()
+            print(f"✅ Saved language '{lang}' for user {user_id} in leaderboard")
+        except Exception as lb_error:
+            print(f"⚠️ Could not save to leaderboard: {lb_error}")
         
-        print(f"✅ Saved language '{lang}' for user {user_id}")
+        # Also save to telegram_users if it exists
+        try:
+            telegram_users_update = supabase.table('telegram_users') \
+                .upsert({
+                    'telegram_id': str(user_id),
+                    'preferred_language': lang
+                }, on_conflict='telegram_id') \
+                .execute()
+            print(f"✅ Saved language '{lang}' for user {user_id} in telegram_users")
+        except Exception as tu_error:
+            print(f"⚠️ Could not save to telegram_users: {tu_error}")
+        
         return True
     except Exception as e:
-        print(f"Error saving user language: {e}")
+        print(f"❌ Error saving user language: {e}")
         return False
 
 
