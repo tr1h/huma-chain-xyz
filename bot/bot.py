@@ -1141,21 +1141,136 @@ def handle_language_selection_callback(call):
         confirmation = get_language_changed_message(new_lang)
         bot.answer_callback_query(call.id, "✅")
         
+        # Delete old message
         try:
-            bot.edit_message_text(
-                confirmation,
-                call.message.chat.id,
-                call.message.message_id,
-                parse_mode='Markdown'
-            )
+            bot.delete_message(call.message.chat.id, call.message.message_id)
         except:
             pass
         
-        # Show updated welcome message
-        # Create a temporary message object to use with send_welcome
-        temp_message = call.message
-        temp_message.from_user = call.from_user
-        send_welcome(temp_message)
+        # Get user stats for welcome message
+        telegram_id = str(call.from_user.id)
+        streak_days = daily_rewards.get_streak(telegram_id)
+        can_claim, _ = daily_rewards.can_claim(telegram_id)
+        
+        # Fetch TAMA balance
+        try:
+            leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
+            user_data = leaderboard_response.data[0] if leaderboard_response.data else {}
+            tama_balance = user_data.get('tama', 0)
+            level = user_data.get('level', 1)
+            
+            # Show balance in welcome message
+            if new_lang == 'ru':
+                balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})"
+            else:
+                balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
+        except Exception as e:
+            balance_text = "💰 *Your Balance:* Loading..." if new_lang == 'en' else "💰 *Твой баланс:* Загрузка..."
+        
+        # Use localized welcome text
+        if LOCALIZATION_ENABLED:
+            welcome_text = t('help', new_lang)
+            # Add balance and streak info
+            if new_lang == 'ru':
+                welcome_text = welcome_text.replace('/stats - Твоя статистика', f'/stats - Твоя статистика\n\n{balance_text}\n🔥 Серия: {streak_days} дн.')
+            else:
+                welcome_text = welcome_text.replace('/stats - Check your stats', f'/stats - Check your stats\n\n{balance_text}\n🔥 Streak: {streak_days} days')
+        else:
+            welcome_text = f"""🎮 Welcome to Solana Tamagotchi!
+            
+{balance_text}
+🔥 Streak: {streak_days} days"""
+        
+        # Create inline keyboard with localized buttons
+        keyboard = types.InlineKeyboardMarkup()
+        
+        # Get user's wallet for referral links
+        username = call.from_user.username or call.from_user.first_name
+        wallet_address = get_wallet_by_telegram(telegram_id)
+        
+        if wallet_address:
+            game_url = f"{GAME_URL}?ref={wallet_address}&tg_id={user_id}&tg_username={username}"
+            mint_url = f"{MINT_URL}?ref={wallet_address}&tg_id={user_id}&tg_username={username}"
+        else:
+            game_url = GAME_URL
+            mint_url = MINT_URL
+        
+        # Localized button texts
+        if new_lang == 'ru':
+            daily_text = "Ежедневная награда"
+            my_nfts_text = "Мои NFT"
+            mint_nft_text = "Минт NFT"
+            withdraw_text = "Вывести TAMA"
+            referral_text = "Реферальная"
+            stats_text = "Статистика"
+            quests_text = "Квесты"
+            badges_text = "Значки"
+            rank_text = "Рейтинг"
+            leaderboard_text = "Лидерборд"
+            community_text = "Сообщество"
+        else:
+            daily_text = "Daily Reward"
+            my_nfts_text = "My NFTs"
+            mint_nft_text = "Mint NFT"
+            withdraw_text = "Withdraw TAMA"
+            referral_text = "Referral"
+            stats_text = "My Stats"
+            quests_text = "Quests"
+            badges_text = "Badges"
+            rank_text = "My Rank"
+            leaderboard_text = "Leaderboard"
+            community_text = "Community"
+        
+        # Row 1: Daily Reward (highlight if available)
+        daily_emoji = "🎁⭐" if can_claim else "🎁"
+        keyboard.row(types.InlineKeyboardButton(f"{daily_emoji} {daily_text}", callback_data="daily_reward"))
+        
+        # Row 2: NFT Menu
+        keyboard.row(
+            types.InlineKeyboardButton(f"🖼️ {my_nfts_text}", callback_data="my_nfts"),
+            types.InlineKeyboardButton(f"🎨 {mint_nft_text}", callback_data="mint_nft")
+        )
+        
+        # Row 3: Withdrawal Button
+        keyboard.row(types.InlineKeyboardButton(f"💸 {withdraw_text}", callback_data="withdraw_tama"))
+        
+        # Row 4: Referral
+        keyboard.row(types.InlineKeyboardButton(f"🔗 {referral_text}", callback_data="get_referral"))
+        
+        # Row 5: Stats & Quests
+        keyboard.row(
+            types.InlineKeyboardButton(f"📊 {stats_text}", callback_data="my_stats_detailed"),
+            types.InlineKeyboardButton(f"📋 {quests_text}", callback_data="view_quests")
+        )
+        
+        # Row 6: Badges & Rank
+        keyboard.row(
+            types.InlineKeyboardButton(f"🏆 {badges_text}", callback_data="view_badges"),
+            types.InlineKeyboardButton(f"🎖️ {rank_text}", callback_data="view_rank")
+        )
+        
+        # Row 7: Leaderboard
+        keyboard.row(types.InlineKeyboardButton(f"🏅 {leaderboard_text}", callback_data="leaderboard"))
+        
+        # Row 8: Community + Language
+        keyboard.row(
+            types.InlineKeyboardButton(f"👥 {community_text}", url="https://t.me/gotchigamechat"),
+            types.InlineKeyboardButton("🌍 Language", callback_data="lang_select")
+        )
+        
+        # Add language hint
+        if LOCALIZATION_ENABLED:
+            lang_hint = t('language_command_info', new_lang)
+            welcome_text += f"\n\n{lang_hint}"
+        
+        # Send new message with confirmation
+        confirmation_msg = confirmation + "\n\n---\n\n"
+        bot.send_message(
+            call.message.chat.id,
+            confirmation_msg + welcome_text,
+            parse_mode='Markdown',
+            reply_markup=keyboard
+        )
     else:
         bot.answer_callback_query(call.id, "❌ Error saving language")
 
