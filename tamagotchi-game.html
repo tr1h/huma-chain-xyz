@@ -1439,6 +1439,15 @@
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
             animation: rarityGlow 2s infinite;
         }
+        .rarity-mythic {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+            animation: rarityGlow 1.5s infinite;
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+        }
+        .rarity-xmas {
+            background: linear-gradient(135deg, #ef4444, #22c55e);
+            animation: rarityGlow 2s infinite;
+        }
         .rarity-xmas {
             background: linear-gradient(135deg, #dc2626, #16a34a);
             animation: xmasGlow 2s infinite;
@@ -5781,29 +5790,70 @@
                 price: 1000,
                 rarity: 'common',
                 enabled: true,
+                bonusEn: 'Retro 8-bit style',
                 bonusRu: '8-bit стиль!',
+                rarityLabel: 'COMMON',
                 rarityLabelRu: 'ОБЫЧНЫЙ'
             },
-            'fire-cat': {
-                id: 'fire-cat',
-                name: '🔥 Fire Cat',
-                nameRu: '🔥 Огненный Кот',
+            'neko': {
+                id: 'neko',
+                name: '🐱 Neko Cat',
+                nameRu: '🐱 Неко Кот',
+                price: 5000,
+                rarity: 'rare',
+                enabled: true,
+                bonusEn: '+10% TAMA from games',
+                bonusRu: '+10% TAMA от игр',
+                rarityLabel: 'RARE',
+                rarityLabelRu: 'РЕДКИЙ'
+            },
+            'cyber': {
+                id: 'cyber',
+                name: '🤖 Cyber Pet',
+                nameRu: '🤖 Кибер Питомец',
                 price: 15000,
                 rarity: 'epic',
                 enabled: true,
-                bonusRu: '+15% TAMA от игр',
+                bonusEn: '+20% TAMA from games',
+                bonusRu: '+20% TAMA от игр',
+                rarityLabel: 'EPIC',
                 rarityLabelRu: 'ЭПИЧЕСКИЙ'
             },
-            'santa': {
-                id: 'santa',
-                name: '🎅 Santa',
-                nameRu: '🎅 Санта',
-                price: 10000,
-                rarity: 'xmas',
+            'premium': {
+                id: 'premium',
+                name: '⭐ Premium Pet',
+                nameRu: '⭐ Премиум Питомец',
+                price: 25000,
+                rarity: 'legendary',
                 enabled: true,
-                bonusRu: '+50% TAMA 24-31 дек',
-                rarityLabelRu: 'НОВОГОДНИЙ',
-                limitedTime: { startMonth: 12, startDay: 1, endMonth: 12, endDay: 31 }
+                bonusEn: '+30% TAMA from games',
+                bonusRu: '+30% TAMA от игр',
+                rarityLabel: 'LEGENDARY',
+                rarityLabelRu: 'ЛЕГЕНДАРНЫЙ'
+            },
+            'alien': {
+                id: 'alien',
+                name: '👽 Alien',
+                nameRu: '👽 Инопланетянин',
+                price: 50000,
+                rarity: 'legendary',
+                enabled: true,
+                bonusEn: '+50% TAMA from games',
+                bonusRu: '+50% TAMA от игр',
+                rarityLabel: 'LEGENDARY',
+                rarityLabelRu: 'ЛЕГЕНДАРНЫЙ'
+            },
+            'kitsune': {
+                id: 'kitsune',
+                name: '🦊 Kitsune Fox',
+                nameRu: '🦊 Лиса Китсуне',
+                price: 100000,
+                rarity: 'mythic',
+                enabled: true,
+                bonusEn: '+100% TAMA from games',
+                bonusRu: '+100% TAMA от игр',
+                rarityLabel: 'MYTHIC',
+                rarityLabelRu: 'МИФИЧЕСКИЙ'
             }
         };
 
