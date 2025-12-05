@@ -8,8 +8,24 @@ import re
 from typing import Optional, Tuple
 
 class FAQHandler:
-    def __init__(self, faq_file='bot/faq_data.json'):
+    def __init__(self, faq_file=None):
         """Initialize FAQ handler with data from JSON file"""
+        # Try multiple paths (for local dev and Render deployment)
+        if faq_file is None:
+            import os
+            possible_paths = [
+                'bot/faq_data.json',  # Local dev
+                'faq_data.json',  # Render (if in bot/ dir)
+                os.path.join(os.path.dirname(__file__), 'faq_data.json'),  # Relative to this file
+            ]
+            for path in possible_paths:
+                if os.path.exists(path):
+                    faq_file = path
+                    break
+            
+            if faq_file is None:
+                raise FileNotFoundError(f"Could not find faq_data.json in any of: {possible_paths}")
+        
         with open(faq_file, 'r', encoding='utf-8') as f:
             self.data = json.load(f)
         
