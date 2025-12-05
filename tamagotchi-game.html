@@ -744,6 +744,13 @@
         body[data-pet="cyber"] .cyber-pet { display: block !important; }
         body[data-pet="alien"] .alien-pet { display: block !important; }
         body[data-pet="kitsune"] .kitsune-pet { display: block !important; }
+        body[data-pet="santa"] .santa-pet { display: block !important; }
+        body[data-pet="snowman"] .snowman-pet { display: block !important; }
+        body[data-pet="reindeer"] .reindeer-pet { display: block !important; }
+        body[data-pet="tree"] .tree-pet { display: block !important; }
+        body[data-pet="cyber"] .cyber-pet { display: block !important; }
+        body[data-pet="alien"] .alien-pet { display: block !important; }
+        body[data-pet="kitsune"] .kitsune-pet { display: block !important; }
 
         /* FALLBACK: If no data-pet attribute, show kawai pet by default */
         body:not([data-pet]) .kawai-pet { display: block !important; }
@@ -4426,6 +4433,180 @@
                         <circle cx="140" y="180" r="4" fill="#FF4500" opacity="0.7" class="kitsune-particle-6"/>
                     </g>
                 </svg>
+
+                <!-- XMAS SKIN 1: Santa Pet -->
+                <svg class="vector-pet santa-pet" width="200" height="200" viewBox="0 0 200 200">
+                    <defs>
+                        <radialGradient id="santa-body">
+                            <stop offset="0%" style="stop-color:#FEE2E2"/>
+                            <stop offset="100%" style="stop-color:#FCA5A5"/>
+                        </radialGradient>
+                    </defs>
+                    <!-- Body (red suit) -->
+                    <circle cx="100" cy="108" r="50" fill="#DC2626" stroke="#991B1B" stroke-width="3"/>
+                    <!-- Head -->
+                    <circle cx="100" cy="67" r="42" fill="url(#santa-body)" stroke="#FCA5A5" stroke-width="2.5"/>
+                    <!-- Santa hat -->
+                    <path d="M 58 58 L 71 25 L 142 58 Z" fill="#DC2626" stroke="#991B1B" stroke-width="2.5"/>
+                    <ellipse cx="106" cy="60" rx="38" ry="10" fill="#FFFFFF"/>
+                    <circle cx="68" cy="21" r="10" fill="#FFFFFF"/>
+                    <!-- Eyes -->
+                    <circle cx="83" cy="63" r="8" fill="#000000"/>
+                    <circle cx="81" cy="60" r="3" fill="#FFFFFF"/>
+                    <circle cx="117" cy="63" r="8" fill="#000000"/>
+                    <circle cx="115" cy="60" r="3" fill="#FFFFFF"/>
+                    <!-- Rosy cheeks -->
+                    <circle cx="71" cy="71" r="8" fill="#EF4444" opacity="0.6"/>
+                    <circle cx="129" cy="71" r="8" fill="#EF4444" opacity="0.6"/>
+                    <!-- Beard -->
+                    <ellipse cx="100" cy="88" rx="29" ry="21" fill="#FFFFFF"/>
+                    <circle cx="83" cy="83" r="10" fill="#FFFFFF"/>
+                    <circle cx="117" cy="83" r="10" fill="#FFFFFF"/>
+                    <circle cx="100" cy="96" rx="13" ry="13" fill="#FFFFFF"/>
+                    <!-- Belt -->
+                    <rect x="75" y="104" width="50" height="8" fill="#1F2937"/>
+                    <rect x="96" y="100" width="8" height="17" fill="#FCD34D"/>
+                    <!-- Buttons -->
+                    <circle cx="100" cy="121" r="4" fill="#FCD34D"/>
+                    <circle cx="100" cy="138" r="4" fill="#FCD34D"/>
+                    <!-- Gift -->
+                    <text x="129" y="125" style="font-size: 29px;">🎁</text>
+                    <!-- Snowflakes -->
+                    <text x="42" y="83" style="font-size: 18px;">❄️</text>
+                    <text x="146" y="92" style="font-size: 17px;">❄️</text>
+                </svg>
+
+                <!-- XMAS SKIN 2: Snowman Pet -->
+                <svg class="vector-pet snowman-pet" width="200" height="200" viewBox="0 0 200 200">
+                    <!-- Bottom snowball -->
+                    <circle cx="100" cy="138" r="38" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2.5"/>
+                    <!-- Middle snowball -->
+                    <circle cx="100" cy="92" r="32" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2.5"/>
+                    <!-- Top snowball (head) -->
+                    <circle cx="100" cy="54" r="27" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="2.5"/>
+                    <!-- Top hat -->
+                    <rect x="79" y="29" width="42" height="7" fill="#1F2937"/>
+                    <rect x="83" y="8" width="34" height="21" fill="#1F2937"/>
+                    <rect x="82" y="28" width="37" height="3" fill="#DC2626"/>
+                    <!-- Eyes (coal) -->
+                    <circle cx="90" cy="50" r="4" fill="#000000"/>
+                    <circle cx="110" cy="50" r="4" fill="#000000"/>
+                    <!-- Carrot nose -->
+                    <path d="M 100 57 L 121 60 L 100 63 Z" fill="#F97316"/>
+                    <!-- Smile (coal) -->
+                    <circle cx="90" cy="63" r="2.5" fill="#000000"/>
+                    <circle cx="96" cy="65" r="2.5" fill="#000000"/>
+                    <circle cx="104" cy="65" r="2.5" fill="#000000"/>
+                    <circle cx="110" cy="63" r="2.5" fill="#000000"/>
+                    <!-- Buttons (coal) -->
+                    <circle cx="100" cy="88" r="3" fill="#000000"/>
+                    <circle cx="100" cy="100" r="3" fill="#000000"/>
+                    <circle cx="100" cy="125" r="3" fill="#000000"/>
+                    <circle cx="100" cy="142" r="3" fill="#000000"/>
+                    <!-- Stick arms -->
+                    <line x1="63" y1="83" x2="42" y2="71" stroke="#78350F" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="137" y1="83" x2="158" y2="71" stroke="#78350F" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Scarf -->
+                    <rect x="83" y="75" width="34" height="10" rx="5" fill="#DC2626"/>
+                    <rect x="113" y="78" width="21" height="7" rx="3" fill="#DC2626"/>
+                    <rect x="114" y="85" width="2.5" height="13" fill="#DC2626"/>
+                    <rect x="121" y="85" width="2.5" height="15" fill="#DC2626"/>
+                    <rect x="127" y="85" width="2.5" height="10" fill="#DC2626"/>
+                    <!-- Snowflakes -->
+                    <text x="42" y="100" style="font-size: 17px;">❄️</text>
+                    <text x="150" y="108" style="font-size: 15px;">❄️</text>
+                </svg>
+
+                <!-- XMAS SKIN 3: Reindeer Pet -->
+                <svg class="vector-pet reindeer-pet" width="200" height="200" viewBox="0 0 200 200">
+                    <defs>
+                        <radialGradient id="reindeer-body">
+                            <stop offset="0%" style="stop-color:#92400E"/>
+                            <stop offset="100%" style="stop-color:#78350F"/>
+                        </radialGradient>
+                    </defs>
+                    <!-- Body -->
+                    <ellipse cx="100" cy="113" rx="42" ry="38" fill="url(#reindeer-body)" stroke="#451A03" stroke-width="2.5"/>
+                    <!-- Head -->
+                    <circle cx="100" cy="67" r="35" fill="url(#reindeer-body)" stroke="#451A03" stroke-width="2.5"/>
+                    <!-- Antlers -->
+                    <path d="M 75 46 L 71 33 M 71 33 L 63 29 M 71 33 L 68 42" stroke="#78350F" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    <path d="M 125 46 L 129 33 M 129 33 L 137 29 M 129 33 L 132 42" stroke="#78350F" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    <!-- Bells on antlers -->
+                    <circle cx="63" cy="29" r="4" fill="#FCD34D" stroke="#CA8A04" stroke-width="1.5"/>
+                    <circle cx="137" cy="29" r="4" fill="#FCD34D" stroke="#CA8A04" stroke-width="1.5"/>
+                    <!-- Ears -->
+                    <ellipse cx="79" cy="50" rx="8" ry="15" fill="#92400E" stroke="#451A03" stroke-width="1.5"/>
+                    <ellipse cx="121" cy="50" rx="8" ry="15" fill="#92400E" stroke="#451A03" stroke-width="1.5"/>
+                    <!-- Eyes -->
+                    <circle cx="88" cy="63" r="8" fill="#000000"/>
+                    <circle cx="85" cy="60" r="3" fill="#FFFFFF"/>
+                    <circle cx="113" cy="63" r="8" fill="#000000"/>
+                    <circle cx="110" cy="60" r="3" fill="#FFFFFF"/>
+                    <!-- Red nose (Rudolph!) -->
+                    <circle cx="100" cy="77" r="10" fill="#EF4444" opacity="0.9">
+                        <animate attributeName="opacity" values="0.7;1;0.7" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="96" cy="73" r="3" fill="#FFFFFF" opacity="0.7"/>
+                    <!-- Smile -->
+                    <path d="M 88 83 Q 100 90 113 83" stroke="#451A03" stroke-width="2.5" fill="none"/>
+                    <!-- Red scarf -->
+                    <rect x="79" y="96" width="42" height="13" rx="6" fill="#DC2626"/>
+                    <rect x="117" y="98" width="25" height="8" rx="4" fill="#DC2626"/>
+                    <!-- Legs -->
+                    <rect x="79" y="146" width="10" height="29" rx="5" fill="#92400E"/>
+                    <rect x="111" y="146" width="10" height="29" rx="5" fill="#92400E"/>
+                    <!-- Hooves -->
+                    <ellipse cx="84" cy="175" rx="7" ry="4" fill="#1F2937"/>
+                    <ellipse cx="116" cy="175" rx="7" ry="4" fill="#1F2937"/>
+                    <!-- Sparkles -->
+                    <text x="46" y="79" style="font-size: 18px;">✨</text>
+                    <text x="146" y="83" style="font-size: 17px;">⭐</text>
+                </svg>
+
+                <!-- XMAS SKIN 4: Christmas Tree Pet -->
+                <svg class="vector-pet tree-pet" width="200" height="200" viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="tree-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#22C55E"/>
+                            <stop offset="100%" style="stop-color:#15803D"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Tree trunk -->
+                    <rect x="88" y="150" width="25" height="33" fill="#78350F"/>
+                    <!-- Tree layers -->
+                    <path d="M 100 33 L 58 79 L 75 79 L 46 117 L 67 117 L 33 158 L 167 158 L 133 117 L 154 117 L 125 79 L 142 79 Z"
+                          fill="url(#tree-grad)" stroke="#15803D" stroke-width="2.5"/>
+                    <!-- Star on top -->
+                    <text x="88" y="43" style="font-size: 29px;">⭐</text>
+                    <!-- Ornaments -->
+                    <circle cx="79" cy="92" r="7" fill="#EF4444"/>
+                    <circle cx="121" cy="96" r="7" fill="#3B82F6"/>
+                    <circle cx="100" cy="108" r="7" fill="#FCD34D"/>
+                    <circle cx="71" cy="129" r="7" fill="#A855F7"/>
+                    <circle cx="129" cy="133" r="7" fill="#F97316"/>
+                    <circle cx="92" cy="146" r="7" fill="#EC4899"/>
+                    <circle cx="108" cy="143" r="7" fill="#10B981"/>
+                    <!-- Lights (glowing) -->
+                    <circle cx="83" cy="104" r="4" fill="#FCD34D" opacity="0.9">
+                        <animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="117" cy="121" r="4" fill="#FFFFFF" opacity="0.9">
+                        <animate attributeName="opacity" values="0.5;1;0.5" dur="1.2s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="100" cy="138" r="4" fill="#EF4444" opacity="0.9">
+                        <animate attributeName="opacity" values="0.5;1;0.5" dur="0.8s" repeatCount="indefinite"/>
+                    </circle>
+                    <!-- Cute face -->
+                    <circle cx="88" cy="88" r="5" fill="#000000"/>
+                    <circle cx="112" cy="88" r="5" fill="#000000"/>
+                    <circle cx="85" cy="85" r="2" fill="#FFFFFF"/>
+                    <circle cx="109" cy="85" r="2" fill="#FFFFFF"/>
+                    <path d="M 92 96 Q 100 100 108 96" stroke="#15803D" stroke-width="2" fill="none"/>
+                    <!-- Gift boxes at base -->
+                    <text x="25" y="175" style="font-size: 24px;">🎁</text>
+                    <text x="150" y="171" style="font-size: 20px;">🎁</text>
+                </svg>
             </div>
         </div>
 
@@ -5892,6 +6073,58 @@
                 bonusRu: '+100% TAMA от игр',
                 rarityLabel: 'MYTHIC',
                 rarityLabelRu: 'МИФИЧЕСКИЙ'
+            },
+            'santa': {
+                id: 'santa',
+                name: '🎅 Santa Pet',
+                nameRu: '🎅 Санта',
+                price: 10000,
+                rarity: 'xmas',
+                enabled: true,
+                bonusEn: '+50% TAMA Dec 24-31',
+                bonusRu: '+50% TAMA 24-31 декабря',
+                rarityLabel: 'XMAS LIMITED',
+                rarityLabelRu: 'НОВОГОДНИЙ',
+                limitedTime: { startMonth: 12, startDay: 1, endMonth: 12, endDay: 31 }
+            },
+            'snowman': {
+                id: 'snowman',
+                name: '⛄ Snowman Pet',
+                nameRu: '⛄ Снеговик',
+                price: 8000,
+                rarity: 'xmas',
+                enabled: true,
+                bonusEn: 'Immune to cold!',
+                bonusRu: 'Неуязвим к холоду!',
+                rarityLabel: 'XMAS LIMITED',
+                rarityLabelRu: 'НОВОГОДНИЙ',
+                limitedTime: { startMonth: 12, startDay: 1, endMonth: 1, endDay: 15 }
+            },
+            'reindeer': {
+                id: 'reindeer',
+                name: '🦌 Reindeer Pet',
+                nameRu: '🦌 Олень Рудольф',
+                price: 12000,
+                rarity: 'xmas',
+                enabled: true,
+                bonusEn: '+30% speed + glows!',
+                bonusRu: '+30% скорость + светится!',
+                rarityLabel: 'XMAS LIMITED',
+                rarityLabelRu: 'НОВОГОДНИЙ',
+                limitedTime: { startMonth: 12, startDay: 1, endMonth: 12, endDay: 31 }
+            },
+            'tree': {
+                id: 'tree',
+                name: '🎄 Christmas Tree',
+                nameRu: '🎄 Ёлка',
+                price: 15000,
+                rarity: 'xmas',
+                enabled: true,
+                bonusEn: '+40% TAMA + hourly gifts!',
+                bonusRu: '+40% TAMA + подарки каждый час!',
+                rarityLabel: 'XMAS LIMITED',
+                rarityLabelRu: 'НОВОГОДНИЙ',
+                limitedTime: { startMonth: 12, startDay: 1, endMonth: 1, endDay: 7 }
             }
         };
 
@@ -7588,10 +7821,17 @@
                 const emojiMap = {
                     'kawai': '🌸',
                     'retro': '🕹️',
+                    'neko': '🐱',
                     'cyber': '🤖',
+                    'premium': '⭐',
+                    'alien': '👽',
+                    'kitsune': '🦊',
+                    'santa': '🎅',
+                    'snowman': '⛄',
+                    'reindeer': '🦌',
+                    'tree': '🎄',
                     'panda': '🐼',
                     'ghost': '👻',
-                    'alien': '👽',
                     'ice-fox': '❄️',
                     'love': '💕',
                     'gingerbread': '🍪',
@@ -7770,7 +8010,8 @@
                 
                 const emojiMap = {
                     'kawai': '🌸', 'retro': '🕹️', 'neko': '🐱', 'cyber': '🤖',
-                    'premium': '⭐', 'alien': '👽', 'kitsune': '🦊'
+                    'premium': '⭐', 'alien': '👽', 'kitsune': '🦊',
+                    'santa': '🎅', 'snowman': '⛄', 'reindeer': '🦌', 'tree': '🎄'
                 };
                 
                 const skinCard = document.createElement('div');
