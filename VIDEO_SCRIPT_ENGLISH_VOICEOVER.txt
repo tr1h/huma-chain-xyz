@@ -33,7 +33,7 @@ Now here's the cool part - our NFT multiplier system!
 
 We have five NFT tiers, from Bronze to Diamond. Each tier gives you an earning multiplier - up to ten times for Diamond!
 
-Bronze costs ten SOL and gives you two-X earnings. That means double the TAMA for every action!
+Bronze gives you two-X earnings. That means double the TAMA for every action!
 
 Prices are currently for testing on Devnet.
 

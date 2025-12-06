@@ -34,10 +34,10 @@ play-to-earn игру с питомцами, построенную на бло�
 
 Получаю около двадцати TAMA за игру!
 
-А ещё у нас есть мини-игры! 
+А ещё у нас есть мини-игры!
 Слоты, рулетка, платформер - рискуй TAMA ради больших наград!
 
-Каждое действие награждает тебя настоящей криптовалютой. 
+Каждое действие награждает тебя настоящей криптовалютой.
 И это действительно весело - а не просто грайнд!
 
 
@@ -48,7 +48,7 @@ play-to-earn игру с питомцами, построенную на бло�
 У нас пять NFT тиров, от Бронзы до Алмаза. Каждый тир даёт
 множитель заработка - вплоть до десяти раз для Алмаза!
 
-Бронза стоит десять SOL и даёт удвоенный заработок.
+Бронза даёт удвоенный заработок.
 Это значит в два раза больше TAMA за каждое действие!
 
 Цены пока тестовые, так как мы на Devnet.
@@ -127,10 +127,10 @@ Watch this - I'm playing with my pet and earning TAMA tokens!
 
 I get about twenty TAMA per game!
 
-And we have mini-games! 
+And we have mini-games!
 Slots, wheel, platformer - risk TAMA for bigger rewards!
 
-Every action rewards you with real cryptocurrency. 
+Every action rewards you with real cryptocurrency.
 And it's actually fun - not just grinding!
 
 
@@ -141,7 +141,7 @@ Now here's the cool part - our NFT multiplier system!
 We have five NFT tiers, from Bronze to Diamond. Each tier gives
 you an earning multiplier - up to ten times for Diamond!
 
-Bronze costs ten SOL and gives you two-X earnings.
+Bronze gives you two-X earnings.
 That means double the TAMA for every action!
 
 Prices are currently for testing on Devnet.
