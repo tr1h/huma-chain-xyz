@@ -14,13 +14,13 @@ Let me show you how it works!
 
 [0:15-0:45] GAMEPLAY DEMO
 ────────────────────────────────────────────────
-First, you choose one of five unique pets: Cat, Dog, Bunny, Fox, or Panda. 
+First, you choose one of five unique pets: Cat, Dog, Bunny, Fox, or Panda.
 
 Each pet goes through five evolution stages - from Egg to Baby, Teen, Adult, and finally Legend!
 
-Watch this - I'm feeding my pet and earning fifty TAMA tokens!
+Watch this - I'm playing with my pet and earning TAMA tokens!
 
-Playing with it - another fifty TAMA!
+I get about twenty TAMA per game!
 
 Every action rewards you with real cryptocurrency. And it's actually fun - not just grinding!
 
@@ -31,7 +31,9 @@ Now here's the cool part - our NFT multiplier system!
 
 We have five NFT tiers, from Bronze to Diamond. Each tier gives you an earning multiplier - up to ten times for Diamond!
 
-Bronze costs just ten SOL and gives you two-X earnings. That means double the TAMA for every action!
+Bronze costs ten SOL and gives you two-X earnings. That means double the TAMA for every action!
+
+Prices are currently for testing on Devnet.
 
 You can pay with SOL or with TAMA tokens you've already earned in the game.
 
