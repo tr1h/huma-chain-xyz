@@ -24,8 +24,8 @@ play-to-earn игру с питомцами, построенную на бло�
 
 [0:15-0:45] ДЕМО ИГРЫ
 ───────────────────────────────────────────────────────────────
-Сначала ты выбираешь одного из пяти уникальных питомцев:
-Кот, Пёс, Зайчик, Лис или Панда.
+В игре доступны пять уникальных питомцев: 
+Кот, Пёс, Зайчик, Лис и Панда. Каждый со своими бонусами!
 
 Каждый питомец проходит через пять стадий эволюции - от Яйца
 до Малыша, Подростка, Взрослого, и наконец Легенды!
@@ -45,7 +45,7 @@ play-to-earn игру с питомцами, построенную на бло�
 У нас пять NFT тиров, от Бронзы до Алмаза. Каждый тир даёт
 множитель заработка - вплоть до десяти раз для Алмаза!
 
-Бронза стоит десять SOL и даёт удвоенный заработок. 
+Бронза стоит десять SOL и даёт удвоенный заработок.
 Это значит в два раза больше TAMA за каждое действие!
 
 Цены пока тестовые, так как мы на Devnet.
@@ -114,8 +114,8 @@ Let me show you how it works!
 
 [0:15-0:45] GAMEPLAY DEMO
 ───────────────────────────────────────────────────────────────
-First, you choose one of five unique pets: Cat, Dog, Bunny,
-Fox, or Panda.
+The game features five unique pets: Cat, Dog, Bunny, Fox, 
+and Panda. Each one has special bonuses!
 
 Each pet goes through five evolution stages - from Egg to Baby,
 Teen, Adult, and finally Legend!
@@ -135,7 +135,7 @@ Now here's the cool part - our NFT multiplier system!
 We have five NFT tiers, from Bronze to Diamond. Each tier gives
 you an earning multiplier - up to ten times for Diamond!
 
-Bronze costs ten SOL and gives you two-X earnings. 
+Bronze costs ten SOL and gives you two-X earnings.
 That means double the TAMA for every action!
 
 Prices are currently for testing on Devnet.
