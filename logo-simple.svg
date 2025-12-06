@@ -1,0 +1,50 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="petGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main circle background -->
+  <circle cx="200" cy="200" r="190" fill="url(#bgGradient)"/>
+  
+  <!-- Pet body (cute tamagotchi style) -->
+  <ellipse cx="200" cy="220" rx="80" ry="90" fill="url(#petGradient)"/>
+  
+  <!-- Eyes -->
+  <ellipse cx="180" cy="200" rx="15" ry="20" fill="#000"/>
+  <ellipse cx="220" cy="200" rx="15" ry="20" fill="#000"/>
+  <circle cx="182" cy="198" r="6" fill="#fff"/>
+  <circle cx="222" cy="198" r="6" fill="#fff"/>
+  
+  <!-- Smile -->
+  <path d="M 175 230 Q 200 245 225 230" stroke="#000" stroke-width="4" fill="none" stroke-linecap="round"/>
+  
+  <!-- Cheeks -->
+  <circle cx="160" cy="220" r="12" fill="#FF69B4" opacity="0.5"/>
+  <circle cx="240" cy="220" r="12" fill="#FF69B4" opacity="0.5"/>
+  
+  <!-- Ears/Antennas -->
+  <ellipse cx="170" cy="160" rx="10" ry="25" fill="url(#petGradient)" transform="rotate(-20 170 160)"/>
+  <ellipse cx="230" cy="160" rx="10" ry="25" fill="url(#petGradient)" transform="rotate(20 230 160)"/>
+  <circle cx="170" cy="145" r="8" fill="#FF1493"/>
+  <circle cx="230" cy="145" r="8" fill="#FF1493"/>
+  
+  <!-- Crypto coin effect -->
+  <circle cx="280" cy="140" r="35" fill="#FFD700" opacity="0.9"/>
+  <text x="280" y="150" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#FFA500">$</text>
+  
+  <!-- Text: TAMA -->
+  <text x="200" y="340" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#fff">TAMA</text>
+  
+  <!-- Subtitle -->
+  <text x="200" y="370" font-family="Arial, sans-serif" font-size="20" text-anchor="middle" fill="#fff" opacity="0.9">Solana Tamagotchi</text>
+</svg>
+
