@@ -1,0 +1,89 @@
+═══════════════════════════════════════════════
+🎤 ENGLISH VOICEOVER SCRIPT (2 MINUTES)
+For AI voice generation (ElevenLabs, etc.)
+═══════════════════════════════════════════════
+
+[0:00-0:15] INTRO
+────────────────────────────────────────────────
+Hey everyone! Welcome to Solana Tamagotchi - the ultimate play-to-earn pet game built on Solana blockchain.
+
+Remember playing with Tamagotchi as a kid? Now imagine earning REAL cryptocurrency while taking care of your virtual pet.
+
+Let me show you how it works!
+
+
+[0:15-0:45] GAMEPLAY DEMO
+────────────────────────────────────────────────
+First, you choose one of five unique pets: Cat, Dog, Bunny, Fox, or Panda. 
+
+Each pet goes through five evolution stages - from Egg to Baby, Teen, Adult, and finally Legend!
+
+Watch this - I'm feeding my pet and earning fifty TAMA tokens!
+
+Playing with it - another fifty TAMA!
+
+Every action rewards you with real cryptocurrency. And it's actually fun - not just grinding!
+
+
+[0:45-1:10] NFT SYSTEM
+────────────────────────────────────────────────
+Now here's the cool part - our NFT multiplier system!
+
+We have five NFT tiers, from Bronze to Diamond. Each tier gives you an earning multiplier - up to ten times for Diamond!
+
+Bronze costs just ten SOL and gives you two-X earnings. That means double the TAMA for every action!
+
+You can pay with SOL or with TAMA tokens you've already earned in the game.
+
+Just connect your Phantom wallet, mint your NFT, and your earnings are instantly multiplied!
+
+
+[1:10-1:35] TRANSPARENCY
+────────────────────────────────────────────────
+And here's what sets us apart - complete transparency.
+
+This is our live treasury monitor. You can see every single transaction: NFT mints, token burns, player rewards.
+
+We have seven project wallets - Treasury, Play-to-Earn Pool, Team, Liquidity, and even a public Burn wallet.
+
+Everything is on-chain, everything is public. No hidden wallets, no rug pulls.
+
+
+[1:35-2:00] TRACTION & OUTRO
+────────────────────────────────────────────────
+We already have over one hundred fifty active players in our beta!
+
+Seventy-plus NFTs minted, two hundred eighty-five plus SOL raised, and two hundred eighty-three plus on-chain transactions.
+
+And this is ALL before our official launch!
+
+We're currently on Solana Devnet, with Mainnet launch coming in Q1 twenty twenty-six. All your in-game TAMA converts one-to-one to the real token!
+
+Try it now at solana tamagotchi dot com or join our Telegram at gotchigame underscore bot.
+
+Let's bring the next one hundred thousand users to Solana together!
+
+Thanks for watching!
+
+
+═══════════════════════════════════════════════
+END OF SCRIPT
+═══════════════════════════════════════════════
+
+📌 HOW TO USE:
+
+1. Go to elevenlabs.io (free 10 min/month)
+2. Copy this text
+3. Choose voice (recommend: "Adam" or "Antoni")
+4. Generate audio
+5. Download MP3
+6. Use in video editor with screen recording
+
+OR
+
+1. Read this script yourself in Russian
+2. Upload to YouTube
+3. Let YouTube auto-translate to English subtitles
+
+═══════════════════════════════════════════════
+
