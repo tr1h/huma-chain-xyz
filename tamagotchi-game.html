@@ -732,7 +732,8 @@
         }
 
         /* Pet Display Rules 🐾 - FIXED! */
-        .kawai-pet, .retro-pet, .premium-pet, .neko-pet, .cyber-pet, .alien-pet, .kitsune-pet {
+        .kawai-pet, .retro-pet, .premium-pet, .neko-pet, .cyber-pet, .alien-pet, .kitsune-pet,
+        .santa-pet, .snowman-pet, .reindeer-pet, .tree-pet {
             display: none !important;
         }
 
@@ -748,9 +749,6 @@
         body[data-pet="snowman"] .snowman-pet { display: block !important; }
         body[data-pet="reindeer"] .reindeer-pet { display: block !important; }
         body[data-pet="tree"] .tree-pet { display: block !important; }
-        body[data-pet="cyber"] .cyber-pet { display: block !important; }
-        body[data-pet="alien"] .alien-pet { display: block !important; }
-        body[data-pet="kitsune"] .kitsune-pet { display: block !important; }
 
         /* FALLBACK: If no data-pet attribute, show kawai pet by default */
         body:not([data-pet]) .kawai-pet { display: block !important; }
