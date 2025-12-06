@@ -1274,7 +1274,7 @@
             padding-bottom: 20px;
             border-bottom: 3px solid #4a5568;
         }
-        
+
         .shop-header h2 {
             font-size: 32px;
             margin: 0;
@@ -1349,7 +1349,7 @@
             border-bottom: 3px solid #4a5568;
             padding-bottom: 15px;
         }
-        
+
         .shop-tab {
             font-size: 16px;
             padding: 12px 20px;
@@ -7742,10 +7742,15 @@
         // Switch shop tabs
         function switchShopTab(tab) {
             // Update tab buttons
-            document.querySelectorAll('.shop-tab').forEach(btn => {
+            document.querySelectorAll('.shop-tab').forEach((btn, index) => {
                 btn.classList.remove('active');
+                // Add active class to the correct button
+                if ((tab === 'items' && index === 0) || 
+                    (tab === 'skins' && index === 1) || 
+                    (tab === 'owned' && index === 2)) {
+                    btn.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
 
             // Hide all sections
             document.getElementById('shop-items').style.display = 'none';
