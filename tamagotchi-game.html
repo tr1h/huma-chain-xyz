@@ -1254,21 +1254,32 @@
         }
 
         .shop-content {
-            background: #2d3748;
-            border-radius: 15px;
-            border: 4px solid #4a5568;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            border-radius: 0;
+            border: none;
             padding: 20px;
-            max-width: 350px;
-            width: 90%;
-            max-height: 80vh;
+            width: 100%;
+            height: 100vh;
+            max-width: 100%;
+            max-height: 100vh;
             overflow-y: auto;
+            position: relative;
         }
 
         .shop-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #4a5568;
+        }
+        
+        .shop-header h2 {
+            font-size: 32px;
+            margin: 0;
+            color: #fbbf24;
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
         }
 
         .close-btn {
@@ -1333,10 +1344,15 @@
         /* Shop Tabs */
         .shop-tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #4a5568;
-            padding-bottom: 10px;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #4a5568;
+            padding-bottom: 15px;
+        }
+        
+        .shop-tab {
+            font-size: 16px;
+            padding: 12px 20px;
         }
 
         .shop-tab {
@@ -5941,8 +5957,8 @@
             <!-- My Skins Section (Owned/History) -->
             <div id="shop-owned" class="shop-section" style="display: none;">
                 <div style="text-align: center; margin-bottom: 20px; color: #a0aec0;">
-                    <p style="font-size: 18px; margin-bottom: 10px;">👔 Твои скины (<span id="owned-count">0</span>)</p>
-                    <p style="font-size: 14px;">Кликни на скин чтобы экипировать ✨</p>
+                    <p style="font-size: 18px; margin-bottom: 10px;">👔 My Skins (<span id="owned-count">0</span>)</p>
+                    <p style="font-size: 14px;">Click on a skin to equip it ✨</p>
                 </div>
                 <div id="owned-skins-grid" class="skins-grid"></div>
             </div>
@@ -7622,8 +7638,8 @@
             if (window.TELEGRAM_USER_ID) {
                 logTransaction('spend_shop', -price, balanceBefore, balanceAfter, {
                     item_type: itemType,
-                    item_name: itemType === 'energy' ? 'Energy Drink' : 
-                               itemType === 'auto_feed' ? 'Auto-Feeder' : 
+                    item_name: itemType === 'energy' ? 'Energy Drink' :
+                               itemType === 'auto_feed' ? 'Auto-Feeder' :
                                itemType === 'booster' ? '2x TAMA Booster' : itemType
                 });
             }
@@ -7697,7 +7713,7 @@
 
             // ✅ CRITICAL: Force immediate save to prevent balance rollback
             triggerAutoSave(true); // Force critical save
-            
+
             // Also save directly via API to ensure balance is persisted
             if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
                 fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
@@ -7837,16 +7853,16 @@
                         ${emojiMap[skin.id] || '🎨'}
                     </div>
 
-                    <div class="skin-name-shop">${skin.nameRu}</div>
+                    <div class="skin-name-shop">${skin.name}</div>
 
                     <div class="skin-rarity-badge rarity-${skin.rarity}">
-                        ${skin.rarityLabelRu}
+                        ${skin.rarityLabel}
                     </div>
 
                     ${skin.price > 0 ? `<div class="skin-price-shop">${skin.price.toLocaleString()} TAMA</div>` : '<div class="skin-price-shop">FREE</div>'}
 
                     <div class="skin-bonus-shop">
-                        ${skin.bonusRu}
+                        ${skin.bonusEn || skin.bonusRu}
                     </div>
 
                     <button
@@ -7917,19 +7933,19 @@
                     balanceAfter,      // balance_after
                     {                  // metadata
                         skin_id: skinId,
-                        skin_name: skin.nameRu,
+                        skin_name: skin.name,
                         rarity: skin.rarity
                     }
                 );
             }
 
-            showMessage(`✅ Purchased ${skin.nameRu}!`);
+            showMessage(`✅ Purchased ${skin.name}!`);
             updateUI();
             loadSkinsShop();
-            
+
             // ✅ CRITICAL: Force immediate save to prevent balance rollback
             triggerAutoSave(true); // Force critical save
-            
+
             // Also save directly via API to ensure balance is persisted
             if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
                 fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
@@ -7964,7 +7980,7 @@
             // Apply skin (switch pet visual)
             switchPet(skinId);
 
-            showMessage(`✅ Equipped ${getSkin(skinId).nameRu}!`);
+            showMessage(`✅ Equipped ${getSkin(skinId).name}!`);
             loadSkinsShop();
             loadOwnedSkinsShop(); // Update owned skins tab
             triggerAutoSave();
@@ -7974,58 +7990,58 @@
         function loadOwnedSkinsShop() {
             const ownedGrid = document.getElementById('owned-skins-grid');
             const ownedCount = document.getElementById('owned-count');
-            
+
             if (!ownedGrid) return;
-            
+
             ownedGrid.innerHTML = '';
-            
+
             const ownedSkins = gameState.ownedSkins || [];
             ownedCount.textContent = ownedSkins.length;
-            
+
             if (ownedSkins.length === 0) {
                 ownedGrid.innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #718096;">
                         <div style="font-size: 80px; margin-bottom: 20px;">😢</div>
-                        <p style="font-size: 20px; margin-bottom: 10px;">У тебя пока нет скинов</p>
-                        <p style="font-size: 14px;">Купи их во вкладке "Buy Skins"</p>
+                        <p style="font-size: 20px; margin-bottom: 10px;">You don't have any skins yet</p>
+                        <p style="font-size: 14px;">Buy them in the "Buy Skins" tab</p>
                     </div>
                 `;
                 return;
             }
-            
+
             // Show owned skins
             ownedSkins.forEach(skinId => {
                 const skin = getSkin(skinId);
                 if (!skin) return;
-                
+
                 const isEquipped = gameState.equippedSkin === skinId;
-                
+
                 const emojiMap = {
                     'kawai': '🌸', 'retro': '🕹️', 'neko': '🐱', 'cyber': '🤖',
                     'premium': '⭐', 'alien': '👽', 'kitsune': '🦊',
                     'santa': '🎅', 'snowman': '⛄', 'reindeer': '🦌', 'tree': '🎄'
                 };
-                
+
                 const skinCard = document.createElement('div');
                 skinCard.className = `skin-card-shop owned ${isEquipped ? 'equipped' : ''}`;
                 skinCard.style.cursor = 'pointer';
-                
+
                 skinCard.innerHTML = `
-                    <div class="rarity-badge rarity-${skin.rarity}">${skin.rarityLabelRu || skin.rarity.toUpperCase()}</div>
+                    <div class="rarity-badge rarity-${skin.rarity}">${skin.rarityLabel || skin.rarity.toUpperCase()}</div>
                     <div class="skin-preview" style="font-size: 80px; margin: 20px 0;">${emojiMap[skin.id] || '🎨'}</div>
-                    <div class="skin-name">${skin.nameRu}</div>
+                    <div class="skin-name">${skin.name}</div>
                     <div class="skin-price" style="color: #22c55e;">✓ Owned</div>
-                    <div class="skin-bonus">${skin.bonusRu}</div>
-                    ${isEquipped ? 
-                        '<button class="skin-buy-btn equipped">✓ Equipped</button>' : 
+                    <div class="skin-bonus">${skin.bonusEn || skin.bonusRu}</div>
+                    ${isEquipped ?
+                        '<button class="skin-buy-btn equipped">✓ Equipped</button>' :
                         '<button class="skin-buy-btn owned" onclick="equipSkin(\'' + skin.id + '\')">Equip</button>'}
                     ${isEquipped ? '<div class="owned-badge">EQUIPPED</div>' : ''}
                 `;
-                
+
                 if (!isEquipped) {
                     skinCard.onclick = () => equipSkin(skinId);
                 }
-                
+
                 ownedGrid.appendChild(skinCard);
             });
         }
