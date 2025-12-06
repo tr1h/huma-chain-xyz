@@ -7247,17 +7247,15 @@
 
                 showMessage(`🎊 LEVEL UP! You are now Level ${gameState.level}! Earned ${levelBonus} TAMA!`);
 
-                // Log level up transaction
-                const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
-                if (userId && typeof TransactionLogger !== 'undefined') {
-                    TransactionLogger.logLevelUp(
-                        userId,
-                        window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.WALLET_ADDRESS?.substring(0, 8) || 'user',
-                        gameState.level,
-                        levelBonus,
-                        balanceBefore,
-                        balanceAfter
-                    );
+                // ✅ FIX: Log level up transaction with correct function
+                if (window.TELEGRAM_USER_ID) {
+                    logTransaction('level_up', levelBonus, balanceBefore, balanceAfter, {
+                        new_level: gameState.level,
+                        bonus_amount: levelBonus,
+                        max_hp: gameState.maxHp,
+                        max_food: gameState.maxFood,
+                        max_happy: gameState.maxHappy
+                    });
                 }
 
                 // Play level up sound
@@ -7620,6 +7618,16 @@
             gameState.tama -= price;
             const balanceAfter = gameState.tama;
 
+            // ✅ FIX: Log shop purchase transaction
+            if (window.TELEGRAM_USER_ID) {
+                logTransaction('spend_shop', price, balanceBefore, balanceAfter, {
+                    item_type: itemType,
+                    item_name: itemType === 'energy' ? 'Energy Drink' : 
+                               itemType === 'auto_feed' ? 'Auto-Feeder' : 
+                               itemType === 'booster' ? '2x TAMA Booster' : itemType
+                });
+            }
+
             // Apply item effect
             let itemEffect = '';
             switch(itemType) {
@@ -7886,15 +7894,14 @@
             // Auto-equip
             equipSkin(skinId);
 
-            // Log transaction
-            if (typeof logTransaction === 'function') {
+            // ✅ FIX: Log transaction with correct parameter order
+            if (typeof logTransaction === 'function' && window.TELEGRAM_USER_ID) {
                 logTransaction(
-                    window.Telegram?.WebApp?.initDataUnsafe?.user?.username || 'user',
-                    'skin_' + skinId,
-                    skin.price,
-                    balanceBefore,
-                    balanceAfter,
-                    {
+                    'spend_skin',  // type
+                    skin.price,    // amount
+                    balanceBefore, // balance_before
+                    balanceAfter,  // balance_after
+                    {              // metadata
                         skin_id: skinId,
                         skin_name: skin.nameRu,
                         rarity: skin.rarity
