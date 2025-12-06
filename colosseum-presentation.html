@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Tamagotchi - Colosseum Hackathon Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 40px;
+            page-break-after: always;
+            position: relative;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            font-size: 14px;
+            opacity: 0.5;
+        }
+
+        /* Title Slide */
+        .slide-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            text-align: center;
+        }
+
+        .slide-1 h1 {
+            font-size: 72px;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .slide-1 h2 {
+            font-size: 36px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .slide-1 .subtitle {
+            font-size: 28px;
+            margin: 30px 0;
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .slide-1 .links {
+            margin-top: 40px;
+            font-size: 20px;
+            line-height: 1.8;
+        }
+
+        /* Problem Slide */
+        .slide-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+            max-width: 1000px;
+        }
+
+        .problem-item {
+            background: rgba(255,255,255,0.15);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .problem-item .emoji {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Solution Slide */
+        .slide-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .features-list {
+            margin-top: 40px;
+            text-align: left;
+            max-width: 800px;
+        }
+
+        .features-list li {
+            font-size: 28px;
+            margin: 25px 0;
+            padding-left: 20px;
+            list-style: none;
+        }
+
+        /* How It Works */
+        .slide-4 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .steps {
+            display: flex;
+            gap: 40px;
+            margin-top: 50px;
+            max-width: 1200px;
+        }
+
+        .step {
+            flex: 1;
+            background: rgba(255,255,255,0.15);
+            padding: 40px 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .step-number {
+            font-size: 64px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .step h3 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .step p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        /* Traction Slide */
+        .slide-5 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+            max-width: 900px;
+        }
+
+        .metric {
+            background: rgba(255,255,255,0.2);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .metric-number {
+            font-size: 56px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 24px;
+            opacity: 0.9;
+        }
+
+        /* Product Demo */
+        .slide-6 {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .demo-links {
+            margin-top: 40px;
+            text-align: left;
+            max-width: 800px;
+        }
+
+        .demo-link {
+            background: rgba(255,255,255,0.8);
+            padding: 20px 30px;
+            margin: 15px 0;
+            border-radius: 15px;
+            font-size: 22px;
+            display: block;
+            color: #333;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .demo-link:hover {
+            transform: translateX(10px);
+        }
+
+        /* NFT Tiers */
+        .slide-7 {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .tiers {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            max-width: 1200px;
+        }
+
+        .tier {
+            flex: 1;
+            background: white;
+            padding: 30px 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .tier-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .tier-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .tier-price {
+            font-size: 28px;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .tier-mult {
+            font-size: 32px;
+            font-weight: bold;
+            color: #f5576c;
+        }
+
+        /* Tokenomics */
+        .slide-8 {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+        }
+
+        .tokenomics {
+            max-width: 900px;
+            margin-top: 40px;
+        }
+
+        .token-distribution {
+            background: rgba(255,255,255,0.9);
+            padding: 40px;
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        .distribution-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 22px;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        /* Roadmap */
+        .slide-11 {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .roadmap {
+            max-width: 1000px;
+            margin-top: 40px;
+        }
+
+        .roadmap-phase {
+            background: rgba(255,255,255,0.8);
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .roadmap-phase h3 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .roadmap-phase ul {
+            font-size: 20px;
+            margin-left: 25px;
+        }
+
+        .roadmap-phase ul li {
+            margin: 8px 0;
+        }
+
+        /* Common Styles */
+        h1 {
+            font-size: 64px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .center-text {
+            text-align: center;
+            max-width: 900px;
+            font-size: 24px;
+            line-height: 1.6;
+            margin: 0 auto;
+        }
+
+        .highlight {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 18px;
+            margin: 10px;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .slide {
+                page-break-after: always;
+                min-height: 100vh;
+            }
+        }
+
+        /* Slide 9 - Why Solana */
+        .slide-9 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .solana-benefits {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 50px;
+            max-width: 1000px;
+        }
+
+        .benefit {
+            background: rgba(255,255,255,0.15);
+            padding: 35px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .benefit-icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+        }
+
+        .benefit h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .benefit p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        /* Slide 13 - Competitive Advantage */
+        .slide-13 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .advantages {
+            max-width: 1000px;
+            margin-top: 40px;
+        }
+
+        .advantage-section {
+            background: rgba(255,255,255,0.15);
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .advantage-section h3 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .advantage-section ul {
+            font-size: 22px;
+            line-height: 1.6;
+            list-style: none;
+        }
+
+        /* Slide 17 - Why Colosseum */
+        .slide-17 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .reasons {
+            max-width: 900px;
+            margin-top: 40px;
+        }
+
+        .reason {
+            background: rgba(255,255,255,0.2);
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .reason-number {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .reason h3 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .reason p {
+            font-size: 22px;
+            opacity: 0.95;
+        }
+
+        /* Final Slide */
+        .slide-20 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            text-align: center;
+        }
+
+        .cta {
+            margin-top: 50px;
+            font-size: 28px;
+            line-height: 1.8;
+        }
+
+        .cta a {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        @media print {
+            .slide {
+                padding: 40px;
+            }
+            
+            h1 {
+                font-size: 48px;
+            }
+            
+            h2 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide slide-1">
+    <h1>🎮 SOLANA TAMAGOTCHI</h1>
+    <h2>Childhood Nostalgia Meets Web3 Earnings</h2>
+    <div class="subtitle">Built on Solana</div>
+    <div class="links">
+        <div>🌐 solanatamagotchi.com</div>
+        <div>📱 @gotchigame_bot</div>
+        <div>💬 @gotchigamechat</div>
+    </div>
+</div>
+
+<!-- Slide 2: The Problem -->
+<div class="slide slide-2">
+    <h1>😞 Web3 Gaming is Broken</h1>
+    <div class="problem-grid">
+        <div class="problem-item">
+            <div class="emoji">🤯</div>
+            <strong>Too Complex</strong><br>
+            Casual gamers get lost
+        </div>
+        <div class="problem-item">
+            <div class="emoji">💸</div>
+            <strong>Too Expensive</strong><br>
+            High entry barriers
+        </div>
+        <div class="problem-item">
+            <div class="emoji">😴</div>
+            <strong>Not Fun</strong><br>
+            Just grinding for tokens
+        </div>
+        <div class="problem-item">
+            <div class="emoji">😔</div>
+            <strong>No Community</strong><br>
+            Players feel isolated
+        </div>
+    </div>
+    <p class="center-text" style="margin-top: 40px; font-size: 28px;">
+        <strong>We need games that are FUN FIRST, earnings SECOND</strong>
+    </p>
+</div>
+
+<!-- Slide 3: Our Solution -->
+<div class="slide slide-3">
+    <h1>🐾 Solana Tamagotchi</h1>
+    <p class="center-text" style="font-size: 32px; margin-bottom: 20px;">
+        Remember your childhood pet?<br>
+        <strong>Now it earns you REAL money!</strong>
+    </p>
+    <ul class="features-list">
+        <li>✅ Simple & Nostalgic (everyone knows Tamagotchi)</li>
+        <li>✅ FREE to Start (no NFT required)</li>
+        <li>✅ Fun Gameplay (not just grinding)</li>
+        <li>✅ Real Earnings ($TAMA token on Solana)</li>
+    </ul>
+</div>
+
+<!-- Slide 4: How It Works -->
+<div class="slide slide-4">
+    <h1>🎯 3 Easy Steps</h1>
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1️⃣</div>
+            <h3>Choose Your Pet</h3>
+            <p>5 unique pets: Cat, Dog, Bunny, Fox, Panda</p>
+        </div>
+        <div class="step">
+            <div class="step-number">2️⃣</div>
+            <h3>Care & Play</h3>
+            <p>Feed, play, clean → Earn $TAMA tokens</p>
+        </div>
+        <div class="step">
+            <div class="step-number">3️⃣</div>
+            <h3>Boost Earnings</h3>
+            <p>Mint NFT → Up to 10x multiplier!</p>
+        </div>
+    </div>
+    <p class="center-text" style="margin-top: 50px; font-size: 26px;">
+        <strong>Start playing in 30 seconds via Telegram!</strong>
+    </p>
+</div>
+
+<!-- Slide 5: Current Traction -->
+<div class="slide slide-5">
+    <h1>📊 Real Users, Real Results</h1>
+    <div class="metrics">
+        <div class="metric">
+            <div class="metric-number">150+</div>
+            <div class="metric-label">Active Users<br>(Pre-launch!)</div>
+        </div>
+        <div class="metric">
+            <div class="metric-number">70+</div>
+            <div class="metric-label">NFTs Minted<br>(10-250 SOL each)</div>
+        </div>
+        <div class="metric">
+            <div class="metric-number">283+</div>
+            <div class="metric-label">On-chain<br>Transactions</div>
+        </div>
+        <div class="metric">
+            <div class="metric-number">285+ SOL</div>
+            <div class="metric-label">Raised from<br>NFT Sales</div>
+        </div>
+    </div>
+    <p class="center-text" style="margin-top: 50px; font-size: 26px;">
+        🔥 <strong>High Retention</strong> - Users come back daily<br>
+        💬 <strong>Active Telegram</strong> - Real community building
+    </p>
+</div>
+
+<!-- Slide 6: Product Demo -->
+<div class="slide slide-6">
+    <h1>🖥️ Live Product</h1>
+    <h2 style="color: #667eea;">✅ Fully Functional</h2>
+    <div class="demo-links">
+        <div class="demo-link">🎮 Game: solanatamagotchi.com/tamagotchi-game.html</div>
+        <div class="demo-link">💎 NFT Mint: solanatamagotchi.com/mint.html</div>
+        <div class="demo-link">📊 Treasury Monitor: solanatamagotchi.com/treasury-monitor.html</div>
+    </div>
+    <div style="margin-top: 50px; max-width: 800px; font-size: 24px; text-align: left;">
+        <h3 style="font-size: 32px; margin-bottom: 20px;">✅ Features:</h3>
+        <ul style="line-height: 1.8;">
+            <li>Pet care system (5 evolution stages)</li>
+            <li>Mini-games (earn extra TAMA)</li>
+            <li>NFT minting (SOL or TAMA payment)</li>
+            <li>Referral system (1,000 TAMA per friend)</li>
+            <li>Daily rewards (streak bonuses)</li>
+        </ul>
+    </div>
+    <p class="center-text" style="margin-top: 40px; font-size: 28px; font-weight: bold;">
+        This is NOT a concept - it's LIVE and WORKING!
+    </p>
+</div>
+
+<!-- Slide 7: NFT System -->
+<div class="slide slide-7">
+    <h1>💎 5 Tiers, 2X to 10X Earnings</h1>
+    <div class="tiers">
+        <div class="tier">
+            <div class="tier-icon">🥉</div>
+            <div class="tier-name">Bronze</div>
+            <div class="tier-price">10 SOL</div>
+            <div class="tier-mult">2x</div>
+        </div>
+        <div class="tier">
+            <div class="tier-icon">🥈</div>
+            <div class="tier-name">Silver</div>
+            <div class="tier-price">25 SOL</div>
+            <div class="tier-mult">3x</div>
+        </div>
+        <div class="tier">
+            <div class="tier-icon">🥇</div>
+            <div class="tier-name">Gold</div>
+            <div class="tier-price">50 SOL</div>
+            <div class="tier-mult">5x</div>
+        </div>
+        <div class="tier">
+            <div class="tier-icon">💠</div>
+            <div class="tier-name">Platinum</div>
+            <div class="tier-price">100 SOL</div>
+            <div class="tier-mult">7x</div>
+        </div>
+        <div class="tier">
+            <div class="tier-icon">💎</div>
+            <div class="tier-name">Diamond</div>
+            <div class="tier-price">250 SOL</div>
+            <div class="tier-mult">10x</div>
+        </div>
+    </div>
+    <p class="center-text" style="margin-top: 50px; font-size: 28px; font-weight: bold;">
+        Alternative: Pay with TAMA tokens!
+    </p>
+</div>
+
+<!-- Slide 8: Tokenomics -->
+<div class="slide slide-8">
+    <h1>💰 TAMA Token (Solana SPL)</h1>
+    <div class="tokenomics">
+        <div class="token-distribution">
+            <h3 style="font-size: 32px; margin-bottom: 25px; color: #667eea;">Supply: 1,000,000,000 TAMA</h3>
+            <div class="distribution-item">
+                <span>Play-to-Earn Pool</span>
+                <strong>40%</strong>
+            </div>
+            <div class="distribution-item">
+                <span>Treasury</span>
+                <strong>20%</strong>
+            </div>
+            <div class="distribution-item">
+                <span>Liquidity (DEX launch)</span>
+                <strong>15%</strong>
+            </div>
+            <div class="distribution-item">
+                <span>Team (vested)</span>
+                <strong>10%</strong>
+            </div>
+            <div class="distribution-item">
+                <span>NFT Rewards</span>
+                <strong>10%</strong>
+            </div>
+            <div class="distribution-item">
+                <span>Marketing</span>
+                <strong>5%</strong>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 40px; max-width: 800px; background: rgba(255,255,255,0.9); padding: 30px; border-radius: 15px; color: #333;">
+        <h3 style="font-size: 28px; margin-bottom: 15px;">🔥 Deflationary Model</h3>
+        <p style="font-size: 22px; line-height: 1.6;">
+            • <strong>Weekly Burns</strong> from NFT sales<br>
+            • <strong>Decreasing Supply</strong> = Increasing Value<br>
+            • <strong>Public Treasury</strong> = Full Transparency
+        </p>
+    </div>
+</div>
+
+<!-- Slide 9: Why Solana -->
+<div class="slide slide-9">
+    <h1>⚡ Why Solana?</h1>
+    <h2>Fast, Cheap, Perfect for Gaming</h2>
+    <div class="solana-benefits">
+        <div class="benefit">
+            <div class="benefit-icon">⚡</div>
+            <h3>Sub-second transactions</h3>
+            <p>Instant gameplay, no waiting</p>
+        </div>
+        <div class="benefit">
+            <div class="benefit-icon">💰</div>
+            <h3>&lt; $0.01 per transaction</h3>
+            <p>No expensive gas fees</p>
+        </div>
+        <div class="benefit">
+            <div class="benefit-icon">🎯</div>
+            <h3>SPL Token Standard</h3>
+            <p>Native Solana integration</p>
+        </div>
+        <div class="benefit">
+            <div class="benefit-icon">🚀</div>
+            <h3>Growing Ecosystem</h3>
+            <p>GameFi is booming on Solana</p>
+        </div>
+    </div>
+    <p class="center-text" style="margin-top: 50px; font-size: 28px; font-weight: bold;">
+        We're Solana-first, not a multi-chain clone
+    </p>
+</div>
+
+<!-- Slide 11: Roadmap -->
+<div class="slide slide-11">
+    <h1>🚀 From Beta to Mainstream</h1>
+    <div class="roadmap">
+        <div class="roadmap-phase">
+            <h3>✅ Q4 2025 - Foundation (DONE)</h3>
+            <ul>
+                <li>Core game + Solana integration</li>
+                <li>Telegram bot + NFT minting</li>
+                <li>Community building (150+ users)</li>
+            </ul>
+        </div>
+        <div class="roadmap-phase">
+            <h3>🔄 Q1 2026 - Mainnet Launch</h3>
+            <ul>
+                <li>Token migration (1:1 conversion)</li>
+                <li>DEX listing (Raydium/Jupiter)</li>
+                <li>Mobile app (iOS/Android)</li>
+            </ul>
+        </div>
+        <div class="roadmap-phase">
+            <h3>🌟 Q2-Q3 2026 - Expansion</h3>
+            <ul>
+                <li>NFT marketplace</li>
+                <li>PvP battles</li>
+                <li>Guild system</li>
+                <li>Cross-chain bridge</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 13: Competitive Advantage -->
+<div class="slide slide-13">
+    <h1>🏆 Why We'll Win</h1>
+    <div class="advantages">
+        <div class="advantage-section">
+            <h3>vs Traditional Tamagotchi</h3>
+            <ul>
+                <li>✅ Earn real money while playing</li>
+                <li>✅ NFT ownership + Community</li>
+                <li>✅ Always accessible (Web + Mobile)</li>
+            </ul>
+        </div>
+        <div class="advantage-section">
+            <h3>vs Other P2E Games</h3>
+            <ul>
+                <li>✅ Lower barrier (FREE to start)</li>
+                <li>✅ Fun-first (not just grinding)</li>
+                <li>✅ Proven IP (nostalgia appeal)</li>
+            </ul>
+        </div>
+        <div class="advantage-section">
+            <h3>vs Other Solana Games</h3>
+            <ul>
+                <li>✅ Unique concept (pet care + earnings)</li>
+                <li>✅ Polished UX (mobile-optimized)</li>
+                <li>✅ Strong community (Telegram-first)</li>
+            </ul>
+        </div>
+    </div>
+    <p class="center-text" style="margin-top: 50px; font-size: 32px; font-weight: bold;">
+        We're the ONLY Tamagotchi on Solana!
+    </p>
+</div>
+
+<!-- Slide 17: Why Colosseum -->
+<div class="slide slide-17">
+    <h1>🙏 Perfect Fit for Colosseum</h1>
+    <div class="reasons">
+        <div class="reason">
+            <div class="reason-number">1️⃣</div>
+            <h3>Built for Solana</h3>
+            <p>Leverages Solana's speed & cost. SPL token, not ERC-20 clone.</p>
+        </div>
+        <div class="reason">
+            <div class="reason-number">2️⃣</div>
+            <h3>Mass Market Appeal</h3>
+            <p>Simple concept - everyone knows Tamagotchi. Gateway to bring millions to Solana.</p>
+        </div>
+        <div class="reason">
+            <div class="reason-number">3️⃣</div>
+            <h3>Proven Execution</h3>
+            <p>Working product, not just slides. Real users, real revenue (285+ SOL).</p>
+        </div>
+        <div class="reason">
+            <div class="reason-number">4️⃣</div>
+            <h3>Long-term Vision</h3>
+            <p>Sustainable tokenomics. Community-driven development. Here to stay.</p>
+        </div>
+    </div>
+    <p class="center-text" style="margin-top: 50px; font-size: 28px; font-weight: bold;">
+        We're ready to scale with Colosseum's support!
+    </p>
+</div>
+
+<!-- Slide 20: Thank You -->
+<div class="slide slide-20">
+    <h1>🙏 Thank You!</h1>
+    <h2>Questions?</h2>
+    <div style="margin-top: 50px; font-size: 32px;">
+        <strong>Solana Tamagotchi</strong><br>
+        <em>Where Nostalgia Meets Earnings</em>
+    </div>
+    <div class="cta">
+        🌐 solanatamagotchi.com<br>
+        📧 gotchigame@proton.me<br>
+        📱 @gotchigame_bot<br>
+        💬 @gotchigamechat
+    </div>
+    <div style="margin-top: 50px; font-size: 28px; opacity: 0.9;">
+        Built with ❤️ on Solana
+    </div>
+    <div style="margin-top: 30px; font-size: 24px;">
+        <strong>Let's bring the next 100K users to Solana! 🚀</strong>
+    </div>
+</div>
+
+<script>
+// Smooth scroll between slides
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        window.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
+    }
+});
+
+// Print instruction
+console.log('🎉 Presentation loaded!');
+console.log('📄 To export to PDF: Press Ctrl+P (or Cmd+P) → "Save as PDF"');
+console.log('➡️ Use Arrow keys or Space to navigate slides');
+</script>
+
+</body>
+</html>
+
