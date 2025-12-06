@@ -1231,31 +1231,6 @@
             transform: scale(1.1);
         }
 
-        /* Wardrobe button (My Skins) */
-        .wardrobe-btn {
-            position: absolute;
-            top: 20px;
-            left: 80px;
-            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
-            border: 3px solid #5b21b6;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
-            z-index: 9999 !important;
-            pointer-events: auto !important;
-        }
-
-        .wardrobe-btn:hover {
-            transform: scale(1.1) rotate(5deg);
-        }
-
         .shop-btn:active {
             transform: scale(0.95);
         }
@@ -3837,7 +3812,6 @@
             <div class="heart-cloud" style="top: 150px; left: -30px; animation-delay: 10s;">💗</div>
 
             <div class="shop-btn" id="shop-btn" onclick="console.log('🛒 DIRECT CLICK!'); document.getElementById('shop-modal').classList.add('active');">🛒</div>
-            <div class="wardrobe-btn" id="wardrobe-btn" title="My Skins">👔</div>
             <div class="pet-change-btn" id="pet-change-btn" title="Change Pet">🐾</div>
             <div class="combo-counter" id="combo-counter">🔥 COMBO x<span id="combo-value">0</span></div>
             <div class="pet-status" id="pet-status"></div>
@@ -7605,23 +7579,6 @@
             console.log('✅ Shop button listener added');
         } else {
             console.error('❌ Shop button or modal not found!', { shopBtn, shopModal });
-        }
-
-        // Wardrobe button (open shop directly to "My Skins" tab)
-        const wardrobeBtn = document.getElementById('wardrobe-btn');
-        if (wardrobeBtn && shopModal) {
-            wardrobeBtn.addEventListener('click', () => {
-                console.log('👔 Wardrobe button clicked!');
-                shopModal.classList.add('active');
-                // Activate "owned" tab
-                document.querySelectorAll('.shop-tab').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('.shop-tab')[2].classList.add('active'); // 3rd tab = "My Skins"
-                document.getElementById('shop-items').style.display = 'none';
-                document.getElementById('shop-skins').style.display = 'none';
-                document.getElementById('shop-owned').style.display = 'block';
-                loadOwnedSkinsShop();
-            });
-            console.log('✅ Wardrobe button listener added');
         }
 
         if (closeShop && shopModal) {
