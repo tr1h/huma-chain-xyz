@@ -1383,6 +1383,33 @@
             overflow-y: auto;
         }
 
+        /* Shop Section Container */
+        .shop-section {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 5px;
+        }
+
+        /* Custom scrollbar for shop sections */
+        .shop-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .shop-section::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .shop-section::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 4px;
+        }
+
+        .shop-section::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.8);
+        }
+
         /* Skins Grid - Telegram style */
         .skins-grid {
             display: grid;
@@ -7748,8 +7775,8 @@
             document.querySelectorAll('.shop-tab').forEach((btn, index) => {
                 btn.classList.remove('active');
                 // Add active class to the correct button
-                if ((tab === 'items' && index === 0) || 
-                    (tab === 'skins' && index === 1) || 
+                if ((tab === 'items' && index === 0) ||
+                    (tab === 'skins' && index === 1) ||
                     (tab === 'owned' && index === 2)) {
                     btn.classList.add('active');
                 }
