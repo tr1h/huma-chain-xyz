@@ -594,6 +594,8 @@
                     <option value="">All Types</option>
                     <option value="earn">Earn</option>
                     <option value="spend">Spend</option>
+                    <option value="spend_shop">🛒 Shop Purchases</option>
+                    <option value="spend_skin">🎨 Skin Purchases</option>
                     <option value="nft">NFT Mint</option>
                     <option value="level_up">Level Up</option>
                     <option value="quest">Quest</option>
@@ -940,6 +942,8 @@
                                  t.type === 'treasury_income_from_nft_onchain' ? 'type-treasury' :
                                  t.type === 'p2e_pool_refund_from_nft' ? 'type-p2e' :
                                  t.type === 'p2e_pool_refund_from_nft_onchain' ? 'type-p2e' :
+                                 t.type === 'spend_shop' ? 'type-spend' :
+                                 t.type === 'spend_skin' ? 'type-spend' :
                                  t.type.startsWith('spend') ? 'type-spend' :
                                  t.type === 'level_up' ? 'type-level' :
                                  t.type === 'quest_complete' ? 'type-quest' :
@@ -968,22 +972,28 @@
                 // NFT revenue transactions show distribution info
                 let metadataObj = {};
                 try {
-                    metadataObj = t.metadata && typeof t.metadata === 'object' 
-                        ? t.metadata 
+                    metadataObj = t.metadata && typeof t.metadata === 'object'
+                        ? t.metadata
                         : (t.metadata && typeof t.metadata === 'string' ? JSON.parse(t.metadata) : {});
                 } catch (e) {
                     metadataObj = {};
                 }
-                
+
                 let metadata = '';
                 if (t.type.includes('nft_mint') && metadataObj) {
                     metadata = `${metadataObj.tier_name || metadataObj.tier || ''} ${metadataObj.rarity || ''} (${metadataObj.earning_multiplier || 1}x)`;
                 } else if (t.type.includes('nft_revenue') && metadataObj) {
                     metadata = `💰 ${metadataObj.percentage || ''}% from ${metadataObj.tier || 'NFT'} mint | Total: ${metadataObj.total_price_sol || metadataObj.amount_sol || 0} SOL`;
+                } else if (t.type === 'spend_shop' && metadataObj) {
+                    metadata = `🛒 ${metadataObj.item_name || metadataObj.item_type || 'Shop Item'}`;
+                } else if (t.type === 'spend_skin' && metadataObj) {
+                    metadata = `🎨 ${metadataObj.skin_name || 'Skin'} (${metadataObj.rarity || 'common'})`;
+                } else if (t.type === 'level_up' && metadataObj) {
+                    metadata = `📊 Level ${metadataObj.new_level || '?'} | Bonus: ${metadataObj.bonus_amount || 0} TAMA`;
                 } else {
                     metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
                 }
-                
+
                 // 🔍 Show wallet address if username is Unknown or missing
                 let username = t.username || t.user_id || 'Unknown';
                 if ((!username || username === 'Unknown' || username === t.user_id) && metadataObj && metadataObj.wallet_address) {
