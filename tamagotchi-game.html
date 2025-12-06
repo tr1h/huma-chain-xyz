@@ -7618,9 +7618,9 @@
             gameState.tama -= price;
             const balanceAfter = gameState.tama;
 
-            // ✅ FIX: Log shop purchase transaction
+            // ✅ FIX: Log shop purchase transaction with NEGATIVE amount
             if (window.TELEGRAM_USER_ID) {
-                logTransaction('spend_shop', price, balanceBefore, balanceAfter, {
+                logTransaction('spend_shop', -price, balanceBefore, balanceAfter, {
                     item_type: itemType,
                     item_name: itemType === 'energy' ? 'Energy Drink' : 
                                itemType === 'auto_feed' ? 'Auto-Feeder' : 
@@ -7695,8 +7695,22 @@
             updateUI();
             document.getElementById('shop-modal').classList.remove('active');
 
-            // Trigger auto-save after purchase
-            triggerAutoSave();
+            // ✅ CRITICAL: Force immediate save to prevent balance rollback
+            triggerAutoSave(true); // Force critical save
+            
+            // Also save directly via API to ensure balance is persisted
+            if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
+                fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: window.TELEGRAM_USER_ID,
+                        tama: balanceAfter,
+                        level: gameState.level,
+                        xp: gameState.xp
+                    })
+                }).catch(err => console.warn('⚠️ Failed to save balance after shop purchase:', err));
+            }
         }
 
         // ==================== SKINS SYSTEM ====================
@@ -7894,14 +7908,14 @@
             // Auto-equip
             equipSkin(skinId);
 
-            // ✅ FIX: Log transaction with correct parameter order
+            // ✅ FIX: Log transaction with correct parameter order and NEGATIVE amount
             if (typeof logTransaction === 'function' && window.TELEGRAM_USER_ID) {
                 logTransaction(
-                    'spend_skin',  // type
-                    skin.price,    // amount
-                    balanceBefore, // balance_before
-                    balanceAfter,  // balance_after
-                    {              // metadata
+                    'spend_skin',      // type
+                    -skin.price,       // amount (NEGATIVE for spending!)
+                    balanceBefore,     // balance_before
+                    balanceAfter,      // balance_after
+                    {                  // metadata
                         skin_id: skinId,
                         skin_name: skin.nameRu,
                         rarity: skin.rarity
@@ -7912,7 +7926,23 @@
             showMessage(`✅ Purchased ${skin.nameRu}!`);
             updateUI();
             loadSkinsShop();
-            triggerAutoSave();
+            
+            // ✅ CRITICAL: Force immediate save to prevent balance rollback
+            triggerAutoSave(true); // Force critical save
+            
+            // Also save directly via API to ensure balance is persisted
+            if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
+                fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: window.TELEGRAM_USER_ID,
+                        tama: balanceAfter,
+                        level: gameState.level,
+                        xp: gameState.xp
+                    })
+                }).catch(err => console.warn('⚠️ Failed to save balance after skin purchase:', err));
+            }
 
             // Success animation
             const card = event.target.closest('.skin-card-shop');
