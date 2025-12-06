@@ -376,6 +376,198 @@ Share now! 🚀""",
 Поделись сейчас! 🚀"""
             },
 
+            'profile': {
+                'en': """👤 **Your Profile**
+
+🎯 Level: {level}
+⭐ XP: {xp}/{next_xp}
+💰 TAMA Balance: {tama}
+🏆 Rank: #{rank}
+🐾 Current Pet: {pet}
+📈 Evolution Stage: {stage}
+💎 NFTs Owned: {nft_count}
+⚡ Earning Multiplier: {multiplier}x
+👥 Referrals: {referrals}
+🔥 Daily Streak: {streak} days
+
+Keep playing to level up! 🚀""",
+                'ru': """👤 **Твой профиль**
+
+🎯 Уровень: {level}
+⭐ Опыт: {xp}/{next_xp}
+💰 Баланс TAMA: {tama}
+🏆 Рейтинг: #{rank}
+🐾 Текущий питомец: {pet}
+📈 Стадия эволюции: {stage}
+💎 Твои NFT: {nft_count}
+⚡ Множитель заработка: {multiplier}x
+👥 Рефералы: {referrals}
+🔥 Серия дней: {streak} дн.
+
+Продолжай играть чтобы повысить уровень! 🚀"""
+            },
+
+            'nfts': {
+                'header_en': "🖼️ **Your NFT Collection**\n\n",
+                'header_ru': "🖼️ **Твоя NFT коллекция**\n\n",
+                'no_nfts_en': "🎨 No NFTs found\n\n💰 Mint your first NFT with /mint!",
+                'no_nfts_ru': "🎨 NFT не найдены\n\n💰 Минти свой первый NFT командой /mint!",
+                'total_en': "\n📊 **Total:** {count} NFTs\n⚡ **Combined Multiplier:** {multiplier}x",
+                'total_ru': "\n📊 **Всего:** {count} NFT\n⚡ **Суммарный множитель:** {multiplier}x",
+            },
+
+            'badges': {
+                'header_en': "🏆 **Your Badges**\n\n",
+                'header_ru': "🏆 **Твои значки**\n\n",
+                'no_badges_en': "No badges yet. Play and invite friends!",
+                'no_badges_ru': "Пока нет значков. Играй и приглашай друзей!",
+                'total_en': "\n🎖️ **Total Badges:** {count}",
+                'total_ru': "\n🎖️ **Всего значков:** {count}",
+            },
+
+            'rank': {
+                'header_en': "👑 **Your Rank**\n\n",
+                'header_ru': "👑 **Твой ранг**\n\n",
+                'current_en': "🎖️ Current Rank: {rank_name}\n💎 Rank Bonus: {bonus} TAMA",
+                'current_ru': "🎖️ Текущий ранг: {rank_name}\n💎 Бонус ранга: {bonus} TAMA",
+                'next_en': "\n📈 Next Rank: {next_rank_name}\n👥 Need {needed} more referrals",
+                'next_ru': "\n📈 Следующий ранг: {next_rank_name}\n👥 Нужно ещё {needed} рефералов",
+                'max_en': "\n🌟 You reached the maximum rank!",
+                'max_ru': "\n🌟 Ты достиг максимального ранга!",
+            },
+
+            'quests': {
+                'header_en': "📋 **Referral Quests**\n\n",
+                'header_ru': "📋 **Реферальные квесты**\n\n",
+                'completed_en': "✅ Completed\n",
+                'completed_ru': "✅ Выполнено\n",
+                'in_progress_en': "🔄 In Progress\n",
+                'in_progress_ru': "🔄 В процессе\n",
+                'footer_en': "\n💡 Invite friends to complete more quests!",
+                'footer_ru': "\n💡 Приглашай друзей чтобы выполнить больше квестов!",
+            },
+
+            'tiers': {
+                'en': """💎 **NFT Tiers & Benefits**
+
+🥉 **Bronze** - 10 SOL
+   • 2x earnings multiplier
+   • Basic NFT artwork
+   • Entry tier benefits
+
+🥈 **Silver** - 25 SOL
+   • 3x earnings multiplier
+   • Enhanced artwork
+   • Silver tier perks
+
+🥇 **Gold** - 50 SOL
+   • 5x earnings multiplier
+   • Premium artwork
+   • Gold tier rewards
+
+💠 **Platinum** - 100 SOL
+   • 7x earnings multiplier
+   • Exclusive artwork
+   • Elite tier access
+
+💎 **Diamond** - 250 SOL
+   • 10x earnings multiplier
+   • Ultra-rare artwork
+   • MAXIMUM benefits!
+
+**Mint here:** https://solanatamagotchi.com/mint.html
+
+*All NFTs boost your earnings forever!*""",
+                'ru': """💎 **NFT Тиры и Преимущества**
+
+🥉 **Бронза** - 10 SOL
+   • Множитель заработка 2x
+   • Базовый арт NFT
+   • Начальный тир
+
+🥈 **Серебро** - 25 SOL
+   • Множитель заработка 3x
+   • Улучшенный арт
+   • Серебряные привилегии
+
+🥇 **Золото** - 50 SOL
+   • Множитель заработка 5x
+   • Премиум арт
+   • Золотые награды
+
+💠 **Платина** - 100 SOL
+   • Множитель заработка 7x
+   • Эксклюзивный арт
+   • Элитный доступ
+
+💎 **Алмаз** - 250 SOL
+   • Множитель заработка 10x
+   • Ультра-редкий арт
+   • МАКСИМАЛЬНЫЕ преимущества!
+
+**Минтить здесь:** https://solanatamagotchi.com/mint.html
+
+*Все NFT увеличивают заработок навсегда!*"""
+            },
+
+            'community': {
+                'en': """👥 **Join Our Community!**
+
+💬 **Chat:** @gotchigamechat
+📢 **Channel:** @gotchigame
+🐦 **Twitter:** https://x.com/gotchigame
+🌐 **Website:** https://solanatamagotchi.com
+
+**Partnership inquiries:** gotchigame@proton.me
+
+Join us and stay updated! 🚀""",
+                'ru': """👥 **Присоединяйся к сообществу!**
+
+💬 **Чат:** @gotchigamechat
+📢 **Канал:** @gotchigame
+🐦 **Twitter:** https://x.com/gotchigame
+🌐 **Сайт:** https://solanatamagotchi.com
+
+**Вопросы партнерства:** gotchigame@proton.me
+
+Присоединяйся и будь в курсе! 🚀"""
+            },
+
+            'withdraw': {
+                'en': """💸 **Withdraw TAMA**
+
+🚀 **Mainnet Launch:** Q1 2026
+
+**What you need to know:**
+• All in-game TAMA converts 1:1 to mainnet token
+• Your balance will be automatically migrated
+• No action needed from you!
+
+**Current Status:**
+• Devnet: ✅ Active (testing phase)
+• Mainnet: 🔄 Coming Q1 2026
+
+Your TAMA is safe! Keep earning! 💰
+
+📊 **Track balances:** https://solanatamagotchi.com/treasury-monitor.html""",
+                'ru': """💸 **Вывод TAMA**
+
+🚀 **Запуск Mainnet:** Q1 2026
+
+**Что нужно знать:**
+• Весь игровой TAMA конвертируется 1:1 в mainnet токен
+• Твой баланс будет автоматически перенесён
+• От тебя ничего не требуется!
+
+**Текущий статус:**
+• Devnet: ✅ Активен (тестовая фаза)
+• Mainnet: 🔄 Запуск Q1 2026
+
+Твои TAMA в безопасности! Продолжай зарабатывать! 💰
+
+📊 **Отслеживай балансы:** https://solanatamagotchi.com/treasury-monitor.html"""
+            },
+
             # BUTTONS
             'button_play': {
                 'en': '🎮 Play Game',

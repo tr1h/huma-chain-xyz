@@ -1137,9 +1137,11 @@ def handle_language_selection_callback(call):
     
     # Save to database
     if save_user_language(user_id, new_lang):
-        # Confirmation message
-        confirmation = get_language_changed_message(new_lang)
-        bot.answer_callback_query(call.id, "✅")
+        # Just show checkmark in notification (no separate message)
+        if new_lang == 'ru':
+            bot.answer_callback_query(call.id, "✅ Язык изменён на русский")
+        else:
+            bot.answer_callback_query(call.id, "✅ Language changed to English")
         
         # Delete old message
         try:
@@ -1496,6 +1498,7 @@ Use /ref to get your link!
 def send_stats(message):
     telegram_id = str(message.from_user.id)
     username = message.from_user.username or message.from_user.first_name
+    lang = determine_user_language(message)
     
     try:
         # Get player data from Supabase by telegram_id
@@ -1522,7 +1525,32 @@ def send_stats(message):
             total_referrals = level1_count + level2_count + pending_count
             total_earned = player.get('tama', 0)  # Use real TAMA balance from leaderboard
             
-            text = f"""
+            if lang == 'ru':
+                text = f"""
+📊 *Твоя статистика:*
+
+🐾 *Твой питомец:*
+• Имя: {player.get('pet_name', 'Нет питомца')}
+• Тип: {player.get('pet_type', 'N/A')}
+• Редкость: {player.get('pet_rarity', 'N/A')}
+• Уровень: {player.get('level', 1)}
+• Опыт: {player.get('xp', 0)}
+
+💰 *Твой баланс:*
+• TAMA Токены: {player.get('tama', 0)}
+
+🔗 *Твои рефералы:*
+• 👥 Всего рефералов: {total_referrals}
+• ✅ Заработано с рефералов: {level1_earned + (pending_count * 1000)} TAMA
+• 💰 Всего заработано: {total_earned} TAMA
+
+💳 *Кошелёк:*
+• `{player['wallet_address'][:8]}...{player['wallet_address'][-8:]}`
+
+*Продолжай играть и приглашай друзей чтобы зарабатывать больше!* 🚀
+"""
+            else:
+                text = f"""
 📊 *Your Personal Stats:*
 
 🐾 *Your Pet:*
@@ -1544,7 +1572,7 @@ def send_stats(message):
 • `{player['wallet_address'][:8]}...{player['wallet_address'][-8:]}`
 
 *Keep playing and referring friends to earn more!* 🚀
-            """
+"""
         else:
             # No wallet linked yet - but show pending referrals!
             game_link = f"{GAME_URL}?tg_id={telegram_id}&tg_username={username}"
@@ -1556,7 +1584,28 @@ def send_stats(message):
             except:
                 pending_count = 0
             
-            text = f"""
+            if lang == 'ru':
+                text = f"""
+📊 *Твоя статистика:*
+
+❌ *Кошелёк ещё не привязан!*
+
+🔗 *Твои рефералы:*
+• 👥 Всего рефералов: {pending_count}
+• 💰 Всего заработано: {pending_count * 100} TAMA
+
+Чтобы начать играть и отслеживать статистику:
+1️⃣ Нажми кнопку ниже
+2️⃣ Подключи свой Phantom кошелёк
+3️⃣ Твой прогресс будет автоматически сохранён!
+4️⃣ Все ожидающие рефералы будут активированы!
+
+🎮 *Готов начать?*
+"""
+                play_btn = "🎮 Начать играть"
+                mint_btn = "🎨 Минт NFT"
+            else:
+                text = f"""
 📊 *Your Personal Stats:*
 
 ❌ *No wallet linked yet!*
@@ -1566,17 +1615,20 @@ def send_stats(message):
 • 💰 Total Earned: {pending_count * 100} TAMA
 
 To start playing and tracking your stats:
-1я╕ПтГг Click the button below
-2я╕ПтГг Connect your Phantom wallet
-3я╕ПтГг Your progress will be automatically saved!
-4я╕ПтГг All pending referrals will be activated!
+1️⃣ Click the button below
+2️⃣ Connect your Phantom wallet
+3️⃣ Your progress will be automatically saved!
+4️⃣ All pending referrals will be activated!
 
 🎮 *Ready to start?*
-            """
+"""
+                play_btn = "🎮 Start Playing"
+                mint_btn = "🎨 Mint NFT"
+            
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
-                types.InlineKeyboardButton("🎮 Start Playing", url=game_link),
-                types.InlineKeyboardButton("🎨 Mint NFT", url=MINT_URL)
+                types.InlineKeyboardButton(play_btn, url=game_link),
+                types.InlineKeyboardButton(mint_btn, url=MINT_URL)
             )
             bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
             return
@@ -1584,9 +1636,14 @@ To start playing and tracking your stats:
         # Add buttons
         keyboard = types.InlineKeyboardMarkup()
         game_link = f"{GAME_URL}?tg_id={telegram_id}&tg_username={username}"
-        keyboard.row(
-            types.InlineKeyboardButton("🔗 Share Referral", callback_data="get_referral")
-        )
+        if lang == 'ru':
+            keyboard.row(
+                types.InlineKeyboardButton("🔗 Поделиться реферальной", callback_data="get_referral")
+            )
+        else:
+            keyboard.row(
+                types.InlineKeyboardButton("🔗 Share Referral", callback_data="get_referral")
+            )
         
         bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
         
@@ -2545,54 +2602,71 @@ def mint_nft_command(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
-@bot.message_handler(commands=['my_nfts', 'nfts'])
+@bot.message_handler(commands=['my_nfts', 'nfts'], func=lambda message: message.chat.type == 'private')
 def show_user_nfts(message):
-    """╨Я╨╛╨║╨░╨╖╨░╤В╤М NFT ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"""
+    """Show user NFT collection (localized)"""
     telegram_id = str(message.from_user.id)
+    lang = determine_user_language(message)
     
     try:
         nfts = get_user_nfts(telegram_id)
         
         if not nfts:
-            text = """🖼️ Your NFT Collection
-
-🎨 No NFTs found
-
-💰 Mint your first NFT with /mint!"""
+            header = t('nfts', lang).get(f'header_{lang}', '🖼️ Your NFT Collection\n\n')
+            no_nfts = t('nfts', lang).get(f'no_nfts_{lang}', '🎨 No NFTs found\n\n💰 Mint your first NFT with /mint!')
+            text = header + no_nfts
         else:
-            text = f"""🖼️ Your NFT Collection
-
-🎨 Total NFTs: {len(nfts)}
-
-"""
+            header = t('nfts', lang).get(f'header_{lang}', '🖼️ Your NFT Collection\n\n')
+            text = header
             
-            for i, nft in enumerate(nfts[:10], 1):  # ╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╨╡╨╝ ╨┐╨╡╤А╨▓╤Л╨╡ 10
+            # Calculate total multiplier
+            total_multiplier = sum(float(nft.get('earning_multiplier', 1.0)) for nft in nfts)
+            
+            for i, nft in enumerate(nfts[:10], 1):
                 rarity_emoji = {
-                    'common': 'тЪк',
-                    'rare': 'ЁЯФ╡',
-                    'epic': 'ЁЯЯг', 
-                    'legendary': 'ЁЯЯб'
-                }.get(nft.get('rarity', 'common'), 'тЪк')
+                    'common': '⚪',
+                    'rare': '🔵',
+                    'epic': '🟣', 
+                    'legendary': '🟡'
+                }.get(nft.get('rarity', 'common'), '⚪')
                 
                 pet_type = nft.get('pet_type', 'Unknown').title()
                 rarity = nft.get('rarity', 'common').title()
                 created_at = nft.get('created_at', 'Unknown')[:10]
-                
                 cost_tama = nft.get('cost_tama', 0)
-                text += f"""#{i} {rarity_emoji} {pet_type}
+                multiplier = nft.get('earning_multiplier', 1.0)
+                
+                if lang == 'ru':
+                    text += f"""#{i} {rarity_emoji} {pet_type}
+• Редкость: {rarity}
+• Цена: {cost_tama:,} TAMA
+• Множитель: {multiplier}x
+• Создан: {created_at}
+
+"""
+                else:
+                    text += f"""#{i} {rarity_emoji} {pet_type}
 • Rarity: {rarity}
 • Cost: {cost_tama:,} TAMA
+• Multiplier: {multiplier}x
 • Created: {created_at}
 
 """
-                
+            
             if len(nfts) > 10:
-                text += f"\n... and {len(nfts) - 10} more NFTs!"
+                if lang == 'ru':
+                    text += f"\n... и ещё {len(nfts) - 10} NFT!"
+                else:
+                    text += f"\n... and {len(nfts) - 10} more NFTs!"
+            
+            total = t('nfts', lang).get(f'total_{lang}', '\n📊 Total: {count} NFTs\n⚡ Combined Multiplier: {multiplier}x')
+            text += total.format(count=len(nfts), multiplier=total_multiplier)
         
-        bot.reply_to(message, text)
+        bot.reply_to(message, text, parse_mode='Markdown')
         
     except Exception as e:
-        bot.reply_to(message, f"❌ Error: {str(e)}")
+        error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else f"❌ Error: {str(e)}"
+        bot.reply_to(message, error_msg)
 
 @bot.message_handler(commands=['nft_costs'])
 def show_nft_costs(message):
@@ -3138,8 +3212,9 @@ def show_monitoring_stats(message):
 
 @bot.message_handler(commands=['daily'], func=lambda message: message.chat.type == 'private')
 def claim_daily_reward(message):
-    """Claim daily reward"""
+    """Claim daily reward (localized)"""
     telegram_id = str(message.from_user.id)
+    lang = determine_user_language(message)
     
     try:
         success, streak_days, reward_amount = daily_rewards.claim_reward(telegram_id)
@@ -3150,22 +3225,41 @@ def claim_daily_reward(message):
             
             # Check for streak milestones
             milestone_text = ""
-            if streak_days == 7:
-                milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
-            elif streak_days == 14:
-                milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
-            elif streak_days == 30:
-                milestone_text = "\n\n👑 **MONTH!** You're a legend!"
+            if lang == 'ru':
+                if streak_days == 7:
+                    milestone_text = "\n\n🎉 **ВЕХА НЕДЕЛИ!** 7 дней подряд!"
+                elif streak_days == 14:
+                    milestone_text = "\n\n🔥 **2 НЕДЕЛИ!** Невероятная серия!"
+                elif streak_days == 30:
+                    milestone_text = "\n\n👑 **МЕСЯЦ!** Ты легенда!"
+            else:
+                if streak_days == 7:
+                    milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
+                elif streak_days == 14:
+                    milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
+                elif streak_days == 30:
+                    milestone_text = "\n\n👑 **MONTH!** You're a legend!"
             
-            text = f"""
+            if lang == 'ru':
+                text = f"""
+✅ **Ежедневная награда получена!**
+
+💰 **Награда:** +{reward_amount:,} TAMA
+🔥 **Серия:** {streak_days} дней подряд
+📅 **Следующая:** через 24 часа{milestone_text}
+
+💰 **Возвращайся каждый день для больших наград!**
+"""
+            else:
+                text = f"""
 ✅ **Daily Reward Claimed!**
 
 💰 **Reward:** +{reward_amount:,} TAMA
 🔥 **Streak:** {streak_days} days in a row
 📅 **Next:** in 24 hours{milestone_text}
 
-💰 **╨Т╨╛╨╖╨▓╤А╨░╤Й╨░╨╣╤Б╤П ╨║╨░╨╢╨┤╤Л╨╣ ╨┤╨╡╨╜╤М ╨┤╨╗╤П ╨▒╨╛╨╗╤М╤И╨╕╤Е ╨╜╨░╨│╤А╨░╨┤!**
-            """
+💰 **Come back every day for bigger rewards!**
+"""
             
             # Award streak badges
             if streak_days == 7:
@@ -3175,20 +3269,31 @@ def claim_daily_reward(message):
         else:
             # Calculate time until next claim
             can_claim, current_streak = daily_rewards.can_claim(telegram_id)
-            text = f"""
+            if lang == 'ru':
+                text = f"""
+⏰ **Уже забрано сегодня!**
+
+🔥 **Текущая серия:** {current_streak} дней
+📅 **Возвращайся завтра** за новой наградой!
+
+💰 **Не пропускай дни чтобы сохранить серию!**
+"""
+            else:
+                text = f"""
 ⏰ **Already Claimed Today!**
 
 🔥 **Current Streak:** {current_streak} days
 📅 **Come back tomorrow** for next reward!
 
 💰 **Don't miss a day to keep your streak!**
-            """
+"""
         
         bot.reply_to(message, text, parse_mode='Markdown')
         
     except Exception as e:
         print(f"Error claiming daily reward: {e}")
-        bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨┐╤А╨╕ ╨┐╨╛╨╗╤Г╤З╨╡╨╜╨╕╨╕ ╨╜╨░╨│╤А╨░╨┤╤Л. ╨Я╨╛╨┐╤А╨╛╨▒╤Г╨╣ ╨┐╨╛╨╖╨╢╨╡.")
+        error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else "❌ Error claiming reward"
+        bot.reply_to(message, error_msg)
 
 # Mini-games removed - available in main game only
 # @bot.message_handler(commands=['games'], func=lambda message: message.chat.type == 'private')
@@ -3236,8 +3341,9 @@ def claim_daily_reward(message):
 
 @bot.message_handler(commands=['badges'], func=lambda message: message.chat.type == 'private')
 def show_user_badges(message):
-    """Show user badges"""
+    """Show user badges (localized)"""
     telegram_id = str(message.from_user.id)
+    lang = determine_user_language(message)
     
     try:
         user_badges = badge_system.get_user_badges(telegram_id)
@@ -3245,32 +3351,45 @@ def show_user_badges(message):
         if user_badges:
             badges_text = "\n".join([f"{b['name']} - {b['desc']}" for b in user_badges])
         else:
-            badges_text = "No badges yet. Play and invite friends!"
+            badges_text = t('badges', lang).get(f'no_badges_{lang}', 'No badges yet. Play and invite friends!')
         
-        text = f"""
-🏆 **Your Badges**
+        header = t('badges', lang).get(f'header_{lang}', '🏆 **Your Badges**\n\n')
+        
+        if lang == 'ru':
+            text = f"""{header}{badges_text}
 
-{badges_text}
+💰 **Как заработать больше:**
+• 🐣 Ранняя Пташка - Будь в первых 100 пользователей
+• 🔥 Мастер Серий - 30 дней подряд
+• 👑 Король Рефералов - 50+ рефералов
+• 💰 Щедрый - 100+ рефералов
+• 🎮 Геймер - 100 мини-игр
+• 🍀 Счастливчик - Джекпот на колесе
+"""
+        else:
+            text = f"""{header}{badges_text}
 
 💰 **How to earn more:**
-• ЁЯРж Early Bird - Be in first 100 users
+• 🐣 Early Bird - Be in first 100 users
 • 🔥 Streak Master - 30 days streak
 • 👑 Referral King - 50+ referrals
 • 💰 Generous - 100+ referrals
 • 🎮 Gamer - 100 mini-games
 • 🍀 Lucky - Wheel jackpot
-        """
+"""
         
         bot.reply_to(message, text, parse_mode='Markdown')
         
     except Exception as e:
         print(f"Error showing badges: {e}")
-        bot.reply_to(message, "❌ Error loading badges")
+        error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else "❌ Error loading badges"
+        bot.reply_to(message, error_msg)
 
 @bot.message_handler(commands=['rank'], func=lambda message: message.chat.type == 'private')
 def show_user_rank(message):
-    """Show user rank"""
+    """Show user rank (localized)"""
     telegram_id = str(message.from_user.id)
+    lang = determine_user_language(message)
     
     try:
         # Get referral count
@@ -3294,34 +3413,53 @@ def show_user_rank(message):
         empty = "░" * (5 - (total_refs % 5))
         progress_bar = filled + empty
         
-        text = f"""
-{rank_data['emoji']} **Your Rank: {rank_data['name']}**
+        header = t('rank', lang).get(f'header_{lang}', '👑 **Your Rank**\n\n')
+        
+        if lang == 'ru':
+            text = f"""{header}{rank_data['emoji']} **Твой ранг: {rank_data['name']}**
+
+📊 **Статистика:**
+• Рефералы: {total_refs}
+• Прогресс: {progress_bar}
+"""
+        else:
+            text = f"""{header}{rank_data['emoji']} **Your Rank: {rank_data['name']}**
 
 📊 **Stats:**
 • Referrals: {total_refs}
 • Progress: {progress_bar}
-        """
+"""
         
         if next_rank:
             refs_needed = next_rank[1]['min_refs'] - total_refs
-            text += f"""
-
+            if lang == 'ru':
+                text += f"""
+📋 **Следующий ранг:** {next_rank[1]['name']}
+🎯 **Нужно:** {refs_needed} рефералов
+"""
+            else:
+                text += f"""
 📋 **Next rank:** {next_rank[1]['name']}
 🎯 **Needed:** {refs_needed} referrals
-        """
+"""
         else:
-            text += "\n\n🏆 **Maximum rank achieved!**"
+            if lang == 'ru':
+                text += "\n🏆 **Достигнут максимальный ранг!**"
+            else:
+                text += "\n🏆 **Maximum rank achieved!**"
         
         bot.reply_to(message, text, parse_mode='Markdown')
         
     except Exception as e:
         print(f"Error showing rank: {e}")
-        bot.reply_to(message, "❌ Error loading rank")
+        error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else "❌ Error loading rank"
+        bot.reply_to(message, error_msg)
 
 @bot.message_handler(commands=['quests'], func=lambda message: message.chat.type == 'private')
 def show_quests(message):
-    """Show quests"""
+    """Show quests (localized)"""
     telegram_id = str(message.from_user.id)
+    lang = determine_user_language(message)
     
     try:
         # Get referral count
@@ -3333,7 +3471,8 @@ def show_quests(message):
         # Check quests
         completed_quests = quest_system.check_quests(telegram_id, total_refs)
         
-        text = "📋 **Referral Quests**\n\n"
+        header = t('quests', lang).get(f'header_{lang}', '📋 **Referral Quests**\n\n')
+        text = header
         
         for quest_id, quest_data in QUESTS.items():
             progress = min(total_refs, quest_data['target'])
@@ -3344,17 +3483,24 @@ def show_quests(message):
             else:
                 status = f"{progress}/{quest_data['target']}"
             
-            text += f"{status} **{quest_data['name']}**\n"
-            text += f"   {quest_data['desc']}\n"
-            text += f"   Reward: {quest_data['reward']:,} TAMA\n\n"
+            if lang == 'ru':
+                text += f"{status} **{quest_data['name']}**\n"
+                text += f"   {quest_data['desc']}\n"
+                text += f"   Награда: {quest_data['reward']:,} TAMA\n\n"
+            else:
+                text += f"{status} **{quest_data['name']}**\n"
+                text += f"   {quest_data['desc']}\n"
+                text += f"   Reward: {quest_data['reward']:,} TAMA\n\n"
         
-        text += "💰 **Invite friends to complete quests!**"
+        footer = t('quests', lang).get(f'footer_{lang}', '\n💡 Invite friends to complete more quests!')
+        text += footer
         
         bot.reply_to(message, text, parse_mode='Markdown')
         
     except Exception as e:
         print(f"Error showing quests: {e}")
-        bot.reply_to(message, "❌ Error loading quests")
+        error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else "❌ Error loading quests"
+        bot.reply_to(message, error_msg)
 
 # Welcome new members
 @bot.message_handler(content_types=['new_chat_members'])
