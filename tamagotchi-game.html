@@ -3827,7 +3827,7 @@
             <div class="heart-cloud" style="top: 50px; left: -30px; animation-delay: 0s;">💜</div>
             <div class="heart-cloud" style="top: 150px; left: -30px; animation-delay: 10s;">💗</div>
 
-            <div class="shop-btn" id="shop-btn" onclick="console.log('🛒 DIRECT CLICK!'); document.getElementById('shop-modal').classList.add('active');">🛒</div>
+            <div class="shop-btn" id="shop-btn" onclick="console.log('🛒 DIRECT CLICK!'); document.getElementById('shop-modal').classList.add('active'); this.style.display='none';">🛒</div>
             <div class="pet-change-btn" id="pet-change-btn" title="Change Pet">🐾</div>
             <div class="combo-counter" id="combo-counter">🔥 COMBO x<span id="combo-value">0</span></div>
             <div class="pet-status" id="pet-status"></div>
@@ -7586,6 +7586,7 @@
             shopBtn.addEventListener('click', () => {
                 console.log('🛒 Shop button clicked!');
                 shopModal.classList.add('active');
+                shopBtn.style.display = 'none'; // Hide button when shop opens
                 // Load items by default
                 document.getElementById('shop-items').style.display = 'block';
                 document.getElementById('shop-skins').style.display = 'none';
@@ -7598,6 +7599,7 @@
         if (closeShop && shopModal) {
             closeShop.addEventListener('click', () => {
                 shopModal.classList.remove('active');
+                if (shopBtn) shopBtn.style.display = 'flex'; // Show button again
             });
         }
 
@@ -7606,6 +7608,7 @@
             shopModal.addEventListener('click', (e) => {
             if (e.target.id === 'shop-modal') {
                     shopModal.classList.remove('active');
+                    if (shopBtn) shopBtn.style.display = 'flex'; // Show button again
             }
         });
         }
