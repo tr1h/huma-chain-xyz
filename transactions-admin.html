@@ -533,7 +533,7 @@
     <div id="adminLoginScreen">
         <div class="login-container">
             <h2>🔐 Admin Access</h2>
-            <input type="password" id="adminPasswordInput" placeholder="Enter password">
+            <input type="password" id="adminPasswordInput" placeholder="Enter password" onkeypress="if(event.key==='Enter') adminAuth.checkPassword()">
             <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
             <div id="adminLoginError"></div>
         </div>
@@ -664,6 +664,81 @@
         const TAMA_API_BASE = window.AdminEnv?.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
 
         console.log('✅ Admin Environment loaded:', { supabase: SUPABASE_URL, api: TAMA_API_BASE });
+
+        // Admin Authentication System
+        const adminAuth = {
+            // SHA-256 hash of admin password (stored in meta tag)
+            getExpectedHash() {
+                const meta = document.querySelector('meta[name="admin-password-hash"]');
+                return meta ? meta.content : null;
+            },
+
+            // Hash password using SHA-256
+            async hashPassword(password) {
+                const msgBuffer = new TextEncoder().encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                return hashHex;
+            },
+
+            // Check if already authenticated
+            isAuthenticated() {
+                return sessionStorage.getItem('admin_authenticated') === 'true';
+            },
+
+            // Check password
+            async checkPassword() {
+                const input = document.getElementById('adminPasswordInput');
+                const password = input.value;
+                const errorDiv = document.getElementById('adminLoginError');
+
+                if (!password) {
+                    errorDiv.textContent = '❌ Please enter password';
+                    errorDiv.style.color = 'red';
+                    return;
+                }
+
+                try {
+                    const hash = await this.hashPassword(password);
+                    const expectedHash = this.getExpectedHash();
+
+                    if (hash === expectedHash) {
+                        // Success!
+                        sessionStorage.setItem('admin_authenticated', 'true');
+                        this.showAdminPanel();
+                    } else {
+                        errorDiv.textContent = '❌ Invalid password';
+                        errorDiv.style.color = 'red';
+                        input.value = '';
+                    }
+                } catch (error) {
+                    console.error('Auth error:', error);
+                    errorDiv.textContent = '❌ Authentication error';
+                    errorDiv.style.color = 'red';
+                }
+            },
+
+            // Show admin panel
+            showAdminPanel() {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                console.log('✅ Admin authenticated');
+                
+                // Initialize data loading
+                loadTransactionsCount().then(() => {
+                    loadTransactions();
+                    startAutoUpdate();
+                });
+            },
+
+            // Initialize on page load
+            init() {
+                if (this.isAuthenticated()) {
+                    this.showAdminPanel();
+                }
+            }
+        };
 
         let allTransactions = [];
         let allUsers = {};
@@ -1267,11 +1342,8 @@
             }
         });
 
-        // Load on page load
-        loadTransactionsCount().then(() => {
-            loadTransactions();
-            startAutoUpdate();
-        });
+        // Initialize admin auth on page load
+        adminAuth.init();
 
         // Stop auto-update when page is hidden
         document.addEventListener('visibilitychange', () => {
