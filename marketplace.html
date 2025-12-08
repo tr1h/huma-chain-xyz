@@ -522,6 +522,152 @@
             margin-bottom: 20px;
             opacity: 0.5;
         }
+        
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+            
+            .header {
+                padding: 20px 10px;
+                margin-bottom: 20px;
+            }
+            
+            .auth-section {
+                position: relative;
+                top: auto;
+                right: auto;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 15px;
+            }
+            
+            .user-balance {
+                flex-direction: column;
+                gap: 8px;
+                padding: 10px;
+            }
+            
+            .tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                gap: 8px;
+                padding-bottom: 5px;
+            }
+            
+            .tab-btn {
+                white-space: nowrap;
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .filters {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            .nft-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+                gap: 12px;
+            }
+            
+            .nft-card {
+                padding: 10px;
+            }
+            
+            .nft-image {
+                width: 100%;
+                height: 150px;
+            }
+            
+            .nft-name {
+                font-size: 14px;
+            }
+            
+            .attribute-badge {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+            
+            /* Hide activity feed on mobile, show full-width grid */
+            .nft-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .activity-feed {
+                display: none !important;
+            }
+            
+            /* Make modals fullscreen on mobile */
+            .modal-content {
+                width: 95% !important;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .sell-modal .modal-content,
+            .buy-modal .modal-content {
+                width: 95% !important;
+            }
+            
+            /* Profile tabs mobile */
+            .profile-tabs {
+                flex-wrap: wrap;
+                gap: 8px !important;
+            }
+            
+            .profile-tab-btn {
+                padding: 8px 12px !important;
+                font-size: 12px !important;
+            }
+            
+            /* Search bar mobile */
+            #search-input {
+                font-size: 14px;
+                padding: 12px 15px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .nft-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .tab-btn {
+                font-size: 11px;
+                padding: 10px 12px;
+            }
+        }
     </style>
 </head>
 <body>
