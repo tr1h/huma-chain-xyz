@@ -87,6 +87,24 @@
             text-overflow: ellipsis;
         }
         
+        .user-balance {
+            background: rgba(138, 201, 38, 0.2);
+            border: 1px solid rgba(138, 201, 38, 0.4);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+        }
+        
+        .balance-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
         .not-authenticated {
             text-align: center;
             padding: 60px 20px;
@@ -786,6 +804,51 @@
             updateAuthStatus();
         }
         
+        // Load and display user balance
+        async function loadAndDisplayBalance() {
+            try {
+                let tamaBalance = 0;
+                let solBalance = 0;
+                
+                // Load TAMA balance from API
+                if (userTelegramId) {
+                    const response = await fetch(`${API_BASE}/balance?telegram_id=${userTelegramId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        tamaBalance = data.balance || 0;
+                    }
+                }
+                
+                // Load SOL balance from wallet
+                if (walletAddress && connection) {
+                    try {
+                        const solBalanceLamports = await connection.getBalance(new solanaWeb3.PublicKey(walletAddress));
+                        solBalance = (solBalanceLamports / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
+                    } catch (e) {
+                        console.error('Failed to load SOL balance:', e);
+                        solBalance = '0';
+                    }
+                }
+                
+                // Update display
+                const tamaBalanceEl = document.getElementById('tama-balance');
+                const solBalanceEl = document.getElementById('sol-balance');
+                
+                if (tamaBalanceEl) {
+                    tamaBalanceEl.textContent = formatNumber(tamaBalance);
+                }
+                if (solBalanceEl) {
+                    solBalanceEl.textContent = solBalance;
+                }
+            } catch (error) {
+                console.error('Failed to load balance:', error);
+                const tamaBalanceEl = document.getElementById('tama-balance');
+                const solBalanceEl = document.getElementById('sol-balance');
+                if (tamaBalanceEl) tamaBalanceEl.textContent = '0';
+                if (solBalanceEl) solBalanceEl.textContent = '0';
+            }
+        }
+        
         // Update authentication status UI
         function updateAuthStatus() {
             const authSection = document.getElementById('auth-section');
@@ -820,6 +883,13 @@
                 
                 // Update auth section
                 let authHtml = '';
+                
+                // Add balance display
+                authHtml += `<div class="user-balance" id="user-balance-display">
+                    <div class="balance-item">💰 <span id="tama-balance">Loading...</span> TAMA</div>
+                    <div class="balance-item">💎 <span id="sol-balance">Loading...</span> SOL</div>
+                </div>`;
+                
                 if (userTelegramId) {
                     authHtml += `<span style="color: #8AC926; margin-right: 10px;">✅ Telegram: ${userTelegramId}</span>`;
                 }
@@ -833,6 +903,9 @@
                     authHtml += `<button class="auth-btn" onclick="connectPhantomWallet()">Connect Wallet</button>`;
                 }
                 authSection.innerHTML = authHtml;
+                
+                // Load balance after updating HTML
+                loadAndDisplayBalance();
             } else {
                 notAuthScreen.style.display = 'block';
                 authContent.style.display = 'none';
@@ -1093,6 +1166,7 @@
             grid.innerHTML = nfts.map(nft => {
                 const tierEmoji = getTierEmoji(nft.tier_name);
                 const rarityEmoji = getRarityEmoji(nft.rarity);
+                const petEmoji = getPetEmoji(nft.pet_type); // 🐱🐶🦊🐼
                 
                 // Get NFT image URL - use blockchain metadata for on-chain NFT
                 const imageId = `marketplace-nft-image-${nft.id || nft.nft_mint_address || Math.random()}`;
@@ -1100,27 +1174,27 @@
                     nft.nft_mint_address.length > 30 && 
                     !nft.nft_mint_address.includes('_');
                 
-                // Start with placeholder, will update from blockchain if on-chain
-                let imageHtml = `<div class="nft-image">${tierEmoji}</div>`;
+                // Start with pet emoji placeholder (not tier emoji!)
+                let imageHtml = `<div class="nft-image">${petEmoji}</div>`;
                 
                 if (isRealOnChain) {
                     // Create image element with unique ID for async update
                     imageHtml = `<div class="nft-image" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2)); display: flex; align-items: center; justify-content: center; padding: 0;">
                         <img id="${imageId}" 
-                             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='48'%3E${tierEmoji}%3C/text%3E%3C/svg%3E"
-                             onerror="this.parentElement.innerHTML='${tierEmoji}'"
+                             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='48'%3E${petEmoji}%3C/text%3E%3C/svg%3E"
+                             onerror="this.parentElement.innerHTML='${petEmoji}'"
                              style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;" />
                     </div>`;
                     
                     // Load image from blockchain asynchronously
-                    loadNFTImageFromBlockchain(nft.nft_mint_address, imageId, tierEmoji);
+                    loadNFTImageFromBlockchain(nft.nft_mint_address, imageId, petEmoji);
                 } else if (nft.tier_name && nft.rarity) {
                     // For off-chain NFT, try to use static IPFS URL based on tier/rarity
                     const staticImageUrl = getNFTImageUrlStatic(nft.tier_name, nft.rarity);
                     if (staticImageUrl) {
                         imageHtml = `<div class="nft-image" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2)); display: flex; align-items: center; justify-content: center; padding: 0;">
                             <img src="${staticImageUrl}" 
-                                 onerror="this.parentElement.innerHTML='${tierEmoji}'"
+                                 onerror="this.parentElement.innerHTML='${petEmoji}'"
                                  style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;" />
                         </div>`;
                     }
@@ -1391,6 +1465,7 @@
                     closeSellModal();
                     loadNFTs();
                     loadStats();
+                    loadAndDisplayBalance(); // Update balance
                 } else {
                     const error = await response.json();
                     console.error('Listing error:', error);
@@ -1578,6 +1653,7 @@
                     closeBuyModal();
                     loadNFTs();
                     loadStats();
+                    loadAndDisplayBalance(); // Update balance
                 } else {
                     const error = await response.json();
                     alert('Failed to buy NFT: ' + (error.error || 'Unknown error'));
