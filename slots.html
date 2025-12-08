@@ -548,15 +548,35 @@
         let totalWon = 0;
         let spinHistory = [];
 
+        // API Base URL
+        const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+        
         // Load user balance and data
         async function loadUserData() {
             try {
                 // Load TAMA balance
-                const response = await fetch(`https://solanatamagotchi.com/api/tama/balance?telegram_id=${userId}`);
+                const response = await fetch(`${API_BASE}/balance?telegram_id=${userId}`);
                 if (response.ok) {
                     const data = await response.json();
                     balance = data.balance || 0;
                     document.getElementById('balance').textContent = formatNumber(balance);
+                } else {
+                    console.error('Failed to load balance:', response.status, response.statusText);
+                    // Try alternative: direct Supabase query
+                    try {
+                        const { data: leaderboardData, error } = await supabase
+                            .from('leaderboard')
+                            .select('tama')
+                            .eq('telegram_id', userId)
+                            .maybeSingle();
+                        
+                        if (!error && leaderboardData) {
+                            balance = leaderboardData.tama || 0;
+                            document.getElementById('balance').textContent = formatNumber(balance);
+                        }
+                    } catch (e) {
+                        console.error('Failed to load balance from Supabase:', e);
+                    }
                 }
 
                 // Load free spins from localStorage (reset daily)
@@ -782,7 +802,7 @@
         // Update balance in backend
         async function updateBalance(amount) {
             try {
-                await fetch('https://solanatamagotchi.com/api/tama/slots/spin', {
+                const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -792,6 +812,49 @@
                         win: amount > 0 ? amount : 0
                     })
                 });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.balance !== undefined) {
+                        balance = data.balance;
+                        document.getElementById('balance').textContent = formatNumber(balance);
+                    }
+                } else {
+                    console.error('Failed to update balance via API:', response.status);
+                    // Fallback: update via Supabase directly
+                    try {
+                        const { data: leaderboardData } = await supabase
+                            .from('leaderboard')
+                            .select('tama')
+                            .eq('telegram_id', userId)
+                            .maybeSingle();
+                        
+                        if (leaderboardData) {
+                            const currentBalance = leaderboardData.tama || 0;
+                            const newBalance = currentBalance + amount;
+                            
+                            await supabase
+                                .from('leaderboard')
+                                .update({ tama: newBalance })
+                                .eq('telegram_id', userId);
+                            
+                            balance = newBalance;
+                            document.getElementById('balance').textContent = formatNumber(balance);
+                            
+                            // Log transaction
+                            await supabase.from('transactions').insert({
+                                telegram_id: userId,
+                                amount: amount,
+                                type: amount > 0 ? 'slots_win' : 'slots_spin',
+                                balance_before: currentBalance,
+                                balance_after: newBalance,
+                                metadata: JSON.stringify({ source: 'slots.html', fallback: true })
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Failed to update balance via Supabase:', e);
+                    }
+                }
             } catch (error) {
                 console.error('Failed to update balance:', error);
             }

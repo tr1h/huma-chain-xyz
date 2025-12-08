@@ -4432,6 +4432,8 @@ function handleSlotsSpin($url, $key) {
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
         
+        error_log("🎰 Slots spin request: " . json_encode($data));
+        
         $telegramId = $data['telegram_id'] ?? null;
         $amount = (int)($data['amount'] ?? 0);
         $bet = (int)($data['bet'] ?? 0);
@@ -4449,8 +4451,9 @@ function handleSlotsSpin($url, $key) {
         ]);
         
         if (empty($balanceResult['data'])) {
+            error_log("❌ User not found in leaderboard: " . $telegramId);
             http_response_code(404);
-            echo json_encode(['error' => 'User not found']);
+            echo json_encode(['error' => 'User not found', 'telegram_id' => $telegramId]);
             return;
         }
         
@@ -4458,16 +4461,22 @@ function handleSlotsSpin($url, $key) {
         $currentBalance = (int)$user['tama'];
         $newBalance = $currentBalance + $amount;
         
+        error_log("💰 Balance update: {$currentBalance} + {$amount} = {$newBalance}");
+        
         // Update balance
-        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+        $updateResult = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
             'telegram_id' => 'eq.' . $telegramId
         ], [
             'tama' => $newBalance
         ]);
         
+        if (isset($updateResult['error'])) {
+            error_log("❌ Failed to update balance: " . json_encode($updateResult['error']));
+        }
+        
         // Log transaction
         $transactionType = $amount < 0 ? 'slots_bet' : 'slots_win';
-        supabaseRequest($url, $key, 'POST', 'transactions', [], [
+        $transactionResult = supabaseRequest($url, $key, 'POST', 'transactions', [], [
             'telegram_id' => $telegramId,
             'amount' => $amount,
             'balance_before' => $currentBalance,
@@ -4480,15 +4489,23 @@ function handleSlotsSpin($url, $key) {
             ])
         ]);
         
+        if (isset($transactionResult['error'])) {
+            error_log("⚠️ Failed to log transaction: " . json_encode($transactionResult['error']));
+        }
+        
+        error_log("✅ Slots spin successful: balance = {$newBalance}");
+        
         echo json_encode([
             'success' => true,
             'balance' => $newBalance,
-            'amount' => $amount
+            'amount' => $amount,
+            'balance_before' => $currentBalance,
+            'balance_after' => $newBalance
         ]);
         
     } catch (Exception $e) {
         http_response_code(500);
-        error_log('Slots spin error: ' . $e->getMessage());
+        error_log('❌ Slots spin error: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
         echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
     }
 }
