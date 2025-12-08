@@ -224,7 +224,7 @@ def get_referral_settings():
     try:
         # Try to get from Supabase referral_settings table
         response = supabase.table('referral_settings').select('*').execute()
-        
+
         if response.data:
             settings = {}
             for s in response.data:
@@ -232,7 +232,7 @@ def get_referral_settings():
             return settings
     except Exception as e:
         print(f"Error getting referral settings: {e}")
-    
+
     # Fallback to defaults if DB not available
     return {
         'referral_reward': 1000,
@@ -255,10 +255,10 @@ def get_referral_settings():
 def get_user_language(user_id):
     """
     Get user's preferred language from database
-    
+
     Args:
         user_id: Telegram user ID
-    
+
     Returns:
         Language code ('en', 'ru') or None if not set
     """
@@ -268,34 +268,34 @@ def get_user_language(user_id):
             .select('preferred_language') \
             .eq('telegram_id', str(user_id)) \
             .execute()
-        
+
         if response.data and len(response.data) > 0:
             lang = response.data[0].get('preferred_language')
             if lang:
                 return lang
-        
+
         # Fallback to telegram_users
         response = supabase.table('telegram_users') \
             .select('preferred_language') \
             .eq('telegram_id', str(user_id)) \
             .execute()
-        
+
         if response.data and len(response.data) > 0:
             return response.data[0].get('preferred_language')
     except Exception as e:
         print(f"Error getting user language: {e}")
-    
+
     return None
 
 
 def save_user_language(user_id, lang):
     """
     Save user's language preference to database
-    
+
     Args:
         user_id: Telegram user ID
         lang: Language code ('en' or 'ru')
-    
+
     Returns:
         True if saved successfully, False otherwise
     """
@@ -312,7 +312,7 @@ def save_user_language(user_id, lang):
             print(f"✅ Saved language '{lang}' for user {user_id} in leaderboard")
         except Exception as lb_error:
             print(f"⚠️ Could not save to leaderboard: {lb_error}")
-        
+
         # Also save to telegram_users if it exists
         try:
             telegram_users_update = supabase.table('telegram_users') \
@@ -324,7 +324,7 @@ def save_user_language(user_id, lang):
             print(f"✅ Saved language '{lang}' for user {user_id} in telegram_users")
         except Exception as tu_error:
             print(f"⚠️ Could not save to telegram_users: {tu_error}")
-        
+
         return True
     except Exception as e:
         print(f"❌ Error saving user language: {e}")
@@ -338,33 +338,33 @@ def determine_user_language(message):
     2. Telegram language code
     3. Auto-detection from message text
     4. Default: 'en'
-    
+
     Args:
         message: Telegram message object
-    
+
     Returns:
         Language code ('en' or 'ru')
     """
     user_id = message.from_user.id
-    
+
     # 1. Check saved preference
     saved_lang = get_user_language(user_id)
     if saved_lang:
         return saved_lang
-    
+
     # 2. Check Telegram language code
     if hasattr(message.from_user, 'language_code') and message.from_user.language_code:
         telegram_lang = message.from_user.language_code.lower()
         # Russian and CIS languages
         if telegram_lang in ['ru', 'uk', 'be', 'kk', 'uz', 'ky']:
             return 'ru'
-    
+
     # 3. Auto-detect from message text
     if LOCALIZATION_ENABLED and message.text:
         detected = detect_language(message.text)
         if detected:
             return detected
-    
+
     # 4. Default
     return 'en'
 
@@ -397,7 +397,7 @@ def add_tama_reward(telegram_id, amount, source="game", apply_nft_multiplier=Tru
                     print(f"🎁 NFT Boost applied: {original_amount} TAMA × {multiplier}x = {amount} TAMA")
             except Exception as e:
                 print(f"Error applying NFT multiplier: {e}")
-        
+
         response = requests.post(f"{TAMA_API_BASE}/add", json={
             "user_id": telegram_id,
             "user_type": "telegram",
@@ -497,17 +497,17 @@ def generate_referral_code(telegram_id):
     """Generate a beautiful referral code from Telegram ID only - NO WALLET NEEDED!"""
     import hashlib
     import re
-    
+
     # Validate telegram_id
     if not telegram_id or not str(telegram_id).isdigit():
         raise ValueError("Invalid Telegram ID")
-    
+
     # Use SHA256 for better distribution (SAME as game)
     hash_bytes = hashlib.sha256(str(telegram_id).encode()).digest()
     # Take first 3 bytes and convert to base36 (SAME as game)
     hash_val = int.from_bytes(hash_bytes[:3], 'big')
     code_num = hash_val % (36 ** 6)
-    
+
     # Convert to base36 (0-9, A-Z) - SAME as game
     def to_base36(num):
         chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -516,7 +516,7 @@ def generate_referral_code(telegram_id):
             result = chars[num % 36] + result
             num //= 36
         return result.zfill(6)[:6]
-    
+
     code_part = to_base36(code_num)
     return f"TAMA{code_part}"
 
@@ -540,13 +540,13 @@ def find_telegram_by_referral_code(ref_code):
             return None
         # Try to find by referral_code in leaderboard (fast lookup)
         response = supabase.table('leaderboard').select('telegram_id').eq('referral_code', ref_code).execute()
-        
+
         if response.data and len(response.data) > 0:
             return response.data[0]['telegram_id']
-        
+
         # Fallback: Generate codes for all users and find match
         response = supabase.table('leaderboard').select('telegram_id').execute()
-        
+
         for user in response.data:
             if user.get('telegram_id'):
                 # Generate code for this user
@@ -557,7 +557,7 @@ def find_telegram_by_referral_code(ref_code):
                         'referral_code': ref_code
                     }).eq('telegram_id', user['telegram_id']).execute()
                     return user['telegram_id']
-        
+
         return None
     except Exception as e:
         print(f"Error finding telegram_id by code: {e}")
@@ -570,24 +570,24 @@ def get_stats():
         response = supabase.table('leaderboard').select('*', count='exact').execute()
         players = response.count or 0
         pets = players  # Same as players for now
-        
+
         # Get total NFTs minted
         try:
             nft_response = supabase.table('user_nfts').select('*', count='exact').execute()
             nfts_minted = nft_response.count or 0
         except:
             nfts_minted = 0
-        
+
         # Get total TAMA in circulation (sum of all balances)
         try:
             tama_response = supabase.table('leaderboard').select('tama').execute()
             total_tama = sum(row.get('tama', 0) or 0 for row in tama_response.data) if tama_response.data else 0
         except:
             total_tama = 0
-        
+
         return {
-            'players': players, 
-            'pets': pets, 
+            'players': players,
+            'pets': pets,
             'price': '0.3 SOL',
             'nfts_minted': nfts_minted,
             'total_tama': total_tama
@@ -612,7 +612,7 @@ def log_activity(user_id, action, details=""):
     """Log user activity"""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logging.info(f"ACTIVITY: User {user_id} - {action} - {details}")
-    
+
     # Track requests per minute
     current_minute = int(time.time() // 60)
     monitoring_stats['requests_per_minute'][current_minute] += 1
@@ -629,21 +629,21 @@ def send_admin_alert(message):
 def check_suspicious_activity(user_id, action):
     """Check for suspicious activity patterns"""
     current_time = time.time()
-    
+
     # Check for high request rate
     current_minute = int(current_time // 60)
     requests_this_minute = monitoring_stats['requests_per_minute'][current_minute]
-    
+
     if requests_this_minute > 50:  # More than 50 requests per minute
         monitoring_stats['suspicious_activities'] += 1
         send_admin_alert(f"⚠️ **HIGH REQUEST RATE DETECTED**\n\nUser: {user_id}\nRequests this minute: {requests_this_minute}\nAction: {action}")
         return True
-    
+
     # Check for rapid referral attempts
     if action == "referral_attempt":
         # This would need more sophisticated tracking
         pass
-    
+
     return False
 
 def safe_edit_message_text(text, chat_id, message_id, parse_mode=None, reply_markup=None):
@@ -665,9 +665,9 @@ def log_error(error_type, details, user_id=None):
     error_msg = f"ERROR: {error_type} - {details}"
     if user_id:
         error_msg += f" - User: {user_id}"
-    
+
     logging.error(error_msg)
-    
+
     # Send alert for critical errors
     if error_type in ['database_error', 'security_violation', 'system_failure']:
         send_admin_alert(f"⚠️ **CRITICAL ERROR**\n\nType: {error_type}\nDetails: {details}\nUser: {user_id}")
@@ -702,27 +702,27 @@ def has_banned_words(text):
 def handle_group_message(message):
     user_id = message.from_user.id
     chat_id = message.chat.id
-    
+
     # Debug: log group messages (safely handle unicode)
     try:
         print(f"Group message: {message.chat.title} (ID: {chat_id}) from {message.from_user.first_name}")
     except UnicodeEncodeError:
         print(f"Group message from user {user_id} in chat {chat_id}")
-    
+
     # IMPORTANT: Ignore messages from the bot itself!
     if message.from_user.is_bot:
         return
-    
+
     # FAQ AUTO-RESPONSE (process BEFORE anti-spam for admins too)
     if FAQ_ENABLED and faq_handler and message.text:
         try:
             response_type, response_text = faq_handler.process_message(message.text)
-            
+
             if response_type in ['spam', 'faq', 'default'] and response_text:
                 # Send FAQ response
                 bot.reply_to(message, response_text, parse_mode='Markdown')
                 print(f"✅ FAQ response sent: {response_type}")
-                
+
                 # If it's spam, also notify admins
                 if response_type == 'spam':
                     admin_alert = f"🚨 SPAM DETECTED in {message.chat.title}\n\n"
@@ -730,20 +730,20 @@ def handle_group_message(message):
                     admin_alert += f"Message: {message.text[:200]}\n\n"
                     admin_alert += f"Auto-response sent: {response_text[:100]}..."
                     send_admin_alert(admin_alert)
-                
+
                 # Don't continue with other checks if FAQ handled it
                 return
         except Exception as e:
             print(f"⚠️ FAQ handler error: {e}")
-    
+
     # Skip if admin - no anti-spam for admins
     if is_admin(user_id):
         return
-    
+
     # Skip if group is exempt from anti-spam
     if chat_id in EXEMPT_GROUP_IDS:
         return
-    
+
     # Check mute
     if is_muted(user_id, chat_id):
         try:
@@ -751,7 +751,7 @@ def handle_group_message(message):
         except:
             pass
         return
-    
+
     # Check spam
     if check_spam(user_id):
         try:
@@ -760,7 +760,7 @@ def handle_group_message(message):
         except:
             pass
         return
-    
+
     # Check banned words
     if message.text and has_banned_words(message.text):
         try:
@@ -775,11 +775,11 @@ def handle_group_message(message):
 def handle_start(message):
     user_id = message.from_user.id
     log_activity(user_id, "start_command")
-    
+
     # Check for suspicious activity
     if check_suspicious_activity(user_id, "start_command"):
         return
-    
+
     # Check if it's a referral link
     if len(message.text.split()) > 1:
         ref_param = message.text.split()[1]
@@ -791,12 +791,12 @@ def handle_start(message):
                 # Store referral info
                 user_id = message.from_user.id
                 username = message.from_user.username or message.from_user.first_name
-                
+
                 # Find referrer telegram_id by code (NO WALLET NEEDED!)
                 try:
                     # Find by referral code directly
                     referrer_telegram_id = find_telegram_by_referral_code(ref_code)
-                    
+
                     if referrer_telegram_id:
                         # Get username
                         referrer_response = supabase.table('leaderboard').select('telegram_username').eq('telegram_id', str(referrer_telegram_id)).execute()
@@ -804,17 +804,17 @@ def handle_start(message):
                     else:
                         referrer_telegram_id = None
                         referrer_username = 'Friend'
-                    
+
                     # Check self-referral
                     if referrer_telegram_id and str(referrer_telegram_id) == str(user_id):
                         bot.reply_to(message, "❌ You cannot refer yourself!")
                         return
-                    
+
                     # Save pending referral to database
                     if referrer_telegram_id:
                         # Check if referral already exists
                         existing = supabase.table('pending_referrals').select('*').eq('referrer_telegram_id', str(referrer_telegram_id)).eq('referred_telegram_id', str(user_id)).execute()
-                        
+
                         if not existing.data:
                             supabase.table('pending_referrals').insert({
                                 'referrer_telegram_id': str(referrer_telegram_id),
@@ -827,30 +827,30 @@ def handle_start(message):
                             print(f"✅ Saved pending referral: {referrer_telegram_id} -> {user_id}")
                         else:
                             print(f"тЪая╕П Referral already exists: {referrer_telegram_id} -> {user_id}")
-                        
+
                         # IMMEDIATE TAMA REWARD - ╨╜╨░╤З╨╕╤Б╨╗╤П╨╡╨╝ TAMA ╤Б╤А╨░╨╖╤Г! (NO WALLET NEEDED!)
                         # Only award if this is a NEW referral
                         if not existing.data:
                             try:
                                 # ╨Э╨░╨╣╤В╨╕ ╨╕╨╗╨╕ ╤Б╨╛╨╖╨┤╨░╤В╤М ╤А╨╡╤Д╨╡╤А╨╡╤А╨░ ╨▓ leaderboard
                                 referrer_data = supabase.table('leaderboard').select('*').eq('telegram_id', str(referrer_telegram_id)).execute()
-                                
+
                                 if referrer_data.data and len(referrer_data.data) > 0:
                                     referrer = referrer_data.data[0]
                                     current_tama = referrer.get('tama', 0) or 0
-                                    
+
                                     # Get referral reward from settings (or default 1000)
                                     settings = get_referral_settings()
                                     referral_reward = settings.get('referral_reward', 1000)
                                     new_tama = current_tama + referral_reward
-                                    
+
                                     # ╨Ю╨▒╨╜╨╛╨▓╨╕╤В╤М TAMA ╨▒╨░╨╗╨░╨╜╤Б
                                     supabase.table('leaderboard').update({
                                         'tama': new_tama
                                     }).eq('telegram_id', str(referrer_telegram_id)).execute()
-                                    
+
                                     print(f"💰 Awarded {referral_reward} TAMA to {referrer_telegram_id} (new balance: {new_tama})")
-                                    
+
                                     # 🔔 Notify admins about new referral
                                     try:
                                         referrer_username_display = referrer.get('telegram_username', 'Unknown')
@@ -893,11 +893,11 @@ def handle_start(message):
                                         'referral_code': referrer_ref_code
                                     }).execute()
                                     print(f"💰 Created new user and awarded {referral_reward} TAMA to {referrer_telegram_id}")
-                                
+
                                 # ╨б╨╛╨╖╨┤╨░╤В╤М ╨╖╨░╨┐╨╕╤Б╤М ╨▓ referrals ╨┤╨╗╤П ╨╛╤В╤Б╨╗╨╡╨╢╨╕╨▓╨░╨╜╨╕╤П (NO WALLET!)
                                 # Check if referral record already exists
                                 existing_ref = supabase.table('referrals').select('*').eq('referrer_telegram_id', str(referrer_telegram_id)).eq('referred_telegram_id', str(user_id)).execute()
-                                
+
                                 if not existing_ref.data:
                                     supabase.table('referrals').insert({
                                         'referrer_telegram_id': str(referrer_telegram_id),
@@ -911,22 +911,22 @@ def handle_start(message):
                                         'reward_given': get_referral_settings().get('referral_reward', 1000)
                                     }).execute()
                                     print(f"✅ Created referral record for {referrer_telegram_id} -> {user_id}")
-                                    
+
                                     # 🎁 ╨Я╨а╨Ю╨Т╨Х╨а╨Ъ╨Р ╨Ь╨Ш╨Ы╨Х╨б╨в╨Ю╨г╨Э╨Ю╨Т
                                     try:
                                         # ╨Я╨╛╨┤╤Б╤З╨╕╤В╨░╤В╤М ╨╛╨▒╤Й╨╡╨╡ ╨║╨╛╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ ╤А╨╡╤Д╨╡╤А╨░╨╗╨╛╨▓
                                         total_refs_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', str(referrer_telegram_id)).execute()
                                         total_pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', str(referrer_telegram_id)).eq('status', 'pending').execute()
-                                        
+
                                         total_referrals = (total_refs_response.count or 0) + (total_pending_response.count or 0)
-                                        
+
                                         # ╨Я╤А╨╛╨▓╨╡╤А╨╕╤В╤М ╨╝╨╕╨╗╨╡╤Б╤В╨╛╤Г╨╜╤Л
                                         milestone_bonus = 0
                                         milestone_text = ""
-                                        
+
                                         # Expanded milestone system (hybrid) - using settings from DB
                                         settings = get_referral_settings()
-                                        
+
                                         milestone_map = {
                                             1: ('milestone_1', "🎉 **FIRST STEP!**\n\n🎯 **1 Referral → +{amount} TAMA Bonus!**"),
                                             3: ('milestone_3', "🎉 **GETTING STARTED!**\n\n🎯 **3 Referrals → +{amount} TAMA Bonus!**"),
@@ -942,40 +942,40 @@ def handle_start(message):
                                             500: ('milestone_500', "🎉 **LEGENDARY MILESTONE!**\n\n🌟 **500 Referrals → +{amount} TAMA + Legend Badge!**"),
                                             1000: ('milestone_1000', "🎉 **MYTHIC MILESTONE!**\n\n⚡ **1,000 Referrals → +{amount} TAMA + Mythic Badge!**")
                                         }
-                                        
+
                                         if total_referrals in milestone_map:
                                             setting_key, text_template = milestone_map[total_referrals]
                                             milestone_bonus = settings.get(setting_key, 0)
                                             milestone_text = text_template.format(amount=f"{milestone_bonus:,}")
-                                        
+
                                         # ╨Э╨░╤З╨╕╤Б╨╗╨╕╤В╤М ╨╝╨╕╨╗╨╡╤Б╤В╨╛╤Г╨╜ ╨▒╨╛╨╜╤Г╤Б
                                         if milestone_bonus > 0:
                                             # ╨Я╨╛╨╗╤Г╤З╨╕╤В╤М ╤В╨╡╨║╤Г╤Й╨╕╨╣ ╨▒╨░╨╗╨░╨╜╤Б
                                             current_balance_response = supabase.table('leaderboard').select('tama').eq('telegram_id', str(referrer_telegram_id)).execute()
                                             current_balance = current_balance_response.data[0].get('tama', 0) if current_balance_response.data else 0
                                             new_balance = current_balance + milestone_bonus
-                                            
+
                                             # ╨Ю╨▒╨╜╨╛╨▓╨╕╤В╤М ╨▒╨░╨╗╨░╨╜╤Б
                                             supabase.table('leaderboard').update({
                                                 'tama': new_balance
                                             }).eq('telegram_id', str(referrer_telegram_id)).execute()
-                                            
+
                                             print(f"🎁 Milestone bonus: {milestone_bonus} TAMA to {referrer_telegram_id} (new balance: {new_balance})")
-                                            
+
                                             # ╨Ю╤В╨┐╤А╨░╨▓╨╕╤В╤М ╤Г╨▓╨╡╨┤╨╛╨╝╨╗╨╡╨╜╨╕╨╡ ╨╛ ╨╝╨╕╨╗╨╡╤Б╤В╨╛╤Г╨╜╨╡
                                             try:
                                                 bot.send_message(
-                                                    int(referrer_telegram_id), 
-                                                    milestone_text, 
+                                                    int(referrer_telegram_id),
+                                                    milestone_text,
                                                     parse_mode='Markdown'
                                                 )
                                                 print(f"🎁 Sent milestone notification to {referrer_telegram_id}")
                                             except Exception as milestone_notify_error:
                                                 print(f"Error sending milestone notification: {milestone_notify_error}")
-                                                
+
                                     except Exception as milestone_error:
                                         print(f"Error processing milestone: {milestone_error}")
-                                    
+
                                     # ЁЯФФ ╨г╨Т╨Х╨Ф╨Ю╨Ь╨Ы╨Х╨Э╨Ш╨Х ╨а╨Х╨д╨Х╨а╨Х╨а╨г ╨Ю ╨Э╨Ю╨Т╨Ю╨Ь ╨а╨Х╨д╨Х╨а╨Р╨Ы╨Х
                                     try:
                                         notification_text = f"""
@@ -987,26 +987,26 @@ def handle_start(message):
 
 🔗 *Keep sharing your link to earn more!*
                                         """
-                                        
+
                                         bot.send_message(
-                                            int(referrer_telegram_id), 
-                                            notification_text, 
+                                            int(referrer_telegram_id),
+                                            notification_text,
                                             parse_mode='Markdown'
                                         )
                                         print(f"ЁЯФФ Sent notification to referrer {referrer_telegram_id}")
-                                        
+
                                     except Exception as notify_error:
                                         print(f"Error sending notification: {notify_error}")
-                                    
+
                             except Exception as tama_error:
                                 print(f"Error awarding TAMA: {tama_error}")
                                 log_error("tama_award_error", str(tama_error), user_id)
                 except Exception as e:
                     print(f"Error saving pending referral: {e}")
-                
+
                 # Determine language
                 lang = determine_user_language(message)
-                
+
                 # Send welcome with referral info (localized)
                 if lang == 'ru':
                     welcome_text = f"""
@@ -1028,7 +1028,7 @@ def handle_start(message):
 🚀 *Готов начать зарабатывать?*
                     """
                 else:
-                    welcome_text = f"""
+                welcome_text = f"""
 🎉 *Welcome to Solana Tamagotchi!*
 
 You were invited by a friend! 🎁
@@ -1045,8 +1045,8 @@ You were invited by a friend! 🎁
 • 💰 Daily rewards & achievements
 
 🚀 *Ready to start earning?*
-                    """
-                
+                """
+
                 keyboard = types.InlineKeyboardMarkup()
                 keyboard.row(
                     types.InlineKeyboardButton("🔗 Get My Referral Link", callback_data="get_referral"),
@@ -1056,13 +1056,13 @@ You were invited by a friend! 🎁
                     types.InlineKeyboardButton("🏅 Leaderboard", callback_data="leaderboard"),
                     types.InlineKeyboardButton("🎖️ Reviews & Feedback", url="https://t.me/gotchigamechat")
                 )
-                
+
                 bot.reply_to(message, welcome_text, parse_mode='Markdown', reply_markup=keyboard)
                 return
-                
+
             except Exception as e:
                 print(f"Error processing referral: {e}")
-    
+
     # Regular start command
     send_welcome(message)
 
@@ -1073,15 +1073,15 @@ You were invited by a friend! 🎁
 def choose_language_command(message):
     """Allow user to choose their preferred language"""
     user_id = message.from_user.id
-    
+
     # Get current language
     current_lang = determine_user_language(message)
-    
+
     if LOCALIZATION_ENABLED:
         # Show language selection keyboard
         text = get_language_selection_message(current_lang)
         keyboard = create_language_keyboard()
-        
+
         bot.send_message(
             user_id,
             text,
@@ -1097,18 +1097,18 @@ def choose_language_command(message):
 def show_language_selector(call):
     """Show language selection when user clicks Language button"""
     user_id = call.from_user.id
-    
+
     if not LOCALIZATION_ENABLED:
         bot.answer_callback_query(call.id, "⚠️ Not available")
         return
-    
+
     # Get current language
     current_lang = get_user_language(user_id) or 'en'
-    
+
     # Show language selection keyboard
     text = get_language_selection_message(current_lang)
     keyboard = create_language_keyboard()
-    
+
     try:
         bot.edit_message_text(
             text,
@@ -1127,14 +1127,14 @@ def show_language_selector(call):
 def handle_language_selection_callback(call):
     """Handle language selection from inline keyboard"""
     user_id = call.from_user.id
-    
+
     if not LOCALIZATION_ENABLED:
         bot.answer_callback_query(call.id, "⚠️ Not available")
         return
-    
+
     # Get selected language
     new_lang = handle_language_callback(call.data)  # 'en' or 'ru'
-    
+
     # Save to database
     if save_user_language(user_id, new_lang):
         # Just show checkmark in notification (no separate message)
@@ -1142,25 +1142,25 @@ def handle_language_selection_callback(call):
             bot.answer_callback_query(call.id, "✅ Язык изменён на русский")
         else:
             bot.answer_callback_query(call.id, "✅ Language changed to English")
-        
+
         # Delete old message
         try:
             bot.delete_message(call.message.chat.id, call.message.message_id)
         except:
             pass
-        
+
         # Get user stats for welcome message
         telegram_id = str(call.from_user.id)
         streak_days = daily_rewards.get_streak(telegram_id)
         can_claim, _ = daily_rewards.can_claim(telegram_id)
-        
+
         # Fetch TAMA balance
         try:
             leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
             user_data = leaderboard_response.data[0] if leaderboard_response.data else {}
             tama_balance = user_data.get('tama', 0)
             level = user_data.get('level', 1)
-            
+
             # Show balance in welcome message
             if new_lang == 'ru':
                 balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})"
@@ -1168,7 +1168,7 @@ def handle_language_selection_callback(call):
                 balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
         except Exception as e:
             balance_text = "💰 *Your Balance:* Loading..." if new_lang == 'en' else "💰 *Твой баланс:* Загрузка..."
-        
+
         # Use localized welcome text
         if LOCALIZATION_ENABLED:
             welcome_text = t('help', new_lang)
@@ -1179,24 +1179,24 @@ def handle_language_selection_callback(call):
                 welcome_text = welcome_text.replace('/stats - Check your stats', f'/stats - Check your stats\n\n{balance_text}\n🔥 Streak: {streak_days} days')
         else:
             welcome_text = f"""🎮 Welcome to Solana Tamagotchi!
-            
+
 {balance_text}
 🔥 Streak: {streak_days} days"""
-        
+
         # Create inline keyboard with localized buttons
         keyboard = types.InlineKeyboardMarkup()
-        
+
         # Get user's wallet for referral links
         username = call.from_user.username or call.from_user.first_name
         wallet_address = get_wallet_by_telegram(telegram_id)
-        
+
         if wallet_address:
             game_url = f"{GAME_URL}?ref={wallet_address}&tg_id={user_id}&tg_username={username}"
             mint_url = f"{MINT_URL}?ref={wallet_address}&tg_id={user_id}&tg_username={username}"
         else:
             game_url = GAME_URL
             mint_url = MINT_URL
-        
+
         # Localized button texts
         if new_lang == 'ru':
             daily_text = "Ежедневная награда"
@@ -1222,49 +1222,49 @@ def handle_language_selection_callback(call):
             rank_text = "My Rank"
             leaderboard_text = "Leaderboard"
             community_text = "Community"
-        
+
         # Row 1: Daily Reward (highlight if available)
         daily_emoji = "🎁⭐" if can_claim else "🎁"
         keyboard.row(types.InlineKeyboardButton(f"{daily_emoji} {daily_text}", callback_data="daily_reward"))
-        
+
         # Row 2: NFT Menu
         keyboard.row(
             types.InlineKeyboardButton(f"🖼️ {my_nfts_text}", callback_data="my_nfts"),
             types.InlineKeyboardButton(f"🎨 {mint_nft_text}", callback_data="mint_nft")
         )
-        
+
         # Row 3: Withdrawal Button
         keyboard.row(types.InlineKeyboardButton(f"💸 {withdraw_text}", callback_data="withdraw_tama"))
-        
+
         # Row 4: Referral
         keyboard.row(types.InlineKeyboardButton(f"🔗 {referral_text}", callback_data="get_referral"))
-        
+
         # Row 5: Stats & Quests
         keyboard.row(
             types.InlineKeyboardButton(f"📊 {stats_text}", callback_data="my_stats_detailed"),
             types.InlineKeyboardButton(f"📋 {quests_text}", callback_data="view_quests")
         )
-        
+
         # Row 6: Badges & Rank
         keyboard.row(
             types.InlineKeyboardButton(f"🏆 {badges_text}", callback_data="view_badges"),
             types.InlineKeyboardButton(f"🎖️ {rank_text}", callback_data="view_rank")
         )
-        
+
         # Row 7: Leaderboard
         keyboard.row(types.InlineKeyboardButton(f"🏅 {leaderboard_text}", callback_data="leaderboard"))
-        
+
         # Row 8: Community + Language
         keyboard.row(
             types.InlineKeyboardButton(f"👥 {community_text}", url="https://t.me/gotchigamechat"),
             types.InlineKeyboardButton("🌍 Language", callback_data="lang_select")
         )
-        
+
         # Add language hint
         if LOCALIZATION_ENABLED:
             lang_hint = t('language_command_info', new_lang)
             welcome_text += f"\n\n{lang_hint}"
-        
+
         # Send new message with confirmation
         confirmation_msg = confirmation + "\n\n---\n\n"
         bot.send_message(
@@ -1281,12 +1281,12 @@ def handle_language_selection_callback(call):
 def send_welcome(message):
     # Determine user language
     lang = determine_user_language(message)
-    
+
     # Get user stats
     telegram_id = str(message.from_user.id)
     streak_days = daily_rewards.get_streak(telegram_id)
     can_claim, _ = daily_rewards.can_claim(telegram_id)
-    
+
     # ✅ FETCH FRESH TAMA BALANCE (in case user minted NFT on website)
     try:
         leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
@@ -1294,16 +1294,16 @@ def send_welcome(message):
         tama_balance = user_data.get('tama', 0)
         level = user_data.get('level', 1)
         xp = user_data.get('xp', 0)
-        
+
         # Show balance in welcome message
         if lang == 'ru':
             balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})"
         else:
-            balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
+        balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
     except Exception as e:
         print(f"⚠️ Failed to fetch balance in send_welcome: {e}")
         balance_text = "💰 *Your Balance:* Loading..." if lang == 'en' else "💰 *Твой баланс:* Загрузка..."
-    
+
     # Use localized welcome text if available
     if LOCALIZATION_ENABLED:
         welcome_text = t('help', lang)
@@ -1314,7 +1314,7 @@ def send_welcome(message):
             welcome_text = welcome_text.replace('/stats - Check your stats', f'/stats - Check your stats\n\n{balance_text}\n🔥 Streak: {streak_days} days')
     else:
         # Fallback to old text
-        welcome_text = f"""
+    welcome_text = f"""
 🎮 *Welcome to Solana Tamagotchi!*
 
 *The ultimate Play-to-Earn NFT pet game on Solana!*
@@ -1333,15 +1333,15 @@ def send_welcome(message):
 
 📄 *Legal:* [Terms](https://solanatamagotchi.com/terms) • [Privacy](https://solanatamagotchi.com/privacy) • [Risk Warning](https://solanatamagotchi.com/disclaimer)
     """
-    
+
     # Create inline keyboard with gamification
     keyboard = types.InlineKeyboardMarkup()
-    
+
     # Get user's wallet for referral links
     user_id = message.from_user.id
     username = message.from_user.username or message.from_user.first_name
     wallet_address = get_wallet_by_telegram(str(user_id))
-    
+
     if wallet_address:
         # User has wallet - create referral links
         game_url = f"{GAME_URL}?ref={wallet_address}&tg_id={user_id}&tg_username={username}"
@@ -1350,7 +1350,7 @@ def send_welcome(message):
         # No wallet - use regular links
         game_url = GAME_URL
         mint_url = MINT_URL
-    
+
     # Localized button texts
     if lang == 'ru':
         daily_text = "Ежедневная награда"
@@ -1376,57 +1376,57 @@ def send_welcome(message):
         rank_text = "My Rank"
         leaderboard_text = "Leaderboard"
         community_text = "Community"
-    
+
     # Row 1: Daily Reward (highlight if available)
     daily_emoji = "🎁⭐" if can_claim else "🎁"
     keyboard.row(
         types.InlineKeyboardButton(f"{daily_emoji} {daily_text}", callback_data="daily_reward")
     )
-    
+
     # Row 2: NFT Menu (NEW!)
     keyboard.row(
         types.InlineKeyboardButton(f"🖼️ {my_nfts_text}", callback_data="my_nfts"),
         types.InlineKeyboardButton(f"🎨 {mint_nft_text}", callback_data="mint_nft")
     )
-    
+
     # Row 3: Withdrawal Button (NEW!)
     keyboard.row(
         types.InlineKeyboardButton(f"💸 {withdraw_text}", callback_data="withdraw_tama")
     )
-    
+
     # Row 4: Referral (Mini-Games removed - available in main game)
     keyboard.row(
         types.InlineKeyboardButton(f"🔗 {referral_text}", callback_data="get_referral")
     )
-    
+
     # Row 5: Stats & Quests
     keyboard.row(
         types.InlineKeyboardButton(f"📊 {stats_text}", callback_data="my_stats_detailed"),
         types.InlineKeyboardButton(f"📋 {quests_text}", callback_data="view_quests")
     )
-    
+
     # Row 6: Badges & Rank
     keyboard.row(
         types.InlineKeyboardButton(f"🏆 {badges_text}", callback_data="view_badges"),
         types.InlineKeyboardButton(f"🎖️ {rank_text}", callback_data="view_rank")
     )
-    
+
     # Row 7: Leaderboard only (Play Game moved to bottom menu)
     keyboard.row(
         types.InlineKeyboardButton(f"🏅 {leaderboard_text}", callback_data="leaderboard")
     )
-    
+
     # Row 8: Community + Language
     keyboard.row(
         types.InlineKeyboardButton(f"👥 {community_text}", url="https://t.me/gotchigamechat"),
         types.InlineKeyboardButton("🌍 Language", callback_data="lang_select")
     )
-    
+
     # Add language hint
     if LOCALIZATION_ENABLED:
         lang_hint = t('language_command_info', lang)
         welcome_text += f"\n\n{lang_hint}"
-    
+
     bot.reply_to(message, welcome_text, parse_mode='Markdown', reply_markup=keyboard)
 
     # Set persistent menu button for this user (replaces default menu)
@@ -1448,42 +1448,58 @@ def send_welcome(message):
 # Slots game command
 @bot.message_handler(commands=['slots'])
 def open_slots(message):
-    """Open Lucky Slots game"""
-    telegram_id = message.from_user.id
-    slots_url = f"https://solanatamagotchi.com/slots.html?user_id={telegram_id}"
+    """Open Lucky Slots game - Interactive version"""
+    telegram_id = str(message.from_user.id)
     
-    keyboard = types.InlineKeyboardMarkup()
-    keyboard.add(
-        types.InlineKeyboardButton(
-            "🎰 Play Lucky Slots",
-            web_app=types.WebAppInfo(url=slots_url)
-        )
-    )
+    # Get user balance
+    try:
+        user_data = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+        balance = user_data.data[0]['tama'] if user_data.data else 0
+    except:
+        balance = 0
     
-    text = """
+    # Get free spins (daily reset)
+    today = datetime.now().date().isoformat()
+    try:
+        slots_data = supabase.table('slots_daily_stats').select('*').eq('telegram_id', telegram_id).eq('date', today).execute()
+        if slots_data.data:
+            free_spins = 3 - (slots_data.data[0].get('free_spins_used', 0))
+        else:
+            free_spins = 3
+    except:
+        free_spins = 3
+    
+    free_spins = max(0, free_spins)
+    
+    text = f"""
 🎰 **LUCKY SLOTS** 🎰
 
-💰 Win up to 100x your bet!
+💰 **Balance:** {balance:,} TAMA
+🎁 **Free Spins:** {free_spins} left today
 
-**How to Play:**
-• Choose your bet: 100, 500, or 2,000 TAMA
-• Click SPIN to play
-• Match 3 symbols to win!
-
-**Prizes:**
-• 🍒🍒🍒 → x2
-• 🍋🍋🍋 → x5
-• 🍊🍊🍊 → x8
-• 💎💎💎 → x10
-• ⭐⭐⭐ → x20
-• 👑👑👑 → x50
-• 🎰🎰🎰 → x100 🔥
-
-🎁 **3 FREE SPINS every day!**
-
-💰 95% RTP (Fair & Fun!)
+**Choose your bet:**
     """
     
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(
+        types.InlineKeyboardButton("💰 100 TAMA", callback_data=f"slots_spin_100"),
+        types.InlineKeyboardButton("💎 500 TAMA", callback_data=f"slots_spin_500"),
+    )
+    keyboard.add(
+        types.InlineKeyboardButton("👑 2,000 TAMA", callback_data=f"slots_spin_2000"),
+    )
+    if free_spins > 0:
+        keyboard.add(
+            types.InlineKeyboardButton(f"🎁 FREE SPIN ({free_spins} left)", callback_data=f"slots_spin_free"),
+        )
+    keyboard.add(
+        types.InlineKeyboardButton("📊 My Stats", callback_data="slots_stats"),
+        types.InlineKeyboardButton("🏆 Leaderboard", callback_data="slots_leaderboard"),
+    )
+    keyboard.add(
+        types.InlineKeyboardButton("🌐 Open Web Version", web_app=types.WebAppInfo(url=f"https://solanatamagotchi.com/slots.html?user_id={telegram_id}"))
+    )
+
     bot.send_message(
         message.chat.id,
         text,
@@ -1496,24 +1512,24 @@ def open_slots(message):
 def send_analytics(message):
     """Show referral analytics"""
     telegram_id = str(message.from_user.id)
-    
+
     try:
         # Get referral stats
         ref_response = supabase.table('referrals').select('*').eq('referrer_telegram_id', telegram_id).execute()
         pending_response = supabase.table('pending_referrals').select('*').eq('referrer_telegram_id', telegram_id).execute()
-        
+
         total_refs = len(ref_response.data or []) + len(pending_response.data or [])
         active_refs = len(ref_response.data or [])
         pending_refs = len(pending_response.data or [])
-        
+
         # Get real TAMA balance from leaderboard
         leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
         total_earned = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
-        
+
         # Get last 5 referrals
         recent = (ref_response.data or [])[:5]
         recent_text = "\n".join([f"• {r.get('created_at', 'N/A')[:10]} - {r.get('signup_reward', 0)} TAMA" for r in recent]) or "No referrals yet"
-        
+
         text = f"""
 📊 *Referral Analytics:*
 
@@ -1533,9 +1549,9 @@ def send_analytics(message):
 
 Use /ref to get your link!
         """
-        
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         print(f"Error getting analytics: {e}")
         bot.reply_to(message, "❌ Error loading analytics")
@@ -1545,32 +1561,32 @@ def send_stats(message):
     telegram_id = str(message.from_user.id)
     username = message.from_user.username or message.from_user.first_name
     lang = determine_user_language(message)
-    
+
     try:
         # Get player data from Supabase by telegram_id
         response = supabase.table('leaderboard').select('*').eq('telegram_id', telegram_id).execute()
-        
+
         if response.data:
             player = response.data[0]
-            
+
             # Get referral stats (active referrals with wallets)
             ref_l1_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).eq('level', 1).execute()
             ref_l2_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).eq('level', 2).execute()
-            
+
             level1_count = ref_l1_response.count or 0
             level2_count = ref_l2_response.count or 0
-            
+
             # Get pending referrals (not connected wallet yet)
             pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).eq('status', 'pending').execute()
             pending_count = pending_response.count or 0
-            
+
             # Calculate total earned from referrals (use real TAMA balance)
             level1_earned = sum([r.get('signup_reward', 0) for r in ref_l1_response.data]) if ref_l1_response.data else 0
             level2_earned = sum([r.get('signup_reward', 0) for r in ref_l2_response.data]) if ref_l2_response.data else 0
-            
+
             total_referrals = level1_count + level2_count + pending_count
             total_earned = player.get('tama', 0)  # Use real TAMA balance from leaderboard
-            
+
             if lang == 'ru':
                 text = f"""
 📊 *Твоя статистика:*
@@ -1596,7 +1612,7 @@ def send_stats(message):
 *Продолжай играть и приглашай друзей чтобы зарабатывать больше!* 🚀
 """
             else:
-                text = f"""
+            text = f"""
 📊 *Your Personal Stats:*
 
 🐾 *Your Pet:*
@@ -1618,18 +1634,18 @@ def send_stats(message):
 • `{player['wallet_address'][:8]}...{player['wallet_address'][-8:]}`
 
 *Keep playing and referring friends to earn more!* 🚀
-"""
+            """
         else:
             # No wallet linked yet - but show pending referrals!
             game_link = f"{GAME_URL}?tg_id={telegram_id}&tg_username={username}"
-            
+
             # Get pending referrals even without wallet
             try:
                 pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).eq('status', 'pending').execute()
                 pending_count = pending_response.count or 0
             except:
                 pending_count = 0
-            
+
             if lang == 'ru':
                 text = f"""
 📊 *Твоя статистика:*
@@ -1651,7 +1667,7 @@ def send_stats(message):
                 play_btn = "🎮 Начать играть"
                 mint_btn = "🎨 Минт NFT"
             else:
-                text = f"""
+            text = f"""
 📊 *Your Personal Stats:*
 
 ❌ *No wallet linked yet!*
@@ -1667,10 +1683,10 @@ To start playing and tracking your stats:
 4️⃣ All pending referrals will be activated!
 
 🎮 *Ready to start?*
-"""
+            """
                 play_btn = "🎮 Start Playing"
                 mint_btn = "🎨 Mint NFT"
-            
+
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
                 types.InlineKeyboardButton(play_btn, url=game_link),
@@ -1678,7 +1694,7 @@ To start playing and tracking your stats:
             )
             bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
             return
-        
+
         # Add buttons
         keyboard = types.InlineKeyboardMarkup()
         game_link = f"{GAME_URL}?tg_id={telegram_id}&tg_username={username}"
@@ -1687,12 +1703,12 @@ To start playing and tracking your stats:
                 types.InlineKeyboardButton("🔗 Поделиться реферальной", callback_data="get_referral")
             )
         else:
-            keyboard.row(
-                types.InlineKeyboardButton("🔗 Share Referral", callback_data="get_referral")
-            )
-        
+        keyboard.row(
+            types.InlineKeyboardButton("🔗 Share Referral", callback_data="get_referral")
+        )
+
         bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
-        
+
     except Exception as e:
         print(f"Error getting stats: {e}")
         bot.reply_to(message, "❌ Error getting your stats. Please try again later.")
@@ -1702,14 +1718,14 @@ def link_wallet(message):
     """Link wallet to Telegram account or show current wallet"""
     telegram_id = str(message.from_user.id)
     username = message.from_user.username or message.from_user.first_name
-    
+
     try:
         response = supabase.table('leaderboard').select('wallet_address').eq('telegram_id', telegram_id).execute()
-        
+
         if response.data and len(response.data) > 0:
             existing = response.data[0]
             wallet = existing.get('wallet_address', '')
-            
+
             if wallet and wallet != 'placeholder' and len(wallet) > 10:
                 text = f"""
 ✅ *Wallet Connected!*
@@ -1747,11 +1763,11 @@ To link your wallet to this Telegram account:
 
 *Example:* `/link DteCpGbnUjubW7EFUUexiHY8J1cTJmowFhFzK9jt6D2e`
             """
-        
+
     except Exception as e:
         print(f"Error in link command: {e}")
         text = "❌ Error. Please try again later."
-    
+
     bot.reply_to(message, text, parse_mode='Markdown')
 
 # ==================== WITHDRAWAL MESSAGE HANDLERS ====================
@@ -1763,7 +1779,7 @@ def process_wallet_address(message):
     """Process wallet address input for withdrawal"""
     telegram_id = str(message.from_user.id)
     wallet_address = message.text.strip()
-    
+
     # Validate Solana address (basic validation: 32-44 chars, base58)
     import re
     if not re.match(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$', wallet_address):
@@ -1780,10 +1796,10 @@ Try again or /cancel to abort.
         bot.send_message(message.chat.id, text, parse_mode='Markdown')
         bot.register_next_step_handler(message, process_wallet_address)
         return
-    
+
     # Store wallet address in session
     withdrawal_sessions[telegram_id] = {'wallet_address': wallet_address}
-    
+
     # Сохранить wallet address в базу данных для будущих использований
     try:
         supabase.table('leaderboard').update({
@@ -1793,12 +1809,12 @@ Try again or /cancel to abort.
     except Exception as e:
         print(f"⚠️ Error saving wallet address: {e}")
         # Продолжаем даже если сохранение не удалось
-    
+
     # Ask for amount
     try:
         leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
         tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
-        
+
         text = f"""
 ✅ **Wallet Address Confirmed!**
 `{wallet_address}`
@@ -1809,7 +1825,7 @@ Try again or /cancel to abort.
 
 Enter amount (minimum 1,000 TAMA):
         """
-        
+
         msg = bot.send_message(message.chat.id, text, parse_mode='Markdown')
         bot.register_next_step_handler(msg, process_withdrawal_amount)
     except Exception as e:
@@ -1819,7 +1835,7 @@ Enter amount (minimum 1,000 TAMA):
 def process_withdrawal_amount(message):
     """Process withdrawal amount input"""
     telegram_id = str(message.from_user.id)
-    
+
     # Get amount
     try:
         amount = int(message.text.strip().replace(',', '').replace(' ', ''))
@@ -1827,17 +1843,17 @@ def process_withdrawal_amount(message):
         bot.send_message(message.chat.id, "❌ Invalid amount! Please enter a number.", parse_mode='Markdown')
         bot.register_next_step_handler(message, process_withdrawal_amount)
         return
-    
+
     if amount < 1000:
         bot.send_message(message.chat.id, "❌ Minimum withdrawal is 1,000 TAMA!", parse_mode='Markdown')
         bot.register_next_step_handler(message, process_withdrawal_amount)
         return
-    
+
     # Get user balance
     try:
         leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
         tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
-        
+
         if amount > tama_balance:
             shortage = amount - tama_balance
             text = f"""
@@ -1852,18 +1868,18 @@ Please enter a lower amount:
             msg = bot.send_message(message.chat.id, text, parse_mode='Markdown')
             bot.register_next_step_handler(msg, process_withdrawal_amount)
             return
-        
+
         # Calculate fee
         fee = int(amount * 0.05)
         amount_received = amount - fee
-        
+
         # Store in session
         wallet_address = withdrawal_sessions.get(telegram_id, {}).get('wallet_address')
         withdrawal_sessions[telegram_id] = {
             'wallet_address': wallet_address,
             'amount': amount
         }
-        
+
         # Confirm withdrawal
         text = f"""
 ЁЯУЛ **WITHDRAWAL CONFIRMATION**
@@ -1879,15 +1895,15 @@ Please enter a lower amount:
 
 Confirm withdrawal?
         """
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("✅ Confirm", callback_data="confirm_withdrawal"),
             types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_withdrawal")
         )
-        
+
         bot.send_message(message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
-        
+
     except Exception as e:
         print(f"Error in process_withdrawal_amount: {e}")
         bot.send_message(message.chat.id, "❌ Error processing. Please try /withdraw again.")
@@ -1899,18 +1915,18 @@ def handle_wallet_link(message):
     telegram_id = str(message.from_user.id)
     username = message.from_user.username or message.from_user.first_name
     wallet_address = message.text.split()[1]
-    
+
     try:
         response = supabase.table('leaderboard').select('*').eq('wallet_address', wallet_address).execute()
-        
+
         if response.data and len(response.data) > 0:
             wallet_data = response.data[0]
-            
+
             supabase.table('leaderboard').update({
                 'telegram_id': telegram_id,
                 'telegram_username': username
             }).eq('wallet_address', wallet_address).execute()
-            
+
             text = f"""
 ✅ *Wallet Linked Successfully!*
 
@@ -1940,11 +1956,11 @@ The wallet address `{wallet_address[:8]}...{wallet_address[-8:]}` is not in our 
 
 *Make sure you've played the game first!* 📋
             """
-        
+
     except Exception as e:
         print(f"Error linking wallet: {e}")
         text = "❌ Error linking wallet. Please try again later."
-    
+
     bot.reply_to(message, text, parse_mode='Markdown')
 
 @bot.message_handler(commands=['save'], func=lambda message: message.chat.type == 'private')
@@ -1954,17 +1970,17 @@ def save_pet_progress(message):
     if len(parts) < 3:
         bot.reply_to(message, "Usage: /save WALLET_ADDRESS {pet_data_json}")
         return
-    
+
     wallet_address = parts[1]
     try:
         pet_data_str = parts[2]
-        
+
         supabase.table('leaderboard').update({
             'pet_data': pet_data_str
         }).eq('wallet_address', wallet_address).execute()
-        
+
         bot.reply_to(message, "✅ Pet progress saved!")
-        
+
     except Exception as e:
         print(f"Error saving pet: {e}")
         bot.reply_to(message, "❌ Error saving pet progress")
@@ -1974,16 +1990,16 @@ def send_referral(message):
     user_id = message.from_user.id
     username = message.from_user.username or message.from_user.first_name
     telegram_id = str(user_id)
-    
+
     # Generate referral code from Telegram ID only (NO WALLET NEEDED!)
     ref_code = generate_referral_code(telegram_id)
     telegram_link = f"https://t.me/{BOT_USERNAME}?start=ref{ref_code}"
     game_link = f"{GAME_URL}?tg_id={user_id}&tg_username={username}"
-    
+
     # Save referral code to database for fast lookup
     try:
         existing = supabase.table('leaderboard').select('*').eq('telegram_id', telegram_id).execute()
-        
+
         if existing.data:
             supabase.table('leaderboard').update({
                 'referral_code': ref_code,
@@ -1999,27 +2015,27 @@ def send_referral(message):
             }).execute()
     except Exception as e:
         print(f"Error saving referral code: {e}")
-    
+
     # Get referral stats
     try:
         response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
         total_referrals = response.count or 0
-        
+
         pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).eq('status', 'pending').execute()
         pending_count = pending_response.count or 0
-        
+
         # Get TAMA balance from leaderboard (real balance)
         leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
         total_earnings = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
-        
+
     except:
         total_referrals = 0
         total_earnings = 0
         pending_count = 0
-    
+
     # Create super short beautiful referral link with preview (using query parameters for GitHub Pages)
     short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}"
-    
+
     text = f"""
 🔗 <b>Your Referral Code:</b>
 
@@ -2051,7 +2067,7 @@ def send_referral(message):
 
 📤 <b>Click "Share Link" to share with friends!</b>
     """
-    
+
     # Share text with link for Telegram preview (text AFTER link!)
     share_text = f"""🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
 
@@ -2060,12 +2076,12 @@ def send_referral(message):
 
 🎁 Get 1,000 TAMA instantly when you join!
 🚀 Start playing and earning now!"""
-    
+
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("📤 Share Link", url=f"https://t.me/share/url?url={short_link}&text={share_text.replace(chr(10), '%0A')}")
     )
-    
+
     bot.reply_to(message, text, parse_mode='HTML', reply_markup=keyboard)
 
 # Get referral code command
@@ -2073,11 +2089,11 @@ def send_referral(message):
 def get_referral_code(message):
     user_id = message.from_user.id
     username = message.from_user.username or message.from_user.first_name
-    
+
     # Get wallet address from database
     telegram_id = str(user_id)
     wallet_address = get_wallet_by_telegram(telegram_id)
-    
+
     if not wallet_address:
         bot.reply_to(message, """
 ❌ *No wallet linked yet!*
@@ -2089,10 +2105,10 @@ To get your referral code:
 Your code will be something like: `TAMA123ABC`
         """, parse_mode='Markdown')
         return
-    
+
     # Generate beautiful code
     ref_code = generate_referral_code(wallet_address, user_id)
-    
+
     text = f"""
 📋 *Your Referral Code:*
 
@@ -2105,13 +2121,13 @@ Your code will be something like: `TAMA123ABC`
 
 📤 *Easy to remember and share!*
     """
-    
+
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("📋 Copy Code", callback_data=f"copy_code_{ref_code}"),
         types.InlineKeyboardButton("🔗 Get Full Link", callback_data="get_full_link")
     )
-    
+
     bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
 
 # Group commands (public)
@@ -2138,7 +2154,7 @@ def send_group_welcome(message):
 
 📢 <b>Stay Updated:</b>
 <b>Twitter:</b> @GotchiGame
-<b>News:</b> @gotchigamechat  
+<b>News:</b> @gotchigamechat
 <b>Bot:</b> @{BOT_USERNAME}
 <b>Community:</b> This group!
 
@@ -2162,7 +2178,7 @@ Use `/leaderboard` in the bot to see top referrers!
 <i>Let's build the biggest Tamagotchi community on Solana!</i> ⭐
 
 <i>Start earning TAMA today - no wallet needed to begin!</i> 🚀"""
-    
+
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("🤖 Message Bot", url=f"https://t.me/{BOT_USERNAME}"),
@@ -2175,7 +2191,7 @@ Use `/leaderboard` in the bot to see top referrers!
     keyboard.row(
         types.InlineKeyboardButton("🔗 Get Referral Link", callback_data="get_referral")
     )
-    
+
     bot.reply_to(message, text, parse_mode='HTML', reply_markup=keyboard)
 
 @bot.message_handler(commands=['game'], func=lambda message: message.chat.type in ['group', 'supergroup'])
@@ -2195,13 +2211,13 @@ def send_game(message):
 
 *Stay tuned for updates!* ⭐
     """
-    
+
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("🤖 Get Referral Link", url=f"https://t.me/{BOT_USERNAME}"),
             types.InlineKeyboardButton("🌐 Website", url="https://solanatamagotchi.com")
     )
-    
+
     bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
 
 @bot.message_handler(commands=['mint'], func=lambda message: message.chat.type in ['group', 'supergroup'])
@@ -2221,13 +2237,13 @@ def send_mint(message):
 
 *Stay tuned for updates!* ⭐
     """
-    
+
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("🤖 Get Referral Link", url=f"https://t.me/{BOT_USERNAME}"),
             types.InlineKeyboardButton("🌐 Website", url="https://solanatamagotchi.com")
     )
-    
+
     bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
 
 @bot.message_handler(commands=['referral', 'ref'], func=lambda message: message.chat.type in ['group', 'supergroup'])
@@ -2245,13 +2261,13 @@ def send_group_referral_info(message):
 • Daily rewards & achievements
 
 *Start earning today\\!* 🚀"""
-    
+
     keyboard = types.InlineKeyboardMarkup()
     keyboard.row(
         types.InlineKeyboardButton("🤖 Get My Link", url=f"https://t.me/{BOT_USERNAME}"),
         types.InlineKeyboardButton("🏅 Leaderboard", callback_data="leaderboard")
     )
-    
+
     bot.reply_to(message, text, parse_mode='MarkdownV2', reply_markup=keyboard)
 
 @bot.message_handler(commands=['leaderboard'], func=lambda message: message.chat.type in ['group', 'supergroup', 'private'])
@@ -2259,31 +2275,31 @@ def send_leaderboard(message):
     try:
         # Get referral leaderboard - top referrers by total referrals
         referral_stats = []
-        
+
         # Get all users with their referral counts
         users_response = supabase.table('leaderboard').select('pet_name, telegram_username, telegram_id, wallet_address').execute()
-        
+
         for user in users_response.data:
             wallet_address = user.get('wallet_address')
             telegram_id = user.get('telegram_id')
-            
+
             if wallet_address and telegram_id:
                 # Count active referrals (with wallets)
                 active_refs = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', str(telegram_id)).execute()
                 active_count = active_refs.count or 0
-                
+
                 # Count pending referrals (without wallets yet)
                 pending_refs = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', str(telegram_id)).eq('status', 'pending').execute()
                 pending_count = pending_refs.count or 0
-                
+
                 # Only count active referrals for leaderboard (no pending)
                 total_referrals = active_count
-                
+
                 if total_referrals > 0:  # Only show users with referrals
                     # Get TAMA balance
                     tama_response = supabase.table('leaderboard').select('tama').eq('telegram_id', str(telegram_id)).execute()
                     tama_balance = tama_response.data[0].get('tama', 0) if tama_response.data else 0
-                    
+
                     referral_stats.append({
                         'name': user.get('pet_name', user.get('telegram_username', 'Anonymous')) or 'Anonymous',
                         'active': active_count,
@@ -2291,10 +2307,10 @@ def send_leaderboard(message):
                         'total': total_referrals,
                         'tama': tama_balance
                     })
-        
+
         # Sort by total referrals
         referral_stats.sort(key=lambda x: x['total'], reverse=True)
-        
+
         # Build referral leaderboard
         referral_text = ""
         if referral_stats:
@@ -2307,11 +2323,11 @@ def send_leaderboard(message):
                 active = user['active']
                 pending = user['pending']
                 tama_balance = user['tama']
-                
+
                 referral_text += f"{medal} {name} - {active} referrals ({tama_balance:,} TAMA)\n"
         else:
             referral_text = "No referrals yet!\n\n🔗 Start referring friends!"
-        
+
         text = f"""
 🏅 <b>Referral Leaderboard:</b>
 
@@ -2325,13 +2341,13 @@ def send_leaderboard(message):
 
 📋 <b>Get your link:</b> /ref
         """
-        
+
         # Add interactive buttons
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("🔗 Get My Link", callback_data="get_referral")
         )
-        
+
     except Exception as e:
         print(f"Error getting referral leaderboard: {e}")
         text = """
@@ -2342,7 +2358,7 @@ def send_leaderboard(message):
 Please try again later!
         """
         keyboard = None
-    
+
     if keyboard:
         bot.reply_to(message, text, parse_mode='HTML', reply_markup=keyboard)
     else:
@@ -2355,24 +2371,24 @@ def send_top_players(message):
         # Get top players by level and TAMA
         response = supabase.table('leaderboard').select('pet_name, telegram_username, telegram_id, level, tama').order('level', desc=True).order('tama', desc=True).limit(10).execute()
         print(f"Supabase response: {response.data}")
-        
+
         if not response.data:
             print("No players found in leaderboard table")
             bot.reply_to(message, "🏅 No players yet! Be the first to play!\n\n🎮 Start playing: /game")
             return
-        
+
         text = "🏅 <b>Top Players:</b>\n\n"
-        
+
         for i, player in enumerate(response.data, 1):
             medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"{i}."
             name = player.get('pet_name') or player.get('telegram_username') or f"Player #{player.get('telegram_id')}"
             level = player.get('level', 1)
             tama = player.get('tama', 0)
-            
+
             text += f"{medal} {name} - Level {level} ({tama:,} TAMA)\n"
-        
+
         text += "\n💰 <b>Play more to climb the leaderboard!</b>"
-        
+
         # Add interactive buttons
         keyboard = types.InlineKeyboardMarkup()
         if message.chat.type in ['group', 'supergroup']:
@@ -2389,9 +2405,9 @@ def send_top_players(message):
             keyboard.row(
                 types.InlineKeyboardButton("🌐 Open Web", url="https://solanatamagotchi.com/tamagotchi-game.html")
             )
-        
+
         bot.reply_to(message, text, parse_mode='HTML', reply_markup=keyboard)
-        
+
     except Exception as e:
         print(f"Error getting top players: {e}")
         print(f"Error type: {type(e).__name__}")
@@ -2459,10 +2475,10 @@ def send_pets(message):
 def show_tama_balance(message):
     """╨Я╨╛╨║╨░╨╖╨░╤В╤М ╨▒╨░╨╗╨░╨╜╤Б TAMA"""
     telegram_id = str(message.from_user.id)
-    
+
     try:
         balance = get_tama_balance(telegram_id)
-        
+
         text = f"""
 💰 **TAMA Balance**
 
@@ -2479,9 +2495,9 @@ def show_tama_balance(message):
 • Game upgrades
 • Special items
         """
-        
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
@@ -2539,14 +2555,14 @@ def show_tama_leaderboard(message):
     """╨Я╨╛╨║╨░╨╖╨░╤В╤М ╨╗╨╕╨┤╨╡╤А╨▒╨╛╤А╨┤ ╨┐╨╛ TAMA"""
     try:
         response = supabase.table('leaderboard').select('telegram_id, telegram_username, tama').order('tama', desc=True).limit(10).execute()
-        
+
         if response.data:
             text = "🏅 **TAMA Leaderboard**\n\n"
-            
+
             for i, player in enumerate(response.data, 1):
                 username = player.get('telegram_username', 'Unknown')
                 tama_balance = player.get('tama', 0)
-                
+
                 if i == 1:
                     text += f"🥇 **#{i}** @{username} - {format_tama_balance(tama_balance)}\n"
                 elif i == 2:
@@ -2555,13 +2571,13 @@ def show_tama_leaderboard(message):
                     text += f"🥉 **#{i}** @{username} - {format_tama_balance(tama_balance)}\n"
                 else:
                     text += f"**#{i}** @{username} - {format_tama_balance(tama_balance)}\n"
-            
+
             text += "\n💰 **Earn more TAMA with /earn!**"
         else:
             text = "❌ **No players found**\n\n💰 **Be the first to earn TAMA!**"
-        
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
@@ -2571,11 +2587,11 @@ def test_tama_api(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     try:
         response = requests.get(f"{TAMA_API_BASE}/test")
         result = response.json()
-        
+
         if result.get("success"):
             text = f"""
 ✅ **TAMA API Test Successful**
@@ -2594,9 +2610,9 @@ def test_tama_api(message):
 
 💰 **Check API server status**
             """
-        
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         bot.reply_to(message, f"❌ Test error: {str(e)}")
 
@@ -2605,46 +2621,46 @@ def test_tama_api(message):
 def mint_nft_command(message):
     """╨Ь╨╕╨╜╤В NFT ╨╖╨░ TAMA"""
     telegram_id = str(message.from_user.id)
-    
+
     try:
         # ╨Я╨╛╨╗╤Г╤З╨░╨╡╨╝ ╤Б╤В╨╛╨╕╨╝╨╛╤Б╤В╤М NFT
         costs = get_nft_costs()
         if not costs:
             bot.reply_to(message, "❌ ╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╨┐╨╛╨╗╤Г╤З╨╕╤В╤М ╤Б╤В╨╛╨╕╨╝╨╛╤Б╤В╤М NFT")
             return
-        
+
         # ╨б╨╛╨╖╨┤╨░╨╡╨╝ ╨║╨╗╨░╨▓╨╕╨░╤В╤Г╤А╤Г ╤Б ╨▓╤Л╨▒╨╛╤А╨╛╨╝ ╤А╨╡╨┤╨║╨╛╤Б╤В╨╕
         markup = types.InlineKeyboardMarkup()
         for rarity, cost in costs.items():
             rarity_emoji = {
                 'common': 'тЪк',
-                'rare': 'ЁЯФ╡', 
+                'rare': 'ЁЯФ╡',
                 'epic': 'ЁЯЯг',
                 'legendary': 'ЁЯЯб'
             }.get(rarity, 'тЪк')
-            
+
             markup.add(types.InlineKeyboardButton(
                 f"{rarity_emoji} {rarity.title()} - {cost['tama']:,} TAMA",
                 callback_data=f"mint_nft_{rarity}"
             ))
-        
+
         common_cost = costs.get('common', {}).get('tama', 0)
         rare_cost = costs.get('rare', {}).get('tama', 0)
         epic_cost = costs.get('epic', {}).get('tama', 0)
         legendary_cost = costs.get('legendary', {}).get('tama', 0)
-        
+
         text = f"""🎨 Mint NFT with TAMA
 
 💰 Available NFTs:
 • Common: {common_cost:,} TAMA
-• Rare: {rare_cost:,} TAMA  
+• Rare: {rare_cost:,} TAMA
 • Epic: {epic_cost:,} TAMA
 • Legendary: {legendary_cost:,} TAMA
 
 💰 Choose rarity to mint:"""
-        
+
         bot.reply_to(message, text, reply_markup=markup)
-        
+
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
@@ -2653,10 +2669,10 @@ def show_user_nfts(message):
     """Show user NFT collection (localized)"""
     telegram_id = str(message.from_user.id)
     lang = determine_user_language(message)
-    
+
     try:
         nfts = get_user_nfts(telegram_id)
-        
+
         if not nfts:
             header = t('nfts', lang).get(f'header_{lang}', '🖼️ Your NFT Collection\n\n')
             no_nfts = t('nfts', lang).get(f'no_nfts_{lang}', '🎨 No NFTs found\n\n💰 Mint your first NFT with /mint!')
@@ -2664,24 +2680,24 @@ def show_user_nfts(message):
         else:
             header = t('nfts', lang).get(f'header_{lang}', '🖼️ Your NFT Collection\n\n')
             text = header
-            
+
             # Calculate total multiplier
             total_multiplier = sum(float(nft.get('earning_multiplier', 1.0)) for nft in nfts)
-            
+
             for i, nft in enumerate(nfts[:10], 1):
                 rarity_emoji = {
                     'common': '⚪',
                     'rare': '🔵',
-                    'epic': '🟣', 
+                    'epic': '🟣',
                     'legendary': '🟡'
                 }.get(nft.get('rarity', 'common'), '⚪')
-                
+
                 pet_type = nft.get('pet_type', 'Unknown').title()
                 rarity = nft.get('rarity', 'common').title()
                 created_at = nft.get('created_at', 'Unknown')[:10]
                 cost_tama = nft.get('cost_tama', 0)
                 multiplier = nft.get('earning_multiplier', 1.0)
-                
+
                 if lang == 'ru':
                     text += f"""#{i} {rarity_emoji} {pet_type}
 • Редкость: {rarity}
@@ -2691,25 +2707,25 @@ def show_user_nfts(message):
 
 """
                 else:
-                    text += f"""#{i} {rarity_emoji} {pet_type}
+                text += f"""#{i} {rarity_emoji} {pet_type}
 • Rarity: {rarity}
 • Cost: {cost_tama:,} TAMA
 • Multiplier: {multiplier}x
 • Created: {created_at}
 
 """
-            
+
             if len(nfts) > 10:
                 if lang == 'ru':
                     text += f"\n... и ещё {len(nfts) - 10} NFT!"
                 else:
-                    text += f"\n... and {len(nfts) - 10} more NFTs!"
-            
+                text += f"\n... and {len(nfts) - 10} more NFTs!"
+
             total = t('nfts', lang).get(f'total_{lang}', '\n📊 Total: {count} NFTs\n⚡ Combined Multiplier: {multiplier}x')
             text += total.format(count=len(nfts), multiplier=total_multiplier)
-        
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else f"❌ Error: {str(e)}"
         bot.reply_to(message, error_msg)
@@ -2722,11 +2738,11 @@ def show_nft_costs(message):
         if not costs:
             bot.reply_to(message, "❌ ╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╨┐╨╛╨╗╤Г╤З╨╕╤В╤М ╤Б╤В╨╛╨╕╨╝╨╛╤Б╤В╤М NFT")
             return
-        
+
         text = """💰 NFT Minting Costs
 
 """
-        
+
         for rarity, cost in costs.items():
             rarity_emoji = {
                 'common': 'тЪк',
@@ -2734,9 +2750,9 @@ def show_nft_costs(message):
                 'epic': 'ЁЯЯг',
                 'legendary': 'ЁЯЯб'
             }.get(rarity, 'тЪк')
-            
+
             rarity_name = rarity.title()
-            
+
             cost_tama = cost.get('tama', 0)
             cost_sol = cost.get('sol', 0)
             text += f"""{rarity_emoji} {rarity_name}
@@ -2744,11 +2760,11 @@ def show_nft_costs(message):
 • SOL: {cost_sol}
 
 """
-        
+
         text += "\n💰 Use /mint to create your NFT!"
-        
+
         bot.reply_to(message, text)
-        
+
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
@@ -2756,25 +2772,25 @@ def show_nft_costs(message):
 def send_user_stats(message):
     user_id = message.from_user.id
     telegram_id = str(user_id)
-    
+
     try:
         # Get player data from Supabase
         response = supabase.table('leaderboard').select('*').eq('telegram_id', telegram_id).execute()
-        
+
         if response.data:
             player = response.data[0]
-            
+
             # Get referral stats
             ref_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
             pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).eq('status', 'pending').execute()
-            
+
             total_referrals = ref_response.count or 0
             pending_count = pending_response.count or 0
             # Get TAMA balance from API
             tama_balance = get_tama_balance(telegram_id)
             base_tama = player.get('tama', 0)
             total_earned = base_tama
-            
+
             stats_text = f"""
 📊 **Your Statistics:**
 
@@ -2805,7 +2821,7 @@ Start inviting friends with /ref to earn rewards! 🚀
 
 Start inviting friends with /ref to earn rewards! 🚀
         """
-    
+
     bot.reply_to(message, stats_text, parse_mode='Markdown')
 
 # ADMIN COMMANDS
@@ -2814,10 +2830,10 @@ def mute_user(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     try:
         args = message.text.split()
-        
+
         if message.reply_to_message:
             # Mute by reply
             user_id = message.reply_to_message.from_user.id
@@ -2828,19 +2844,19 @@ def mute_user(message):
             if len(args) < 2:
                 bot.reply_to(message, "❌ Usage: /mute [username] [minutes] or reply to message")
                 return
-            
+
             username = args[1].replace('@', '')
             duration = int(args[2]) if len(args) > 2 else 60
-            
+
             # Find user by username (this is simplified - in real implementation you'd need to store usernames)
             bot.reply_to(message, f"❌ Please reply to user's message to mute them")
             return
-        
+
         chat_id = message.chat.id
         key = f"{chat_id}_{user_id}"
-        
+
         muted_users[key] = time.time() + (duration * 60)
-        
+
         bot.reply_to(message, f"✅ {username} muted for {duration} minutes")
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
@@ -2850,15 +2866,15 @@ def unmute_user(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     if not message.reply_to_message:
         bot.reply_to(message, "❌ Reply to a message to unmute user")
         return
-    
+
     user_id = message.reply_to_message.from_user.id
     chat_id = message.chat.id
     key = f"{chat_id}_{user_id}"
-    
+
     if key in muted_users:
         del muted_users[key]
         bot.reply_to(message, "✅ User unmuted")
@@ -2870,15 +2886,15 @@ def ban_user(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     if not message.reply_to_message:
         bot.reply_to(message, "❌ Reply to a message to ban user")
         return
-    
+
     try:
         user_id = message.reply_to_message.from_user.id
         chat_id = message.chat.id
-        
+
         bot.ban_chat_member(chat_id, user_id)
         bot.reply_to(message, "✅ User banned")
     except Exception as e:
@@ -2889,15 +2905,15 @@ def kick_user(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     if not message.reply_to_message:
         bot.reply_to(message, "❌ Reply to a message to kick user")
         return
-    
+
     try:
         user_id = message.reply_to_message.from_user.id
         chat_id = message.chat.id
-        
+
         bot.ban_chat_member(chat_id, user_id)
         bot.unban_chat_member(chat_id, user_id)
         bot.reply_to(message, "✅ User kicked")
@@ -2910,7 +2926,7 @@ def delete_user_for_testing(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     try:
         # Parse command: /delete_user TELEGRAM_ID or reply to message
         if message.reply_to_message:
@@ -2921,46 +2937,46 @@ def delete_user_for_testing(message):
                 bot.reply_to(message, "❌ Usage: /delete_user TELEGRAM_ID\nOr reply to a user's message")
                 return
             user_id = parts[1]
-        
+
         telegram_id = str(user_id)
-        
+
         # Get user info before deletion
         user_data = supabase.table('leaderboard').select('telegram_username, tama, referral_code').eq('telegram_id', telegram_id).execute()
         username = user_data.data[0].get('telegram_username', 'Unknown') if user_data.data else 'Unknown'
         tama_balance = user_data.data[0].get('tama', 0) if user_data.data else 0
-        
+
         # Count referrals before deletion
         referrals_count = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
         total_referrals = referrals_count.count or 0
-        
+
         # Count referred users (users who were referred by this user)
         referred_count = supabase.table('referrals').select('*', count='exact').eq('referred_telegram_id', telegram_id).execute()
         total_referred = referred_count.count or 0
-        
+
         # Delete all referrals where this user is the referrer
         supabase.table('referrals').delete().eq('referrer_telegram_id', telegram_id).execute()
-        
+
         # Delete all referrals where this user was referred
         supabase.table('referrals').delete().eq('referred_telegram_id', telegram_id).execute()
-        
+
         # Delete pending referrals
         supabase.table('pending_referrals').delete().eq('referrer_telegram_id', telegram_id).execute()
         supabase.table('pending_referrals').delete().eq('referred_telegram_id', telegram_id).execute()
-        
+
         # Delete user from leaderboard
         supabase.table('leaderboard').delete().eq('telegram_id', telegram_id).execute()
-        
+
         # Delete from other tables if they exist
         try:
             supabase.table('user_nfts').delete().eq('telegram_id', telegram_id).execute()
         except:
             pass
-        
+
         try:
             supabase.table('tama_economy').delete().eq('telegram_id', telegram_id).execute()
         except:
             pass
-        
+
         result_text = f"""✅ **User Deleted for Testing**
 
 👤 **User Info:**
@@ -2980,12 +2996,12 @@ def delete_user_for_testing(message):
 • User will be treated as completely new
 
 ⚠️ **Note:** This is for testing only!"""
-        
+
         bot.reply_to(message, result_text, parse_mode='Markdown')
-        
+
         # Log the deletion
         print(f"🗑️ Admin {message.from_user.id} deleted user {telegram_id} for testing")
-        
+
     except Exception as e:
         error_msg = str(e)
         bot.reply_to(message, f"❌ Error deleting user: {error_msg}")
@@ -2996,13 +3012,13 @@ def broadcast_message(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     try:
         text = message.text.replace('/broadcast ', '', 1)
-        
+
         # Send to channel
         bot.send_message(CHANNEL_USERNAME, f"📢 **Announcement:**\n\n{text}", parse_mode='Markdown')
-        
+
         bot.reply_to(message, "✅ Message sent to channel!")
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
@@ -3013,7 +3029,7 @@ def test_post(message):
     if message.from_user.id not in ADMIN_IDS:
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     try:
         from auto_posting import AutoPoster
         poster = AutoPoster(bot, CHANNEL_USERNAME)
@@ -3028,7 +3044,7 @@ def start_tournament(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     try:
         tournament_text = """🏅 WEEKLY TOURNAMENT: Top 10 Tamagotchi Masters!
 
@@ -3039,7 +3055,7 @@ def start_tournament(message):
 
 🏅 PRIZES:
 🥇 1st place: 10,000 TAMA + Legendary Pet
-🥈 2nd place: 5,000 TAMA + Epic Pet  
+🥈 2nd place: 5,000 TAMA + Epic Pet
 🥉 3rd place: 3,000 TAMA + Rare Pet
 4-10 places: 1,000 TAMA each
 
@@ -3047,20 +3063,20 @@ def start_tournament(message):
 📋 Start playing now: @{BOT_USERNAME}
 
 #Tournament #GameFi #Solana"""
-        
+
         # Send to group and channel
         try:
             bot.send_message(GROUP_ID, tournament_text)
             bot.send_message(message.chat.id, "✅ Tournament announced in group!")
         except Exception as group_error:
             bot.send_message(message.chat.id, f"❌ Group error: {str(group_error)}")
-        
+
         try:
             bot.send_message(CHANNEL_USERNAME, tournament_text)
             bot.send_message(message.chat.id, "✅ Tournament announced in channel!")
         except Exception as channel_error:
             bot.send_message(message.chat.id, f"❌ Channel error: {str(channel_error)}")
-            
+
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
@@ -3070,7 +3086,7 @@ def test_promo_post(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     try:
         # Get the promo post
         promo_posts = [
@@ -3189,35 +3205,35 @@ def test_promo_post(message):
 
 #Gaming #NFT #Tamagotchi #Blockchain #Fun"""
         ]
-        
+
         day_of_year = datetime.now().timetuple().tm_yday
         post_index = day_of_year % len(promo_posts)
         promo_text = promo_posts[post_index]
-        
+
         # Send to YOU first to preview (without Markdown to avoid parsing errors)
         bot.send_message(message.chat.id, promo_text)
         bot.reply_to(message, f"ЁЯУЭ This is promo post #{post_index + 1} (today's post)\n\n✅ Copy and paste it to your group manually!")
-        
+
         # Also try to send to group and channel
         results = []
-        
+
         # Send to group
         try:
             bot.send_message(GROUP_ID, promo_text)
             results.append("✅ Sent to group @gotchigamechat")
         except Exception as group_error:
             results.append(f"❌ Group error: {str(group_error)}")
-        
+
         # Send to channel
         try:
             bot.send_message(CHANNEL_USERNAME, promo_text)
             results.append("✅ Sent to channel @GotchiGame")
         except Exception as channel_error:
             results.append(f"❌ Channel error: {str(channel_error)}")
-        
+
         # Show results
         bot.send_message(message.chat.id, "\n".join(results))
-            
+
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
@@ -3227,11 +3243,11 @@ def show_monitoring_stats(message):
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "❌ Admin only")
         return
-    
+
     try:
         current_minute = int(time.time() // 60)
         requests_this_minute = monitoring_stats['requests_per_minute'][current_minute]
-        
+
         stats_text = f"""
 📊 **MONITORING STATISTICS**
 
@@ -3247,9 +3263,9 @@ def show_monitoring_stats(message):
 
 💰 **Alerts:** Active monitoring enabled
         """
-        
+
         bot.reply_to(message, stats_text, parse_mode='Markdown')
-        
+
     except Exception as e:
         log_error("monitoring_error", str(e), message.from_user.id)
         bot.reply_to(message, f"❌ Error getting stats: {str(e)}")
@@ -3261,14 +3277,14 @@ def claim_daily_reward(message):
     """Claim daily reward (localized)"""
     telegram_id = str(message.from_user.id)
     lang = determine_user_language(message)
-    
+
     try:
         success, streak_days, reward_amount = daily_rewards.claim_reward(telegram_id)
-        
+
         if success:
             # 💰 TAMA balance is already updated in claim_reward() function
             # No need to call add_tama_reward() separately - it's handled in gamification.py
-            
+
             # Check for streak milestones
             milestone_text = ""
             if lang == 'ru':
@@ -3279,13 +3295,13 @@ def claim_daily_reward(message):
                 elif streak_days == 30:
                     milestone_text = "\n\n👑 **МЕСЯЦ!** Ты легенда!"
             else:
-                if streak_days == 7:
-                    milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
-                elif streak_days == 14:
-                    milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
-                elif streak_days == 30:
-                    milestone_text = "\n\n👑 **MONTH!** You're a legend!"
-            
+            if streak_days == 7:
+                milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
+            elif streak_days == 14:
+                milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
+            elif streak_days == 30:
+                milestone_text = "\n\n👑 **MONTH!** You're a legend!"
+
             if lang == 'ru':
                 text = f"""
 ✅ **Ежедневная награда получена!**
@@ -3297,7 +3313,7 @@ def claim_daily_reward(message):
 💰 **Возвращайся каждый день для больших наград!**
 """
             else:
-                text = f"""
+            text = f"""
 ✅ **Daily Reward Claimed!**
 
 💰 **Reward:** +{reward_amount:,} TAMA
@@ -3305,8 +3321,8 @@ def claim_daily_reward(message):
 📅 **Next:** in 24 hours{milestone_text}
 
 💰 **Come back every day for bigger rewards!**
-"""
-            
+            """
+
             # Award streak badges
             if streak_days == 7:
                 badge_system.award_badge(telegram_id, 'week_warrior')
@@ -3325,17 +3341,17 @@ def claim_daily_reward(message):
 💰 **Не пропускай дни чтобы сохранить серию!**
 """
             else:
-                text = f"""
+            text = f"""
 ⏰ **Already Claimed Today!**
 
 🔥 **Current Streak:** {current_streak} days
 📅 **Come back tomorrow** for next reward!
 
 💰 **Don't miss a day to keep your streak!**
-"""
-        
+            """
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         print(f"Error claiming daily reward: {e}")
         error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else "❌ Error claiming reward"
@@ -3346,26 +3362,26 @@ def claim_daily_reward(message):
 # def show_games_menu(message):
 #     """Show mini-games menu"""
 #     telegram_id = str(message.from_user.id)
-#     
+#
 #     try:
 #         can_play, games_played = mini_games.can_play(telegram_id)
 #         games_left = 3 - games_played
-#         
+#
 #         text = f"""
 # 🎮 **╨Ь╨╕╨╜╨╕-╨Ш╨│╤А╤Л**
-# 
+#
 # 💰 **╨Ш╨│╤А╨░╨╣ ╨╕ ╨╖╨░╤А╨░╨▒╨░╤В╤Л╨▓╨░╨╣ TAMA!**
-# 
+#
 # 📋 **╨Ф╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╡ ╨╕╨│╤А╤Л:**
 # • ╨г╨│╨░╨┤╨░╨╣ ╨з╨╕╤Б╨╗╨╛ (1-100) - ╨┤╨╛ 500 TAMA
 # • Solana ╨Т╨╕╨║╤В╨╛╤А╨╕╨╜╨░ - 100 TAMA
 # • ╨Ъ╨╛╨╗╨╡╤Б╨╛ ╨д╨╛╤А╤В╤Г╨╜╤Л - ╨┤╨╛ 500 TAMA
-# 
+#
 # 📊 **╨Ы╨╕╨╝╨╕╤В:** {games_left}/3 ╨╕╨│╤А ╨╛╤Б╤В╨░╨╗╨╛╤Б╤М ╤Б╨╡╨│╨╛╨┤╨╜╤П
-# 
+#
 # 💰 **╨Т╤Л╨▒╨╡╤А╨╕ ╨╕╨│╤А╤Г:**
 #         """
-#         
+#
 #         keyboard = types.InlineKeyboardMarkup()
 #         if can_play:
 #             keyboard.row(
@@ -3378,9 +3394,9 @@ def claim_daily_reward(message):
 #         keyboard.row(
 #             types.InlineKeyboardButton("🔙 ╨Э╨░╨╖╨░╨┤", callback_data="back_to_menu")
 #         )
-#         
+#
 #         bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
-#         
+#
 #     except Exception as e:
 #         print(f"Error showing games: {e}")
 #         bot.reply_to(message, "❌ ╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨╕╨│╤А")
@@ -3390,17 +3406,17 @@ def show_user_badges(message):
     """Show user badges (localized)"""
     telegram_id = str(message.from_user.id)
     lang = determine_user_language(message)
-    
+
     try:
         user_badges = badge_system.get_user_badges(telegram_id)
-        
+
         if user_badges:
             badges_text = "\n".join([f"{b['name']} - {b['desc']}" for b in user_badges])
         else:
             badges_text = t('badges', lang).get(f'no_badges_{lang}', 'No badges yet. Play and invite friends!')
-        
+
         header = t('badges', lang).get(f'header_{lang}', '🏆 **Your Badges**\n\n')
-        
+
         if lang == 'ru':
             text = f"""{header}{badges_text}
 
@@ -3422,10 +3438,10 @@ def show_user_badges(message):
 • 💰 Generous - 100+ referrals
 • 🎮 Gamer - 100 mini-games
 • 🍀 Lucky - Wheel jackpot
-"""
-        
+        """
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         print(f"Error showing badges: {e}")
         error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else "❌ Error loading badges"
@@ -3436,31 +3452,31 @@ def show_user_rank(message):
     """Show user rank (localized)"""
     telegram_id = str(message.from_user.id)
     lang = determine_user_language(message)
-    
+
     try:
         # Get referral count
         ref_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
         pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
-        
+
         total_refs = (ref_response.count or 0) + (pending_response.count or 0)
-        
+
         # Update and get rank
         rank_changed, rank_id, rank_data = rank_system.update_rank(telegram_id, total_refs)
-        
+
         # Get next rank
         next_rank = None
         for r_id, r_data in RANKS.items():
             if r_data['min_refs'] > total_refs:
                 next_rank = (r_id, r_data)
                 break
-        
+
         # Progress bar with proper emoji
         filled = "▓" * (total_refs % 5)
         empty = "░" * (5 - (total_refs % 5))
         progress_bar = filled + empty
-        
+
         header = t('rank', lang).get(f'header_{lang}', '👑 **Your Rank**\n\n')
-        
+
         if lang == 'ru':
             text = f"""{header}{rank_data['emoji']} **Твой ранг: {rank_data['name']}**
 
@@ -3474,12 +3490,12 @@ def show_user_rank(message):
 📊 **Stats:**
 • Referrals: {total_refs}
 • Progress: {progress_bar}
-"""
-        
+        """
+
         if next_rank:
             refs_needed = next_rank[1]['min_refs'] - total_refs
             if lang == 'ru':
-                text += f"""
+            text += f"""
 📋 **Следующий ранг:** {next_rank[1]['name']}
 🎯 **Нужно:** {refs_needed} рефералов
 """
@@ -3487,15 +3503,15 @@ def show_user_rank(message):
                 text += f"""
 📋 **Next rank:** {next_rank[1]['name']}
 🎯 **Needed:** {refs_needed} referrals
-"""
+        """
         else:
             if lang == 'ru':
                 text += "\n🏆 **Достигнут максимальный ранг!**"
             else:
                 text += "\n🏆 **Maximum rank achieved!**"
-        
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         print(f"Error showing rank: {e}")
         error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else "❌ Error loading rank"
@@ -3506,43 +3522,43 @@ def show_quests(message):
     """Show quests (localized)"""
     telegram_id = str(message.from_user.id)
     lang = determine_user_language(message)
-    
+
     try:
         # Get referral count
         ref_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
         pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
-        
+
         total_refs = (ref_response.count or 0) + (pending_response.count or 0)
-        
+
         # Check quests
         completed_quests = quest_system.check_quests(telegram_id, total_refs)
-        
+
         header = t('quests', lang).get(f'header_{lang}', '📋 **Referral Quests**\n\n')
         text = header
-        
+
         for quest_id, quest_data in QUESTS.items():
             progress = min(total_refs, quest_data['target'])
             percentage = int((progress / quest_data['target']) * 100)
-            
+
             if total_refs >= quest_data['target']:
                 status = "✅"
             else:
                 status = f"{progress}/{quest_data['target']}"
-            
+
             if lang == 'ru':
                 text += f"{status} **{quest_data['name']}**\n"
                 text += f"   {quest_data['desc']}\n"
                 text += f"   Награда: {quest_data['reward']:,} TAMA\n\n"
             else:
-                text += f"{status} **{quest_data['name']}**\n"
-                text += f"   {quest_data['desc']}\n"
-                text += f"   Reward: {quest_data['reward']:,} TAMA\n\n"
-        
+            text += f"{status} **{quest_data['name']}**\n"
+            text += f"   {quest_data['desc']}\n"
+            text += f"   Reward: {quest_data['reward']:,} TAMA\n\n"
+
         footer = t('quests', lang).get(f'footer_{lang}', '\n💡 Invite friends to complete more quests!')
         text += footer
-        
+
         bot.reply_to(message, text, parse_mode='Markdown')
-        
+
     except Exception as e:
         print(f"Error showing quests: {e}")
         error_msg = t('error_generic', lang) if LOCALIZATION_ENABLED else "❌ Error loading quests"
@@ -3556,20 +3572,20 @@ def welcome_new_member(message):
         # Skip if it's not a group/supergroup
         if message.chat.type not in ['group', 'supergroup']:
             return
-        
+
         # Log group info for debugging
         print(f"📥 New member(s) joined group: {message.chat.id} ({message.chat.title})")
-        
+
         # Skip if bot itself joined
         for new_member in message.new_chat_members:
             if new_member.id == bot.get_me().id:
                 print(f"✅ Bot joined group {message.chat.id}")
                 continue
-            
+
             # Get user's first name (escape for HTML)
             first_name = new_member.first_name or "Friend"
             username = f"@{new_member.username}" if new_member.username else first_name
-            
+
             welcome_text = f"""🎉 <b>Welcome to Solana Tamagotchi Community, {first_name}!</b> 👋
 
 🐾 <b>What is Solana Tamagotchi?</b>
@@ -3605,7 +3621,7 @@ A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
 💡 <b>Pro Tip:</b> Play daily and invite friends to maximize earnings!
 
 <i>Let's build the biggest Tamagotchi community on Solana! ⭐</i>"""
-            
+
             # Create welcome keyboard
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
@@ -3619,13 +3635,13 @@ A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
             keyboard.row(
                 types.InlineKeyboardButton("🤖 Message Bot", url=f"https://t.me/{BOT_USERNAME}")
             )
-            
+
             # Send welcome message
             try:
                 sent_message = bot.send_message(
-                    message.chat.id, 
-                    welcome_text, 
-                    parse_mode='HTML', 
+                    message.chat.id,
+                    welcome_text,
+                    parse_mode='HTML',
                     reply_markup=keyboard,
                     disable_web_page_preview=False
                 )
@@ -3639,7 +3655,7 @@ A <b>Play-to-Earn NFT pet game</b> on Solana blockchain where you can:
                 else:
                     print(f"❌ Failed to send welcome message: {error_msg}")
                 raise  # Re-raise to be caught by outer exception handler
-            
+
     except Exception as e:
         print(f"❌ Error welcoming new member: {e}")
         logging.error(f"Error in welcome_new_member: {e}", exc_info=True)
@@ -3656,7 +3672,7 @@ def post_daily_stats():
             tama_display = f"{total_tama / 1000:.1f}K"
         else:
             tama_display = str(total_tama)
-        
+
         stats_text = f"""📊 **Daily Statistics**
 
 👥 Total Players: {stats['players']}
@@ -3669,7 +3685,7 @@ def post_daily_stats():
 ⭐ Mint: Available now on devnet
 
 The game is live for testing. NFT prices are set low for early access. Join the community and start playing!"""
-        
+
         # Post to group instead of channel
         bot.send_message(GROUP_ID, stats_text, parse_mode='Markdown')
     except Exception as e:
@@ -3795,26 +3811,26 @@ def post_daily_promo():
 
 #Gaming #NFT #Tamagotchi #Blockchain #Fun"""
         ]
-        
+
         # Rotate posts based on day of year
         day_of_year = datetime.now().timetuple().tm_yday
         post_index = day_of_year % len(promo_posts)
         promo_text = promo_posts[post_index]
-        
+
         # Post to group (without Markdown to avoid parsing errors)
         try:
             bot.send_message(GROUP_ID, promo_text)
             print(f"✅ Daily promo post #{post_index + 1} sent to group @gotchigamechat")
         except Exception as group_error:
             print(f"❌ Error posting to group: {group_error}")
-        
+
         # Also post to channel
         try:
             bot.send_message(CHANNEL_USERNAME, promo_text)
             print(f"✅ Daily promo post #{post_index + 1} sent to channel @GotchiGame")
         except Exception as channel_error:
             print(f"❌ Error posting to channel: {channel_error}")
-            
+
     except Exception as e:
         print(f"Error in daily promo: {e}")
 
@@ -3823,12 +3839,12 @@ def run_schedule():
     # Legacy daily posts (keep for compatibility)
     schedule.every().day.at("12:00").do(post_daily_stats)
     schedule.every().day.at("14:00").do(post_daily_promo)  # Promo post at 2 PM
-    
+
     # Setup auto-posting system based on CONTENT_PLAN.md
     print("📅 Setting up auto-posting schedule...")
     setup_auto_posting(bot, CHANNEL_USERNAME)
     print("✅ Telegram auto-posting configured!")
-    
+
     # Setup Twitter auto-posting (if enabled)
     if TWITTER_ENABLED:
         print("🐦 Setting up Twitter auto-posting...")
@@ -3837,9 +3853,9 @@ def run_schedule():
             print("✅ Twitter auto-posting configured!")
         else:
             print("⚠️ Twitter auto-posting disabled (no API credentials)")
-    
+
     print("✅ All auto-posting systems ready!")
-    
+
     while True:
         schedule.run_pending()
         time.sleep(60)
@@ -3851,35 +3867,35 @@ def handle_web_app_data(message):
     try:
         data = json.loads(message.web_app_data.data)
         telegram_id = str(message.from_user.id)
-        
+
         print(f"📱 Received Mini App data from {telegram_id}: {data}")
-        
+
         if data.get('action') == 'save_game_state' or data.get('action') == 'auto_save':
             # Save game state to database
             game_data = data.get('data', {})
-            
+
             # Get current stats from leaderboard
             leaderboard = supabase.table('leaderboard').select('*').eq('telegram_id', telegram_id).execute()
-            
+
             if leaderboard.data:
                 # User exists - update TAMA
                 current_tama = leaderboard.data[0].get('tama', 0) or 0
                 game_tama = game_data.get('tama', 0) or 0
-                
+
                 # 🛡️ PROTECTION: Never decrease balance from game saves!
                 # Only update if game_tama is greater than current (earned in game)
                 # If current_tama is greater (from daily rewards, referrals, etc.), keep it!
                 if game_tama > current_tama:
                     # Game earned more TAMA - update balance
                     tama_earned = game_tama - current_tama
-                    
+
                     supabase.table('leaderboard').update({
                         'tama': game_tama,
                         'level': game_data.get('level', 1)
                     }).eq('telegram_id', telegram_id).execute()
-                    
+
                     print(f"💰 Game save: Updated TAMA from {current_tama} to {game_tama} (+{tama_earned})")
-                    
+
                     # Only show message for manual save (not auto-save)
                     if data.get('action') == 'save_game_state':
                         bot.reply_to(message, f"✅ Game saved!\n💰 Total TAMA: {game_tama:,}\n🎖️ Level: {game_data.get('level', 1)}\n🎮 Total Clicks: {game_data.get('totalClicks', 0)}")
@@ -3889,15 +3905,15 @@ def handle_web_app_data(message):
                     update_data = {
                         'level': game_data.get('level', 1)
                     }
-                    
+
                     # Only update TAMA if game has more (shouldn't happen, but safety check)
                     if game_tama > current_tama:
                         update_data['tama'] = game_tama
-                    
+
                     supabase.table('leaderboard').update(update_data).eq('telegram_id', telegram_id).execute()
-                    
+
                     print(f"💰 Game save: Kept current TAMA {current_tama} (game had {game_tama}) - protected from decrease!")
-                    
+
                     if data.get('action') == 'save_game_state':
                         bot.reply_to(message, f"✅ Progress saved!\n💰 TAMA: {current_tama:,}\n🎖️ Level: {game_data.get('level', 1)}")
             else:
@@ -3909,28 +3925,28 @@ def handle_web_app_data(message):
                     'level': game_data.get('level', 1),
                     'referral_code': None
                 }).execute()
-                
+
                 if data.get('action') == 'save_game_state':
                     bot.reply_to(message, f"🎉 First save!\n💰 TAMA: {game_data.get('tama', 0):,}\n🎖️ Level: {game_data.get('level', 1)}")
-        
+
         elif data.get('action') == 'level_up':
             level = data.get('level', 1)
             bot.reply_to(message, f"🎉 Congratulations! Your pet reached level {level}!")
-            
+
             # Award bonus TAMA for level up
             bonus_tama = level * 10
             leaderboard = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
             current_tama = leaderboard.data[0].get('tama', 0) if leaderboard.data else 0
-            
+
             supabase.table('leaderboard').update({
                 'tama': current_tama + bonus_tama
             }).eq('telegram_id', telegram_id).execute()
-            
+
             bot.send_message(message.chat.id, f"🎁 Level up bonus: +{bonus_tama} TAMA!")
-        
+
         else:
             bot.reply_to(message, "🎮 Game data received! Keep playing to earn more TAMA!")
-            
+
     except Exception as e:
         print(f"❌ Error handling Mini App data: {e}")
         bot.reply_to(message, "❌ Error processing game data. Please try again.")
@@ -3948,27 +3964,27 @@ def handle_callback(call):
         try:
             rarity = call.data.replace('mint_nft_', '')
             telegram_id = str(call.from_user.id)
-            
+
             # ╨Я╤А╨╛╨▓╨╡╤А╤П╨╡╨╝ ╨▒╨░╨╗╨░╨╜╤Б
             balance = get_tama_balance(telegram_id)
             costs = get_nft_costs()
             required_tama = costs.get(rarity, {}).get('tama', 0)
-            
+
             if balance < required_tama:
                 shortage = required_tama - balance
                 bot.answer_callback_query(
-                    call.id, 
+                    call.id,
                     f"❌ Insufficient TAMA! Need {shortage:,} more TAMA"
                 )
                 return
-            
+
             # ╨Ь╨╕╨╜╤В╨╕╨╝ NFT
             success, result = mint_nft(telegram_id, "", rarity)
-            
+
             if success:
                 nft_data = result.get('nft', {})
                 new_balance = result.get('new_balance', balance)
-                
+
                 # ╨Ю╨▒╨╜╨╛╨▓╨╗╤П╨╡╨╝ ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╨╡
                 rarity_emoji = {
                     'common': 'тЪк',
@@ -3976,11 +3992,11 @@ def handle_callback(call):
                     'epic': 'ЁЯЯг',
                     'legendary': 'ЁЯЯб'
                 }.get(rarity, 'тЪк')
-                
+
                 pet_name = nft_data.get('name', 'Unknown')
                 pet_type = nft_data.get('pet_type', 'Unknown').title()
                 rarity_title = rarity.title()
-                
+
                 cost_tama = nft_data.get('cost_tama', 0)
                 updated_text = f"""🎨 NFT Minted Successfully!
 
@@ -3992,50 +4008,50 @@ def handle_callback(call):
 💰 New Balance: {new_balance:,} TAMA
 
 💰 Check /my_nfts to see your collection!"""
-                
+
                 safe_edit_message_text(
                     updated_text,
                     call.message.chat.id,
                     call.message.message_id,
                     disable_web_page_preview=True
                 )
-                
+
                 bot.answer_callback_query(call.id, f"✅ {rarity.title()} NFT minted!")
             else:
                 error_msg = result.get('error', 'Unknown error')
                 bot.answer_callback_query(call.id, f"❌ Mint failed: {error_msg}")
-                
+
         except Exception as e:
             print(f"Error handling mint NFT callback: {e}")
             bot.answer_callback_query(call.id, "❌ Error occurred")
-    
+
     elif call.data == "get_referral":
         # Generate referral link
         user_id = call.from_user.id
         username = call.from_user.username or call.from_user.first_name
         telegram_id = str(user_id)
-        
+
         # Generate referral code
         ref_code = generate_referral_code(telegram_id)
         short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}"
-        
+
         # Get referral stats
         try:
             response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
             total_referrals = response.count or 0
-            
+
             pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).eq('status', 'pending').execute()
             pending_count = pending_response.count or 0
-            
+
             # Get TAMA balance
             leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
             total_earnings = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
-            
+
         except:
             total_referrals = 0
             pending_count = 0
             total_earnings = 0
-        
+
         text = f"""
 🔗 <b>Your Referral Code:</b>
 
@@ -4067,7 +4083,7 @@ def handle_callback(call):
 
 📤 <b>Share with friends and start earning!</b>
         """
-        
+
         # Share text with link for Telegram preview (text AFTER link!)
         share_text = f"""🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
 
@@ -4076,7 +4092,7 @@ def handle_callback(call):
 
 🎁 Get 1,000 TAMA instantly when you join!
 🚀 Start playing and earning now!"""
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("📤 Share Link", url=f"https://t.me/share/url?url={short_link}&text={share_text.replace(chr(10), '%0A')}")
@@ -4084,26 +4100,26 @@ def handle_callback(call):
         keyboard.row(
             types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
         )
-        
+
         try:
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                 parse_mode='HTML', reply_markup=keyboard)
         except Exception as e:
             print(f"Error editing message: {e}")
             # Send new message if edit fails
             bot.send_message(call.message.chat.id, text, parse_mode='HTML', reply_markup=keyboard)
-    
+
     elif call.data == "my_nfts":
         # Show user's NFT collection
         telegram_id = str(call.from_user.id)
-        
+
         try:
             # Get user's NFTs from database (new structure: tier_name, rarity, earning_multiplier)
             response = supabase.table('user_nfts').select('*').eq('telegram_id', telegram_id).eq('is_active', True).order('minted_at', desc=True).execute()
-            
+
             if response.data and len(response.data) > 0:
                 nfts = response.data
-                
+
                 # Helper function for rarity emoji
                 def get_rarity_emoji(rarity):
                     emoji_map = {
@@ -4114,7 +4130,7 @@ def handle_callback(call):
                         'Legendary': '🟠'
                     }
                     return emoji_map.get(rarity, '⚪')
-                
+
                 # Helper function for tier emoji
                 def get_tier_emoji(tier):
                     emoji_map = {
@@ -4123,7 +4139,7 @@ def handle_callback(call):
                         'Gold': '🥇'
                     }
                     return emoji_map.get(tier, '🎨')
-                
+
                 nft_list = "\n\n".join([
                     f"{i+1}. {get_tier_emoji(nft.get('tier_name', 'Unknown'))} **{nft.get('tier_name', 'Unknown')}** {get_rarity_emoji(nft.get('rarity', 'Common'))}\n"
                     f"   • Rarity: {nft.get('rarity', 'Common')}\n"
@@ -4131,14 +4147,14 @@ def handle_callback(call):
                     f"   • Minted: {nft.get('minted_at', 'Unknown')[:10] if nft.get('minted_at') else 'Unknown'}"
                     for i, nft in enumerate(nfts[:10])  # Show max 10
                 ])
-                
+
                 # Get user's TAMA balance
                 leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
                 tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
-                
+
                 # Calculate total multiplier (best NFT)
                 best_multiplier = max([float(nft.get('earning_multiplier', 1.0)) for nft in nfts])
-                
+
                 text = f"""
 🖼️ **YOUR NFT COLLECTION** 🖼️
 
@@ -4159,7 +4175,7 @@ def handle_callback(call):
                 # No NFTs yet
                 leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
                 tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
-                
+
                 text = f"""
 🖼️ **YOUR NFT COLLECTION** 🖼️
 
@@ -4186,7 +4202,7 @@ def handle_callback(call):
 
 🌐 [Mint NFT Now]({MINT_URL}nft-mint-5tiers.html?user_id={telegram_id})
                 """
-            
+
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
                 types.InlineKeyboardButton("🎨 Mint NFT", callback_data="mint_nft")
@@ -4194,35 +4210,35 @@ def handle_callback(call):
             keyboard.row(
                 types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
             )
-            
+
             try:
-                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                     parse_mode='Markdown', reply_markup=keyboard)
             except:
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
         except Exception as e:
             print(f"Error showing NFTs: {e}")
             bot.answer_callback_query(call.id, "❌ Error loading NFTs")
-    
+
     elif call.data == "withdraw_tama":
         # Show withdrawal options
         telegram_id = str(call.from_user.id)
-        
+
         try:
             # Get user's TAMA balance and wallet address
             leaderboard_response = supabase.table('leaderboard').select('tama,wallet_address').eq('telegram_id', telegram_id).execute()
             tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
             saved_wallet = leaderboard_response.data[0].get('wallet_address') if leaderboard_response.data else None
-            
+
             min_withdrawal = 1000
             fee_percent = 5
             can_withdraw = tama_balance >= min_withdrawal
-            
+
             # Проверяем, есть ли сохраненный адрес (не placeholder)
             if can_withdraw and saved_wallet and not saved_wallet.startswith('telegram_') and len(saved_wallet) >= 32:
                 # У пользователя уже есть сохраненный адрес - используем его
                 withdrawal_sessions[telegram_id] = {'wallet_address': saved_wallet}
-                
+
                 # Сразу спрашиваем сумму
                 text = f"""
 ✅ **Using Saved Wallet Address**
@@ -4234,27 +4250,27 @@ def handle_callback(call):
 
 Enter amount (minimum 1,000 TAMA):
                 """
-                
+
                 keyboard = types.InlineKeyboardMarkup()
                 keyboard.row(
                     types.InlineKeyboardButton("🔙 Change Address", callback_data="change_wallet_address"),
                     types.InlineKeyboardButton("❌ Cancel", callback_data="back_to_menu")
                 )
-                
+
                 try:
-                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                         parse_mode='Markdown', reply_markup=keyboard)
                     bot.register_next_step_handler(call.message, process_withdrawal_amount)
                 except:
                     msg = bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
                     bot.register_next_step_handler(msg, process_withdrawal_amount)
                 return
-            
+
             if can_withdraw:
                 example_amount = 10000
                 example_fee = int(example_amount * 0.05)
                 example_received = example_amount - example_fee
-                
+
                 text = f"""
 💰 **WITHDRAW TAMA TO WALLET** 💰
 
@@ -4295,7 +4311,7 @@ You need **{shortage:,} more TAMA**.
 🎁 Claim daily rewards
 🔗 Refer friends (+1,000 TAMA each)
                 """
-            
+
             keyboard = types.InlineKeyboardMarkup()
             if can_withdraw:
                 # Add "Enter Wallet Address" button (will prompt user to send wallet)
@@ -4308,16 +4324,16 @@ You need **{shortage:,} more TAMA**.
             keyboard.row(
                 types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
             )
-            
+
             try:
-                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                     parse_mode='Markdown', reply_markup=keyboard)
             except:
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
         except Exception as e:
             print(f"Error showing withdrawal options: {e}")
             bot.answer_callback_query(call.id, "❌ Error loading withdrawal page")
-    
+
     elif call.data == "enter_wallet":
         # Prompt user to enter wallet address
         text = """
@@ -4335,25 +4351,25 @@ Wrong address = lost TAMA!
 
 After sending your address, I'll ask for the amount.
         """
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("🔙 Cancel", callback_data="withdraw_tama")
         )
-        
+
         try:
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                 parse_mode='Markdown', reply_markup=keyboard)
             # Set user state to expect wallet address
             bot.register_next_step_handler(call.message, process_wallet_address)
         except:
             msg = bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
             bot.register_next_step_handler(msg, process_wallet_address)
-    
+
     elif call.data == "withdrawal_history":
         # Show withdrawal history
         telegram_id = str(call.from_user.id)
-        
+
         try:
             # Check if API is available
             if not is_api_available():
@@ -4370,14 +4386,14 @@ The withdrawal history feature requires the API server to be running.
                 """
                 safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
                 return
-            
+
             # Fetch from API
             response = requests.get(f"{TAMA_API_BASE}/withdrawal/history?telegram_id={telegram_id}", timeout=5)
-            
+
             if response.status_code == 200:
                 data = response.json()
                 withdrawals = data.get('withdrawals', [])
-                
+
                 if not withdrawals:
                     text = """
 ЁЯУЬ **WITHDRAWAL HISTORY** ЁЯУЬ
@@ -4388,28 +4404,28 @@ Make your first withdrawal to see history here!
                     """
                 else:
                     text = "ЁЯУЬ **WITHDRAWAL HISTORY** ЁЯУЬ\n\n"
-                    
+
                     for i, w in enumerate(withdrawals[:10], 1):
                         amount = w.get('amount_sent', 0)
                         fee = w.get('fee', 0)
                         status_emoji = "✅" if w.get('status') == 'completed' else "тП│"
                         created_at = w.get('created_at', '')[:10]
-                        
+
                         text += f"{i}. {status_emoji} **{amount:,} TAMA**\n"
                         text += f"   Fee: {fee:,} TAMA | {created_at}\n\n"
-                    
+
                     if len(withdrawals) > 10:
                         text += f"... and {len(withdrawals) - 10} more"
             else:
                 text = "❌ Error loading withdrawal history"
-            
+
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
                 types.InlineKeyboardButton("🔙 Back", callback_data="withdraw_tama")
             )
-            
+
             try:
-                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                     parse_mode='Markdown', reply_markup=keyboard)
             except:
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
@@ -4426,12 +4442,12 @@ Please check if the API server is running on `localhost:8002`
             """
             safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
             bot.answer_callback_query(call.id, "❌ Error loading history")
-    
+
     elif call.data == "mint_nft":
         # Show mint options
         telegram_id = str(call.from_user.id)
         username = call.from_user.username or call.from_user.first_name
-        
+
         try:
             # Get user's TAMA balance, level, and XP (all at once for efficiency)
             leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
@@ -4439,10 +4455,10 @@ Please check if the API server is running on `localhost:8002`
             tama_balance = user_data.get('tama', 0)
             level = user_data.get('level', 1)
             xp = user_data.get('xp', 0)
-            
+
             tama_cost = 5000
             can_afford_tama = tama_balance >= tama_cost
-            
+
             text = f"""
 🎨 **MINT YOUR NFT PET** 🎨
 
@@ -4457,7 +4473,7 @@ Choose your mint type:
 
 **⭐ PREMIUM SOL MINT**
 • Cost: **0.1 SOL** (~$15-20)
-• Get: Epic (60%) / Legendary (40%)  
+• Get: Epic (60%) / Legendary (40%)
 • Bonus: +10,000 TAMA after mint
 • VIP status: x2 TAMA earning
 
@@ -4466,11 +4482,11 @@ All NFTs give you earning bonuses when playing!
 
 💰 *Click the button below to mint!*
             """
-            
+
             # Create mint URL with FRESH user data (tama, level, xp)
             # ✅ Now passes actual TAMA balance to website!
             mint_url = f"{MINT_URL}?user_id={telegram_id}&tama={tama_balance}&level={level}&xp={xp}"
-            
+
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
                 types.InlineKeyboardButton("🎨 Open Mint Page", url=mint_url)
@@ -4479,29 +4495,29 @@ All NFTs give you earning bonuses when playing!
                 types.InlineKeyboardButton("🖼️ My NFTs", callback_data="my_nfts"),
                 types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
             )
-            
+
             try:
-                safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                     parse_mode='Markdown', reply_markup=keyboard)
             except:
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
         except Exception as e:
             print(f"Error showing mint options: {e}")
             bot.answer_callback_query(call.id, "❌ Error loading mint page")
-    
+
     elif call.data == "confirm_withdrawal":
         # Execute withdrawal via API
         telegram_id = str(call.from_user.id)
-        
+
         # Get withdrawal data from session
         withdrawal_data = withdrawal_sessions.get(telegram_id)
         if not withdrawal_data:
             bot.answer_callback_query(call.id, "❌ Session expired. Please start again.")
             return
-        
+
         wallet_address = withdrawal_data.get('wallet_address')
         amount = withdrawal_data.get('amount')
-        
+
         try:
             # Check if API is available
             if not is_api_available():
@@ -4518,7 +4534,7 @@ The withdrawal feature requires the API server to be running.
                 """
                 safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
                 return
-            
+
             # Call withdrawal API
             # Увеличен таймаут до 60 секунд, так как spl-token transfer может выполняться долго
             response = requests.post(f"{TAMA_API_BASE}/withdrawal/request", json={
@@ -4526,20 +4542,20 @@ The withdrawal feature requires the API server to be running.
                 'wallet_address': wallet_address,
                 'amount': amount
             }, timeout=60)
-            
+
             if response.status_code == 200:
                 data = response.json()
                 withdrawal = data.get('withdrawal', {})
-                
+
                 amount_sent = withdrawal.get('amount_sent', 0)
                 fee = withdrawal.get('fee', 0)
                 tx_signature = withdrawal.get('transaction_signature')
                 explorer_url = withdrawal.get('explorer_url')
                 new_balance = withdrawal.get('new_balance', 0)
-                
+
                 # Calculate total withdrawn (approximate)
                 total_withdrawn = amount_sent + fee
-                
+
                 text = f"""
 🎉 **WITHDRAWAL SUCCESSFUL!** 🎉
 
@@ -4570,7 +4586,7 @@ The withdrawal feature requires the API server to be running.
 
 Thank you for playing! 🎮✨
                 """
-                
+
                 keyboard = types.InlineKeyboardMarkup()
                 if explorer_url:
                     keyboard.row(
@@ -4581,19 +4597,19 @@ Thank you for playing! 🎮✨
                     types.InlineKeyboardButton("🎨 Mint NFT", callback_data="mint_nft"),
                     types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
                 )
-                
+
                 # Clear session
                 del withdrawal_sessions[telegram_id]
-                
+
                 try:
-                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                         parse_mode='Markdown', reply_markup=keyboard)
                 except:
                     bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
             else:
                 error_data = response.json()
                 error_msg = error_data.get('error', 'Unknown error')
-                
+
                 text = f"""
 ❌ **WITHDRAWAL FAILED**
 
@@ -4601,19 +4617,19 @@ Thank you for playing! 🎮✨
 
 Please try again or contact support.
                 """
-                
+
                 keyboard = types.InlineKeyboardMarkup()
                 keyboard.row(
                     types.InlineKeyboardButton("🔄 Try Again", callback_data="withdraw_tama"),
                     types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
                 )
-                
+
                 try:
-                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+                    safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                         parse_mode='Markdown', reply_markup=keyboard)
                 except:
                     bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
-                
+
         except Exception as e:
             print(f"Error processing withdrawal: {e}")
             text = f"""
@@ -4627,7 +4643,7 @@ Please check if the API server is running on `localhost:8002`
             """
             safe_edit_message_text(text, call.message.chat.id, call.message.message_id, parse_mode='Markdown')
             bot.answer_callback_query(call.id, "❌ Error processing withdrawal")
-    
+
     elif call.data == "change_wallet_address":
         # Change wallet address
         text = """
@@ -4645,28 +4661,28 @@ Wrong address = lost TAMA!
 
 After sending your address, I'll ask for the amount.
         """
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("🔙 Cancel", callback_data="withdraw_tama")
         )
-        
+
         try:
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                 parse_mode='Markdown', reply_markup=keyboard)
             bot.register_next_step_handler(call.message, process_wallet_address)
         except:
             msg = bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
             bot.register_next_step_handler(msg, process_wallet_address)
-    
+
     elif call.data == "cancel_withdrawal":
         # Cancel withdrawal
         telegram_id = str(call.from_user.id)
-        
+
         # Clear session
         if telegram_id in withdrawal_sessions:
             del withdrawal_sessions[telegram_id]
-        
+
         text = """
 ❌ **Withdrawal Cancelled**
 
@@ -4674,41 +4690,41 @@ No TAMA was deducted from your balance.
 
 You can try again anytime!
         """
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("💰 Withdraw", callback_data="withdraw_tama"),
             types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
         )
-        
+
         try:
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                 parse_mode='Markdown', reply_markup=keyboard)
         except:
             bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
-    
+
     elif call.data == "my_stats":
         # Create stats with back button for callback
         telegram_id = str(call.from_user.id)
         username = call.from_user.username or call.from_user.first_name
-        
+
         try:
             # Get player data from Supabase by telegram_id
             response = supabase.table('leaderboard').select('*').eq('telegram_id', telegram_id).execute()
-            
+
             if response.data:
                 player = response.data[0]
-                
+
                 # Get referral stats
                 ref_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
                 pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).eq('status', 'pending').execute()
-                
+
                 total_referrals = ref_response.count or 0
                 pending_count = pending_response.count or 0
                 # Show correct TAMA balance (use actual balance from database)
                 base_tama = player.get('tama', 0)
                 total_earned = base_tama
-                
+
                 text = f"""
 📊 <b>Your Personal Stats:</b>
 
@@ -4750,59 +4766,59 @@ To start playing and tracking your stats:
 
 🎮 <b>Ready to start?</b>
                 """
-            
+
         except Exception as e:
             print(f"Error getting stats: {e}")
             text = "❌ Error getting your stats. Please try again later."
-        
+
         # Add back button
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
         )
-        
+
         try:
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                 parse_mode='HTML', reply_markup=keyboard)
         except Exception as e:
             print(f"Error editing message: {e}")
             bot.send_message(call.message.chat.id, text, parse_mode='HTML', reply_markup=keyboard)
-    
+
     elif call.data == "leaderboard":
         try:
             # Get referral leaderboard - top referrers by total referrals
             referral_stats = []
-            
+
             # Get all users with their referral counts
             users_response = supabase.table('leaderboard').select('pet_name, telegram_username, telegram_id, wallet_address').execute()
-            
+
             for user in users_response.data:
                 wallet_address = user.get('wallet_address')
                 telegram_id = user.get('telegram_id')
-                
+
                 if wallet_address and telegram_id:
                     # Count active referrals (with wallets)
                     active_refs = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', str(telegram_id)).execute()
                     active_count = active_refs.count or 0
-                    
+
                     # Count pending referrals (without wallets yet)
                     pending_refs = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', str(telegram_id)).eq('status', 'pending').execute()
                     pending_count = pending_refs.count or 0
-                    
+
                     total_referrals = active_count + pending_count
-                    
+
                     if total_referrals > 0:  # Only show users with referrals
                         # Get TAMA balance
                         tama_response = supabase.table('leaderboard').select('tama').eq('telegram_id', str(telegram_id)).execute()
                         tama_balance = tama_response.data[0].get('tama', 0) if tama_response.data else 0
-                        
+
                         # Get better name
                         name = user.get('pet_name')
                         if not name:
                             name = user.get('telegram_username')
                         if not name:
                             name = f"User {user.get('telegram_id', 'Unknown')}"
-                        
+
                         referral_stats.append({
                             'name': name,
                             'active': active_count,
@@ -4810,10 +4826,10 @@ To start playing and tracking your stats:
                             'total': total_referrals,
                             'tama': tama_balance
                         })
-            
+
             # Sort by total referrals
             referral_stats.sort(key=lambda x: x['total'], reverse=True)
-            
+
             # Build referral leaderboard
             referral_text = ""
             if referral_stats:
@@ -4823,13 +4839,13 @@ To start playing and tracking your stats:
                     total = user['total']
                     active = user['active']
                     pending = user['pending']
-                    
+
                     # Show actual TAMA balance from database
                     display_tama = user['tama']  # ✅ FIX: use user['tama'] instead of undefined tama_balance
                     referral_text += f"{medal} {name} - {total} referrals ({display_tama:,} TAMA)\n"
             else:
                 referral_text = "No referrals yet!\n\n🔗 Start referring friends to climb the ranks!"
-            
+
             text = f"""
 🏅 <b>Referral Leaderboard:</b>
 
@@ -4843,7 +4859,7 @@ To start playing and tracking your stats:
 
 📋 <b>Get your link:</b> /ref
             """
-            
+
             # Add interactive buttons
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
@@ -4853,7 +4869,7 @@ To start playing and tracking your stats:
             keyboard.row(
                 types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
             )
-            
+
         except Exception as e:
             print(f"Error getting referral leaderboard: {e}")
             text = """
@@ -4863,20 +4879,20 @@ To start playing and tracking your stats:
 
 Please try again later!
             """
-            
+
             # Add back button
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
                 types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
             )
-        
+
         try:
-            safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+            safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                                 parse_mode='HTML', reply_markup=keyboard)
         except Exception as e:
             print(f"Error editing message: {e}")
             bot.send_message(call.message.chat.id, text, parse_mode='HTML', reply_markup=keyboard)
-    
+
     elif call.data == "rules":
         text = """
 ЁЯУЛ *Community Rules:*
@@ -4911,53 +4927,53 @@ Please try again later!
 
 🎮 *Let's keep it fun and friendly\\!*
         """
-        
+
         # Add back button
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
         )
-        
-        safe_edit_message_text(text, call.message.chat.id, call.message.message_id, 
+
+        safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             reply_markup=keyboard)
-    
+
     elif call.data.startswith("qr_"):
         ref_code = call.data[3:]
         short_link = f"https://solanatamagotchi.com/s.html?ref={ref_code}"
-        
+
         # Generate QR code
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
         qr.add_data(short_link)
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
-        
+
         # Save to bytes
         bio = io.BytesIO()
         img.save(bio, 'PNG')
         bio.seek(0)
-        
+
         # Add back button to QR code
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("🔙 Back to Referral", callback_data="get_referral")
         )
-        
-        bot.send_photo(call.message.chat.id, bio, 
-                      caption=f"📱 *Your Referral QR Code*\n\n`{short_link}`\n\nScan to join!", 
+
+        bot.send_photo(call.message.chat.id, bio,
+                      caption=f"📱 *Your Referral QR Code*\n\n`{short_link}`\n\nScan to join!",
                       parse_mode='Markdown', reply_markup=keyboard)
-    
+
     # ==================== NEW MENU CALLBACKS ====================
-    
+
     elif call.data == "daily_reward":
         # Handle daily reward from button
         telegram_id = str(call.from_user.id)
-        
+
         success, streak_days, reward_amount = daily_rewards.claim_reward(telegram_id)
-        
+
         if success:
             # 💰 TAMA balance is already updated in claim_reward() function
             # No need to call add_tama_reward() separately
-            
+
             milestone_text = ""
             if streak_days == 7:
                 milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
@@ -4965,7 +4981,7 @@ Please try again later!
                 milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
             elif streak_days == 30:
                 milestone_text = "\n\n👑 **MONTH!** You're a legend!"
-            
+
             text = f"""
 ✅ **Daily Reward Claimed!**
 
@@ -4975,7 +4991,7 @@ Please try again later!
 
 💰 **Come back every day for bigger rewards!**
             """
-            
+
             if streak_days == 7:
                 badge_system.award_badge(telegram_id, 'week_warrior')
             elif streak_days == 30:
@@ -4990,35 +5006,35 @@ Please try again later!
 
 💰 **Don't miss a day to keep your streak!**
             """
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
-        
+
         safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
-    
+
     # Mini-games removed - available in main game only
     # elif call.data == "mini_games":
     #     # Show games menu
     #     telegram_id = str(call.from_user.id)
     #     can_play, games_played = mini_games.can_play(telegram_id)
     #     games_left = 3 - games_played
-    #     
+    #
     #     text = f"""
     # 🎮 **Mini-Games**
-    # 
+    #
     # 💰 **Play and earn TAMA!**
-    # 
+    #
     # 📋 **Available games:**
     # • Guess Number (1-100) - up to 500 TAMA
     # • Solana Quiz - 100 TAMA
     # • Fortune Wheel - up to 500 TAMA
-    # 
+    #
     # 📊 **Limit:** {games_left}/3 games left today
-    # 
+    #
     # 💰 **Choose a game:**
     #         """
-    #     
+    #
     #     keyboard = types.InlineKeyboardMarkup()
     #     if can_play:
     #         keyboard.row(
@@ -5029,20 +5045,20 @@ Please try again later!
     #             types.InlineKeyboardButton("🎰 Fortune Wheel", callback_data="game_wheel")
     #         )
     #     keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
-    #     
+    #
     #     safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
     #                         parse_mode='Markdown', reply_markup=keyboard)
-    
+
     elif call.data == "view_badges":
         # Show badges
         telegram_id = str(call.from_user.id)
         user_badges = badge_system.get_user_badges(telegram_id)
-        
+
         if user_badges:
             badges_text = "\n".join([f"• {b['name']} - {b['desc']}" for b in user_badges])
         else:
             badges_text = "No badges yet. Play and invite friends!"
-        
+
         text = f"""
 🏆 **Your Badges**
 
@@ -5056,34 +5072,34 @@ Please try again later!
 • 🎮 Gamer - 100 mini-games
 • 🍀 Lucky - Wheel jackpot
         """
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
-        
+
         safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
-    
+
     elif call.data == "view_rank":
         # Show rank
         telegram_id = str(call.from_user.id)
-        
+
         ref_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
         pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
-        
+
         total_refs = (ref_response.count or 0) + (pending_response.count or 0)
         rank_changed, rank_id, rank_data = rank_system.update_rank(telegram_id, total_refs)
-        
+
         next_rank = None
         for r_id, r_data in RANKS.items():
             if r_data['min_refs'] > total_refs:
                 next_rank = (r_id, r_data)
                 break
-        
+
         # Progress bar with proper characters
         filled = "▓" * min(total_refs % 5, 5)
         empty = "░" * max(5 - (total_refs % 5), 0)
         progress_bar = filled + empty
-        
+
         text = f"""
 {rank_data['emoji']} **Your Rank: {rank_data['name']}**
 
@@ -5091,7 +5107,7 @@ Please try again later!
 • Referrals: {total_refs}
 • Progress: {progress_bar}
         """
-        
+
         if next_rank:
             refs_needed = next_rank[1]['min_refs'] - total_refs
             text += f"""
@@ -5101,63 +5117,63 @@ Please try again later!
         """
         else:
             text += "\n\n🏆 **Maximum rank achieved!**"
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
-        
+
         safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
-    
+
     elif call.data == "view_quests":
         # Show quests
         telegram_id = str(call.from_user.id)
-        
+
         ref_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
         pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
-        
+
         total_refs = (ref_response.count or 0) + (pending_response.count or 0)
         quest_system.check_quests(telegram_id, total_refs)
-        
+
         text = "📋 **Referral Quests**\n\n"
-        
+
         for quest_id, quest_data in QUESTS.items():
             progress = min(total_refs, quest_data['target'])
-            
+
             if total_refs >= quest_data['target']:
                 status = "✅"
             else:
                 status = f"{progress}/{quest_data['target']}"
-            
+
             text += f"{status} **{quest_data['name']}**\n"
             text += f"   {quest_data['desc']}\n"
             text += f"   Reward: {quest_data['reward']:,} TAMA\n\n"
-        
+
         text += "💰 **Invite friends to complete quests!**"
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
-        
+
         safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
-    
+
     elif call.data == "my_stats_detailed":
         # Detailed stats with gamification
         telegram_id = str(call.from_user.id)
-        
+
         # Get all stats
         ref_response = supabase.table('referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
         pending_response = supabase.table('pending_referrals').select('*', count='exact').eq('referrer_telegram_id', telegram_id).execute()
         leaderboard_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
-        
+
         total_refs = (ref_response.count or 0) + (pending_response.count or 0)
         total_tama = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
-        
+
         streak_days = daily_rewards.get_streak(telegram_id)
         rank_id, rank_data = rank_system.get_user_rank(telegram_id)
         user_badges = badge_system.get_user_badges(telegram_id)
-        
+
         badges_count = len(user_badges)
-        
+
         text = f"""
 📊 **Your Full Stats**
 
@@ -5178,52 +5194,52 @@ Please try again later!
 
 💰 **Keep playing and inviting friends!**
         """
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
             types.InlineKeyboardButton("🔗 Referral", callback_data="get_referral")
         )
         keyboard.row(types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu"))
-        
+
         safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
-    
+
     # ==================== GAME CALLBACKS ====================
-    
+
     # Mini-games removed - available in main game only
     # elif call.data == "game_guess":
     #     # Guess the number game
     #     telegram_id = str(call.from_user.id)
     #     can_play, games_played = mini_games.can_play(telegram_id)
-    #     
+    #
     #     if not can_play:
     #         bot.answer_callback_query(call.id, "Daily game limit reached!")
     #         return
-    #     
+    #
     #     text = """
     # 📋 **Guess Number (1-100)**
-    # 
+    #
     # 💰 **Rewards:**
     # • Exact match: 500 TAMA
-    # • ┬▒5: 200 TAMA  
+    # • ┬▒5: 200 TAMA
     # • ┬▒10: 100 TAMA
     # • ┬▒20: 50 TAMA
     # • Other: 25 TAMA
-    # 
+    #
     # **Enter number from 1 to 100:**
     #         """
-    #     
+    #
     #     keyboard = types.InlineKeyboardMarkup()
     #     keyboard.row(
     #         types.InlineKeyboardButton("🔙 Back", callback_data="back_to_menu")
     #     )
-    #     
+    #
     #     safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
     #                         parse_mode='Markdown', reply_markup=keyboard)
-    #     
+    #
     #     # Set waiting state for number input
     #     bot.register_next_step_handler(call.message, process_guess_number)
-    
+
     # Mini-games removed - available in main game only
     # elif call.data == "game_trivia":
     #     # Trivia game
@@ -5234,7 +5250,341 @@ Please try again later!
     # elif call.data == "game_wheel":
     #     # Spin the wheel
     #     ...
+
+    # ==================== SLOTS CALLBACKS ====================
+    elif call.data.startswith("slots_spin_"):
+        # Handle slot spin
+        telegram_id = str(call.from_user.id)
+        spin_type = call.data.replace("slots_spin_", "")
+        
+        # Check if free spin
+        is_free = spin_type == "free"
+        bet_amount = 0 if is_free else int(spin_type)
+        
+        # Get user balance
+        try:
+            user_data = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
+            balance = user_data.data[0]['tama'] if user_data.data else 0
+        except:
+            balance = 0
+        
+        # Check free spins
+        today = datetime.now().date().isoformat()
+        free_spins_used = 0
+        try:
+            slots_data = supabase.table('slots_daily_stats').select('*').eq('telegram_id', telegram_id).eq('date', today).execute()
+            if slots_data.data:
+                free_spins_used = slots_data.data[0].get('free_spins_used', 0)
+        except:
+            pass
+        
+        free_spins_left = max(0, 3 - free_spins_used)
+        
+        # Validate
+        if is_free:
+            if free_spins_left <= 0:
+                bot.answer_callback_query(call.id, "❌ No free spins left today! Try again tomorrow.")
+                return
+        else:
+            if balance < bet_amount:
+                bot.answer_callback_query(call.id, f"❌ Insufficient balance! Need {bet_amount:,} TAMA")
+                return
+        
+        # Show spinning animation
+        spinning_text = f"""
+🎰 **SPINNING...** 🎰
+
+{'🎁 FREE SPIN' if is_free else f'💰 Bet: {bet_amount:,} TAMA'}
+
+⏳ Please wait...
+        """
+        
+        try:
+            bot.edit_message_text(
+                spinning_text,
+                call.message.chat.id,
+                call.message.message_id,
+                parse_mode='Markdown'
+            )
+        except:
+            pass
+        
+        # Simulate spin delay
+        import time
+        time.sleep(1.5)
+        
+        # Generate result
+        symbols = ['🍒', '🍋', '🍊', '💎', '⭐', '👑', '🎰']
+        multipliers = {
+            '🍒': 2, '🍋': 5, '🍊': 8, '💎': 10,
+            '⭐': 20, '👑': 50, '🎰': 100
+        }
+        
+        # Weighted random
+        weights = [30, 25, 20, 12, 8, 4, 1]  # Cherry to Jackpot
+        result = []
+        for _ in range(3):
+            rand = random.random() * sum(weights)
+            cumsum = 0
+            for i, w in enumerate(weights):
+                cumsum += w
+                if rand <= cumsum:
+                    result.append(symbols[i])
+                    break
+        
+        # Check win
+        is_win = result[0] == result[1] == result[2]
+        win_amount = 0
+        multiplier = 0
+        
+        if is_win:
+            multiplier = multipliers[result[0]]
+            bet_for_calc = bet_amount if not is_free else 100  # Free spins use 100 TAMA base
+            win_amount = bet_for_calc * multiplier
+        
+        # Update balance
+        new_balance = balance
+        if is_free:
+            if is_win:
+                new_balance += win_amount
+                # Update balance
+                try:
+                    supabase.table('leaderboard').update({'tama': new_balance}).eq('telegram_id', telegram_id).execute()
+                    # Log transaction
+                    supabase.table('transactions').insert({
+                        'telegram_id': telegram_id,
+                        'amount': win_amount,
+                        'type': 'slots_win',
+                        'balance_before': balance,
+                        'balance_after': new_balance,
+                        'metadata': json.dumps({'bet': 0, 'win': win_amount, 'symbols': result, 'multiplier': multiplier})
+                    }).execute()
+                except Exception as e:
+                    print(f"Error updating balance: {e}")
+            
+            # Update free spins used
+            try:
+                slots_data = supabase.table('slots_daily_stats').select('*').eq('telegram_id', telegram_id).eq('date', today).execute()
+                if slots_data.data:
+                    supabase.table('slots_daily_stats').update({
+                        'free_spins_used': free_spins_used + 1,
+                        'spins_count': slots_data.data[0].get('spins_count', 0) + 1,
+                        'wins_count': slots_data.data[0].get('wins_count', 0) + (1 if is_win else 0),
+                        'total_win': slots_data.data[0].get('total_win', 0) + win_amount,
+                        'max_win': max(slots_data.data[0].get('max_win', 0), win_amount)
+                    }).eq('telegram_id', telegram_id).eq('date', today).execute()
+                else:
+                    supabase.table('slots_daily_stats').insert({
+                        'telegram_id': telegram_id,
+                        'date': today,
+                        'free_spins_used': 1,
+                        'spins_count': 1,
+                        'wins_count': 1 if is_win else 0,
+                        'total_win': win_amount,
+                        'max_win': win_amount if is_win else 0
+                    }).execute()
+            except Exception as e:
+                print(f"Error updating stats: {e}")
+        else:
+            # Deduct bet
+            new_balance = balance - bet_amount + win_amount
+            try:
+                supabase.table('leaderboard').update({'tama': new_balance}).eq('telegram_id', telegram_id).execute()
+                # Log transaction
+                supabase.table('transactions').insert({
+                    'telegram_id': telegram_id,
+                    'amount': -bet_amount + win_amount,
+                    'type': 'slots_spin',
+                    'balance_before': balance,
+                    'balance_after': new_balance,
+                    'metadata': json.dumps({'bet': bet_amount, 'win': win_amount, 'symbols': result, 'multiplier': multiplier})
+                }).execute()
+                
+                # Update stats
+                try:
+                    slots_data = supabase.table('slots_daily_stats').select('*').eq('telegram_id', telegram_id).eq('date', today).execute()
+                    if slots_data.data:
+                        supabase.table('slots_daily_stats').update({
+                            'spins_count': slots_data.data[0].get('spins_count', 0) + 1,
+                            'total_bet': slots_data.data[0].get('total_bet', 0) + bet_amount,
+                            'wins_count': slots_data.data[0].get('wins_count', 0) + (1 if is_win else 0),
+                            'total_win': slots_data.data[0].get('total_win', 0) + win_amount,
+                            'max_win': max(slots_data.data[0].get('max_win', 0), win_amount)
+                        }).eq('telegram_id', telegram_id).eq('date', today).execute()
+                    else:
+                        supabase.table('slots_daily_stats').insert({
+                            'telegram_id': telegram_id,
+                            'date': today,
+                            'spins_count': 1,
+                            'total_bet': bet_amount,
+                            'wins_count': 1 if is_win else 0,
+                            'total_win': win_amount,
+                            'max_win': win_amount if is_win else 0
+                        }).execute()
+                except Exception as e:
+                    print(f"Error updating stats: {e}")
+            except Exception as e:
+                print(f"Error updating balance: {e}")
+        
+        # Update free spins count
+        if is_free:
+            free_spins_left = max(0, free_spins_left - 1)
+        
+        # Build result message
+        result_emoji = "🎉" if is_win else "😔"
+        result_text = f"""
+{result_emoji} **SLOT RESULT** {result_emoji}
+
+{'🎁 FREE SPIN' if is_free else f'💰 Bet: {bet_amount:,} TAMA'}
+
+{result[0]}  {result[1]}  {result[2]}
+
+{'🎉 **YOU WON!**' if is_win else '❌ **No Win**'}
+
+{f'💰 **+{win_amount:,} TAMA** (x{multiplier}) 🔥' if is_win else f'💸 **-{bet_amount:,} TAMA**' if not is_free else ''}
+
+💰 **Balance:** {new_balance:,} TAMA
+🎁 **Free Spins:** {free_spins_left} left today
+        """
+        
+        # Create keyboard
+        keyboard = types.InlineKeyboardMarkup(row_width=2)
+        keyboard.add(
+            types.InlineKeyboardButton("💰 100 TAMA", callback_data="slots_spin_100"),
+            types.InlineKeyboardButton("💎 500 TAMA", callback_data="slots_spin_500"),
+        )
+        keyboard.add(
+            types.InlineKeyboardButton("👑 2,000 TAMA", callback_data="slots_spin_2000"),
+        )
+        if free_spins_left > 0:
+            keyboard.add(
+                types.InlineKeyboardButton(f"🎁 FREE SPIN ({free_spins_left} left)", callback_data="slots_spin_free"),
+            )
+        keyboard.add(
+            types.InlineKeyboardButton("📊 My Stats", callback_data="slots_stats"),
+            types.InlineKeyboardButton("🏆 Leaderboard", callback_data="slots_leaderboard"),
+        )
+        keyboard.add(
+            types.InlineKeyboardButton("🔄 Spin Again", callback_data="slots_menu"),
+        )
+        
+        try:
+            bot.edit_message_text(
+                result_text,
+                call.message.chat.id,
+                call.message.message_id,
+                parse_mode='Markdown',
+                reply_markup=keyboard
+            )
+            if is_win:
+                bot.answer_callback_query(call.id, f"🎉 You won {win_amount:,} TAMA!")
+            else:
+                bot.answer_callback_query(call.id, "Try again!")
+        except Exception as e:
+            print(f"Error editing message: {e}")
+            bot.answer_callback_query(call.id, "✅ Spin complete!")
     
+    elif call.data == "slots_menu":
+        # Return to slots menu
+        open_slots(call.message)
+        bot.answer_callback_query(call.id)
+    
+    elif call.data == "slots_stats":
+        # Show user stats
+        telegram_id = str(call.from_user.id)
+        today = datetime.now().date().isoformat()
+        
+        try:
+            stats = supabase.table('slots_daily_stats').select('*').eq('telegram_id', telegram_id).eq('date', today).execute()
+            if stats.data:
+                s = stats.data[0]
+                spins = s.get('spins_count', 0)
+                wins = s.get('wins_count', 0)
+                total_bet = s.get('total_bet', 0)
+                total_win = s.get('total_win', 0)
+                max_win = s.get('max_win', 0)
+                free_used = s.get('free_spins_used', 0)
+                win_rate = (wins / spins * 100) if spins > 0 else 0
+                profit = total_win - total_bet
+            else:
+                spins = wins = total_bet = total_win = max_win = free_used = 0
+                win_rate = profit = 0
+        except:
+            spins = wins = total_bet = total_win = max_win = free_used = 0
+            win_rate = profit = 0
+        
+        text = f"""
+📊 **YOUR SLOTS STATS** 📊
+
+**Today:**
+• 🎰 Spins: {spins}
+• ✅ Wins: {wins} ({win_rate:.1f}% win rate)
+• 🎁 Free Spins Used: {free_used}/3
+• 💰 Total Bet: {total_bet:,} TAMA
+• 💎 Total Won: {total_win:,} TAMA
+• 🔥 Max Win: {max_win:,} TAMA
+• 📈 Profit: {profit:+,} TAMA
+
+💰 Keep spinning and winning!
+        """
+        
+        keyboard = types.InlineKeyboardMarkup()
+        keyboard.add(types.InlineKeyboardButton("🔙 Back to Slots", callback_data="slots_menu"))
+        
+        try:
+            bot.edit_message_text(
+                text,
+                call.message.chat.id,
+                call.message.message_id,
+                parse_mode='Markdown',
+                reply_markup=keyboard
+            )
+        except:
+            pass
+        bot.answer_callback_query(call.id)
+    
+    elif call.data == "slots_leaderboard":
+        # Show daily leaderboard
+        today = datetime.now().date().isoformat()
+        
+        try:
+            top_players = supabase.table('slots_daily_stats').select('telegram_id, total_win, spins_count').eq('date', today).order('total_win', desc=True).limit(10).execute()
+            
+            text = "🏆 **TODAY'S TOP WINNERS** 🏆\n\n"
+            
+            if top_players.data:
+                medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+                for i, player in enumerate(top_players.data[:10]):
+                    try:
+                        user_info = bot.get_chat(player['telegram_id'])
+                        username = user_info.username or user_info.first_name
+                        username = f"@{username}" if user_info.username else username
+                    except:
+                        username = f"User {player['telegram_id']}"
+                    
+                    medal = medals[i] if i < len(medals) else f"{i+1}."
+                    text += f"{medal} {username}\n   💰 +{player['total_win']:,} TAMA ({player['spins_count']} spins)\n\n"
+            else:
+                text += "No spins today yet. Be the first! 🎰"
+        except Exception as e:
+            print(f"Error loading leaderboard: {e}")
+            text = "❌ Error loading leaderboard"
+        
+        keyboard = types.InlineKeyboardMarkup()
+        keyboard.add(types.InlineKeyboardButton("🔙 Back to Slots", callback_data="slots_menu"))
+        
+        try:
+            bot.edit_message_text(
+                text,
+                call.message.chat.id,
+                call.message.message_id,
+                parse_mode='Markdown',
+                reply_markup=keyboard
+            )
+        except:
+            pass
+        bot.answer_callback_query(call.id)
+
     elif call.data == "back_to_menu":
         # Return to main menu
         send_welcome(call.message)
@@ -5244,33 +5594,33 @@ Please try again later!
 # def process_guess_number(message):
 #     """Process guess number game input"""
 #     telegram_id = str(message.from_user.id)
-#     
+#
 #     try:
 #         guess = int(message.text)
 #         if guess < 1 or guess > 100:
 #             bot.reply_to(message, "❌ Number must be from 1 to 100!")
 #             return
-#         
+#
 #         success, reward, result_text = mini_games.play_guess_number(telegram_id, guess)
-#         
+#
 #         if success:
 #             text = f"""
 # {result_text}
-# 
+#
 # 💰 **Earned:** +{reward} TAMA
-# 
+#
 # 🎮 **Come back tomorrow for new games!**
 #             """
-#             
+#
 #             keyboard = types.InlineKeyboardMarkup()
 #             keyboard.row(
 #                 types.InlineKeyboardButton("🔙 Menu", callback_data="back_to_menu")
 #             )
-#             
+#
 #             bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
 #         else:
 #             bot.reply_to(message, f"❌ {result_text}")
-#             
+#
 #     except ValueError:
 #         bot.reply_to(message, "❌ Enter number from 1 to 100!")
 
@@ -5282,12 +5632,12 @@ def handle_web_app_data(message):
     try:
         telegram_id = str(message.from_user.id)
         data = json.loads(message.web_app_data.data)
-        
+
         logging.info(f"ЁЯУе Received WebApp data from user {telegram_id}: {data.get('action')}")
-        
+
         if data.get('action') == 'auto_save':
             game_data = data.get('data', {})
-            
+
             # Extract game state
             level = game_data.get('level', 1)
             game_tama = game_data.get('tama', 0) or 0
@@ -5296,7 +5646,7 @@ def handle_web_app_data(message):
             happy = game_data.get('happy', 100)
             total_clicks = game_data.get('totalClicks', 0)
             max_combo = game_data.get('maxCombo', 0)
-            
+
             # Prepare pet_data JSON
             pet_data = {
                 'hp': hp,
@@ -5307,17 +5657,17 @@ def handle_web_app_data(message):
                 'xp': game_data.get('xp', 0),
                 'achievements': game_data.get('achievements', [])
             }
-            
+
             # 🛡️ PROTECTION: Get current balance and never decrease it!
             # This prevents game autosave from overwriting daily rewards, referrals, etc.
             try:
                 current_response = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
                 current_tama = current_response.data[0].get('tama', 0) or 0 if current_response.data else 0
-                
+
                 # Only update TAMA if game has more (earned in game)
                 # If current balance is higher (from daily rewards, referrals), keep it!
                 final_tama = max(current_tama, game_tama)
-                
+
                 if final_tama > current_tama:
                     logging.info(f"💰 Auto-save: Updated TAMA from {current_tama} to {final_tama} (+{final_tama - current_tama})")
                 elif current_tama > game_tama:
@@ -5325,7 +5675,7 @@ def handle_web_app_data(message):
             except Exception as e:
                 logging.error(f"Error getting current balance: {e}")
                 final_tama = game_tama  # Fallback to game balance if error
-            
+
             # Update in Supabase
             response = supabase.table('leaderboard').update({
                 'tama': final_tama,  # Use protected balance
@@ -5333,15 +5683,15 @@ def handle_web_app_data(message):
                 'pet_data': json.dumps(pet_data),
                 'last_active': datetime.now().isoformat()
             }).eq('telegram_id', telegram_id).execute()
-            
+
             logging.info(f"✅ Saved game data for user {telegram_id}: Level={level}, TAMA={final_tama}")
-            
+
         elif data.get('action') == 'level_up':
             game_data = data.get('data', {})
             level = game_data.get('level', 1)
-            
+
             logging.info(f"🎉 Level up for user {telegram_id}: Level {level}")
-            
+
             # Send congratulations message
             bot.send_message(
                 message.chat.id,
@@ -5349,18 +5699,18 @@ def handle_web_app_data(message):
                 f"Keep playing to unlock more rewards! 🚀",
                 parse_mode='Markdown'
             )
-            
+
     except Exception as e:
         logging.error(f"❌ Error handling WebApp data: {e}")
         logging.error(f"Data: {message.web_app_data.data if message.web_app_data else 'None'}")
 
 if __name__ == '__main__':
     print("Bot started!")
-    
+
     # Start scheduler in background
     scheduler_thread = threading.Thread(target=run_schedule, daemon=True)
     scheduler_thread.start()
-    
+
     # Setup group permissions to bypass anti-spam
     async def setup_group_permissions():
         try:
@@ -5385,10 +5735,10 @@ if __name__ == '__main__':
     # ========================================
     # WEBHOOK MODE (для Railway / Production)
     # ========================================
-    
+
     # Create Flask app for webhook
     app = Flask(__name__)
-    
+
     # Webhook endpoint (Telegram will POST updates here)
     @app.route(f'/{TOKEN}', methods=['POST'])
     def webhook():
@@ -5401,20 +5751,20 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"❌ Webhook error: {e}")
             return '', 500
-    
+
     # Health check endpoint (для Railway/Render)
     @app.route('/', methods=['GET'])
     def health():
         """Health check endpoint"""
         return {'status': 'ok', 'bot': 'running', 'timestamp': datetime.now().isoformat()}, 200
-    
+
     # Keep-Alive function (prevents Render Free tier from sleeping)
     def keep_alive_ping():
         """Ping bot, API, and Node.js on-chain service every 5 minutes to prevent sleep"""
         while True:
             try:
                 time.sleep(300)  # 5 minutes
-                
+
                 # Ping bot health endpoint
                 WEBHOOK_HOST = os.getenv('RAILWAY_PUBLIC_DOMAIN') or os.getenv('RENDER_EXTERNAL_HOSTNAME')
                 if WEBHOOK_HOST:
@@ -5427,7 +5777,7 @@ if __name__ == '__main__':
                             print(f"⚠️ Keep-Alive: Bot ping returned {response.status_code}")
                     except Exception as e:
                         print(f"❌ Keep-Alive: Bot ping failed: {e}")
-                
+
                 # Ping API health endpoint
                 try:
                     api_response = requests.get(f"{TAMA_API_BASE}/test", timeout=10)
@@ -5437,7 +5787,7 @@ if __name__ == '__main__':
                         print(f"⚠️ Keep-Alive: API ping returned {api_response.status_code}")
                 except Exception as e:
                     print(f"❌ Keep-Alive: API ping failed: {e}")
-                
+
                 # Ping Node.js on-chain minting service health endpoint
                 try:
                     onchain_url = "https://solanatamagotchi-onchain.onrender.com/health"
@@ -5448,25 +5798,25 @@ if __name__ == '__main__':
                         print(f"⚠️ Keep-Alive: On-Chain Service ping returned {onchain_response.status_code}")
                 except Exception as e:
                     print(f"❌ Keep-Alive: On-Chain Service ping failed: {e}")
-                    
+
             except Exception as e:
                 print(f"❌ Keep-Alive thread error: {e}")
-    
+
     # Start Keep-Alive in background thread (only on Render)
     if os.getenv('RENDER'):
         keep_alive_thread = threading.Thread(target=keep_alive_ping, daemon=True)
         keep_alive_thread.start()
         print("🔄 Keep-Alive started (5 min interval)")
-    
+
     # Set webhook URL (if not set already)
     try:
         # Get Railway/Render public URL from environment
         WEBHOOK_HOST = os.getenv('RAILWAY_PUBLIC_DOMAIN') or os.getenv('RENDER_EXTERNAL_HOSTNAME')
-        
+
         if WEBHOOK_HOST:
             WEBHOOK_URL = f"https://{WEBHOOK_HOST}/{TOKEN}"
             webhook_info = bot.get_webhook_info()
-            
+
             if webhook_info.url != WEBHOOK_URL:
                 print(f"🔗 Setting webhook to: {WEBHOOK_URL}")
                 bot.remove_webhook()
@@ -5477,20 +5827,20 @@ if __name__ == '__main__':
                 print(f"✅ Webhook already set: {webhook_info.url}")
         else:
             print("⚠️ No WEBHOOK_HOST found - webhook not set (use RAILWAY_PUBLIC_DOMAIN or RENDER_EXTERNAL_HOSTNAME)")
-            
+
     except Exception as e:
         print(f"❌ Error setting webhook: {e}")
-    
+
     # Run Flask app (Railway/Render will provide PORT)
     PORT = int(os.getenv('PORT', 8080))
     print(f"🚀 Starting webhook server on port {PORT}...")
     print(f"📡 Bot is ready to receive updates!")
-    
+
     # Use gunicorn in production, Flask dev server for local
     # SECURITY: Never enable debug mode in production!
     # Use FLASK_DEBUG environment variable for local development only
     DEBUG_MODE = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    
+
     if os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('RENDER'):
         # Production: use gunicorn (installed in requirements.txt)
         # Railway/Render will run: gunicorn bot:app
