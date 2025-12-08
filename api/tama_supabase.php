@@ -4147,10 +4147,21 @@ function handleMarketplaceBuy($url, $key) {
         
         $listing = $listingResult['data'][0];
         
-        // Check if buyer is seller
-        if ($listing['seller_telegram_id'] == $telegramId) {
+        // Check if buyer is seller (convert both to string for comparison)
+        $sellerTelegramId = (string)$listing['seller_telegram_id'];
+        $buyerTelegramId = (string)$telegramId;
+        
+        error_log("🛒 MARKETPLACE BUY CHECK: Seller ID: {$sellerTelegramId}, Buyer ID: {$buyerTelegramId}");
+        
+        if ($sellerTelegramId === $buyerTelegramId) {
             http_response_code(400);
-            echo json_encode(['error' => 'Cannot buy your own NFT']);
+            echo json_encode([
+                'error' => 'Cannot buy your own NFT',
+                'debug' => [
+                    'seller_id' => $sellerTelegramId,
+                    'buyer_id' => $buyerTelegramId
+                ]
+            ]);
             return;
         }
         

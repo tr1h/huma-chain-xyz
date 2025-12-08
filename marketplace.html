@@ -1506,9 +1506,23 @@
             const modal = document.getElementById('buy-modal');
             const details = document.getElementById('buy-details');
             
+            // Get NFT image
+            const petEmoji = getPetEmoji(nft.pet_type);
+            const staticImageUrl = nft.tier_name && nft.rarity ? getNFTImageUrlStatic(nft.tier_name, nft.rarity) : null;
+            
+            let nftImageHtml = `<div style="font-size: 80px; margin-bottom: 10px;">${petEmoji}</div>`;
+            if (staticImageUrl) {
+                nftImageHtml = `
+                    <div style="width: 200px; height: 200px; margin: 0 auto 15px; border-radius: 15px; overflow: hidden; background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2));">
+                        <img src="${staticImageUrl}" 
+                             onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;font-size:80px;\\'>${petEmoji}</div>'"
+                             style="width: 100%; height: 100%; object-fit: cover;" />
+                    </div>`;
+            }
+            
             details.innerHTML = `
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 80px; margin-bottom: 10px;">${getPetEmoji(nft.pet_type)}</div>
+                    ${nftImageHtml}
                     <div style="font-size: 20px; color: #8AC926; font-weight: bold; margin-bottom: 10px;">
                         ${getTierEmoji(nft.tier_name)} ${nft.tier_name}
                     </div>
@@ -1662,12 +1676,40 @@
             }
             
             try {
+                // Update telegram_id before buying
+                const buyerTelegramId = userTelegramId || getTelegramUserId();
+                
+                // If still no telegram_id and wallet is connected, try to find via wallet
+                let finalTelegramId = buyerTelegramId;
+                if (!finalTelegramId && walletAddress) {
+                    const { data: leaderboardData } = await supabase
+                        .from('leaderboard')
+                        .select('telegram_id')
+                        .eq('wallet_address', walletAddress)
+                        .maybeSingle();
+                    
+                    if (leaderboardData && leaderboardData.telegram_id) {
+                        finalTelegramId = leaderboardData.telegram_id.toString();
+                    }
+                }
+                
+                if (!finalTelegramId) {
+                    alert('❌ Telegram ID not found. Please login via Telegram.');
+                    return;
+                }
+                
+                console.log('🛒 Buying NFT:', {
+                    buyer_telegram_id: finalTelegramId,
+                    seller_telegram_id: selectedNFT.seller_telegram_id,
+                    listing_id: selectedNFT.listing_id || selectedNFT.id
+                });
+                
                 const response = await fetch(`${API_BASE}/marketplace/buy`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        telegram_id: userTelegramId,
-                        listing_id: selectedNFT.listing_id
+                        telegram_id: finalTelegramId,
+                        listing_id: selectedNFT.listing_id || selectedNFT.id
                     })
                 });
                 
@@ -1679,9 +1721,11 @@
                     loadAndDisplayBalance(); // Update balance
                 } else {
                     const error = await response.json();
+                    console.error('❌ Buy failed:', error);
                     alert('Failed to buy NFT: ' + (error.error || 'Unknown error'));
                 }
             } catch (error) {
+                console.error('❌ Buy exception:', error);
                 alert('Failed to buy NFT: ' + error.message);
             }
         }
