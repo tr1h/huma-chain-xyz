@@ -1325,6 +1325,28 @@
                     if (response.ok) {
                         nfts = await response.json();
                         
+                        // Get current user's telegram_id
+                        let currentUserId = userTelegramId || getTelegramUserId();
+                        if (!currentUserId && walletAddress) {
+                            const { data: leaderboardData } = await supabase
+                                .from('leaderboard')
+                                .select('telegram_id')
+                                .eq('wallet_address', walletAddress)
+                                .maybeSingle();
+                            if (leaderboardData && leaderboardData.telegram_id) {
+                                currentUserId = leaderboardData.telegram_id.toString();
+                            }
+                        }
+                        
+                        // Filter out user's own NFTs
+                        if (currentUserId) {
+                            nfts = nfts.filter(nft => {
+                                const sellerId = nft.seller_telegram_id?.toString();
+                                return sellerId !== currentUserId;
+                            });
+                            console.log('🔍 Filtered out own NFTs. Showing:', nfts.length);
+                        }
+                        
                         // Apply client-side filters (pet, price, multiplier)
                         nfts = applyAdvancedFilters(nfts);
                     }
@@ -2168,18 +2190,39 @@
         }
         
         async function loadUserBalance(paymentType) {
-            if (!userTelegramId && !walletAddress) return;
+            const buyBalanceEl = document.getElementById('buy-balance');
+            if (!buyBalanceEl) return;
             
             try {
                 let balanceTama = 0;
                 let balanceSol = 0;
                 
+                // Get current telegram_id
+                let currentTelegramId = userTelegramId || getTelegramUserId();
+                
+                // If still no telegram_id and wallet is connected, try to find via wallet
+                if (!currentTelegramId && walletAddress) {
+                    const { data: leaderboardData } = await supabase
+                        .from('leaderboard')
+                        .select('telegram_id')
+                        .eq('wallet_address', walletAddress)
+                        .maybeSingle();
+                    
+                    if (leaderboardData && leaderboardData.telegram_id) {
+                        currentTelegramId = leaderboardData.telegram_id.toString();
+                    }
+                }
+                
                 // Load TAMA balance
-                if (userTelegramId && (paymentType === 'tama' || paymentType === 'both')) {
-                    const response = await fetch(`${API_BASE}/balance?telegram_id=${userTelegramId}`);
+                if (currentTelegramId && (paymentType === 'tama' || paymentType === 'both')) {
+                    console.log('💰 Loading TAMA balance for:', currentTelegramId);
+                    const response = await fetch(`${API_BASE}/balance?telegram_id=${currentTelegramId}`);
                     if (response.ok) {
                         const data = await response.json();
                         balanceTama = data.balance || 0;
+                        console.log('✅ TAMA balance:', balanceTama);
+                    } else {
+                        console.error('❌ Failed to load TAMA balance');
                     }
                 }
                 
@@ -2292,6 +2335,12 @@
                     seller_telegram_id: selectedNFT.seller_telegram_id,
                     listing_id: selectedNFT.listing_id || selectedNFT.id
                 });
+                
+                // CRITICAL CHECK: Don't allow buying own NFT on frontend
+                if (finalTelegramId === selectedNFT.seller_telegram_id?.toString()) {
+                    alert('❌ You cannot buy your own NFT! This NFT belongs to you.');
+                    return;
+                }
                 
                 const response = await fetch(`${API_BASE}/marketplace/buy`, {
                     method: 'POST',
