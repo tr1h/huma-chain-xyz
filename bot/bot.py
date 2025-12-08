@@ -1450,14 +1450,14 @@ def send_welcome(message):
 def open_slots(message):
     """Open Lucky Slots game - Interactive version"""
     telegram_id = str(message.from_user.id)
-    
+
     # Get user balance
     try:
         user_data = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
         balance = user_data.data[0]['tama'] if user_data.data else 0
     except:
         balance = 0
-    
+
     # Get free spins (daily reset)
     today = datetime.now().date().isoformat()
     try:
@@ -1468,18 +1468,28 @@ def open_slots(message):
             free_spins = 3
     except:
         free_spins = 3
-    
+
     free_spins = max(0, free_spins)
-    
+
+    # Get jackpot pool
+    jackpot_pool = 0
+    try:
+        pool_data = supabase.table('slots_jackpot_pool').select('current_pool').eq('id', 1).execute()
+        if pool_data.data:
+            jackpot_pool = pool_data.data[0].get('current_pool', 0)
+    except:
+        jackpot_pool = 0
+
     text = f"""
 🎰 **LUCKY SLOTS** 🎰
 
 💰 **Balance:** {balance:,} TAMA
 🎁 **Free Spins:** {free_spins} left today
+🎰 **Jackpot Pool:** {jackpot_pool:,} TAMA
 
 **Choose your bet:**
     """
-    
+
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(
         types.InlineKeyboardButton("💰 100 TAMA", callback_data=f"slots_spin_100"),
@@ -5256,18 +5266,18 @@ Please try again later!
         # Handle slot spin
         telegram_id = str(call.from_user.id)
         spin_type = call.data.replace("slots_spin_", "")
-        
+
         # Check if free spin
         is_free = spin_type == "free"
         bet_amount = 0 if is_free else int(spin_type)
-        
+
         # Get user balance
         try:
             user_data = supabase.table('leaderboard').select('tama').eq('telegram_id', telegram_id).execute()
             balance = user_data.data[0]['tama'] if user_data.data else 0
         except:
             balance = 0
-        
+
         # Check free spins
         today = datetime.now().date().isoformat()
         free_spins_used = 0
@@ -5277,9 +5287,9 @@ Please try again later!
                 free_spins_used = slots_data.data[0].get('free_spins_used', 0)
         except:
             pass
-        
+
         free_spins_left = max(0, 3 - free_spins_used)
-        
+
         # Validate
         if is_free:
             if free_spins_left <= 0:
@@ -5289,7 +5299,7 @@ Please try again later!
             if balance < bet_amount:
                 bot.answer_callback_query(call.id, f"❌ Insufficient balance! Need {bet_amount:,} TAMA")
                 return
-        
+
         # Show spinning animation
         spinning_text = f"""
 🎰 **SPINNING...** 🎰
@@ -5298,7 +5308,7 @@ Please try again later!
 
 ⏳ Please wait...
         """
-        
+
         try:
             bot.edit_message_text(
                 spinning_text,
@@ -5308,18 +5318,18 @@ Please try again later!
             )
         except:
             pass
-        
+
         # Simulate spin delay
         import time
         time.sleep(1.5)
-        
+
         # Generate result
         symbols = ['🍒', '🍋', '🍊', '💎', '⭐', '👑', '🎰']
         multipliers = {
             '🍒': 2, '🍋': 5, '🍊': 8, '💎': 10,
             '⭐': 20, '👑': 50, '🎰': 100
         }
-        
+
         # Weighted random
         weights = [30, 25, 20, 12, 8, 4, 1]  # Cherry to Jackpot
         result = []
@@ -5331,17 +5341,102 @@ Please try again later!
                 if rand <= cumsum:
                     result.append(symbols[i])
                     break
-        
+
         # Check win
         is_win = result[0] == result[1] == result[2]
+        is_jackpot = is_win and result[0] == '🎰'
         win_amount = 0
         multiplier = 0
-        
+        jackpot_win = 0
+        jackpot_pool_before = 0
+        jackpot_pool_after = 0
+
+        # Get jackpot pool
+        try:
+            pool_data = supabase.table('slots_jackpot_pool').select('*').eq('id', 1).execute()
+            if pool_data.data:
+                jackpot_pool_before = pool_data.data[0].get('current_pool', 0)
+            else:
+                # Initialize pool
+                supabase.table('slots_jackpot_pool').insert({
+                    'id': 1,
+                    'current_pool': 0
+                }).execute()
+                jackpot_pool_before = 0
+        except Exception as e:
+            print(f"Error getting jackpot pool: {e}")
+            jackpot_pool_before = 0
+
+        # Add 5% of bet to jackpot pool (only for paid spins)
+        if bet_amount > 0 and not is_free:
+            jackpot_contribution = int(bet_amount * 0.05)
+            jackpot_pool_after = jackpot_pool_before + jackpot_contribution
+            try:
+                pool_data = supabase.table('slots_jackpot_pool').select('*').eq('id', 1).execute()
+                if pool_data.data:
+                    current_total_contributed = pool_data.data[0].get('total_contributed', 0)
+                    supabase.table('slots_jackpot_pool').update({
+                        'current_pool': jackpot_pool_after,
+                        'total_contributed': current_total_contributed + jackpot_contribution,
+                        'updated_at': datetime.now().isoformat()
+                    }).eq('id', 1).execute()
+                else:
+                    supabase.table('slots_jackpot_pool').insert({
+                        'id': 1,
+                        'current_pool': jackpot_contribution,
+                        'total_contributed': jackpot_contribution
+                    }).execute()
+                    jackpot_pool_after = jackpot_contribution
+            except Exception as e:
+                print(f"Error updating jackpot pool: {e}")
+        else:
+            jackpot_pool_after = jackpot_pool_before
+
         if is_win:
             multiplier = multipliers[result[0]]
             bet_for_calc = bet_amount if not is_free else 100  # Free spins use 100 TAMA base
             win_amount = bet_for_calc * multiplier
-        
+
+            # If jackpot, add entire pool to win
+            if is_jackpot and jackpot_pool_after > 0:
+                jackpot_win = jackpot_pool_after
+                win_amount += jackpot_win
+
+                # Get user info
+                username = call.from_user.username or call.from_user.first_name
+
+                # Log jackpot win
+                try:
+                    supabase.table('slots_jackpot_history').insert({
+                        'telegram_id': telegram_id,
+                        'username': username,
+                        'first_name': call.from_user.first_name,
+                        'win_amount': jackpot_win,
+                        'bet_amount': bet_amount if not is_free else 0,
+                        'pool_before': jackpot_pool_after,
+                        'pool_after': 0
+                    }).execute()
+
+                    # Reset pool
+                    pool_data = supabase.table('slots_jackpot_pool').select('*').eq('id', 1).execute()
+                    if pool_data.data:
+                        current_total_won = pool_data.data[0].get('total_won', 0)
+                        current_wins_count = pool_data.data[0].get('wins_count', 0)
+                        supabase.table('slots_jackpot_pool').update({
+                            'current_pool': 0,
+                            'total_won': current_total_won + jackpot_win,
+                            'wins_count': current_wins_count + 1,
+                            'last_winner_telegram_id': telegram_id,
+                            'last_winner_username': username,
+                            'last_win_amount': jackpot_win,
+                            'last_win_at': datetime.now().isoformat(),
+                            'updated_at': datetime.now().isoformat()
+                        }).eq('id', 1).execute()
+                except Exception as e:
+                    print(f"Error logging jackpot win: {e}")
+
+                jackpot_pool_after = 0
+
         # Update balance
         new_balance = balance
         if is_free:
@@ -5361,7 +5456,7 @@ Please try again later!
                     }).execute()
                 except Exception as e:
                     print(f"Error updating balance: {e}")
-            
+
             # Update free spins used
             try:
                 slots_data = supabase.table('slots_daily_stats').select('*').eq('telegram_id', telegram_id).eq('date', today).execute()
@@ -5399,7 +5494,7 @@ Please try again later!
                     'balance_after': new_balance,
                     'metadata': json.dumps({'bet': bet_amount, 'win': win_amount, 'symbols': result, 'multiplier': multiplier})
                 }).execute()
-                
+
                 # Update stats
                 try:
                     slots_data = supabase.table('slots_daily_stats').select('*').eq('telegram_id', telegram_id).eq('date', today).execute()
@@ -5425,13 +5520,22 @@ Please try again later!
                     print(f"Error updating stats: {e}")
             except Exception as e:
                 print(f"Error updating balance: {e}")
-        
+
         # Update free spins count
         if is_free:
             free_spins_left = max(0, free_spins_left - 1)
-        
+
+        # Get current jackpot pool for display
+        try:
+            pool_display = supabase.table('slots_jackpot_pool').select('current_pool').eq('id', 1).execute()
+            current_pool_display = pool_display.data[0].get('current_pool', 0) if pool_display.data else 0
+        except:
+            current_pool_display = jackpot_pool_after
+
         # Build result message
-        result_emoji = "🎉" if is_win else "😔"
+        result_emoji = "🎰🎰🎰" if is_jackpot else ("🎉" if is_win else "😔")
+        jackpot_message = f"\n🎰🎰🎰 **JACKPOT!!!** 🎰🎰🎰\n💰 **+{jackpot_win:,} TAMA from pool!** 🔥\n" if is_jackpot and jackpot_win > 0 else ""
+
         result_text = f"""
 {result_emoji} **SLOT RESULT** {result_emoji}
 
@@ -5440,13 +5544,14 @@ Please try again later!
 {result[0]}  {result[1]}  {result[2]}
 
 {'🎉 **YOU WON!**' if is_win else '❌ **No Win**'}
-
+{jackpot_message}
 {f'💰 **+{win_amount:,} TAMA** (x{multiplier}) 🔥' if is_win else f'💸 **-{bet_amount:,} TAMA**' if not is_free else ''}
 
 💰 **Balance:** {new_balance:,} TAMA
 🎁 **Free Spins:** {free_spins_left} left today
+🎰 **Jackpot Pool:** {current_pool_display:,} TAMA
         """
-        
+
         # Create keyboard
         keyboard = types.InlineKeyboardMarkup(row_width=2)
         keyboard.add(
@@ -5467,7 +5572,7 @@ Please try again later!
         keyboard.add(
             types.InlineKeyboardButton("🔄 Spin Again", callback_data="slots_menu"),
         )
-        
+
         try:
             bot.edit_message_text(
                 result_text,
@@ -5483,17 +5588,17 @@ Please try again later!
         except Exception as e:
             print(f"Error editing message: {e}")
             bot.answer_callback_query(call.id, "✅ Spin complete!")
-    
+
     elif call.data == "slots_menu":
         # Return to slots menu
         open_slots(call.message)
         bot.answer_callback_query(call.id)
-    
+
     elif call.data == "slots_stats":
         # Show user stats
         telegram_id = str(call.from_user.id)
         today = datetime.now().date().isoformat()
-        
+
         try:
             stats = supabase.table('slots_daily_stats').select('*').eq('telegram_id', telegram_id).eq('date', today).execute()
             if stats.data:
@@ -5512,7 +5617,7 @@ Please try again later!
         except:
             spins = wins = total_bet = total_win = max_win = free_used = 0
             win_rate = profit = 0
-        
+
         text = f"""
 📊 **YOUR SLOTS STATS** 📊
 
@@ -5527,10 +5632,10 @@ Please try again later!
 
 💰 Keep spinning and winning!
         """
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.add(types.InlineKeyboardButton("🔙 Back to Slots", callback_data="slots_menu"))
-        
+
         try:
             bot.edit_message_text(
                 text,
@@ -5542,16 +5647,16 @@ Please try again later!
         except:
             pass
         bot.answer_callback_query(call.id)
-    
+
     elif call.data == "slots_leaderboard":
         # Show daily leaderboard
         today = datetime.now().date().isoformat()
-        
+
         try:
             top_players = supabase.table('slots_daily_stats').select('telegram_id, total_win, spins_count').eq('date', today).order('total_win', desc=True).limit(10).execute()
-            
+
             text = "🏆 **TODAY'S TOP WINNERS** 🏆\n\n"
-            
+
             if top_players.data:
                 medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
                 for i, player in enumerate(top_players.data[:10]):
@@ -5561,7 +5666,7 @@ Please try again later!
                         username = f"@{username}" if user_info.username else username
                     except:
                         username = f"User {player['telegram_id']}"
-                    
+
                     medal = medals[i] if i < len(medals) else f"{i+1}."
                     text += f"{medal} {username}\n   💰 +{player['total_win']:,} TAMA ({player['spins_count']} spins)\n\n"
             else:
@@ -5569,10 +5674,10 @@ Please try again later!
         except Exception as e:
             print(f"Error loading leaderboard: {e}")
             text = "❌ Error loading leaderboard"
-        
+
         keyboard = types.InlineKeyboardMarkup()
         keyboard.add(types.InlineKeyboardButton("🔙 Back to Slots", callback_data="slots_menu"))
-        
+
         try:
             bot.edit_message_text(
                 text,

@@ -411,6 +411,15 @@
                 </div>
             </div>
 
+            <!-- Jackpot Pool Section -->
+            <div class="balance-section" style="background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.2)); border: 2px solid #FFD700; margin-bottom: 20px;">
+                <div class="balance-item" style="width: 100%; text-align: center;">
+                    <div class="balance-label" style="color: #FFD700; font-size: 14px; font-weight: bold;">🎰 JACKPOT POOL 🎰</div>
+                    <div class="balance-value" id="jackpot-pool" style="color: #FFD700; font-size: 24px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">Loading...</div>
+                    <div style="font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 5px;">5% of each bet goes to the pool</div>
+                </div>
+            </div>
+
             <!-- Slots Display -->
             <div class="slots-container">
                 <div class="slots-glow"></div>
@@ -590,6 +599,7 @@
         let freeSpins = 3;
         let totalWon = 0;
         let spinHistory = [];
+        let jackpotPool = 0;
 
         // API Base URL
         const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
@@ -668,6 +678,9 @@
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
 
                 updateFreeSpinButton();
+
+                // Load jackpot pool
+                await loadJackpotPool();
             } catch (error) {
                 console.error('Failed to load user data:', error);
             }
@@ -703,8 +716,8 @@
             balance -= currentBet;
             document.getElementById('balance').textContent = formatNumber(balance);
 
-            // Update balance in backend
-            await updateBalance(-currentBet);
+            // Update balance in backend (deduct bet)
+            await updateBalance(-currentBet, []);
 
             // Spin animation
             await playSpinAnimation();
@@ -715,10 +728,20 @@
             // Check win
             const isWin = result[0] === result[1] && result[1] === result[2];
             let winAmount = 0;
+            const isJackpot = isWin && result[0] === '🎰';
 
             if (isWin) {
                 const multiplier = MULTIPLIERS[result[0]];
                 winAmount = currentBet * multiplier;
+
+                // Update balance in backend with symbols (for jackpot detection)
+                const apiResponse = await updateBalance(winAmount, result);
+
+                // If jackpot was won, API already added it to balance
+                if (isJackpot && apiResponse && apiResponse.jackpot && apiResponse.jackpot.jackpot_win > 0) {
+                    winAmount += apiResponse.jackpot.jackpot_win;
+                }
+
                 balance += winAmount;
                 totalWon += winAmount;
 
@@ -726,8 +749,11 @@
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
                 localStorage.setItem('total_won', totalWon.toString());
 
-                // Update balance in backend
-                await updateBalance(winAmount);
+                // Show win (only if not jackpot, jackpot message already shown)
+                if (!isJackpot || !apiResponse?.jackpot?.is_jackpot) {
+                    document.getElementById('win-line').classList.add('active');
+                    showResult(`🎉 YOU WON ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
+                }
 
                 // Show win
                 document.getElementById('win-line').classList.add('active');
@@ -777,6 +803,16 @@
             if (isWin) {
                 const multiplier = MULTIPLIERS[result[0]];
                 winAmount = 100 * multiplier; // Free spins use 100 TAMA bet
+                const isFreeJackpot = result[0] === '🎰';
+
+                // Update balance in backend with symbols (for jackpot detection)
+                const apiResponse = await updateBalance(winAmount, result);
+
+                // If jackpot was won, API already added it to balance
+                if (isFreeJackpot && apiResponse && apiResponse.jackpot && apiResponse.jackpot.jackpot_win > 0) {
+                    winAmount += apiResponse.jackpot.jackpot_win;
+                }
+
                 balance += winAmount;
                 totalWon += winAmount;
 
@@ -784,11 +820,11 @@
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
                 localStorage.setItem('total_won', totalWon.toString());
 
-                // Update balance in backend
-                await updateBalance(winAmount);
-
-                document.getElementById('win-line').classList.add('active');
-                showResult(`🎁 FREE SPIN WIN: ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
+                // Show win (only if not jackpot, jackpot message already shown)
+                if (!isFreeJackpot || !apiResponse?.jackpot?.is_jackpot) {
+                    document.getElementById('win-line').classList.add('active');
+                    showResult(`🎁 FREE SPIN WIN: ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
+                }
 
                 if (multiplier >= 20) {
                     createConfetti();
@@ -871,8 +907,30 @@
             return '🍒'; // Fallback
         }
 
+        // Load jackpot pool
+        async function loadJackpotPool() {
+            try {
+                const { data, error } = await supabase
+                    .from('slots_jackpot_pool')
+                    .select('current_pool')
+                    .eq('id', 1)
+                    .maybeSingle();
+
+                if (!error && data) {
+                    jackpotPool = data.current_pool || 0;
+                    document.getElementById('jackpot-pool').textContent = formatNumber(jackpotPool) + ' TAMA';
+                } else {
+                    console.warn('Failed to load jackpot pool:', error);
+                    document.getElementById('jackpot-pool').textContent = '0 TAMA';
+                }
+            } catch (e) {
+                console.error('Error loading jackpot pool:', e);
+                document.getElementById('jackpot-pool').textContent = '0 TAMA';
+            }
+        }
+
         // Update balance in backend
-        async function updateBalance(amount) {
+        async function updateBalance(amount, symbols = []) {
             // Ensure userId is set
             if (!userId) {
                 userId = getUserId();
@@ -880,11 +938,11 @@
 
             if (!userId || userId === '123456789') {
                 console.warn('⚠️ Cannot update balance: invalid user ID');
-                return;
+                return null;
             }
 
             try {
-                console.log(`📡 Updating balance: ${amount} for user ${userId}`);
+                console.log(`📡 Updating balance: ${amount} for user ${userId}`, symbols);
                 const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -892,7 +950,8 @@
                         telegram_id: String(userId),
                         amount: amount,
                         bet: amount < 0 ? Math.abs(amount) : 0,
-                        win: amount > 0 ? amount : 0
+                        win: amount > 0 ? amount : 0,
+                        symbols: symbols
                     })
                 });
 
@@ -902,6 +961,23 @@
                         balance = data.balance;
                         document.getElementById('balance').textContent = formatNumber(balance);
                     }
+
+                    // Update jackpot pool
+                    if (data.jackpot) {
+                        jackpotPool = data.jackpot.current_pool || 0;
+                        document.getElementById('jackpot-pool').textContent = formatNumber(jackpotPool) + ' TAMA';
+
+                        // If jackpot won, show special message
+                        if (data.jackpot.is_jackpot && data.jackpot.jackpot_win > 0) {
+                            const jackpotWin = data.jackpot.jackpot_win;
+                            showResult(`🎰🎰🎰 JACKPOT!!! +${formatNumber(jackpotWin)} TAMA! 🎰🎰🎰`, true);
+                            createConfetti();
+                            // Reload pool after a delay
+                            setTimeout(loadJackpotPool, 2000);
+                        }
+                    }
+
+                    return data;
                 } else {
                     console.error('Failed to update balance via API:', response.status);
                     // Fallback: update via Supabase directly
