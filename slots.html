@@ -6,7 +6,7 @@
     <title>🎰 Lucky Slots - Solana Tamagotchi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -35,7 +35,7 @@
             background: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%);
             border-radius: 30px;
             padding: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
                         inset 0 0 50px rgba(138, 201, 38, 0.1);
             border: 3px solid #8AC926;
         }
@@ -522,11 +522,54 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiY2NwZnRraXJodWxqbndra3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1NjM4MTAsImV4cCI6MjA0ODEzOTgxMH0.Xj0-fVHPrPWzchSJDhHK7MNkH-Mx4QGU86aZvQXTPkk';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Get user ID from Telegram or URL
-        let userId = tg?.initDataUnsafe?.user?.id || 
-                     new URLSearchParams(window.location.search).get('user_id') || 
-                     localStorage.getItem('telegram_user_id') ||
-                     '123456789'; // Demo mode
+        // Get user ID from Telegram or URL - with proper initialization
+        function getUserId() {
+            // Method 1: Try Telegram WebApp initDataUnsafe (most reliable)
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) {
+                    console.log('✅ Got user ID from Telegram WebApp:', user.id);
+                    return String(user.id);
+                }
+            }
+
+            // Method 2: Try parsing initData manually
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+                try {
+                    const params = new URLSearchParams(window.Telegram.WebApp.initData);
+                    const userParam = params.get('user');
+                    if (userParam) {
+                        const parsedUser = JSON.parse(decodeURIComponent(userParam));
+                        if (parsedUser && parsedUser.id) {
+                            console.log('✅ Got user ID from initData:', parsedUser.id);
+                            return String(parsedUser.id);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse initData:', e);
+                }
+            }
+
+            // Method 3: Try URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlUserId = urlParams.get('user_id') || urlParams.get('tg_id');
+            if (urlUserId) {
+                console.log('✅ Got user ID from URL:', urlUserId);
+                return String(urlUserId);
+            }
+
+            // Method 4: Try localStorage
+            const storedUserId = localStorage.getItem('telegram_user_id');
+            if (storedUserId) {
+                console.log('✅ Got user ID from localStorage:', storedUserId);
+                return String(storedUserId);
+            }
+
+            console.warn('⚠️ No user ID found, using demo mode');
+            return '123456789'; // Demo mode
+        }
+
+        let userId = null;
 
         // Symbols and multipliers
         const SYMBOLS = ['🍒', '🍋', '🍊', '💎', '⭐', '👑', '🎰'];
@@ -550,32 +593,61 @@
 
         // API Base URL
         const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
-        
+
         // Load user balance and data
         async function loadUserData() {
+            // Ensure userId is set
+            if (!userId) {
+                userId = getUserId();
+                console.log('🔍 Loading balance for user ID:', userId);
+            }
+
+            if (!userId || userId === '123456789') {
+                console.warn('⚠️ Invalid user ID, cannot load balance');
+                document.getElementById('balance').textContent = '0';
+                return;
+            }
+
             try {
-                // Load TAMA balance
+                // Load TAMA balance from API
+                console.log(`📡 Fetching balance from API: ${API_BASE}/balance?telegram_id=${userId}`);
                 const response = await fetch(`${API_BASE}/balance?telegram_id=${userId}`);
+
                 if (response.ok) {
                     const data = await response.json();
                     balance = data.balance || 0;
+                    console.log('✅ Balance loaded from API:', balance);
                     document.getElementById('balance').textContent = formatNumber(balance);
+                    // Save userId to localStorage for future use
+                    if (userId && userId !== '123456789') {
+                        localStorage.setItem('telegram_user_id', userId);
+                    }
                 } else {
-                    console.error('Failed to load balance:', response.status, response.statusText);
+                    console.warn('⚠️ API request failed:', response.status, response.statusText);
                     // Try alternative: direct Supabase query
                     try {
+                        console.log('📡 Trying Supabase direct query...');
                         const { data: leaderboardData, error } = await supabase
                             .from('leaderboard')
                             .select('tama')
                             .eq('telegram_id', userId)
                             .maybeSingle();
-                        
+
                         if (!error && leaderboardData) {
                             balance = leaderboardData.tama || 0;
+                            console.log('✅ Balance loaded from Supabase:', balance);
                             document.getElementById('balance').textContent = formatNumber(balance);
+                            // Save userId to localStorage for future use
+                            if (userId && userId !== '123456789') {
+                                localStorage.setItem('telegram_user_id', userId);
+                            }
+                        } else {
+                            console.error('❌ Supabase query error:', error);
+                            document.getElementById('balance').textContent = '0';
                         }
                     } catch (e) {
-                        console.error('Failed to load balance from Supabase:', e);
+                        console.error('❌ Failed to load balance from Supabase:', e);
+                        document.getElementById('balance').textContent = '0';
                     }
                 }
 
@@ -604,7 +676,7 @@
         // Select bet
         function selectBet(amount) {
             if (isSpinning) return;
-            
+
             currentBet = amount;
             document.querySelectorAll('.bet-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -639,7 +711,7 @@
 
             // Determine result
             const result = getSpinResult();
-            
+
             // Check win
             const isWin = result[0] === result[1] && result[1] === result[2];
             let winAmount = 0;
@@ -649,7 +721,7 @@
                 winAmount = currentBet * multiplier;
                 balance += winAmount;
                 totalWon += winAmount;
-                
+
                 document.getElementById('balance').textContent = formatNumber(balance);
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
                 localStorage.setItem('total_won', totalWon.toString());
@@ -660,7 +732,7 @@
                 // Show win
                 document.getElementById('win-line').classList.add('active');
                 showResult(`🎉 YOU WON ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
-                
+
                 if (multiplier >= 20) {
                     createConfetti();
                 }
@@ -697,7 +769,7 @@
 
             // Determine result
             const result = getSpinResult();
-            
+
             // Check win
             const isWin = result[0] === result[1] && result[1] === result[2];
             let winAmount = 0;
@@ -707,7 +779,7 @@
                 winAmount = 100 * multiplier; // Free spins use 100 TAMA bet
                 balance += winAmount;
                 totalWon += winAmount;
-                
+
                 document.getElementById('balance').textContent = formatNumber(balance);
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
                 localStorage.setItem('total_won', totalWon.toString());
@@ -717,7 +789,7 @@
 
                 document.getElementById('win-line').classList.add('active');
                 showResult(`🎁 FREE SPIN WIN: ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
-                
+
                 if (multiplier >= 20) {
                     createConfetti();
                 }
@@ -740,7 +812,7 @@
         function playSpinAnimation() {
             return new Promise(resolve => {
                 const reels = ['reel1', 'reel2', 'reel3'];
-                
+
                 // Start spinning
                 reels.forEach(reelId => {
                     const reel = document.getElementById(reelId);
@@ -790,29 +862,40 @@
         function weightedRandom(weights) {
             const total = Object.values(weights).reduce((a, b) => a + b, 0);
             let random = Math.random() * total;
-            
+
             for (const [symbol, weight] of Object.entries(weights)) {
                 random -= weight;
                 if (random <= 0) return symbol;
             }
-            
+
             return '🍒'; // Fallback
         }
 
         // Update balance in backend
         async function updateBalance(amount) {
+            // Ensure userId is set
+            if (!userId) {
+                userId = getUserId();
+            }
+
+            if (!userId || userId === '123456789') {
+                console.warn('⚠️ Cannot update balance: invalid user ID');
+                return;
+            }
+
             try {
+                console.log(`📡 Updating balance: ${amount} for user ${userId}`);
                 const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        telegram_id: userId,
+                        telegram_id: String(userId),
                         amount: amount,
                         bet: amount < 0 ? Math.abs(amount) : 0,
                         win: amount > 0 ? amount : 0
                     })
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     if (data.balance !== undefined) {
@@ -823,27 +906,28 @@
                     console.error('Failed to update balance via API:', response.status);
                     // Fallback: update via Supabase directly
                     try {
+                        console.log('📡 Fallback: updating balance via Supabase');
                         const { data: leaderboardData } = await supabase
                             .from('leaderboard')
                             .select('tama')
-                            .eq('telegram_id', userId)
+                            .eq('telegram_id', String(userId))
                             .maybeSingle();
-                        
+
                         if (leaderboardData) {
                             const currentBalance = leaderboardData.tama || 0;
                             const newBalance = currentBalance + amount;
-                            
+
                             await supabase
                                 .from('leaderboard')
                                 .update({ tama: newBalance })
-                                .eq('telegram_id', userId);
-                            
+                                .eq('telegram_id', String(userId));
+
                             balance = newBalance;
                             document.getElementById('balance').textContent = formatNumber(balance);
-                            
+
                             // Log transaction
                             await supabase.from('transactions').insert({
-                                telegram_id: userId,
+                                telegram_id: String(userId),
                                 amount: amount,
                                 type: amount > 0 ? 'slots_win' : 'slots_spin',
                                 balance_before: currentBalance,
@@ -917,7 +1001,7 @@
                     confetti.style.background = ['#FFD700', '#FFA500', '#FF6347', '#8AC926'][Math.floor(Math.random() * 4)];
                     confetti.style.animationDelay = Math.random() * 0.5 + 's';
                     document.body.appendChild(confetti);
-                    
+
                     setTimeout(() => confetti.remove(), 3000);
                 }, i * 50);
             }
@@ -928,8 +1012,45 @@
             return new Intl.NumberFormat('en-US').format(Math.floor(num));
         }
 
-        // Initialize
-        loadUserData();
+        // Initialize - wait for Telegram Web App to be ready
+        function initialize() {
+            // Wait a bit for Telegram Web App to initialize
+            if (window.Telegram && window.Telegram.WebApp) {
+                // Telegram Web App is available, get user ID
+                userId = getUserId();
+                console.log('🚀 Initializing with user ID:', userId);
+
+                // Load user data
+                loadUserData();
+            } else {
+                // Wait for Telegram Web App to load
+                let attempts = 0;
+                const maxAttempts = 10;
+                const checkTelegram = setInterval(() => {
+                    attempts++;
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        clearInterval(checkTelegram);
+                        userId = getUserId();
+                        console.log('🚀 Telegram Web App ready, user ID:', userId);
+                        loadUserData();
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkTelegram);
+                        // Fallback: try to get user ID anyway
+                        userId = getUserId();
+                        console.log('⚠️ Telegram Web App not available, using fallback, user ID:', userId);
+                        loadUserData();
+                    }
+                }, 100);
+            }
+        }
+
+        // Start initialization
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            // DOM already loaded
+            setTimeout(initialize, 100);
+        }
     </script>
 </body>
 </html>
