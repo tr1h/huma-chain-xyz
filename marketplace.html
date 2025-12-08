@@ -1125,33 +1125,51 @@
                     'common': 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i',
                     'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibnoiown4k6dyhxvv642ep6av6xwkgtqvusrhhn7l4janrgfjixbq',
                     'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreia7mldvzaw52wvz42od4xdj7asw2fqc7gba7zhdbpfg3d6z3byl5y',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq'
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiefw2xgoo5w37jkpd6etgr6eurgu7z64tsb7e6bhbbqa5z3qidbbq',
+                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreidvxzsnozwpgjqbydcncpumcgk3aqmr3evxhqjmf6ibzmrmuv565i'
                 },
                 'silver': {
+                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
                     'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
                     'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
+                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreigywjdjw3vxopv4blicqioyx5fyqpwcvs22s2ea377rofvh2sslnm'
                 },
                 'gold': {
                     'common': 'https://gateway.lighthouse.storage/ipfs/bafkreicywzvyse3immuhakmd4dvv22gxsikmzhn4q7cjkmzjpp7253ftse',
                     'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreibp7zxf6fqilehacookucnyhzbqkvaqqbuk3jel7irsa2dzzvnw2a',
                     'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreidnwtfwftmcsexgmf6p5qn5jorgwmtl4w2jegyyo7gnynvq2qe334',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq'
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreifkxigyyudtynmn4ffmt2gx7getqs3jfzy2nqdjrzaplpelf3tozq',
+                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreigywjdjw3vxopv4blicqioyx5fyqpwcvs22s2ea377rofvh2sslnm'
                 },
                 'platinum': {
+                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
+                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
                     'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreib72mfqqs5qa3g7asjy4jtoiorxpok3bniknisqznf572haifakcq',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4'
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4',
+                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreiell36dnbe5oomfigv6yxk65rkbj2eo62t6ihrprbyqbomjraobo4'
                 },
                 'diamond': {
+                    'common': 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
+                    'uncommon': 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
                     'rare': 'https://gateway.lighthouse.storage/ipfs/bafkreigflr4x4xczfyl7gavdmaos7uupi73xm2yainwl2tlfn3nabqpsly',
-                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq'
+                    'epic': 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq',
+                    'legendary': 'https://gateway.lighthouse.storage/ipfs/bafkreib3la6mkyzjtethphozhsuccp6b4x63dilrz6rsb4tsjvqdxdl5pq'
                 }
             };
             
             const tierLower = (tier || '').toLowerCase();
             const rarityLower = (rarity || '').toLowerCase();
             
-            return ipfsUrls[tierLower]?.[rarityLower] || null;
+            const imageUrl = ipfsUrls[tierLower]?.[rarityLower];
+            
+            if (imageUrl) {
+                console.log(`🎨 Found IPFS image for ${tier} ${rarity}:`, imageUrl);
+            } else {
+                console.warn(`⚠️ No IPFS image for ${tier} ${rarity}`);
+            }
+            
+            return imageUrl || null;
         }
         
         // Display NFTs in grid
@@ -1168,17 +1186,33 @@
                 const rarityEmoji = getRarityEmoji(nft.rarity);
                 const petEmoji = getPetEmoji(nft.pet_type); // 🐱🐶🦊🐼
                 
-                // Get NFT image URL - use blockchain metadata for on-chain NFT
+                // Get NFT image URL - ALWAYS try to show IPFS image first, then blockchain
                 const imageId = `marketplace-nft-image-${nft.id || nft.nft_mint_address || Math.random()}`;
                 const isRealOnChain = nft.nft_mint_address && 
                     nft.nft_mint_address.length > 30 && 
                     !nft.nft_mint_address.includes('_');
                 
-                // Start with pet emoji placeholder (not tier emoji!)
+                // Try to get IPFS image URL first
+                const staticImageUrl = nft.tier_name && nft.rarity ? getNFTImageUrlStatic(nft.tier_name, nft.rarity) : null;
+                
+                // Build image HTML
                 let imageHtml = `<div class="nft-image">${petEmoji}</div>`;
                 
-                if (isRealOnChain) {
-                    // Create image element with unique ID for async update
+                if (staticImageUrl) {
+                    // Use IPFS image directly (fastest!)
+                    imageHtml = `<div class="nft-image" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2)); display: flex; align-items: center; justify-content: center; padding: 0;">
+                        <img id="${imageId}" 
+                             src="${staticImageUrl}" 
+                             onerror="this.parentElement.innerHTML='${petEmoji}'"
+                             style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;" />
+                    </div>`;
+                    
+                    // If on-chain, try to load better quality image from blockchain (async)
+                    if (isRealOnChain) {
+                        setTimeout(() => loadNFTImageFromBlockchain(nft.nft_mint_address, imageId, petEmoji), 500);
+                    }
+                } else if (isRealOnChain) {
+                    // No IPFS image, try blockchain only
                     imageHtml = `<div class="nft-image" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2)); display: flex; align-items: center; justify-content: center; padding: 0;">
                         <img id="${imageId}" 
                              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='48'%3E${petEmoji}%3C/text%3E%3C/svg%3E"
@@ -1186,18 +1220,7 @@
                              style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;" />
                     </div>`;
                     
-                    // Load image from blockchain asynchronously
                     loadNFTImageFromBlockchain(nft.nft_mint_address, imageId, petEmoji);
-                } else if (nft.tier_name && nft.rarity) {
-                    // For off-chain NFT, try to use static IPFS URL based on tier/rarity
-                    const staticImageUrl = getNFTImageUrlStatic(nft.tier_name, nft.rarity);
-                    if (staticImageUrl) {
-                        imageHtml = `<div class="nft-image" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(16, 185, 129, 0.2)); display: flex; align-items: center; justify-content: center; padding: 0;">
-                            <img src="${staticImageUrl}" 
-                                 onerror="this.parentElement.innerHTML='${petEmoji}'"
-                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px;" />
-                        </div>`;
-                    }
                 }
                 
                 return `
