@@ -810,16 +810,22 @@
                 let tamaBalance = 0;
                 let solBalance = 0;
                 
-                // Load TAMA balance from API
+                // Load TAMA balance from API (only if Telegram is connected)
                 if (userTelegramId) {
                     const response = await fetch(`${API_BASE}/balance?telegram_id=${userTelegramId}`);
                     if (response.ok) {
                         const data = await response.json();
                         tamaBalance = data.balance || 0;
                     }
+                    
+                    // Update TAMA display
+                    const tamaBalanceEl = document.getElementById('tama-balance');
+                    if (tamaBalanceEl) {
+                        tamaBalanceEl.textContent = formatNumber(tamaBalance);
+                    }
                 }
                 
-                // Load SOL balance from wallet
+                // Load SOL balance from wallet (only if wallet is connected)
                 if (walletAddress && connection) {
                     try {
                         const solBalanceLamports = await connection.getBalance(new solanaWeb3.PublicKey(walletAddress));
@@ -828,20 +834,16 @@
                         console.error('Failed to load SOL balance:', e);
                         solBalance = '0';
                     }
-                }
-                
-                // Update display
-                const tamaBalanceEl = document.getElementById('tama-balance');
-                const solBalanceEl = document.getElementById('sol-balance');
-                
-                if (tamaBalanceEl) {
-                    tamaBalanceEl.textContent = formatNumber(tamaBalance);
-                }
-                if (solBalanceEl) {
-                    solBalanceEl.textContent = solBalance;
+                    
+                    // Update SOL display
+                    const solBalanceEl = document.getElementById('sol-balance');
+                    if (solBalanceEl) {
+                        solBalanceEl.textContent = solBalance;
+                    }
                 }
             } catch (error) {
                 console.error('Failed to load balance:', error);
+                // Only update elements that exist
                 const tamaBalanceEl = document.getElementById('tama-balance');
                 const solBalanceEl = document.getElementById('sol-balance');
                 if (tamaBalanceEl) tamaBalanceEl.textContent = '0';
@@ -884,11 +886,23 @@
                 // Update auth section
                 let authHtml = '';
                 
-                // Add balance display
-                authHtml += `<div class="user-balance" id="user-balance-display">
-                    <div class="balance-item">💰 <span id="tama-balance">Loading...</span> TAMA</div>
-                    <div class="balance-item">💎 <span id="sol-balance">Loading...</span> SOL</div>
-                </div>`;
+                // Add balance display (conditionally show TAMA/SOL based on auth method)
+                const showTama = !!userTelegramId;
+                const showSol = !!walletAddress;
+                
+                if (showTama || showSol) {
+                    authHtml += `<div class="user-balance" id="user-balance-display">`;
+                    
+                    if (showTama) {
+                        authHtml += `<div class="balance-item">💰 <span id="tama-balance">Loading...</span> TAMA</div>`;
+                    }
+                    
+                    if (showSol) {
+                        authHtml += `<div class="balance-item">💎 <span id="sol-balance">Loading...</span> SOL</div>`;
+                    }
+                    
+                    authHtml += `</div>`;
+                }
                 
                 if (userTelegramId) {
                     authHtml += `<span style="color: #8AC926; margin-right: 10px;">✅ Telegram: ${userTelegramId}</span>`;
