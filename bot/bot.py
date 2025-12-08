@@ -1445,6 +1445,52 @@ def send_welcome(message):
 
 # Handle callback queries - REMOVED DUPLICATE
 
+# Slots game command
+@bot.message_handler(commands=['slots'])
+def open_slots(message):
+    """Open Lucky Slots game"""
+    telegram_id = message.from_user.id
+    slots_url = f"https://solanatamagotchi.com/slots.html?user_id={telegram_id}"
+    
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(
+        types.InlineKeyboardButton(
+            "🎰 Play Lucky Slots",
+            web_app=types.WebAppInfo(url=slots_url)
+        )
+    )
+    
+    text = """
+🎰 **LUCKY SLOTS** 🎰
+
+💰 Win up to 100x your bet!
+
+**How to Play:**
+• Choose your bet: 100, 500, or 2,000 TAMA
+• Click SPIN to play
+• Match 3 symbols to win!
+
+**Prizes:**
+• 🍒🍒🍒 → x2
+• 🍋🍋🍋 → x5
+• 🍊🍊🍊 → x8
+• 💎💎💎 → x10
+• ⭐⭐⭐ → x20
+• 👑👑👑 → x50
+• 🎰🎰🎰 → x100 🔥
+
+🎁 **3 FREE SPINS every day!**
+
+💰 95% RTP (Fair & Fun!)
+    """
+    
+    bot.send_message(
+        message.chat.id,
+        text,
+        parse_mode='Markdown',
+        reply_markup=keyboard
+    )
+
 # Private commands (personal data)
 @bot.message_handler(commands=['analytics'], func=lambda message: message.chat.type == 'private')
 def send_analytics(message):

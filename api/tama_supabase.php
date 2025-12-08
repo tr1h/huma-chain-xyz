@@ -373,6 +373,15 @@ switch ($path) {
         }
         break;
         
+    case '/slots/spin':
+        if ($method === 'POST') {
+            handleSlotsSpin($supabaseUrl, $supabaseKey);
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+        
     default:
         // Ensure JSON response for unknown routes
         ob_clean();
@@ -4409,6 +4418,77 @@ function handleMarketplaceCancel($url, $key) {
         ]);
     } catch (Exception $e) {
         http_response_code(500);
+        echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Handle Slots Spin
+ * POST /api/tama/slots/spin
+ * Body: { telegram_id, amount, bet, win }
+ */
+function handleSlotsSpin($url, $key) {
+    try {
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        
+        $telegramId = $data['telegram_id'] ?? null;
+        $amount = (int)($data['amount'] ?? 0);
+        $bet = (int)($data['bet'] ?? 0);
+        $win = (int)($data['win'] ?? 0);
+        
+        if (!$telegramId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing telegram_id']);
+            return;
+        }
+        
+        // Get current balance
+        $balanceResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+            'telegram_id' => 'eq.' . $telegramId
+        ]);
+        
+        if (empty($balanceResult['data'])) {
+            http_response_code(404);
+            echo json_encode(['error' => 'User not found']);
+            return;
+        }
+        
+        $user = $balanceResult['data'][0];
+        $currentBalance = (int)$user['tama'];
+        $newBalance = $currentBalance + $amount;
+        
+        // Update balance
+        supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+            'telegram_id' => 'eq.' . $telegramId
+        ], [
+            'tama' => $newBalance
+        ]);
+        
+        // Log transaction
+        $transactionType = $amount < 0 ? 'slots_bet' : 'slots_win';
+        supabaseRequest($url, $key, 'POST', 'transactions', [], [
+            'telegram_id' => $telegramId,
+            'amount' => $amount,
+            'balance_before' => $currentBalance,
+            'balance_after' => $newBalance,
+            'type' => $transactionType,
+            'metadata' => json_encode([
+                'bet' => $bet,
+                'win' => $win,
+                'game' => 'slots'
+            ])
+        ]);
+        
+        echo json_encode([
+            'success' => true,
+            'balance' => $newBalance,
+            'amount' => $amount
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        error_log('Slots spin error: ' . $e->getMessage());
         echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
     }
 }

@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 Lucky Slots - Solana Tamagotchi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #1a0033 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .slot-machine {
+            background: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%);
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 50px rgba(138, 201, 38, 0.1);
+            border: 3px solid #8AC926;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
+        .balance-section {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .balance-item {
+            text-align: center;
+        }
+
+        .balance-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 5px;
+        }
+
+        .balance-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #8AC926;
+        }
+
+        .slots-container {
+            background: linear-gradient(135deg, #000 0%, #1a1a2e 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #FFD700;
+        }
+
+        .slots-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .slots-display {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slot-reel {
+            width: 80px;
+            height: 100px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            border: 2px solid #8AC926;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot-reel.spinning {
+            animation: spin 0.1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        .win-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            transform: translateY(-50%);
+            opacity: 0;
+        }
+
+        .win-line.active {
+            opacity: 1;
+            animation: glow 0.5s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px #FFD700; }
+            50% { box-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700; }
+        }
+
+        .result-message {
+            text-align: center;
+            margin: 15px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-text {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .result-text.win {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        .result-text.lose {
+            background: rgba(255,0,0,0.2);
+            color: #ff4444;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .bet-section {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .bet-label {
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 10px;
+        }
+
+        .bet-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .bet-btn {
+            background: linear-gradient(135deg, #8AC926, #6fa01f);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .bet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 201, 38, 0.4);
+        }
+
+        .bet-btn.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .spin-button {
+            width: 100%;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            color: #000;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .spin-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .free-spin-button {
+            width: 100%;
+            background: linear-gradient(135deg, #8AC926, #6fa01f);
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .paytable {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .paytable-title {
+            text-align: center;
+            font-size: 16px;
+            color: #FFD700;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .paytable-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .paytable-symbols {
+            display: flex;
+            gap: 5px;
+            font-size: 20px;
+        }
+
+        .paytable-payout {
+            color: #8AC926;
+            font-weight: bold;
+        }
+
+        .history-section {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            text-align: center;
+            font-size: 16px;
+            color: #FFD700;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            margin-bottom: 5px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .history-win {
+            color: #8AC926;
+            font-weight: bold;
+        }
+
+        .history-lose {
+            color: #ff4444;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #8AC926;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin-loader 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin-loader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Confetti animation for big wins */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="slot-machine">
+            <!-- Header -->
+            <div class="header">
+                <h1>🎰 LUCKY SLOTS 🎰</h1>
+                <p>Win up to 100x your bet!</p>
+            </div>
+
+            <!-- Balance Section -->
+            <div class="balance-section">
+                <div class="balance-item">
+                    <div class="balance-label">Balance</div>
+                    <div class="balance-value" id="balance">0</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">Free Spins</div>
+                    <div class="balance-value" id="free-spins">3</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">Total Won</div>
+                    <div class="balance-value" id="total-won">0</div>
+                </div>
+            </div>
+
+            <!-- Slots Display -->
+            <div class="slots-container">
+                <div class="slots-glow"></div>
+                <div class="slots-display">
+                    <div class="slot-reel" id="reel1">🍒</div>
+                    <div class="slot-reel" id="reel2">🍋</div>
+                    <div class="slot-reel" id="reel3">🍊</div>
+                </div>
+                <div class="win-line" id="win-line"></div>
+            </div>
+
+            <!-- Result Message -->
+            <div class="result-message">
+                <div class="result-text" id="result-text" style="display: none;"></div>
+            </div>
+
+            <!-- Bet Selection -->
+            <div class="bet-section">
+                <div class="bet-label">Select Bet Amount (TAMA):</div>
+                <div class="bet-buttons">
+                    <button class="bet-btn active" data-bet="100" onclick="selectBet(100)">
+                        💰 100
+                    </button>
+                    <button class="bet-btn" data-bet="500" onclick="selectBet(500)">
+                        💎 500
+                    </button>
+                    <button class="bet-btn" data-bet="2000" onclick="selectBet(2000)">
+                        👑 2,000
+                    </button>
+                </div>
+            </div>
+
+            <!-- Spin Buttons -->
+            <button class="spin-button" id="spin-btn" onclick="spin()">
+                🎰 SPIN - <span id="spin-cost">100</span> TAMA
+            </button>
+
+            <button class="free-spin-button" id="free-spin-btn" onclick="freeSpin()" style="display: none;">
+                🎁 USE FREE SPIN
+            </button>
+
+            <!-- Paytable -->
+            <div class="paytable">
+                <div class="paytable-title">💰 Prize Table 💰</div>
+                <div class="paytable-row">
+                    <div class="paytable-symbols">
+                        <span>🍒</span><span>🍒</span><span>🍒</span>
+                    </div>
+                    <div class="paytable-payout">x2</div>
+                </div>
+                <div class="paytable-row">
+                    <div class="paytable-symbols">
+                        <span>🍋</span><span>🍋</span><span>🍋</span>
+                    </div>
+                    <div class="paytable-payout">x5</div>
+                </div>
+                <div class="paytable-row">
+                    <div class="paytable-symbols">
+                        <span>🍊</span><span>🍊</span><span>🍊</span>
+                    </div>
+                    <div class="paytable-payout">x8</div>
+                </div>
+                <div class="paytable-row">
+                    <div class="paytable-symbols">
+                        <span>💎</span><span>💎</span><span>💎</span>
+                    </div>
+                    <div class="paytable-payout">x10</div>
+                </div>
+                <div class="paytable-row">
+                    <div class="paytable-symbols">
+                        <span>⭐</span><span>⭐</span><span>⭐</span>
+                    </div>
+                    <div class="paytable-payout">x20</div>
+                </div>
+                <div class="paytable-row">
+                    <div class="paytable-symbols">
+                        <span>👑</span><span>👑</span><span>👑</span>
+                    </div>
+                    <div class="paytable-payout">x50</div>
+                </div>
+                <div class="paytable-row">
+                    <div class="paytable-symbols">
+                        <span>🎰</span><span>🎰</span><span>🎰</span>
+                    </div>
+                    <div class="paytable-payout">x100 🔥</div>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="history-section">
+                <div class="history-title">📜 Recent Spins</div>
+                <div id="history-list">
+                    <div class="loading">No spins yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // Supabase
+        const SUPABASE_URL = 'https://gbccpftkirhuljnwkkyz.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiY2NwZnRraXJodWxqbndra3l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1NjM4MTAsImV4cCI6MjA0ODEzOTgxMH0.Xj0-fVHPrPWzchSJDhHK7MNkH-Mx4QGU86aZvQXTPkk';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Get user ID from Telegram or URL
+        let userId = tg?.initDataUnsafe?.user?.id || 
+                     new URLSearchParams(window.location.search).get('user_id') || 
+                     localStorage.getItem('telegram_user_id') ||
+                     '123456789'; // Demo mode
+
+        // Symbols and multipliers
+        const SYMBOLS = ['🍒', '🍋', '🍊', '💎', '⭐', '👑', '🎰'];
+        const MULTIPLIERS = {
+            '🍒': 2,
+            '🍋': 5,
+            '🍊': 8,
+            '💎': 10,
+            '⭐': 20,
+            '👑': 50,
+            '🎰': 100
+        };
+
+        // Game state
+        let currentBet = 100;
+        let isSpinning = false;
+        let balance = 0;
+        let freeSpins = 3;
+        let totalWon = 0;
+        let spinHistory = [];
+
+        // Load user balance and data
+        async function loadUserData() {
+            try {
+                // Load TAMA balance
+                const response = await fetch(`https://solanatamagotchi.com/api/tama/balance?telegram_id=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    balance = data.balance || 0;
+                    document.getElementById('balance').textContent = formatNumber(balance);
+                }
+
+                // Load free spins from localStorage (reset daily)
+                const today = new Date().toDateString();
+                const lastSpinDate = localStorage.getItem('last_spin_date');
+                if (lastSpinDate !== today) {
+                    freeSpins = 3;
+                    localStorage.setItem('last_spin_date', today);
+                    localStorage.setItem('free_spins', '3');
+                } else {
+                    freeSpins = parseInt(localStorage.getItem('free_spins') || '3');
+                }
+                document.getElementById('free-spins').textContent = freeSpins;
+
+                // Load total won
+                totalWon = parseInt(localStorage.getItem('total_won') || '0');
+                document.getElementById('total-won').textContent = formatNumber(totalWon);
+
+                updateFreeSpinButton();
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+            }
+        }
+
+        // Select bet
+        function selectBet(amount) {
+            if (isSpinning) return;
+            
+            currentBet = amount;
+            document.querySelectorAll('.bet-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.bet) === amount) {
+                    btn.classList.add('active');
+                }
+            });
+            document.getElementById('spin-cost').textContent = formatNumber(amount);
+        }
+
+        // Spin the slots
+        async function spin() {
+            if (isSpinning) return;
+            if (balance < currentBet) {
+                showResult('❌ Insufficient balance!', false);
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById('spin-btn').disabled = true;
+            hideResult();
+
+            // Deduct bet from balance
+            balance -= currentBet;
+            document.getElementById('balance').textContent = formatNumber(balance);
+
+            // Update balance in backend
+            await updateBalance(-currentBet);
+
+            // Spin animation
+            await playSpinAnimation();
+
+            // Determine result
+            const result = getSpinResult();
+            
+            // Check win
+            const isWin = result[0] === result[1] && result[1] === result[2];
+            let winAmount = 0;
+
+            if (isWin) {
+                const multiplier = MULTIPLIERS[result[0]];
+                winAmount = currentBet * multiplier;
+                balance += winAmount;
+                totalWon += winAmount;
+                
+                document.getElementById('balance').textContent = formatNumber(balance);
+                document.getElementById('total-won').textContent = formatNumber(totalWon);
+                localStorage.setItem('total_won', totalWon.toString());
+
+                // Update balance in backend
+                await updateBalance(winAmount);
+
+                // Show win
+                document.getElementById('win-line').classList.add('active');
+                showResult(`🎉 YOU WON ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
+                
+                if (multiplier >= 20) {
+                    createConfetti();
+                }
+
+                setTimeout(() => {
+                    document.getElementById('win-line').classList.remove('active');
+                }, 2000);
+            } else {
+                showResult('Try again! 🎰', false);
+            }
+
+            // Add to history
+            addToHistory(result, winAmount, currentBet);
+
+            isSpinning = false;
+            document.getElementById('spin-btn').disabled = false;
+        }
+
+        // Free spin
+        async function freeSpin() {
+            if (isSpinning || freeSpins <= 0) return;
+
+            freeSpins--;
+            document.getElementById('free-spins').textContent = freeSpins;
+            localStorage.setItem('free_spins', freeSpins.toString());
+            updateFreeSpinButton();
+
+            isSpinning = true;
+            document.getElementById('free-spin-btn').disabled = true;
+            hideResult();
+
+            // Spin animation
+            await playSpinAnimation();
+
+            // Determine result
+            const result = getSpinResult();
+            
+            // Check win
+            const isWin = result[0] === result[1] && result[1] === result[2];
+            let winAmount = 0;
+
+            if (isWin) {
+                const multiplier = MULTIPLIERS[result[0]];
+                winAmount = 100 * multiplier; // Free spins use 100 TAMA bet
+                balance += winAmount;
+                totalWon += winAmount;
+                
+                document.getElementById('balance').textContent = formatNumber(balance);
+                document.getElementById('total-won').textContent = formatNumber(totalWon);
+                localStorage.setItem('total_won', totalWon.toString());
+
+                // Update balance in backend
+                await updateBalance(winAmount);
+
+                document.getElementById('win-line').classList.add('active');
+                showResult(`🎁 FREE SPIN WIN: ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
+                
+                if (multiplier >= 20) {
+                    createConfetti();
+                }
+
+                setTimeout(() => {
+                    document.getElementById('win-line').classList.remove('active');
+                }, 2000);
+            } else {
+                showResult('Free spin - Try again! 🎁', false);
+            }
+
+            // Add to history
+            addToHistory(result, winAmount, 0);
+
+            isSpinning = false;
+            document.getElementById('free-spin-btn').disabled = false;
+        }
+
+        // Play spin animation
+        function playSpinAnimation() {
+            return new Promise(resolve => {
+                const reels = ['reel1', 'reel2', 'reel3'];
+                
+                // Start spinning
+                reels.forEach(reelId => {
+                    const reel = document.getElementById(reelId);
+                    reel.classList.add('spinning');
+                });
+
+                // Stop reels one by one
+                setTimeout(() => {
+                    document.getElementById('reel1').classList.remove('spinning');
+                }, 1000);
+
+                setTimeout(() => {
+                    document.getElementById('reel2').classList.remove('spinning');
+                }, 1500);
+
+                setTimeout(() => {
+                    document.getElementById('reel3').classList.remove('spinning');
+                    resolve();
+                }, 2000);
+            });
+        }
+
+        // Get spin result
+        function getSpinResult() {
+            // Weighted random selection (fair odds)
+            const weights = {
+                '🍒': 30,  // 30% chance
+                '🍋': 25,  // 25% chance
+                '🍊': 20,  // 20% chance
+                '💎': 12,  // 12% chance
+                '⭐': 8,   // 8% chance
+                '👑': 4,   // 4% chance
+                '🎰': 1    // 1% chance (jackpot!)
+            };
+
+            const result = [];
+            for (let i = 0; i < 3; i++) {
+                const symbol = weightedRandom(weights);
+                result.push(symbol);
+                document.getElementById(`reel${i + 1}`).textContent = symbol;
+            }
+
+            return result;
+        }
+
+        // Weighted random
+        function weightedRandom(weights) {
+            const total = Object.values(weights).reduce((a, b) => a + b, 0);
+            let random = Math.random() * total;
+            
+            for (const [symbol, weight] of Object.entries(weights)) {
+                random -= weight;
+                if (random <= 0) return symbol;
+            }
+            
+            return '🍒'; // Fallback
+        }
+
+        // Update balance in backend
+        async function updateBalance(amount) {
+            try {
+                await fetch('https://solanatamagotchi.com/api/tama/slots/spin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: userId,
+                        amount: amount,
+                        bet: amount < 0 ? Math.abs(amount) : 0,
+                        win: amount > 0 ? amount : 0
+                    })
+                });
+            } catch (error) {
+                console.error('Failed to update balance:', error);
+            }
+        }
+
+        // Show result
+        function showResult(message, isWin) {
+            const resultEl = document.getElementById('result-text');
+            resultEl.textContent = message;
+            resultEl.className = `result-text ${isWin ? 'win' : 'lose'}`;
+            resultEl.style.display = 'inline-block';
+        }
+
+        // Hide result
+        function hideResult() {
+            document.getElementById('result-text').style.display = 'none';
+        }
+
+        // Add to history
+        function addToHistory(result, winAmount, betAmount) {
+            const historyItem = {
+                result: result.join(' '),
+                win: winAmount,
+                bet: betAmount,
+                time: new Date().toLocaleTimeString()
+            };
+
+            spinHistory.unshift(historyItem);
+            if (spinHistory.length > 10) spinHistory.pop();
+
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = spinHistory.map(item => `
+                <div class="history-item">
+                    <div>${item.result}</div>
+                    <div class="${item.win > 0 ? 'history-win' : 'history-lose'}">
+                        ${item.win > 0 ? '+' : ''}${item.win > 0 ? formatNumber(item.win) : formatNumber(-item.bet)} TAMA
+                    </div>
+                </div>
+            `).join('') || '<div class="loading">No spins yet</div>';
+        }
+
+        // Update free spin button visibility
+        function updateFreeSpinButton() {
+            const freeSpinBtn = document.getElementById('free-spin-btn');
+            if (freeSpins > 0) {
+                freeSpinBtn.style.display = 'block';
+                freeSpinBtn.textContent = `🎁 USE FREE SPIN (${freeSpins} left)`;
+            } else {
+                freeSpinBtn.style.display = 'none';
+            }
+        }
+
+        // Create confetti
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = ['#FFD700', '#FFA500', '#FF6347', '#8AC926'][Math.floor(Math.random() * 4)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+
+        // Format number
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(Math.floor(num));
+        }
+
+        // Initialize
+        loadUserData();
+    </script>
+</body>
+</html>
+
