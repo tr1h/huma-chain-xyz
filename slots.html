@@ -1805,19 +1805,30 @@
                     const currentBalance = walletData?.tama_balance || 0;
                     const newBalance = Math.max(0, currentBalance + amount);
 
-                    // Update balance in Supabase
+                    // Use upsert to create or update wallet user
                     const { data: updatedWallet, error: updateError } = await supabase
                         .from('wallet_users')
-                        .update({ 
+                        .upsert({
+                            wallet_address: walletAddress,
+                            user_id: walletUserId,
+                            username: walletData?.username || `Wallet_${walletAddress.substring(0, 8)}`,
                             tama_balance: newBalance,
+                            level: walletData?.level || 1,
+                            experience: walletData?.experience || 0,
                             updated_at: new Date().toISOString()
+                        }, {
+                            onConflict: 'wallet_address'
                         })
-                        .eq('wallet_address', walletAddress)
                         .select()
-                        .single();
+                        .maybeSingle();
 
                     if (updateError) {
                         console.error('❌ Error updating wallet balance:', updateError);
+                        return null;
+                    }
+
+                    if (!updatedWallet) {
+                        console.error('❌ Wallet user not found after upsert attempt');
                         return null;
                     }
 
@@ -1840,11 +1851,25 @@
                     document.getElementById('balance').textContent = formatNumber(balance);
                     updateCustomBetInfo();
 
+                    // Check for jackpot win (3 🎰 symbols)
+                    const isJackpot = symbols.length === 3 && symbols[0] === '🎰' && symbols[1] === '🎰' && symbols[2] === '🎰';
+                    
+                    // Load jackpot pool to check if we won
+                    if (isJackpot) {
+                        await loadJackpotPool();
+                        // Jackpot logic will be handled separately
+                    }
+
                     // Return mock response for compatibility
                     return {
                         balance: newBalance,
                         total_tama: newBalance,
-                        success: true
+                        success: true,
+                        jackpot: isJackpot ? {
+                            is_jackpot: true,
+                            current_pool: jackpotPool,
+                            jackpot_win: 0 // Will be calculated separately
+                        } : null
                     };
                 }
 
