@@ -311,10 +311,105 @@
             </div>
         </div>
 
-        <!-- Provably Fair Button -->
-        <div style="text-align: center; margin-top: 15px;">
+        <!-- Buttons -->
+        <div style="text-align: center; margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button onclick="showHowToPlay()" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; font-size: 14px;">
+                📖 How to Play
+            </button>
             <button onclick="showProvablyFair()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; font-size: 14px;">
-                ✅ Provably Fair - View Statistics
+                ✅ Provably Fair
+            </button>
+        </div>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="howtoplay-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto;" onclick="closeHowToPlay()">
+        <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); margin: 20px auto; max-width: 600px; padding: 20px; border-radius: 15px; color: white;" onclick="event.stopPropagation()">
+            <h2 style="text-align: center; color: #FFD700; margin-bottom: 20px;">📖 How to Play Lucky Wheel</h2>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <h3 style="color: #8AC926; margin-bottom: 10px;">🎯 Цель игры:</h3>
+                <p style="line-height: 1.6; font-size: 14px;">
+                    Крутите колесо и выигрывайте! Колесо остановится на одном из 8 сегментов с разными множителями.
+                </p>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <h3 style="color: #FFD700; margin-bottom: 10px;">💰 Как играть:</h3>
+                <ol style="line-height: 1.8; font-size: 14px; padding-left: 20px;">
+                    <li>Выберите ставку: 500 или 1000 TAMA</li>
+                    <li>Нажмите кнопку "🎡 SPIN"</li>
+                    <li>Колесо крутится и останавливается на случайном сегменте</li>
+                    <li>Ваш выигрыш = ставка × множитель сегмента</li>
+                </ol>
+            </div>
+
+            <div style="background: rgba(255,215,0,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <h3 style="color: #FFD700; margin-bottom: 10px;">🎡 Сегменты колеса:</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                    <div><span style="color: #ef4444;">●</span> 10x = <strong>ДЖЕКПОТ!</strong></div>
+                    <div><span style="color: #8b5cf6;">●</span> 5x = <strong>Большой выигрыш</strong></div>
+                    <div><span style="color: #3b82f6;">●</span> 3x = <strong>Тройной выигрыш</strong></div>
+                    <div><span style="color: #10b981;">●</span> 2x = <strong>Двойной выигрыш</strong></div>
+                    <div><span style="color: #059669;">●</span> 1x = <strong>Возврат ставки</strong></div>
+                    <div><span style="color: #6b7280;">●</span> 0.5x = <strong>Половина назад</strong></div>
+                    <div><span style="color: #6b7280;">●</span> 0.5x = <strong>Половина назад</strong></div>
+                    <div><span style="color: #4b5563;">●</span> 0.3x = <strong>30% назад</strong></div>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.7);">
+                    * Каждый сегмент имеет равный шанс выпадения (12.5%, кроме 0.5x - 25%)
+                </div>
+            </div>
+
+            <div style="background: rgba(138, 201, 38, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <h3 style="color: #8AC926; margin-bottom: 10px;">💡 Примеры:</h3>
+                <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px;">
+                    <li>Ставка 1000 → выпало 10x → выигрыш <strong>10,000 TAMA!</strong> 🎉</li>
+                    <li>Ставка 500 → выпало 5x → выигрыш <strong>2,500 TAMA</strong> ⭐</li>
+                    <li>Ставка 1000 → выпало 2x → выигрыш <strong>2,000 TAMA</strong> ✨</li>
+                    <li>Ставка 500 → выпало 1x → возврат <strong>500 TAMA</strong> (без потерь)</li>
+                    <li>Ставка 1000 → выпало 0.5x → возврат <strong>500 TAMA</strong> (потеря 500)</li>
+                </ul>
+            </div>
+
+            <div style="background: rgba(59,130,246,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <h3 style="color: #3b82f6; margin-bottom: 10px;">📊 Вероятности:</h3>
+                <div style="font-size: 14px; line-height: 1.8;">
+                    <div>• 10x (Джекпот): <strong>12.5%</strong> шанс</div>
+                    <div>• 5x (Большой): <strong>12.5%</strong> шанс</div>
+                    <div>• 3x (Тройной): <strong>12.5%</strong> шанс</div>
+                    <div>• 2x (Двойной): <strong>12.5%</strong> шанс</div>
+                    <div>• 1x (Возврат): <strong>12.5%</strong> шанс</div>
+                    <div>• 0.5x (Половина): <strong>25%</strong> шанс (2 сегмента)</div>
+                    <div>• 0.3x (Малый): <strong>12.5%</strong> шанс</div>
+                    <div style="margin-top: 10px; color: #8AC926;">
+                        <strong>RTP (Return to Player): ~100%</strong> - честная игра!
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <h3 style="color: #FFD700; margin-bottom: 10px;">⚡ Особенности:</h3>
+                <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px;">
+                    <li>История спинов сохраняется в вашем браузере</li>
+                    <li>Статистика (wins/losses) обновляется в реальном времени</li>
+                    <li>Игра честная - все вероятности видны в "Provably Fair"</li>
+                    <li>Звуковые эффекты для каждого результата</li>
+                </ul>
+            </div>
+
+            <div style="background: rgba(255,68,68,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <h3 style="color: #ff6b6b; margin-bottom: 10px;">💡 Советы:</h3>
+                <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px;">
+                    <li>Начните с ставки 500 TAMA, чтобы понять механику</li>
+                    <li>Следите за своей статистикой в "Provably Fair"</li>
+                    <li>Не гонитесь за потерями - играйте ответственно</li>
+                    <li>Помните: это игра удачи, результат всегда случаен</li>
+                </ul>
+            </div>
+
+            <button onclick="closeHowToPlay()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #FFD700, #FFA500); border: none; border-radius: 10px; color: #000; font-weight: bold; cursor: pointer; font-size: 16px;">
+                Понятно, начинаем крутить! 🎡
             </button>
         </div>
     </div>
@@ -812,6 +907,15 @@
             } catch (error) {
                 console.error('Error updating balance:', error);
             }
+        }
+
+        // How to Play
+        function showHowToPlay() {
+            document.getElementById('howtoplay-modal').style.display = 'block';
+        }
+
+        function closeHowToPlay() {
+            document.getElementById('howtoplay-modal').style.display = 'none';
         }
 
         // Provably Fair
