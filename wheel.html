@@ -803,10 +803,17 @@
             initAudio();
             isSpinning = true;
             document.getElementById('spin-btn').disabled = true;
-
-            // Deduct bet
-            balance -= currentBet;
-            document.getElementById('balance').textContent = formatNumber(balance);
+            
+            // Deduct bet via API
+            const betResponse = await updateBalanceOnServer(-currentBet);
+            if (!betResponse || betResponse.error) {
+                console.error('❌ Failed to deduct bet:', betResponse?.error);
+                showResult('❌ Error: Could not process bet. Please try again.', 0);
+                isSpinning = false;
+                document.getElementById('spin-btn').disabled = false;
+                await loadUserData(); // Reload balance
+                return;
+            }
 
             document.getElementById('result').textContent = '🎡 Spinning...';
             document.getElementById('result').style.color = '#fff';
@@ -866,9 +873,6 @@
                     });
                     const winAmount = Math.floor(currentBet * multiplier);
 
-                    balance += winAmount;
-                    document.getElementById('balance').textContent = formatNumber(balance);
-
                     // Update stats
                     const netProfit = winAmount - currentBet;
                     if (netProfit > 0) {
@@ -882,16 +886,23 @@
                     document.getElementById('losses').textContent = losses;
                     document.getElementById('total-won').textContent = formatNumber(totalWon);
 
+                    // Update balance on server with win amount (bet already deducted)
+                    if (winAmount > 0) {
+                        await updateBalanceOnServer(winAmount);
+                    }
+
                     // Play sound and show result
                     const resultBox = document.getElementById('result');
                     if (multiplier >= 10) {
                         resultBox.textContent = `🎰 JACKPOT! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
                         resultBox.style.color = '#FFD700';
                         sounds.jackpot();
+                        createConfetti();
                     } else if (multiplier >= 5) {
                         resultBox.textContent = `🎉 BIG WIN! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
                         resultBox.style.color = '#8b5cf6';
                         sounds.bigWin();
+                        createConfetti();
                     } else if (multiplier >= 2) {
                         resultBox.textContent = `⭐ Nice! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
                         resultBox.style.color = '#10b981';
@@ -907,9 +918,6 @@
 
                     // Add to history
                     addToHistory(multiplier, winAmount, currentBet);
-
-                    // Update balance on server
-                    updateBalanceOnServer(netProfit);
 
                     isSpinning = false;
                     document.getElementById('spin-btn').disabled = false;
