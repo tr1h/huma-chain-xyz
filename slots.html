@@ -1598,6 +1598,12 @@
             // Add to history
             addToHistory(result, winAmount, currentBet);
 
+            // Final balance check - reload if negative
+            if (balance < 0) {
+                console.warn('⚠️ Balance is negative after spin, reloading from server...');
+                await loadUserData();
+            }
+
             isSpinning = false;
             document.getElementById('spin-btn').disabled = false;
         }
