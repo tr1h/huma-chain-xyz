@@ -4687,12 +4687,14 @@ function handleSlotsSpin($url, $key) {
 
         error_log("✅ Slots spin successful: balance = {$newBalance}");
         
-        // Send big win alert for x20+ (but not jackpot, already sent)
+        // Send big win alert for x10+ OR win >= 50,000 TAMA (but not jackpot, already sent)
         if (!$isJackpot && $win > 0 && $bet > 0) {
             $multiplier = (int)($win / $bet);
-            if ($multiplier >= 20) {
-                $username = $user['telegram_username'] ?? null;
-                $firstName = $user['telegram_first_name'] ?? null;
+            $username = $user['telegram_username'] ?? null;
+            $firstName = $user['telegram_first_name'] ?? null;
+            
+            // Alert for x10+ multiplier OR big win amount
+            if ($multiplier >= 10 || $win >= 50000) {
                 sendBigWinAlertToBot($telegramId, $username, $firstName, $win, $multiplier, $symbols);
             }
         }

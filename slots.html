@@ -589,7 +589,7 @@
             '💎': 10,
             '⭐': 20,
             '👑': 50,
-            '🎰': 100
+            '🎰': 100  // x100 + Jackpot Pool!
         };
 
         // Game state
@@ -894,15 +894,15 @@
 
         // Get spin result
         function getSpinResult() {
-            // Weighted random selection (fair odds)
+            // Weighted random selection (optimized for better jackpot chances)
             const weights = {
-                '🍒': 30,  // 30% chance
-                '🍋': 25,  // 25% chance
-                '🍊': 20,  // 20% chance
+                '🍒': 28,  // 28% chance
+                '🍋': 24,  // 24% chance
+                '🍊': 19,  // 19% chance
                 '💎': 12,  // 12% chance
-                '⭐': 8,   // 8% chance
-                '👑': 4,   // 4% chance
-                '🎰': 1    // 1% chance (jackpot!)
+                '⭐': 9,   // 9% chance
+                '👑': 5,   // 5% chance
+                '🎰': 3    // 3% chance (JACKPOT!) - increased from 1% for ~monthly jackpots
             };
 
             const result = [];

@@ -1506,14 +1506,28 @@ You just won the JACKPOT! 🔥
 
 
 def send_big_win_alert(telegram_id, username, first_name, win_amount, multiplier, symbols):
-    """Send big win alert to channel (x20+)"""
+    """Send big win alert to channel (x10+ or >= 50K TAMA)"""
     try:
         # Format winner name
         winner_name = f"@{username}" if username else (first_name or f"Player {telegram_id}")
         
+        # Determine alert type
+        if win_amount >= 50000:
+            alert_emoji = "💎💎💎"
+            alert_title = "HUGE WIN!"
+        elif multiplier >= 50:
+            alert_emoji = "👑"
+            alert_title = "MEGA WIN!"
+        elif multiplier >= 20:
+            alert_emoji = "⭐"
+            alert_title = "BIG WIN!"
+        else:
+            alert_emoji = "🎉"
+            alert_title = "NICE WIN!"
+        
         # Create message
         alert_text = f"""
-🎉 **BIG WIN!** 🎉
+{alert_emoji} **{alert_title}** {alert_emoji}
 
 🏆 {winner_name}
 {symbols[0]} {symbols[1]} {symbols[2]}
@@ -5421,8 +5435,8 @@ Please try again later!
             '⭐': 20, '👑': 50, '🎰': 100
         }
 
-        # Weighted random
-        weights = [30, 25, 20, 12, 8, 4, 1]  # Cherry to Jackpot
+        # Weighted random (optimized for better jackpot chances)
+        weights = [28, 24, 19, 12, 9, 5, 3]  # 🎰 increased from 1% to 3% for ~monthly jackpots
         result = []
         for _ in range(3):
             rand = random.random() * sum(weights)
@@ -5539,8 +5553,8 @@ Please try again later!
                 
                 jackpot_pool_after = 0
             
-            # Send big win alert for x20+ (but not jackpot, already sent)
-            elif multiplier >= 20:
+            # Send big win alert for x10+ (but not jackpot, already sent)
+            elif multiplier >= 10:
                 send_big_win_alert(
                     telegram_id=telegram_id,
                     username=username,
