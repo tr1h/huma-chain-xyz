@@ -1201,14 +1201,7 @@
                 console.log('⚠️ Spin already in progress, ignoring click');
                 return;
             }
-            
-            // 🔐 SECURITY: Check if game is opened through Telegram WebApp
-            const initData = window.Telegram?.WebApp?.initData || '';
-            if (!initData) {
-                showResult('⚠️ Please open this game through Telegram bot for security! Direct links are not allowed.', false);
-                return;
-            }
-            
+
             // Check balance (use current local balance, API will validate)
             if (balance < currentBet) {
                 showResult('❌ Insufficient balance!', false);
@@ -1224,7 +1217,7 @@
 
             // Update balance in backend (deduct bet) - API will return updated balance
             const betResponse = await updateBalance(-currentBet, []);
-            
+
             // If API call failed, restore state and reload balance
             if (!betResponse) {
                 console.error('❌ Failed to deduct bet, restoring state');
@@ -1257,23 +1250,14 @@
                 const apiResponse = await updateBalance(winAmount, result);
 
                 // Balance is already updated by updateBalance() from API response
-                // Calculate total won for display
-                if (apiResponse && apiResponse.balance !== undefined) {
-                    // Total won is calculated from the difference
-                    const previousBalance = balance;
-                    balance = apiResponse.balance;
-                    const actualWin = balance - (previousBalance - currentBet);
-                    if (actualWin > 0) {
-                        totalWon += actualWin;
-                    }
-                } else {
-                    // Fallback: use calculated winAmount
-                    totalWon += winAmount;
-                }
+                // Add win to total won
+                totalWon += winAmount;
 
                 // If jackpot was won, API already added it to balance
                 if (isJackpot && apiResponse && apiResponse.jackpot && apiResponse.jackpot.jackpot_win > 0) {
-                    winAmount += apiResponse.jackpot.jackpot_win;
+                    const jackpotWin = apiResponse.jackpot.jackpot_win;
+                    winAmount += jackpotWin;
+                    totalWon += jackpotWin;
                 }
 
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
@@ -1508,10 +1492,10 @@
 
             try {
                 console.log(`📡 Updating balance: ${amount} for user ${userId}`, symbols);
-                
+
                 // 🔐 SECURITY: Get Telegram WebApp initData for authentication
                 const initData = window.Telegram?.WebApp?.initData || '';
-                
+
                 const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1557,26 +1541,10 @@
                 } else {
                     const errorData = await response.json().catch(() => ({}));
                     console.error('Failed to update balance via API:', response.status, errorData);
-                    
-                    // Handle 403 Forbidden - authentication error
-                    if (response.status === 403) {
-                        const initData = window.Telegram?.WebApp?.initData || '';
-                        if (!initData) {
-                            showResult('❌ Please open this game through Telegram bot! Direct links are not allowed for security.', false);
-                            isSpinning = false;
-                            document.getElementById('spin-btn').disabled = false;
-                            return null;
-                        } else {
-                            showResult('❌ Authentication failed. Please reopen the game through Telegram bot.', false);
-                            isSpinning = false;
-                            document.getElementById('spin-btn').disabled = false;
-                            return null;
-                        }
-                    }
-                    
-                    // Fallback: update via Supabase directly (only for non-auth errors)
+
+                    // Fallback: update via Supabase directly
                     try {
-                        console.log('📡 Fallback: updating balance via Supabase');
+                        console.log('📡 Fallback: updating balance via Supabase (API returned', response.status, ')');
                         const { data: leaderboardData } = await supabase
                             .from('leaderboard')
                             .select('tama')
