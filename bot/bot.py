@@ -5989,6 +5989,45 @@ if __name__ == '__main__':
     def health():
         """Health check endpoint"""
         return {'status': 'ok', 'bot': 'running', 'timestamp': datetime.now().isoformat()}, 200
+    
+    # Webhook endpoint for game alerts from API
+    @app.route('/game-alerts', methods=['POST'])
+    def game_alerts():
+        """Receive game alerts from API (slots.html WebApp wins)"""
+        try:
+            data = request.get_json()
+            alert_type = data.get('type')
+            
+            print(f"🎰 Received game alert: {alert_type}")
+            
+            if alert_type == 'jackpot_win':
+                send_jackpot_alert(
+                    telegram_id=data.get('telegram_id'),
+                    username=data.get('username'),
+                    first_name=data.get('first_name'),
+                    jackpot_amount=data.get('jackpot_amount'),
+                    total_win=data.get('total_win'),
+                    bet_amount=data.get('bet_amount'),
+                    pool_before=data.get('pool_before')
+                )
+                print(f"✅ Jackpot alert sent to channel")
+                
+            elif alert_type == 'big_win':
+                send_big_win_alert(
+                    telegram_id=data.get('telegram_id'),
+                    username=data.get('username'),
+                    first_name=data.get('first_name'),
+                    win_amount=data.get('win_amount'),
+                    multiplier=data.get('multiplier'),
+                    symbols=data.get('symbols', [])
+                )
+                print(f"✅ Big win alert sent to channel")
+            
+            return {'status': 'success', 'message': 'Alert sent'}, 200
+            
+        except Exception as e:
+            print(f"❌ Error handling game alert: {e}")
+            return {'status': 'error', 'message': str(e)}, 500
 
     # Keep-Alive function (prevents Render Free tier from sleeping)
     def keep_alive_ping():
