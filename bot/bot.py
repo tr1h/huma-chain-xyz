@@ -1452,7 +1452,7 @@ def send_jackpot_alert(telegram_id, username, first_name, jackpot_amount, total_
     try:
         # Format winner name
         winner_name = f"@{username}" if username else (first_name or f"Player {telegram_id}")
-        
+
         # Create message
         alert_text = f"""
 🎰🎰🎰 **JACKPOT WIN!!!** 🎰🎰🎰
@@ -1467,21 +1467,21 @@ def send_jackpot_alert(telegram_id, username, first_name, jackpot_amount, total_
 
 💸 Use /slots to play
         """
-        
+
         # Send to channel
         try:
             bot.send_message(CHANNEL_USERNAME, alert_text, parse_mode='Markdown')
             print(f"✅ Jackpot alert sent to channel: {CHANNEL_USERNAME}")
         except Exception as e:
             print(f"⚠️ Failed to send to channel: {e}")
-        
+
         # Send to group
         try:
             bot.send_message(GROUP_ID, alert_text, parse_mode='Markdown')
             print(f"✅ Jackpot alert sent to group: {GROUP_ID}")
         except Exception as e:
             print(f"⚠️ Failed to send to group: {e}")
-            
+
         # Send to winner privately
         try:
             winner_text = f"""
@@ -1500,7 +1500,7 @@ You just won the JACKPOT! 🔥
             print(f"✅ Jackpot congratulations sent to winner: {telegram_id}")
         except Exception as e:
             print(f"⚠️ Failed to send to winner: {e}")
-            
+
     except Exception as e:
         print(f"❌ Error sending jackpot alert: {e}")
 
@@ -1510,7 +1510,7 @@ def send_big_win_alert(telegram_id, username, first_name, win_amount, multiplier
     try:
         # Format winner name
         winner_name = f"@{username}" if username else (first_name or f"Player {telegram_id}")
-        
+
         # Determine alert type
         if win_amount >= 50000:
             alert_emoji = "💎💎💎"
@@ -1524,7 +1524,7 @@ def send_big_win_alert(telegram_id, username, first_name, win_amount, multiplier
         else:
             alert_emoji = "🎉"
             alert_title = "NICE WIN!"
-        
+
         # Create message
         alert_text = f"""
 {alert_emoji} **{alert_title}** {alert_emoji}
@@ -1536,14 +1536,14 @@ def send_big_win_alert(telegram_id, username, first_name, win_amount, multiplier
 
 🎰 Try your luck: /slots
         """
-        
+
         # Send to channel only (not spam group)
         try:
             bot.send_message(CHANNEL_USERNAME, alert_text, parse_mode='Markdown')
             print(f"✅ Big win alert sent to channel: {win_amount} TAMA (x{multiplier})")
         except Exception as e:
             print(f"⚠️ Failed to send big win alert: {e}")
-            
+
     except Exception as e:
         print(f"❌ Error sending big win alert: {e}")
 
@@ -5521,7 +5521,7 @@ Please try again later!
                         'pool_before': jackpot_pool_after,
                         'pool_after': 0
                     }).execute()
-                    
+
                     # Reset pool
                     pool_data = supabase.table('slots_jackpot_pool').select('*').eq('id', 1).execute()
                     if pool_data.data:
@@ -5537,7 +5537,7 @@ Please try again later!
                             'last_win_at': datetime.now().isoformat(),
                             'updated_at': datetime.now().isoformat()
                         }).eq('id', 1).execute()
-                    
+
                     # 🔥 SEND JACKPOT ALERT TO CHANNEL/GROUP!
                     send_jackpot_alert(
                         telegram_id=telegram_id,
@@ -5550,9 +5550,9 @@ Please try again later!
                     )
                 except Exception as e:
                     print(f"Error logging jackpot win: {e}")
-                
+
                 jackpot_pool_after = 0
-            
+
             # Send big win alert for x10+ (but not jackpot, already sent)
             elif multiplier >= 10:
                 send_big_win_alert(
@@ -5989,7 +5989,7 @@ if __name__ == '__main__':
     def health():
         """Health check endpoint"""
         return {'status': 'ok', 'bot': 'running', 'timestamp': datetime.now().isoformat()}, 200
-    
+
     # Webhook endpoint for game alerts from API
     @app.route('/game-alerts', methods=['POST'])
     def game_alerts():
@@ -5997,9 +5997,9 @@ if __name__ == '__main__':
         try:
             data = request.get_json()
             alert_type = data.get('type')
-            
+
             print(f"🎰 Received game alert: {alert_type}")
-            
+
             if alert_type == 'jackpot_win':
                 send_jackpot_alert(
                     telegram_id=data.get('telegram_id'),
@@ -6011,7 +6011,7 @@ if __name__ == '__main__':
                     pool_before=data.get('pool_before')
                 )
                 print(f"✅ Jackpot alert sent to channel")
-                
+
             elif alert_type == 'big_win':
                 send_big_win_alert(
                     telegram_id=data.get('telegram_id'),
@@ -6022,9 +6022,9 @@ if __name__ == '__main__':
                     symbols=data.get('symbols', [])
                 )
                 print(f"✅ Big win alert sent to channel")
-            
+
             return {'status': 'success', 'message': 'Alert sent'}, 200
-            
+
         except Exception as e:
             print(f"❌ Error handling game alert: {e}")
             return {'status': 'error', 'message': str(e)}, 500
