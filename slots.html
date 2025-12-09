@@ -531,15 +531,15 @@
                         👑 2,000
                     </button>
                 </div>
-                
+
                 <!-- Custom Bet -->
                 <div class="custom-bet-container">
                     <div class="custom-bet-label">🎯 Custom Bet (Max 50% of balance)</div>
                     <div class="custom-bet-input-group">
-                        <input 
-                            type="number" 
-                            id="custom-bet-input" 
-                            class="custom-bet-input" 
+                        <input
+                            type="number"
+                            id="custom-bet-input"
+                            class="custom-bet-input"
                             placeholder="Enter amount..."
                             min="100"
                             onkeypress="if(event.key === 'Enter') setCustomBet()"
@@ -1098,7 +1098,7 @@
             if (isSpinning) return;
 
             currentBet = amount;
-            
+
             // Update button states
             document.querySelectorAll('.bet-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -1106,7 +1106,7 @@
                     btn.classList.add('active');
                 }
             });
-            
+
             // Clear custom bet if preset is selected
             const customInput = document.getElementById('custom-bet-input');
             const customBtn = document.getElementById('custom-bet-btn');
@@ -1116,7 +1116,7 @@
                 document.getElementById('custom-bet-error').textContent = '';
                 document.getElementById('custom-bet-info').textContent = '';
             }
-            
+
             document.getElementById('spin-cost').textContent = formatNumber(amount);
         }
 
@@ -1128,11 +1128,11 @@
             const errorDiv = document.getElementById('custom-bet-error');
             const infoDiv = document.getElementById('custom-bet-info');
             const customBtn = document.getElementById('custom-bet-btn');
-            
+
             if (!input) return;
 
             const amount = parseInt(input.value);
-            
+
             // Clear previous errors
             errorDiv.textContent = '';
             infoDiv.textContent = '';
@@ -1156,21 +1156,21 @@
 
             // Set custom bet
             currentBet = amount;
-            
+
             // Remove active from preset buttons
             document.querySelectorAll('.bet-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             // Activate custom bet button
             customBtn.classList.add('active');
-            
+
             // Update spin cost
             document.getElementById('spin-cost').textContent = formatNumber(amount);
-            
+
             // Show info
             infoDiv.textContent = `✅ Custom bet set: ${formatNumber(amount)} TAMA`;
-            
+
             // Clear input after a moment
             setTimeout(() => {
                 input.value = '';
@@ -1181,10 +1181,10 @@
         function updateCustomBetInfo() {
             const infoDiv = document.getElementById('custom-bet-info');
             if (!infoDiv) return;
-            
+
             const maxBet = Math.floor(balance * 0.5);
             const customBtn = document.getElementById('custom-bet-btn');
-            
+
             // Only show info if custom bet is not active
             if (customBtn && !customBtn.classList.contains('active')) {
                 if (balance >= 100) {
@@ -1197,7 +1197,14 @@
 
         // Spin the slots
         async function spin() {
-            if (isSpinning) return;
+            if (isSpinning) {
+                console.log('⚠️ Spin already in progress, ignoring click');
+                return;
+            }
+            
+            // Reload balance from API to ensure it's up to date
+            await loadUserData();
+            
             if (balance < currentBet) {
                 showResult('❌ Insufficient balance!', false);
                 return;
@@ -1210,13 +1217,17 @@
             document.getElementById('spin-btn').disabled = true;
             hideResult();
 
-            // Deduct bet from balance
-                balance -= currentBet;
-                document.getElementById('balance').textContent = formatNumber(balance);
-                updateCustomBetInfo(); // Update custom bet info after bet
-
-            // Update balance in backend (deduct bet)
-            await updateBalance(-currentBet, []);
+            // Update balance in backend (deduct bet) - API will return updated balance
+            const betResponse = await updateBalance(-currentBet, []);
+            
+            // If API call failed, restore state
+            if (!betResponse) {
+                console.error('❌ Failed to deduct bet, restoring state');
+                isSpinning = false;
+                document.getElementById('spin-btn').disabled = false;
+                await loadUserData(); // Reload balance
+                return;
+            }
 
             // Play spin sound
             sounds.spin();
@@ -1239,15 +1250,26 @@
                 // Update balance in backend with symbols (for jackpot detection)
                 const apiResponse = await updateBalance(winAmount, result);
 
+                // Balance is already updated by updateBalance() from API response
+                // Calculate total won for display
+                if (apiResponse && apiResponse.balance !== undefined) {
+                    // Total won is calculated from the difference
+                    const previousBalance = balance;
+                    balance = apiResponse.balance;
+                    const actualWin = balance - (previousBalance - currentBet);
+                    if (actualWin > 0) {
+                        totalWon += actualWin;
+                    }
+                } else {
+                    // Fallback: use calculated winAmount
+                    totalWon += winAmount;
+                }
+
                 // If jackpot was won, API already added it to balance
                 if (isJackpot && apiResponse && apiResponse.jackpot && apiResponse.jackpot.jackpot_win > 0) {
                     winAmount += apiResponse.jackpot.jackpot_win;
                 }
 
-                balance += winAmount;
-                totalWon += winAmount;
-
-                document.getElementById('balance').textContent = formatNumber(balance);
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
                 updateCustomBetInfo(); // Update custom bet info after win
                 localStorage.setItem('total_won', totalWon.toString());
@@ -1316,15 +1338,24 @@
                 // Update balance in backend with symbols (for jackpot detection)
                 const apiResponse = await updateBalance(winAmount, result);
 
+                // Balance is already updated by updateBalance() from API response
+                // Calculate total won for display
+                if (apiResponse && apiResponse.balance !== undefined) {
+                    // For free spins, we don't deduct bet, so win is just added
+                    balance = apiResponse.balance;
+                    if (winAmount > 0) {
+                        totalWon += winAmount;
+                    }
+                } else {
+                    // Fallback: use calculated winAmount
+                    totalWon += winAmount;
+                }
+
                 // If jackpot was won, API already added it to balance
                 if (isFreeJackpot && apiResponse && apiResponse.jackpot && apiResponse.jackpot.jackpot_win > 0) {
                     winAmount += apiResponse.jackpot.jackpot_win;
                 }
 
-                balance += winAmount;
-                totalWon += winAmount;
-
-                document.getElementById('balance').textContent = formatNumber(balance);
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
                 updateCustomBetInfo(); // Update custom bet info after free spin win
                 localStorage.setItem('total_won', totalWon.toString());
@@ -1488,6 +1519,12 @@
                     if (data.balance !== undefined) {
                         balance = data.balance;
                         document.getElementById('balance').textContent = formatNumber(balance);
+                        updateCustomBetInfo(); // Update custom bet info when balance changes
+                    } else if (data.total_tama !== undefined) {
+                        // Fallback: use total_tama if balance is not present
+                        balance = data.total_tama;
+                        document.getElementById('balance').textContent = formatNumber(balance);
+                        updateCustomBetInfo();
                     }
 
                     // Update jackpot pool
