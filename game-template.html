@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 My Game - Solana Tamagotchi</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #1a0033 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .balance {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
+            color: #000;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            min-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 MY GAME</h1>
+        
+        <div class="balance">
+            💰 Balance: <span id="balance">Loading...</span> TAMA
+        </div>
+        
+        <button onclick="playGame()">🎮 Play Game</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // === ОБЯЗАТЕЛЬНЫЙ КОД ===
+        
+        // 1. Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // 2. Supabase
+        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 3. User ID
+        function getUserId() {
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+                return String(window.Telegram.WebApp.initDataUnsafe.user.id);
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('user_id') || localStorage.getItem('telegram_user_id') || '123456789';
+        }
+
+        let userId = getUserId();
+        const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+        let balance = 0;
+
+        // 4. Load balance
+        async function loadBalance() {
+            try {
+                const response = await fetch(`${API_BASE}/balance?telegram_id=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    balance = data.total_tama || data.database_tama || data.balance || 0;
+                    document.getElementById('balance').textContent = balance.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Failed to load balance:', error);
+            }
+        }
+
+        // 5. Update balance
+        async function updateBalance(amount, metadata = {}) {
+            try {
+                const response = await fetch(`${API_BASE}/balance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: userId,
+                        amount: amount,
+                        type: amount > 0 ? 'mygame_win' : 'mygame_bet',
+                        metadata: JSON.stringify(metadata)
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    balance = data.total_tama || data.database_tama || data.balance || balance;
+                    document.getElementById('balance').textContent = balance.toLocaleString();
+                    return balance;
+                }
+            } catch (error) {
+                console.error('Failed to update balance:', error);
+            }
+            return balance;
+        }
+
+        // === ТВОЯ ИГРОВАЯ ЛОГИКА ===
+        
+        async function playGame() {
+            const bet = 100;
+            
+            if (balance < bet) {
+                document.getElementById('result').textContent = '❌ Not enough TAMA!';
+                return;
+            }
+
+            // Deduct bet
+            await updateBalance(-bet, { game: 'mygame', action: 'bet' });
+
+            // Game logic (пример: 50% шанс выиграть x2)
+            const win = Math.random() > 0.5 ? bet * 2 : 0;
+
+            if (win > 0) {
+                await updateBalance(win, { game: 'mygame', action: 'win', multiplier: 2 });
+                document.getElementById('result').textContent = `🎉 You won ${win} TAMA!`;
+            } else {
+                document.getElementById('result').textContent = '😢 No win this time!';
+            }
+        }
+
+        // Initialize
+        loadBalance();
+    </script>
+</body>
+</html>
+
