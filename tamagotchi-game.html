@@ -3854,7 +3854,7 @@
             <div class="heart-cloud" style="top: 50px; left: -30px; animation-delay: 0s;">💜</div>
             <div class="heart-cloud" style="top: 150px; left: -30px; animation-delay: 10s;">💗</div>
 
-            <div class="shop-btn" id="shop-btn" onclick="console.log('🛒 DIRECT CLICK!'); document.getElementById('shop-modal').classList.add('active'); this.style.display='none';">🛒</div>
+            <!-- Shop button removed from main screen - only in modal -->
             <div class="pet-change-btn" id="pet-change-btn" title="Change Pet">🐾</div>
             <div class="combo-counter" id="combo-counter">🔥 COMBO x<span id="combo-value">0</span></div>
             <div class="pet-status" id="pet-status"></div>
@@ -4729,6 +4729,12 @@
 
             <!-- Game Selection -->
             <div class="game-selection" id="game-selection">
+                <!-- Lucky Slots - открывает slots.html -->
+                <div class="game-card" data-game="luckyslots" style="background: linear-gradient(135deg, #FFD700, #FFA500); cursor: pointer;">
+                    <div class="game-card-icon">🎰</div>
+                    <div class="game-card-name">Lucky Slots</div>
+                    <div class="game-card-cost">🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!</div>
+                </div>
                 <div class="game-card" data-game="slots" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
                     <div class="game-card-icon">🎰</div>
                     <div class="game-card-name">Slot Machine 2.0</div>
@@ -4749,30 +4755,10 @@
                     <div class="game-card-name">Catch the Pet!</div>
                     <div class="game-card-cost">FREE | Win: up to 200 TAMA!</div>
                 </div>
-                <div class="game-card" data-game="battle" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
-                    <div class="game-card-icon">⚔️</div>
-                    <div class="game-card-name">PET BATTLE</div>
-                    <div class="game-card-cost">Bet: 100-1000 TAMA | Win: up to 2x!</div>
-                </div>
                 <div class="game-card" data-game="tower" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
                     <div class="game-card-icon">🏗️</div>
                     <div class="game-card-name">TAMA TOWER</div>
                     <div class="game-card-cost">Bet: 50-500 TAMA | Win: up to 20x!</div>
-                </div>
-                <div class="game-card" data-game="precision" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                    <div class="game-card-icon">🎯</div>
-                    <div class="game-card-name">PRECISION CLICK</div>
-                    <div class="game-card-cost">Bet: 50-500 TAMA | Win: up to 10x!</div>
-                </div>
-                <div class="game-card" data-game="roulette" style="background: linear-gradient(135deg, #10b981, #059669);">
-                    <div class="game-card-icon">🎲</div>
-                    <div class="game-card-name">ROULETTE</div>
-                    <div class="game-card-cost">Bet: 50-1000 TAMA | Win: up to 36x!</div>
-                </div>
-                <div class="game-card" data-game="cards" style="background: linear-gradient(135deg, #ec4899, #db2777);">
-                    <div class="game-card-icon">🃏</div>
-                    <div class="game-card-name">CARD GAME</div>
-                    <div class="game-card-cost">Bet: 100-1000 TAMA | Win: up to 3x!</div>
                 </div>
             </div>
 
@@ -9178,6 +9164,13 @@
         document.querySelectorAll('.game-card').forEach(card => {
             card.addEventListener('click', () => {
                 const gameName = card.dataset.game;
+
+                // For luckyslots - open slots.html
+                if (gameName === 'luckyslots') {
+                    const userId = window.TELEGRAM_USER_ID || '';
+                    window.open(`/slots.html?user_id=${userId}`, '_blank');
+                    return;
+                }
 
                 // For platformer - immediately open fullscreen!
                 if (gameName === 'platformer') {
@@ -14087,6 +14080,13 @@ ${link}`;
 
         // Game selection function
         function selectGame(game) {
+            // Для luckyslots - открываем slots.html
+            if (game === 'luckyslots') {
+                const userId = window.TELEGRAM_USER_ID || '';
+                window.open(`/slots.html?user_id=${userId}`, '_blank');
+                return;
+            }
+            
             // Для platformer - сразу открываем fullscreen!
             if (game === 'platformer') {
                 openPlatformerFullscreen();
