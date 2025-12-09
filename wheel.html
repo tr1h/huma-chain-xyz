@@ -855,22 +855,22 @@
                     // Play sound and show result
                     const resultBox = document.getElementById('result');
                     if (multiplier >= 10) {
-                        resultBox.textContent = `🎰 JACKPOT! ${multiplier}x = ${formatNumber(winAmount)} TAMA!`;
+                        resultBox.textContent = `🎰 JACKPOT! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
                         resultBox.style.color = '#FFD700';
                         sounds.jackpot();
                     } else if (multiplier >= 5) {
-                        resultBox.textContent = `🎉 BIG WIN! ${multiplier}x = ${formatNumber(winAmount)} TAMA!`;
+                        resultBox.textContent = `🎉 BIG WIN! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
                         resultBox.style.color = '#8b5cf6';
                         sounds.bigWin();
                     } else if (multiplier >= 2) {
-                        resultBox.textContent = `⭐ Nice! ${multiplier}x = ${formatNumber(winAmount)} TAMA!`;
+                        resultBox.textContent = `⭐ Nice! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
                         resultBox.style.color = '#10b981';
                         sounds.win();
                     } else if (multiplier === 1) {
-                        resultBox.textContent = `😐 Break Even! ${multiplier}x = ${formatNumber(winAmount)} TAMA`;
+                        resultBox.textContent = `😐 Break Even! ${multiplier}x = ${formatNumber(winAmount)} TAMA (no profit)`;
                         resultBox.style.color = '#6b7280';
                     } else {
-                        resultBox.textContent = `😔 ${multiplier}x = ${formatNumber(winAmount)} TAMA (lost ${formatNumber(currentBet - winAmount)})`;
+                        resultBox.textContent = `😔 ${multiplier}x = ${formatNumber(winAmount)} TAMA (lost ${formatNumber(Math.abs(netProfit))})`;
                         resultBox.style.color = '#ff6b6b';
                         sounds.loss();
                     }
