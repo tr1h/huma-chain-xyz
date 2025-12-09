@@ -4735,10 +4735,10 @@
                     <div class="game-card-name">Lucky Slots</div>
                     <div class="game-card-cost">🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!</div>
                 </div>
-                <div class="game-card" data-game="wheel" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <div class="game-card" data-game="wheel" style="background: linear-gradient(135deg, #f59e0b, #d97706); cursor: pointer;">
                     <div class="game-card-icon">🎡</div>
                     <div class="game-card-name">Lucky Wheel</div>
-                    <div class="game-card-cost">Bet: 100-1000 TAMA | Win: up to 10x!</div>
+                    <div class="game-card-cost">Bet: 500-1000 TAMA | Win: up to 10x!</div>
                 </div>
                 <div class="game-card" data-game="platformer" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
                     <div class="game-card-icon">🍄</div>
@@ -9164,6 +9164,13 @@
                 if (gameName === 'luckyslots') {
                     const userId = window.TELEGRAM_USER_ID || '';
                     window.open(`/slots.html?user_id=${userId}`, '_blank');
+                    return;
+                }
+
+                // For wheel - open wheel.html
+                if (gameName === 'wheel') {
+                    const userId = window.TELEGRAM_USER_ID || '';
+                    window.open(`/wheel.html?user_id=${userId}`, '_blank');
                     return;
                 }
 
