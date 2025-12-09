@@ -336,8 +336,7 @@ def determine_user_language(message):
     Determine user's language with priority:
     1. Saved preference (from DB)
     2. Telegram language code
-    3. Auto-detection from message text
-    4. Default: 'en'
+    3. Default: 'en' (English by default)
 
     Args:
         message: Telegram message object
@@ -347,7 +346,7 @@ def determine_user_language(message):
     """
     user_id = message.from_user.id
 
-    # 1. Check saved preference
+    # 1. Check saved preference (highest priority)
     saved_lang = get_user_language(user_id)
     if saved_lang:
         return saved_lang
@@ -358,14 +357,10 @@ def determine_user_language(message):
         # Russian and CIS languages
         if telegram_lang in ['ru', 'uk', 'be', 'kk', 'uz', 'ky']:
             return 'ru'
+        # All other languages default to English
+        return 'en'
 
-    # 3. Auto-detect from message text
-    if LOCALIZATION_ENABLED and message.text:
-        detected = detect_language(message.text)
-        if detected:
-            return detected
-
-    # 4. Default
+    # 3. Default: English
     return 'en'
 
 
