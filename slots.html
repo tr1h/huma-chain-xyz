@@ -1202,6 +1202,13 @@
                 return;
             }
             
+            // 🔐 SECURITY: Check if game is opened through Telegram WebApp
+            const initData = window.Telegram?.WebApp?.initData || '';
+            if (!initData) {
+                showResult('⚠️ Please open this game through Telegram bot for security! Direct links are not allowed.', false);
+                return;
+            }
+            
             // Check balance (use current local balance, API will validate)
             if (balance < currentBet) {
                 showResult('❌ Insufficient balance!', false);
@@ -1548,8 +1555,26 @@
 
                     return data;
                 } else {
-                    console.error('Failed to update balance via API:', response.status);
-                    // Fallback: update via Supabase directly
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('Failed to update balance via API:', response.status, errorData);
+                    
+                    // Handle 403 Forbidden - authentication error
+                    if (response.status === 403) {
+                        const initData = window.Telegram?.WebApp?.initData || '';
+                        if (!initData) {
+                            showResult('❌ Please open this game through Telegram bot! Direct links are not allowed for security.', false);
+                            isSpinning = false;
+                            document.getElementById('spin-btn').disabled = false;
+                            return null;
+                        } else {
+                            showResult('❌ Authentication failed. Please reopen the game through Telegram bot.', false);
+                            isSpinning = false;
+                            document.getElementById('spin-btn').disabled = false;
+                            return null;
+                        }
+                    }
+                    
+                    // Fallback: update via Supabase directly (only for non-auth errors)
                     try {
                         console.log('📡 Fallback: updating balance via Supabase');
                         const { data: leaderboardData } = await supabase
