@@ -237,6 +237,87 @@
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
 
+        .custom-bet-container {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .custom-bet-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .custom-bet-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .custom-bet-input {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid #8AC926;
+            border-radius: 10px;
+            padding: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .custom-bet-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .custom-bet-input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .custom-bet-btn {
+            background: linear-gradient(135deg, #8AC926, #6fa01f);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .custom-bet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 201, 38, 0.4);
+        }
+
+        .custom-bet-btn.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .custom-bet-error {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #ff4444;
+            text-align: center;
+            min-height: 16px;
+        }
+
+        .custom-bet-info {
+            margin-top: 8px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+        }
+
         .spin-button {
             width: 100%;
             background: linear-gradient(135deg, #FFD700, #FFA500);
@@ -450,6 +531,26 @@
                         👑 2,000
                     </button>
                 </div>
+                
+                <!-- Custom Bet -->
+                <div class="custom-bet-container">
+                    <div class="custom-bet-label">🎯 Custom Bet (Max 50% of balance)</div>
+                    <div class="custom-bet-input-group">
+                        <input 
+                            type="number" 
+                            id="custom-bet-input" 
+                            class="custom-bet-input" 
+                            placeholder="Enter amount..."
+                            min="100"
+                            onkeypress="if(event.key === 'Enter') setCustomBet()"
+                        >
+                        <button class="custom-bet-btn" id="custom-bet-btn" onclick="setCustomBet()">
+                            Set
+                        </button>
+                    </div>
+                    <div class="custom-bet-error" id="custom-bet-error"></div>
+                    <div class="custom-bet-info" id="custom-bet-info"></div>
+                </div>
             </div>
 
             <!-- Spin Buttons -->
@@ -532,7 +633,7 @@
     <div id="howtoplay-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto;" onclick="closeHowToPlay()">
         <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); margin: 20px auto; max-width: 600px; padding: 20px; border-radius: 15px; color: white;" onclick="event.stopPropagation()">
             <h2 style="text-align: center; color: #FFD700; margin-bottom: 20px;">📖 How to Play Lucky Slots</h2>
-            
+
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
                 <h3 style="color: #8AC926; margin-bottom: 10px;">🎯 Objective:</h3>
                 <p style="line-height: 1.6; font-size: 14px;">
@@ -932,6 +1033,7 @@
                     }
 
                     document.getElementById('balance').textContent = formatNumber(balance);
+                    updateCustomBetInfo(); // Update custom bet info
                     // Save userId to localStorage for future use
                     if (userId && userId !== '123456789') {
                         localStorage.setItem('telegram_user_id', userId);
@@ -951,6 +1053,7 @@
                             balance = leaderboardData.tama || 0;
                             console.log('✅ Balance loaded from Supabase:', balance);
                             document.getElementById('balance').textContent = formatNumber(balance);
+                            updateCustomBetInfo(); // Update custom bet info
                             // Save userId to localStorage for future use
                             if (userId && userId !== '123456789') {
                                 localStorage.setItem('telegram_user_id', userId);
@@ -995,13 +1098,101 @@
             if (isSpinning) return;
 
             currentBet = amount;
+            
+            // Update button states
             document.querySelectorAll('.bet-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (parseInt(btn.dataset.bet) === amount) {
                     btn.classList.add('active');
                 }
             });
+            
+            // Clear custom bet if preset is selected
+            const customInput = document.getElementById('custom-bet-input');
+            const customBtn = document.getElementById('custom-bet-btn');
+            if (customInput && customBtn) {
+                customInput.value = '';
+                customBtn.classList.remove('active');
+                document.getElementById('custom-bet-error').textContent = '';
+                document.getElementById('custom-bet-info').textContent = '';
+            }
+            
             document.getElementById('spin-cost').textContent = formatNumber(amount);
+        }
+
+        // Set custom bet
+        function setCustomBet() {
+            if (isSpinning) return;
+
+            const input = document.getElementById('custom-bet-input');
+            const errorDiv = document.getElementById('custom-bet-error');
+            const infoDiv = document.getElementById('custom-bet-info');
+            const customBtn = document.getElementById('custom-bet-btn');
+            
+            if (!input) return;
+
+            const amount = parseInt(input.value);
+            
+            // Clear previous errors
+            errorDiv.textContent = '';
+            infoDiv.textContent = '';
+
+            // Validation
+            if (isNaN(amount) || amount < 100) {
+                errorDiv.textContent = '❌ Minimum bet is 100 TAMA';
+                return;
+            }
+
+            const maxBet = Math.floor(balance * 0.5); // 50% of balance
+            if (amount > maxBet) {
+                errorDiv.textContent = `❌ Maximum bet is ${formatNumber(maxBet)} TAMA (50% of balance)`;
+                return;
+            }
+
+            if (amount > balance) {
+                errorDiv.textContent = '❌ Insufficient balance!';
+                return;
+            }
+
+            // Set custom bet
+            currentBet = amount;
+            
+            // Remove active from preset buttons
+            document.querySelectorAll('.bet-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Activate custom bet button
+            customBtn.classList.add('active');
+            
+            // Update spin cost
+            document.getElementById('spin-cost').textContent = formatNumber(amount);
+            
+            // Show info
+            infoDiv.textContent = `✅ Custom bet set: ${formatNumber(amount)} TAMA`;
+            
+            // Clear input after a moment
+            setTimeout(() => {
+                input.value = '';
+            }, 1000);
+        }
+
+        // Update custom bet info when balance changes
+        function updateCustomBetInfo() {
+            const infoDiv = document.getElementById('custom-bet-info');
+            if (!infoDiv) return;
+            
+            const maxBet = Math.floor(balance * 0.5);
+            const customBtn = document.getElementById('custom-bet-btn');
+            
+            // Only show info if custom bet is not active
+            if (customBtn && !customBtn.classList.contains('active')) {
+                if (balance >= 100) {
+                    infoDiv.textContent = `Max custom bet: ${formatNumber(maxBet)} TAMA (50% of balance)`;
+                } else {
+                    infoDiv.textContent = '';
+                }
+            }
         }
 
         // Spin the slots
@@ -1020,8 +1211,9 @@
             hideResult();
 
             // Deduct bet from balance
-            balance -= currentBet;
-            document.getElementById('balance').textContent = formatNumber(balance);
+                balance -= currentBet;
+                document.getElementById('balance').textContent = formatNumber(balance);
+                updateCustomBetInfo(); // Update custom bet info after bet
 
             // Update balance in backend (deduct bet)
             await updateBalance(-currentBet, []);
@@ -1057,6 +1249,7 @@
 
                 document.getElementById('balance').textContent = formatNumber(balance);
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
+                updateCustomBetInfo(); // Update custom bet info after win
                 localStorage.setItem('total_won', totalWon.toString());
 
                 // Play win sound based on multiplier
@@ -1133,6 +1326,7 @@
 
                 document.getElementById('balance').textContent = formatNumber(balance);
                 document.getElementById('total-won').textContent = formatNumber(totalWon);
+                updateCustomBetInfo(); // Update custom bet info after free spin win
                 localStorage.setItem('total_won', totalWon.toString());
 
                 // Show win (only if not jackpot, jackpot message already shown)
