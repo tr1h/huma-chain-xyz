@@ -721,8 +721,15 @@
 
             // Show admin panel
             showAdminPanel() {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('adminContent').style.display = 'block';
+                const loginScreen = document.getElementById('adminLoginScreen');
+                const adminContent = document.getElementById('adminContent');
+                
+                if (loginScreen) {
+                    loginScreen.style.display = 'none';
+                }
+                if (adminContent) {
+                    adminContent.style.display = 'block';
+                }
                 console.log('✅ Admin authenticated');
 
                 // Initialize data loading
@@ -1357,7 +1364,14 @@
     </div> <!-- End of adminContent -->
 
     <!-- Admin Authentication -->
-    <script src="admin-password.js"></script>
+    <script>
+        // Inline admin password config (if admin-password.js not found)
+        if (typeof window.ADMIN_PASSWORD === 'undefined') {
+            window.ADMIN_PASSWORD = null; // Will use hash from meta tag
+            console.log('⚠️ admin-password.js not found, using hash from meta tag');
+        }
+    </script>
+    <script src="admin-password.js" onerror="console.warn('⚠️ admin-password.js not found, using hash from meta tag')"></script>
     <script src="js/admin-auth.js"></script>
 </body>
 </html>
