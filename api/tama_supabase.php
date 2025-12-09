@@ -4441,7 +4441,7 @@ function sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, 
     try {
         // Bot webhook URL (update with your bot's webhook endpoint)
         $botWebhook = getenv('BOT_WEBHOOK_URL') ?: 'https://your-bot-webhook.com/jackpot-alert';
-        
+
         $payload = json_encode([
             'type' => 'jackpot_win',
             'telegram_id' => $telegramId,
@@ -4453,7 +4453,7 @@ function sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, 
             'pool_before' => $poolBefore,
             'timestamp' => date('c')
         ]);
-        
+
         // Send async (non-blocking)
         $ch = curl_init($botWebhook);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -4464,10 +4464,10 @@ function sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, 
             'Content-Type: application/json',
             'Content-Length: ' . strlen($payload)
         ]);
-        
+
         curl_exec($ch);
         curl_close($ch);
-        
+
         error_log("🔔 Jackpot alert webhook sent to bot");
     } catch (Exception $e) {
         error_log("⚠️ Failed to send jackpot alert to bot: " . $e->getMessage());
@@ -4481,7 +4481,7 @@ function sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, 
 function sendBigWinAlertToBot($telegramId, $username, $firstName, $winAmount, $multiplier, $symbols) {
     try {
         $botWebhook = getenv('BOT_WEBHOOK_URL') ?: 'https://your-bot-webhook.com/big-win-alert';
-        
+
         $payload = json_encode([
             'type' => 'big_win',
             'telegram_id' => $telegramId,
@@ -4492,7 +4492,7 @@ function sendBigWinAlertToBot($telegramId, $username, $firstName, $winAmount, $m
             'symbols' => $symbols,
             'timestamp' => date('c')
         ]);
-        
+
         $ch = curl_init($botWebhook);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
@@ -4502,10 +4502,10 @@ function sendBigWinAlertToBot($telegramId, $username, $firstName, $winAmount, $m
             'Content-Type: application/json',
             'Content-Length: ' . strlen($payload)
         ]);
-        
+
         curl_exec($ch);
         curl_close($ch);
-        
+
         error_log("🔔 Big win alert webhook sent to bot");
     } catch (Exception $e) {
         error_log("⚠️ Failed to send big win alert to bot: " . $e->getMessage());
@@ -4521,7 +4521,7 @@ function handleSlotsSpin($url, $key) {
     try {
         // 🔐 SECURITY: Load Telegram auth validation
         require_once __DIR__ . '/telegram_auth.php';
-    
+
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
 
@@ -4565,7 +4565,7 @@ function handleSlotsSpin($url, $key) {
         if ($isWalletUser && $walletAddress) {
             // Handle wallet user - use wallet_users table
             error_log("🔗 Processing wallet user: " . $walletAddress);
-            
+
             // Get current balance from wallet_users
             $walletResult = supabaseRequest($url, $key, 'GET', 'wallet_users', [
                 'wallet_address' => 'eq.' . $walletAddress
@@ -4582,14 +4582,14 @@ function handleSlotsSpin($url, $key) {
                     'level' => 1,
                     'experience' => 0
                 ]);
-                
+
                 if (empty($createResult['data'])) {
                     error_log("❌ Failed to create wallet user");
                     http_response_code(500);
                     echo json_encode(['error' => 'Failed to create wallet user']);
                     return;
                 }
-                
+
                 $currentBalance = 0;
             } else {
                 $currentBalance = (int)($walletResult['data'][0]['tama_balance'] ?? 0);
@@ -4607,7 +4607,7 @@ function handleSlotsSpin($url, $key) {
                 echo json_encode(['error' => 'User not found', 'telegram_id' => $telegramId]);
                 return;
             }
-            
+
             $currentBalance = (int)($balanceResult['data'][0]['tama'] ?? 0);
         }
 
@@ -4700,7 +4700,7 @@ function handleSlotsSpin($url, $key) {
             ]);
 
             $jackpotPoolAfter = 0;
-            
+
             // 🔥 SEND JACKPOT ALERT TO BOT (async, don't wait)
             sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, $win, $bet, $jackpotPoolBefore);
         }
@@ -4709,6 +4709,14 @@ function handleSlotsSpin($url, $key) {
         // UPDATE USER BALANCE
         // ============================================
         $newBalance = $currentBalance + $amount;
+        
+        // Ensure balance is not negative
+        if ($newBalance < 0) {
+            error_log("⚠️ WARNING: Balance would be negative ({$newBalance}), setting to 0");
+            $newBalance = 0;
+            // Adjust amount to prevent negative balance
+            $amount = -$currentBalance;
+        }
 
         error_log("💰 Balance update: {$currentBalance} + {$amount} = {$newBalance}");
 
@@ -4753,12 +4761,12 @@ function handleSlotsSpin($url, $key) {
                 'user_type' => $isWalletUser ? 'wallet' : 'telegram'
             ])
         ];
-        
+
         // Add wallet_address if wallet user
         if ($isWalletUser && $walletAddress) {
             $transactionData['wallet_address'] = $walletAddress;
         }
-        
+
         $transactionResult = supabaseRequest($url, $key, 'POST', 'transactions', [], $transactionData);
 
         if (isset($transactionResult['error'])) {
@@ -4766,7 +4774,7 @@ function handleSlotsSpin($url, $key) {
         }
 
         error_log("✅ Slots spin successful: balance = {$newBalance}");
-        
+
         // Send big win alert for x10+ OR win >= 50,000 TAMA (but not jackpot, already sent)
         if (!$isJackpot && $win > 0 && $bet > 0) {
             $multiplier = (int)($win / $bet);
@@ -4777,7 +4785,7 @@ function handleSlotsSpin($url, $key) {
                 $username = $user['telegram_username'] ?? null;
                 $firstName = $user['telegram_first_name'] ?? null;
             }
-            
+
             // Alert for x10+ multiplier OR big win amount
             if ($multiplier >= 10 || $win >= 50000) {
                 sendBigWinAlertToBot($telegramId, $username, $firstName, $win, $multiplier, $symbols);

@@ -1514,11 +1514,21 @@
             const betResponse = await updateBalance(-currentBet, []);
 
             // If API call failed, restore state and reload balance
-            if (!betResponse) {
-                console.error('❌ Failed to deduct bet, restoring state');
+            if (!betResponse || betResponse.error) {
+                console.error('❌ Failed to deduct bet, restoring state:', betResponse?.error);
                 isSpinning = false;
                 document.getElementById('spin-btn').disabled = false;
                 showResult('❌ Error: Could not process bet. Please try again.', false);
+                await loadUserData(); // Reload balance from server
+                return;
+            }
+
+            // Check if balance is valid after bet deduction
+            if (betResponse.balance !== undefined && betResponse.balance < 0) {
+                console.error('❌ Invalid balance after bet:', betResponse.balance);
+                isSpinning = false;
+                document.getElementById('spin-btn').disabled = false;
+                showResult('❌ Error: Invalid balance. Please reload the page.', false);
                 await loadUserData(); // Reload balance from server
                 return;
             }
