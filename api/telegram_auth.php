@@ -89,18 +89,36 @@ function validateTelegramWebAppData($initData, $botToken) {
  * Validate request from Telegram WebApp
  * Returns validated user_id or sends 403 and exits
  * 
- * @param array $requestData Request data with 'init_data' field
- * @param string $botToken Bot token
+ * @param array $requestData Request data with 'init_data' and 'telegram_id' fields
+ * @param string $botToken Bot token (if empty, skip validation - DEV MODE)
  * @return string Validated user_id
  */
 function validateWebAppRequest($requestData, $botToken) {
     $initData = $requestData['init_data'] ?? null;
+    $telegramId = $requestData['telegram_id'] ?? null;
     
+    // DEV MODE: If BOT_TOKEN not set, skip validation
+    if (empty($botToken)) {
+        error_log("⚠️ BOT_TOKEN not set - skipping auth validation (DEV MODE)");
+        if ($telegramId) {
+            return $telegramId;
+        }
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Bad Request',
+            'message' => 'Missing telegram_id'
+        ]);
+        exit();
+    }
+    
+    // PRODUCTION MODE: Validate init_data
     if (!$initData) {
+        error_log("🚫 Missing init_data in request");
         http_response_code(403);
         echo json_encode([
             'error' => 'Unauthorized',
-            'message' => 'Missing init_data. Please open game through Telegram bot.'
+            'message' => 'Missing init_data. Please open game through Telegram bot.',
+            'dev_hint' => 'Set BOT_TOKEN env variable to enable authentication'
         ]);
         exit();
     }
