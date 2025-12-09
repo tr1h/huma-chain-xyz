@@ -1202,9 +1202,7 @@
                 return;
             }
             
-            // Reload balance from API to ensure it's up to date
-            await loadUserData();
-            
+            // Check balance (use current local balance, API will validate)
             if (balance < currentBet) {
                 showResult('❌ Insufficient balance!', false);
                 return;
@@ -1220,12 +1218,13 @@
             // Update balance in backend (deduct bet) - API will return updated balance
             const betResponse = await updateBalance(-currentBet, []);
             
-            // If API call failed, restore state
+            // If API call failed, restore state and reload balance
             if (!betResponse) {
                 console.error('❌ Failed to deduct bet, restoring state');
                 isSpinning = false;
                 document.getElementById('spin-btn').disabled = false;
-                await loadUserData(); // Reload balance
+                showResult('❌ Error: Could not process bet. Please try again.', false);
+                await loadUserData(); // Reload balance from server
                 return;
             }
 
