@@ -4745,11 +4745,6 @@
                     <div class="game-card-name">TAMA Jump</div>
                     <div class="game-card-cost">100 TAMA | Win: up to 500 TAMA!</div>
                 </div>
-                <div class="game-card" data-game="catchpet" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
-                    <div class="game-card-icon">🐾</div>
-                    <div class="game-card-name">Catch the Pet!</div>
-                    <div class="game-card-cost">FREE | Win: up to 200 TAMA!</div>
-                </div>
                 <div class="game-card" data-game="tower" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
                     <div class="game-card-icon">🏗️</div>
                     <div class="game-card-name">TAMA TOWER</div>
@@ -4806,54 +4801,6 @@
                 </div>
             </div>
 
-            <!-- 🎡 LUCKY WHEEL -->
-            <div class="game-arena" id="wheel-arena" style="display: none;">
-                <!-- Fullscreen Toggle -->
-                <button id="wheel-fullscreen-btn" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 18px; z-index: 100;">⛶</button>
-
-                <h3 style="text-align: center; margin-bottom: 20px; font-size: 48px; text-shadow: 0 0 20px rgba(255,255,255,0.5);">🎡 Lucky Wheel</h3>
-
-                <!-- Balance Display -->
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <div style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 20px 40px; border-radius: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
-                        <span style="font-size: 20px; color: rgba(255,255,255,0.9);">Your Balance:</span>
-                        <div id="wheel-balance-display" style="font-size: 42px; font-weight: bold; color: #fff; margin-top: 8px;">0 TAMA</div>
-                    </div>
-                </div>
-
-                <!-- Bet Selection -->
-                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap;">
-                    <button class="wheel-bet-btn" data-bet="100" style="padding: 18px 30px; background: #10b981; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;">100 TAMA</button>
-                    <button class="wheel-bet-btn" data-bet="300" style="padding: 18px 30px; background: #3b82f6; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;">300 TAMA</button>
-                    <button class="wheel-bet-btn" data-bet="500" style="padding: 18px 30px; background: #8b5cf6; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;">500 TAMA</button>
-                    <button class="wheel-bet-btn" data-bet="1000" style="padding: 18px 30px; background: #ef4444; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;">1000 TAMA</button>
-                </div>
-
-                <!-- Wheel Container - MUCH BIGGER! -->
-                <div style="display: flex; justify-content: center; margin: 50px 0;">
-                    <div id="wheel-container" style="position: relative; width: 600px; height: 600px;">
-                        <!-- Wheel will be drawn here -->
-                        <canvas id="wheel-canvas" width="600" height="600" style="border-radius: 50%; box-shadow: 0 0 40px rgba(0,0,0,0.7); border: 5px solid rgba(255,255,255,0.2);"></canvas>
-                        <!-- Arrow pointer -->
-                        <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 80px; z-index: 10; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">🔻</div>
-                    </div>
-                </div>
-
-                <!-- Win/Loss Stats -->
-                <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; font-size: 20px;">
-                    <div style="color: #10b981; font-weight: bold;">Wins: <span id="wheel-wins">0</span></div>
-                    <div style="color: #ef4444; font-weight: bold;">Losses: <span id="wheel-losses">0</span></div>
-                    <div style="color: #f59e0b; font-weight: bold;">Total Won: <span id="wheel-total-won">0</span> TAMA</div>
-                </div>
-
-                <div style="text-align: center; font-size: 32px; margin: 30px 0; min-height: 80px; font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.5);" id="wheel-result"></div>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <button id="wheel-spin-btn" style="padding: 25px 60px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 28px; box-shadow: 0 8px 25px rgba(245,158,11,0.4); transition: transform 0.2s;">🎡 SPIN!</button>
-                    <button onclick="backToGames()" style="padding: 25px 50px; background: #6b7280; border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; margin-left: 20px; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;">Back</button>
-                </div>
-            </div>
-
             <!-- 🎲 DICE ROLL -->
             <div class="game-arena" id="dice-arena" style="display: none;">
                 <h3 style="text-align: center; margin-bottom: 15px;">🎲 Dice Roll</h3>
@@ -4884,45 +4831,6 @@
             <!-- 🍄 TAMA JUMP PLATFORMER -->
             <div class="game-arena" id="platformer-arena" style="display: none;">
                 <!-- IMMEDIATELY open fullscreen when selecting game -->
-            </div>
-
-            <!-- 🐾 CATCH THE PET! -->
-            <div class="game-arena" id="catchpet-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">🐾 Catch the Pet!</h3>
-                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Catch the running pet and unlock new ones!</p>
-
-                <!-- Game Stats -->
-                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <div style="text-align: center; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; min-width: 80px;">
-                        <div style="font-size: 24px; font-weight: bold; color: #fbbf24;">0</div>
-                        <div style="font-size: 12px; color: #d1d5db;">🏆 Caught</div>
-                    </div>
-                    <div style="text-align: center; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; min-width: 80px;">
-                        <div style="font-size: 24px; font-weight: bold; color: #fbbf24;">0</div>
-                        <div style="font-size: 12px; color: #d1d5db;">💯 Score</div>
-                    </div>
-                    <div style="text-align: center; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; min-width: 80px;">
-                        <div style="font-size: 24px; font-weight: bold; color: #fbbf24;">1.0x</div>
-                        <div style="font-size: 12px; color: #d1d5db;">⚡ Speed</div>
-                    </div>
-                </div>
-
-                <!-- Game Area -->
-                <div style="position: relative; width: 100%; height: 300px; background: linear-gradient(135deg, #1e40af, #3b82f6); border-radius: 15px; margin: 20px 0; overflow: hidden; cursor: pointer;" id="catchpet-game-area">
-                    <div id="catchpet-pet" style="position: absolute; font-size: 48px; transition: all 0.1s ease; user-select: none;">🐕</div>
-                    <div id="catchpet-progress" style="position: absolute; bottom: 10px; left: 10px; right: 10px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px;">
-                        <div id="catchpet-progress-fill" style="height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 3px; width: 0%; transition: width 0.3s ease;"></div>
-                    </div>
-                </div>
-
-                <!-- Game Status -->
-                <div style="text-align: center; font-size: 18px; margin: 15px 0; min-height: 50px; font-weight: bold;" id="catchpet-status">Click to start catching pets!</div>
-
-                <!-- Controls -->
-                <div style="text-align: center; margin-top: 15px;">
-                    <button id="catchpet-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #06b6d4, #0891b2); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🐾 START CATCHING!</button>
-                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
-                </div>
             </div>
 
             <!-- ⚔️ PET BATTLE ARENA -->
