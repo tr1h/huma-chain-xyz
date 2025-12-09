@@ -1299,7 +1299,7 @@ def send_welcome(message):
         if lang == 'ru':
             balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})"
         else:
-        balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
+            balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
     except Exception as e:
         print(f"⚠️ Failed to fetch balance in send_welcome: {e}")
         balance_text = "💰 *Your Balance:* Loading..." if lang == 'en' else "💰 *Твой баланс:* Загрузка..."
