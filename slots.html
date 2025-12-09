@@ -625,8 +625,28 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    balance = data.balance || 0;
+                    balance = data.balance || data.database_tama || data.total_tama || 0;
                     console.log('✅ Balance loaded from API:', balance);
+                    
+                    // If API returned 0, try direct Supabase as fallback
+                    if (balance === 0) {
+                        console.warn('⚠️ API returned 0, trying Supabase fallback...');
+                        try {
+                            const { data: leaderboardData, error } = await supabase
+                                .from('leaderboard')
+                                .select('tama')
+                                .eq('telegram_id', userId)
+                                .maybeSingle();
+                            
+                            if (!error && leaderboardData) {
+                                balance = leaderboardData.tama || 0;
+                                console.log('✅ Balance loaded from Supabase fallback:', balance);
+                            }
+                        } catch (e) {
+                            console.error('❌ Supabase fallback failed:', e);
+                        }
+                    }
+                    
                     document.getElementById('balance').textContent = formatNumber(balance);
                     // Save userId to localStorage for future use
                     if (userId && userId !== '123456789') {
@@ -642,7 +662,7 @@
                             .select('tama')
                             .eq('telegram_id', userId)
                             .maybeSingle();
-
+                        
                         if (!error && leaderboardData) {
                             balance = leaderboardData.tama || 0;
                             console.log('✅ Balance loaded from Supabase:', balance);
