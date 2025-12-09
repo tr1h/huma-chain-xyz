@@ -1028,7 +1028,7 @@ def handle_start(message):
 🚀 *Готов начать зарабатывать?*
                     """
                 else:
-                welcome_text = f"""
+                    welcome_text = f"""
 🎉 *Welcome to Solana Tamagotchi!*
 
 You were invited by a friend! 🎁
