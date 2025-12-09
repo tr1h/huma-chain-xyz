@@ -4558,16 +4558,57 @@ function handleSlotsSpin($url, $key) {
             return;
         }
 
-        // Get current balance
-        $balanceResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
-            'telegram_id' => 'eq.' . $telegramId
-        ]);
+        // Check if this is a wallet user
+        $isWalletUser = strpos($telegramId, 'wallet_') === 0;
+        $walletAddress = $data['wallet_address'] ?? null;
 
-        if (empty($balanceResult['data'])) {
-            error_log("❌ User not found in leaderboard: " . $telegramId);
-            http_response_code(404);
-            echo json_encode(['error' => 'User not found', 'telegram_id' => $telegramId]);
-            return;
+        if ($isWalletUser && $walletAddress) {
+            // Handle wallet user - use wallet_users table
+            error_log("🔗 Processing wallet user: " . $walletAddress);
+            
+            // Get current balance from wallet_users
+            $walletResult = supabaseRequest($url, $key, 'GET', 'wallet_users', [
+                'wallet_address' => 'eq.' . $walletAddress
+            ]);
+
+            if (empty($walletResult['data'])) {
+                // Create new wallet user if doesn't exist
+                error_log("📝 Creating new wallet user: " . $walletAddress);
+                $createResult = supabaseRequest($url, $key, 'POST', 'wallet_users', [], [
+                    'wallet_address' => $walletAddress,
+                    'user_id' => $telegramId,
+                    'username' => 'Wallet_' . substr($walletAddress, 0, 8),
+                    'tama_balance' => 0,
+                    'level' => 1,
+                    'experience' => 0
+                ]);
+                
+                if (empty($createResult['data'])) {
+                    error_log("❌ Failed to create wallet user");
+                    http_response_code(500);
+                    echo json_encode(['error' => 'Failed to create wallet user']);
+                    return;
+                }
+                
+                $currentBalance = 0;
+            } else {
+                $currentBalance = (int)($walletResult['data'][0]['tama_balance'] ?? 0);
+            }
+        } else {
+            // Handle Telegram user - use leaderboard table
+            // Get current balance
+            $balanceResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
+                'telegram_id' => 'eq.' . $telegramId
+            ]);
+
+            if (empty($balanceResult['data'])) {
+                error_log("❌ User not found in leaderboard: " . $telegramId);
+                http_response_code(404);
+                echo json_encode(['error' => 'User not found', 'telegram_id' => $telegramId]);
+                return;
+            }
+            
+            $currentBalance = (int)($balanceResult['data'][0]['tama'] ?? 0);
         }
 
         $user = $balanceResult['data'][0];
@@ -4625,8 +4666,13 @@ function handleSlotsSpin($url, $key) {
             error_log("🎰🎰🎰 JACKPOT WIN! {$jackpotWin} TAMA from pool! 🎰🎰🎰");
 
             // Get user info for history
-            $username = $user['telegram_username'] ?? null;
-            $firstName = $user['telegram_first_name'] ?? null;
+            if ($isWalletUser && $walletAddress) {
+                $username = 'Wallet_' . substr($walletAddress, 0, 8);
+                $firstName = $username;
+            } else {
+                $username = $user['telegram_username'] ?? null;
+                $firstName = $user['telegram_first_name'] ?? null;
+            }
 
             // Log jackpot win to history
             supabaseRequest($url, $key, 'POST', 'slots_jackpot_history', [], [
@@ -4666,12 +4712,23 @@ function handleSlotsSpin($url, $key) {
 
         error_log("💰 Balance update: {$currentBalance} + {$amount} = {$newBalance}");
 
-        // Update balance
-        $updateResult = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
-            'telegram_id' => 'eq.' . $telegramId
-        ], [
-            'tama' => $newBalance
-        ]);
+        // Update balance (different table for wallet users)
+        if ($isWalletUser && $walletAddress) {
+            // Update wallet_users table
+            $updateResult = supabaseRequest($url, $key, 'PATCH', 'wallet_users', [
+                'wallet_address' => 'eq.' . $walletAddress
+            ], [
+                'tama_balance' => $newBalance,
+                'updated_at' => date('c')
+            ]);
+        } else {
+            // Update leaderboard table for Telegram users
+            $updateResult = supabaseRequest($url, $key, 'PATCH', 'leaderboard', [
+                'telegram_id' => 'eq.' . $telegramId
+            ], [
+                'tama' => $newBalance
+            ]);
+        }
 
         if (isset($updateResult['error'])) {
             error_log("❌ Failed to update balance: " . json_encode($updateResult['error']));
@@ -4679,7 +4736,7 @@ function handleSlotsSpin($url, $key) {
 
         // Log transaction
         $transactionType = $amount < 0 ? 'slots_bet' : 'slots_win';
-        $transactionResult = supabaseRequest($url, $key, 'POST', 'transactions', [], [
+        $transactionData = [
             'telegram_id' => $telegramId,
             'amount' => $amount,
             'balance_before' => $currentBalance,
@@ -4692,9 +4749,17 @@ function handleSlotsSpin($url, $key) {
                 'jackpot_contribution' => $jackpotContribution,
                 'symbols' => $symbols,
                 'is_jackpot' => $isJackpot,
-                'game' => 'slots'
+                'game' => 'slots',
+                'user_type' => $isWalletUser ? 'wallet' : 'telegram'
             ])
-        ]);
+        ];
+        
+        // Add wallet_address if wallet user
+        if ($isWalletUser && $walletAddress) {
+            $transactionData['wallet_address'] = $walletAddress;
+        }
+        
+        $transactionResult = supabaseRequest($url, $key, 'POST', 'transactions', [], $transactionData);
 
         if (isset($transactionResult['error'])) {
             error_log("⚠️ Failed to log transaction: " . json_encode($transactionResult['error']));
@@ -4705,8 +4770,13 @@ function handleSlotsSpin($url, $key) {
         // Send big win alert for x10+ OR win >= 50,000 TAMA (but not jackpot, already sent)
         if (!$isJackpot && $win > 0 && $bet > 0) {
             $multiplier = (int)($win / $bet);
-            $username = $user['telegram_username'] ?? null;
-            $firstName = $user['telegram_first_name'] ?? null;
+            if ($isWalletUser && $walletAddress) {
+                $username = 'Wallet_' . substr($walletAddress, 0, 8);
+                $firstName = $username;
+            } else {
+                $username = $user['telegram_username'] ?? null;
+                $firstName = $user['telegram_first_name'] ?? null;
+            }
             
             // Alert for x10+ multiplier OR big win amount
             if ($multiplier >= 10 || $win >= 50000) {

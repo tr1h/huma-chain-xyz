@@ -652,7 +652,7 @@
             <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px; font-size: 14px;">
                 Connect your Solana wallet to play and earn TAMA tokens
             </p>
-            
+
             <div id="wallet-options" style="display: flex; flex-direction: column; gap: 15px;">
                 <button onclick="connectPhantom()" style="background: linear-gradient(135deg, #AB9FF2, #8B7FD9); border: none; padding: 15px 20px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
                     <span style="font-size: 24px;">👻</span>
@@ -913,7 +913,7 @@
         function checkWalletAvailability() {
             const hasPhantom = window.solana && window.solana.isPhantom;
             const hasSolflare = window.solflare;
-            
+
             if (!hasPhantom && !hasSolflare) {
                 document.getElementById('wallet-options').style.display = 'none';
                 document.getElementById('wallet-install').style.display = 'block';
@@ -932,7 +932,7 @@
 
                 const resp = await window.solana.connect();
                 const address = resp.publicKey.toString();
-                
+
                 await handleWalletConnection(address, 'phantom');
             } catch (error) {
                 console.error('❌ Phantom connection error:', error);
@@ -950,7 +950,7 @@
                 // Solflare connection (if available)
                 const resp = await window.solflare.connect();
                 const address = resp.publicKey.toString();
-                
+
                 await handleWalletConnection(address, 'solflare');
             } catch (error) {
                 console.error('❌ Solflare connection error:', error);
@@ -962,22 +962,22 @@
             try {
                 walletAddress = address;
                 walletUserId = `wallet_${address.substring(0, 12)}`;
-                
+
                 // Save to localStorage
                 localStorage.setItem('wallet_address', address);
                 localStorage.setItem('wallet_user_id', walletUserId);
-                
+
                 // Save to Supabase via API
                 await saveWalletToSupabase(address);
-                
+
                 // Update UI
                 updateWalletUI();
                 closeWalletModal();
-                
+
                 // Reload user data with new wallet ID
                 userId = walletUserId;
                 await loadUserData();
-                
+
                 showResult('✅ Wallet connected successfully!', true);
             } catch (error) {
                 console.error('❌ Error handling wallet connection:', error);
@@ -1037,7 +1037,7 @@
             if (walletAddress) {
                 document.getElementById('wallet-section').style.display = 'block';
                 document.getElementById('connect-wallet-btn-container').style.display = 'none';
-                document.getElementById('wallet-address').textContent = 
+                document.getElementById('wallet-address').textContent =
                     `${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}`;
             } else {
                 document.getElementById('wallet-section').style.display = 'none';
@@ -1051,9 +1051,9 @@
                 walletUserId = null;
                 localStorage.removeItem('wallet_address');
                 localStorage.removeItem('wallet_user_id');
-                
+
                 updateWalletUI();
-                
+
                 // Try to disconnect from wallet
                 try {
                     if (window.solana && window.solana.isPhantom) {
@@ -1062,11 +1062,11 @@
                 } catch (e) {
                     console.warn('Could not disconnect from wallet:', e);
                 }
-                
+
                 // Reload with default user ID
                 userId = getUserId();
                 await loadUserData();
-                
+
                 showResult('✅ Wallet disconnected', true);
             }
         }
@@ -1788,106 +1788,28 @@
             try {
                 console.log(`📡 Updating balance: ${amount} for user ${userId}`, symbols);
 
-                // Check if this is a wallet user
-                if (userId.startsWith('wallet_') && walletAddress) {
-                    // Update wallet_users table directly in Supabase
-                    const { data: walletData, error } = await supabase
-                        .from('wallet_users')
-                        .select('tama_balance')
-                        .eq('wallet_address', walletAddress)
-                        .maybeSingle();
-
-                    if (error) {
-                        console.error('❌ Error loading wallet balance:', error);
-                        return null;
-                    }
-
-                    const currentBalance = walletData?.tama_balance || 0;
-                    const newBalance = Math.max(0, currentBalance + amount);
-
-                    // Use upsert to create or update wallet user
-                    const { data: updatedWallet, error: updateError } = await supabase
-                        .from('wallet_users')
-                        .upsert({
-                            wallet_address: walletAddress,
-                            user_id: walletUserId,
-                            username: walletData?.username || `Wallet_${walletAddress.substring(0, 8)}`,
-                            tama_balance: newBalance,
-                            level: walletData?.level || 1,
-                            experience: walletData?.experience || 0,
-                            updated_at: new Date().toISOString()
-                        }, {
-                            onConflict: 'wallet_address'
-                        })
-                        .select()
-                        .maybeSingle();
-
-                    if (updateError) {
-                        console.error('❌ Error updating wallet balance:', updateError);
-                        return null;
-                    }
-
-                    if (!updatedWallet) {
-                        console.error('❌ Wallet user not found after upsert attempt');
-                        return null;
-                    }
-
-                    // Log transaction
-                    await supabase.from('transactions').insert({
-                        telegram_id: walletUserId,
-                        wallet_address: walletAddress,
-                        amount: amount,
-                        type: amount > 0 ? 'slots_win' : 'slots_spin',
-                        balance_before: currentBalance,
-                        balance_after: newBalance,
-                        metadata: JSON.stringify({ 
-                            source: 'slots.html',
-                            symbols: symbols,
-                            user_type: 'wallet'
-                        })
-                    });
-
-                    balance = newBalance;
-                    document.getElementById('balance').textContent = formatNumber(balance);
-                    updateCustomBetInfo();
-
-                    // Check for jackpot win (3 🎰 symbols)
-                    const isJackpot = symbols.length === 3 && symbols[0] === '🎰' && symbols[1] === '🎰' && symbols[2] === '🎰';
-                    
-                    // Load jackpot pool to check if we won
-                    if (isJackpot) {
-                        await loadJackpotPool();
-                        // Jackpot logic will be handled separately
-                    }
-
-                    // Return mock response for compatibility
-                    return {
-                        balance: newBalance,
-                        total_tama: newBalance,
-                        success: true,
-                        jackpot: isJackpot ? {
-                            is_jackpot: true,
-                            current_pool: jackpotPool,
-                            jackpot_win: 0 // Will be calculated separately
-                        } : null
-                    };
-                }
-
-                // For Telegram users, use API
+                // For both Telegram and Wallet users, use API
                 // 🔐 SECURITY: Get Telegram WebApp initData for authentication
                 const initData = window.Telegram?.WebApp?.initData || '';
+
+                const requestBody = {
+                    telegram_id: String(userId),
+                    amount: amount,
+                    bet: amount < 0 ? Math.abs(amount) : 0,
+                    win: amount > 0 ? amount : 0,
+                    symbols: symbols,
+                    init_data: initData // 🔐 Authentication data
+                };
+
+                // Add wallet_address if wallet user
+                if (userId.startsWith('wallet_') && walletAddress) {
+                    requestBody.wallet_address = walletAddress;
+                }
 
                 const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegram_id: String(userId),
-                        amount: amount,
-                        bet: amount < 0 ? Math.abs(amount) : 0,
-                        win: amount > 0 ? amount : 0,
-                        symbols: symbols,
-                        init_data: initData // 🔐 Authentication data
-                    })
+                    body: JSON.stringify(requestBody)
                 });
                 
                 if (response.ok) {
