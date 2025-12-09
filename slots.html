@@ -1029,11 +1029,11 @@
             // Play spin sound
             sounds.spin();
 
-            // Spin animation
-            await playSpinAnimation();
-
-            // Determine result
+            // Determine result FIRST (before animation)
             const result = getSpinResult();
+
+            // Spin animation (will show result symbols one by one)
+            await playSpinAnimation(result);
 
             // Check win
             const isWin = result[0] === result[1] && result[1] === result[2];
@@ -1105,11 +1105,11 @@
             document.getElementById('free-spin-btn').disabled = true;
             hideResult();
 
-            // Spin animation
-            await playSpinAnimation();
-
-            // Determine result
+            // Determine result FIRST (before animation)
             const result = getSpinResult();
+
+            // Spin animation (will show result symbols one by one)
+            await playSpinAnimation(result);
 
             // Check win
             const isWin = result[0] === result[1] && result[1] === result[2];
@@ -1159,34 +1159,53 @@
             document.getElementById('free-spin-btn').disabled = false;
         }
 
-        // Play spin animation
-        function playSpinAnimation() {
+        // Play spin animation with result
+        function playSpinAnimation(result) {
             return new Promise(resolve => {
                 const reels = ['reel1', 'reel2', 'reel3'];
 
-                // Start spinning
+                // Start spinning - show random symbols while spinning
+                const spinInterval = setInterval(() => {
+                    reels.forEach(reelId => {
+                        const reel = document.getElementById(reelId);
+                        if (reel.classList.contains('spinning')) {
+                            // Show random symbol while spinning
+                            const randomSymbols = ['🍒', '🍋', '🍊', '💎', '⭐', '👑', '🎰'];
+                            reel.textContent = randomSymbols[Math.floor(Math.random() * randomSymbols.length)];
+                        }
+                    });
+                }, 50);
+
+                // Start spinning animation
                 reels.forEach(reelId => {
                     const reel = document.getElementById(reelId);
                     reel.classList.add('spinning');
                 });
 
-                // Stop reels one by one
+                // Stop reels one by one and show final symbol
                 setTimeout(() => {
                     document.getElementById('reel1').classList.remove('spinning');
+                    document.getElementById('reel1').textContent = result[0];
+                    sounds.reelStop();
                 }, 1000);
 
                 setTimeout(() => {
                     document.getElementById('reel2').classList.remove('spinning');
+                    document.getElementById('reel2').textContent = result[1];
+                    sounds.reelStop();
                 }, 1500);
 
                 setTimeout(() => {
                     document.getElementById('reel3').classList.remove('spinning');
+                    document.getElementById('reel3').textContent = result[2];
+                    sounds.reelStop();
+                    clearInterval(spinInterval);
                     resolve();
                 }, 2000);
             });
         }
 
-        // Get spin result
+        // Get spin result (generate symbols, but don't display yet)
         function getSpinResult() {
             // Weighted random selection (optimized for better jackpot chances)
             const weights = {
@@ -1203,7 +1222,7 @@
             for (let i = 0; i < 3; i++) {
                 const symbol = weightedRandom(weights);
                 result.push(symbol);
-                document.getElementById(`reel${i + 1}`).textContent = symbol;
+                // DON'T set textContent here - it will be set when reel stops
             }
 
             return result;
