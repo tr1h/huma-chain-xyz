@@ -831,22 +831,23 @@
                 } else {
                     clearInterval(spinInterval);
 
-                    // Calculate result - pointer is at top (0°), find which segment is under it
+                    // Calculate result - POINTER IS AT TOP = 270° (3π/2)
                     const normalizedRotation = ((rotation % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2);
                     const segmentAngle = (Math.PI * 2) / segments.length;
                     
-                    // Pointer is at top (0°)
-                    // Segments are drawn starting from rotation, going clockwise
-                    // Segment 0 starts at rotation, segment 1 at rotation + segmentAngle, etc.
-                    // To find which segment is at pointer (0°), we need to find which segment contains angle 0
-                    // Since segments rotate with the wheel, segment at 0° = (2π - rotation) / segmentAngle
-                    // But we need to account for the fact that segments are drawn from rotation
-                    // The segment that contains angle 0 is: floor((2π - rotation + segmentAngle/2) / segmentAngle)
-                    let segmentIndex = Math.floor((Math.PI * 2 - normalizedRotation + segmentAngle / 2) / segmentAngle);
+                    // Pointer is at TOP of circle = 270° = 3π/2 (or -π/2)
+                    // In canvas, arc() angles: 0° = right, 90° = bottom, 180° = left, 270° = top
+                    const pointerAngle = 3 * Math.PI / 2; // 270° - top of circle
                     
-                    // Ensure positive index
-                    if (segmentIndex < 0) segmentIndex += segments.length;
+                    // Calculate relative angle from current rotation to pointer
+                    const relativeAngle = ((pointerAngle - normalizedRotation) + 2 * Math.PI) % (2 * Math.PI);
+                    
+                    // Find which segment is at this angle
+                    let segmentIndex = Math.floor(relativeAngle / segmentAngle);
+                    
+                    // Ensure valid index
                     segmentIndex = segmentIndex % segments.length;
+                    if (segmentIndex < 0) segmentIndex += segments.length;
                     
                     const multiplier = segments[segmentIndex].multiplier;
                     
@@ -854,10 +855,14 @@
                     console.log('🎡 Wheel result:', {
                         rotation: normalizedRotation.toFixed(4),
                         rotationDegrees: (normalizedRotation * 180 / Math.PI).toFixed(1),
+                        pointerAngle: '270° (top)',
+                        relativeAngle: relativeAngle.toFixed(4),
+                        relativeAngleDegrees: (relativeAngle * 180 / Math.PI).toFixed(1),
                         segmentIndex,
                         multiplier,
                         segmentText: segments[segmentIndex].text,
-                        segmentColor: segments[segmentIndex].color
+                        segmentColor: segments[segmentIndex].color,
+                        allSegments: segments.map((s, i) => `${i}:${s.text}`)
                     });
                     const winAmount = Math.floor(currentBet * multiplier);
 
