@@ -64,9 +64,12 @@ require_once __DIR__ . '/security.php';
 // Set security headers
 setSecurityHeaders();
 
-// Настройки Supabase REST API (NO HARDCODED VALUES!)
-$supabaseUrl = getenv('SUPABASE_URL');
-$supabaseKey = getenv('SUPABASE_KEY');
+// Настройки Supabase REST API (with fallback to correct URL)
+$supabaseUrl = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
+$supabaseKey = getenv('SUPABASE_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+
+// Log which URL is being used
+error_log('🔑 Using Supabase URL: ' . $supabaseUrl);
 
 // Validate required variables
 if (!$supabaseUrl || !$supabaseKey) {
