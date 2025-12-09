@@ -889,19 +889,29 @@
         }
 
         // Update balance on server
-        async function updateBalanceOnServer(amount) {
+        async function updateBalanceOnServer(netProfit) {
             try {
+                // Send net profit (bet already deducted, win already added locally)
+                // netProfit = winAmount - betAmount
                 const response = await fetch(`${API_BASE}/balance`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         telegram_id: userId,
-                        amount: amount,
-                        type: amount > 0 ? 'wheel_win' : 'wheel_spin'
+                        amount: netProfit,
+                        type: netProfit > 0 ? 'wheel_win' : (netProfit < 0 ? 'wheel_spin' : 'wheel_break_even')
                     })
                 });
 
-                if (!response.ok) {
+                if (response.ok) {
+                    // Sync balance from server response
+                    const data = await response.json();
+                    if (data.total_tama || data.database_tama || data.balance) {
+                        balance = data.total_tama || data.database_tama || data.balance || balance;
+                        document.getElementById('balance').textContent = formatNumber(balance);
+                        console.log('✅ Balance synced with server:', balance);
+                    }
+                } else {
                     console.warn('Failed to update balance on server');
                 }
             } catch (error) {
