@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Solana Tamagotchi - Skin Concepts Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 48px;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .skins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .skin-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skin-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .rarity-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rarity-common {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .rarity-rare {
+            background: #2196F3;
+            color: white;
+        }
+
+        .rarity-epic {
+            background: #9C27B0;
+            color: white;
+        }
+
+        .rarity-legendary {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+        }
+
+        .rarity-nft {
+            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+            color: white;
+            animation: rainbow 3s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(360deg); }
+        }
+
+        .skin-preview {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+            margin: 20px 0;
+            position: relative;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .skin-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0 5px;
+            text-align: center;
+        }
+
+        .skin-desc {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .skin-effects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .effect-tag {
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .skin-bonus {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .skin-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .price-currency {
+            color: #667eea;
+        }
+
+        .nft-required {
+            background: linear-gradient(45deg, #ff0080, #ff8c00);
+            color: white;
+            padding: 8px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        /* Animated effects for skins */
+        .effect-glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 5px currentColor); }
+            50% { filter: drop-shadow(0 0 20px currentColor); }
+        }
+
+        .effect-fire {
+            animation: fire 0.5s ease-in-out infinite;
+        }
+
+        @keyframes fire {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.05); }
+        }
+
+        .effect-cyber {
+            animation: cyber 1s linear infinite;
+        }
+
+        @keyframes cyber {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(180deg); }
+        }
+
+        .effect-cosmic {
+            animation: cosmic 3s ease-in-out infinite;
+        }
+
+        @keyframes cosmic {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(360deg); }
+        }
+
+        .pet-type-header {
+            text-align: center;
+            color: white;
+            font-size: 36px;
+            margin: 40px 0 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, white, transparent);
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Skin Concepts Preview</h1>
+
+        <div class="filter-tabs">
+            <button class="filter-btn active" data-filter="all">All Skins</button>
+            <button class="filter-btn" data-filter="common">🟢 Common</button>
+            <button class="filter-btn" data-filter="rare">🔵 Rare</button>
+            <button class="filter-btn" data-filter="epic">🟣 Epic</button>
+            <button class="filter-btn" data-filter="legendary">🟡 Legendary</button>
+            <button class="filter-btn" data-filter="nft">💎 NFT Exclusive</button>
+        </div>
+
+        <!-- CAT SKINS -->
+        <h2 class="pet-type-header">🐱 CAT SKINS</h2>
+        <div class="skins-grid" data-pet="cat">
+            <!-- Golden Cat -->
+            <div class="skin-card" data-rarity="common">
+                <div class="rarity-badge rarity-common">COMMON</div>
+                <div class="skin-preview effect-glow" style="color: #FFD700;">
+                    <span style="font-size: 100px;">🐱✨</span>
+                </div>
+                <div class="skin-name">Golden Cat</div>
+                <div class="skin-desc">Золотой кот с блестящей шерстью</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">✨ Glow</span>
+                </div>
+                <div class="skin-price">
+                    <span class="price-amount">1,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <!-- Cyber Cat -->
+            <div class="skin-card" data-rarity="rare">
+                <div class="rarity-badge rarity-rare">RARE</div>
+                <div class="skin-preview effect-cyber" style="background: #000033;">
+                    <span style="font-size: 100px; color: #00FFFF;">🐱⚡</span>
+                </div>
+                <div class="skin-name">Cyber Cat</div>
+                <div class="skin-desc">Киберпанк кот с неоновыми линиями</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">💻 Scan-lines</span>
+                    <span class="effect-tag">🌟 Neon Glow</span>
+                </div>
+                <div class="skin-bonus">+10% XP</div>
+                <div class="skin-price">
+                    <span class="price-amount">5,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <!-- Fire Cat -->
+            <div class="skin-card" data-rarity="epic">
+                <div class="rarity-badge rarity-epic">EPIC</div>
+                <div class="skin-preview effect-fire" style="background: linear-gradient(135deg, #FF4500, #FFA500);">
+                    <span style="font-size: 100px;">🐱🔥</span>
+                </div>
+                <div class="skin-name">Fire Cat</div>
+                <div class="skin-desc">Огненный кот с пламенем</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">🔥 Fire Particles</span>
+                    <span class="effect-tag">🌡️ Heat Waves</span>
+                </div>
+                <div class="skin-bonus">+15% TAMA from games</div>
+                <div class="skin-price">
+                    <span class="price-amount">15,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <!-- Cosmic Cat -->
+            <div class="skin-card" data-rarity="legendary">
+                <div class="rarity-badge rarity-legendary">LEGENDARY</div>
+                <div class="skin-preview effect-cosmic" style="background: radial-gradient(circle, #000033, #8B00FF);">
+                    <span style="font-size: 100px;">🐱✨🌟</span>
+                </div>
+                <div class="skin-name">Cosmic Cat</div>
+                <div class="skin-desc">Космический кот с галактикой внутри</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">⭐ Stars</span>
+                    <span class="effect-tag">🌌 Nebula</span>
+                    <span class="effect-tag">✨ Trail</span>
+                </div>
+                <div class="skin-bonus">+25% TAMA + +20% XP</div>
+                <div class="nft-required">🎫 Requires Bronze NFT+</div>
+                <div class="skin-price">
+                    <span class="price-amount">50,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- DOG SKINS -->
+        <h2 class="pet-type-header">🐶 DOG SKINS</h2>
+        <div class="skins-grid" data-pet="dog">
+            <!-- Shiba Inu -->
+            <div class="skin-card" data-rarity="common">
+                <div class="rarity-badge rarity-common">COMMON</div>
+                <div class="skin-preview" style="color: #FF8C42;">
+                    <span style="font-size: 100px;">🐶</span>
+                </div>
+                <div class="skin-name">Shiba Inu</div>
+                <div class="skin-desc">Классический Shiba Inu</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">🎭 Wag Tail</span>
+                </div>
+                <div class="skin-price">
+                    <span class="price-amount">1,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <!-- Robot Dog -->
+            <div class="skin-card" data-rarity="rare">
+                <div class="rarity-badge rarity-rare">RARE</div>
+                <div class="skin-preview" style="background: linear-gradient(135deg, #C0C0C0, #0000FF);">
+                    <span style="font-size: 100px;">🤖🐶</span>
+                </div>
+                <div class="skin-name">Robot Dog</div>
+                <div class="skin-desc">Механический пёс</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">🔩 Mechanical</span>
+                    <span class="effect-tag">💡 LED Eyes</span>
+                </div>
+                <div class="skin-bonus">+10% HP Regen</div>
+                <div class="skin-price">
+                    <span class="price-amount">5,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <!-- Lightning Wolf -->
+            <div class="skin-card" data-rarity="epic">
+                <div class="rarity-badge rarity-epic">EPIC</div>
+                <div class="skin-preview effect-fire" style="background: linear-gradient(135deg, #FFFFFF, #00FFFF, #FFFF00);">
+                    <span style="font-size: 100px;">🐺⚡</span>
+                </div>
+                <div class="skin-name">Lightning Wolf</div>
+                <div class="skin-desc">Волк с молниями</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">⚡ Lightning</span>
+                    <span class="effect-tag">✨ Electric Sparks</span>
+                </div>
+                <div class="skin-bonus">+15% Click Speed</div>
+                <div class="skin-price">
+                    <span class="price-amount">15,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <!-- Shadow Wolf -->
+            <div class="skin-card" data-rarity="legendary">
+                <div class="rarity-badge rarity-legendary">LEGENDARY</div>
+                <div class="skin-preview effect-cosmic" style="background: linear-gradient(135deg, #000000, #8B00FF);">
+                    <span style="font-size: 100px; opacity: 0.7;">🐺👁️</span>
+                </div>
+                <div class="skin-name">Shadow Wolf</div>
+                <div class="skin-desc">Призрачный теневой волк</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">👻 Fade</span>
+                    <span class="effect-tag">☁️ Smoke Trail</span>
+                    <span class="effect-tag">👁️ Glowing Eyes</span>
+                </div>
+                <div class="skin-bonus">+25% TAMA + Night Mode</div>
+                <div class="nft-required">🎫 Requires Silver NFT+</div>
+                <div class="skin-price">
+                    <span class="price-amount">50,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- BUNNY SKINS -->
+        <h2 class="pet-type-header">🐰 BUNNY SKINS</h2>
+        <div class="skins-grid" data-pet="bunny">
+            <div class="skin-card" data-rarity="common">
+                <div class="rarity-badge rarity-common">COMMON</div>
+                <div class="skin-preview" style="color: #FFB3D9;">
+                    <span style="font-size: 100px;">🐰💕</span>
+                </div>
+                <div class="skin-name">Pink Bunny</div>
+                <div class="skin-desc">Милый розовый зайчик</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">🐇 Hop</span>
+                </div>
+                <div class="skin-price">
+                    <span class="price-amount">1,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <div class="skin-card" data-rarity="rare">
+                <div class="rarity-badge rarity-rare">RARE</div>
+                <div class="skin-preview" style="background: #000033;">
+                    <span style="font-size: 100px;">🐰🥷</span>
+                </div>
+                <div class="skin-name">Ninja Bunny</div>
+                <div class="skin-desc">Зайчик-ниндзя</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">🥷 Ninja</span>
+                    <span class="effect-tag">⭐ Shuriken</span>
+                </div>
+                <div class="skin-bonus">+10% Evasion</div>
+                <div class="skin-price">
+                    <span class="price-amount">5,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <div class="skin-card" data-rarity="epic">
+                <div class="rarity-badge rarity-epic">EPIC</div>
+                <div class="skin-preview effect-glow" style="background: linear-gradient(135deg, #00FFFF, #FFFFFF);">
+                    <span style="font-size: 100px;">🐰💎</span>
+                </div>
+                <div class="skin-name">Crystal Bunny</div>
+                <div class="skin-desc">Хрустальный зайчик</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">✨ Sparkles</span>
+                    <span class="effect-tag">🌈 Prism</span>
+                </div>
+                <div class="skin-bonus">+15% Happy Gain</div>
+                <div class="skin-price">
+                    <span class="price-amount">15,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+
+            <div class="skin-card" data-rarity="legendary">
+                <div class="rarity-badge rarity-legendary">LEGENDARY</div>
+                <div class="skin-preview effect-glow" style="background: radial-gradient(circle, #FFFFFF, #C0C0C0);">
+                    <span style="font-size: 100px;">🐰🌙⭐</span>
+                </div>
+                <div class="skin-name">Moon Bunny</div>
+                <div class="skin-desc">Лунный заяц из азиатской мифологии</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">🌙 Moon Phases</span>
+                    <span class="effect-tag">⭐ Stars</span>
+                </div>
+                <div class="skin-bonus">+30% All Stats at Night</div>
+                <div class="nft-required">🎫 Requires Gold NFT+</div>
+                <div class="skin-price">
+                    <span class="price-amount">50,000</span>
+                    <span class="price-currency">TAMA</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- NFT EXCLUSIVE SKINS -->
+        <h2 class="pet-type-header">💎 NFT EXCLUSIVE SKINS</h2>
+        <div class="skins-grid">
+            <div class="skin-card" data-rarity="nft">
+                <div class="rarity-badge rarity-nft">NFT EXCLUSIVE</div>
+                <div class="skin-preview effect-cosmic" style="background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #ff0080);">
+                    <span style="font-size: 100px;">🦄🌈</span>
+                </div>
+                <div class="skin-name">Rainbow Unicorn</div>
+                <div class="skin-desc">Радужный единорог с крыльями</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">🌈 Rainbow</span>
+                    <span class="effect-tag">⭐ Stars</span>
+                    <span class="effect-tag">🦋 Wings</span>
+                </div>
+                <div class="skin-bonus">+100% TAMA Bonus</div>
+                <div class="nft-required">🎫 Requires Bronze NFT+</div>
+            </div>
+
+            <div class="skin-card" data-rarity="nft">
+                <div class="rarity-badge rarity-nft">NFT EXCLUSIVE</div>
+                <div class="skin-preview effect-cosmic" style="background: radial-gradient(circle, #000000, #8B00FF, #FF0000);">
+                    <span style="font-size: 100px;">😈🔥</span>
+                </div>
+                <div class="skin-name">Void Demon</div>
+                <div class="skin-desc">Демонический питомец из пустоты</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">👿 Dark Aura</span>
+                    <span class="effect-tag">🔥 Fire</span>
+                </div>
+                <div class="skin-bonus">+150% TAMA Bonus</div>
+                <div class="nft-required">🎫 Requires Silver NFT+</div>
+            </div>
+
+            <div class="skin-card" data-rarity="nft">
+                <div class="rarity-badge rarity-nft">NFT EXCLUSIVE</div>
+                <div class="skin-preview effect-glow" style="background: radial-gradient(circle, #FFFFFF, #FFD700);">
+                    <span style="font-size: 100px;">👼✨</span>
+                </div>
+                <div class="skin-name">Angel Pet</div>
+                <div class="skin-desc">Ангельский питомец со святым ореолом</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">👼 Angel</span>
+                    <span class="effect-tag">✨ Divine Light</span>
+                    <span class="effect-tag">🕊️ Wings</span>
+                </div>
+                <div class="skin-bonus">+200% TAMA + Healing Aura</div>
+                <div class="nft-required">🎫 Requires Gold NFT+</div>
+            </div>
+
+            <div class="skin-card" data-rarity="nft">
+                <div class="rarity-badge rarity-nft">NFT EXCLUSIVE</div>
+                <div class="skin-preview effect-cosmic" style="background: linear-gradient(45deg, #FFD700, #FF0000, #00FFFF, #FF00FF);">
+                    <span style="font-size: 100px;">⚡👑</span>
+                </div>
+                <div class="skin-name">God Mode</div>
+                <div class="skin-desc">Божественная форма питомца</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">⚡ All Elements</span>
+                    <span class="effect-tag">👑 Divine</span>
+                </div>
+                <div class="skin-bonus">+500% TAMA + All Bonuses</div>
+                <div class="nft-required">🎫 Requires Platinum NFT+</div>
+            </div>
+
+            <div class="skin-card" data-rarity="nft">
+                <div class="rarity-badge rarity-nft">NFT EXCLUSIVE</div>
+                <div class="skin-preview effect-fire" style="background: radial-gradient(circle, #FF4500, #FFA500, #FFD700);">
+                    <span style="font-size: 100px;">🔥🦅</span>
+                </div>
+                <div class="skin-name">Mythic Phoenix</div>
+                <div class="skin-desc">Бессмертный феникс</div>
+                <div class="skin-effects">
+                    <span class="effect-tag">🔥 Rebirth</span>
+                    <span class="effect-tag">🦅 Flight</span>
+                    <span class="effect-tag">👑 Immortal</span>
+                </div>
+                <div class="skin-bonus">+1000% TAMA + Immortality</div>
+                <div class="nft-required">🎫 Requires Diamond NFT</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const skinCards = document.querySelectorAll('.skin-card');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+
+                const filter = button.getAttribute('data-filter');
+
+                skinCards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'block';
+                    } else {
+                        const rarity = card.getAttribute('data-rarity');
+                        if (rarity === filter) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

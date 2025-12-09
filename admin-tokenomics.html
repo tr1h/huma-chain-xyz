@@ -97,30 +97,30 @@
             transition: all 0.3s ease;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
-        .stat-card:hover { 
+        .stat-card:hover {
             transform: translateY(-8px) scale(1.02);
             box-shadow: 0 12px 40px rgba(0,0,0,0.2);
             border-color: rgba(255,255,255,0.4);
         }
-        .stat-card h3 { 
-            font-size: 0.95em; 
-            opacity: 0.95; 
+        .stat-card h3 {
+            font-size: 0.95em;
+            opacity: 0.95;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .stat-card .big-number { 
-            font-size: 2.5em; 
-            font-weight: 800; 
+        .stat-card .big-number {
+            font-size: 2.5em;
+            font-weight: 800;
             margin: 15px 0;
             background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .stat-card small { 
-            opacity: 0.85; 
+        .stat-card small {
+            opacity: 0.85;
             font-size: 0.9em;
             display: block;
             margin-top: 8px;
@@ -144,12 +144,12 @@
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
         table { width: 100%; border-collapse: collapse; }
-        th, td { 
-            padding: 18px 15px; 
+        th, td {
+            padding: 18px 15px;
             text-align: left;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        th { 
+        th {
             background: linear-gradient(135deg, rgba(102,126,234,0.3) 0%, rgba(118,75,162,0.3) 100%);
             font-weight: 700;
             font-size: 0.95em;
@@ -157,7 +157,7 @@
             letter-spacing: 0.5px;
         }
         tr:nth-child(even) { background: rgba(255,255,255,0.03); }
-        tr:hover { 
+        tr:hover {
             background: rgba(255,255,255,0.1);
             transform: scale(1.01);
             transition: all 0.2s ease;
@@ -182,7 +182,7 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(16,185,129,0.3);
         }
-        .btn:hover { 
+        .btn:hover {
             transform: translateY(-2px) scale(1.05);
             box-shadow: 0 6px 20px rgba(16,185,129,0.5);
         }
@@ -499,9 +499,9 @@
 
                 // 2. Try withdrawals table (alternative source)
                 let result2 = await supabase
-                    .from('withdrawals')
-                    .select('*')
-                    .order('created_at', { ascending: false })
+                        .from('withdrawals')
+                        .select('*')
+                        .order('created_at', { ascending: false })
                     .limit(100);
 
                 if (!result2.error && result2.data) {
@@ -514,7 +514,7 @@
                         created_at: tx.created_at || tx.completed_at,
                         source: 'withdrawals'
                     }));
-                    
+
                     // Merge, avoiding duplicates by signature
                     const existingSigs = new Set(allWithdrawals.map(w => w.signature).filter(Boolean));
                     withdrawals2.forEach(w => {
@@ -538,10 +538,10 @@
                         try {
                             metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : (tx.metadata || {});
                         } catch (e) {}
-                        
+
                         const amount = Math.abs(tx.amount || 0);
                         const fee = metadata.fee || Math.floor(amount * 0.05);
-                        
+
                         return {
                             telegram_id: tx.user_id || tx.telegram_id,
                             amount: amount,
@@ -552,13 +552,13 @@
                             source: 'transactions'
                         };
                     });
-                    
+
                     // Merge, avoiding duplicates
                     const existingSigs = new Set(allWithdrawals.map(w => w.signature).filter(Boolean));
                     withdrawals3.forEach(w => {
                         if (!w.signature || !existingSigs.has(w.signature)) {
                             allWithdrawals.push(w);
-                        }
+                }
                     });
                 }
 
@@ -573,7 +573,7 @@
 
                 tbody.innerHTML = allWithdrawals.map(tx => {
                     const time = new Date(tx.created_at || Date.now()).toLocaleString();
-                    const sig = tx.signature 
+                    const sig = tx.signature
                         ? `${tx.signature.substring(0, 8)}...${tx.signature.substring(tx.signature.length - 4)}`
                         : 'N/A';
                     const explorerUrl = tx.signature
@@ -641,13 +641,13 @@
                     } catch (e) {
                         console.warn('Failed to parse metadata for tx:', tx.id);
                     }
-                    
+
                     const time = new Date(tx.created_at || Date.now()).toLocaleString();
                     const tier = metadata?.tier || 'N/A';
                     const rarity = metadata?.rarity || 'N/A';
                     const multiplier = metadata?.multiplier || 'N/A';
                     const price = Math.abs(tx.amount || 0);
-                    
+
                     // Tier colors
                     const tierColors = {
                         'Bronze': '#cd7f32',
@@ -723,21 +723,21 @@
                     } catch (e) {
                         metadata = {};
                     }
-                    
+
                     const time = new Date(tx.created_at || Date.now()).toLocaleString();
                     const amount = Math.abs(tx.amount || 0);
-                    
+
                     // Extract signature from metadata (multiple possible fields)
-                    const signature = metadata?.transaction_signature || 
-                                     metadata?.onchain_signature || 
-                                     metadata?.signature || 
-                                     tx.signature || 
+                    const signature = metadata?.transaction_signature ||
+                                     metadata?.onchain_signature ||
+                                     metadata?.signature ||
+                                     tx.signature ||
                                      null;
-                    
-                    const signatureDisplay = signature 
+
+                    const signatureDisplay = signature
                         ? `${signature.substring(0, 8)}...${signature.substring(signature.length - 4)}`
                         : 'N/A';
-                    
+
                     const explorerUrl = signature
                         ? `https://solscan.io/tx/${signature}?cluster=devnet`
                         : '#';
@@ -863,8 +863,8 @@
             if (poolInfo.nextPeriod !== 'End') {
                 if (halvingTextEl) {
                     halvingTextEl.innerHTML =
-                        `Next halving in <strong>${daysLeft}</strong> days<br>` +
-                        `<small>Current: ${poolInfo.currentPeriod} → Next: ${poolInfo.nextPeriod}</small>`;
+                    `Next halving in <strong>${daysLeft}</strong> days<br>` +
+                    `<small>Current: ${poolInfo.currentPeriod} → Next: ${poolInfo.nextPeriod}</small>`;
                 }
                 if (halvingNote) {
                     halvingNote.textContent = `After halving: Daily Pool will be ${poolInfo.nextDailyPool.toLocaleString()} TAMA/day`;
@@ -872,8 +872,8 @@
             } else {
                 if (halvingTextEl) {
                     halvingTextEl.innerHTML =
-                        `<strong>All halvings completed</strong><br>` +
-                        `<small>Current: ${poolInfo.currentPeriod}</small>`;
+                    `<strong>All halvings completed</strong><br>` +
+                    `<small>Current: ${poolInfo.currentPeriod}</small>`;
                 }
                 if (halvingNote) {
                     halvingNote.textContent = `Final period: ${poolInfo.currentPeriod}`;

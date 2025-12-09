@@ -1443,6 +1443,97 @@ def send_welcome(message):
     except Exception as e:
         print(f"❌ Error setting menu button: {e}")
 
+# ============================================
+# 🎰 JACKPOT ALERTS SYSTEM
+# ============================================
+
+def send_jackpot_alert(telegram_id, username, first_name, jackpot_amount, total_win, bet_amount, pool_before):
+    """Send jackpot win alert to channel/group"""
+    try:
+        # Format winner name
+        winner_name = f"@{username}" if username else (first_name or f"Player {telegram_id}")
+        
+        # Create message
+        alert_text = f"""
+🎰🎰🎰 **JACKPOT WIN!!!** 🎰🎰🎰
+
+🏆 **Winner:** {winner_name}
+💰 **Jackpot Pool:** {jackpot_amount:,} TAMA
+💎 **Total Win:** {total_win:,} TAMA
+🎲 **Bet:** {bet_amount:,} TAMA
+
+🔥 **Pool has been reset to 0!**
+🎰 Play now to build it up again!
+
+💸 Use /slots to play
+        """
+        
+        # Send to channel
+        try:
+            bot.send_message(CHANNEL_USERNAME, alert_text, parse_mode='Markdown')
+            print(f"✅ Jackpot alert sent to channel: {CHANNEL_USERNAME}")
+        except Exception as e:
+            print(f"⚠️ Failed to send to channel: {e}")
+        
+        # Send to group
+        try:
+            bot.send_message(GROUP_ID, alert_text, parse_mode='Markdown')
+            print(f"✅ Jackpot alert sent to group: {GROUP_ID}")
+        except Exception as e:
+            print(f"⚠️ Failed to send to group: {e}")
+            
+        # Send to winner privately
+        try:
+            winner_text = f"""
+🎰🎰🎰 **CONGRATULATIONS!!!** 🎰🎰🎰
+
+You just won the JACKPOT! 🔥
+
+💰 **Jackpot:** {jackpot_amount:,} TAMA
+💎 **Total Win:** {total_win:,} TAMA
+🎲 **Your Bet:** {bet_amount:,} TAMA
+
+🎉 Check your balance: /balance
+🎰 Play again: /slots
+            """
+            bot.send_message(telegram_id, winner_text, parse_mode='Markdown')
+            print(f"✅ Jackpot congratulations sent to winner: {telegram_id}")
+        except Exception as e:
+            print(f"⚠️ Failed to send to winner: {e}")
+            
+    except Exception as e:
+        print(f"❌ Error sending jackpot alert: {e}")
+
+
+def send_big_win_alert(telegram_id, username, first_name, win_amount, multiplier, symbols):
+    """Send big win alert to channel (x20+)"""
+    try:
+        # Format winner name
+        winner_name = f"@{username}" if username else (first_name or f"Player {telegram_id}")
+        
+        # Create message
+        alert_text = f"""
+🎉 **BIG WIN!** 🎉
+
+🏆 {winner_name}
+{symbols[0]} {symbols[1]} {symbols[2]}
+
+💰 **Won:** {win_amount:,} TAMA (x{multiplier})
+
+🎰 Try your luck: /slots
+        """
+        
+        # Send to channel only (not spam group)
+        try:
+            bot.send_message(CHANNEL_USERNAME, alert_text, parse_mode='Markdown')
+            print(f"✅ Big win alert sent to channel: {win_amount} TAMA (x{multiplier})")
+        except Exception as e:
+            print(f"⚠️ Failed to send big win alert: {e}")
+            
+    except Exception as e:
+        print(f"❌ Error sending big win alert: {e}")
+
+
 # Handle callback queries - REMOVED DUPLICATE
 
 # Slots game command
@@ -5416,7 +5507,7 @@ Please try again later!
                         'pool_before': jackpot_pool_after,
                         'pool_after': 0
                     }).execute()
-
+                    
                     # Reset pool
                     pool_data = supabase.table('slots_jackpot_pool').select('*').eq('id', 1).execute()
                     if pool_data.data:
@@ -5432,10 +5523,32 @@ Please try again later!
                             'last_win_at': datetime.now().isoformat(),
                             'updated_at': datetime.now().isoformat()
                         }).eq('id', 1).execute()
+                    
+                    # 🔥 SEND JACKPOT ALERT TO CHANNEL/GROUP!
+                    send_jackpot_alert(
+                        telegram_id=telegram_id,
+                        username=username,
+                        first_name=call.from_user.first_name,
+                        jackpot_amount=jackpot_win,
+                        total_win=win_amount,
+                        bet_amount=bet_amount if not is_free else 0,
+                        pool_before=jackpot_pool_after
+                    )
                 except Exception as e:
                     print(f"Error logging jackpot win: {e}")
-
+                
                 jackpot_pool_after = 0
+            
+            # Send big win alert for x20+ (but not jackpot, already sent)
+            elif multiplier >= 20:
+                send_big_win_alert(
+                    telegram_id=telegram_id,
+                    username=username,
+                    first_name=call.from_user.first_name,
+                    win_amount=win_amount,
+                    multiplier=multiplier,
+                    symbols=result
+                )
 
         # Update balance
         new_balance = balance

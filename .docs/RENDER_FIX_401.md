@@ -27,6 +27,7 @@ Failed to save game state
 Name: SUPABASE_KEY
 Value: YOUR_SUPABASE_ANON_KEY_HERE
 ```
+
 **⚠️ SECURITY:** Replace `YOUR_SUPABASE_ANON_KEY_HERE` with your actual anon key from Supabase Dashboard → Settings → API → Project API keys → `anon` `public`
 
 **Это anon key из Supabase** → Settings → API → Project API keys → `anon` `public`
@@ -37,6 +38,7 @@ Value: YOUR_SUPABASE_ANON_KEY_HERE
 Name: SUPABASE_SERVICE_ROLE_KEY
 Value: YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE
 ```
+
 **⚠️ SECURITY:** Replace `YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE` with your actual service_role key from Supabase Dashboard → Settings → API → Project API keys → `service_role` `secret`
 
 **Это service_role key из Supabase** → Settings → API → Project API keys → `service_role` `secret`
@@ -46,6 +48,7 @@ Value: YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE
 ### Шаг 3: Перезапустить сервис
 
 После добавления переменных:
+
 1. Нажми **Save Changes**
 2. Сервис перезапустится автоматически (2-3 минуты)
 
@@ -54,6 +57,7 @@ Value: YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE
 Открой консоль браузера на https://solanatamagotchi.com/tamagotchi-game.html
 
 Должно работать:
+
 ```
 ✅ Game state loaded via wallet
 ✅ Game saved successfully
@@ -88,4 +92,3 @@ SOLANA_RPC_URL=https://api.devnet.solana.com
 ---
 
 ## ✅ Теперь всё будет работать!
-

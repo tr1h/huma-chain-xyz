@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Новые скины для Solana Tamagotchi</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a78bfa;
+            font-size: 18px;
+            margin-bottom: 50px;
+        }
+
+        .skins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .skin-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .skin-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(255,255,255,0.5);
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.4);
+        }
+
+        .skin-name {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .skin-rarity {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rarity-common { background: #22c55e; color: white; }
+        .rarity-rare { background: #3b82f6; color: white; }
+        .rarity-epic { background: #a855f7; color: white; }
+        .rarity-legendary { background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #000; }
+
+        .pet-preview {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .skin-price {
+            color: #fbbf24;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .skin-bonus {
+            background: rgba(139, 92, 246, 0.3);
+            border: 1px solid #a78bfa;
+            border-radius: 10px;
+            padding: 10px;
+            color: #c4b5fd;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .buy-button {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .buy-button:hover {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            transform: scale(1.05);
+        }
+
+        /* Анимации */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px currentColor); }
+            50% { filter: drop-shadow(0 0 20px currentColor); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Новые Скины для Питомцев</h1>
+        <p class="subtitle">10 уникальных дизайнов! Покупай в магазине за TAMA!</p>
+
+        <div class="skins-grid">
+            <!-- SKIN 1: Kawai Blob (CURRENT) -->
+            <div class="skin-card">
+                <div class="skin-name">🌸 Kawai Blob</div>
+                <div class="skin-rarity rarity-common">БЕСПЛАТНО</div>
+                <div class="pet-preview">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="kawai-grad">
+                                <stop offset="0%" style="stop-color:#F3E8FF"/>
+                                <stop offset="100%" style="stop-color:#D8B4FE"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body -->
+                        <circle cx="100" cy="105" r="55" fill="url(#kawai-grad)" stroke="#9333EA" stroke-width="3"/>
+                        <!-- Eyes -->
+                        <ellipse cx="80" cy="100" rx="15" ry="19" fill="#FFFFFF"/>
+                        <ellipse cx="80" cy="102" rx="10" ry="14" fill="#4C1D95"/>
+                        <circle cx="77" cy="96" r="4" fill="#FFFFFF"/>
+                        <ellipse cx="120" cy="100" rx="15" ry="19" fill="#FFFFFF"/>
+                        <ellipse cx="120" cy="102" rx="10" ry="14" fill="#4C1D95"/>
+                        <circle cx="117" cy="96" r="4" fill="#FFFFFF"/>
+                        <!-- Blush -->
+                        <ellipse cx="60" cy="110" rx="12" ry="10" fill="#FFB3D9" opacity="0.6"/>
+                        <ellipse cx="140" cy="110" rx="12" ry="10" fill="#FFB3D9" opacity="0.6"/>
+                        <!-- Mouth -->
+                        <path d="M 90 122 Q 100 130 110 122" fill="#C084FC"/>
+                        <!-- Antenna -->
+                        <path d="M 100 55 C 100 52, 97 48, 94 48 C 91 48, 89 50, 89 53 C 89 55, 90 57, 100 63 C 110 57, 111 55, 111 53 C 111 50, 109 48, 106 48 C 103 48, 100 52, 100 55 Z" fill="#C084FC" stroke="#7C3AED" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="skin-price">СТАРТ</div>
+                <div class="skin-bonus">Твой первый питомец! 💜</div>
+            </div>
+
+            <!-- SKIN 2: Green Square Robot -->
+            <div class="skin-card">
+                <div class="skin-name">🕹️ Retro Robot</div>
+                <div class="skin-rarity rarity-common">COMMON</div>
+                <div class="pet-preview">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <!-- Robot body (square) -->
+                        <rect x="60" y="70" width="80" height="80" rx="8" fill="#00FF00" stroke="#00DD00" stroke-width="3"/>
+                        <!-- Screen -->
+                        <rect x="70" y="80" width="60" height="40" rx="4" fill="#003300" stroke="#00FF00" stroke-width="2"/>
+                        <!-- Eyes (digital) -->
+                        <rect x="80" y="95" width="15" height="15" fill="#00FF00"/>
+                        <rect x="105" y="95" width="15" height="15" fill="#00FF00"/>
+                        <!-- Mouth -->
+                        <rect x="85" y="125" width="30" height="8" rx="4" fill="#00FF00"/>
+                        <!-- Antenna -->
+                        <rect x="97" y="50" width="6" height="20" fill="#00FF00"/>
+                        <circle cx="100" cy="45" r="8" fill="#FFFF00" stroke="#00FF00" stroke-width="2"/>
+                        <!-- Arms -->
+                        <rect x="45" y="95" width="15" height="30" rx="4" fill="#00DD00"/>
+                        <rect x="140" y="95" width="15" height="30" rx="4" fill="#00DD00"/>
+                        <!-- Legs -->
+                        <rect x="70" y="150" width="20" height="30" rx="4" fill="#00DD00"/>
+                        <rect x="110" y="150" width="20" height="30" rx="4" fill="#00DD00"/>
+                    </svg>
+                </div>
+                <div class="skin-price">1,000 TAMA</div>
+                <div class="skin-bonus">Ретро-стиль 8-bit! 🎮</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 3: Cyber Dog (Blue) -->
+            <div class="skin-card">
+                <div class="skin-name">🤖 Cyber Dog</div>
+                <div class="skin-rarity rarity-common">COMMON</div>
+                <div class="pet-preview">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <linearGradient id="cyber-grad">
+                                <stop offset="0%" style="stop-color:#60A5FA"/>
+                                <stop offset="100%" style="stop-color:#3B82F6"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Body -->
+                        <ellipse cx="100" cy="110" rx="50" ry="45" fill="url(#cyber-grad)" stroke="#1e40af" stroke-width="3"/>
+                        <!-- Head -->
+                        <circle cx="100" cy="75" r="35" fill="url(#cyber-grad)" stroke="#1e40af" stroke-width="3"/>
+                        <!-- Ears -->
+                        <ellipse cx="75" cy="55" rx="12" ry="25" fill="#60A5FA" stroke="#1e40af" stroke-width="2"/>
+                        <ellipse cx="125" cy="55" rx="12" ry="25" fill="#60A5FA" stroke="#1e40af" stroke-width="2"/>
+                        <!-- Eyes -->
+                        <circle cx="88" cy="75" r="8" fill="#FFFFFF"/>
+                        <circle cx="88" cy="77" r="6" fill="#1e40af"/>
+                        <circle cx="112" cy="75" r="8" fill="#FFFFFF"/>
+                        <circle cx="112" cy="77" r="6" fill="#1e40af"/>
+                        <!-- Nose -->
+                        <circle cx="100" cy="85" r="5" fill="#1e40af"/>
+                        <!-- Mouth -->
+                        <path d="M 90 90 Q 100 95 110 90" stroke="#1e40af" stroke-width="2" fill="none"/>
+                        <!-- Legs -->
+                        <rect x="70" y="150" width="15" height="30" rx="8" fill="#60A5FA"/>
+                        <rect x="115" y="150" width="15" height="30" rx="8" fill="#60A5FA"/>
+                    </svg>
+                </div>
+                <div class="skin-price">1,000 TAMA</div>
+                <div class="skin-bonus">Кибер-стиль! 🤖</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 4: Fire Cat -->
+            <div class="skin-card">
+                <div class="skin-name">🔥 Fire Cat</div>
+                <div class="skin-rarity rarity-rare">RARE</div>
+                <div class="pet-preview" style="animation: glow 2s infinite;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="fire-grad">
+                                <stop offset="0%" style="stop-color:#FFFF00"/>
+                                <stop offset="50%" style="stop-color:#FF4500"/>
+                                <stop offset="100%" style="stop-color:#8B0000"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body -->
+                        <circle cx="100" cy="100" r="50" fill="url(#fire-grad)" stroke="#FF4500" stroke-width="3" style="animation: float 2s infinite;"/>
+                        <!-- Flame particles -->
+                        <text x="70" y="60" style="font-size: 30px;">🔥</text>
+                        <text x="120" y="65" style="font-size: 25px;">🔥</text>
+                        <text x="90" y="170" style="font-size: 20px;">🔥</text>
+                        <!-- Eyes -->
+                        <circle cx="85" cy="95" r="12" fill="#FFFFFF"/>
+                        <circle cx="85" cy="97" r="8" fill="#FF0000"/>
+                        <circle cx="82" cy="93" r="4" fill="#FFFFFF"/>
+                        <circle cx="115" cy="95" r="12" fill="#FFFFFF"/>
+                        <circle cx="115" cy="97" r="8" fill="#FF0000"/>
+                        <circle cx="112" cy="93" r="4" fill="#FFFFFF"/>
+                        <!-- Cat ears -->
+                        <path d="M 70 65 L 60 45 L 80 55 Z" fill="#FF4500"/>
+                        <path d="M 130 65 L 140 45 L 120 55 Z" fill="#FF4500"/>
+                        <!-- Mouth -->
+                        <path d="M 90 110 Q 100 115 110 110" stroke="#FF0000" stroke-width="3" fill="none"/>
+                    </svg>
+                </div>
+                <div class="skin-price">5,000 TAMA</div>
+                <div class="skin-bonus">+15% TAMA от игр 🔥</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 5: Ice Fox -->
+            <div class="skin-card">
+                <div class="skin-name">❄️ Ice Fox</div>
+                <div class="skin-rarity rarity-rare">RARE</div>
+                <div class="pet-preview">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="ice-grad">
+                                <stop offset="0%" style="stop-color:#FFFFFF"/>
+                                <stop offset="100%" style="stop-color:#7DD3FC"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body -->
+                        <ellipse cx="100" cy="110" rx="45" ry="40" fill="url(#ice-grad)" stroke="#0EA5E9" stroke-width="3"/>
+                        <!-- Head -->
+                        <circle cx="100" cy="75" r="32" fill="url(#ice-grad)" stroke="#0EA5E9" stroke-width="3"/>
+                        <!-- Fox ears (pointy) -->
+                        <path d="M 75 55 L 65 30 L 85 45 Z" fill="#FFFFFF" stroke="#0EA5E9" stroke-width="2"/>
+                        <path d="M 125 55 L 135 30 L 115 45 Z" fill="#FFFFFF" stroke="#0EA5E9" stroke-width="2"/>
+                        <!-- Eyes -->
+                        <circle cx="88" cy="72" r="8" fill="#0284C7"/>
+                        <circle cx="85" cy="70" r="3" fill="#FFFFFF"/>
+                        <circle cx="112" cy="72" r="8" fill="#0284C7"/>
+                        <circle cx="109" cy="70" r="3" fill="#FFFFFF"/>
+                        <!-- Snowflakes -->
+                        <text x="50" y="85" style="font-size: 20px;">❄️</text>
+                        <text x="135" y="90" style="font-size: 18px;">❄️</text>
+                        <text x="95" y="160" style="font-size: 16px;">❄️</text>
+                        <!-- Tail -->
+                        <path d="M 135 120 Q 160 110 165 95" stroke="#7DD3FC" stroke-width="12" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="skin-price">5,000 TAMA</div>
+                <div class="skin-bonus">+10% Food efficiency ❄️</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 6: Gold Dragon -->
+            <div class="skin-card">
+                <div class="skin-name">🐉 Gold Dragon</div>
+                <div class="skin-rarity rarity-epic">EPIC</div>
+                <div class="pet-preview" style="animation: glow 2s infinite; color: #FFD700;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="gold-grad">
+                                <stop offset="0%" style="stop-color:#FFF700"/>
+                                <stop offset="100%" style="stop-color:#FFD700"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body -->
+                        <ellipse cx="100" cy="100" rx="50" ry="45" fill="url(#gold-grad)" stroke="#B8860B" stroke-width="3"/>
+                        <!-- Head -->
+                        <circle cx="100" cy="70" r="35" fill="url(#gold-grad)" stroke="#B8860B" stroke-width="3"/>
+                        <!-- Horns -->
+                        <path d="M 75 50 L 70 25 L 80 40 Z" fill="#FF8C00"/>
+                        <path d="M 125 50 L 130 25 L 120 40 Z" fill="#FF8C00"/>
+                        <!-- Eyes (fierce) -->
+                        <ellipse cx="85" cy="70" rx="10" ry="12" fill="#FF0000"/>
+                        <circle cx="83" cy="68" r="3" fill="#FFFFFF"/>
+                        <ellipse cx="115" cy="70" rx="10" ry="12" fill="#FF0000"/>
+                        <circle cx="113" cy="68" r="3" fill="#FFFFFF"/>
+                        <!-- Sparkles -->
+                        <text x="50" y="80" style="font-size: 25px;">✨</text>
+                        <text x="135" y="75" style="font-size: 22px;">✨</text>
+                        <text x="95" y="155" style="font-size: 20px;">✨</text>
+                        <!-- Wings -->
+                        <path d="M 50 95 Q 30 85 25 70" stroke="#FFD700" stroke-width="8" fill="none" opacity="0.7"/>
+                        <path d="M 150 95 Q 170 85 175 70" stroke="#FFD700" stroke-width="8" fill="none" opacity="0.7"/>
+                    </svg>
+                </div>
+                <div class="skin-price">15,000 TAMA</div>
+                <div class="skin-bonus">+20% TAMA + +15% XP 🐉</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 7: Rainbow Unicorn -->
+            <div class="skin-card">
+                <div class="skin-name">🦄 Rainbow Unicorn</div>
+                <div class="skin-rarity rarity-epic">EPIC</div>
+                <div class="pet-preview" style="animation: spin 6s linear infinite;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <linearGradient id="rainbow-grad">
+                                <stop offset="0%" style="stop-color:#FF0080"/>
+                                <stop offset="33%" style="stop-color:#FFD700"/>
+                                <stop offset="66%" style="stop-color:#00FF00"/>
+                                <stop offset="100%" style="stop-color:#00FFFF"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Body -->
+                        <ellipse cx="100" cy="110" rx="48" ry="42" fill="#FFFFFF" stroke="url(#rainbow-grad)" stroke-width="4"/>
+                        <!-- Head -->
+                        <circle cx="100" cy="75" r="35" fill="#FFFFFF" stroke="url(#rainbow-grad)" stroke-width="4"/>
+                        <!-- Horn (rainbow) -->
+                        <path d="M 100 40 L 95 60 L 100 55 L 105 60 Z" fill="url(#rainbow-grad)"/>
+                        <!-- Eyes -->
+                        <circle cx="85" cy="75" r="10" fill="#FF69B4"/>
+                        <circle cx="82" cy="72" r="4" fill="#FFFFFF"/>
+                        <circle cx="115" cy="75" r="10" fill="#FF69B4"/>
+                        <circle cx="112" cy="72" r="4" fill="#FFFFFF"/>
+                        <!-- Sparkles -->
+                        <text x="50" y="70" style="font-size: 20px;">⭐</text>
+                        <text x="135" y="85" style="font-size: 22px;">✨</text>
+                        <text x="70" y="145" style="font-size: 18px;">🌟</text>
+                        <text x="120" y="150" style="font-size: 20px;">💫</text>
+                    </svg>
+                </div>
+                <div class="skin-price">15,000 TAMA</div>
+                <div class="skin-bonus">+25% всех наград! 🌈</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 8: Ghost Pet -->
+            <div class="skin-card">
+                <div class="skin-name">👻 Ghost Pet</div>
+                <div class="skin-rarity rarity-rare">RARE</div>
+                <div class="pet-preview" style="animation: float 3s infinite;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <!-- Ghost body (wavy bottom) -->
+                        <path d="M 100 50
+                                 Q 140 50 140 90
+                                 L 140 130
+                                 Q 135 140, 130 130
+                                 Q 125 140, 120 130
+                                 Q 115 140, 110 130
+                                 Q 105 140, 100 130
+                                 Q 95 140, 90 130
+                                 Q 85 140, 80 130
+                                 Q 75 140, 70 130
+                                 L 60 90
+                                 Q 60 50 100 50 Z"
+                              fill="#F0F0F0" opacity="0.9" stroke="#C0C0C0" stroke-width="2"/>
+                        <!-- Eyes -->
+                        <circle cx="80" cy="80" r="12" fill="#000000"/>
+                        <circle cx="120" cy="80" r="12" fill="#000000"/>
+                        <!-- Mouth -->
+                        <ellipse cx="100" cy="105" rx="15" ry="10" fill="#000000"/>
+                    </svg>
+                </div>
+                <div class="skin-price">5,000 TAMA</div>
+                <div class="skin-bonus">Призрачные способности! 👻</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 9: Alien Pet -->
+            <div class="skin-card">
+                <div class="skin-name">👽 Alien Pet</div>
+                <div class="skin-rarity rarity-rare">RARE</div>
+                <div class="pet-preview">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="alien-grad">
+                                <stop offset="0%" style="stop-color:#34D399"/>
+                                <stop offset="100%" style="stop-color:#10B981"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body (oval) -->
+                        <ellipse cx="100" cy="110" rx="55" ry="50" fill="url(#alien-grad)" stroke="#059669" stroke-width="3"/>
+                        <!-- Head -->
+                        <ellipse cx="100" cy="70" rx="45" ry="50" fill="url(#alien-grad)" stroke="#059669" stroke-width="3"/>
+                        <!-- Antennae -->
+                        <line x1="85" y1="25" x2="85" y2="35" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="85" cy="20" r="6" fill="#FFFF00"/>
+                        <line x1="115" y1="25" x2="115" y2="35" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="115" cy="20" r="6" fill="#FFFF00"/>
+                        <!-- Large alien eyes -->
+                        <ellipse cx="80" cy="75" rx="18" ry="22" fill="#000000"/>
+                        <ellipse cx="75" cy="70" rx="6" ry="8" fill="#FFFFFF"/>
+                        <ellipse cx="120" cy="75" rx="18" ry="22" fill="#000000"/>
+                        <ellipse cx="115" cy="70" rx="6" ry="8" fill="#FFFFFF"/>
+                        <!-- Small mouth -->
+                        <line x1="95" y1="95" x2="105" y2="95" stroke="#059669" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="skin-price">5,000 TAMA</div>
+                <div class="skin-bonus">Космический бонус! 👽</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 10: Ninja Cat -->
+            <div class="skin-card">
+                <div class="skin-name">🥷 Ninja Cat</div>
+                <div class="skin-rarity rarity-epic">EPIC</div>
+                <div class="pet-preview">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <!-- Body (dark) -->
+                        <circle cx="100" cy="100" r="50" fill="#1F2937" stroke="#374151" stroke-width="3"/>
+                        <!-- Mask band -->
+                        <rect x="60" y="60" width="80" height="20" rx="10" fill="#DC2626"/>
+                        <!-- Eyes through mask -->
+                        <ellipse cx="80" cy="70" rx="10" ry="8" fill="#FFFFFF"/>
+                        <ellipse cx="120" cy="70" rx="10" ry="8" fill="#FFFFFF"/>
+                        <circle cx="80" cy="72" r="5" fill="#000000"/>
+                        <circle cx="120" cy="72" r="5" fill="#000000"/>
+                        <!-- Ears -->
+                        <path d="M 70 55 L 65 35 L 80 50 Z" fill="#1F2937"/>
+                        <path d="M 130 55 L 135 35 L 120 50 Z" fill="#1F2937"/>
+                        <!-- Shuriken -->
+                        <text x="140" y="100" style="font-size: 25px;">⭐</text>
+                        <text x="45" y="115" style="font-size: 22px;">⭐</text>
+                    </svg>
+                </div>
+                <div class="skin-price">15,000 TAMA</div>
+                <div class="skin-bonus">+20% скорость + невидимость! 🥷</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 11: Angel Pet -->
+            <div class="skin-card">
+                <div class="skin-name">👼 Angel Pet</div>
+                <div class="skin-rarity rarity-legendary">LEGENDARY</div>
+                <div class="pet-preview" style="animation: float 3s infinite;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="angel-grad">
+                                <stop offset="0%" style="stop-color:#FFFFFF"/>
+                                <stop offset="100%" style="stop-color:#FEF3C7"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Wings -->
+                        <ellipse cx="55" cy="100" rx="30" ry="45" fill="#FFFFFF" opacity="0.8"/>
+                        <ellipse cx="145" cy="100" rx="30" ry="45" fill="#FFFFFF" opacity="0.8"/>
+                        <!-- Body -->
+                        <circle cx="100" cy="100" r="50" fill="url(#angel-grad)" stroke="#FCD34D" stroke-width="3"/>
+                        <!-- Halo -->
+                        <ellipse cx="100" cy="40" rx="35" ry="8" fill="none" stroke="#FFD700" stroke-width="4"/>
+                        <!-- Eyes (closed, peaceful) -->
+                        <path d="M 75 85 Q 85 80 95 85" stroke="#000000" stroke-width="2" fill="none"/>
+                        <path d="M 105 85 Q 115 80 125 85" stroke="#000000" stroke-width="2" fill="none"/>
+                        <!-- Smile -->
+                        <path d="M 85 110 Q 100 120 115 110" stroke="#FFA500" stroke-width="3" fill="none"/>
+                        <!-- Sparkles -->
+                        <text x="50" y="60" style="font-size: 22px;">✨</text>
+                        <text x="135" y="65" style="font-size: 20px;">✨</text>
+                        <text x="95" y="160" style="font-size: 18px;">⭐</text>
+                    </svg>
+                </div>
+                <div class="skin-price">50,000 TAMA</div>
+                <div class="skin-bonus">+50% TAMA + лечение! 👼</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 12: Demon Pet -->
+            <div class="skin-card">
+                <div class="skin-name">😈 Demon Pet</div>
+                <div class="skin-rarity rarity-legendary">LEGENDARY</div>
+                <div class="pet-preview" style="animation: glow 1.5s infinite; color: #DC2626;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="demon-grad">
+                                <stop offset="0%" style="stop-color:#991B1B"/>
+                                <stop offset="100%" style="stop-color:#7F1D1D"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body -->
+                        <circle cx="100" cy="100" r="50" fill="url(#demon-grad)" stroke="#450A0A" stroke-width="3"/>
+                        <!-- Devil horns -->
+                        <path d="M 70 60 Q 65 40 75 50" fill="#DC2626" stroke="#7F1D1D" stroke-width="2"/>
+                        <path d="M 130 60 Q 135 40 125 50" fill="#DC2626" stroke="#7F1D1D" stroke-width="2"/>
+                        <!-- Evil eyes -->
+                        <ellipse cx="80" cy="90" rx="14" ry="10" fill="#FFFF00"/>
+                        <circle cx="80" cy="90" r="6" fill="#000000"/>
+                        <ellipse cx="120" cy="90" rx="14" ry="10" fill="#FFFF00"/>
+                        <circle cx="120" cy="90" r="6" fill="#000000"/>
+                        <!-- Evil grin -->
+                        <path d="M 85 115 Q 100 125 115 115" stroke="#000000" stroke-width="3" fill="none"/>
+                        <!-- Fangs -->
+                        <path d="M 90 115 L 88 125 L 92 115" fill="#FFFFFF"/>
+                        <path d="M 110 115 L 108 125 L 112 115" fill="#FFFFFF"/>
+                        <!-- Fire -->
+                        <text x="45" y="95" style="font-size: 22px;">🔥</text>
+                        <text x="140" y="100" style="font-size: 20px;">🔥</text>
+                    </svg>
+                </div>
+                <div class="skin-price">50,000 TAMA</div>
+                <div class="skin-bonus">+75% TAMA в ночное время! 😈</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 13: Panda Chill -->
+            <div class="skin-card">
+                <div class="skin-name">🐼 Chill Panda</div>
+                <div class="skin-rarity rarity-common">COMMON</div>
+                <div class="pet-preview">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <!-- Body (white) -->
+                        <circle cx="100" cy="100" r="50" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>
+                        <!-- Black patches -->
+                        <ellipse cx="80" cy="90" rx="25" ry="28" fill="#000000"/>
+                        <ellipse cx="120" cy="90" rx="25" ry="28" fill="#000000"/>
+                        <!-- Eyes (inside patches) -->
+                        <circle cx="80" cy="90" r="10" fill="#FFFFFF"/>
+                        <circle cx="80" cy="92" r="6" fill="#000000"/>
+                        <circle cx="120" cy="90" r="10" fill="#FFFFFF"/>
+                        <circle cx="120" cy="92" r="6" fill="#000000"/>
+                        <!-- Ears (black) -->
+                        <circle cx="70" cy="55" r="18" fill="#000000"/>
+                        <circle cx="130" cy="55" r="18" fill="#000000"/>
+                        <!-- Nose -->
+                        <ellipse cx="100" cy="110" rx="8" ry="6" fill="#000000"/>
+                        <!-- Smile -->
+                        <path d="M 85 118 Q 100 125 115 118" stroke="#000000" stroke-width="2" fill="none"/>
+                        <!-- Bamboo -->
+                        <text x="130" y="130" style="font-size: 30px;">🎋</text>
+                    </svg>
+                </div>
+                <div class="skin-price">1,000 TAMA</div>
+                <div class="skin-bonus">Расслабленный стиль! 🐼</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 14: Lightning Pet -->
+            <div class="skin-card">
+                <div class="skin-name">⚡ Lightning Pet</div>
+                <div class="skin-rarity rarity-epic">EPIC</div>
+                <div class="pet-preview" style="animation: glow 1s infinite; color: #FFFF00;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="lightning-grad">
+                                <stop offset="0%" style="stop-color:#FFFF00"/>
+                                <stop offset="100%" style="stop-color:#FFA500"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Body (electric) -->
+                        <circle cx="100" cy="100" r="50" fill="url(#lightning-grad)" stroke="#FFD700" stroke-width="3" opacity="0.9"/>
+                        <!-- Lightning bolts -->
+                        <path d="M 110 60 L 105 80 L 115 80 L 105 110" fill="#FFFFFF" stroke="#FFFF00" stroke-width="2"/>
+                        <path d="M 85 70 L 90 85 L 80 90 L 88 115" fill="#FFFFFF" stroke="#FFFF00" stroke-width="2"/>
+                        <!-- Eyes (electric) -->
+                        <circle cx="85" cy="95" r="12" fill="#FFFFFF"/>
+                        <circle cx="85" cy="97" r="8" fill="#0000FF"/>
+                        <circle cx="115" cy="95" r="12" fill="#FFFFFF"/>
+                        <circle cx="115" cy="97" r="8" fill="#0000FF"/>
+                        <!-- Electric aura -->
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="#FFFF00" stroke-width="2" opacity="0.3" stroke-dasharray="5,5"/>
+                        <!-- Sparks -->
+                        <text x="50" y="100" style="font-size: 20px;">⚡</text>
+                        <text x="135" y="105" style="font-size: 22px;">⚡</text>
+                        <text x="95" y="45" style="font-size: 18px;">✨</text>
+                    </svg>
+                </div>
+                <div class="skin-price">15,000 TAMA</div>
+                <div class="skin-bonus">+30% скорость кликов! ⚡</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 15: Cosmic Pet -->
+            <div class="skin-card">
+                <div class="skin-name">🌌 Cosmic Pet</div>
+                <div class="skin-rarity rarity-legendary">LEGENDARY</div>
+                <div class="pet-preview" style="animation: spin 10s linear infinite;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="cosmic-grad">
+                                <stop offset="0%" style="stop-color:#1e1b4b"/>
+                                <stop offset="50%" style="stop-color:#5b21b6"/>
+                                <stop offset="100%" style="stop-color:#1e1b4b"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Cosmic body (galaxy) -->
+                        <circle cx="100" cy="100" r="50" fill="url(#cosmic-grad)" stroke="#a855f7" stroke-width="3"/>
+                        <!-- Stars inside -->
+                        <text x="70" y="85" style="font-size: 15px;">⭐</text>
+                        <text x="105" y="90" style="font-size: 12px;">✨</text>
+                        <text x="85" y="110" style="font-size: 14px;">🌟</text>
+                        <text x="115" y="115" style="font-size: 13px;">💫</text>
+                        <!-- Glowing eyes -->
+                        <circle cx="80" cy="95" r="10" fill="#00FFFF" opacity="0.9"/>
+                        <circle cx="77" cy="92" r="3" fill="#FFFFFF"/>
+                        <circle cx="120" cy="95" r="10" fill="#00FFFF" opacity="0.9"/>
+                        <circle cx="117" cy="92" r="3" fill="#FFFFFF"/>
+                        <!-- Cosmic trail -->
+                        <path d="M 150 100 Q 170 90 180 80" stroke="#a855f7" stroke-width="3" fill="none" opacity="0.5"/>
+                        <path d="M 50 100 Q 30 90 20 80" stroke="#a855f7" stroke-width="3" fill="none" opacity="0.5"/>
+                        <!-- Planets around -->
+                        <circle cx="50" cy="70" r="8" fill="#60a5fa" opacity="0.6"/>
+                        <circle cx="145" cy="75" r="6" fill="#f59e0b" opacity="0.6"/>
+                        <circle cx="100" cy="45" r="5" fill="#34d399" opacity="0.6"/>
+                    </svg>
+                </div>
+                <div class="skin-price">50,000 TAMA</div>
+                <div class="skin-bonus">+100% TAMA + космические бонусы! 🌌</div>
+                <button class="buy-button">Купить</button>
+            </div>
+
+            <!-- SKIN 16: Heart Pet (Valentine) -->
+            <div class="skin-card">
+                <div class="skin-name">💕 Love Pet</div>
+                <div class="skin-rarity rarity-rare">RARE</div>
+                <div class="pet-preview">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <radialGradient id="love-grad">
+                                <stop offset="0%" style="stop-color:#FFC9E3"/>
+                                <stop offset="100%" style="stop-color:#FF69B4"/>
+                            </radialGradient>
+                        </defs>
+                        <!-- Heart-shaped body -->
+                        <path d="M 100 140
+                                 C 70 120, 50 100, 50 80
+                                 C 50 60, 65 50, 80 50
+                                 C 90 50, 95 55, 100 65
+                                 C 105 55, 110 50, 120 50
+                                 C 135 50, 150 60, 150 80
+                                 C 150 100, 130 120, 100 140 Z"
+                              fill="url(#love-grad)" stroke="#FF1493" stroke-width="3"/>
+                        <!-- Cute eyes -->
+                        <circle cx="85" cy="85" r="10" fill="#000000"/>
+                        <circle cx="82" cy="82" r="4" fill="#FFFFFF"/>
+                        <circle cx="115" cy="85" r="10" fill="#000000"/>
+                        <circle cx="112" cy="82" r="4" fill="#FFFFFF"/>
+                        <!-- Smile -->
+                        <path d="M 90 100 Q 100 108 110 100" stroke="#FF1493" stroke-width="2" fill="none"/>
+                        <!-- Floating hearts -->
+                        <text x="50" y="60" style="font-size: 18px;">💕</text>
+                        <text x="135" y="70" style="font-size: 16px;">💗</text>
+                        <text x="95" y="155" style="font-size: 14px;">💖</text>
+                    </svg>
+                </div>
+                <div class="skin-price">5,000 TAMA</div>
+                <div class="skin-bonus">+15% Happy gain! 💕</div>
+                <button class="buy-button">Купить</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <p style="color: #a78bfa; font-size: 18px;">Всего: <strong>10 новых скинов</strong></p>
+            <p style="color: white; margin-top: 20px; font-size: 16px;">
+                🎯 Каждый скин - уникальный векторный SVG дизайн<br>
+                💰 Цены от 1,000 до 50,000 TAMA<br>
+                ⚡ Каждый скин даёт бонусы к заработку!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Add animations
+        document.querySelectorAll('.pet-preview').forEach(preview => {
+            preview.addEventListener('mouseenter', () => {
+                preview.style.transform = 'scale(1.1)';
+            });
+            preview.addEventListener('mouseleave', () => {
+                preview.style.transform = 'scale(1)';
+            });
+        });
+
+        // Buy button click
+        document.querySelectorAll('.buy-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const card = e.target.closest('.skin-card');
+                const name = card.querySelector('.skin-name').textContent;
+                alert(`Скин "${name}" будет добавлен в магазин игры! 🎉`);
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

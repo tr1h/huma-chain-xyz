@@ -44,16 +44,16 @@
 <body>
     <h1>🔍 NFT Database Debug Tool</h1>
     <p>This tool checks what's actually in the database for your account.</p>
-    
+
     <div>
         <label>Telegram User ID:</label>
         <input type="text" id="userId" value="202140267" style="width: 200px; padding: 5px; background: #333; color: #0f0; border: 1px solid #0f0;">
         <button onclick="checkNFTs()">Check NFTs</button>
         <button onclick="checkRPC()">Check RPC Function</button>
     </div>
-    
+
     <div id="output"></div>
-    
+
     <script>
         // Initialize Supabase
         const supabaseUrl = 'https://zfrazyupameidxpjihrh.supabase.co';
@@ -61,14 +61,14 @@
         // In production, load from secure config or environment
         const supabaseKey = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        
+
         // 🔐 SECURITY: HTML escape function to prevent XSS
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-        
+
         function addOutput(title, data, isError = false) {
             const output = document.getElementById('output');
             const div = document.createElement('div');
@@ -82,13 +82,13 @@
             `;
             output.appendChild(div);
         }
-        
+
         async function checkNFTs() {
             const userId = document.getElementById('userId').value;
             document.getElementById('output').innerHTML = '';
-            
+
             addOutput('🔍 Checking for User ID:', userId);
-            
+
             // 1. Check user_nfts table
             try {
                 const { data, error } = await supabase
@@ -96,7 +96,7 @@
                     .select('*')
                     .eq('telegram_id', userId)
                     .order('minted_at', { ascending: false });
-                
+
                 if (error) {
                     addOutput('❌ Error querying user_nfts:', error, true);
                 } else {
@@ -105,7 +105,7 @@
             } catch (err) {
                 addOutput('❌ Exception:', err, true);
             }
-            
+
             // 2. Check user_nfts with is_active filter
             try {
                 const { data, error } = await supabase
@@ -114,7 +114,7 @@
                     .eq('telegram_id', userId)
                     .eq('is_active', true)
                     .order('minted_at', { ascending: false });
-                
+
                 if (error) {
                     addOutput('❌ Error querying user_nfts (is_active=true):', error, true);
                 } else {
@@ -123,14 +123,14 @@
             } catch (err) {
                 addOutput('❌ Exception:', err, true);
             }
-            
+
             // 3. Check if telegram_id is stored as string or number
             try {
                 const { data, error } = await supabase
                     .from('user_nfts')
                     .select('telegram_id')
                     .limit(10);
-                
+
                 if (error) {
                     addOutput('❌ Error checking telegram_id types:', error, true);
                 } else {
@@ -143,7 +143,7 @@
             } catch (err) {
                 addOutput('❌ Exception:', err, true);
             }
-            
+
             // 4. Check recent NFTs (last 10)
             try {
                 const { data, error } = await supabase
@@ -151,7 +151,7 @@
                     .select('id, telegram_id, nft_mint_address, is_active, minted_at')
                     .order('minted_at', { ascending: false })
                     .limit(10);
-                
+
                 if (error) {
                     addOutput('❌ Error querying recent NFTs:', error, true);
                 } else {
@@ -161,10 +161,10 @@
                 addOutput('❌ Exception:', err, true);
             }
         }
-        
+
         async function checkRPC() {
             document.getElementById('output').innerHTML = '';
-            
+
             // Test RPC function
             try {
                 const { data, error } = await supabase.rpc('insert_user_nft', {
@@ -176,7 +176,7 @@
                     p_earning_multiplier: 1.0,
                     p_daily_reward: 50
                 });
-                
+
                 if (error) {
                     addOutput('❌ RPC Function Error:', error, true);
                 } else {
@@ -186,7 +186,7 @@
                 addOutput('❌ RPC Exception:', err, true);
             }
         }
-        
+
         // Auto-check on load if user_id in URL
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user_id');

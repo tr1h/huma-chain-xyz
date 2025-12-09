@@ -4,23 +4,23 @@
 -- Выполнить в Supabase SQL Editor
 
 -- ШАГ 1: Проверить, есть ли пользователь в leaderboard
-SELECT 
+SELECT
     telegram_id,
     telegram_username,
     tama,
     wallet_address,
     created_at
-FROM leaderboard 
-WHERE telegram_id = '2139640084' 
+FROM leaderboard
+WHERE telegram_id = '2139640084'
    OR telegram_id = 2139640084;
 
 -- Если пользователь НЕ НАЙДЕН:
 -- Проверить, есть ли он с другим форматом ID
-SELECT 
+SELECT
     telegram_id,
     telegram_username,
     tama
-FROM leaderboard 
+FROM leaderboard
 WHERE CAST(telegram_id AS TEXT) LIKE '%2139640084%'
    OR telegram_username LIKE '%ваш_username%';  -- замените на свой username
 
@@ -29,10 +29,10 @@ WHERE CAST(telegram_id AS TEXT) LIKE '%2139640084%'
 -- ============================================
 -- Если пользователя нет вообще:
 INSERT INTO leaderboard (
-    telegram_id, 
+    telegram_id,
     telegram_username,
     telegram_first_name,
-    tama, 
+    tama,
     wallet_address
 )
 VALUES (
@@ -42,27 +42,27 @@ VALUES (
     10000,            -- начальный баланс 10,000 TAMA
     NULL              -- кошелек пока не подключен
 )
-ON CONFLICT (telegram_id) 
-DO UPDATE SET 
+ON CONFLICT (telegram_id)
+DO UPDATE SET
     tama = 10000,
     updated_at = NOW();
 
 -- ============================================
 -- РЕШЕНИЕ 2: Если пользователь есть, обновить баланс
 -- ============================================
-UPDATE leaderboard 
+UPDATE leaderboard
 SET tama = 10000  -- или ваш текущий баланс
 WHERE telegram_id = '2139640084';
 
 -- ============================================
 -- ПРОВЕРКА: Убедиться, что баланс обновился
 -- ============================================
-SELECT 
+SELECT
     telegram_id,
     telegram_username,
     tama,
     updated_at
-FROM leaderboard 
+FROM leaderboard
 WHERE telegram_id = '2139640084';
 
 -- Должно показать:
@@ -73,11 +73,11 @@ WHERE telegram_id = '2139640084';
 -- ДОПОЛНИТЕЛЬНО: Проверить все записи для вашего ID
 -- ============================================
 -- Посмотреть, нет ли дублей
-SELECT 
+SELECT
     COUNT(*) as count,
     telegram_id,
     telegram_username
-FROM leaderboard 
+FROM leaderboard
 WHERE telegram_id IN ('2139640084', 2139640084)
 GROUP BY telegram_id, telegram_username;
 
@@ -89,13 +89,13 @@ GROUP BY telegram_id, telegram_username;
 -- ДЛЯ БОТА: Проверить, какой ID использует бот
 -- ============================================
 -- Посмотреть последние транзакции от вашего ID
-SELECT 
+SELECT
     telegram_id,
     type,
     amount,
     balance_after,
     created_at
-FROM transactions 
+FROM transactions
 WHERE telegram_id IN ('2139640084', 2139640084)
 ORDER BY created_at DESC
 LIMIT 10;

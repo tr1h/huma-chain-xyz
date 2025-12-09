@@ -7,10 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/mint.css">
-    
+
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <style>
         /* Logo Styles 🎨 */
         .game-logo {
@@ -55,7 +55,7 @@
             gap: 20px;
             margin: 30px 0;
         }
-        
+
         .tier-card {
             background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(29, 53, 87, 0.1));
             border: 3px solid rgba(138, 201, 38, 0.3);
@@ -66,45 +66,45 @@
             transition: all 0.3s ease;
             position: relative;
         }
-        
+
         .tier-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        
+
         .tier-card.selected {
             border-color: #8AC926;
             background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(29, 53, 87, 0.2));
             box-shadow: 0 0 30px rgba(138, 201, 38, 0.5);
         }
-        
+
         .tier-card.bronze { border-color: #CD7F32; }
         .tier-card.bronze.selected { border-color: #FFB703; box-shadow: 0 0 30px rgba(205, 127, 50, 0.5); }
-        
+
         .tier-card.silver { border-color: #C0C0C0; }
         .tier-card.silver.selected { border-color: #E5E5E5; box-shadow: 0 0 30px rgba(192, 192, 192, 0.5); }
-        
+
         .tier-card.gold { border-color: #FFD700; }
         .tier-card.gold.selected { border-color: #FFED4E; box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
-        
+
         .tier-icon {
             font-size: 60px;
             margin-bottom: 15px;
         }
-        
+
         .tier-name {
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 10px;
         }
-        
+
         .tier-price {
             font-size: 20px;
             font-weight: bold;
             margin: 15px 0;
             color: #8AC926;
         }
-        
+
         .tier-boost {
             background: linear-gradient(135deg, #FFB703, #FB8500);
             color: white;
@@ -115,18 +115,18 @@
             display: inline-block;
             margin: 10px 0;
         }
-        
+
         .tier-rarities {
             margin-top: 15px;
             font-size: 12px;
             text-align: left;
         }
-        
+
         .tier-rarities div {
             padding: 3px 0;
             opacity: 0.8;
         }
-        
+
         .mint-btn-large {
             width: 100%;
             padding: 20px;
@@ -141,25 +141,25 @@
             box-shadow: 0 5px 20px rgba(138, 201, 38, 0.4);
             margin: 20px 0;
         }
-        
+
         .mint-btn-large:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(138, 201, 38, 0.6);
         }
-        
+
         .mint-btn-large:disabled {
             background: #ccc;
             cursor: not-allowed;
             box-shadow: none;
         }
-        
+
         .payment-toggle {
             display: flex;
             gap: 10px;
             justify-content: center;
             margin: 15px 0;
         }
-        
+
         .payment-btn {
             padding: 10px 20px;
             border: 2px solid rgba(138, 201, 38, 0.3);
@@ -169,13 +169,13 @@
             transition: all 0.3s;
             font-weight: bold;
         }
-        
+
         .payment-btn.active {
             border-color: #8AC926;
             background: rgba(138, 201, 38, 0.3);
             box-shadow: 0 0 20px rgba(138, 201, 38, 0.3);
         }
-        
+
         @media (max-width: 768px) {
             .tier-selection {
                 grid-template-columns: 1fr;
@@ -216,7 +216,7 @@
         <!-- Tier Selection -->
         <section style="max-width: 1200px; margin: 0 auto; padding: 30px 20px;">
             <h2 style="text-align: center; font-size: 2em; margin-bottom: 30px;">💎 CHOOSE YOUR TIER</h2>
-            
+
             <div class="tier-selection">
                 <!-- BRONZE TIER -->
                 <div class="tier-card bronze" onclick="selectTier('Bronze', 2500, 0.05)">
@@ -343,7 +343,7 @@
         const SUPABASE_URL = window.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY_HERE';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
+
         // 🔐 SECURITY: HTML escape function to prevent XSS
         function escapeHtml(text) {
             if (text == null) return '';
@@ -372,12 +372,12 @@
                     const response = await solana.connect();
                     walletAddress = response.publicKey.toString();
                     walletConnected = true;
-                    
+
                     document.getElementById('connect-wallet').style.display = 'none';
                     document.getElementById('wallet-info').style.display = 'block';
-                    document.getElementById('wallet-address').textContent = 
+                    document.getElementById('wallet-address').textContent =
                         walletAddress.substring(0, 4) + '...' + walletAddress.substring(walletAddress.length - 4);
-                    
+
                     await updateWalletBalance();
                     updateMintButton();
                 } else {
@@ -413,11 +413,11 @@
             selectedTier = tier;
             tamaPrice = tama;
             solPrice = sol;
-            
+
             // Update UI
             document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
-            
+
             // Silver and Gold: SOL only (auto-select SOL, hide TAMA button)
             if (tier === 'Silver' || tier === 'Gold') {
                 selectedPayment = 'sol';
@@ -435,64 +435,64 @@
                 document.getElementById('user-tama-balance').parentElement.style.display = 'block';
                 document.getElementById('payment-info').textContent = 'Bronze: TAMA or SOL | Silver/Gold: SOL only';
             }
-            
+
             updateMintButton();
         }
 
         // Payment Selection
         function selectPayment(method) {
             selectedPayment = method;
-            
+
             document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
             if (method === 'tama') {
                 document.getElementById('pay-tama-btn').classList.add('active');
             } else {
                 document.getElementById('pay-sol-btn').classList.add('active');
             }
-            
+
             updateMintButton();
         }
 
         // Update Mint Button
         function updateMintButton() {
             const btn = document.getElementById('mint-btn');
-            
+
             if (!selectedTier) {
                 btn.disabled = true;
                 btn.textContent = '🔒 SELECT TIER';
                 return;
             }
-            
+
             // Silver and Gold: SOL only (no payment selection needed)
             if (selectedTier === 'Silver' || selectedTier === 'Gold') {
                 selectedPayment = 'sol'; // Force SOL for Silver/Gold
-                
+
                 // Wallet required for SOL payment
                 if (!walletConnected) {
                     btn.disabled = true;
                     btn.textContent = '🔒 CONNECT WALLET TO MINT';
                     return;
                 }
-                
+
                 btn.disabled = false;
                 btn.textContent = `💎 MINT ${selectedTier} (${solPrice} SOL)`;
                 return;
             }
-            
+
             // Bronze: Payment method selection required
             if (!selectedPayment) {
                 btn.disabled = true;
                 btn.textContent = '🔒 SELECT PAYMENT METHOD';
                 return;
             }
-            
+
             // For SOL payment, wallet is required
             if (selectedPayment === 'sol' && !walletConnected) {
                 btn.disabled = true;
                 btn.textContent = '🔒 CONNECT WALLET FOR SOL PAYMENT';
                 return;
             }
-            
+
             // For TAMA payment, wallet not needed (uses Telegram user_id)
             btn.disabled = false;
             if (selectedPayment === 'tama') {
@@ -506,24 +506,24 @@
         function goToMyNFTs() {
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
-            
+
             if (userId) {
                 window.location.href = `my-nfts.html?user_id=${userId}`;
             } else {
                 window.location.href = 'my-nfts.html';
             }
         }
-        
+
         // Load User TAMA Balance (REAL-TIME from database)
         async function loadTAMABalance() {
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
-            
+
             if (!userId) {
                 document.getElementById('user-tama-balance').textContent = '0 TAMA (Connect via Telegram bot)';
                 return;
             }
-            
+
             try {
                 // Загружаем актуальный баланс из базы данных
                 const { data, error } = await supabase
@@ -531,9 +531,9 @@
                     .select('tama')
                     .eq('telegram_id', userId)
                     .single();
-                
+
                 if (error) throw error;
-                
+
                 if (data) {
                     userTamaBalance = data.tama || 0;
                     document.getElementById('user-tama-balance').textContent = userTamaBalance.toLocaleString() + ' TAMA';
@@ -546,12 +546,12 @@
                 document.getElementById('user-tama-balance').textContent = 'Error loading balance';
             }
         }
-        
+
         // Auto-refresh balance every 10 seconds
         async function startBalanceRefresh() {
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
-            
+
             if (userId) {
                 setInterval(async () => {
                     await loadTAMABalance();
@@ -565,32 +565,32 @@
                 alert('Please select tier, payment method, and connect wallet!');
                 return;
             }
-            
+
             const mintBtn = document.getElementById('mint-btn');
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
-            
+
             if (!userId) {
                 alert('User ID not found! Please open this page from Telegram bot.');
                 return;
             }
-            
+
             // Check balance
             if (selectedPayment === 'tama') {
                 if (userTamaBalance < tamaPrice) {
                     alert(`Insufficient TAMA! You need ${tamaPrice.toLocaleString()} TAMA but only have ${userTamaBalance.toLocaleString()}`);
                     return;
                 }
-                
+
                 // Confirm TAMA payment
                 if (!confirm(`Mint ${selectedTier} NFT for ${tamaPrice.toLocaleString()} TAMA?\n\nYou will receive a random rarity with ${selectedTier === 'Bronze' ? '2-3x' : selectedTier === 'Silver' ? '2.5-3.5x' : '3-4x'} earning boost!`)) {
                     return;
                 }
-                
+
                 // Disable button
                 mintBtn.disabled = true;
                 mintBtn.textContent = '⏳ Minting...';
-                
+
                 try {
                     // 1. Get current user balance
                     const { data: currentUser, error: fetchError } = await supabase
@@ -598,16 +598,16 @@
                         .select('tama,level,xp,pet_name,pet_type,pet_data')
                         .eq('telegram_id', userId)
                         .single();
-                    
+
                     if (fetchError) throw fetchError;
-                    
+
                     const oldBalance = currentUser.tama || 0;
                     const newBalance = oldBalance - tamaPrice;
-                    
+
                     if (newBalance < 0) {
                         throw new Error('Insufficient balance');
                     }
-                    
+
                     // Update via API (same as game) to prevent conflicts
                     // skip_transaction_log: true - we'll log nft_mint_onchain manually
                     const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
@@ -625,19 +625,19 @@
                             skip_transaction_log: true // Skip auto-logging, we'll log nft_mint_onchain manually
                         })
                     });
-                    
+
                     if (!updateResponse.ok) {
                         const errorData = await updateResponse.json();
                         throw new Error('Failed to update balance: ' + (errorData.error || 'Unknown error'));
                     }
-                    
+
                     // 2. Assign random rarity
                     const rarity = assignRandomRarity(selectedTier);
                     const multiplier = getMultiplierForRarity(selectedTier, rarity);
-                    
+
                     // 3. Register NFT in database
                     const nftMintAddress = 'NFT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    
+
                     const { error: nftError } = await supabase
                         .from('user_nfts')
                         .insert({
@@ -648,12 +648,12 @@
                             earning_multiplier: multiplier,
                             is_active: true
                         });
-                    
+
                     if (nftError) throw nftError;
-                    
+
                     // 4. ON-CHAIN Distribution via Backend API
                     console.log('🔗 Calling on-chain distribution API...');
-                    
+
                     try {
                         const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
                         const onchainResponse = await fetch(`${TAMA_API_BASE}/nft/mint-bronze-onchain`, {
@@ -667,7 +667,7 @@
                                 tama_price: tamaPrice
                             })
                         });
-                        
+
                         if (!onchainResponse.ok) {
                             const errorData = await onchainResponse.json();
                             console.error('❌ On-chain distribution failed:', errorData);
@@ -676,7 +676,7 @@
                         } else {
                             const onchainData = await onchainResponse.json();
                             console.log('✅ On-chain distribution successful:', onchainData);
-                            
+
                             // Log main NFT mint transaction with on-chain data
                             await supabase.from('transactions').insert({
                                 user_id: userId,
@@ -697,16 +697,16 @@
                                 })
                             });
                         }
-                        
+
                     } catch (onchainError) {
                         console.error('⚠️ On-chain distribution error:', onchainError);
                         // Continue anyway - NFT is still valid
                         alert('⚠️ Note: On-chain distribution error. NFT is registered but distribution may be incomplete. Contact support.');
                     }
-                    
+
                     // 5. Update balance display
                     await loadTAMABalance();
-                    
+
                     // 6. Success message and redirect to MY NFTs page
                     showSuccessModal({
                         tier: selectedTier,
@@ -715,39 +715,39 @@
                         nftId: nftMintAddress,
                         userId: userId
                     });
-                    
+
                     // Reset selection
                     selectedTier = null;
                     selectedPayment = null;
                     document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
                     document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
                     updateMintButton();
-                    
+
                     // Auto-redirect to MY NFTs page after 3 seconds
                     setTimeout(() => {
                         window.location.href = `my-nfts.html?user_id=${userId}&new_nft=true`;
                     }, 3000);
-                    
+
                 } catch (error) {
                     console.error('Mint error:', error);
                     alert(`❌ Minting failed: ${error.message}`);
                     mintBtn.disabled = false;
                     updateMintButton();
                 }
-                
+
             } else if (selectedPayment === 'sol') {
                 // SOL payment - REAL ON-CHAIN TRANSACTION
-                
+
                 // Check SOL balance
                 const solBalance = await connection.getBalance(new PublicKey(walletAddress));
                 const solBalanceFormatted = solBalance / 1000000000; // Convert lamports to SOL
                 const solPriceInLamports = Math.ceil(solPrice * 1000000000); // Convert SOL to lamports
-                
+
                 if (solBalanceFormatted < solPrice) {
                     alert(`Insufficient SOL! You need ${solPrice} SOL but only have ${solBalanceFormatted.toFixed(4)} SOL`);
                     return;
                 }
-                
+
                 // Confirm SOL payment
                 const confirmMsg = `Mint ${selectedTier} NFT for ${solPrice} SOL?\n\n` +
                     `You will receive a random rarity with ${selectedTier === 'Bronze' ? '2-3x' : selectedTier === 'Silver' ? '2.5-3.5x' : '3-4x'} earning boost!\n\n` +
@@ -755,37 +755,37 @@
                     `• 50% → Treasury Main (${(solPrice * 0.50).toFixed(4)} SOL)\n` +
                     `• 30% → Treasury Liquidity (${(solPrice * 0.30).toFixed(4)} SOL)\n` +
                     `• 20% → Treasury Team (${(solPrice * 0.20).toFixed(4)} SOL)`;
-                
+
                 if (!confirm(confirmMsg)) {
                     return;
                 }
-                
+
                 // Disable button
                 mintBtn.disabled = true;
                 mintBtn.textContent = '⏳ Minting with SOL...';
-                
+
                 try {
                     // Treasury wallet addresses (3 wallets with distribution)
                     const TREASURY_MAIN = new PublicKey('6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM'); // 50%
                     const TREASURY_LIQUIDITY = new PublicKey('CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1'); // 30%
                     const TREASURY_TEAM = new PublicKey('Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8'); // 20%
-                    
+
                     // Calculate distribution (dynamic percentages) - ensure total equals solPriceInLamports
                     const mainLamports = Math.floor(solPriceInLamports * 0.50);      // 50%
                     const liquidityLamports = Math.floor(solPriceInLamports * 0.30); // 30%
                     const teamLamports = solPriceInLamports - mainLamports - liquidityLamports; // 20% (remainder to ensure exact total)
-                    
+
                     const distribution = {
                         main: mainLamports,
                         liquidity: liquidityLamports,
                         team: teamLamports
                     };
-                    
+
                     console.log('💰 SOL Distribution:');
                     console.log(`  Main (50%): ${(distribution.main / 1e9).toFixed(4)} SOL`);
                     console.log(`  Liquidity (30%): ${(distribution.liquidity / 1e9).toFixed(4)} SOL`);
                     console.log(`  Team (20%): ${(distribution.team / 1e9).toFixed(4)} SOL`);
-                    
+
                     // Create SOL transfer transaction with 3 transfers
                     const { Transaction, SystemProgram } = solanaWeb3;
                     const transaction = new Transaction()
@@ -813,28 +813,28 @@
                                 lamports: distribution.team
                             })
                         );
-                    
+
                     // Get recent blockhash
                     const { blockhash } = await connection.getLatestBlockhash('confirmed');
                     transaction.recentBlockhash = blockhash;
                     transaction.feePayer = new PublicKey(walletAddress);
-                    
+
                     // Request signature from Phantom
                     const signed = await window.solana.signAndSendTransaction(transaction);
-                    
+
                     // Wait for confirmation
                     await connection.confirmTransaction(signed, 'confirmed');
-                    
+
                     console.log('✅ SOL distribution transaction confirmed:', signed);
                     console.log(`🔗 View on Solscan: https://explorer.solana.com/tx/${signed}?cluster=devnet`);
-                    
+
                     // 2. Assign random rarity
                     const rarity = assignRandomRarity(selectedTier);
                     const multiplier = getMultiplierForRarity(selectedTier, rarity);
-                    
+
                     // 3. Register NFT in database
                     const nftMintAddress = 'NFT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    
+
                     const { error: nftError } = await supabase
                         .from('user_nfts')
                         .insert({
@@ -845,21 +845,21 @@
                             earning_multiplier: multiplier,
                             is_active: true
                         });
-                    
+
                     if (nftError) throw nftError;
-                    
+
                     // 4. Log SOL payment transactions for all 3 wallets
                     const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
                     const TREASURY_LIQUIDITY_ID = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
                     const TREASURY_TEAM_ID = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
-                    
+
                     // Convert distribution to SOL (for logging) - use precise calculation
                     const distributionSOL = {
                         main: Math.round((distribution.main / 1e9) * 10000) / 10000,      // Round to 4 decimals
                         liquidity: Math.round((distribution.liquidity / 1e9) * 10000) / 10000, // Round to 4 decimals
                         team: Math.round((distribution.team / 1e9) * 10000) / 10000         // Round to 4 decimals
                     };
-                    
+
                     // Log user's NFT mint transaction (paid with SOL)
                     await supabase.from('transactions').insert({
                         user_id: userId,
@@ -883,7 +883,7 @@
                             }
                         })
                     });
-                    
+
                     // Log Treasury Main income (50%)
                     await supabase.from('transactions').insert({
                         user_id: TREASURY_MAIN_ID,
@@ -901,7 +901,7 @@
                             transaction_signature: signed
                         })
                     });
-                    
+
                     // Log Treasury Liquidity income (30%)
                     await supabase.from('transactions').insert({
                         user_id: TREASURY_LIQUIDITY_ID,
@@ -919,7 +919,7 @@
                             transaction_signature: signed
                         })
                     });
-                    
+
                     // Log Treasury Team income (20%)
                     await supabase.from('transactions').insert({
                         user_id: TREASURY_TEAM_ID,
@@ -937,12 +937,12 @@
                             transaction_signature: signed
                         })
                     });
-                    
+
                     console.log('✅ All SOL distribution transactions logged in database');
-                    
+
                     // 5. Update wallet balance display
                     await updateWalletBalance();
-                    
+
                     // 6. Success message and redirect
                     const explorerUrl = `https://explorer.solana.com/tx/${signed}?cluster=devnet`;
                     showSuccessModal({
@@ -954,19 +954,19 @@
                         txSignature: signed,
                         explorerUrl: explorerUrl
                     });
-                    
+
                     // Reset selection
                     selectedTier = null;
                     selectedPayment = null;
                     document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
                     document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
                     updateMintButton();
-                    
+
                     // Auto-redirect to MY NFTs page after 3 seconds
                     setTimeout(() => {
                         window.location.href = `my-nfts.html?user_id=${userId}&new_nft=true`;
                     }, 3000);
-                    
+
                 } catch (error) {
                     console.error('SOL mint error:', error);
                     alert(`❌ Minting failed: ${error.message}\n\nPlease try again or use TAMA payment.`);
@@ -975,11 +975,11 @@
                 }
             }
         });
-        
+
         // Helper: Assign random rarity based on tier probabilities
         function assignRandomRarity(tier) {
             const random = Math.random() * 100;
-            
+
             if (tier === 'Bronze') {
                 if (random < 50) return 'Common';
                 if (random < 80) return 'Uncommon';
@@ -1001,7 +1001,7 @@
             }
             return 'Common';
         }
-        
+
         // Helper: Get multiplier for tier + rarity
         function getMultiplierForRarity(tier, rarity) {
             const multipliers = {
@@ -1011,15 +1011,15 @@
             };
             return multipliers[tier]?.[rarity] || 2.0;
         }
-        
+
         // Success Modal Function
         function showSuccessModal(data) {
             const modal = document.createElement('div');
             modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; animation: fadeIn 0.3s;';
-            
+
             const content = document.createElement('div');
             content.style.cssText = 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 20px; max-width: 500px; text-align: center; color: white; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: slideUp 0.5s;';
-            
+
             const rarityEmoji = {
                 'Common': '⚪',
                 'Uncommon': '🟢',
@@ -1027,39 +1027,39 @@
                 'Epic': '🟣',
                 'Legendary': '🟠'
             };
-            
+
             // 🔐 SECURITY: Escape all user-controlled data to prevent XSS
             const tierEscaped = escapeHtml(data.tier || '');
             const rarityEscaped = escapeHtml(data.rarity || '');
             const multiplierEscaped = escapeHtml(String(data.multiplier || '1'));
             const explorerUrlEscaped = data.explorerUrl ? escapeHtml(data.explorerUrl) : '';
-            
+
             content.innerHTML = `
                 <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
                 <h1 style="margin-bottom: 15px; font-size: 32px;">SUCCESS!</h1>
                 <p style="font-size: 18px; margin-bottom: 25px;">You minted ${rarityEmoji[data.rarity] || '🎨'} ${tierEscaped} <strong>${rarityEscaped}</strong> NFT!</p>
-                
+
                 <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-bottom: 25px;">
                     <p style="font-size: 20px; margin-bottom: 10px;">💰 <strong>Earning Boost: ${multiplierEscaped}x</strong></p>
                     <p style="font-size: 14px; opacity: 0.8;">Your earnings are now multiplied by ${multiplierEscaped}x!</p>
                 </div>
-                
+
                 ${explorerUrlEscaped ? `
                     <a href="${explorerUrlEscaped}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: rgba(255,255,255,0.2); padding: 12px 20px; border-radius: 10px; color: white; text-decoration: none; margin-bottom: 20px; font-size: 14px;">
                         🔗 View Transaction on Solscan
                     </a><br/>
                 ` : ''}
-                
+
                 <p style="font-size: 16px; margin-bottom: 20px;">Redirecting to MY NFTs in <span id="countdown">3</span> seconds...</p>
-                
+
                 <button onclick="window.location.href='my-nfts.html?user_id=${escapeHtml(String(data.userId || ''))}&new_nft=true'" style="background: white; color: #667eea; border: none; padding: 15px 40px; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                     🎨 View My NFTs
                 </button>
             `;
-            
+
             modal.appendChild(content);
             document.body.appendChild(modal);
-            
+
             // Countdown
             let count = 3;
             const interval = setInterval(() => {
@@ -1069,7 +1069,7 @@
                 if (count <= 0) clearInterval(interval);
             }, 1000);
         }
-        
+
         // Add animations
         const style = document.createElement('style');
         style.textContent = `

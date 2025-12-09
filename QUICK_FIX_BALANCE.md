@@ -79,14 +79,14 @@ https://api.solanatamagotchi.com/api/tama/balance?telegram_id=2139640084
 
 ```sql
 -- Найти все записи с похожим ID
-SELECT * FROM leaderboard 
-WHERE telegram_id LIKE '%2139640084%' 
+SELECT * FROM leaderboard
+WHERE telegram_id LIKE '%2139640084%'
    OR CAST(telegram_id AS TEXT) = '2139640084';
 
 -- Проверить транзакции
-SELECT * FROM transactions 
-WHERE telegram_id = '2139640084' 
-ORDER BY created_at DESC 
+SELECT * FROM transactions
+WHERE telegram_id = '2139640084'
+ORDER BY created_at DESC
 LIMIT 5;
 ```
 

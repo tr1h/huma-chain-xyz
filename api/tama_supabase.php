@@ -4435,6 +4435,84 @@ function handleMarketplaceCancel($url, $key) {
 }
 
 /**
+ * Send jackpot alert to bot (async webhook)
+ */
+function sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, $totalWin, $bet, $poolBefore) {
+    try {
+        // Bot webhook URL (update with your bot's webhook endpoint)
+        $botWebhook = getenv('BOT_WEBHOOK_URL') ?: 'https://your-bot-webhook.com/jackpot-alert';
+        
+        $payload = json_encode([
+            'type' => 'jackpot_win',
+            'telegram_id' => $telegramId,
+            'username' => $username,
+            'first_name' => $firstName,
+            'jackpot_amount' => $jackpotWin,
+            'total_win' => $totalWin,
+            'bet_amount' => $bet,
+            'pool_before' => $poolBefore,
+            'timestamp' => date('c')
+        ]);
+        
+        // Send async (non-blocking)
+        $ch = curl_init($botWebhook);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1); // 1 second timeout (don't wait)
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($payload)
+        ]);
+        
+        curl_exec($ch);
+        curl_close($ch);
+        
+        error_log("🔔 Jackpot alert webhook sent to bot");
+    } catch (Exception $e) {
+        error_log("⚠️ Failed to send jackpot alert to bot: " . $e->getMessage());
+        // Don't fail the request if webhook fails
+    }
+}
+
+/**
+ * Send big win alert to bot (x20+ multiplier)
+ */
+function sendBigWinAlertToBot($telegramId, $username, $firstName, $winAmount, $multiplier, $symbols) {
+    try {
+        $botWebhook = getenv('BOT_WEBHOOK_URL') ?: 'https://your-bot-webhook.com/big-win-alert';
+        
+        $payload = json_encode([
+            'type' => 'big_win',
+            'telegram_id' => $telegramId,
+            'username' => $username,
+            'first_name' => $firstName,
+            'win_amount' => $winAmount,
+            'multiplier' => $multiplier,
+            'symbols' => $symbols,
+            'timestamp' => date('c')
+        ]);
+        
+        $ch = curl_init($botWebhook);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($payload)
+        ]);
+        
+        curl_exec($ch);
+        curl_close($ch);
+        
+        error_log("🔔 Big win alert webhook sent to bot");
+    } catch (Exception $e) {
+        error_log("⚠️ Failed to send big win alert to bot: " . $e->getMessage());
+    }
+}
+
+/**
  * Handle Slots Spin
  * POST /api/tama/slots/spin
  * Body: { telegram_id, amount, bet, win, symbols }
@@ -4561,6 +4639,9 @@ function handleSlotsSpin($url, $key) {
             ]);
 
             $jackpotPoolAfter = 0;
+            
+            // 🔥 SEND JACKPOT ALERT TO BOT (async, don't wait)
+            sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, $win, $bet, $jackpotPoolBefore);
         }
 
         // ============================================
@@ -4605,6 +4686,16 @@ function handleSlotsSpin($url, $key) {
         }
 
         error_log("✅ Slots spin successful: balance = {$newBalance}");
+        
+        // Send big win alert for x20+ (but not jackpot, already sent)
+        if (!$isJackpot && $win > 0 && $bet > 0) {
+            $multiplier = (int)($win / $bet);
+            if ($multiplier >= 20) {
+                $username = $user['telegram_username'] ?? null;
+                $firstName = $user['telegram_first_name'] ?? null;
+                sendBigWinAlertToBot($telegramId, $username, $firstName, $win, $multiplier, $symbols);
+            }
+        }
 
         echo json_encode([
             'success' => true,

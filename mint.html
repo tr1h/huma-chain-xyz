@@ -2406,11 +2406,11 @@
                 try {
                     // Use correct Telegram ID (priority: URL > authState)
                     const urlParams = new URLSearchParams(window.location.search);
-                    const telegramIdForLinking = TELEGRAM_USER_ID || 
-                        (urlParams.get('user_id') && /^\d+$/.test(urlParams.get('user_id')) 
-                            ? parseInt(urlParams.get('user_id')) 
+                    const telegramIdForLinking = TELEGRAM_USER_ID ||
+                        (urlParams.get('user_id') && /^\d+$/.test(urlParams.get('user_id'))
+                            ? parseInt(urlParams.get('user_id'))
                             : null);
-                    
+
                     if (telegramIdForLinking) {
                         const saveWalletUrl = `${TAMA_API_BASE}/update-wallet`;
                         const saveWalletResponse = await fetch(saveWalletUrl, {
@@ -4416,11 +4416,11 @@
                                 // Save wallet address to database on auto-connect (non-blocking)
                                 // Use correct Telegram ID (priority: URL > authState)
                                 const urlParamsForLinking = new URLSearchParams(window.location.search);
-                                const telegramIdForLinking = TELEGRAM_USER_ID || 
-                                    (urlParamsForLinking.get('user_id') && /^\d+$/.test(urlParamsForLinking.get('user_id')) 
-                                        ? parseInt(urlParamsForLinking.get('user_id')) 
+                                const telegramIdForLinking = TELEGRAM_USER_ID ||
+                                    (urlParamsForLinking.get('user_id') && /^\d+$/.test(urlParamsForLinking.get('user_id'))
+                                        ? parseInt(urlParamsForLinking.get('user_id'))
                                         : null);
-                                
+
                                 if (telegramIdForLinking) {
                                     fetch(`${TAMA_API_BASE}/update-wallet`, {
                                         method: 'POST',

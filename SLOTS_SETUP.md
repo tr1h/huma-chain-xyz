@@ -194,3 +194,5 @@ CREATE INDEX IF NOT EXISTS idx_slots_daily_stats_date_win
 4. Проверь статистику и leaderboard
 
 **Всё работает идеально!** 🎰🔥
+
+
