@@ -1501,6 +1501,10 @@
 
             try {
                 console.log(`📡 Updating balance: ${amount} for user ${userId}`, symbols);
+                
+                // 🔐 SECURITY: Get Telegram WebApp initData for authentication
+                const initData = window.Telegram?.WebApp?.initData || '';
+                
                 const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1509,7 +1513,8 @@
                         amount: amount,
                         bet: amount < 0 ? Math.abs(amount) : 0,
                         win: amount > 0 ? amount : 0,
-                        symbols: symbols
+                        symbols: symbols,
+                        init_data: initData // 🔐 Authentication data
                     })
                 });
 

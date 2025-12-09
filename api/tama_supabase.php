@@ -4519,12 +4519,27 @@ function sendBigWinAlertToBot($telegramId, $username, $firstName, $winAmount, $m
  */
 function handleSlotsSpin($url, $key) {
     try {
+        // 🔐 SECURITY: Load Telegram auth validation
+        require_once __DIR__ . '/telegram_auth.php';
+    
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
 
-        error_log("🎰 Slots spin request: " . json_encode($data));
+        error_log("🎰 Slots spin request: " . json_encode(array_merge($data, ['init_data' => '***'])));
 
-        $telegramId = $data['telegram_id'] ?? null;
+        // 🔐 SECURITY: Validate Telegram WebApp authentication
+        $botToken = getenv('BOT_TOKEN');
+        if ($botToken) {
+            $validatedUserId = validateWebAppRequest($data, $botToken);
+            // If validation passed, use validated user_id
+            $telegramId = $validatedUserId;
+            error_log("✅ Telegram auth validated for user: " . $telegramId);
+        } else {
+            // Fallback: Use provided telegram_id (only if BOT_TOKEN not set - dev mode)
+            $telegramId = $data['telegram_id'] ?? null;
+            error_log("⚠️ BOT_TOKEN not set - using unvalidated telegram_id (DEV MODE ONLY!)");
+        }
+
         $amount = (int)($data['amount'] ?? 0);
         $bet = (int)($data['bet'] ?? 0);
         $win = (int)($data['win'] ?? 0);
