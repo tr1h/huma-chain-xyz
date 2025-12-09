@@ -1782,7 +1782,7 @@ def send_stats(message):
                 play_btn = "🎮 Начать играть"
                 mint_btn = "🎨 Минт NFT"
             else:
-            text = f"""
+                text = f"""
 📊 *Your Personal Stats:*
 
 ❌ *No wallet linked yet!*
@@ -1818,9 +1818,9 @@ To start playing and tracking your stats:
                 types.InlineKeyboardButton("🔗 Поделиться реферальной", callback_data="get_referral")
             )
         else:
-        keyboard.row(
-            types.InlineKeyboardButton("🔗 Share Referral", callback_data="get_referral")
-        )
+            keyboard.row(
+                types.InlineKeyboardButton("🔗 Share Referral", callback_data="get_referral")
+            )
 
         bot.reply_to(message, text, parse_mode='Markdown', reply_markup=keyboard)
 
@@ -2822,7 +2822,7 @@ def show_user_nfts(message):
 
 """
                 else:
-                text += f"""#{i} {rarity_emoji} {pet_type}
+                    text += f"""#{i} {rarity_emoji} {pet_type}
 • Rarity: {rarity}
 • Cost: {cost_tama:,} TAMA
 • Multiplier: {multiplier}x
@@ -2834,7 +2834,7 @@ def show_user_nfts(message):
                 if lang == 'ru':
                     text += f"\n... и ещё {len(nfts) - 10} NFT!"
                 else:
-                text += f"\n... and {len(nfts) - 10} more NFTs!"
+                    text += f"\n... and {len(nfts) - 10} more NFTs!"
 
             total = t('nfts', lang).get(f'total_{lang}', '\n📊 Total: {count} NFTs\n⚡ Combined Multiplier: {multiplier}x')
             text += total.format(count=len(nfts), multiplier=total_multiplier)
@@ -3428,7 +3428,7 @@ def claim_daily_reward(message):
 💰 **Возвращайся каждый день для больших наград!**
 """
             else:
-            text = f"""
+                text = f"""
 ✅ **Daily Reward Claimed!**
 
 💰 **Reward:** +{reward_amount:,} TAMA
@@ -3456,7 +3456,7 @@ def claim_daily_reward(message):
 💰 **Не пропускай дни чтобы сохранить серию!**
 """
             else:
-            text = f"""
+                text = f"""
 ⏰ **Already Claimed Today!**
 
 🔥 **Current Streak:** {current_streak} days
@@ -3665,9 +3665,9 @@ def show_quests(message):
                 text += f"   {quest_data['desc']}\n"
                 text += f"   Награда: {quest_data['reward']:,} TAMA\n\n"
             else:
-            text += f"{status} **{quest_data['name']}**\n"
-            text += f"   {quest_data['desc']}\n"
-            text += f"   Reward: {quest_data['reward']:,} TAMA\n\n"
+                text += f"{status} **{quest_data['name']}**\n"
+                text += f"   {quest_data['desc']}\n"
+                text += f"   Reward: {quest_data['reward']:,} TAMA\n\n"
 
         footer = t('quests', lang).get(f'footer_{lang}', '\n💡 Invite friends to complete more quests!')
         text += footer
