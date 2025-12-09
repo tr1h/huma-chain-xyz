@@ -777,11 +777,18 @@
             try {
                 const saved = localStorage.getItem(`slots_history_${userId}`);
                 if (saved) {
-                    spinHistory = JSON.parse(saved);
+                    const loaded = JSON.parse(saved);
+                    // Ensure most recent is first (by timestamp)
+                    spinHistory = loaded.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    // Keep only last 50
+                    if (spinHistory.length > 50) {
+                        spinHistory = spinHistory.slice(0, 50);
+                    }
                     updateHistoryDisplay();
                 }
             } catch (e) {
                 console.error('Failed to load history:', e);
+                spinHistory = [];
             }
         }
         
@@ -1258,6 +1265,35 @@
             document.getElementById('result-text').style.display = 'none';
         }
 
+        // Update history display
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('history-list');
+            if (!historyList) return;
+            
+            if (spinHistory.length === 0) {
+                historyList.innerHTML = '<div class="loading">No spins yet</div>';
+                return;
+            }
+
+            // Show most recent first (already in correct order after unshift)
+            historyList.innerHTML = spinHistory.slice(0, 10).map(item => {
+                const symbols = item.symbols || item.result?.split(' ') || ['?', '?', '?'];
+                const symbolsText = symbols.join(' ');
+                const winAmount = item.win || 0;
+                const betAmount = item.bet || 0;
+                const isWin = winAmount > 0;
+                
+                return `
+                    <div class="history-item">
+                        <div>${symbolsText}</div>
+                        <div class="${isWin ? 'history-win' : 'history-lose'}">
+                            ${isWin ? '+' : '-'}${formatNumber(isWin ? winAmount : betAmount)} TAMA
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         // Add to history
         function addToHistory(result, winAmount, betAmount) {
             const historyItem = {
@@ -1270,21 +1306,19 @@
                 timestamp: Date.now()
             };
 
+            // Add to beginning (most recent first)
             spinHistory.unshift(historyItem);
-            if (spinHistory.length > 50) spinHistory = spinHistory.slice(0, 50); // Keep last 50
+            
+            // Keep only last 50 spins
+            if (spinHistory.length > 50) {
+                spinHistory = spinHistory.slice(0, 50);
+            }
             
             // Save to localStorage
             saveHistory();
 
-            const historyList = document.getElementById('history-list');
-            historyList.innerHTML = spinHistory.map(item => `
-                <div class="history-item">
-                    <div>${item.result}</div>
-                    <div class="${item.win > 0 ? 'history-win' : 'history-lose'}">
-                        ${item.win > 0 ? '+' : ''}${item.win > 0 ? formatNumber(item.win) : formatNumber(-item.bet)} TAMA
-                    </div>
-                </div>
-            `).join('') || '<div class="loading">No spins yet</div>';
+            // Update display immediately
+            updateHistoryDisplay();
         }
 
         // Update free spin button visibility
