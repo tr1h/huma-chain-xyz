@@ -625,8 +625,9 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    balance = data.balance || data.database_tama || data.total_tama || 0;
-                    console.log('✅ Balance loaded from API:', balance);
+                    // API returns database_tama or total_tama
+                    balance = data.total_tama || data.database_tama || data.balance || 0;
+                    console.log('✅ Balance loaded from API:', balance, 'Full response:', data);
                     
                     // If API returned 0, try direct Supabase as fallback
                     if (balance === 0) {
