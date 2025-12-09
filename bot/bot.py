@@ -1314,7 +1314,7 @@ def send_welcome(message):
             welcome_text = welcome_text.replace('/stats - Check your stats', f'/stats - Check your stats\n\n{balance_text}\n🔥 Streak: {streak_days} days')
     else:
         # Fallback to old text
-    welcome_text = f"""
+        welcome_text = f"""
 🎮 *Welcome to Solana Tamagotchi!*
 
 *The ultimate Play-to-Earn NFT pet game on Solana!*
