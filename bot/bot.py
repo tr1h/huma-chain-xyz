@@ -289,27 +289,47 @@ def save_user_language(user_id, lang):
 
     Args:
         user_id: Telegram user ID
-        lang: Language code ('en' or 'ru')
+        lang: Language code ('en', 'ru', or 'zh')
 
     Returns:
         True if saved successfully, False otherwise
     """
     try:
-        # Use UPSERT to handle both insert and update
-        # First, try to update in leaderboard table (main user table)
+        # Use UPDATE instead of UPSERT (user should already exist in leaderboard)
         try:
             leaderboard_update = supabase.table('leaderboard') \
-                .upsert({
-                    'telegram_id': str(user_id),
-                    'preferred_language': lang
-                }, on_conflict='telegram_id') \
+                .update({'preferred_language': lang}) \
+                .eq('telegram_id', str(user_id)) \
                 .execute()
-            print(f"✅ Saved language '{lang}' for user {user_id} in leaderboard")
+            
+            if leaderboard_update.data:
+                print(f"✅ Saved language '{lang}' for user {user_id} in leaderboard")
+                return True
+            else:
+                print(f"⚠️ User {user_id} not found in leaderboard, trying to create...")
+                # If user doesn't exist, create minimal record
+                insert_result = supabase.table('leaderboard') \
+                    .insert({
+                        'telegram_id': str(user_id),
+                        'preferred_language': lang,
+                        'tama': 0,
+                        'level': 1,
+                        'xp': 0
+                    }) \
+                    .execute()
+                print(f"✅ Created new user with language '{lang}'")
+                return True
         except Exception as lb_error:
-            print(f"⚠️ Could not save to leaderboard: {lb_error}")
+            print(f"❌ Error saving to leaderboard: {lb_error}")
+            import traceback
+            traceback.print_exc()
             return False
 
-        return True
+    except Exception as e:
+        print(f"❌ Error saving user language: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
     except Exception as e:
         print(f"❌ Error saving user language: {e}")
         return False
