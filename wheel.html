@@ -961,13 +961,7 @@
                     }
 
                     // Update balance on server with win amount (bet already deducted) - async, don't block
-                    if (winAmount > 0) {
-                        updateBalanceOnServer(winAmount).catch(err => {
-                            console.error('Error updating balance:', err);
-                        });
-                    }
-
-                    // Update balance on server with win amount (bet already deducted) - async, don't block
+                    // IMPORTANT: Only call ONCE per spin to avoid duplicate API calls!
                     if (winAmount > 0) {
                         updateBalanceOnServer(winAmount).catch(err => {
                             console.error('Error updating balance:', err);
