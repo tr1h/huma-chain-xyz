@@ -83,7 +83,7 @@ The ultimate Play-to-Earn NFT pet game on Solana! 🐾
 Tap "🎮 Play Now" to begin your adventure!
 
 💎 **Pro Tip:** Share your referral link to earn bonus TAMA!""",
-                
+
                 'ru': """🎉 **Добро пожаловать в Solana Tamagotchi!**
 
 Лучшая Play-to-Earn NFT игра с питомцами на Solana! 🐾
@@ -646,17 +646,20 @@ Your TAMA is safe! Keep earning! 💰
             # LANGUAGE SELECTION
             'choose_language': {
                 'en': '🌍 **Choose Your Language / Выбери язык**\n\nSelect your preferred language for bot messages:',
-                'ru': '🌍 **Choose Your Language / Выбери язык**\n\nВыбери предпочитаемый язык для сообщений бота:'
+                'ru': '🌍 **Choose Your Language / Выбери язык**\n\nВыбери предпочитаемый язык для сообщений бота:',
+                'zh': '🌍 **选择您的语言 / Choose Your Language**\n\n选择您想要的机器人消息语言：'
             },
             'language_changed': {
                 'en': '✅ Language changed to English!',
-                'ru': '✅ Язык изменён на русский!'
+                'ru': '✅ Язык изменён на русский!',
+                'zh': '✅ 语言已更改为中文！'
             },
             'language_command_info': {
                 'en': '💡 You can change language anytime using /language command',
-                'ru': '💡 Ты можешь изменить язык в любое время командой /language'
+                'ru': '💡 Ты можешь изменить язык в любое время командой /language',
+                'zh': '💡 您可以随时使用 /language 命令更改语言'
             },
-            
+
             # ERROR MESSAGES
             'error_generic': {
                 'en': '❌ Something went wrong. Please try again.',
@@ -670,7 +673,7 @@ Your TAMA is safe! Keep earning! 💰
                 'en': '❌ API error. Please try again later.',
                 'ru': '❌ Ошибка API. Попробуй позже.'
             },
-            
+
             # SUCCESS MESSAGES
             'success_generic': {
                 'en': '✅ Success!',
@@ -682,7 +685,7 @@ Your TAMA is safe! Keep earning! 💰
         """
         Detect user language
         Priority: 1) User preference (DB), 2) Telegram lang_code, 3) Message text, 4) Default EN
-        
+
         Args:
             text: Message text to analyze
             user_id: User ID (for DB lookup - future)
@@ -691,13 +694,13 @@ Your TAMA is safe! Keep earning! 💰
         # 1. User preference from DB (highest priority)
         if user_lang:
             return user_lang
-        
+
         # 2. Detect from message text
         if text:
             cyrillic_pattern = re.compile('[а-яА-ЯёЁ]')
             if cyrillic_pattern.search(text):
                 return 'ru'
-        
+
         # 3. Default
         return 'en'
 

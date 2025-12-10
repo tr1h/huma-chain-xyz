@@ -1094,15 +1094,17 @@ def handle_language_selection_callback(call):
         return
 
     # Get selected language
-    new_lang = handle_language_callback(call.data)  # 'en' or 'ru'
+    new_lang = handle_language_callback(call.data)  # 'en', 'ru', or 'zh'
 
     # Save to database
     if save_user_language(user_id, new_lang):
-        # Just show checkmark in notification (no separate message)
-        if new_lang == 'ru':
-            bot.answer_callback_query(call.id, "✅ Язык изменён на русский")
-        else:
-            bot.answer_callback_query(call.id, "✅ Language changed to English")
+        # Show checkmark in notification with appropriate language
+        confirmation_messages = {
+            'en': "✅ Language changed to English",
+            'ru': "✅ Язык изменён на русский",
+            'zh': "✅ 语言已更改为中文"
+        }
+        bot.answer_callback_query(call.id, confirmation_messages.get(new_lang, "✅ Language changed"))
 
         # Delete old message
         try:
@@ -1307,30 +1309,61 @@ def send_welcome(message):
         mint_url = MINT_URL
 
     # Localized button texts
-    if lang == 'ru':
-        daily_text = "Ежедневная награда"
-        my_nfts_text = "Мои NFT"
-        mint_nft_text = "Минт NFT"
-        withdraw_text = "Вывести TAMA"
-        referral_text = "Реферальная"
-        stats_text = "Статистика"
-        quests_text = "Квесты"
-        badges_text = "Значки"
-        rank_text = "Рейтинг"
-        leaderboard_text = "Лидерборд"
-        community_text = "Сообщество"
-    else:
-        daily_text = "Daily Reward"
-        my_nfts_text = "My NFTs"
-        mint_nft_text = "Mint NFT"
-        withdraw_text = "Withdraw TAMA"
-        referral_text = "Referral"
-        stats_text = "My Stats"
-        quests_text = "Quests"
-        badges_text = "Badges"
-        rank_text = "My Rank"
-        leaderboard_text = "Leaderboard"
-        community_text = "Community"
+    button_texts = {
+        'en': {
+            'daily': "Daily Reward",
+            'my_nfts': "My NFTs",
+            'mint_nft': "Mint NFT",
+            'withdraw': "Withdraw TAMA",
+            'referral': "Referral",
+            'stats': "My Stats",
+            'quests': "Quests",
+            'badges': "Badges",
+            'rank': "My Rank",
+            'leaderboard': "Leaderboard",
+            'community': "Community"
+        },
+        'ru': {
+            'daily': "Ежедневная награда",
+            'my_nfts': "Мои NFT",
+            'mint_nft': "Минт NFT",
+            'withdraw': "Вывести TAMA",
+            'referral': "Реферальная",
+            'stats': "Статистика",
+            'quests': "Квесты",
+            'badges': "Значки",
+            'rank': "Рейтинг",
+            'leaderboard': "Лидерборд",
+            'community': "Сообщество"
+        },
+        'zh': {
+            'daily': "每日奖励",
+            'my_nfts': "我的 NFT",
+            'mint_nft': "铸造 NFT",
+            'withdraw': "提取 TAMA",
+            'referral': "推荐",
+            'stats': "我的统计",
+            'quests': "任务",
+            'badges': "徽章",
+            'rank': "我的排名",
+            'leaderboard': "排行榜",
+            'community': "社区"
+        }
+    }
+    
+    # Get button texts for current language (fallback to English)
+    texts = button_texts.get(lang, button_texts['en'])
+    daily_text = texts['daily']
+    my_nfts_text = texts['my_nfts']
+    mint_nft_text = texts['mint_nft']
+    withdraw_text = texts['withdraw']
+    referral_text = texts['referral']
+    stats_text = texts['stats']
+    quests_text = texts['quests']
+    badges_text = texts['badges']
+    rank_text = texts['rank']
+    leaderboard_text = texts['leaderboard']
+    community_text = texts['community']
 
     # Row 1: Daily Reward (highlight if available)
     daily_emoji = "🎁⭐" if can_claim else "🎁"
