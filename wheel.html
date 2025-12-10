@@ -970,26 +970,6 @@
             }
         }
 
-        // Show result message helper
-        function showResult(message, multiplier) {
-            const resultBox = document.getElementById('result');
-            resultBox.textContent = message;
-            
-            // Color based on result
-            if (multiplier >= 10) {
-                resultBox.style.color = '#FFD700'; // Gold
-            } else if (multiplier >= 5) {
-                resultBox.style.color = '#8b5cf6'; // Purple
-            } else if (multiplier >= 2) {
-                resultBox.style.color = '#10b981'; // Green
-            } else if (multiplier === 1) {
-                resultBox.style.color = '#6b7280'; // Gray
-            } else if (multiplier === 0) {
-                resultBox.style.color = '#ff6b6b'; // Red
-            } else {
-                resultBox.style.color = '#fff'; // White
-            }
-        }
 
         // How to Play
         function showHowToPlay() {
