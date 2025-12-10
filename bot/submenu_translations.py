@@ -173,20 +173,164 @@ def get_button_text(lang, button_key):
             'back': '🔙 Back',
             'referral': '🔗 Referral',
             'share': '📤 Share',
-            'copy': '📋 Copy Code'
+            'copy': '📋 Copy Code',
+            'mint': '🎨 Mint NFT',
+            'view_website': '🌐 View on Website'
         },
         'ru': {
             'back': '🔙 Назад',
             'referral': '🔗 Реферальная',
             'share': '📤 Поделиться',
-            'copy': '📋 Копировать код'
+            'copy': '📋 Копировать код',
+            'mint': '🎨 Минт NFT',
+            'view_website': '🌐 Смотреть на сайте'
         },
         'zh': {
             'back': '🔙 返回',
             'referral': '🔗 推荐',
             'share': '📤 分享',
-            'copy': '📋 复制代码'
+            'copy': '📋 复制代码',
+            'mint': '🎨 铸造 NFT',
+            'view_website': '🌐 在网站上查看'
         }
     }
     return buttons.get(lang, buttons['en']).get(button_key, button_key)
+
+
+def get_nfts_text(lang, nft_count, tama_balance, best_multiplier, nft_list, telegram_id, mint_url):
+    """Get translated NFT collection text"""
+    if nft_count > 0:
+        if lang == 'ru':
+            return f"""
+🖼️ **ТВОЯ КОЛЛЕКЦИЯ NFT** 🖼️
+
+📦 Всего NFT: **{nft_count}**
+💰 Баланс TAMA: **{tama_balance:,}**
+⚡ Активный буст: **{best_multiplier}x**
+
+{nft_list}
+
+🎮 *Преимущества NFT:*
+• Твой лучший NFT даёт **{best_multiplier}x** буст к заработку!
+• Все награды TAMA умножаются автоматически
+• Смотри полную коллекцию на сайте!
+
+🌐 [Смотреть на сайте]({mint_url}my-nfts.html?user_id={telegram_id})
+            """
+        elif lang == 'zh':
+            return f"""
+🖼️ **您的 NFT 收藏** 🖼️
+
+📦 NFT 总数: **{nft_count}**
+💰 TAMA 余额: **{tama_balance:,}**
+⚡ 活跃加成: **{best_multiplier}x**
+
+{nft_list}
+
+🎮 *NFT 优势:*
+• 您最好的 NFT 提供 **{best_multiplier}x** 收益加成!
+• 所有 TAMA 奖励自动翻倍
+• 在网站上查看完整收藏!
+
+🌐 [在网站上查看]({mint_url}my-nfts.html?user_id={telegram_id})
+            """
+        else:
+            return f"""
+🖼️ **YOUR NFT COLLECTION** 🖼️
+
+📦 Total NFTs: **{nft_count}**
+💰 TAMA Balance: **{tama_balance:,}**
+⚡ Active Boost: **{best_multiplier}x**
+
+{nft_list}
+
+🎮 *NFT Benefits:*
+• Your best NFT gives you **{best_multiplier}x** earning boost!
+• All TAMA rewards are multiplied automatically
+• View full collection on website!
+
+🌐 [View on Website]({mint_url}my-nfts.html?user_id={telegram_id})
+            """
+    else:
+        if lang == 'ru':
+            return f"""
+🖼️ **ТВОЯ КОЛЛЕКЦИЯ NFT** 🖼️
+
+📦 У тебя пока нет NFT!
+
+💰 Твой баланс TAMA: **{tama_balance:,}**
+
+💰 *Как получить NFT:*
+
+**🥉 Бронзовый NFT** 💰
+• Цена: 2,500 TAMA или 0.05 SOL
+• Буст: 2-3x к заработку
+• Редкость: Common/Rare
+
+**🥈 Серебряный NFT** 💎
+• Цена: 1 SOL
+• Буст: 2.3x к заработку
+• Редкость: Uncommon/Rare
+
+**🥇 Золотой NFT** 🌟
+• Цена: 3 SOL
+• Буст: 2.7x к заработку
+• Редкость: Rare/Epic
+
+🎨 Нажми "Минт NFT" чтобы начать!
+            """
+        elif lang == 'zh':
+            return f"""
+🖼️ **您的 NFT 收藏** 🖼️
+
+📦 您还没有任何 NFT!
+
+💰 您的 TAMA 余额: **{tama_balance:,}**
+
+💰 *如何获得 NFT:*
+
+**🥉 青铜 NFT** 💰
+• 价格: 2,500 TAMA 或 0.05 SOL
+• 加成: 2-3x 收益
+• 稀有度: Common/Rare
+
+**🥈 白银 NFT** 💎
+• 价格: 1 SOL
+• 加成: 2.3x 收益
+• 稀有度: Uncommon/Rare
+
+**🥇 黄金 NFT** 🌟
+• 价格: 3 SOL
+• 加成: 2.7x 收益
+• 稀有度: Rare/Epic
+
+🎨 点击"铸造 NFT"开始!
+            """
+        else:
+            return f"""
+🖼️ **YOUR NFT COLLECTION** 🖼️
+
+📦 You don't have any NFTs yet!
+
+💰 Your TAMA Balance: **{tama_balance:,}**
+
+💰 *How to get NFTs:*
+
+**🥉 Bronze NFT** 💰
+• Cost: 2,500 TAMA or 0.05 SOL
+• Boost: 2-3x earning
+• Rarity: Common/Rare
+
+**🥈 Silver NFT** 💎
+• Cost: 1 SOL
+• Boost: 2.3x earning
+• Rarity: Uncommon/Rare
+
+**🥇 Gold NFT** 🌟
+• Cost: 3 SOL
+• Boost: 2.7x earning
+• Rarity: Rare/Epic
+
+🎨 Tap "Mint NFT" to start!
+            """
 
