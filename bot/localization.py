@@ -66,6 +66,59 @@ Let's play! 👇""",
 Поехали! 👇"""
             },
 
+            'welcome_no_referral': {
+                'en': """🎉 **Welcome to Solana Tamagotchi!**
+
+The ultimate Play-to-Earn NFT pet game on Solana! 🐾
+
+🎮 **Game Features:**
+• 🐾 Adopt and raise unique NFT pets
+• 🎰 Play Lucky Slots & Lucky Wheel
+• 💰 Earn TAMA tokens
+• 🏆 Compete on global leaderboards
+• 🎁 Complete daily quests
+• 🤝 Invite friends, earn 1,000 TAMA per referral!
+
+🚀 **Ready to start?**
+Tap "🎮 Play Now" to begin your adventure!
+
+💎 **Pro Tip:** Share your referral link to earn bonus TAMA!""",
+                
+                'ru': """🎉 **Добро пожаловать в Solana Tamagotchi!**
+
+Лучшая Play-to-Earn NFT игра с питомцами на Solana! 🐾
+
+🎮 **Возможности игры:**
+• 🐾 Усыновляй и расти уникальных NFT питомцев
+• 🎰 Играй в Lucky Slots и Lucky Wheel
+• 💰 Зарабатывай токены TAMA
+• 🏆 Соревнуйся в мировых рейтингах
+• 🎁 Выполняй ежедневные квесты
+• 🤝 Приглашай друзей, получай 1,000 TAMA за каждого!
+
+🚀 **Готов начать?**
+Нажми "🎮 Играть" чтобы начать своё приключение!
+
+💎 **Совет:** Делись своей реферальной ссылкой, чтобы заработать бонусные TAMA!""",
+
+                'zh': """🎉 **欢迎来到 Solana Tamagotchi！**
+
+Solana 上终极的 Play-to-Earn NFT 宠物游戏！ 🐾
+
+🎮 **游戏功能：**
+• 🐾 领养和培育独特的 NFT 宠物
+• 🎰 玩幸运老虎机和幸运轮盘
+• 💰 赚取 TAMA 代币
+• 🏆 在全球排行榜上竞争
+• 🎁 完成每日任务
+• 🤝 邀请朋友，每位推荐可获得 1,000 TAMA！
+
+🚀 **准备好开始了吗？**
+点击"🎮 开始游戏"开始你的冒险！
+
+💎 **专业提示：** 分享你的推荐链接以赚取额外的 TAMA！"""
+            },
+
             'help': {
                 'en': """📚 **Solana Tamagotchi Commands**
 
