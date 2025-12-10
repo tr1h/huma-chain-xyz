@@ -34,7 +34,7 @@ We've launched TWO new arcade games:
 • 5% of each play grows the pool - winner takes all!
 
 🎡 Lucky Wheel:
-• Cost: 500-1,000 TAMA  
+• Cost: 500-1,000 TAMA
 • Earn: up to x10 multiplier
 • 8 segments, instant results
 
