@@ -1264,41 +1264,54 @@ def handle_language_selection_callback(call):
 
 @bot.message_handler(commands=['help', 'start'], func=lambda message: message.chat.type == 'private')
 def send_welcome(message):
-    # Determine user language
-    lang = determine_user_language(message)
-
-    # Get user stats
-    telegram_id = str(message.from_user.id)
-    streak_days = daily_rewards.get_streak(telegram_id)
-    can_claim, _ = daily_rewards.can_claim(telegram_id)
-
-    # ✅ FETCH FRESH TAMA BALANCE (in case user minted NFT on website)
     try:
-        leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
-        user_data = leaderboard_response.data[0] if leaderboard_response.data else {}
-        tama_balance = user_data.get('tama', 0)
-        level = user_data.get('level', 1)
-        xp = user_data.get('xp', 0)
+        print(f"📩 send_welcome called for user {message.from_user.id}")
+        
+        # Determine user language
+        lang = determine_user_language(message)
+        print(f"🌍 Language determined: {lang}")
 
-        # Show balance in welcome message
-        if lang == 'ru':
-            balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})\n🔥 *Серия:* {streak_days} дн."
-        elif lang == 'zh':
-            balance_text = f"💰 *余额:* {tama_balance:,} TAMA (等级 {level})\n🔥 *连续:* {streak_days} 天"
-        else:
-            balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})\n🔥 *Streak:* {streak_days} days"
-    except Exception as e:
-        print(f"⚠️ Failed to fetch balance in send_welcome: {e}")
-        if lang == 'ru':
-            balance_text = "💰 *Твой баланс:* Загрузка..."
-        elif lang == 'zh':
-            balance_text = "💰 *余额:* 加载中..."
-        else:
-            balance_text = "💰 *Your Balance:* Loading..."
+        # Get user stats
+        telegram_id = str(message.from_user.id)
+        streak_days = daily_rewards.get_streak(telegram_id)
+        can_claim, _ = daily_rewards.can_claim(telegram_id)
+        print(f"📊 User stats: streak={streak_days}, can_claim={can_claim}")
 
-    # Use new translation system for welcome message
-    welcome_text = tr('welcome_no_referral', lang)
-    welcome_text = f"{balance_text}\n\n{welcome_text}"
+        # ✅ FETCH FRESH TAMA BALANCE (in case user minted NFT on website)
+        try:
+            leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
+            user_data = leaderboard_response.data[0] if leaderboard_response.data else {}
+            tama_balance = user_data.get('tama', 0)
+            level = user_data.get('level', 1)
+            xp = user_data.get('xp', 0)
+            print(f"💰 Balance loaded: {tama_balance} TAMA, Level {level}")
+
+            # Show balance in welcome message
+            if lang == 'ru':
+                balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})\n🔥 *Серия:* {streak_days} дн."
+            elif lang == 'zh':
+                balance_text = f"💰 *余额:* {tama_balance:,} TAMA (等级 {level})\n🔥 *连续:* {streak_days} 天"
+            else:
+                balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})\n🔥 *Streak:* {streak_days} days"
+        except Exception as e:
+            print(f"⚠️ Failed to fetch balance in send_welcome: {e}")
+            if lang == 'ru':
+                balance_text = "💰 *Твой баланс:* Загрузка..."
+            elif lang == 'zh':
+                balance_text = "💰 *余额:* 加载中..."
+            else:
+                balance_text = "💰 *Your Balance:* Loading..."
+
+        # Use new translation system for welcome message
+        print(f"📝 Getting welcome text translation...")
+        welcome_text = tr('welcome_no_referral', lang)
+        print(f"✅ Welcome text loaded: {len(welcome_text) if welcome_text else 0} chars")
+        welcome_text = f"{balance_text}\n\n{welcome_text}"
+    except Exception as setup_error:
+        print(f"❌ ERROR in send_welcome setup: {setup_error}")
+        import traceback
+        traceback.print_exc()
+        return
 
     # Create inline keyboard with gamification
     keyboard = types.InlineKeyboardMarkup()
@@ -1389,11 +1402,23 @@ def send_welcome(message):
     )
 
     # Add language hint
-    if LOCALIZATION_ENABLED:
-        lang_hint = t('language_command_info', lang)
-        welcome_text += f"\n\n{lang_hint}"
-
-    bot.reply_to(message, welcome_text, parse_mode='Markdown', reply_markup=keyboard)
+    try:
+        if LOCALIZATION_ENABLED:
+            lang_hint = t('language_command_info', lang)
+            welcome_text += f"\n\n{lang_hint}"
+        print(f"📤 Sending welcome message to user {message.from_user.id}...")
+        bot.reply_to(message, welcome_text, parse_mode='Markdown', reply_markup=keyboard)
+        print(f"✅ Welcome message sent successfully to user {message.from_user.id}")
+    except Exception as send_error:
+        print(f"❌ ERROR sending welcome message: {send_error}")
+        import traceback
+        traceback.print_exc()
+        # Try to send a simple fallback message
+        try:
+            bot.reply_to(message, "Welcome to Solana Tamagotchi! 🎮\n\nSorry, there was an error loading your profile. Please try /start again.")
+            print(f"✅ Sent fallback message")
+        except Exception as fallback_error:
+            print(f"❌ Even fallback message failed: {fallback_error}")
 
     # Set persistent menu button for this user (replaces default menu)
     try:
