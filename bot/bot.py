@@ -1002,54 +1002,25 @@ def handle_start(message):
                 # Determine language
                 lang = determine_user_language(message)
 
-                # Send welcome with referral info (localized)
-                if lang == 'ru':
-                    welcome_text = f"""
-🎉 *Добро пожаловать в Solana Tamagotchi!*
-
-Тебя пригласил друг! 🎁
-
-🔗 *Начни зарабатывать TAMA:*
-• Получи свою реферальную ссылку ниже
-• Делись с друзьями = 1,000 TAMA за каждого!
-• Бонусы за вехи до 100,000 TAMA!
-
-🎮 *Возможности игры:*
-• 🐾 Усыновляй и растя NFT питомцев
-• 🏅 Поднимайся в лидербордах
-• 🎨 Минти уникальные NFT питомцев
-• 💰 Ежедневные награды и достижения
-
-🚀 *Готов начать зарабатывать?*
-                    """
-                else:
-                    welcome_text = f"""
-🎉 *Welcome to Solana Tamagotchi!*
-
-You were invited by a friend! 🎁
-
-🔗 *Start earning TAMA:*
-• Get your referral link below
-• Share with friends = 1,000 TAMA each!
-• Milestone bonuses up to 100,000 TAMA!
-
-🎮 *Game Features:*
-• 🐾 Adopt & nurture NFT pets
-• 🏅 Climb leaderboards
-• 🎨 Mint unique pet NFTs
-• 💰 Daily rewards & achievements
-
-🚀 *Ready to start earning?*
-                """
+                # Send welcome with referral info (localized) - using new translation system
+                welcome_text = tr('welcome', lang)
 
                 keyboard = types.InlineKeyboardMarkup()
                 keyboard.row(
-                    types.InlineKeyboardButton("🔗 Get My Referral Link", callback_data="get_referral"),
-                    types.InlineKeyboardButton("📊 My Stats", callback_data="my_stats")
+                    types.InlineKeyboardButton(
+                        "🔗 Get My Referral Link" if lang == 'en' else "🔗 Моя реферальная ссылка" if lang == 'ru' else "🔗 我的推荐链接",
+                        callback_data="get_referral"
+                    ),
+                    types.InlineKeyboardButton(
+                        "📊 My Stats" if lang == 'en' else "📊 Моя статистика" if lang == 'ru' else "📊 我的统计",
+                        callback_data="my_stats"
+                    )
                 )
                 keyboard.row(
-                    types.InlineKeyboardButton("🏅 Leaderboard", callback_data="leaderboard"),
-                    types.InlineKeyboardButton("🎖️ Reviews & Feedback", url="https://t.me/gotchigamechat")
+                    types.InlineKeyboardButton(
+                        "🎮 Play Now" if lang == 'en' else "🎮 Играть" if lang == 'ru' else "🎮 开始游戏",
+                        url=GAME_URL
+                    )
                 )
 
                 bot.reply_to(message, welcome_text, parse_mode='Markdown', reply_markup=keyboard)
@@ -1272,7 +1243,7 @@ def handle_language_selection_callback(call):
         bot.answer_callback_query(call.id, "❌ Error saving language")
 
 
-@bot.message_handler(commands=['help'], func=lambda message: message.chat.type == 'private')
+@bot.message_handler(commands=['help', 'start'], func=lambda message: message.chat.type == 'private')
 def send_welcome(message):
     # Determine user language
     lang = determine_user_language(message)
@@ -1292,42 +1263,23 @@ def send_welcome(message):
 
         # Show balance in welcome message
         if lang == 'ru':
-            balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})"
+            balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})\n🔥 *Серия:* {streak_days} дн."
+        elif lang == 'zh':
+            balance_text = f"💰 *余额:* {tama_balance:,} TAMA (等级 {level})\n🔥 *连续:* {streak_days} 天"
         else:
-            balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
+            balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})\n🔥 *Streak:* {streak_days} days"
     except Exception as e:
         print(f"⚠️ Failed to fetch balance in send_welcome: {e}")
-        balance_text = "💰 *Your Balance:* Loading..." if lang == 'en' else "💰 *Твой баланс:* Загрузка..."
-
-    # Use localized welcome text if available
-    if LOCALIZATION_ENABLED:
-        welcome_text = t('help', lang)
-        # Add balance and streak info
         if lang == 'ru':
-            welcome_text = welcome_text.replace('/stats - Твоя статистика', f'/stats - Твоя статистика\n\n{balance_text}\n🔥 Серия: {streak_days} дн.')
+            balance_text = "💰 *Твой баланс:* Загрузка..."
+        elif lang == 'zh':
+            balance_text = "💰 *余额:* 加载中..."
         else:
-            welcome_text = welcome_text.replace('/stats - Check your stats', f'/stats - Check your stats\n\n{balance_text}\n🔥 Streak: {streak_days} days')
-    else:
-        # Fallback to old text
-        welcome_text = f"""
-🎮 *Welcome to Solana Tamagotchi!*
+            balance_text = "💰 *Your Balance:* Loading..."
 
-*The ultimate Play-to-Earn NFT pet game on Solana!*
-🚀 *Currently in pre-launch phase - building our community!*
-
-{balance_text}
-
-⭐ *What you can do RIGHT NOW:*
-• 🎁 **Daily Rewards** - Claim your daily TAMA! (Streak: {streak_days} days)
-• 🎮 **Play Game** - Click pet and earn TAMA!
-• 🔗 **Referral Program** - 1,000 TAMA per friend!
-• 🏆 **Badges & Ranks** - Collect achievements!
-• 📋 **Quests** - Complete challenges for bonuses!
-
-💰 *Start earning TAMA today - no wallet needed!*
-
-📄 *Legal:* [Terms](https://solanatamagotchi.com/terms) • [Privacy](https://solanatamagotchi.com/privacy) • [Risk Warning](https://solanatamagotchi.com/disclaimer)
-    """
+    # Use new translation system for welcome message
+    welcome_text = tr('welcome_no_referral', lang)
+    welcome_text = f"{balance_text}\n\n{welcome_text}"
 
     # Create inline keyboard with gamification
     keyboard = types.InlineKeyboardMarkup()
