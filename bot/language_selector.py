@@ -11,7 +11,7 @@ def create_language_keyboard() -> types.InlineKeyboardMarkup:
     Create inline keyboard with language selection buttons
     
     Returns:
-        InlineKeyboardMarkup with language buttons (EN, RU, ZH)
+        InlineKeyboardMarkup with language buttons (EN, RU, ZH, ES)
     """
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     
@@ -28,9 +28,13 @@ def create_language_keyboard() -> types.InlineKeyboardMarkup:
         text="🇨🇳 中文",
         callback_data="lang_zh"
     )
+    btn_es = types.InlineKeyboardButton(
+        text="🇪🇸 Español",
+        callback_data="lang_es"
+    )
     
     keyboard.add(btn_en, btn_ru)
-    keyboard.add(btn_zh)
+    keyboard.add(btn_zh, btn_es)
     
     return keyboard
 
@@ -53,15 +57,15 @@ def handle_language_callback(callback_data: str) -> str:
     Extract language code from callback data
     
     Args:
-        callback_data: Callback data from button (e.g., "lang_en", "lang_ru", "lang_zh")
+        callback_data: Callback data from button (e.g., "lang_en", "lang_ru", "lang_zh", "lang_es")
     
     Returns:
-        Language code ('en', 'ru', or 'zh')
+        Language code ('en', 'ru', 'zh', or 'es')
     """
     if callback_data.startswith('lang_'):
         lang_code = callback_data.replace('lang_', '')
         # Validate language code
-        if lang_code in ['en', 'ru', 'zh']:
+        if lang_code in ['en', 'ru', 'zh', 'es']:
             return lang_code
     return 'en'
 

@@ -116,7 +116,24 @@ Solana 上终极的 Play-to-Earn NFT 宠物游戏！ 🐾
 🚀 **准备好开始了吗？**
 点击"🎮 开始游戏"开始你的冒险！
 
-💎 **专业提示：** 分享你的推荐链接以赚取额外的 TAMA！"""
+💎 **专业提示：** 分享你的推荐链接以赚取额外的 TAMA！""",
+
+                'es': """🎉 **¡Bienvenido a Solana Tamagotchi!**
+
+¡El mejor juego NFT Play-to-Earn de mascotas en Solana! 🐾
+
+🎮 **Características del juego:**
+• 🐾 Adopta y cría mascotas NFT únicas
+• 🎰 Juega Lucky Slots y Lucky Wheel
+• 💰 Gana tokens TAMA
+• 🏆 Compite en clasificaciones globales
+• 🎁 Completa misiones diarias
+• 🤝 ¡Invita amigos, gana 1,000 TAMA por referido!
+
+🚀 **¿Listo para empezar?**
+¡Toca "🎮 Jugar Ahora" para comenzar tu aventura!
+
+💎 **Consejo Pro:** ¡Comparte tu enlace de referido para ganar TAMA extra!"""
             },
 
             'help': {
