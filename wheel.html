@@ -206,6 +206,17 @@
             font-weight: bold;
         }
 
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
         .history-section {
             background: rgba(255,255,255,0.1);
             padding: 15px;
@@ -890,12 +901,7 @@
                     document.getElementById('losses').textContent = losses;
                     document.getElementById('total-won').textContent = formatNumber(totalWon);
 
-                    // Update balance on server with win amount (bet already deducted)
-                    if (winAmount > 0) {
-                        updateBalanceOnServer(winAmount); // Fire and forget - don't block animation
-                    }
-
-                    // Play sound and show result
+                    // Play sound and show result FIRST (before API call)
                     const resultBox = document.getElementById('result');
                     if (multiplier >= 10) {
                         resultBox.textContent = `🎰 JACKPOT! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
@@ -923,8 +929,16 @@
                     // Add to history
                     addToHistory(multiplier, winAmount, currentBet);
 
+                    // IMPORTANT: Re-enable button BEFORE API call (don't wait for it)
                     isSpinning = false;
                     document.getElementById('spin-btn').disabled = false;
+
+                    // Update balance on server with win amount (bet already deducted) - async, don't block
+                    if (winAmount > 0) {
+                        updateBalanceOnServer(winAmount).catch(err => {
+                            console.error('Error updating balance:', err);
+                        });
+                    }
                 }
             }
             animate();
