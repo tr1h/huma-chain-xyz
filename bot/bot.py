@@ -708,6 +708,11 @@ def handle_group_message(message):
     if message.from_user.is_bot:
         return
 
+    # 🛡️ IGNORE ADMINS - they can spam for testing/management
+    if user_id in ADMIN_IDS:
+        print(f"✅ Admin message ignored: {user_id}")
+        return
+
     # FAQ AUTO-RESPONSE (process BEFORE anti-spam for admins too)
     if FAQ_ENABLED and faq_handler and message.text:
         try:
@@ -3905,9 +3910,9 @@ def post_daily_promo():
 
 # Schedule daily posts
 def run_schedule():
-    # Legacy daily posts (keep for compatibility)
-    schedule.every().day.at("12:00").do(post_daily_stats)
-    schedule.every().day.at("14:00").do(post_daily_promo)  # Promo post at 2 PM
+    # ⚠️ LEGACY POSTS DISABLED - using auto_posting.py schedule instead
+    # schedule.every().day.at("12:00").do(post_daily_stats)  # ОТКЛЮЧЕНО - дубли!
+    # schedule.every().day.at("14:00").do(post_daily_promo)  # ОТКЛЮЧЕНО - дубли!
 
     # Setup auto-posting system based on CONTENT_PLAN.md
     print("📅 Setting up auto-posting schedule...")
