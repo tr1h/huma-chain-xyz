@@ -4172,7 +4172,7 @@ def handle_callback(call):
         user_id = call.from_user.id
         username = call.from_user.username or call.from_user.first_name
         telegram_id = str(user_id)
-        
+
         # Get user language
         lang = get_user_language(user_id) or 'en'
 
@@ -5144,6 +5144,9 @@ Please try again later!
     elif call.data == "daily_reward":
         # Handle daily reward from button
         telegram_id = str(call.from_user.id)
+        
+        # Get user language
+        lang = get_user_language(call.from_user.id) or 'en'
 
         success, streak_days, reward_amount = daily_rewards.claim_reward(telegram_id)
 
@@ -5151,15 +5154,53 @@ Please try again later!
             # 💰 TAMA balance is already updated in claim_reward() function
             # No need to call add_tama_reward() separately
 
-            milestone_text = ""
-            if streak_days == 7:
-                milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
-            elif streak_days == 14:
-                milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
-            elif streak_days == 30:
-                milestone_text = "\n\n👑 **MONTH!** You're a legend!"
+            # Localized milestone texts
+            if lang == 'ru':
+                milestone_text = ""
+                if streak_days == 7:
+                    milestone_text = "\n\n🎉 **НЕДЕЛЬНЫЙ РУБЕЖ!** 7 дней подряд!"
+                elif streak_days == 14:
+                    milestone_text = "\n\n🔥 **2 НЕДЕЛИ!** Невероятная серия!"
+                elif streak_days == 30:
+                    milestone_text = "\n\n👑 **МЕСЯЦ!** Ты легенда!"
+                
+                text = f"""
+✅ **Ежедневная награда получена!**
 
-            text = f"""
+💰 **Награда:** +{reward_amount:,} TAMA
+🔥 **Серия:** {streak_days} дн. подряд
+📅 **Следующая:** через 24 часа{milestone_text}
+
+💰 **Возвращайся каждый день за большими наградами!**
+                """
+            elif lang == 'zh':
+                milestone_text = ""
+                if streak_days == 7:
+                    milestone_text = "\n\n🎉 **周里程碑!** 连续 7 天!"
+                elif streak_days == 14:
+                    milestone_text = "\n\n🔥 **2 周!** 难以置信的连胜!"
+                elif streak_days == 30:
+                    milestone_text = "\n\n👑 **月!** 你是传奇!"
+                
+                text = f"""
+✅ **已领取每日奖励!**
+
+💰 **奖励:** +{reward_amount:,} TAMA
+🔥 **连续:** {streak_days} 天
+📅 **下一次:** 24 小时后{milestone_text}
+
+💰 **每天回来获得更大的奖励!**
+                """
+            else:
+                milestone_text = ""
+                if streak_days == 7:
+                    milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
+                elif streak_days == 14:
+                    milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
+                elif streak_days == 30:
+                    milestone_text = "\n\n👑 **MONTH!** You're a legend!"
+
+                text = f"""
 ✅ **Daily Reward Claimed!**
 
 💰 **Reward:** +{reward_amount:,} TAMA
@@ -5167,7 +5208,7 @@ Please try again later!
 📅 **Next:** in 24 hours{milestone_text}
 
 💰 **Come back every day for bigger rewards!**
-            """
+                """
 
             if streak_days == 7:
                 badge_system.award_badge(telegram_id, 'week_warrior')
@@ -5336,7 +5377,7 @@ Please try again later!
     elif call.data == "my_stats_detailed":
         # Detailed stats with gamification
         telegram_id = str(call.from_user.id)
-        
+
         # Get user language
         lang = get_user_language(call.from_user.id) or 'en'
 
