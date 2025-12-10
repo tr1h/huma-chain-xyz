@@ -15,7 +15,7 @@ class AutoPoster:
     def __init__(self, bot, channel_username):
         self.bot = bot
         self.channel = channel_username
-        
+
     def post_to_channel(self, text, photo_url=None, parse_mode='Markdown'):
         """Опубликовать пост в канал"""
         try:
@@ -38,20 +38,20 @@ class AutoPoster:
         except Exception as e:
             logger.error(f"❌ Failed to post to {self.channel}: {e}")
             return False
-    
+
     # ==================== MONDAY - Motivation Monday ====================
-    
+
     def post_monday_gm(self):
         """Утренний мотивационный пост (понедельник)"""
         posts = [
             "🌅 GM Gotchi Fam!\n\n💰 **New week, new TAMA to earn!**\n\nThis week's highlights:\n• 🎰 Lucky Slots - Jackpot pool GROWING! Try x100 win!\n• 🎡 Lucky Wheel - Spin for massive multipliers!\n• 🎁 Daily rewards with streak bonuses\n• 🔗 Invite friends = 1,000 TAMA each\n• 🏆 Compete on leaderboards\n\n**Start playing NOW!** → @GotchiGameBot 🐾\n\n#GotchiGame #PlayToEarn #SolanaNFT #MondayMotivation",
-            
+
             "GM Solana fam! 🌞\n\nStart your week with BIG WINS! 🚀\n\n✨ Lucky Slots - Shared Jackpot Pool!\n✨ Lucky Wheel - Up to 50x multiplier!\n✨ Provably Fair - Every spin verified!\n✨ Connect Wallet - Play with Solana!\n✨ FREE to play - No wallet needed!\n\nAll 100% transparent! 🔗\n\nPlay now: @GotchiGameBot\n\n#Solana #Web3Gaming #P2E #LuckySlots",
-            
+
             "GM! Ready for a productive week? 💪\n\nSolana Tamagotchi offers:\n🎰 Lucky Slots with x100 Jackpot!\n🎡 Lucky Wheel with 50x multiplier!\n🎮 Tamagotchi clicker game\n💰 Earn real $TAMA tokens\n🎨 Mint NFTs for 2x-5x boost\n💳 Wallet support (Phantom/Solflare)\n🔥 Provably Fair system\n\nStart earning today! 👇\nhttps://t.me/GotchiGameBot\n\n#Solana #PlayToEarn #CryptoGaming"
         ]
         self.post_to_channel(random.choice(posts))
-    
+
     def post_monday_stats(self):
         """Еженедельная статистика (понедельник день)"""
         text = "📊 WEEKLY STATS 📈\n\n"
@@ -64,20 +64,20 @@ class AutoPoster:
         text += "View live: https://solanatamagotchi.com/treasury-monitor.html\n\n"
         text += "#Stats #Solana #P2E"
         self.post_to_channel(text)
-    
+
     def post_monday_sneak_peek(self):
         """Sneak peek новых фич (понедельник вечер)"""
         peeks = [
             "👀 SNEAK PEEK 👀\n\nSomething big is coming this week...\n\n🎨 New NFT designs?\n💰 Enhanced rewards?\n🚀 Mainnet prep?\n\nStay tuned! 👇\n\n#SneakPeek #Solana #ComingSoon",
-            
+
             "🔮 THIS WEEK... 🔮\n\nWe're cooking something special! 🔥\n\nHint: It involves more ways to earn $TAMA 💰\n\nGuess what it is? 👇\n\n#Solana #P2E #Update",
-            
+
             "⚡ WEEKLY ROADMAP ⚡\n\nThis week we're working on:\n✅ Bug fixes\n✅ Performance improvements\n✅ New features testing\n\nMore details coming soon! 🚀\n\n#Development #Solana #Transparent"
         ]
         self.post_to_channel(random.choice(peeks))
-    
+
     # ==================== TUESDAY - Tech Tuesday ====================
-    
+
     def post_tuesday_tokenomics(self):
         """Объяснение токеномики (вторник)"""
         text = "📊 **Tech Tuesday: TAMA Tokenomics**\n\n"
@@ -96,7 +96,7 @@ class AutoPoster:
         text += "**Start earning TODAY!** → @GotchiGameBot 🚀\n\n"
         text += "#Tokenomics #TAMA #GotchiGame #Solana"
         self.post_to_channel(text)
-    
+
     def post_tuesday_onchain_proof(self):
         """On-chain доказательства (вторник день)"""
         text = "🔗 ON-CHAIN TRANSPARENCY ✅\n\n"
@@ -111,9 +111,9 @@ class AutoPoster:
         text += "https://solanatamagotchi.com/treasury-monitor.html\n\n"
         text += "#OnChain #Transparency #Solana #Arweave"
         self.post_to_channel(text)
-    
+
     # ==================== WEDNESDAY - Community Wednesday ====================
-    
+
     def post_wednesday_community(self):
         """Community highlight (среда)"""
         text = "👥 COMMUNITY SPOTLIGHT 🌟\n\n"
@@ -126,7 +126,7 @@ class AutoPoster:
         text += "Play now: https://t.me/GotchiGameBot\n\n"
         text += "#Community #P2E #Solana"
         self.post_to_channel(text)
-    
+
     def post_wednesday_nft_showcase(self):
         """NFT витрина (среда день)"""
         text = "🎨 NFT SHOWCASE ✨\n\n"
@@ -143,9 +143,9 @@ class AutoPoster:
         text += "Marketplace: https://solanatamagotchi.com/marketplace.html\n\n"
         text += "#SolanaNFT #Tamagotchi #P2E #Marketplace"
         self.post_to_channel(text)
-    
+
     # ==================== THURSDAY - Throwback Thursday ====================
-    
+
     def post_thursday_progress(self):
         """История и прогресс (четверг)"""
         text = "📸 PROJECT PROGRESS 🚀\n\n"
@@ -168,22 +168,22 @@ class AutoPoster:
         text += "https://t.me/GotchiGameBot\n\n"
         text += "#Progress #Solana #Web3 #Colosseum"
         self.post_to_channel(text)
-    
+
     # ==================== FRIDAY - Feature Friday ====================
-    
+
     def post_friday_feature(self):
         """Новые фичи (пятница)"""
         features = [
             "🚀 NFT MARKETPLACE IS LIVE! ✨\n\nWe just launched:\n✅ Buy/Sell NFTs with TAMA OR SOL\n✅ First P2E game with dual payment!\n✅ Real on-chain transactions\n✅ Arweave metadata storage\n✅ Images verified on Solscan\n\nTry it now:\nhttps://solanatamagotchi.com/marketplace.html\n\n#Solana #Marketplace #P2E #DualPayment",
-            
+
             "✨ ZERO WALLET BARRIER ✨\n\nRevolutionary feature:\n✅ Play INSTANTLY - no wallet needed!\n✅ Earn TAMA first\n✅ Connect wallet when ready\n✅ Seamless experience\n\nThis is mass adoption! 🚀\n\nPlay now: https://t.me/GotchiGameBot\n\n#ZeroWalletBarrier #MassAdoption #Solana",
-            
+
             "🎉 COLOSSEUM ETERNAL 🎉\n\nWe're participating in Colosseum hackathon!\n✅ Building in public\n✅ Week 3 update coming\n✅ Real product, real traction\n\nWatch us build:\nhttps://arena.colosseum.org/projects/explore/solana-tamagotchi-ultimate-play-to-earn-nft-pet-game\n\n#Colosseum #Hackathon #Solana #BuildInPublic"
         ]
         self.post_to_channel(random.choice(features))
-    
+
     # ==================== SATURDAY - Showcase Saturday ====================
-    
+
     def post_saturday_showcase(self):
         """NFT showcase (суббота)"""
         text = "🎨 SATURDAY SHOWCASE 🎨\n\n"
@@ -197,9 +197,9 @@ class AutoPoster:
         text += "https://solanatamagotchi.com/mint.html\n\n"
         text += "#NFT #Solana #Art"
         self.post_to_channel(text)
-    
+
     # ==================== SUNDAY - Sunday Stats ====================
-    
+
     def post_sunday_weekly_report(self):
         """Недельный отчёт (воскресенье)"""
         text = "📊 WEEKLY REPORT 📊\n\n"
@@ -217,9 +217,9 @@ class AutoPoster:
         text += "https://solanatamagotchi.com/treasury-monitor.html\n\n"
         text += "#WeeklyReport #Solana #P2E"
         self.post_to_channel(text)
-    
+
     # ==================== EVERGREEN POSTS ====================
-    
+
     def post_tutorial_thread(self):
         """Как играть (обучающий пост)"""
         text = "📚 HOW TO PLAY 🎮\n\n"
@@ -248,7 +248,7 @@ class AutoPoster:
         text += "Marketplace: https://solanatamagotchi.com/marketplace.html\n\n"
         text += "#Tutorial #P2E #Solana #ZeroWalletBarrier"
         self.post_to_channel(text)
-    
+
     def post_burn_report(self):
         """Отчёт о сожжённых токенах"""
         text = "📊 BURN REPORT 🔥\n\n"
@@ -262,18 +262,18 @@ class AutoPoster:
         text += "https://solanatamagotchi.com/treasury-monitor.html\n\n"
         text += "#TAMABurn #Tokenomics #Solana"
         self.post_to_channel(text)
-    
+
     def post_call_to_action(self):
         """Призыв к действию"""
         ctas = [
             "🎮 Ready to start earning? 💰\n\nSolana Tamagotchi is:\n✅ 100% Free to start\n✅ ZERO wallet barrier - play instantly!\n✅ Play in Telegram\n✅ Earn real $TAMA tokens\n✅ Mint unique NFTs\n✅ Trade on Marketplace (TAMA + SOL)\n\nStart now: https://t.me/GotchiGameBot\nMarketplace: https://solanatamagotchi.com/marketplace.html\n\n#Solana #P2E #Free #ZeroWalletBarrier",
-            
+
             "💎 Why Solana Tamagotchi? 💎\n\n✨ ZERO wallet barrier - play first!\n✨ NFT Marketplace with dual payment\n✨ Nostalgic Tamagotchi gameplay\n✨ Modern blockchain tokenomics\n✨ 100% on-chain (Arweave + Solscan)\n✨ Real passive income from NFTs\n\nJoin us: https://t.me/GotchiGameBot\n\n#Web3Gaming #Solana #Marketplace",
-            
+
             "🚀 Start Your P2E Journey! 🚀\n\nNo investment needed! No wallet needed!\n\n1. Play the game 🎮 (instant start!)\n2. Earn $TAMA 💰\n3. Mint NFTs 🎨 (TAMA or SOL)\n4. Trade on Marketplace 🛒 (TAMA + SOL)\n5. Get passive income 💎\n\nAll 100% on-chain!\n\nhttps://t.me/GotchiGameBot\n\n#PlayToEarn #Solana #ZeroWalletBarrier"
         ]
         self.post_to_channel(random.choice(ctas))
-    
+
     def post_transparency_reminder(self):
         """Напоминание о прозрачности"""
         text = "🔗 TRANSPARENCY MATTERS 🔗\n\n"
@@ -293,45 +293,45 @@ class AutoPoster:
 def setup_auto_posting(bot, channel_username):
     """Настроить расписание автопостинга"""
     import schedule
-    
+
     poster = AutoPoster(bot, channel_username)
-    
+
     # ==================== MONDAY - Motivation Monday ====================
     schedule.every().monday.at("09:00").do(poster.post_monday_gm)
     schedule.every().monday.at("14:00").do(poster.post_monday_stats)
     schedule.every().monday.at("20:00").do(poster.post_monday_sneak_peek)
-    
+
     # ==================== TUESDAY - Tech Tuesday ====================
     schedule.every().tuesday.at("09:00").do(poster.post_tuesday_tokenomics)
     schedule.every().tuesday.at("14:00").do(poster.post_tuesday_onchain_proof)
     schedule.every().tuesday.at("20:00").do(poster.post_call_to_action)
-    
+
     # ==================== WEDNESDAY - Community Wednesday ====================
     schedule.every().wednesday.at("09:00").do(poster.post_wednesday_community)
     schedule.every().wednesday.at("14:00").do(poster.post_wednesday_nft_showcase)
     schedule.every().wednesday.at("20:00").do(poster.post_transparency_reminder)
-    
+
     # ==================== THURSDAY - Throwback Thursday ====================
     schedule.every().thursday.at("09:00").do(poster.post_thursday_progress)
     schedule.every().thursday.at("14:00").do(poster.post_call_to_action)
     schedule.every().thursday.at("20:00").do(poster.post_tutorial_thread)
-    
+
     # ==================== FRIDAY - Feature Friday ====================
     schedule.every().friday.at("09:00").do(poster.post_friday_feature)
     schedule.every().friday.at("14:00").do(poster.post_burn_report)
     schedule.every().friday.at("20:00").do(poster.post_call_to_action)
-    
+
     # ==================== SATURDAY - Showcase Saturday ====================
     schedule.every().saturday.at("10:00").do(poster.post_saturday_showcase)
     schedule.every().saturday.at("18:00").do(poster.post_transparency_reminder)
-    
+
     # ==================== SUNDAY - Sunday Stats ====================
     schedule.every().sunday.at("10:00").do(poster.post_sunday_weekly_report)
     schedule.every().sunday.at("18:00").do(poster.post_call_to_action)
-    
+
     logger.info("✅ Auto-posting schedule configured")
     logger.info("📅 Posts will be published automatically according to CONTENT_PLAN.md")
-    
+
     return poster
 
 

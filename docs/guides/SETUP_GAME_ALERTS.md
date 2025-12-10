@@ -64,12 +64,12 @@ def game_alerts():
     """Receive game alerts from API"""
     data = request.get_json()
     alert_type = data.get('type')
-    
+
     if alert_type == 'jackpot_win':
         send_jackpot_alert(...)
     elif alert_type == 'big_win':
         send_big_win_alert(...)
-    
+
     return {'status': 'success'}, 200
 ```
 

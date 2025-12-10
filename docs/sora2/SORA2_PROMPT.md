@@ -3,7 +3,7 @@
 ## 🎯 Основной промпт:
 
 ```
-A vibrant, energetic arcade game trailer showcasing two exciting mini-games on a dark purple gradient background with neon green and gold accents. 
+A vibrant, energetic arcade game trailer showcasing two exciting mini-games on a dark purple gradient background with neon green and gold accents.
 
 SCENE 1 (0-3 seconds):
 - Close-up of a slot machine with three spinning reels
@@ -81,7 +81,7 @@ QUALITY: High definition, crisp and clear
 ## 🎨 Альтернативный короткий промпт (10 секунд):
 
 ```
-A fast-paced 10-second arcade game trailer. Dark purple gradient background with neon green and gold accents. 
+A fast-paced 10-second arcade game trailer. Dark purple gradient background with neon green and gold accents.
 
 Opening shot: Three slot machine reels spinning rapidly, symbols blurring past (cherries, lemons, diamonds, crowns, slot icons). Text "🎰 LUCKY SLOTS" appears in gold.
 
@@ -119,6 +119,7 @@ Style: Mobile-optimized, vertical-friendly, bright colors, clear text, smooth an
 ## 🎯 Ключевые элементы для SORA 2:
 
 ### Визуальные элементы:
+
 - ✅ Slot machine с 3 барабанами
 - ✅ Spinning wheel с 8 сегментами
 - ✅ Фруктовые символы (🍒🍋🍊💎⭐👑🎰)
@@ -128,6 +129,7 @@ Style: Mobile-optimized, vertical-friendly, bright colors, clear text, smooth an
 - ✅ Неоновые зеленые и золотые акценты
 
 ### Анимации:
+
 - ✅ Плавное вращение барабанов
 - ✅ Вращение колеса
 - ✅ Выравнивание символов
@@ -136,6 +138,7 @@ Style: Mobile-optimized, vertical-friendly, bright colors, clear text, smooth an
 - ✅ Плавные переходы камеры
 
 ### Текст:
+
 - ✅ "🎰 LUCKY SLOTS - Win up to 100x!"
 - ✅ "🎡 LUCKY WHEEL - Spin for rewards!"
 - ✅ "💰 Earn TAMA"
@@ -144,6 +147,7 @@ Style: Mobile-optimized, vertical-friendly, bright colors, clear text, smooth an
 - ✅ Telegram bot link
 
 ### Стиль:
+
 - ✅ Современный аркадный стиль
 - ✅ Профессиональный и надежный
 - ✅ Энергичный, но не перегруженный
@@ -212,4 +216,3 @@ MOOD: Energetic, trustworthy, fun, professional
 ---
 
 **Готово! Используй любой из этих промптов для SORA 2! 🎬**
-

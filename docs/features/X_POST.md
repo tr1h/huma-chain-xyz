@@ -26,16 +26,16 @@ Play now 👉 https://t.me/SolanaTamagotchiBot
 ```
 🎰 LUCKY SLOTS & WHEEL - NOW LIVE! 🎡
 
-We've launched TWO new casino games:
+We've launched TWO new arcade games:
 
 🎰 Lucky Slots:
-• Bet: 100-2,000 TAMA (or custom up to 50% balance)
-• Win: up to x100 + shared JACKPOT POOL
-• 5% of each bet grows the pool - winner takes all!
+• Cost: 100-2,000 TAMA (or custom up to 50% balance)
+• Earn: up to x100 + shared REWARD POOL
+• 5% of each play grows the pool - winner takes all!
 
 🎡 Lucky Wheel:
-• Bet: 500-1,000 TAMA  
-• Win: up to x10 multiplier
+• Cost: 500-1,000 TAMA  
+• Earn: up to x10 multiplier
 • 8 segments, instant results
 
 ✨ Features:
@@ -43,10 +43,11 @@ We've launched TWO new casino games:
 • Real-time win alerts
 • History & stats tracking
 • Sound effects
+• 🎮 For entertainment only
 
 Play now: https://t.me/SolanaTamagotchiBot
 
-#SolanaNFT #Web3 #TAMA #GameFi
+#SolanaNFT #Web3Gaming #TAMA #GameFi
 ```
 
 ---
@@ -73,4 +74,3 @@ Try your luck 👉 https://t.me/SolanaTamagotchiBot
 ---
 
 ## Рекомендую ВАРИАНТ 1 - короткий и ёмкий! 🎯
-

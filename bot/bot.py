@@ -713,7 +713,7 @@ def handle_group_message(message):
     if user_id in ADMIN_IDS:
         print(f"✅ Admin message ignored: {user_id}")
         return
-    
+
     # 🛡️ IGNORE @gotchigamebot specifically (extra safety check)
     if message.from_user.username and message.from_user.username.lower() == 'gotchigamebot':
         print(f"✅ @gotchigamebot message ignored")

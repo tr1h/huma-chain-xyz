@@ -4709,7 +4709,7 @@ function handleSlotsSpin($url, $key) {
         // UPDATE USER BALANCE
         // ============================================
         $newBalance = $currentBalance + $amount;
-        
+
         // Ensure balance is not negative
         if ($newBalance < 0) {
             error_log("⚠️ WARNING: Balance would be negative ({$newBalance}), setting to 0");
@@ -4747,7 +4747,7 @@ function handleSlotsSpin($url, $key) {
         $isWheelGame = isset($symbols[0]) && $symbols[0] === '🎡';
         $gameType = $isWheelGame ? 'wheel' : 'slots';
         $transactionType = $amount < 0 ? "{$gameType}_bet" : "{$gameType}_win";
-        
+
         $transactionData = [
             'telegram_id' => $telegramId,
             'amount' => $amount,

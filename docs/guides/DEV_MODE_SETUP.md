@@ -3,6 +3,7 @@
 ## Проблема: 403 Forbidden при игре через Telegram Desktop или браузер
 
 Если игроки получают ошибку "Authentication failed" при игре через:
+
 - Telegram Desktop (компьютер)
 - Прямую ссылку в браузере
 - Telegram Web
@@ -20,11 +21,13 @@ URL: https://render.com/
 В **Environment Variables**:
 
 **Вариант 1: Удалить полностью**
+
 ```
 BOT_TOKEN = [удалить]
 ```
 
 **Вариант 2: Переименовать (временно отключить)**
+
 ```
 BOT_TOKEN_DISABLED = 8445221254:AAFrU1iE4xVnpGmimWecjO5YHTISrI4xiI8
 ```
@@ -38,12 +41,14 @@ Render автоматически перезапустит API.
 ## Что произойдет?
 
 ### С `BOT_TOKEN` (Production Mode):
+
 - ✅ Безопасно - проверяет `initData`
 - ❌ Не работает на Telegram Desktop
 - ❌ Не работает в браузере
 - ✅ Защита от накрутки `user_id`
 
 ### Без `BOT_TOKEN` (DEV Mode):
+
 - ✅ Работает везде (Desktop, Web, Mobile)
 - ✅ Работает в браузере с прямой ссылкой
 - ⚠️ Нет проверки `initData`
@@ -56,12 +61,14 @@ Render автоматически перезапустит API.
 **Для текущей стадии проекта: DEV MODE (без `BOT_TOKEN`)**
 
 Причины:
+
 1. Игроки могут играть с любого устройства
 2. Не мешает тестированию
 3. Накрутка `user_id` не критична (нет вывода денег)
 4. Легче для новых игроков
 
 **Для продакшена с реальными деньгами:**
+
 - Включить `BOT_TOKEN`
 - Добавить дополнительные проверки
 - Ограничить доступ только через Telegram Mobile App
@@ -73,11 +80,13 @@ Render автоматически перезапустит API.
 Смотри логи API:
 
 ### DEV MODE:
+
 ```
 ⚠️ BOT_TOKEN not set - skipping auth validation (DEV MODE)
 ```
 
 ### PRODUCTION MODE:
+
 ```
 ✅ Telegram auth validated for user: 202140267
 ```
@@ -94,6 +103,7 @@ BOT_TOKEN=8445221254:AAFrU1iE4xVnpGmimWecjO5YHTISrI4xiI8
 ```
 
 В `api/telegram_auth.php`:
+
 ```php
 $authMode = getenv('AUTH_MODE') ?: 'dev';
 if ($authMode === 'dev') {
@@ -108,9 +118,9 @@ if ($authMode === 'dev') {
 ## Текущий статус
 
 Игра настроена на работу в **любом режиме**:
+
 - Если API вернет 403 → fallback на прямое обновление Supabase
 - Если `initData` пустой → просто пытается обновить баланс
 - Ошибки обрабатываются gracefully
 
 **Рекомендую: удалить `BOT_TOKEN` на Render для максимальной совместимости.**
-

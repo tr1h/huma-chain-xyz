@@ -78,7 +78,7 @@ Understanding $TAMA token:
 def post_friday_feature(self):
     text = """🎮 **Feature Friday!**
 
-This week's spotlight: **🎰 Lucky Slots + Provably Fair!** 
+This week's spotlight: **🎰 Lucky Slots + Provably Fair!**
 
 💎 **What's NEW:**
 • Shared Jackpot Pool - everyone contributes, ONE winner takes all! 💰
