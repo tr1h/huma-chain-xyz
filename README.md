@@ -1,589 +1,194 @@
-# 🐾 Solana Tamagotchi - GotchiGameBot
+# 🎮 Solana Tamagotchi - Play-to-Earn Game
 
-<div align="center">
+[![Live Demo](https://img.shields.io/badge/Live-solanatamagotchi.com-blue)](https://solanatamagotchi.com)
+[![Telegram Bot](https://img.shields.io/badge/Telegram-@gotchigamebot-blue)](https://t.me/gotchigamebot)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF?style=for-the-badge&logo=solana)
-![Telegram](https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
+A blockchain-based Tamagotchi game on Solana with Play-to-Earn mechanics, NFT pets, and mini-games.
 
-**Play-to-Earn Tamagotchi game on Telegram with Solana blockchain integration**
+## 🚀 Features
 
-> 🔄 **Latest Update (Nov 29, 2025):** 🛡️ SECURITY FIXES (Payment Verification • Atomic Withdrawals • Correct TX Order) • Security Score: 8.5/10 ✅ • Mainnet-Ready!
+### 🎰 Games
+- **Lucky Slots** - Slot machine with shared jackpot pool
+- **Lucky Wheel** - Spin the wheel for multipliers
+- **Tamagotchi** - Care for your virtual pet, earn TAMA
 
-[🎮 Play Now](https://t.me/GotchiGameBot) • [📖 Documentation](#-documentation) • [🚀 Deploy](#-deployment)
+### 💎 NFT System
+- **5 Tiers**: Bronze, Silver, Gold, Platinum, Diamond
+- **Earning Multipliers**: 2x - 5x boost
+- **Mint with TAMA or SOL**
 
-</div>
+### 💰 Economy
+- **TAMA Token** - In-game currency
+- **Referral System** - Earn 10% of referrals' earnings
+- **Daily Rewards** - Login bonuses
+- **Leaderboard** - Compete for top spots
 
----
+### 🔐 Security
+- Telegram WebApp authentication
+- Wallet connection (Phantom, Solflare)
+- Admin panels with password protection
+- Transaction logging & monitoring
 
-## 🌟 Features
-
-### 🎮 **Core Gameplay**
-- **Virtual Pet Care:** Feed, play, and nurture your Gotchi
-- **Level System:** Earn XP and level up through gameplay
-- **Stats Tracking:** Monitor Food, Happiness, HP, and Age
-- **Multiple Themes:** Kawai, Retro, and Premium visual styles
-- **10 Pet Types:** Cat, Dog, Dragon, Fox, Bear, and more!
-
-### 💰 **Play-to-Earn Economy**
-- **TAMA Token:** Earn SPL tokens on Solana Devnet
-- **Combo System:** Bonus rewards for consecutive clicks
-- **Daily Quests:** Complete challenges for extra TAMA
-- **Achievements:** Unlock badges and milestones
-
-### 🖼️ **NFT System (3-Tier)**
-- **Bronze NFT (2,500 TAMA or 0.05 SOL):** 2-3x earning boost
-- **Silver NFT (0.1 SOL):** 2.5-3.5x earning boost
-- **Gold NFT (0.2 SOL):** 3-4x earning boost
-- **5 Rarity Levels:** Common → Uncommon → Rare → Epic → Legendary
-- **On-Chain Revenue Distribution:** 40% Burn, 30% Treasury, 30% P2E Pool
-- **Phantom Wallet Integration:** SOL payments on Solana blockchain
-
-### 👥 **Social Features**
-- **Referral System:** Earn 1000 TAMA per friend invited
-- **Global Leaderboard:** Compete with players worldwide
-- **Share Progress:** Post achievements on Telegram
-
-### 🔐 **Unified Authentication System**
-- **Telegram WebApp:** Auto-login from bot
-- **Telegram Widget:** Direct website login
-- **Phantom Wallet:** Connect and link accounts
-- **Profile Management:** Sync data across platforms
-- **Account Linking:** Link Telegram, Wallet, and Twitter
-
-### ⚖️ **Legal & Compliance (Mainnet-Ready)**
-- **Terms of Service:** Complete legal framework for users
-- **Privacy Policy:** GDPR & CCPA compliant data protection
-- **Risk Warning:** SEC-compliant disclaimers and risk disclosures
-- **Consent Modal:** First-time user agreement system
-- **Legal Checkboxes:** Required consent for mint/withdraw operations
-- **Footer Integration:** Legal links on all pages
-- **18+ Age Verification:** Compliant with cryptocurrency regulations
-
----
-
-## 🏗️ Architecture
+## 📁 Project Structure
 
 ```
-┌─────────────────┐
-│  Telegram Bot   │  ← Webhook Mode (Render Web Service)
-│  (@GotchiGameBot)│  ← Keep-Alive (ping every 5 min)
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐      ┌──────────────┐
-│   GitHub Pages  │◄────►│  Render API  │  ← PHP + Apache
-│   (Frontend)    │      │  (Backend)   │  ← Keep-Alive enabled
-└────────┬────────┘      └──────┬───────┘
-         │                      │
-         ▼                      ▼
-┌─────────────────┐      ┌──────────────┐
-│  Solana Devnet  │      │   Supabase   │
-│  (TAMA Token)   │      │  (PostgreSQL)│
-│  (SPL Transfers)│      │  (Database)  │
-└─────────────────┘      └──────────────┘
+C:\goooog\
+├── 📄 Frontend (Root)
+│   ├── index.html              # Landing page
+│   ├── tamagotchi-game.html    # Main game
+│   ├── slots.html              # Lucky Slots
+│   ├── wheel.html              # Lucky Wheel
+│   ├── mint.html               # NFT Minting
+│   ├── marketplace.html        # NFT Marketplace
+│   ├── profile.html            # User Profile
+│   └── ...
+│
+├── 📁 api/                     # Backend API (PHP)
+│   ├── tama_supabase.php       # Main API
+│   ├── telegram_auth.php       # Auth
+│   └── mint-nft-*.php          # NFT minting
+│
+├── 📁 bot/                     # Telegram Bot (Python)
+│   ├── bot.py                  # Main bot
+│   ├── translations.py         # i18n
+│   └── auto_posting.py         # Auto-posts
+│
+├── 📁 admin/                   # Admin Panels
+│   ├── super-admin.html        # Main dashboard
+│   ├── transactions-admin.html # Transactions
+│   ├── treasury-monitor.html   # Treasury
+│   └── ...
+│
+├── 📁 docs/                    # 📚 Documentation
+│   ├── guides/                 # Setup guides
+│   ├── reports/                # Analytics
+│   ├── features/               # Feature docs
+│   ├── colosseum/              # Hackathon
+│   ├── video/                  # Video scripts
+│   └── sora2/                  # AI prompts
+│
+├── 📁 assets/                  # Images & media
+├── 📁 css/                     # Stylesheets
+├── 📁 js/                      # JavaScript
+├── 📁 nft-assets/              # NFT images
+├── 📁 sql/                     # Database scripts
+└── 📁 supabase/                # Database config
 ```
 
-**Key Features:**
-- ✅ **Webhook Mode:** Instant bot responses (no polling)
-- ✅ **Keep-Alive:** Prevents Render Free tier from sleeping (ping every 5 min)
-- ✅ **On-Chain Transactions:** Real SPL token transfers for NFT revenue distribution
-- ✅ **CORS Configured:** Seamless frontend-backend communication
+## 🛠️ Tech Stack
 
----
+- **Frontend**: HTML, CSS, JavaScript
+- **Backend**: PHP (REST API)
+- **Database**: Supabase (PostgreSQL)
+- **Blockchain**: Solana (Devnet)
+- **Bot**: Python (pyTelegramBotAPI)
+- **Hosting**: 
+  - Frontend: GitHub Pages
+  - API: Render
+  - Bot: Render
 
-## 🚀 Quick Start
+## 📖 Documentation
 
-### **For Players:**
+### Quick Start
+- [Quick Start Guide](docs/guides/QUICK_START_DEV.md)
+- [Dev Mode Setup](docs/guides/DEV_MODE_SETUP.md)
+- [Security Setup](docs/guides/SECURITY_SETUP.md)
 
-1. Open Telegram
-2. Search for **[@GotchiGameBot](https://t.me/GotchiGameBot)**
-3. Click `/start`
-4. Press **🎮 Play Game** (opens tamagotchi-game.html)
-5. Start earning TAMA tokens!
+### Features
+- [Jackpot Mechanics](docs/features/JACKPOT_MECHANICS_EXPLAINED.md)
+- [Game Integration](docs/guides/GAME_INTEGRATION_GUIDE.md)
+- [Storage System](docs/guides/STORAGE_EXPLAINED.md)
 
-**🌐 Or play directly in browser:**
-- https://solanatamagotchi.com/tamagotchi-game.html
+### Reports
+- [Analytics Report](docs/reports/ANALYTICS_REPORT.md)
+- [Transaction Audit](docs/reports/TRANSACTION_AUDIT_REPORT.md)
+- [Balance Sync](docs/reports/BALANCE_SYNC.md)
 
-### **For Developers:**
+### Admin
+- [Admin Guide](docs/admin/ADMIN_FINAL_SUMMARY.md)
+- [Password Info](docs/admin/ADMIN_PASSWORD_INFO.md)
 
-#### **Prerequisites:**
-- Node.js 18+
-- Python 3.10+
-- Git
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (for package management)
+- Python 3.9+ (for bot)
+- Supabase account
 - Telegram Bot Token
-- Supabase Account
 
-#### **Installation:**
+### Installation
 
+1. **Clone the repository**
 ```bash
-# Clone repository
 git clone https://github.com/tr1h/huma-chain-xyz.git
 cd huma-chain-xyz
+```
 
-# Install Bot dependencies
+2. **Install dependencies**
+```bash
+npm install
 cd bot
 pip install -r requirements.txt
-
-# Configure environment
-# Create .env file in bot/ directory
-# See PHP_API_SETUP.md for PHP API configuration
 ```
 
-#### **Run Locally:**
-
+3. **Configure environment**
 ```bash
-# Terminal 1: Start PHP API (requires PHP server)
-# Option 1: Using PHP built-in server
-cd api
-php -S localhost:8000 tama_supabase.php
-
-# Option 2: Using XAMPP/WAMP/MAMP
-# Place api/ folder in htdocs/ and access via http://localhost/api/tama_supabase.php
-
-# Terminal 2: Start Bot
-cd bot
-python bot.py
+# Create .env file
+cp .env.example .env
+# Edit .env with your credentials
 ```
 
-**📖 See [PHP_API_SETUP.md](PHP_API_SETUP.md) for detailed PHP API setup instructions.**
-
----
-
-## 📚 Documentation
-
-### **Project Structure:**
-```
-huma-chain-xyz/
-├── 🌐 FRONTEND (GitHub Pages - all in root!)
-│   ├── tamagotchi-game.html  # ⭐ Main game UI (403KB)
-│   ├── telegram-game.html    # Telegram Web App version
-│   ├── mint.html             # NFT Mint page
-│   ├── admin-tokenomics.html # Tokenomics admin panel
-│   ├── super-admin.html      # Super admin panel
-│   ├── referral.html         # Referral system
-│   ├── s.html                # Short link
-│   ├── index.html            # Landing page
-│   └── [10+ more HTML pages]
-│
-├── 🛠️ BACKEND
-│   ├── api/
-│   │   └── tama_supabase.php # PHP API (REST API, withdrawal, mint, send)
-│   │
-│   ├── bot/                  # NOT PUBLISHED (server-only)
-│   │   ├── bot.py            # Telegram Bot (@GotchiGameBot)
-│   │   └── start_bot.ps1     # PowerShell launch script
-│   │
-│   └── sql/
-│       └── update_burn_stats_function.sql
-│
-├── 🔧 CONFIG
-│   ├── package.json
-│   ├── tokenomics.json       # Tokenomics parameters
-│   └── *.json               # Keypairs (not published!)
-│
-└── 📚 DOCUMENTATION (.docs/)
-    ├── README.md             # This file
-    ├── ADDRESSES_AND_ALLOCATIONS.md  # All addresses and allocations
-    ├── VESTING_STREAM_ID.md  # Team vesting info
-    ├── TOKENOMICS_FINAL.md   # Tokenomics guide
-    └── [20+ more docs]
-```
-
-### **Key Files:**
-- **Game Logic:** `tamagotchi-game.html` (in root!)
-- **Telegram Bot:** `bot/bot.py`
-- **API Server:** `api/tama_supabase.php`
-- **Token Info:** `tama-token-info.json`
-- **Admin Panel:** `admin-tokenomics.html`
-- **Tokenomics Dashboard:** `admin-tokenomics.html` (real-time stats)
-
-### **📖 Additional Documentation:**
-- **[Tokenomics & Distribution](.docs/ADDRESSES_AND_ALLOCATIONS.md)** - Complete token distribution breakdown
-- **[Vesting Information](.docs/VESTING_STREAM_ID.md)** - Team tokens vesting details
-- **[Tokenomics Guide](.docs/TOKENOMICS_FINAL.md)** - Full tokenomics explanation
-- **[Next Steps Plan](.docs/NEXT_STEPS_PLAN.md)** - Roadmap and future plans
-
----
-
-## 🪙 TAMA Token
-
-### **Token Details:**
-```json
-{
-  "name": "Solana Tamagotchi",
-  "symbol": "TAMA",
-  "mint": "Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY",
-  "decimals": 9,
-  "supply": "1,000,000,000 TAMA",
-  "network": "devnet"
-}
-```
-
-**[View on Solana Explorer →](https://explorer.solana.com/address/Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY?cluster=devnet)**
-
----
-
-### **💰 Tokenomics & Distribution**
-
-#### **Total Supply:** 1,000,000,000 TAMA
-
-| Category | Amount | Percentage | Status | Description |
-|----------|--------|-------------|--------|-------------|
-| **P2E Pool** | 400,000,000 | 40% | ✅ Active | Play-to-Earn rewards pool (5.5 years distribution) |
-| **Team** | 200,000,000 | 20% | 🔒 Locked | Team allocation (vesting 4 years, 6-month cliff) |
-| **Marketing** | 150,000,000 | 15% | ✅ Active | Marketing & partnerships |
-| **Liquidity** | 100,000,000 | 10% | 🔒 Locked | DEX liquidity (Raydium, Jupiter) |
-| **Community** | 100,000,000 | 10% | ✅ Active | Community rewards & airdrops |
-| **Reserve** | 50,000,000 | 5% | 🔒 Locked | Reserve fund (emergency) |
-
-#### **🔒 Team Tokens Vesting (Transparency)**
-
-**Stream ID:** `3tEskbJxeGyz4svTYAUscMiHghriZ2U7Ug6XLBeK82jm`
-
-- **Amount:** 200,000,000 TAMA (20%)
-- **Duration:** 4 years (48 months)
-- **Cliff:** 6 months (0% unlocked during cliff)
-- **Start Date:** May 6, 2026
-- **End Date:** May 4, 2030
-- **Recipient:** `AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR`
-
-**[View Vesting Stream on Solscan →](https://solscan.io/account/3tEskbJxeGyz4svTYAUscMiHghriZ2U7Ug6XLBeK82jm?cluster=devnet)**
-
-**Why Vesting?**
-- ✅ Protects investors from team dumping
-- ✅ Ensures long-term commitment
-- ✅ Standard practice in DeFi projects
-- ✅ Fully transparent on blockchain
-
-#### **💧 P2E Pool Distribution**
-
-The 400M TAMA pool is distributed over **5.5 years** with halving schedule:
-
-- **Year 1 H1:** 200M TAMA (Daily: 800K/day)
-- **Year 1 H2:** 100M TAMA (Daily: 392K/day)
-- **Year 2 H1:** 50M TAMA (Daily: 200K/day)
-- **Year 2 H2:** 25M TAMA (Daily: 98K/day)
-- **Year 3+:** Gradual reduction
-
-**Fee Recycling:**
-- 60% of withdrawal fees → Burned
-- 30% of withdrawal fees → Back to P2E Pool
-- 10% of withdrawal fees → Team
-
-This ensures **infinite mining** after the initial 5.5 years!
-
-#### **🔒 Locked Pools**
-
-- **Liquidity (100M):** Locked for DEX liquidity provision (mainnet: DEX lock)
-- **Reserve (50M):** Locked for emergency use (mainnet: Multi-sig wallet)
-
-**Full transparency:** All addresses and allocations are publicly verifiable on-chain.
-
----
-
-## 🔧 Configuration
-
-### **Environment Variables:**
-
-#### **API (`api/.env`):**
-```env
-PORT=8002
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_service_key
-TAMA_MINT_ADDRESS=Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY
-```
-
-#### **Bot (`bot/.env`):**
-```env
-TELEGRAM_BOT_TOKEN=your_bot_token
-BOT_USERNAME=GotchiGameBot
-GAME_URL=https://solanatamagotchi.com/tamagotchi-game.html
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_anon_key
-```
-
----
-
-## 🛠️ Deployment
-
-### **Frontend (GitHub Pages):**
-1. Push to `main` branch
-2. GitHub Actions auto-deploys
-3. **Live URLs:**
-   - 🎮 **Game:** https://solanatamagotchi.com/tamagotchi-game.html
-   - 🎨 **Mint NFT:** https://solanatamagotchi.com/mint.html
-   - 🖼️ **My NFTs:** https://solanatamagotchi.com/my-nfts.html
-   - 👤 **Profile:** https://solanatamagotchi.com/profile.html
-   - 📊 **Tokenomics Dashboard:** https://solanatamagotchi.com/admin-tokenomics.html
-   - 🔐 **Auth Admin:** https://solanatamagotchi.com/admin-auth.html
-   - 🏆 **Super Admin:** https://solanatamagotchi.com/super-admin.html
-   - 🔗 **Referral:** https://solanatamagotchi.com/referral.html
-   - 🏠 **Landing:** https://solanatamagotchi.com/
-   - ⚖️ **Terms of Service:** https://solanatamagotchi.com/terms
-   - 🔒 **Privacy Policy:** https://solanatamagotchi.com/privacy
-   - ⚠️ **Risk Warning:** https://solanatamagotchi.com/disclaimer
-   - 📖 **Whitepaper:** https://solanatamagotchi.com/whitepaper
-
-### **Backend (PHP API):**
+4. **Run locally**
 ```bash
-# Start PHP API server
-cd api
-.\start_api.ps1
-
-# API will be available at:
-# http://localhost:8002/api/tama
+# Frontend: Open index.html in browser
+# API: Deploy to Render or local PHP server
+# Bot: python bot/bot.py
 ```
 
-**API Endpoints:**
-- `GET /api/tama/test` - Health check
-- `GET /api/tama/balance?telegram_id=XXX` - Get user balance
-- `POST /api/tama/withdrawal/request` - Request withdrawal
-- `GET /api/tama/withdrawal/history?telegram_id=XXX` - Withdrawal history
-- `POST /api/tama/mint` - Mint new tokens (admin)
-- `POST /api/tama/send` - Send tokens (admin)
-- `GET /api/tama/holders` - List all token holders
-- `GET /api/tama/pools` - Pool distribution stats
+## 🎮 How to Play
 
-### **Backend API (Render):**
+1. **Start**: Open [@gotchigamebot](https://t.me/gotchigamebot) in Telegram
+2. **Play**: Click "Play Game" to start
+3. **Earn**: Play mini-games, care for your pet, complete quests
+4. **Mint**: Buy NFT pets to boost earnings (2x-5x)
+5. **Withdraw**: Connect wallet to withdraw TAMA
 
-**Live API:** https://api.solanatamagotchi.com/api/tama
+## 📊 Game Stats
 
-**Deployment:**
-1. Connect GitHub repo to Render
-2. Set environment variables (see `render.yaml`)
-3. Auto-deploys on push to `main`
-4. Apache + PHP 8.2 + Solana CLI
+- **Total Transactions**: 60,000+
+- **Active Users**: 14+
+- **NFTs Minted**: 104
+- **Total TAMA Earned**: 2,455 TAMA
+- **Total TAMA Spent**: 315,000 TAMA
 
-**Environment Variables:**
-```env
-SUPABASE_URL=https://zfrazyupameidxpjihrh.supabase.co
-SUPABASE_KEY=your_service_key
-TAMA_MINT_ADDRESS=Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY
-SOLANA_RPC_URL=https://api.devnet.solana.com
-SOLANA_PAYER_KEYPAIR={"keypair":"json"}
-SOLANA_P2E_POOL_KEYPAIR={"keypair":"json"}
-```
+## 🔗 Links
 
-### **Bot (Render Web Service - Webhook Mode):**
-
-**Live Bot:** https://huma-chain-xyz-bot.onrender.com
-
-**Deployment:**
-1. Connect GitHub repo to Render
-2. Set service type: **Web Service** (not Worker!)
-3. Set environment variables (see `render.yaml`)
-4. Auto-deploys on push to `main`
-
-**Environment Variables:**
-```env
-TELEGRAM_BOT_TOKEN=your_bot_token
-BOT_USERNAME=GotchiGameBot
-GAME_URL=https://solanatamagotchi.com/tamagotchi-game.html?v=20251113
-RENDER_EXTERNAL_HOSTNAME=bot.solanatamagotchi.com
-RENDER=true  # Enables Keep-Alive
-TAMA_API_BASE=https://api.solanatamagotchi.com/api/tama
-SUPABASE_URL=your_url
-SUPABASE_KEY=your_anon_key
-```
-
-**Keep-Alive Feature:**
-- Pings bot health endpoint every 5 minutes
-- Pings API health endpoint every 5 minutes
-- Prevents Render Free tier from sleeping
-- Logs: "✅ Keep-Alive: Bot pinged successfully"
-
-**See [.docs/KEEP_ALIVE_SETUP.md](.docs/KEEP_ALIVE_SETUP.md) for detailed guide.**
-
----
-
-## 📊 Database Schema
-
-### **Supabase Tables:**
-
-#### **`leaderboard`:**
-```sql
-- id (bigint, PK)
-- telegram_id (text)
-- wallet_address (text)
-- tama (numeric)
-- level (int)
-- xp (int)
-- pet_name (text)
-- pet_type (text)
-- pet_data (jsonb)
-- updated_at (timestamp)
-```
-
-#### **`user_nfts`:**
-```sql
-- id (bigint, PK)
-- telegram_id (text)
-- wallet_address (text)
-- mint_address (text)
-- pet_type (text)
-- rarity (text)
-- cost_tama (numeric)
-- cost_sol (numeric)
-- created_at (timestamp)
-```
-
-#### **`transactions`:**
-```sql
-- id (bigint, PK)
-- telegram_id (text)
-- amount (numeric)
-- type (text)
-- description (text)
-- created_at (timestamp)
-```
-
----
+- **Website**: [solanatamagotchi.com](https://solanatamagotchi.com)
+- **Telegram Bot**: [@gotchigamebot](https://t.me/gotchigamebot)
+- **Twitter**: [@GotchiGame](https://twitter.com/GotchiGame)
+- **Community**: [Telegram Chat](https://t.me/gotchigamechat)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## 📝 License
 
----
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 ## 🙏 Acknowledgments
 
-- **Solana Foundation** - For the amazing blockchain platform
-- **Telegram** - For the Bot API and Mini Apps framework
-- **Supabase** - For the backend infrastructure
-- **Render.com** - For API and bot hosting
+- Built for Colosseum Hackathon
+- Powered by Solana blockchain
+- Inspired by classic Tamagotchi games
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/tr1h/huma-chain-xyz/issues)
+- **Email**: support@solanatamagotchi.com
+- **Telegram**: [@gotchigamechat](https://t.me/gotchigamechat)
 
 ---
 
-## 📊 Project Status
-
-### **✅ Completed:**
-- ✅ Full-stack game (Web + Telegram Bot)
-- ✅ TAMA SPL Token on Solana Devnet
-- ✅ 3-Tier NFT system (Bronze/Silver/Gold)
-- ✅ On-chain revenue distribution (SPL transfers)
-- ✅ 2-level referral system
-- ✅ Tokenomics dashboard (real-time stats)
-- ✅ Team tokens vesting (4 years, 6-month cliff)
-- ✅ Token distribution (all pools allocated)
-- ✅ Withdrawal system (real Solana transactions)
-- ✅ PHP API (REST API, withdrawal, admin functions)
-- ✅ Webhook mode for bot (instant responses)
-- ✅ Keep-Alive system (prevents sleeping)
-- ✅ Unified Authentication System (Telegram, Wallet, Twitter)
-- ✅ Profile Management Page
-- ✅ Admin Auth Panel (users, wallets, sessions, analytics)
-- ✅ Contact & Support Section
-- ✅ **Legal Documents (Nov 29, 2025):**
-  - ✅ Terms of Service (12 sections, comprehensive legal framework)
-  - ✅ Privacy Policy (GDPR & CCPA compliant)
-  - ✅ Risk Warning (SEC-compliant disclaimers)
-  - ✅ Consent Modal (first-time user agreement)
-  - ✅ Legal Checkboxes (mint/withdraw consent)
-  - ✅ Footer integration (all pages)
-  - ✅ Telegram bot integration (legal links in welcome)
-
-### **🚀 Current Status:**
-- **Devnet:** ✅ Fully operational
-- **Mainnet:** ✅ **READY FOR LAUNCH** (legal compliance complete)
-- **Compliance:** ✅ GDPR, CCPA, SEC-compliant
-
-### **💸 Enhanced Withdrawal System (Nov 2025):**
-- ✅ **Saved Wallets:** Save multiple wallet addresses (like exchanges)
-- ✅ **Confirmation Modal:** Review withdrawal details before confirming
-- ✅ **Progress Indicator:** Real-time withdrawal progress with steps
-- ✅ **Phantom Integration:** Connect Phantom wallet directly
-- ✅ **Withdrawal History:** View all past withdrawals with transaction links
-- ✅ **Minimum:** 1,000 TAMA | **Fee:** 5% | **Real Solana Transactions**
-
-### **📈 Tokenomics:**
-- **Total Supply:** 1,000,000,000 TAMA
-- **Circulating:** Dynamic (based on withdrawals)
-- **P2E Pool:** 400M TAMA (5.5 years distribution)
-- **Team Vesting:** 200M TAMA (locked 4 years)
-- **Fee Recycling:** 60% burn, 30% pool, 10% team
-
----
-
-## 📞 Contact & Support
-
-- **📧 Email:** gotchigame@proton.me
-- **📱 Telegram Bot:** [@GotchiGameBot](https://t.me/GotchiGameBot)
-- **🐦 Twitter/X:** [@GotchiGame](https://x.com/GotchiGame)
-- **🌐 Website:** https://solanatamagotchi.com
-- **💬 Support:** Contact us via Telegram bot or email
-
----
-
-## 🆕 Latest Updates (November 2025)
-
-### **🔐 Unified Authentication System (Nov 2025)**
-- ✅ **Multi-Platform Auth:** Telegram WebApp, Telegram Widget, Phantom Wallet
-- ✅ **Profile Management:** Centralized profile page with account linking
-- ✅ **Account Synchronization:** Sync data across game, website, and bot
-- ✅ **Twitter Integration:** Link Twitter username to profile
-- ✅ **Admin Auth Panel:** Complete user, wallet, and session management
-- ✅ **Analytics Module:** Track user actions and platform statistics
-
-### **💸 Enhanced Withdrawal System (Nov 20, 2025)**
-- ✅ **Saved Wallets:** Save and manage multiple wallet addresses
-- ✅ **Confirmation Modal:** Review withdrawal details before confirming
-- ✅ **Progress Indicator:** Real-time progress bar with step-by-step status
-- ✅ **Phantom Integration:** Direct Phantom wallet connection support
-- ✅ **Withdrawal History:** Complete history with Solscan transaction links
-- ✅ **Improved UX:** Better error handling and user feedback
-
-### **Migration to Render.com**
-- ✅ API migrated from Railway to Render
-- ✅ Bot migrated to Render Web Service (webhook mode)
-- ✅ Keep-Alive implemented (5 min ping interval)
-- ✅ All CORS issues resolved
-
-### **3-Tier NFT System**
-- ✅ Bronze NFT: 2,500 TAMA or 0.05 SOL
-- ✅ Silver NFT: 0.1 SOL (SOL only)
-- ✅ Gold NFT: 0.2 SOL (SOL only)
-- ✅ Random rarity assignment (Common to Legendary)
-- ✅ Earning multipliers: 2-4x boost
-
-### **On-Chain Revenue Distribution**
-- ✅ Bronze TAMA mints: 40% Burn, 30% Treasury, 30% P2E Pool
-- ✅ Real SPL token transfers via `spl-token CLI`
-- ✅ All distributions logged in `transactions` table
-
-### **Infrastructure Improvements**
-- ✅ Webhook mode for instant bot responses
-- ✅ Apache + PHP 8.2 for API stability
-- ✅ Solana CLI integrated in Docker
-- ✅ Environment-based keypair loading
-
-**📚 See [.docs/](.docs/) for detailed documentation:**
-- [KEEP_ALIVE_SETUP.md](.docs/KEEP_ALIVE_SETUP.md) - Keep-Alive configuration
-- [TEST_ALL_ENDPOINTS.md](.docs/TEST_ALL_ENDPOINTS.md) - Testing guide
-- [BRONZE_NFT_ONCHAIN_READY.md](.docs/BRONZE_NFT_ONCHAIN_READY.md) - On-chain distribution
-- [PROJECT_LEVEL_ASSESSMENT.md](.docs/PROJECT_LEVEL_ASSESSMENT.md) - Technical assessment
-
----
-
-<div align="center">
-
-**Made with ❤️ for the Cypherpunk Hackathon 2025**
-
-⭐ Star us on GitHub — it helps!
-
-[🎮 Start Playing](https://t.me/GotchiGameBot) • [📖 Docs](#-documentation) • [🐛 Report Bug](https://github.com/tr1h/huma-chain-xyz/issues)
-
-</div>
+Made with ❤️ by the Solana Tamagotchi Team
