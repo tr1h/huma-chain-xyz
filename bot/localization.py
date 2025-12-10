@@ -647,17 +647,20 @@ Your TAMA is safe! Keep earning! 💰
             'choose_language': {
                 'en': '🌍 **Choose Your Language / Выбери язык**\n\nSelect your preferred language for bot messages:',
                 'ru': '🌍 **Choose Your Language / Выбери язык**\n\nВыбери предпочитаемый язык для сообщений бота:',
-                'zh': '🌍 **选择您的语言 / Choose Your Language**\n\n选择您想要的机器人消息语言：'
+                'zh': '🌍 **选择您的语言 / Choose Your Language**\n\n选择您想要的机器人消息语言：',
+                'es': '🌍 **Elige tu idioma / Choose Your Language**\n\nSelecciona tu idioma preferido para los mensajes del bot:'
             },
             'language_changed': {
                 'en': '✅ Language changed to English!',
                 'ru': '✅ Язык изменён на русский!',
-                'zh': '✅ 语言已更改为中文！'
+                'zh': '✅ 语言已更改为中文！',
+                'es': '✅ ¡Idioma cambiado a Español!'
             },
             'language_command_info': {
                 'en': '💡 You can change language anytime using /language command',
                 'ru': '💡 Ты можешь изменить язык в любое время командой /language',
-                'zh': '💡 您可以随时使用 /language 命令更改语言'
+                'zh': '💡 您可以随时使用 /language 命令更改语言',
+                'es': '💡 Puedes cambiar el idioma en cualquier momento usando el comando /language'
             },
 
             # ERROR MESSAGES
