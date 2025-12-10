@@ -44,11 +44,11 @@ class AutoPoster:
     def post_monday_gm(self):
         """Утренний мотивационный пост (понедельник)"""
         posts = [
-            "GM frens! 🌅\n\nNew week = new opportunities! 💎\n\nSolana Tamagotchi is LIVE on Devnet! 🔗\n\n🎮 ZERO WALLET BARRIER - Play instantly!\n🛒 NFT MARKETPLACE - Buy/Sell with TAMA or SOL\n🔥 2,000 $TAMA burned every NFT mint\n💰 Real SPL token distribution\n🎨 Metaplex-powered NFTs on Arweave\n\nWho's trading today? 👇\n\n#SolanaNFT #P2E #Solana #Marketplace",
+            "🌅 GM Gotchi Fam!\n\n💰 **New week, new TAMA to earn!**\n\nThis week's highlights:\n• 🎰 Lucky Slots - Jackpot pool GROWING! Try x100 win!\n• 🎡 Lucky Wheel - Spin for massive multipliers!\n• 🎁 Daily rewards with streak bonuses\n• 🔗 Invite friends = 1,000 TAMA each\n• 🏆 Compete on leaderboards\n\n**Start playing NOW!** → @GotchiGameBot 🐾\n\n#GotchiGame #PlayToEarn #SolanaNFT #MondayMotivation",
             
-            "GM Solana fam! 🌞\n\nStart your week right! 🚀\n\n✨ Play Solana Tamagotchi (no wallet needed!)\n✨ Earn real $TAMA tokens\n✨ Mint unique NFTs\n✨ Trade on Marketplace (TAMA + SOL)\n\nAll 100% on-chain and transparent! 🔗\n\nPlay now: https://t.me/GotchiGameBot\nMarketplace: https://solanatamagotchi.com/marketplace.html\n\n#Solana #Web3Gaming #P2E #ZeroWalletBarrier",
+            "GM Solana fam! 🌞\n\nStart your week with BIG WINS! 🚀\n\n✨ Lucky Slots - Shared Jackpot Pool!\n✨ Lucky Wheel - Up to 50x multiplier!\n✨ Provably Fair - Every spin verified!\n✨ Connect Wallet - Play with Solana!\n✨ FREE to play - No wallet needed!\n\nAll 100% transparent! 🔗\n\nPlay now: @GotchiGameBot\n\n#Solana #Web3Gaming #P2E #LuckySlots",
             
-            "GM! Ready for a productive week? 💪\n\nSolana Tamagotchi offers:\n🎮 FREE to start - ZERO wallet barrier!\n💰 Earn $TAMA by playing\n🎨 Mint NFTs with TAMA\n🛒 Buy/Sell NFTs with TAMA OR SOL\n🔥 Every mint = automatic burn\n✅ Verified on Solscan\n\nStart earning today! 👇\nhttps://t.me/GotchiGameBot\n\n#Solana #PlayToEarn #Marketplace"
+            "GM! Ready for a productive week? 💪\n\nSolana Tamagotchi offers:\n🎰 Lucky Slots with x100 Jackpot!\n🎡 Lucky Wheel with 50x multiplier!\n🎮 Tamagotchi clicker game\n💰 Earn real $TAMA tokens\n🎨 Mint NFTs for 2x-5x boost\n💳 Wallet support (Phantom/Solflare)\n🔥 Provably Fair system\n\nStart earning today! 👇\nhttps://t.me/GotchiGameBot\n\n#Solana #PlayToEarn #CryptoGaming"
         ]
         self.post_to_channel(random.choice(posts))
     
@@ -80,15 +80,21 @@ class AutoPoster:
     
     def post_tuesday_tokenomics(self):
         """Объяснение токеномики (вторник)"""
-        text = "💎 TOKENOMICS EXPLAINED 💎\n\n"
-        text += "When you mint NFT with TAMA:\n\n"
-        text += "🔥 40% → Burn (reduces supply)\n"
-        text += "💰 30% → Treasury (development)\n"
-        text += "🎮 30% → P2E Pool (player rewards)\n\n"
-        text += "Every mint makes TAMA more valuable! 📈\n\n"
-        text += "All transactions are 100% on-chain:\n"
-        text += "https://solanatamagotchi.com/treasury-monitor.html\n\n"
-        text += "#Tokenomics #Transparency #Solana"
+        text = "📊 **Tech Tuesday: TAMA Tokenomics**\n\n"
+        text += "Understanding $TAMA token:\n\n"
+        text += "💰 **How to earn TAMA:**\n"
+        text += "• 🎰 Lucky Slots - Jackpot up to x100!\n"
+        text += "• 🎡 Lucky Wheel - Spin for 50x multiplier!\n"
+        text += "• 🐾 Tamagotchi - Click & earn daily!\n"
+        text += "• 🔗 Referrals - 1,000 TAMA per friend!\n"
+        text += "• 🎁 Daily Rewards - Streak bonuses!\n\n"
+        text += "🔥 **Token utility:**\n"
+        text += "• Play all games with TAMA\n"
+        text += "• Mint NFT pets (boost earnings 2x-5x!)\n"
+        text += "• 💳 Connect wallet - play with Solana!\n"
+        text += "• Withdraw to wallet ✅\n\n"
+        text += "**Start earning TODAY!** → @GotchiGameBot 🚀\n\n"
+        text += "#Tokenomics #TAMA #GotchiGame #Solana"
         self.post_to_channel(text)
     
     def post_tuesday_onchain_proof(self):
