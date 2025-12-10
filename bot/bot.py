@@ -277,19 +277,6 @@ def get_user_language(user_id):
         except Exception as lb_error:
             # Field might not exist in leaderboard table - this is OK
             print(f"⚠️ Could not get language from leaderboard (field might not exist): {lb_error}")
-
-        # Fallback to telegram_users
-        try:
-            response = supabase.table('telegram_users') \
-                .select('preferred_language') \
-                .eq('telegram_id', str(user_id)) \
-                .execute()
-
-            if response.data and len(response.data) > 0:
-                return response.data[0].get('preferred_language')
-        except Exception as tu_error:
-            # Field might not exist in telegram_users table - this is OK
-            print(f"⚠️ Could not get language from telegram_users (field might not exist): {tu_error}")
     except Exception as e:
         print(f"❌ Error getting user language: {e}")
 
@@ -320,18 +307,7 @@ def save_user_language(user_id, lang):
             print(f"✅ Saved language '{lang}' for user {user_id} in leaderboard")
         except Exception as lb_error:
             print(f"⚠️ Could not save to leaderboard: {lb_error}")
-
-        # Also save to telegram_users if it exists
-        try:
-            telegram_users_update = supabase.table('telegram_users') \
-                .upsert({
-                    'telegram_id': str(user_id),
-                    'preferred_language': lang
-                }, on_conflict='telegram_id') \
-                .execute()
-            print(f"✅ Saved language '{lang}' for user {user_id} in telegram_users")
-        except Exception as tu_error:
-            print(f"⚠️ Could not save to telegram_users: {tu_error}")
+            return False
 
         return True
     except Exception as e:
