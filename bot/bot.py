@@ -706,11 +706,17 @@ def handle_group_message(message):
 
     # IMPORTANT: Ignore messages from the bot itself!
     if message.from_user.is_bot:
+        print(f"✅ Bot message ignored (is_bot=True): {message.from_user.username or message.from_user.id}")
         return
 
     # 🛡️ IGNORE ADMINS - they can spam for testing/management
     if user_id in ADMIN_IDS:
         print(f"✅ Admin message ignored: {user_id}")
+        return
+    
+    # 🛡️ IGNORE @gotchigamebot specifically (extra safety check)
+    if message.from_user.username and message.from_user.username.lower() == 'gotchigamebot':
+        print(f"✅ @gotchigamebot message ignored")
         return
 
     # FAQ AUTO-RESPONSE (process BEFORE anti-spam for admins too)
