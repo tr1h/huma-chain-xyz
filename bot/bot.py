@@ -3575,7 +3575,7 @@ def show_user_rank(message):
         if next_rank:
             refs_needed = next_rank[1]['min_refs'] - total_refs
             if lang == 'ru':
-            text += f"""
+                text += f"""
 📋 **Следующий ранг:** {next_rank[1]['name']}
 🎯 **Нужно:** {refs_needed} рефералов
 """
