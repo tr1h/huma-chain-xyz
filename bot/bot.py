@@ -1484,12 +1484,19 @@ def send_big_win_alert(telegram_id, username, first_name, win_amount, multiplier
 🎰 Try your luck: /slots
         """
 
-        # Send to channel only (not spam group)
+        # Send to channel
         try:
             bot.send_message(CHANNEL_USERNAME, alert_text, parse_mode='Markdown')
             print(f"✅ Big win alert sent to channel: {win_amount} TAMA (x{multiplier})")
         except Exception as e:
-            print(f"⚠️ Failed to send big win alert: {e}")
+            print(f"⚠️ Failed to send to channel: {e}")
+
+        # Send to group chat (важно для сообщества!)
+        try:
+            bot.send_message(GROUP_ID, alert_text, parse_mode='Markdown')
+            print(f"✅ Big win alert sent to group: {win_amount} TAMA (x{multiplier})")
+        except Exception as e:
+            print(f"⚠️ Failed to send to group: {e}")
 
     except Exception as e:
         print(f"❌ Error sending big win alert: {e}")
