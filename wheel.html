@@ -929,9 +929,19 @@
                     // Add to history
                     addToHistory(multiplier, winAmount, currentBet);
 
-                    // IMPORTANT: Re-enable button BEFORE API call (don't wait for it)
+                    // CRITICAL: Re-enable button IMMEDIATELY (don't wait for API)
                     isSpinning = false;
-                    document.getElementById('spin-btn').disabled = false;
+                    const spinBtn = document.getElementById('spin-btn');
+                    if (spinBtn) {
+                        spinBtn.disabled = false;
+                    }
+
+                    // Update balance on server with win amount (bet already deducted) - async, don't block
+                    if (winAmount > 0) {
+                        updateBalanceOnServer(winAmount).catch(err => {
+                            console.error('Error updating balance:', err);
+                        });
+                    }
 
                     // Update balance on server with win amount (bet already deducted) - async, don't block
                     if (winAmount > 0) {
