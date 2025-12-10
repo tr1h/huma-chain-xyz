@@ -192,9 +192,83 @@ def get_button_text(lang, button_key):
             'copy': '📋 复制代码',
             'mint': '🎨 铸造 NFT',
             'view_website': '🌐 在网站上查看'
+        },
+        'es': {
+            'back': '🔙 Atrás',
+            'referral': '🔗 Referidos',
+            'share': '📤 Compartir',
+            'copy': '📋 Copiar código',
+            'mint': '🎨 Mintear NFT',
+            'view_website': '🌐 Ver en sitio web'
         }
     }
     return buttons.get(lang, buttons['en']).get(button_key, button_key)
+
+
+def get_no_badges_text(lang):
+    """Get 'no badges yet' text"""
+    texts = {
+        'en': 'No badges yet. Play and invite friends!',
+        'ru': 'Пока нет значков. Играй и приглашай друзей!',
+        'zh': '还没有徽章。玩游戏和邀请朋友!',
+        'es': '¡Aún no tienes insignias. Juega e invita amigos!'
+    }
+    return texts.get(lang, texts['en'])
+
+
+def get_rank_text(lang, rank_emoji, rank_name, total_refs, next_rank_name, refs_needed):
+    """Get translated rank text"""
+    if lang == 'ru':
+        return f"""
+{rank_emoji} **Твой ранг: {rank_name}**
+
+📊 **Статистика:**
+• Рефералов: {total_refs}
+• Требуется для {next_rank_name}: {refs_needed}
+
+🎯 **Продолжай приглашать друзей!**
+        """
+    elif lang == 'zh':
+        return f"""
+{rank_emoji} **您的等级: {rank_name}**
+
+📊 **统计:**
+• 推荐数: {total_refs}
+• 达到 {next_rank_name} 需要: {refs_needed}
+
+🎯 **继续邀请朋友!**
+        """
+    elif lang == 'es':
+        return f"""
+{rank_emoji} **Tu rango: {rank_name}**
+
+📊 **Estadísticas:**
+• Referidos: {total_refs}
+• Necesarios para {next_rank_name}: {refs_needed}
+
+🎯 **¡Sigue invitando amigos!**
+        """
+    else:
+        return f"""
+{rank_emoji} **Your Rank: {rank_name}**
+
+📊 **Stats:**
+• Referrals: {total_refs}
+• Needed for {next_rank_name}: {refs_needed}
+
+🎯 **Keep inviting friends!**
+        """
+
+
+def get_quests_header(lang):
+    """Get quests header text"""
+    texts = {
+        'en': '📋 **Referral Quests**\n\n',
+        'ru': '📋 **Реферальные квесты**\n\n',
+        'zh': '📋 **推荐任务**\n\n',
+        'es': '📋 **Misiones de Referidos**\n\n'
+    }
+    return texts.get(lang, texts['en'])
 
 
 def get_nfts_text(lang, nft_count, tama_balance, best_multiplier, nft_list, telegram_id, mint_url):
