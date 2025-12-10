@@ -51,6 +51,7 @@ except Exception as e:
 # Import localization system (RU/EN support)
 try:
     from localization import t, detect_language
+    from submenu_translations import get_stats_text, get_referral_text, get_badges_text, get_button_text
     from language_selector import (
         create_language_keyboard,
         get_language_selection_message,
