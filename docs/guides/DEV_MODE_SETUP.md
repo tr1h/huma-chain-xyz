@@ -29,7 +29,7 @@ BOT_TOKEN = [удалить]
 **Вариант 2: Переименовать (временно отключить)**
 
 ```
-BOT_TOKEN_DISABLED = 8445221254:AAFrU1iE4xVnpGmimWecjO5YHTISrI4xiI8
+BOT_TOKEN_DISABLED = YOUR_BOT_TOKEN_HERE
 ```
 
 ### 3. Сохрани изменения
@@ -99,7 +99,7 @@ Render автоматически перезапустит API.
 
 ```
 AUTH_MODE=dev  # dev или production
-BOT_TOKEN=8445221254:AAFrU1iE4xVnpGmimWecjO5YHTISrI4xiI8
+BOT_TOKEN=YOUR_BOT_TOKEN_HERE
 ```
 
 В `api/telegram_auth.php`:
