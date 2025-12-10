@@ -5942,11 +5942,21 @@ if __name__ == '__main__':
         """Handle incoming updates from Telegram"""
         try:
             json_string = request.get_data().decode('utf-8')
+            print(f"📨 Received webhook update: {len(json_string)} bytes")
             update = telebot.types.Update.de_json(json_string)
+            
+            if update.message:
+                print(f"💬 Message from {update.message.from_user.id}: {update.message.text[:50] if update.message.text else 'No text'}")
+            elif update.callback_query:
+                print(f"🔘 Callback from {update.callback_query.from_user.id}: {update.callback_query.data[:50]}")
+            
             bot.process_new_updates([update])
+            print("✅ Update processed successfully")
             return '', 200
         except Exception as e:
             print(f"❌ Webhook error: {e}")
+            import traceback
+            traceback.print_exc()
             return '', 500
 
     # Health check endpoint (для Railway/Render)
@@ -6048,10 +6058,26 @@ if __name__ == '__main__':
     try:
         # Get Railway/Render public URL from environment
         WEBHOOK_HOST = os.getenv('RAILWAY_PUBLIC_DOMAIN') or os.getenv('RENDER_EXTERNAL_HOSTNAME')
+        
+        # Fallback: try to get from RENDER environment (Render sets this automatically)
+        if not WEBHOOK_HOST and os.getenv('RENDER'):
+            # Render automatically sets RENDER_EXTERNAL_URL
+            render_url = os.getenv('RENDER_EXTERNAL_URL')
+            if render_url:
+                # Extract hostname from URL (e.g., https://huma-chain-xyz-bot.onrender.com)
+                from urllib.parse import urlparse
+                parsed = urlparse(render_url)
+                WEBHOOK_HOST = parsed.netloc
+                print(f"📡 Detected Render hostname: {WEBHOOK_HOST}")
 
         if WEBHOOK_HOST:
             WEBHOOK_URL = f"https://{WEBHOOK_HOST}/{TOKEN}"
             webhook_info = bot.get_webhook_info()
+            
+            print(f"🔍 Current webhook info:")
+            print(f"   URL: {webhook_info.url}")
+            print(f"   Pending updates: {webhook_info.pending_update_count}")
+            print(f"   Last error: {webhook_info.last_error_message if webhook_info.last_error_message else 'None'}")
 
             if webhook_info.url != WEBHOOK_URL:
                 print(f"🔗 Setting webhook to: {WEBHOOK_URL}")
@@ -6059,13 +6085,23 @@ if __name__ == '__main__':
                 time.sleep(1)
                 bot.set_webhook(url=WEBHOOK_URL)
                 print("✅ Webhook set successfully!")
+                
+                # Verify webhook was set
+                time.sleep(1)
+                verify_info = bot.get_webhook_info()
+                print(f"✅ Verified webhook: {verify_info.url}")
+                if verify_info.pending_update_count > 0:
+                    print(f"⚠️ WARNING: {verify_info.pending_update_count} pending updates!")
             else:
                 print(f"✅ Webhook already set: {webhook_info.url}")
         else:
             print("⚠️ No WEBHOOK_HOST found - webhook not set (use RAILWAY_PUBLIC_DOMAIN or RENDER_EXTERNAL_HOSTNAME)")
+            print("⚠️ Bot will NOT receive updates without webhook!")
 
     except Exception as e:
         print(f"❌ Error setting webhook: {e}")
+        import traceback
+        traceback.print_exc()
 
     # Run Flask app (Railway/Render will provide PORT)
     PORT = int(os.getenv('PORT', 8080))
