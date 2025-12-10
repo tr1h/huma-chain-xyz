@@ -326,7 +326,7 @@
     <div id="howtoplay-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto;" onclick="closeHowToPlay()">
         <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); margin: 20px auto; max-width: 600px; padding: 20px; border-radius: 15px; color: white;" onclick="event.stopPropagation()">
             <h2 style="text-align: center; color: #FFD700; margin-bottom: 20px;">📖 How to Play Lucky Wheel</h2>
-            
+
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
                 <h3 style="color: #8AC926; margin-bottom: 10px;">🎯 Objective:</h3>
                 <p style="line-height: 1.6; font-size: 14px;">
@@ -418,7 +418,7 @@
     <div id="provably-fair-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto;" onclick="closeProvablyFair()">
         <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); margin: 20px auto; max-width: 600px; padding: 20px; border-radius: 15px; color: white;" onclick="event.stopPropagation()">
             <h2 style="text-align: center; color: #FFD700; margin-bottom: 20px;">✅ Provably Fair Wheel</h2>
-            
+
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                 <h3 style="color: #8AC926; margin-bottom: 10px;">🎡 How It Works:</h3>
                 <p style="line-height: 1.6; font-size: 14px;">
@@ -695,7 +695,7 @@
                     const data = await response.json();
                     balance = data.total_tama || data.database_tama || data.balance || 0;
                     document.getElementById('balance').textContent = formatNumber(balance);
-                    
+
                     if (userId && userId !== '123456789') {
                         localStorage.setItem('telegram_user_id', userId);
                     }
@@ -749,7 +749,7 @@
         function updateHistoryDisplay() {
             const historyList = document.getElementById('history-list');
             if (!historyList) return;
-            
+
             if (spinHistory.length === 0) {
                 historyList.innerHTML = '<div class="loading">No spins yet</div>';
                 return;
@@ -761,7 +761,7 @@
                 const betAmount = item.bet || 0;
                 const netProfit = winAmount - betAmount;
                 const isWin = netProfit > 0;
-                
+
                 return `
                     <div class="history-item">
                         <div>${multiplier}x → ${item.win.toLocaleString()} TAMA</div>
@@ -803,7 +803,7 @@
             initAudio();
             isSpinning = true;
             document.getElementById('spin-btn').disabled = true;
-            
+
             // Deduct bet via API
             const betResponse = await updateBalanceOnServer(-currentBet);
             if (!betResponse || betResponse.error) {
@@ -841,23 +841,23 @@
                     // Calculate result - POINTER IS AT TOP = 270° (3π/2)
                     const normalizedRotation = ((rotation % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2);
                     const segmentAngle = (Math.PI * 2) / segments.length;
-                    
+
                     // Pointer is at TOP of circle = 270° = 3π/2 (or -π/2)
                     // In canvas, arc() angles: 0° = right, 90° = bottom, 180° = left, 270° = top
                     const pointerAngle = 3 * Math.PI / 2; // 270° - top of circle
-                    
+
                     // Calculate relative angle from current rotation to pointer
                     const relativeAngle = ((pointerAngle - normalizedRotation) + 2 * Math.PI) % (2 * Math.PI);
-                    
+
                     // Find which segment is at this angle
                     let segmentIndex = Math.floor(relativeAngle / segmentAngle);
-                    
+
                     // Ensure valid index
                     segmentIndex = segmentIndex % segments.length;
                     if (segmentIndex < 0) segmentIndex += segments.length;
-                    
+
                     const multiplier = segments[segmentIndex].multiplier;
-                    
+
                     // Debug log
                     console.log('🎡 Wheel result:', {
                         rotation: normalizedRotation.toFixed(4),
@@ -927,33 +927,66 @@
         }
 
         // Update balance on server
-        async function updateBalanceOnServer(netProfit) {
+        async function updateBalanceOnServer(amount) {
             try {
-                // Send net profit (bet already deducted, win already added locally)
-                // netProfit = winAmount - betAmount
-                const response = await fetch(`${API_BASE}/balance`, {
+                const initData = window.Telegram?.WebApp?.initData || '';
+                
+                const requestBody = {
+                    telegram_id: String(userId),
+                    amount: amount,
+                    bet: amount < 0 ? Math.abs(amount) : 0,
+                    win: amount > 0 ? amount : 0,
+                    symbols: ['🎡', '🎡', '🎡'],
+                    init_data: initData
+                };
+
+                // Add wallet_address if wallet user
+                if (userId.startsWith('wallet_') && walletAddress) {
+                    requestBody.wallet_address = walletAddress;
+                }
+
+                const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegram_id: userId,
-                        amount: netProfit,
-                        type: netProfit > 0 ? 'wheel_win' : (netProfit < 0 ? 'wheel_spin' : 'wheel_break_even')
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (response.ok) {
-                    // Sync balance from server response
                     const data = await response.json();
-                    if (data.total_tama || data.database_tama || data.balance) {
+                    if (data.balance !== undefined || data.total_tama !== undefined) {
                         balance = data.total_tama || data.database_tama || data.balance || balance;
                         document.getElementById('balance').textContent = formatNumber(balance);
                         console.log('✅ Balance synced with server:', balance);
+                        return data;
                     }
                 } else {
-                    console.warn('Failed to update balance on server');
+                    console.error('Failed to update balance on server:', response.status);
+                    return { error: `API returned ${response.status}` };
                 }
             } catch (error) {
                 console.error('Error updating balance:', error);
+                return { error: error.message };
+            }
+        }
+
+        // Show result message helper
+        function showResult(message, multiplier) {
+            const resultBox = document.getElementById('result');
+            resultBox.textContent = message;
+            
+            // Color based on result
+            if (multiplier >= 10) {
+                resultBox.style.color = '#FFD700'; // Gold
+            } else if (multiplier >= 5) {
+                resultBox.style.color = '#8b5cf6'; // Purple
+            } else if (multiplier >= 2) {
+                resultBox.style.color = '#10b981'; // Green
+            } else if (multiplier === 1) {
+                resultBox.style.color = '#6b7280'; // Gray
+            } else if (multiplier === 0) {
+                resultBox.style.color = '#ff6b6b'; // Red
+            } else {
+                resultBox.style.color = '#fff'; // White
             }
         }
 
@@ -1017,10 +1050,10 @@
             for (const spin of recent) {
                 const div = document.createElement('div');
                 div.style.cssText = 'padding: 8px; margin-bottom: 5px; background: rgba(255,255,255,0.05); border-radius: 5px; display: flex; justify-content: space-between;';
-                
+
                 const netProfit = (spin.win || 0) - (spin.bet || 0);
                 const color = netProfit > 0 ? '#8AC926' : '#ff6b6b';
-                
+
                 div.innerHTML = `
                     <span>${spin.multiplier}x</span>
                     <span>Bet: ${(spin.bet || 0).toLocaleString()}</span>
