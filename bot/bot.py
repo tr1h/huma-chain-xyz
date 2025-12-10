@@ -3376,11 +3376,11 @@ def claim_daily_reward(message):
                     milestone_text = "\n\n👑 **МЕСЯЦ!** Ты легенда!"
             else:
                 if streak_days == 7:
-                milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
-            elif streak_days == 14:
-                milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
-            elif streak_days == 30:
-                milestone_text = "\n\n👑 **MONTH!** You're a legend!"
+                    milestone_text = "\n\n🎉 **WEEK MILESTONE!** 7 days in a row!"
+                elif streak_days == 14:
+                    milestone_text = "\n\n🔥 **2 WEEKS!** Incredible streak!"
+                elif streak_days == 30:
+                    milestone_text = "\n\n👑 **MONTH!** You're a legend!"
 
             if lang == 'ru':
                 text = f"""
