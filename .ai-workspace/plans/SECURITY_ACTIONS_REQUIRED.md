@@ -13,6 +13,7 @@
 **Старый токен скомпрометирован:** `8445221254:AAFrU1iE4xVnpGmimWecjO5YHTISrI4xiI8`
 
 **Действия:**
+
 1. Зайти в [@BotFather](https://t.me/BotFather)
 2. Выбрать своего бота
 3. Нажать `/revoke` - отозвать старый токен
@@ -24,6 +25,7 @@
 **Возможно скомпрометирован:** Service Key из `.docs/RENDER_FIX_401.md`
 
 **Действия:**
+
 1. Зайти в Supabase Dashboard
 2. Settings → API
 3. Проверить, используется ли Service Key в публичных файлах
@@ -35,6 +37,7 @@
 **Возможно в index.html:** `AIza...`
 
 **Действия:**
+
 1. Зайти в Google Cloud Console
 2. APIs & Services → Credentials
 3. Проверить ключ
@@ -68,4 +71,3 @@
 
 **Дата:** 10.12.2025
 **Статус:** ⚠️ Требуется действие
-
