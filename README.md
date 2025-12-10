@@ -83,7 +83,7 @@ C:\goooog\
 - **Database**: Supabase (PostgreSQL)
 - **Blockchain**: Solana (Devnet)
 - **Bot**: Python (pyTelegramBotAPI)
-- **Hosting**: 
+- **Hosting**:
   - Frontend: GitHub Pages
   - API: Render
   - Bot: Render
