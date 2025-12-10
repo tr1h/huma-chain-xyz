@@ -1266,7 +1266,7 @@ def handle_language_selection_callback(call):
 def send_welcome(message):
     try:
         print(f"📩 send_welcome called for user {message.from_user.id}")
-        
+
         # Determine user language
         lang = determine_user_language(message)
         print(f"🌍 Language determined: {lang}")
@@ -1304,7 +1304,7 @@ def send_welcome(message):
 
         # Use new translation system for welcome message
         print(f"📝 Getting welcome text translation...")
-        welcome_text = tr('welcome_no_referral', lang)
+        welcome_text = t('welcome_no_referral', lang)
         print(f"✅ Welcome text loaded: {len(welcome_text) if welcome_text else 0} chars")
         welcome_text = f"{balance_text}\n\n{welcome_text}"
     except Exception as setup_error:
