@@ -264,26 +264,34 @@ def get_user_language(user_id):
     """
     try:
         # Try leaderboard first (main user table)
-        response = supabase.table('leaderboard') \
-            .select('preferred_language') \
-            .eq('telegram_id', str(user_id)) \
-            .execute()
+        try:
+            response = supabase.table('leaderboard') \
+                .select('preferred_language') \
+                .eq('telegram_id', str(user_id)) \
+                .execute()
 
-        if response.data and len(response.data) > 0:
-            lang = response.data[0].get('preferred_language')
-            if lang:
-                return lang
+            if response.data and len(response.data) > 0:
+                lang = response.data[0].get('preferred_language')
+                if lang:
+                    return lang
+        except Exception as lb_error:
+            # Field might not exist in leaderboard table - this is OK
+            print(f"⚠️ Could not get language from leaderboard (field might not exist): {lb_error}")
 
         # Fallback to telegram_users
-        response = supabase.table('telegram_users') \
-            .select('preferred_language') \
-            .eq('telegram_id', str(user_id)) \
-            .execute()
+        try:
+            response = supabase.table('telegram_users') \
+                .select('preferred_language') \
+                .eq('telegram_id', str(user_id)) \
+                .execute()
 
-        if response.data and len(response.data) > 0:
-            return response.data[0].get('preferred_language')
+            if response.data and len(response.data) > 0:
+                return response.data[0].get('preferred_language')
+        except Exception as tu_error:
+            # Field might not exist in telegram_users table - this is OK
+            print(f"⚠️ Could not get language from telegram_users (field might not exist): {tu_error}")
     except Exception as e:
-        print(f"Error getting user language: {e}")
+        print(f"❌ Error getting user language: {e}")
 
     return None
 
@@ -5944,12 +5952,12 @@ if __name__ == '__main__':
             json_string = request.get_data().decode('utf-8')
             print(f"📨 Received webhook update: {len(json_string)} bytes")
             update = telebot.types.Update.de_json(json_string)
-            
+
             if update.message:
                 print(f"💬 Message from {update.message.from_user.id}: {update.message.text[:50] if update.message.text else 'No text'}")
             elif update.callback_query:
                 print(f"🔘 Callback from {update.callback_query.from_user.id}: {update.callback_query.data[:50]}")
-            
+
             bot.process_new_updates([update])
             print("✅ Update processed successfully")
             return '', 200
@@ -6058,7 +6066,7 @@ if __name__ == '__main__':
     try:
         # Get Railway/Render public URL from environment
         WEBHOOK_HOST = os.getenv('RAILWAY_PUBLIC_DOMAIN') or os.getenv('RENDER_EXTERNAL_HOSTNAME')
-        
+
         # Fallback: try to get from RENDER environment (Render sets this automatically)
         if not WEBHOOK_HOST and os.getenv('RENDER'):
             # Render automatically sets RENDER_EXTERNAL_URL
@@ -6073,7 +6081,7 @@ if __name__ == '__main__':
         if WEBHOOK_HOST:
             WEBHOOK_URL = f"https://{WEBHOOK_HOST}/{TOKEN}"
             webhook_info = bot.get_webhook_info()
-            
+
             print(f"🔍 Current webhook info:")
             print(f"   URL: {webhook_info.url}")
             print(f"   Pending updates: {webhook_info.pending_update_count}")
@@ -6085,7 +6093,7 @@ if __name__ == '__main__':
                 time.sleep(1)
                 bot.set_webhook(url=WEBHOOK_URL)
                 print("✅ Webhook set successfully!")
-                
+
                 # Verify webhook was set
                 time.sleep(1)
                 verify_info = bot.get_webhook_info()
