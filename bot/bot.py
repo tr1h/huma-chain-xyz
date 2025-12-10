@@ -105,8 +105,8 @@ except Exception as e:
 # Group settings
 GROUP_ID = int(os.getenv('GROUP_ID', '-1002938566588'))  # @gotchigamechat group ID
 
-# Admin IDs (add your Telegram ID)
-ADMIN_IDS = [int(x) for x in os.getenv('ADMIN_IDS', '7401131043').split(',') if x.strip()]
+# Admin IDs (add your Telegram ID) - Bot will IGNORE messages from these users in groups
+ADMIN_IDS = [int(x) for x in os.getenv('ADMIN_IDS', '7401131043,202140267').split(',') if x.strip()]
 
 # Group IDs that are exempt from anti-spam
 EXEMPT_GROUP_IDS = [int(x) for x in os.getenv('EXEMPT_GROUP_IDS', '-1002938566588').split(',') if x.strip()]  # @gotchigamechat group ID
