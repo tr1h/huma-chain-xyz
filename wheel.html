@@ -888,7 +888,7 @@
 
                     // Update balance on server with win amount (bet already deducted)
                     if (winAmount > 0) {
-                        await updateBalanceOnServer(winAmount);
+                        updateBalanceOnServer(winAmount); // Fire and forget - don't block animation
                     }
 
                     // Play sound and show result
