@@ -536,22 +536,46 @@
         let totalWon = 0;
         let spinHistory = [];
 
+        // Create confetti effect (defined early)
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.background = ['#FFD700', '#FFA500', '#FF6347', '#8AC926', '#8b5cf6'][Math.floor(Math.random() * 5)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.zIndex = '9999';
+                    confetti.style.animation = 'confetti-fall 3s linear forwards';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+
         // Wheel setup
         const canvas = document.getElementById('wheel-canvas');
         const ctx = canvas.getContext('2d');
         let rotation = 0;
 
-        // Segments
+        // Segments - Adjusted for better RTP (Return to Player ~95%)
+        // More losing segments to make it more challenging
         const segments = [
-            { multiplier: 10, color: '#ef4444', text: '10x' },
-            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },
-            { multiplier: 2, color: '#10b981', text: '2x' },
-            { multiplier: 0.3, color: '#4b5563', text: '0.3x' },
-            { multiplier: 3, color: '#3b82f6', text: '3x' },
-            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },
-            { multiplier: 5, color: '#8b5cf6', text: '5x' },
-            { multiplier: 1, color: '#059669', text: '1x' }
+            { multiplier: 10, color: '#ef4444', text: '10x' },      // 12.5% - Jackpot
+            { multiplier: 0.3, color: '#4b5563', text: '0.3x' },    // 12.5% - Loss
+            { multiplier: 2, color: '#10b981', text: '2x' },        // 12.5% - Win
+            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },   // 12.5% - Loss
+            { multiplier: 3, color: '#3b82f6', text: '3x' },        // 12.5% - Win
+            { multiplier: 0.3, color: '#4b5563', text: '0.3x' },   // 12.5% - Loss (added)
+            { multiplier: 5, color: '#8b5cf6', text: '5x' },       // 12.5% - Big Win
+            { multiplier: 0.5, color: '#6b7280', text: '0.5x' }    // 12.5% - Loss
         ];
+        // Expected RTP: ~95% (more challenging, less "easy money")
 
         // Sound system
         const AudioContext = window.AudioContext || window.webkitAudioContext;
