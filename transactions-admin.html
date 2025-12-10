@@ -360,6 +360,26 @@
             color: #fff;
         }
 
+        .type-slots-bet {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .type-slots-win {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .type-wheel-bet {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .type-wheel-win {
+            background: #8b5cf6;
+            color: #fff;
+        }
+
         .amount-positive {
             color: #10b981;
             font-weight: bold;
@@ -594,6 +614,10 @@
                     <option value="">All Types</option>
                     <option value="earn">Earn</option>
                     <option value="spend">Spend</option>
+                    <option value="slots_bet">🎰 Slots Bet</option>
+                    <option value="slots_win">🎰 Slots Win</option>
+                    <option value="wheel_bet">🎡 Wheel Bet</option>
+                    <option value="wheel_win">🎡 Wheel Win</option>
                     <option value="spend_shop">🛒 Shop Purchases</option>
                     <option value="spend_skin">🎨 Skin Purchases</option>
                     <option value="nft">NFT Mint</option>
@@ -1009,6 +1033,10 @@
 
                 // Type badge color
                 const typeClass = t.type.startsWith('earn') ? 'type-earn' :
+                                 t.type === 'slots_bet' ? 'type-slots-bet' :
+                                 t.type === 'slots_win' ? 'type-slots-win' :
+                                 t.type === 'wheel_bet' ? 'type-wheel-bet' :
+                                 t.type === 'wheel_win' ? 'type-wheel-win' :
                                  t.type === 'nft_mint_tama' ? 'type-nft-tama' :
                                  t.type === 'nft_mint_sol' ? 'type-nft-sol' :
                                  t.type === 'nft_mint' ? 'type-spend' :

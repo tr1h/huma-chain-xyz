@@ -4743,7 +4743,11 @@ function handleSlotsSpin($url, $key) {
         }
 
         // Log transaction
-        $transactionType = $amount < 0 ? 'slots_bet' : 'slots_win';
+        // 🎮 Determine game type from symbols (wheel uses 🎡, slots uses other symbols)
+        $isWheelGame = isset($symbols[0]) && $symbols[0] === '🎡';
+        $gameType = $isWheelGame ? 'wheel' : 'slots';
+        $transactionType = $amount < 0 ? "{$gameType}_bet" : "{$gameType}_win";
+        
         $transactionData = [
             'telegram_id' => $telegramId,
             'amount' => $amount,
@@ -4757,7 +4761,7 @@ function handleSlotsSpin($url, $key) {
                 'jackpot_contribution' => $jackpotContribution,
                 'symbols' => $symbols,
                 'is_jackpot' => $isJackpot,
-                'game' => 'slots',
+                'game' => $gameType,
                 'user_type' => $isWalletUser ? 'wallet' : 'telegram'
             ])
         ];
