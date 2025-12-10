@@ -5378,7 +5378,7 @@ Please try again later!
     elif call.data == "my_stats_detailed":
         # Detailed stats with gamification
         telegram_id = str(call.from_user.id)
-
+        
         # Get user language
         lang = get_user_language(call.from_user.id) or 'en'
 
@@ -5396,82 +5396,14 @@ Please try again later!
 
         badges_count = len(user_badges)
 
-        # Localized texts
-        if lang == 'ru':
-            text = f"""
-📊 **Полная статистика**
-
-💰 **Баланс TAMA:** {total_tama:,}
-{rank_data['emoji']} **Ранг:** {rank_data['name']}
-
-👥 **Рефералы:**
-• Приглашено: {total_refs}
-• Активных: {ref_response.count or 0}
-• Ожидают: {pending_response.count or 0}
-
-🔥 **Активность:**
-• Серия входов: {streak_days} дн.
-• Получено значков: {badges_count}
-
-📈 **Прогресс:**
-{"▓" * min(total_refs % 10, 10)}{"░" * max(10 - (total_refs % 10), 0)}
-
-💰 **Продолжай играть и приглашать друзей!**
-            """
-            btn_referral = "🔗 Реферальная"
-            btn_back = "🔙 Назад"
-        elif lang == 'zh':
-            text = f"""
-📊 **完整统计**
-
-💰 **TAMA 余额:** {total_tama:,}
-{rank_data['emoji']} **等级:** {rank_data['name']}
-
-👥 **推荐:**
-• 邀请总数: {total_refs}
-• 活跃: {ref_response.count or 0}
-• 待定: {pending_response.count or 0}
-
-🔥 **活动:**
-• 连续登录: {streak_days} 天
-• 获得徽章: {badges_count}
-
-📈 **进度:**
-{"▓" * min(total_refs % 10, 10)}{"░" * max(10 - (total_refs % 10), 0)}
-
-💰 **继续玩游戏和邀请朋友!**
-            """
-            btn_referral = "🔗 推荐"
-            btn_back = "🔙 返回"
-        else:
-            text = f"""
-📊 **Your Full Stats**
-
-💰 **TAMA Balance:** {total_tama:,}
-{rank_data['emoji']} **Rank:** {rank_data['name']}
-
-👥 **Referrals:**
-• Total invited: {total_refs}
-• Active: {ref_response.count or 0}
-• Pending: {pending_response.count or 0}
-
-🔥 **Activity:**
-• Login streak: {streak_days} days
-• Badges earned: {badges_count}
-
-📈 **Progress:**
-{"▓" * min(total_refs % 10, 10)}{"░" * max(10 - (total_refs % 10), 0)}
-
-💰 **Keep playing and inviting friends!**
-            """
-            btn_referral = "🔗 Referral"
-            btn_back = "🔙 Back"
+        # Use translation module
+        text = get_stats_text(lang, total_tama, rank_data, total_refs, ref_response.count or 0, pending_response.count or 0, streak_days, badges_count)
 
         keyboard = types.InlineKeyboardMarkup()
         keyboard.row(
-            types.InlineKeyboardButton(btn_referral, callback_data="get_referral")
+            types.InlineKeyboardButton(get_button_text(lang, 'referral'), callback_data="get_referral")
         )
-        keyboard.row(types.InlineKeyboardButton(btn_back, callback_data="back_to_menu"))
+        keyboard.row(types.InlineKeyboardButton(get_button_text(lang, 'back'), callback_data="back_to_menu"))
 
         safe_edit_message_text(text, call.message.chat.id, call.message.message_id,
                             parse_mode='Markdown', reply_markup=keyboard)
