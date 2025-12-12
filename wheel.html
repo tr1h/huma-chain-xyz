@@ -330,10 +330,10 @@
         <div class="bet-section">
             <div class="bet-label">Choose your bet:</div>
             <div class="bet-buttons">
-                <button class="bet-btn active" onclick="setBet(500)">
+                <button class="bet-btn active" onclick="setBet(500, this)">
                     💵 500 TAMA
                 </button>
-                <button class="bet-btn" onclick="setBet(1000)">
+                <button class="bet-btn" onclick="setBet(1000, this)">
                     💎 1,000 TAMA
                 </button>
             </div>
@@ -783,10 +783,17 @@
         }
 
         // Set bet
-        function setBet(amount) {
+        function setBet(amount, clickedButton) {
             currentBet = amount;
             document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            
+            // If called from button click, highlight it
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            } else if (window.event && window.event.target) {
+                window.event.target.classList.add('active');
+            }
+            
             document.getElementById('spin-cost').textContent = amount.toLocaleString();
 
             // Clear custom input
@@ -1065,7 +1072,7 @@
             // Spin sound
             const spinInterval = setInterval(() => sounds.spin(), 200);
 
-            function animate() {
+            async function animate() {
                 const elapsed = Date.now() - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 const easeOut = 1 - Math.pow(1 - progress, 3);
