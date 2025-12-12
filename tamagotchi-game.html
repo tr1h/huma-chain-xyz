@@ -4750,6 +4750,11 @@
                     <div class="game-card-name">TAMA COLOR MATCH</div>
                     <div class="game-card-cost">50-300 TAMA | Memory Game | Win: up to 5x!</div>
                 </div>
+                <div class="game-card" data-game="shooter" style="background: linear-gradient(135deg, #1e40af, #1e3a8a); cursor: pointer;">
+                    <div class="game-card-icon">🚀</div>
+                    <div class="game-card-name">TAMA SHOOTER</div>
+                    <div class="game-card-cost">100-500 TAMA | 10 Waves | Win: up to 3x!</div>
+                </div>
             </div>
 
             <!-- Game Arenas (will be shown when game is selected) -->
@@ -9093,6 +9098,13 @@
                 if (gameName === 'colormatch') {
                     const userId = window.TELEGRAM_USER_ID || '';
                     window.open(`/tama-color-match.html?user_id=${userId}`, '_blank');
+                    return;
+                }
+
+                // For shooter - open tama-shooter.html
+                if (gameName === 'shooter') {
+                    const userId = window.TELEGRAM_USER_ID || '';
+                    window.open(`/tama-shooter.html?user_id=${userId}`, '_blank');
                     return;
                 }
 
@@ -14016,6 +14028,13 @@ ${link}`;
             if (game === 'colormatch') {
                 const userId = window.TELEGRAM_USER_ID || '';
                 window.open(`/tama-color-match.html?user_id=${userId}`, '_blank');
+                return;
+            }
+
+            // Для shooter - открываем tama-shooter.html
+            if (game === 'shooter') {
+                const userId = window.TELEGRAM_USER_ID || '';
+                window.open(`/tama-shooter.html?user_id=${userId}`, '_blank');
                 return;
             }
 

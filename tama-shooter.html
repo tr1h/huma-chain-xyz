@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🚀 TAMA SHOOTER - Space Invaders</title>
+    
+    <!-- Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a3e 0%, #0a0a1a 100%);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 3px solid #00ff88;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .title {
+            font-size: 28px;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .exit-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .game-canvas-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: linear-gradient(180deg, #000 0%, #0a0a1a 100%);
+        }
+
+        .controls {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .control-section {
+            margin-bottom: 15px;
+        }
+
+        .bet-label {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .bet-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .bet-btn {
+            padding: 10px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .bet-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .bet-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .bet-btn.selected {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        }
+
+        .start-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .start-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.7);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 15px;
+        }
+
+        .game-over-overlay.show {
+            display: flex;
+        }
+
+        .game-over-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .game-over-stats {
+            font-size: 18px;
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-win {
+            color: #00ff88;
+        }
+
+        .result-lose {
+            color: #ef4444;
+        }
+
+        .mobile-hint {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .title {
+                font-size: 20px;
+            }
+
+            .bet-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-value {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title">🚀 TAMA SHOOTER</div>
+            <button class="exit-btn" onclick="goBack()">✕ EXIT</button>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-label">Balance</div>
+                <div class="stat-value" id="balance">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Wave</div>
+                <div class="stat-value" id="wave">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Lives</div>
+                <div class="stat-value" id="lives">3</div>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <div class="game-canvas-wrapper">
+            <canvas id="game-canvas" width="800" height="600"></canvas>
+            
+            <!-- Game Over Overlay -->
+            <div class="game-over-overlay" id="game-over">
+                <div class="game-over-title" id="game-over-title">GAME OVER</div>
+                <div class="game-over-stats" id="game-over-stats"></div>
+                <button class="start-btn" onclick="location.reload()">🔄 PLAY AGAIN</button>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="control-section">
+                <div class="bet-label">Select Bet:</div>
+                <div class="bet-buttons">
+                    <button class="bet-btn" data-bet="100">100 TAMA</button>
+                    <button class="bet-btn" data-bet="200">200 TAMA</button>
+                    <button class="bet-btn" data-bet="300">300 TAMA</button>
+                    <button class="bet-btn" data-bet="500">500 TAMA</button>
+                </div>
+            </div>
+            <button class="start-btn" id="start-btn">🚀 START GAME</button>
+            <div class="mobile-hint">💡 Move: Touch/Mouse | Shoot: Auto</div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // API Configuration
+        const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+
+        // Get user ID
+        function getUserId() {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) {
+                    return String(user.id);
+                }
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            const userIdFromUrl = urlParams.get('user_id');
+            if (userIdFromUrl) return userIdFromUrl;
+            const saved = localStorage.getItem('telegram_user_id');
+            if (saved) return saved;
+            return '123456789';
+        }
+
+        let userId = getUserId();
+        let balance = 0;
+        let selectedBet = 0;
+
+        // Load balance
+        async function loadBalance() {
+            try {
+                const response = await fetch(`${API_BASE}/balance?telegram_id=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    balance = data.total_tama || data.database_tama || data.balance || 0;
+                    document.getElementById('balance').textContent = balance.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Failed to load balance:', error);
+            }
+        }
+
+        // Update balance
+        async function updateBalance(amount, description = '') {
+            try {
+                const initData = window.Telegram?.WebApp?.initData || '';
+                const response = await fetch(`${API_BASE}/slots/spin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: String(userId),
+                        amount: amount,
+                        bet: amount < 0 ? Math.abs(amount) : 0,
+                        win: amount > 0 ? amount : 0,
+                        symbols: ['🚀', '🚀', '🚀'],
+                        init_data: initData,
+                        description: description
+                    })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.balance !== undefined || data.total_tama !== undefined) {
+                        balance = data.total_tama || data.database_tama || data.balance || balance;
+                        document.getElementById('balance').textContent = balance.toLocaleString();
+                        return data;
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating balance:', error);
+            }
+            return null;
+        }
+
+        function goBack() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.close();
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        // 🚀 SPACE SHOOTER GAME
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const game = {
+            width: 800,
+            height: 600,
+            isRunning: false,
+            isPaused: false,
+            score: 0,
+            wave: 0,
+            lives: 3,
+            betAmount: 0,
+            enemiesKilled: 0,
+            
+            player: null,
+            bullets: [],
+            enemies: [],
+            particles: [],
+            powerups: [],
+            
+            keys: {},
+            mouseX: canvas.width / 2,
+            
+            init() {
+                // Bet selection
+                document.querySelectorAll('.bet-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (this.isRunning) return;
+                        document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        this.betAmount = parseInt(btn.dataset.bet);
+                    });
+                });
+
+                // Mouse/Touch controls
+                canvas.addEventListener('mousemove', (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    this.mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+                });
+
+                canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const rect = canvas.getBoundingClientRect();
+                    const touch = e.touches[0];
+                    this.mouseX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+                });
+
+                // Start button
+                document.getElementById('start-btn').addEventListener('click', () => {
+                    this.startGame();
+                });
+
+                // Keyboard
+                window.addEventListener('keydown', (e) => {
+                    this.keys[e.key] = true;
+                    if (e.key === ' ') e.preventDefault();
+                });
+                window.addEventListener('keyup', (e) => {
+                    this.keys[e.key] = false;
+                });
+            },
+
+            startGame() {
+                if (this.isRunning) return;
+                if (!this.betAmount) {
+                    alert('Please select a bet!');
+                    return;
+                }
+                if (balance < this.betAmount) {
+                    alert('Not enough TAMA!');
+                    return;
+                }
+
+                // Deduct bet
+                balance -= this.betAmount;
+                document.getElementById('balance').textContent = balance.toLocaleString();
+                updateBalance(-this.betAmount, 'TAMA Shooter game entry');
+
+                // Reset game
+                this.isRunning = true;
+                this.score = 0;
+                this.wave = 0;
+                this.lives = 3;
+                this.enemiesKilled = 0;
+                this.bullets = [];
+                this.enemies = [];
+                this.particles = [];
+                this.powerups = [];
+
+                // Create player
+                this.player = {
+                    x: canvas.width / 2,
+                    y: canvas.height - 60,
+                    width: 40,
+                    height: 40,
+                    speed: 5,
+                    shootCooldown: 0,
+                    shootDelay: 15
+                };
+
+                // Disable controls
+                document.querySelectorAll('.bet-btn').forEach(btn => btn.disabled = true);
+                document.getElementById('start-btn').disabled = true;
+
+                // Update UI
+                this.updateUI();
+
+                // Start first wave
+                this.nextWave();
+
+                // Start game loop
+                this.gameLoop();
+            },
+
+            nextWave() {
+                this.wave++;
+                document.getElementById('wave').textContent = this.wave;
+
+                // Spawn enemies
+                const enemyCount = 5 + this.wave * 2;
+                const rows = Math.min(3 + Math.floor(this.wave / 2), 5);
+                const cols = Math.ceil(enemyCount / rows);
+
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        this.enemies.push({
+                            x: 50 + col * 80,
+                            y: 50 + row * 60,
+                            width: 40,
+                            height: 40,
+                            speed: 0.5 + this.wave * 0.1,
+                            direction: 1,
+                            health: 1 + Math.floor(this.wave / 3),
+                            maxHealth: 1 + Math.floor(this.wave / 3),
+                            shootCooldown: Math.random() * 120
+                        });
+                    }
+                }
+            },
+
+            gameLoop() {
+                if (!this.isRunning) return;
+
+                this.update();
+                this.draw();
+
+                requestAnimationFrame(() => this.gameLoop());
+            },
+
+            update() {
+                if (this.isPaused) return;
+
+                // Update player position
+                if (this.keys['ArrowLeft'] || this.keys['a']) {
+                    this.player.x -= this.player.speed;
+                }
+                if (this.keys['ArrowRight'] || this.keys['d']) {
+                    this.player.x += this.player.speed;
+                }
+
+                // Mouse control
+                this.player.x = this.mouseX;
+
+                // Keep player in bounds
+                this.player.x = Math.max(this.player.width / 2, Math.min(canvas.width - this.player.width / 2, this.player.x));
+
+                // Auto shoot
+                this.player.shootCooldown--;
+                if (this.player.shootCooldown <= 0) {
+                    this.bullets.push({
+                        x: this.player.x,
+                        y: this.player.y - 20,
+                        width: 4,
+                        height: 15,
+                        speed: 8,
+                        damage: 1
+                    });
+                    this.player.shootCooldown = this.player.shootDelay;
+                }
+
+                // Update bullets
+                this.bullets.forEach((bullet, index) => {
+                    bullet.y -= bullet.speed;
+                    if (bullet.y < -bullet.height) {
+                        this.bullets.splice(index, 1);
+                    }
+                });
+
+                // Update enemies
+                let moveDown = false;
+                this.enemies.forEach(enemy => {
+                    enemy.x += enemy.speed * enemy.direction;
+                    
+                    if (enemy.x <= 0 || enemy.x >= canvas.width - enemy.width) {
+                        moveDown = true;
+                    }
+                });
+
+                if (moveDown) {
+                    this.enemies.forEach(enemy => {
+                        enemy.direction *= -1;
+                        enemy.y += 20;
+                    });
+                }
+
+                // Enemy shooting
+                this.enemies.forEach(enemy => {
+                    enemy.shootCooldown--;
+                    if (enemy.shootCooldown <= 0 && Math.random() < 0.01) {
+                        // Enemy bullet (implement if needed)
+                        enemy.shootCooldown = 120;
+                    }
+                });
+
+                // Check bullet-enemy collisions
+                this.bullets.forEach((bullet, bIndex) => {
+                    this.enemies.forEach((enemy, eIndex) => {
+                        if (bullet.x > enemy.x - enemy.width / 2 &&
+                            bullet.x < enemy.x + enemy.width / 2 &&
+                            bullet.y < enemy.y + enemy.height / 2 &&
+                            bullet.y > enemy.y - enemy.height / 2) {
+                            
+                            enemy.health -= bullet.damage;
+                            this.bullets.splice(bIndex, 1);
+
+                            if (enemy.health <= 0) {
+                                this.enemies.splice(eIndex, 1);
+                                this.score += 10;
+                                this.enemiesKilled++;
+                                this.createExplosion(enemy.x, enemy.y);
+                            }
+                        }
+                    });
+                });
+
+                // Check if wave is complete
+                if (this.enemies.length === 0 && this.isRunning) {
+                    if (this.wave < 10) {
+                        setTimeout(() => this.nextWave(), 1500);
+                    } else {
+                        this.winGame();
+                    }
+                }
+
+                // Check if enemies reached bottom
+                this.enemies.forEach(enemy => {
+                    if (enemy.y > canvas.height - 100) {
+                        this.loseLife();
+                    }
+                });
+
+                // Update particles
+                this.particles.forEach((p, index) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life--;
+                    if (p.life <= 0) {
+                        this.particles.splice(index, 1);
+                    }
+                });
+
+                this.updateUI();
+            },
+
+            draw() {
+                // Clear canvas
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw stars (background)
+                ctx.fillStyle = '#ffffff';
+                for (let i = 0; i < 50; i++) {
+                    const x = (i * 123) % canvas.width;
+                    const y = (i * 456 + Date.now() / 20) % canvas.height;
+                    ctx.fillRect(x, y, 2, 2);
+                }
+
+                // Draw player
+                ctx.fillStyle = '#00ff88';
+                ctx.beginPath();
+                ctx.moveTo(this.player.x, this.player.y - 20);
+                ctx.lineTo(this.player.x - 20, this.player.y + 20);
+                ctx.lineTo(this.player.x + 20, this.player.y + 20);
+                ctx.closePath();
+                ctx.fill();
+
+                // Draw bullets
+                ctx.fillStyle = '#00ff88';
+                this.bullets.forEach(bullet => {
+                    ctx.fillRect(bullet.x - bullet.width / 2, bullet.y, bullet.width, bullet.height);
+                });
+
+                // Draw enemies
+                this.enemies.forEach(enemy => {
+                    // Enemy body
+                    ctx.fillStyle = `rgb(${255 - enemy.health * 50}, 50, ${50 + enemy.health * 50})`;
+                    ctx.fillRect(enemy.x - enemy.width / 2, enemy.y - enemy.height / 2, enemy.width, enemy.height);
+                    
+                    // Enemy eyes
+                    ctx.fillStyle = '#ff0000';
+                    ctx.fillRect(enemy.x - 10, enemy.y - 5, 8, 8);
+                    ctx.fillRect(enemy.x + 2, enemy.y - 5, 8, 8);
+                });
+
+                // Draw particles
+                ctx.fillStyle = '#ffaa00';
+                this.particles.forEach(p => {
+                    ctx.globalAlpha = p.life / 30;
+                    ctx.fillRect(p.x, p.y, 3, 3);
+                });
+                ctx.globalAlpha = 1;
+            },
+
+            createExplosion(x, y) {
+                for (let i = 0; i < 10; i++) {
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        life: 30
+                    });
+                }
+            },
+
+            loseLife() {
+                this.lives--;
+                document.getElementById('lives').textContent = this.lives;
+                
+                if (this.lives <= 0) {
+                    this.gameOver();
+                } else {
+                    // Clear enemies at bottom
+                    this.enemies = this.enemies.filter(e => e.y <= canvas.height - 100);
+                }
+            },
+
+            winGame() {
+                this.isRunning = false;
+
+                // Calculate reward
+                const baseReward = this.betAmount * 2;
+                const scoreBonus = Math.floor(this.score / 10);
+                const waveBonus = this.wave * 50;
+                const totalReward = baseReward + scoreBonus + waveBonus;
+
+                // Update balance
+                balance += totalReward;
+                document.getElementById('balance').textContent = balance.toLocaleString();
+                updateBalance(totalReward, `TAMA Shooter: Wave ${this.wave}, Score ${this.score}, ${this.enemiesKilled} kills`);
+
+                // Show result
+                this.showGameOver(true, totalReward);
+            },
+
+            gameOver() {
+                this.isRunning = false;
+
+                // Calculate partial reward
+                const killReward = this.enemiesKilled * 5;
+                const waveReward = (this.wave - 1) * 20;
+                const totalReward = Math.max(0, killReward + waveReward);
+
+                if (totalReward > 0) {
+                    balance += totalReward;
+                    document.getElementById('balance').textContent = balance.toLocaleString();
+                    updateBalance(totalReward, `TAMA Shooter: Wave ${this.wave}, ${this.enemiesKilled} kills`);
+                }
+
+                // Show result
+                this.showGameOver(false, totalReward);
+            },
+
+            showGameOver(win, reward) {
+                const overlay = document.getElementById('game-over');
+                const title = document.getElementById('game-over-title');
+                const stats = document.getElementById('game-over-stats');
+
+                if (win) {
+                    title.textContent = '🏆 VICTORY!';
+                    title.className = 'game-over-title result-win';
+                    stats.innerHTML = `
+                        <strong>Waves Completed:</strong> ${this.wave}/10<br>
+                        <strong>Enemies Killed:</strong> ${this.enemiesKilled}<br>
+                        <strong>Score:</strong> ${this.score}<br>
+                        <strong>Reward:</strong> +${reward} TAMA<br>
+                        <strong>Net:</strong> <span class="result-win">+${reward - this.betAmount} TAMA</span>
+                    `;
+                } else {
+                    title.textContent = '💀 GAME OVER';
+                    title.className = 'game-over-title result-lose';
+                    stats.innerHTML = `
+                        <strong>Wave Reached:</strong> ${this.wave}<br>
+                        <strong>Enemies Killed:</strong> ${this.enemiesKilled}<br>
+                        <strong>Score:</strong> ${this.score}<br>
+                        <strong>Reward:</strong> ${reward} TAMA<br>
+                        <strong>Net:</strong> <span class="result-lose">${reward - this.betAmount} TAMA</span>
+                    `;
+                }
+
+                overlay.classList.add('show');
+
+                // Reset controls
+                document.querySelectorAll('.bet-btn').forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('selected');
+                });
+                document.getElementById('start-btn').disabled = false;
+            },
+
+            updateUI() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('wave').textContent = this.wave;
+                document.getElementById('lives').textContent = this.lives;
+            }
+        };
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBalance();
+            game.init();
+        });
+    </script>
+</body>
+</html>
+
