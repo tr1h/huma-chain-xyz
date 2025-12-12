@@ -1492,22 +1492,30 @@
 
         // Spin the slots
         async function spin() {
+            // CRITICAL: Check spinning flag FIRST and set it IMMEDIATELY
             if (isSpinning) {
                 console.log('⚠️ Spin already in progress, ignoring click');
                 return;
+            }
+            
+            // Set flag IMMEDIATELY to prevent double-clicks
+            isSpinning = true;
+            const spinBtn = document.getElementById('spin-btn');
+            if (spinBtn) {
+                spinBtn.disabled = true;
             }
 
             // Check balance (use current local balance, API will validate)
             if (balance < currentBet) {
                 showResult('❌ Insufficient balance!', false);
+                isSpinning = false;
+                if (spinBtn) spinBtn.disabled = false;
                 return;
             }
 
             // Initialize audio on first interaction
             initAudio();
-
-            isSpinning = true;
-            document.getElementById('spin-btn').disabled = true;
+            
             hideResult();
 
             // Update balance in backend (deduct bet) - API will return updated balance
