@@ -415,10 +415,19 @@
             document.getElementById('house-edge').textContent = houseEdge + '%';
             document.getElementById('jackpots-won').textContent = jackpotsWon;
 
-            // Load jackpot pool from localStorage (simulated)
-            const jackpotPool = localStorage.getItem('wheel_jackpot_pool') || '5000';
-            document.getElementById('jackpot-display').textContent = parseInt(jackpotPool).toLocaleString() + ' TAMA';
-            document.getElementById('jackpot-pool').placeholder = `Current: ${parseInt(jackpotPool).toLocaleString()} TAMA`;
+            // Load GLOBAL jackpot pool from API
+            try {
+                const jackpotResponse = await fetch(`${SUPABASE_URL}/../api/jackpot.php`);
+                const jackpotData = await jackpotResponse.json();
+                
+                if (jackpotData.success) {
+                    const jackpotPool = jackpotData.jackpot;
+                    document.getElementById('jackpot-display').textContent = jackpotPool.toLocaleString() + ' TAMA';
+                    document.getElementById('jackpot-pool').placeholder = `Current: ${jackpotPool.toLocaleString()} TAMA`;
+                }
+            } catch (error) {
+                console.error('Error loading jackpot:', error);
+            }
         }
 
         function renderTransactions() {
@@ -481,17 +490,32 @@
             document.getElementById('transactions-container').innerHTML = html;
         }
 
-        function updateJackpot() {
+        async function updateJackpot() {
             const newAmount = parseInt(document.getElementById('jackpot-pool').value);
             if (!newAmount || newAmount < 0) {
                 alert('❌ Please enter a valid amount');
                 return;
             }
 
-            if (confirm(`⚠️ Set jackpot pool to ${newAmount.toLocaleString()} TAMA?`)) {
-                localStorage.setItem('wheel_jackpot_pool', newAmount);
-                alert('✅ Jackpot pool updated!');
-                updateStats();
+            if (confirm(`⚠️ Set GLOBAL jackpot pool to ${newAmount.toLocaleString()} TAMA?\n\nThis will affect ALL players!`)) {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/../api/jackpot.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'set', amount: newAmount })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert(`✅ Global jackpot updated to ${data.jackpot.toLocaleString()} TAMA!`);
+                        updateStats();
+                    } else {
+                        alert('❌ Failed to update jackpot: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('❌ Error: ' + error.message);
+                }
             }
         }
 

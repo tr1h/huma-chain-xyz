@@ -337,24 +337,24 @@
                     💎 1,000 TAMA
                 </button>
             </div>
-            
+
             <!-- Custom Bet Input -->
             <div style="margin-top: 15px;">
                 <div style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">
                     Or enter custom amount:
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input 
-                        type="number" 
-                        id="custom-bet-input" 
-                        placeholder="Enter amount..." 
-                        min="100" 
+                    <input
+                        type="number"
+                        id="custom-bet-input"
+                        placeholder="Enter amount..."
+                        min="100"
                         max="999999"
                         style="flex: 1; padding: 10px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: white; font-size: 14px; text-align: center;"
                     />
-                    <button 
-                        class="bet-btn" 
-                        onclick="setCustomBet()" 
+                    <button
+                        class="bet-btn"
+                        onclick="setCustomBet()"
                         style="flex: 0 0 auto; padding: 10px 20px;"
                     >
                         ✅ Set
@@ -600,8 +600,8 @@
         let losses = 0;
         let totalWon = 0;
         let spinHistory = [];
-        let jackpotPool = 0; // Progressive jackpot pool
-        
+        let jackpotPool = 0; // GLOBAL progressive jackpot pool (synced across all players)
+
         // Limits
         const MAX_SPINS_PER_DAY = 30;
         let spinsToday = 0;
@@ -622,7 +622,7 @@
                     confetti.style.zIndex = '9999';
                     confetti.style.animation = 'confetti-fall 3s linear forwards';
                     document.body.appendChild(confetti);
-                    
+
                     setTimeout(() => confetti.remove(), 3000);
                 }, i * 50);
             }
@@ -788,7 +788,7 @@
             document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById('spin-cost').textContent = amount.toLocaleString();
-            
+
             // Clear custom input
             document.getElementById('custom-bet-input').value = '';
         }
@@ -797,28 +797,28 @@
         function setCustomBet() {
             const input = document.getElementById('custom-bet-input');
             const amount = parseInt(input.value);
-            
+
             if (!amount || amount < 100) {
                 alert('❌ Minimum bet: 100 TAMA');
                 return;
             }
-            
+
             const maxBet = Math.floor(balance * 0.5);
             if (amount > maxBet) {
                 alert(`❌ Maximum bet: ${maxBet.toLocaleString()} TAMA (50% of balance)`);
                 return;
             }
-            
+
             if (amount > balance) {
                 alert('❌ Insufficient balance!');
                 return;
             }
-            
+
             // Set custom bet
             currentBet = amount;
             document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('spin-cost').textContent = amount.toLocaleString();
-            
+
             // Show success
             input.style.borderColor = '#8AC926';
             setTimeout(() => {
@@ -848,7 +848,7 @@
                     if (userId && userId !== '123456789') {
                         localStorage.setItem('telegram_user_id', userId);
                     }
-                    
+
                     // Update custom bet hint with max amount
                     const maxBet = Math.floor(balance * 0.5);
                     document.getElementById('custom-bet-hint').textContent = `Max: ${formatNumber(maxBet)} TAMA (50% of balance)`;
@@ -857,7 +857,7 @@
                 console.error('Failed to load balance:', error);
                 document.getElementById('balance').textContent = '0';
             }
-            
+
             // Load spin counter for today
             const today = new Date().toDateString();
             const savedDate = localStorage.getItem('wheel_spin_date');
@@ -868,7 +868,7 @@
             } else {
                 spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
             }
-            
+
             // Update button text
             const remaining = MAX_SPINS_PER_DAY - spinsToday;
             if (remaining > 0) {
@@ -895,22 +895,35 @@
             document.getElementById('jackpot-value').textContent = formatNumber(jackpotPool) + ' TAMA';
         }
 
-        // Add to jackpot pool (5% of each bet)
-        function addToJackpot(betAmount) {
+        // Add to GLOBAL jackpot (5% of bet) - ASYNC
+        async function addToJackpot(betAmount) {
             const contribution = Math.floor(betAmount * 0.05);
-            jackpotPool += contribution;
-            localStorage.setItem('wheel_jackpot_pool', jackpotPool);
-            updateJackpotDisplay();
-            return contribution;
+            
+            // Update global jackpot via API
+            const result = await updateGlobalJackpot('add', contribution);
+            
+            if (result) {
+                return contribution;
+            } else {
+                console.error('❌ Failed to add to jackpot');
+                return 0;
+            }
         }
 
-        // Win jackpot (reset pool)
-        function winJackpot() {
-            const won = jackpotPool;
-            jackpotPool = 5000; // Reset to base amount
-            localStorage.setItem('wheel_jackpot_pool', jackpotPool);
-            updateJackpotDisplay();
-            return won;
+        // Win GLOBAL jackpot (reset pool) - ASYNC
+        async function winJackpot() {
+            const won = jackpotPool; // Current jackpot amount
+            
+            // Reset global jackpot via API
+            const result = await updateGlobalJackpot('reset');
+            
+            if (result) {
+                console.log('🎰 JACKPOT WON:', won, '→ Reset to', result.jackpot);
+                return won;
+            } else {
+                console.error('❌ Failed to reset jackpot');
+                return won; // Return won amount anyway
+            }
         }
 
         // Load history
@@ -1001,7 +1014,7 @@
         // Spin
         async function spin() {
             if (isSpinning) return;
-            
+
             // Check daily limit
             const today = new Date().toDateString();
             const savedDate = localStorage.getItem('wheel_spin_date');
@@ -1013,13 +1026,13 @@
             } else {
                 spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
             }
-            
+
             if (spinsToday >= MAX_SPINS_PER_DAY) {
                 document.getElementById('result').textContent = `⏰ Daily limit: ${MAX_SPINS_PER_DAY} spins. Come back tomorrow!`;
                 document.getElementById('result').style.color = '#fbbf24';
                 return;
             }
-            
+
             if (balance < currentBet) {
                 document.getElementById('result').textContent = '❌ Insufficient balance!';
                 document.getElementById('result').style.color = '#ff6b6b';
@@ -1107,11 +1120,11 @@
                     } else if (netProfit < 0) {
                         losses++;
                     }
-                    
+
                     // Update spin counter
                     spinsToday++;
                     localStorage.setItem('wheel_spins_today', spinsToday.toString());
-                    
+
                     // Update spin button with remaining spins
                     const remaining = MAX_SPINS_PER_DAY - spinsToday;
                     if (remaining > 0) {
@@ -1125,20 +1138,20 @@
                     document.getElementById('losses').textContent = losses;
                     document.getElementById('total-won').textContent = formatNumber(totalWon);
 
-                    // Add to jackpot pool (5% of bet)
-                    const jackpotContribution = addToJackpot(currentBet);
+                    // Add to GLOBAL jackpot pool (5% of bet)
+                    const jackpotContribution = await addToJackpot(currentBet);
 
                     // Play sound and show result FIRST (before API call)
                     const resultBox = document.getElementById('result');
                     if (multiplier >= 10) {
                         // JACKPOT WIN! Get the entire pool!
-                        const jackpotWon = winJackpot();
+                        const jackpotWon = await winJackpot();
                         const totalWin = winAmount + jackpotWon;
                         resultBox.textContent = `🎰 JACKPOT! ${multiplier}x + ${formatNumber(jackpotWon)} POOL = +${formatNumber(totalWin)} TAMA!`;
                         resultBox.style.color = '#FFD700';
                         sounds.jackpot();
                         createConfetti();
-                        
+
                         // Update balance with jackpot
                         balance += jackpotWon;
                         document.getElementById('balance').textContent = formatNumber(balance);
@@ -1186,7 +1199,7 @@
         async function updateBalanceOnServer(amount) {
             try {
                 const initData = window.Telegram?.WebApp?.initData || '';
-                
+
                 const requestBody = {
                     telegram_id: String(userId),
                     amount: amount,
@@ -1299,6 +1312,57 @@
             }
         }
 
+        // Load global jackpot from API
+        async function loadGlobalJackpot() {
+            try {
+                const response = await fetch(`${API_BASE}/jackpot.php`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    jackpotPool = data.jackpot;
+                    document.getElementById('jackpot-pool-display').textContent = formatNumber(jackpotPool) + ' TAMA';
+                    console.log('🔥 Global jackpot loaded:', jackpotPool);
+                } else {
+                    console.error('❌ Failed to load jackpot:', data.error);
+                }
+            } catch (error) {
+                console.error('❌ Error loading jackpot:', error);
+            }
+        }
+
+        // Update global jackpot (add contribution)
+        async function updateGlobalJackpot(action, amount = 0) {
+            try {
+                const response = await fetch(`${API_BASE}/jackpot.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, amount })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    jackpotPool = data.jackpot;
+                    document.getElementById('jackpot-pool-display').textContent = formatNumber(jackpotPool) + ' TAMA';
+                    console.log(`🔥 Jackpot ${action}:`, data.jackpot, '(change:', data.change, ')');
+                    return data;
+                } else {
+                    console.error('❌ Failed to update jackpot:', data.error);
+                    return null;
+                }
+            } catch (error) {
+                console.error('❌ Error updating jackpot:', error);
+                return null;
+            }
+        }
+
+        // Real-time jackpot sync (poll every 5 seconds)
+        function startJackpotSync() {
+            setInterval(async () => {
+                await loadGlobalJackpot();
+            }, 5000); // Update every 5 seconds
+        }
+
         // Initialize
         function initialize() {
             if (window.Telegram && window.Telegram.WebApp) {
@@ -1306,6 +1370,8 @@
                 console.log('🚀 Initializing with user ID:', userId);
                 loadUserData();
                 loadHistory();
+                loadGlobalJackpot(); // Load global jackpot
+                startJackpotSync(); // Start real-time sync
                 drawWheel();
             } else {
                 setTimeout(initialize, 100);
