@@ -71,6 +71,35 @@
             color: #FFD700;
         }
 
+        .jackpot-section {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: jackpotPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes jackpotPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+        }
+
+        .jackpot-label {
+            font-size: 14px;
+            color: #000;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .jackpot-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #000;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -263,6 +292,15 @@
         <div class="header">
             <h1>🎡 LUCKY WHEEL 🎡</h1>
             <p>Spin and win up to 10x!</p>
+        </div>
+
+        <!-- Jackpot Section -->
+        <div class="jackpot-section">
+            <div class="jackpot-label">🎰 PROGRESSIVE JACKPOT 🎰</div>
+            <div class="jackpot-value" id="jackpot-value">0</div>
+            <div style="font-size: 11px; color: rgba(0,0,0,0.7); margin-top: 5px;">
+                5% of each bet grows the pool!
+            </div>
         </div>
 
         <!-- Balance Section -->
@@ -535,6 +573,7 @@
         let losses = 0;
         let totalWon = 0;
         let spinHistory = [];
+        let jackpotPool = 0; // Progressive jackpot pool
 
         // Create confetti effect (defined early)
         function createConfetti() {
@@ -743,6 +782,39 @@
                 console.error('Failed to load balance:', error);
                 document.getElementById('balance').textContent = '0';
             }
+
+            // Load jackpot pool
+            loadJackpot();
+        }
+
+        // Load jackpot pool from localStorage
+        function loadJackpot() {
+            const saved = localStorage.getItem('wheel_jackpot_pool');
+            jackpotPool = saved ? parseInt(saved) : 5000; // Start at 5,000 TAMA
+            updateJackpotDisplay();
+        }
+
+        // Update jackpot display
+        function updateJackpotDisplay() {
+            document.getElementById('jackpot-value').textContent = formatNumber(jackpotPool) + ' TAMA';
+        }
+
+        // Add to jackpot pool (5% of each bet)
+        function addToJackpot(betAmount) {
+            const contribution = Math.floor(betAmount * 0.05);
+            jackpotPool += contribution;
+            localStorage.setItem('wheel_jackpot_pool', jackpotPool);
+            updateJackpotDisplay();
+            return contribution;
+        }
+
+        // Win jackpot (reset pool)
+        function winJackpot() {
+            const won = jackpotPool;
+            jackpotPool = 5000; // Reset to base amount
+            localStorage.setItem('wheel_jackpot_pool', jackpotPool);
+            updateJackpotDisplay();
+            return won;
         }
 
         // Load history
@@ -925,13 +997,23 @@
                     document.getElementById('losses').textContent = losses;
                     document.getElementById('total-won').textContent = formatNumber(totalWon);
 
+                    // Add to jackpot pool (5% of bet)
+                    const jackpotContribution = addToJackpot(currentBet);
+
                     // Play sound and show result FIRST (before API call)
                     const resultBox = document.getElementById('result');
                     if (multiplier >= 10) {
-                        resultBox.textContent = `🎰 JACKPOT! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
+                        // JACKPOT WIN! Get the entire pool!
+                        const jackpotWon = winJackpot();
+                        const totalWin = winAmount + jackpotWon;
+                        resultBox.textContent = `🎰 JACKPOT! ${multiplier}x + ${formatNumber(jackpotWon)} POOL = +${formatNumber(totalWin)} TAMA!`;
                         resultBox.style.color = '#FFD700';
                         sounds.jackpot();
                         createConfetti();
+                        
+                        // Update balance with jackpot
+                        balance += jackpotWon;
+                        document.getElementById('balance').textContent = formatNumber(balance);
                     } else if (multiplier >= 5) {
                         resultBox.textContent = `🎉 BIG WIN! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
                         resultBox.style.color = '#8b5cf6';
