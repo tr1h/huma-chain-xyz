@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🍄 SUPER TAMA BROS - Play-to-Earn Platformer</title>
+    
+    <!-- Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 3px solid #ef4444;
+            z-index: 100;
+        }
+
+        .game-header h1 {
+            margin: 0;
+            color: white;
+            font-size: 24px;
+            text-shadow: 0 0 10px rgba(255,0,0,0.5);
+        }
+
+        .balance-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #8AC926;
+        }
+
+        .exit-btn {
+            padding: 8px 16px;
+            background: #ef4444;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            transition: all 0.2s;
+        }
+
+        .exit-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .game-canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: linear-gradient(180deg, #5C94FC 0%, #87CEEB 100%);
+        }
+
+        #game-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+            image-rendering: crisp-edges;
+            box-shadow: 0 0 80px rgba(255,0,0,0.3);
+        }
+
+        .game-footer {
+            padding: 15px;
+            text-align: center;
+            background: rgba(0,0,0,0.7);
+            border-top: 2px solid #ef4444;
+        }
+
+        .game-result {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: white;
+            min-height: 40px;
+            font-weight: bold;
+        }
+
+        .start-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+            transition: all 0.2s;
+        }
+
+        .start-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.7);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 30px;
+            pointer-events: none;
+        }
+
+        .mobile-controls.show {
+            display: block;
+        }
+
+        .mobile-controls-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .mobile-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.65);
+            border: 2px solid rgba(255,255,255,0.8);
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            touch-action: none;
+            pointer-events: auto;
+            transition: all 0.1s;
+        }
+
+        .mobile-btn:active {
+            background: rgba(0,0,0,0.9);
+            transform: scale(0.95);
+        }
+
+        .mobile-btn.jump {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,69,0,0.8);
+            border: 3px solid rgba(255,255,255,0.9);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .mobile-btn.jump:active {
+            background: rgba(255,69,0,1);
+        }
+
+        .controls-left {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .game-header h1 {
+                font-size: 18px;
+            }
+
+            .balance-display {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <h1>🍄 SUPER TAMA BROS</h1>
+            <div class="balance-display">
+                💰 <span id="balance">Loading...</span> TAMA
+            </div>
+            <button class="exit-btn" onclick="goBack()">✕ EXIT</button>
+        </div>
+
+        <!-- Game Canvas -->
+        <div class="game-canvas-container">
+            <canvas id="game-canvas" width="960" height="540"></canvas>
+            
+            <!-- Mobile Controls -->
+            <div class="mobile-controls" id="mobile-controls">
+                <div class="mobile-controls-inner">
+                    <div class="controls-left">
+                        <button class="mobile-btn" id="btn-left">⬅️</button>
+                        <button class="mobile-btn" id="btn-right">➡️</button>
+                    </div>
+                    <button class="mobile-btn jump" id="btn-jump">🔼</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="game-footer">
+            <div class="game-result" id="game-result"></div>
+            <button class="start-btn" id="start-btn">🍄 START GAME (100 TAMA)</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // API Configuration
+        const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+
+        // Get user ID
+        function getUserId() {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) {
+                    return String(user.id);
+                }
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const userIdFromUrl = urlParams.get('user_id');
+            if (userIdFromUrl) {
+                return userIdFromUrl;
+            }
+
+            const saved = localStorage.getItem('telegram_user_id');
+            if (saved) {
+                return saved;
+            }
+
+            return '123456789'; // Test ID
+        }
+
+        let userId = getUserId();
+        let balance = 0;
+
+        // Load user balance
+        async function loadBalance() {
+            try {
+                const response = await fetch(`${API_BASE}/balance?telegram_id=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    balance = data.total_tama || data.database_tama || data.balance || 0;
+                    document.getElementById('balance').textContent = balance.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Failed to load balance:', error);
+                document.getElementById('balance').textContent = '0';
+            }
+        }
+
+        // Update balance on server
+        async function updateBalance(amount, description = '') {
+            try {
+                const initData = window.Telegram?.WebApp?.initData || '';
+                
+                const response = await fetch(`${API_BASE}/slots/spin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: String(userId),
+                        amount: amount,
+                        bet: amount < 0 ? Math.abs(amount) : 0,
+                        win: amount > 0 ? amount : 0,
+                        symbols: ['🍄', '🍄', '🍄'],
+                        init_data: initData,
+                        description: description
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.balance !== undefined || data.total_tama !== undefined) {
+                        balance = data.total_tama || data.database_tama || data.balance || balance;
+                        document.getElementById('balance').textContent = balance.toLocaleString();
+                        return data;
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating balance:', error);
+            }
+            return null;
+        }
+
+        // Format number
+        function formatNumber(num) {
+            return Math.floor(num).toLocaleString();
+        }
+
+        // Go back
+        function goBack() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.close();
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        // 🍄 TAMA JUMP PLATFORMER GAME - REAL MARIO STYLE
+        const platformerGame = {
+            canvas: null,
+            ctx: null,
+            player: null,
+            platforms: [],
+            coins: [],
+            enemies: [],
+            questionBlocks: [],
+            bricks: [],
+            pipes: [],
+            powerups: [],
+            particles: [],
+            score: 0,
+            coinsCollected: 0,
+            lives: 3,
+            gameTime: 90,
+            gameActive: false,
+            keys: {},
+            animFrame: null,
+            timer: null,
+            camera: { x: 0 },
+            levelWidth: 3000,
+            animationFrame: 0,
+
+            init() {
+                this.canvas = document.getElementById('game-canvas');
+                if (!this.canvas) {
+                    console.warn('Game canvas not found');
+                    return;
+                }
+                this.ctx = this.canvas.getContext('2d');
+
+                // Setup mobile controls
+                this.setupMobileControls();
+
+                // Keyboard controls
+                window.addEventListener('keydown', (e) => {
+                    if (this.gameActive) {
+                        this.keys[e.key] = true;
+                        if (e.key === ' ' || e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            this.player.jump();
+                        }
+                    }
+                });
+
+                window.addEventListener('keyup', (e) => {
+                    this.keys[e.key] = false;
+                });
+
+                // Start button
+                const startBtn = document.getElementById('start-btn');
+                if (startBtn) {
+                    startBtn.addEventListener('click', () => {
+                        if (balance < 100) {
+                            document.getElementById('game-result').textContent = '❌ Not enough TAMA! Need 100 TAMA';
+                            return;
+                        }
+
+                        // Deduct bet
+                        balance -= 100;
+                        document.getElementById('balance').textContent = formatNumber(balance);
+                        updateBalance(-100, 'Super Tama Bros game entry');
+
+                        this.start();
+                    });
+                }
+            },
+
+            setupMobileControls() {
+                const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                const mobileControls = document.getElementById('mobile-controls');
+                
+                if (isTouchDevice && mobileControls) {
+                    mobileControls.classList.add('show');
+                }
+
+                const btnLeft = document.getElementById('btn-left');
+                const btnRight = document.getElementById('btn-right');
+                const btnJump = document.getElementById('btn-jump');
+
+                if (btnLeft) {
+                    btnLeft.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.keys['ArrowLeft'] = true;
+                    });
+                    btnLeft.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        this.keys['ArrowLeft'] = false;
+                    });
+                }
+
+                if (btnRight) {
+                    btnRight.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.keys['ArrowRight'] = true;
+                    });
+                    btnRight.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        this.keys['ArrowRight'] = false;
+                    });
+                }
+
+                if (btnJump) {
+                    btnJump.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        if (this.gameActive && this.player) {
+                            this.player.jump();
+                        }
+                    });
+                }
+            },
+
+            start() {
+                this.gameActive = true;
+                this.score = 0;
+                this.coinsCollected = 0;
+                this.lives = 3;
+                this.gameTime = 60;
+
+                // Disable start button
+                const startBtn = document.getElementById('start-btn');
+                if (startBtn) {
+                    startBtn.disabled = true;
+                    startBtn.textContent = '🎮 Playing...';
+                }
+
+                // Clear result
+                document.getElementById('game-result').textContent = '';
+
+                // Initialize player
+                this.player = {
+                    x: 50,
+                    y: 360,
+                    width: 40,
+                    height: 40,
+                    vx: 0,
+                    vy: 0,
+                    jumping: false,
+                    onGround: false,
+                    jump() {
+                        if (this.onGround) {
+                            this.vy = -12;
+                            this.jumping = true;
+                            this.onGround = false;
+                        }
+                    }
+                };
+
+                // Generate level
+                this.generateLevel();
+
+                // Start timer
+                this.timer = setInterval(() => {
+                    if (this.gameActive) {
+                        this.gameTime--;
+                        if (this.gameTime <= 0) {
+                            this.endGame();
+                        }
+                    }
+                }, 1000);
+
+                // Start game loop
+                this.gameLoop();
+            },
+
+            generateLevel() {
+                this.platforms = [];
+                this.coins = [];
+                this.enemies = [];
+                this.questionBlocks = [];
+                this.bricks = [];
+                this.pipes = [];
+                this.powerups = [];
+                this.particles = [];
+
+                // Ground
+                for (let i = 0; i < this.levelWidth / 30; i++) {
+                    this.platforms.push({
+                        x: i * 30,
+                        y: 450,
+                        width: 30,
+                        height: 50,
+                        type: 'ground'
+                    });
+                }
+
+                // Question blocks
+                const questionPositions = [
+                    { x: 150, y: 350 }, { x: 180, y: 350 }, { x: 210, y: 350 },
+                    { x: 400, y: 330 }, { x: 600, y: 350 }, { x: 800, y: 330 },
+                    { x: 1000, y: 350 }, { x: 1200, y: 330 }, { x: 1400, y: 350 },
+                    { x: 1600, y: 330 }, { x: 1800, y: 350 }, { x: 2000, y: 330 },
+                    { x: 2200, y: 350 }, { x: 2400, y: 330 },
+                ];
+
+                questionPositions.forEach(pos => {
+                    this.questionBlocks.push({
+                        x: pos.x,
+                        y: pos.y,
+                        width: 24,
+                        height: 24,
+                        hit: false,
+                        coins: Math.floor(Math.random() * 3) + 1
+                    });
+                });
+
+                // Brick blocks
+                const brickPatterns = [
+                    { x: 300, y: 370, count: 3 }, { x: 500, y: 350, count: 2 },
+                    { x: 700, y: 370, count: 3 }, { x: 900, y: 350, count: 4 },
+                    { x: 1100, y: 370, count: 2 }, { x: 1300, y: 350, count: 3 },
+                    { x: 1500, y: 370, count: 2 }, { x: 1700, y: 350, count: 3 },
+                    { x: 1900, y: 370, count: 2 }, { x: 2100, y: 350, count: 2 },
+                ];
+
+                brickPatterns.forEach(pattern => {
+                    for (let i = 0; i < pattern.count; i++) {
+                        this.bricks.push({
+                            x: pattern.x + i * 24,
+                            y: pattern.y,
+                            width: 24,
+                            height: 24,
+                            broken: false
+                        });
+                    }
+                });
+
+                // Pipes
+                const pipePositions = [
+                    { x: 450, height: 40 }, { x: 750, height: 50 },
+                    { x: 1050, height: 40 }, { x: 1350, height: 60 },
+                    { x: 1650, height: 40 }, { x: 1950, height: 50 },
+                    { x: 2250, height: 40 },
+                ];
+
+                pipePositions.forEach(pipe => {
+                    this.pipes.push({
+                        x: pipe.x,
+                        y: 450 - pipe.height,
+                        width: 40,
+                        height: pipe.height,
+                        type: 'pipe'
+                    });
+                });
+
+                // Floating platforms
+                const platformData = [
+                    { x: 550, y: 380, width: 60 }, { x: 650, y: 350, width: 50 },
+                    { x: 750, y: 320, width: 45 }, { x: 850, y: 360, width: 60 },
+                    { x: 1150, y: 370, width: 55 }, { x: 1250, y: 340, width: 50 },
+                    { x: 1450, y: 360, width: 60 }, { x: 1750, y: 350, width: 50 },
+                    { x: 2050, y: 370, width: 60 }, { x: 2350, y: 360, width: 55 },
+                ];
+
+                platformData.forEach(plat => {
+                    this.platforms.push({
+                        x: plat.x,
+                        y: plat.y,
+                        width: plat.width,
+                        height: 12,
+                        type: 'platform'
+                    });
+                });
+
+                // Enemies
+                for (let i = 0; i < 15; i++) {
+                    this.enemies.push({
+                        x: 300 + i * 200,
+                        y: 426,
+                        width: 24,
+                        height: 24,
+                        vx: 1.5,
+                        direction: 1,
+                        type: 'goomba',
+                        dead: false
+                    });
+                }
+
+                // Finish flag
+                this.finishFlag = {
+                    x: this.levelWidth - 100,
+                    y: 330,
+                    width: 10,
+                    height: 120,
+                    reached: false
+                };
+            },
+
+            gameLoop() {
+                if (!this.gameActive) return;
+
+                this.animationFrame++;
+
+                // Clear canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Sky gradient
+                const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+                gradient.addColorStop(0, '#5C94FC');
+                gradient.addColorStop(1, '#87CEEB');
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Update camera
+                this.updateCamera();
+
+                // Save context and apply camera offset
+                this.ctx.save();
+                this.ctx.translate(-this.camera.x, 0);
+
+                // Update game state
+                this.updatePlayer();
+                this.updateEnemies();
+                this.updateParticles();
+                this.checkCollisions();
+
+                // Draw everything
+                this.draw();
+
+                // Restore context
+                this.ctx.restore();
+
+                // Draw UI
+                this.drawUI();
+
+                // Continue loop
+                this.animFrame = requestAnimationFrame(() => this.gameLoop());
+            },
+
+            updateCamera() {
+                const targetX = this.player.x - this.canvas.width / 3;
+                this.camera.x = Math.max(0, Math.min(targetX, this.levelWidth - this.canvas.width));
+            },
+
+            updateParticles() {
+                this.particles = this.particles.filter(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.3;
+                    p.life--;
+                    return p.life > 0;
+                });
+            },
+
+            drawUI() {
+                const panelHeight = 60;
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+                this.ctx.fillRect(0, 0, this.canvas.width, panelHeight);
+
+                this.ctx.fillStyle = '#FFF';
+                this.ctx.strokeStyle = '#000';
+                this.ctx.lineWidth = 4;
+                this.ctx.font = 'bold 28px "Courier New"';
+
+                this.ctx.strokeText(`💰 ${this.coinsCollected}`, 20, 40);
+                this.ctx.fillText(`💰 ${this.coinsCollected}`, 20, 40);
+
+                this.ctx.strokeText(`❤️ ${this.lives}`, 160, 40);
+                this.ctx.fillText(`❤️ ${this.lives}`, 160, 40);
+
+                this.ctx.strokeText(`⏱️ ${this.gameTime}s`, 300, 40);
+                this.ctx.fillText(`⏱️ ${this.gameTime}s`, 300, 40);
+
+                this.ctx.strokeText(`★ ${this.score}`, 480, 40);
+                this.ctx.fillText(`★ ${this.score}`, 480, 40);
+
+                // Progress bar
+                const progress = (this.player.x / this.levelWidth) * 100;
+                const barWidth = 300;
+                const barX = this.canvas.width - barWidth - 30;
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                this.ctx.fillRect(barX, 20, barWidth, 25);
+                this.ctx.fillStyle = '#10B981';
+                this.ctx.fillRect(barX, 20, (barWidth * progress) / 100, 25);
+                this.ctx.strokeStyle = '#FFF';
+                this.ctx.lineWidth = 3;
+                this.ctx.strokeRect(barX, 20, barWidth, 25);
+            },
+
+            updatePlayer() {
+                // Horizontal movement
+                if (this.keys['ArrowLeft'] || this.keys['a']) {
+                    this.player.vx = -3;
+                } else if (this.keys['ArrowRight'] || this.keys['d']) {
+                    this.player.vx = 3;
+                } else {
+                    this.player.vx *= 0.8;
+                }
+
+                // Apply gravity
+                this.player.vy += 0.4;
+
+                // Apply velocity
+                this.player.x += this.player.vx;
+                this.player.y += this.player.vy;
+
+                // Limit falling speed
+                if (this.player.vy > 10) this.player.vy = 10;
+
+                // Keep player in bounds
+                if (this.player.x < 0) this.player.x = 0;
+                if (this.player.x > this.levelWidth - this.player.width) {
+                    this.player.x = this.levelWidth - this.player.width;
+                }
+
+                // Check if fell off
+                if (this.player.y > this.canvas.height) {
+                    this.loseLife();
+                }
+            },
+
+            updateEnemies() {
+                this.enemies.forEach(enemy => {
+                    enemy.x += enemy.vx * enemy.direction;
+                    if (enemy.x < 0 || enemy.x > this.canvas.width - enemy.width) {
+                        enemy.direction *= -1;
+                    }
+                });
+            },
+
+            checkCollisions() {
+                this.player.onGround = false;
+
+                // Platform collision
+                [...this.platforms, ...this.pipes].forEach(platform => {
+                    if (this.player.x + 8 < platform.x + platform.width &&
+                        this.player.x + this.player.width - 8 > platform.x &&
+                        this.player.y + this.player.height >= platform.y &&
+                        this.player.y + this.player.height <= platform.y + 12 &&
+                        this.player.vy >= 0) {
+
+                        this.player.y = platform.y - this.player.height;
+                        this.player.vy = 0;
+                        this.player.onGround = true;
+                        this.player.jumping = false;
+                    }
+                });
+
+                // Question block collision
+                this.questionBlocks.forEach(block => {
+                    if (!block.hit &&
+                        this.player.x + 8 < block.x + block.width &&
+                        this.player.x + this.player.width - 8 > block.x &&
+                        this.player.y <= block.y + block.height &&
+                        this.player.y + 8 >= block.y &&
+                        this.player.vy < 0) {
+
+                        block.hit = true;
+                        this.coinsCollected += block.coins;
+                        this.score += block.coins * 10;
+
+                        for (let i = 0; i < block.coins; i++) {
+                            this.particles.push({
+                                x: block.x + 12,
+                                y: block.y,
+                                vx: (Math.random() - 0.5) * 4,
+                                vy: -4,
+                                life: 30,
+                                type: 'coin'
+                            });
+                        }
+
+                        this.player.vy = 1;
+                    }
+
+                    if (this.player.x + 8 < block.x + block.width &&
+                        this.player.x + this.player.width - 8 > block.x &&
+                        this.player.y + this.player.height >= block.y &&
+                        this.player.y + this.player.height <= block.y + 12 &&
+                        this.player.vy >= 0) {
+
+                        this.player.y = block.y - this.player.height;
+                        this.player.vy = 0;
+                        this.player.onGround = true;
+                        this.player.jumping = false;
+                    }
+                });
+
+                // Brick collision
+                this.bricks.forEach(brick => {
+                    if (!brick.broken &&
+                        this.player.x + 8 < brick.x + brick.width &&
+                        this.player.x + this.player.width - 8 > brick.x &&
+                        this.player.y <= brick.y + brick.height &&
+                        this.player.y + 8 >= brick.y &&
+                        this.player.vy < 0) {
+
+                        brick.broken = true;
+                        this.score += 5;
+
+                        for (let i = 0; i < 4; i++) {
+                            this.particles.push({
+                                x: brick.x + 12,
+                                y: brick.y + 12,
+                                vx: (Math.random() - 0.5) * 5,
+                                vy: -3 - Math.random() * 3,
+                                life: 40,
+                                type: 'brick'
+                            });
+                        }
+
+                        this.player.vy = 1;
+                    }
+
+                    if (!brick.broken &&
+                        this.player.x + 8 < brick.x + brick.width &&
+                        this.player.x + this.player.width - 8 > brick.x &&
+                        this.player.y + this.player.height >= brick.y &&
+                        this.player.y + this.player.height <= brick.y + 12 &&
+                        this.player.vy >= 0) {
+
+                        this.player.y = brick.y - this.player.height;
+                        this.player.vy = 0;
+                        this.player.onGround = true;
+                        this.player.jumping = false;
+                    }
+                });
+
+                // Enemy collision
+                this.enemies.forEach(enemy => {
+                    if (!enemy.dead && !enemy.justHit &&
+                        this.player.x < enemy.x + enemy.width - 5 &&
+                        this.player.x + this.player.width > enemy.x + 5 &&
+                        this.player.y < enemy.y + enemy.height &&
+                        this.player.y + this.player.height > enemy.y) {
+
+                        if (this.player.vy > 0 && this.player.y + this.player.height - 15 < enemy.y + 8) {
+                            enemy.dead = true;
+                            this.player.vy = -8;
+                            this.score += 20;
+
+                            setTimeout(() => {
+                                const index = this.enemies.indexOf(enemy);
+                                if (index > -1) this.enemies.splice(index, 1);
+                            }, 500);
+                        } else {
+                            enemy.justHit = true;
+                            this.loseLife();
+                            setTimeout(() => {
+                                enemy.justHit = false;
+                            }, 1000);
+                        }
+                    }
+                });
+
+                // Finish flag
+                if (this.finishFlag && !this.finishFlag.reached &&
+                    this.player.x + this.player.width > this.finishFlag.x) {
+                    this.finishFlag.reached = true;
+                    this.winGame();
+                }
+            },
+
+            winGame() {
+                this.gameActive = false;
+                clearInterval(this.timer);
+                cancelAnimationFrame(this.animFrame);
+
+                const timeBonus = this.gameTime * 5;
+                const totalReward = this.coinsCollected * 10 + timeBonus + 200;
+
+                balance += totalReward;
+                document.getElementById('balance').textContent = formatNumber(balance);
+                updateBalance(totalReward, `Super Tama Bros: Level complete! Coins: ${this.coinsCollected}, Time: ${this.gameTime}s`);
+
+                const resultElement = document.getElementById('game-result');
+                if (resultElement) {
+                    resultElement.innerHTML =
+                        `<strong>🏆 LEVEL COMPLETE!</strong><br>` +
+                        `Coins: ${this.coinsCollected} (+${this.coinsCollected * 10} TAMA)<br>` +
+                        `Time Bonus: ${timeBonus} TAMA<br>` +
+                        `Finish Bonus: +200 TAMA<br>` +
+                        `<strong>Total: +${totalReward} TAMA!</strong><br>` +
+                        `Net: +${totalReward - 100} TAMA 🎉`;
+                }
+
+                const startBtn = document.getElementById('start-btn');
+                if (startBtn) {
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🍄 START GAME (100 TAMA)';
+                }
+            },
+
+            loseLife() {
+                this.lives--;
+
+                if (this.lives <= 0) {
+                    this.endGame();
+                } else {
+                    this.player.x = 50;
+                    this.player.y = 380;
+                    this.player.vx = 0;
+                    this.player.vy = 0;
+                }
+            },
+
+            draw() {
+                // Draw ground
+                this.platforms.forEach(platform => {
+                    if (platform.type === 'ground') {
+                        this.ctx.fillStyle = '#C84C09';
+                        this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                        this.ctx.strokeStyle = '#8B3A0E';
+                        this.ctx.lineWidth = 1;
+                        this.ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+                    } else {
+                        this.ctx.fillStyle = '#10B981';
+                        this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                        this.ctx.strokeStyle = '#059669';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+                    }
+                });
+
+                // Draw pipes
+                this.pipes.forEach(pipe => {
+                    this.ctx.fillStyle = '#10B981';
+                    this.ctx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+                    this.ctx.fillStyle = '#059669';
+                    this.ctx.fillRect(pipe.x - 4, pipe.y, pipe.width + 8, 8);
+                    this.ctx.strokeStyle = '#047857';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(pipe.x, pipe.y, pipe.width, pipe.height);
+                    this.ctx.strokeRect(pipe.x - 4, pipe.y, pipe.width + 8, 8);
+                });
+
+                // Draw question blocks
+                this.questionBlocks.forEach(block => {
+                    if (!block.hit) {
+                        const bounce = Math.sin(this.animationFrame * 0.1) * 2;
+                        this.ctx.fillStyle = '#F59E0B';
+                        this.ctx.fillRect(block.x, block.y + bounce, block.width, block.height);
+                        this.ctx.strokeStyle = '#D97706';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.strokeRect(block.x, block.y + bounce, block.width, block.height);
+                        this.ctx.fillStyle = '#FFF';
+                        this.ctx.font = 'bold 18px Arial';
+                        this.ctx.fillText('?', block.x + 7, block.y + bounce + 18);
+                    } else {
+                        this.ctx.fillStyle = '#8B4513';
+                        this.ctx.fillRect(block.x, block.y, block.width, block.height);
+                        this.ctx.strokeStyle = '#654321';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.strokeRect(block.x, block.y, block.width, block.height);
+                    }
+                });
+
+                // Draw bricks
+                this.bricks.forEach(brick => {
+                    if (!brick.broken) {
+                        this.ctx.fillStyle = '#DC2626';
+                        this.ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+                        this.ctx.strokeStyle = '#991B1B';
+                        this.ctx.lineWidth = 1;
+                        this.ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(brick.x + 12, brick.y);
+                        this.ctx.lineTo(brick.x + 12, brick.y + brick.height);
+                        this.ctx.stroke();
+                    }
+                });
+
+                // Draw particles
+                this.particles.forEach(p => {
+                    if (p.type === 'coin') {
+                        this.ctx.fillStyle = '#FFD700';
+                        this.ctx.font = 'bold 12px Arial';
+                        this.ctx.fillText('$', p.x, p.y);
+                    } else if (p.type === 'brick') {
+                        this.ctx.fillStyle = '#DC2626';
+                        this.ctx.fillRect(p.x, p.y, 4, 4);
+                    }
+                });
+
+                // Draw enemies
+                this.enemies.forEach(enemy => {
+                    if (!enemy.dead) {
+                        this.ctx.fillStyle = '#8B4513';
+                        this.ctx.beginPath();
+                        this.ctx.arc(enemy.x + 12, enemy.y + 10, 12, Math.PI, 0);
+                        this.ctx.fill();
+                        this.ctx.fillStyle = '#A0522D';
+                        this.ctx.fillRect(enemy.x + 4, enemy.y + 10, 16, 14);
+                        this.ctx.fillStyle = '#FFF';
+                        this.ctx.fillRect(enemy.x + 6, enemy.y + 6, 5, 5);
+                        this.ctx.fillRect(enemy.x + 13, enemy.y + 6, 5, 5);
+                        this.ctx.fillStyle = '#000';
+                        this.ctx.fillRect(enemy.x + 8, enemy.y + 8, 2, 2);
+                        this.ctx.fillRect(enemy.x + 15, enemy.y + 8, 2, 2);
+                        this.ctx.strokeStyle = '#000';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(enemy.x + 6, enemy.y + 5);
+                        this.ctx.lineTo(enemy.x + 11, enemy.y + 7);
+                        this.ctx.moveTo(enemy.x + 13, enemy.y + 7);
+                        this.ctx.lineTo(enemy.x + 18, enemy.y + 5);
+                        this.ctx.stroke();
+                    } else {
+                        this.ctx.fillStyle = '#8B4513';
+                        this.ctx.fillRect(enemy.x, enemy.y + 18, enemy.width, 6);
+                    }
+                });
+
+                // Draw finish flag
+                if (this.finishFlag) {
+                    this.ctx.fillStyle = '#4B5563';
+                    this.ctx.fillRect(this.finishFlag.x, this.finishFlag.y, this.finishFlag.width, this.finishFlag.height);
+                    this.ctx.fillStyle = this.finishFlag.reached ? '#10B981' : '#EF4444';
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.finishFlag.x + 10, this.finishFlag.y);
+                    this.ctx.lineTo(this.finishFlag.x + 50, this.finishFlag.y + 15);
+                    this.ctx.lineTo(this.finishFlag.x + 10, this.finishFlag.y + 30);
+                    this.ctx.fill();
+                }
+
+                // Draw player (Mario-style)
+                const playerColor = '#FF0000';
+                const overallsColor = '#0000FF';
+
+                // Body
+                this.ctx.fillStyle = overallsColor;
+                this.ctx.fillRect(this.player.x + 10, this.player.y + 16, 20, 22);
+
+                // Head
+                this.ctx.fillStyle = '#FFDBAC';
+                this.ctx.fillRect(this.player.x + 10, this.player.y + 6, 20, 16);
+
+                // Hat
+                this.ctx.fillStyle = playerColor;
+                this.ctx.fillRect(this.player.x + 6, this.player.y, 28, 10);
+
+                // Eyes
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(this.player.x + 13, this.player.y + 12, 4, 4);
+                this.ctx.fillRect(this.player.x + 23, this.player.y + 12, 4, 4);
+
+                // Mustache
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(this.player.x + 13, this.player.y + 18, 14, 3);
+
+                // Shoes
+                this.ctx.fillStyle = '#8B4513';
+                this.ctx.fillRect(this.player.x + 6, this.player.y + 36, 10, 4);
+                this.ctx.fillRect(this.player.x + 24, this.player.y + 36, 10, 4);
+            },
+
+            endGame() {
+                this.gameActive = false;
+                clearInterval(this.timer);
+                cancelAnimationFrame(this.animFrame);
+
+                let reward = 0;
+                let message = '';
+
+                if (this.coinsCollected >= 40) {
+                    reward = 500;
+                    message = '🏆 AMAZING! +500 TAMA!';
+                } else if (this.coinsCollected >= 30) {
+                    reward = 300;
+                    message = '🎉 GREAT! +300 TAMA!';
+                } else if (this.coinsCollected >= 20) {
+                    reward = 150;
+                    message = '👍 GOOD! +150 TAMA!';
+                } else if (this.coinsCollected >= 10) {
+                    reward = 50;
+                    message = '😊 Not bad! +50 TAMA';
+                } else {
+                    message = '😢 Try again! 0 TAMA';
+                }
+
+                if (reward > 0) {
+                    balance += reward;
+                    document.getElementById('balance').textContent = formatNumber(balance);
+                    updateBalance(reward, `Super Tama Bros: ${this.coinsCollected} coins collected`);
+                }
+
+                const resultElement = document.getElementById('game-result');
+                if (resultElement) {
+                    resultElement.innerHTML =
+                        `<strong>${message}</strong><br>` +
+                        `Coins: ${this.coinsCollected} | Score: ${this.score}<br>` +
+                        `Net: ${reward - 100 >= 0 ? '+' : ''}${reward - 100} TAMA`;
+                }
+
+                const startBtn = document.getElementById('start-btn');
+                if (startBtn) {
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🍄 START GAME (100 TAMA)';
+                }
+            }
+        };
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBalance();
+            platformerGame.init();
+        });
+    </script>
+</body>
+</html>
+
