@@ -1,995 +1,1215 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>🎡 Lucky Wheel - Solana Tamagotchi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #1a0033 100%);
-            min-height: 100vh;
-            font-family: 'Arial', sans-serif;
-            color: white;
-            overflow-x: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-        }
+      body {
+        background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #1a0033 100%);
+        min-height: 100vh;
+        font-family: 'Arial', sans-serif;
+        color: white;
+        overflow-x: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+      }
 
-        .container {
-            max-width: 500px;
-            width: 100%;
-        }
+      .container {
+        max-width: 500px;
+        width: 100%;
+      }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
 
-        h1 {
-            font-size: 32px;
-            margin-bottom: 5px;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+      h1 {
+        font-size: 32px;
+        margin-bottom: 5px;
+        background: linear-gradient(45deg, #ffd700, #ffa500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
 
-        .balance-section {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
+      .balance-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+      }
 
-        .balance-item {
-            text-align: center;
-            margin-bottom: 10px;
-        }
+      .balance-item {
+        text-align: center;
+        margin-bottom: 10px;
+      }
 
-        .balance-label {
-            font-size: 12px;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 5px;
-        }
+      .balance-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 5px;
+      }
 
-        .balance-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #FFD700;
-        }
+      .balance-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffd700;
+      }
 
-        .jackpot-section {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-            animation: jackpotPulse 2s ease-in-out infinite;
-        }
+      .jackpot-section {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        text-align: center;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        animation: jackpotPulse 2s ease-in-out infinite;
+      }
 
-        @keyframes jackpotPulse {
-            0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
-            50% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+      @keyframes jackpotPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
         }
+        50% {
+          box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+        }
+      }
 
-        .jackpot-label {
-            font-size: 14px;
-            color: #000;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+      .jackpot-label {
+        font-size: 14px;
+        color: #000;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
 
-        .jackpot-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #000;
-            text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
-        }
+      .jackpot-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #000;
+        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
+      }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+      }
 
-        .stat-box {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-        }
+      .stat-box {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+      }
 
-        .stat-label {
-            font-size: 10px;
-            color: rgba(255,255,255,0.6);
-        }
+      .stat-label {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.6);
+      }
 
-        .stat-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #8AC926;
-        }
+      .stat-value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #8ac926;
+      }
 
-        .bet-section {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
+      .bet-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+      }
 
-        .bet-label {
-            text-align: center;
-            font-size: 14px;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 10px;
-        }
+      .bet-label {
+        text-align: center;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 10px;
+      }
 
-        .bet-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
+      .bet-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
 
-        .bet-btn {
-            background: linear-gradient(135deg, #8AC926, #6fa01f);
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
+      .bet-btn {
+        background: linear-gradient(135deg, #8ac926, #6fa01f);
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 14px;
+      }
 
-        .bet-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(138, 201, 38, 0.4);
-        }
+      .bet-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(138, 201, 38, 0.4);
+      }
 
-        .bet-btn.active {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
+      .bet-btn.active {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #000;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      }
 
-        .wheel-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto 20px;
-        }
+      .wheel-container {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto 20px;
+      }
 
-        #wheel-canvas {
-            width: 100%;
-            height: auto;
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(255,215,0,0.3);
-        }
+      #wheel-canvas {
+        width: 100%;
+        height: auto;
+        border-radius: 50%;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+      }
 
-        .wheel-pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #FFD700;
-            filter: drop-shadow(0 0 10px rgba(255,215,0,0.8));
-            z-index: 10;
-        }
+      .wheel-pointer {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 30px solid #ffd700;
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+        z-index: 10;
+      }
 
-        .spin-button {
-            width: 100%;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border: none;
-            padding: 20px;
-            border-radius: 15px;
-            color: #000;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 15px;
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
-        }
+      .spin-button {
+        width: 100%;
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        border: none;
+        padding: 20px;
+        border-radius: 15px;
+        color: #000;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 15px;
+        box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+      }
 
-        .spin-button:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
-        }
+      .spin-button:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+      }
 
-        .spin-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+      .spin-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
-        .result-box {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 15px;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
+      .result-box {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 15px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+      }
 
-        @keyframes confetti-fall {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(720deg);
-                opacity: 0;
-            }
+      @keyframes confetti-fall {
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 1;
         }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
 
-        .history-section {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-        }
+      .history-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+      }
 
-        .history-title {
-            text-align: center;
-            font-size: 16px;
-            color: #FFD700;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
+      .history-title {
+        text-align: center;
+        font-size: 16px;
+        color: #ffd700;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
 
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            margin-bottom: 5px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            font-size: 14px;
-        }
+      .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        margin-bottom: 5px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        font-size: 14px;
+      }
 
-        .history-win {
-            color: #8AC926;
-        }
+      .history-win {
+        color: #8ac926;
+      }
 
-        .history-lose {
-            color: #ff6b6b;
-        }
+      .history-lose {
+        color: #ff6b6b;
+      }
 
-        .loading {
-            text-align: center;
-            color: rgba(255,255,255,0.5);
-        }
+      .loading {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>🎡 LUCKY WHEEL 🎡</h1>
-            <p>Spin and win up to 10x!</p>
+      <!-- Header -->
+      <div class="header">
+        <h1>🎡 LUCKY WHEEL 🎡</h1>
+        <p>Spin and win up to 10x!</p>
+      </div>
+
+      <!-- Jackpot Section -->
+      <div class="jackpot-section">
+        <div class="jackpot-label">🎰 PROGRESSIVE JACKPOT 🎰</div>
+        <div class="jackpot-value" id="jackpot-value">0</div>
+        <div style="font-size: 11px; color: rgba(0, 0, 0, 0.7); margin-top: 5px">
+          5% of each bet grows the pool!
+        </div>
+      </div>
+
+      <!-- Balance Section -->
+      <div class="balance-section">
+        <div class="balance-item">
+          <div class="balance-label">💰 BALANCE</div>
+          <div class="balance-value" id="balance">Loading...</div>
         </div>
 
-        <!-- Jackpot Section -->
-        <div class="jackpot-section">
-            <div class="jackpot-label">🎰 PROGRESSIVE JACKPOT 🎰</div>
-            <div class="jackpot-value" id="jackpot-value">0</div>
-            <div style="font-size: 11px; color: rgba(0,0,0,0.7); margin-top: 5px;">
-                5% of each bet grows the pool!
-            </div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Wins</div>
+            <div class="stat-value" id="wins">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Losses</div>
+            <div class="stat-value" id="losses" style="color: #ff6b6b">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Won</div>
+            <div class="stat-value" id="total-won">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bet Selection -->
+      <div class="bet-section">
+        <div class="bet-label">Choose your bet:</div>
+        <div class="bet-buttons">
+          <button class="bet-btn active" onclick="setBet(500, this)">💵 500 TAMA</button>
+          <button class="bet-btn" onclick="setBet(1000, this)">💎 1,000 TAMA</button>
         </div>
 
-        <!-- Balance Section -->
-        <div class="balance-section">
-            <div class="balance-item">
-                <div class="balance-label">💰 BALANCE</div>
-                <div class="balance-value" id="balance">Loading...</div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-label">Wins</div>
-                    <div class="stat-value" id="wins">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Losses</div>
-                    <div class="stat-value" id="losses" style="color: #ff6b6b;">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Total Won</div>
-                    <div class="stat-value" id="total-won">0</div>
-                </div>
-            </div>
+        <!-- Custom Bet Input -->
+        <div style="margin-top: 15px">
+          <div
+            style="
+              text-align: center;
+              font-size: 12px;
+              color: rgba(255, 255, 255, 0.7);
+              margin-bottom: 5px;
+            "
+          >
+            Or enter custom amount:
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center">
+            <input
+              type="number"
+              id="custom-bet-input"
+              placeholder="Enter amount..."
+              min="100"
+              max="999999"
+              style="
+                flex: 1;
+                padding: 10px;
+                border-radius: 10px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                background: rgba(0, 0, 0, 0.3);
+                color: white;
+                font-size: 14px;
+                text-align: center;
+              "
+            />
+            <button
+              class="bet-btn"
+              onclick="setCustomBet()"
+              style="flex: 0 0 auto; padding: 10px 20px"
+            >
+              ✅ Set
+            </button>
+          </div>
+          <div
+            id="custom-bet-hint"
+            style="
+              text-align: center;
+              font-size: 11px;
+              color: rgba(255, 215, 0, 0.8);
+              margin-top: 5px;
+            "
+          >
+            Max: 50% of balance
+          </div>
         </div>
+      </div>
 
-        <!-- Bet Selection -->
-        <div class="bet-section">
-            <div class="bet-label">Choose your bet:</div>
-            <div class="bet-buttons">
-                <button class="bet-btn active" onclick="setBet(500, this)">
-                    💵 500 TAMA
-                </button>
-                <button class="bet-btn" onclick="setBet(1000, this)">
-                    💎 1,000 TAMA
-                </button>
-            </div>
+      <!-- Wheel -->
+      <div class="wheel-container">
+        <div class="wheel-pointer"></div>
+        <canvas id="wheel-canvas" width="400" height="400"></canvas>
+      </div>
 
-            <!-- Custom Bet Input -->
-            <div style="margin-top: 15px;">
-                <div style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">
-                    Or enter custom amount:
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input
-                        type="number"
-                        id="custom-bet-input"
-                        placeholder="Enter amount..."
-                        min="100"
-                        max="999999"
-                        style="flex: 1; padding: 10px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: white; font-size: 14px; text-align: center;"
-                    />
-                    <button
-                        class="bet-btn"
-                        onclick="setCustomBet()"
-                        style="flex: 0 0 auto; padding: 10px 20px;"
-                    >
-                        ✅ Set
-                    </button>
-                </div>
-                <div id="custom-bet-hint" style="text-align: center; font-size: 11px; color: rgba(255,215,0,0.8); margin-top: 5px;">
-                    Max: 50% of balance
-                </div>
-            </div>
+      <!-- Spin Button -->
+      <button class="spin-button" id="spin-btn" onclick="spin()">
+        🎡 SPIN - <span id="spin-cost">500</span> TAMA
+      </button>
+
+      <!-- Result -->
+      <div class="result-box" id="result">Select bet and spin the wheel!</div>
+
+      <!-- History -->
+      <div class="history-section">
+        <div class="history-title">📜 Recent Spins</div>
+        <div id="history-list">
+          <div class="loading">No spins yet</div>
         </div>
+      </div>
 
-        <!-- Wheel -->
-        <div class="wheel-container">
-            <div class="wheel-pointer"></div>
-            <canvas id="wheel-canvas" width="400" height="400"></canvas>
-        </div>
-
-        <!-- Spin Button -->
-        <button class="spin-button" id="spin-btn" onclick="spin()">
-            🎡 SPIN - <span id="spin-cost">500</span> TAMA
+      <!-- Buttons -->
+      <div
+        style="
+          text-align: center;
+          margin-top: 15px;
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+          flex-wrap: wrap;
+        "
+      >
+        <button
+          onclick="showHowToPlay()"
+          style="
+            background: rgba(138, 201, 38, 0.2);
+            border: 1px solid #8ac926;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+          "
+        >
+          📖 How to Play
         </button>
-
-        <!-- Result -->
-        <div class="result-box" id="result">
-            Select bet and spin the wheel!
-        </div>
-
-        <!-- History -->
-        <div class="history-section">
-            <div class="history-title">📜 Recent Spins</div>
-            <div id="history-list">
-                <div class="loading">No spins yet</div>
-            </div>
-        </div>
-
-        <!-- Buttons -->
-        <div style="text-align: center; margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button onclick="showHowToPlay()" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; font-size: 14px;">
-                📖 How to Play
-            </button>
-            <button onclick="showProvablyFair()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; font-size: 14px;">
-                ✅ Provably Fair
-            </button>
-        </div>
+        <button
+          onclick="showProvablyFair()"
+          style="
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+          "
+        >
+          ✅ Provably Fair
+        </button>
+      </div>
     </div>
 
     <!-- How to Play Modal -->
-    <div id="howtoplay-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto;" onclick="closeHowToPlay()">
-        <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); margin: 20px auto; max-width: 600px; padding: 20px; border-radius: 15px; color: white;" onclick="event.stopPropagation()">
-            <h2 style="text-align: center; color: #FFD700; margin-bottom: 20px;">📖 How to Play Lucky Wheel</h2>
+    <div
+      id="howtoplay-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        overflow-y: auto;
+      "
+      onclick="closeHowToPlay()"
+    >
+      <div
+        style="
+          background: linear-gradient(135deg, #1a1a2e, #16213e);
+          margin: 20px auto;
+          max-width: 600px;
+          padding: 20px;
+          border-radius: 15px;
+          color: white;
+        "
+        onclick="event.stopPropagation()"
+      >
+        <h2 style="text-align: center; color: #ffd700; margin-bottom: 20px">
+          📖 How to Play Lucky Wheel
+        </h2>
 
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                <h3 style="color: #8AC926; margin-bottom: 10px;">🎯 Objective:</h3>
-                <p style="line-height: 1.6; font-size: 14px;">
-                    Spin the wheel and win! The wheel stops on one of 8 segments with different multipliers.
-                </p>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                <h3 style="color: #FFD700; margin-bottom: 10px;">💰 How to Play:</h3>
-                <ol style="line-height: 1.8; font-size: 14px; padding-left: 20px;">
-                    <li>Choose your bet: 500 or 1000 TAMA</li>
-                    <li>Click the "🎡 SPIN" button</li>
-                    <li>Wheel spins and stops on a random segment</li>
-                    <li>Your win = bet × segment multiplier</li>
-                </ol>
-            </div>
-
-            <div style="background: rgba(255,215,0,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                <h3 style="color: #FFD700; margin-bottom: 10px;">🎡 Wheel Segments:</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
-                    <div><span style="color: #ef4444;">●</span> 10x = <strong>JACKPOT!</strong></div>
-                    <div><span style="color: #8b5cf6;">●</span> 5x = <strong>Big Win</strong></div>
-                    <div><span style="color: #3b82f6;">●</span> 3x = <strong>Triple Win</strong></div>
-                    <div><span style="color: #10b981;">●</span> 2x = <strong>Double Win</strong></div>
-                    <div><span style="color: #059669;">●</span> 1x = <strong>Break Even</strong></div>
-                    <div><span style="color: #6b7280;">●</span> 0.5x = <strong>Half Back</strong></div>
-                    <div><span style="color: #6b7280;">●</span> 0.5x = <strong>Half Back</strong></div>
-                    <div><span style="color: #4b5563;">●</span> 0.3x = <strong>30% Back</strong></div>
-                </div>
-                <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.7);">
-                    * Each segment has equal chance (12.5%, except 0.5x - 25%)
-                </div>
-            </div>
-
-            <div style="background: rgba(138, 201, 38, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                <h3 style="color: #8AC926; margin-bottom: 10px;">💡 Examples:</h3>
-                <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px;">
-                    <li>Bet 1000 → landed 10x → win <strong>10,000 TAMA!</strong> 🎉</li>
-                    <li>Bet 500 → landed 5x → win <strong>2,500 TAMA</strong> ⭐</li>
-                    <li>Bet 1000 → landed 2x → win <strong>2,000 TAMA</strong> ✨</li>
-                    <li>Bet 500 → landed 1x → return <strong>500 TAMA</strong> (no loss)</li>
-                    <li>Bet 1000 → landed 0.5x → return <strong>500 TAMA</strong> (lost 500)</li>
-                </ul>
-            </div>
-
-            <div style="background: rgba(59,130,246,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                <h3 style="color: #3b82f6; margin-bottom: 10px;">📊 Probabilities:</h3>
-                <div style="font-size: 14px; line-height: 1.8;">
-                    <div>• 10x (Jackpot): <strong>12.5%</strong> chance</div>
-                    <div>• 5x (Big): <strong>12.5%</strong> chance</div>
-                    <div>• 3x (Triple): <strong>12.5%</strong> chance</div>
-                    <div>• 2x (Double): <strong>12.5%</strong> chance</div>
-                    <div>• 1x (Break Even): <strong>12.5%</strong> chance</div>
-                    <div>• 0.5x (Half): <strong>25%</strong> chance (2 segments)</div>
-                    <div>• 0.3x (Small): <strong>12.5%</strong> chance</div>
-                    <div style="margin-top: 10px; color: #8AC926;">
-                        <strong>RTP (Return to Player): ~100%</strong> - fair game!
-                    </div>
-                </div>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                <h3 style="color: #FFD700; margin-bottom: 10px;">⚡ Features:</h3>
-                <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px;">
-                    <li>Spin history saved in your browser</li>
-                    <li>Statistics (wins/losses) update in real-time</li>
-                    <li>Fair game - all probabilities visible in "Provably Fair"</li>
-                    <li>Sound effects for each result</li>
-                </ul>
-            </div>
-
-            <div style="background: rgba(255,68,68,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <h3 style="color: #ff6b6b; margin-bottom: 10px;">💡 Tips:</h3>
-                <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px;">
-                    <li>Start with 500 TAMA bet to understand the mechanics</li>
-                    <li>Track your stats in "Provably Fair"</li>
-                    <li>Don't chase losses - play responsibly</li>
-                    <li>Remember: this is a game of luck, results are always random</li>
-                </ul>
-            </div>
-
-            <button onclick="closeHowToPlay()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #FFD700, #FFA500); border: none; border-radius: 10px; color: #000; font-weight: bold; cursor: pointer; font-size: 16px;">
-                Got it, let's spin! 🎡
-            </button>
+        <div
+          style="
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #8ac926; margin-bottom: 10px">🎯 Objective:</h3>
+          <p style="line-height: 1.6; font-size: 14px">
+            Spin the wheel and win! The wheel stops on one of 8 segments with different multipliers.
+          </p>
         </div>
+
+        <div
+          style="
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #ffd700; margin-bottom: 10px">💰 How to Play:</h3>
+          <ol style="line-height: 1.8; font-size: 14px; padding-left: 20px">
+            <li>Choose your bet: 500 or 1000 TAMA</li>
+            <li>Click the "🎡 SPIN" button</li>
+            <li>Wheel spins and stops on a random segment</li>
+            <li>Your win = bet × segment multiplier</li>
+          </ol>
+        </div>
+
+        <div
+          style="
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #ffd700; margin-bottom: 10px">🎡 Wheel Segments:</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px">
+            <div><span style="color: #ef4444">●</span> 10x = <strong>JACKPOT!</strong></div>
+            <div><span style="color: #8b5cf6">●</span> 5x = <strong>Big Win</strong></div>
+            <div><span style="color: #3b82f6">●</span> 3x = <strong>Triple Win</strong></div>
+            <div><span style="color: #10b981">●</span> 2x = <strong>Double Win</strong></div>
+            <div><span style="color: #059669">●</span> 1x = <strong>Break Even</strong></div>
+            <div><span style="color: #6b7280">●</span> 0.5x = <strong>Half Back</strong></div>
+            <div><span style="color: #6b7280">●</span> 0.5x = <strong>Half Back</strong></div>
+            <div><span style="color: #4b5563">●</span> 0.3x = <strong>30% Back</strong></div>
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; color: rgba(255, 255, 255, 0.7)">
+            * Each segment has equal chance (12.5%, except 0.5x - 25%)
+          </div>
+        </div>
+
+        <div
+          style="
+            background: rgba(138, 201, 38, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #8ac926; margin-bottom: 10px">💡 Examples:</h3>
+          <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px">
+            <li>Bet 1000 → landed 10x → win <strong>10,000 TAMA!</strong> 🎉</li>
+            <li>Bet 500 → landed 5x → win <strong>2,500 TAMA</strong> ⭐</li>
+            <li>Bet 1000 → landed 2x → win <strong>2,000 TAMA</strong> ✨</li>
+            <li>Bet 500 → landed 1x → return <strong>500 TAMA</strong> (no loss)</li>
+            <li>Bet 1000 → landed 0.5x → return <strong>500 TAMA</strong> (lost 500)</li>
+          </ul>
+        </div>
+
+        <div
+          style="
+            background: rgba(59, 130, 246, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #3b82f6; margin-bottom: 10px">📊 Probabilities:</h3>
+          <div style="font-size: 14px; line-height: 1.8">
+            <div>• 10x (Jackpot): <strong>12.5%</strong> chance</div>
+            <div>• 5x (Big): <strong>12.5%</strong> chance</div>
+            <div>• 3x (Triple): <strong>12.5%</strong> chance</div>
+            <div>• 2x (Double): <strong>12.5%</strong> chance</div>
+            <div>• 1x (Break Even): <strong>12.5%</strong> chance</div>
+            <div>• 0.5x (Half): <strong>25%</strong> chance (2 segments)</div>
+            <div>• 0.3x (Small): <strong>12.5%</strong> chance</div>
+            <div style="margin-top: 10px; color: #8ac926">
+              <strong>RTP (Return to Player): ~100%</strong> - fair game!
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #ffd700; margin-bottom: 10px">⚡ Features:</h3>
+          <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px">
+            <li>Spin history saved in your browser</li>
+            <li>Statistics (wins/losses) update in real-time</li>
+            <li>Fair game - all probabilities visible in "Provably Fair"</li>
+            <li>Sound effects for each result</li>
+          </ul>
+        </div>
+
+        <div
+          style="
+            background: rgba(255, 68, 68, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <h3 style="color: #ff6b6b; margin-bottom: 10px">💡 Tips:</h3>
+          <ul style="line-height: 1.8; font-size: 14px; padding-left: 20px">
+            <li>Start with 500 TAMA bet to understand the mechanics</li>
+            <li>Track your stats in "Provably Fair"</li>
+            <li>Don't chase losses - play responsibly</li>
+            <li>Remember: this is a game of luck, results are always random</li>
+          </ul>
+        </div>
+
+        <button
+          onclick="closeHowToPlay()"
+          style="
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+          "
+        >
+          Got it, let's spin! 🎡
+        </button>
+      </div>
     </div>
 
     <!-- Provably Fair Modal -->
-    <div id="provably-fair-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto;" onclick="closeProvablyFair()">
-        <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); margin: 20px auto; max-width: 600px; padding: 20px; border-radius: 15px; color: white;" onclick="event.stopPropagation()">
-            <h2 style="text-align: center; color: #FFD700; margin-bottom: 20px;">✅ Provably Fair Wheel</h2>
+    <div
+      id="provably-fair-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        overflow-y: auto;
+      "
+      onclick="closeProvablyFair()"
+    >
+      <div
+        style="
+          background: linear-gradient(135deg, #1a1a2e, #16213e);
+          margin: 20px auto;
+          max-width: 600px;
+          padding: 20px;
+          border-radius: 15px;
+          color: white;
+        "
+        onclick="event.stopPropagation()"
+      >
+        <h2 style="text-align: center; color: #ffd700; margin-bottom: 20px">
+          ✅ Provably Fair Wheel
+        </h2>
 
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <h3 style="color: #8AC926; margin-bottom: 10px;">🎡 How It Works:</h3>
-                <p style="line-height: 1.6; font-size: 14px;">
-                    The wheel uses random rotation with equal probability for each segment. All spins are generated client-side and results are transparent.
-                </p>
-            </div>
-
-            <div style="background: rgba(255,215,0,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <h3 style="color: #FFD700; margin-bottom: 10px;">📊 Segment Probabilities:</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
-                    <div>10x Jackpot: <strong>12.5%</strong></div>
-                    <div>5x Big Win: <strong>12.5%</strong></div>
-                    <div>3x Triple: <strong>12.5%</strong></div>
-                    <div>2x Double: <strong>12.5%</strong></div>
-                    <div>1x Break Even: <strong>12.5%</strong></div>
-                    <div>0.5x Half: <strong>25%</strong></div>
-                    <div style="grid-column: 1 / -1;">0.3x Small: <strong>12.5%</strong></div>
-                </div>
-                <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.7);">
-                    * Expected RTP: ~100% (fair game)
-                </div>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <h3 style="color: #8AC926; margin-bottom: 10px;">📈 Your Statistics:</h3>
-                <div id="user-stats" style="font-size: 14px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>Total Spins: <strong id="stat-spins">0</strong></div>
-                        <div>Total Wagered: <strong id="stat-wagered">0</strong></div>
-                        <div>Total Won: <strong id="stat-won">0</strong></div>
-                        <div>Win Rate: <strong id="stat-winrate">0%</strong></div>
-                        <div>Biggest Win: <strong id="stat-bigwin">0</strong></div>
-                        <div>RTP: <strong id="stat-rtp">0%</strong></div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <h3 style="color: #FFD700; margin-bottom: 10px;">🔍 Recent Spins:</h3>
-                <div id="recent-spins" style="max-height: 200px; overflow-y: auto; font-size: 12px;">
-                    <!-- Will be populated by JS -->
-                </div>
-            </div>
-
-            <button onclick="closeProvablyFair()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #FFD700, #FFA500); border: none; border-radius: 10px; color: #000; font-weight: bold; cursor: pointer; font-size: 16px;">
-                Close
-            </button>
+        <div
+          style="
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <h3 style="color: #8ac926; margin-bottom: 10px">🎡 How It Works:</h3>
+          <p style="line-height: 1.6; font-size: 14px">
+            The wheel uses random rotation with equal probability for each segment. All spins are
+            generated client-side and results are transparent.
+          </p>
         </div>
+
+        <div
+          style="
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <h3 style="color: #ffd700; margin-bottom: 10px">📊 Segment Probabilities:</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px">
+            <div>10x Jackpot: <strong>12.5%</strong></div>
+            <div>5x Big Win: <strong>12.5%</strong></div>
+            <div>3x Triple: <strong>12.5%</strong></div>
+            <div>2x Double: <strong>12.5%</strong></div>
+            <div>1x Break Even: <strong>12.5%</strong></div>
+            <div>0.5x Half: <strong>25%</strong></div>
+            <div style="grid-column: 1 / -1">0.3x Small: <strong>12.5%</strong></div>
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; color: rgba(255, 255, 255, 0.7)">
+            * Expected RTP: ~100% (fair game)
+          </div>
+        </div>
+
+        <div
+          style="
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <h3 style="color: #8ac926; margin-bottom: 10px">📈 Your Statistics:</h3>
+          <div id="user-stats" style="font-size: 14px">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+              <div>Total Spins: <strong id="stat-spins">0</strong></div>
+              <div>Total Wagered: <strong id="stat-wagered">0</strong></div>
+              <div>Total Won: <strong id="stat-won">0</strong></div>
+              <div>Win Rate: <strong id="stat-winrate">0%</strong></div>
+              <div>Biggest Win: <strong id="stat-bigwin">0</strong></div>
+              <div>RTP: <strong id="stat-rtp">0%</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <h3 style="color: #ffd700; margin-bottom: 10px">🔍 Recent Spins:</h3>
+          <div id="recent-spins" style="max-height: 200px; overflow-y: auto; font-size: 12px">
+            <!-- Will be populated by JS -->
+          </div>
+        </div>
+
+        <button
+          onclick="closeProvablyFair()"
+          style="
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+          "
+        >
+          Close
+        </button>
+      </div>
     </div>
 
     <script>
-        // Initialize Telegram WebApp
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.ready();
-            tg.expand();
+      // Initialize Telegram WebApp
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        tg.ready();
+        tg.expand();
+      }
+
+      // Supabase
+      const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
+      const SUPABASE_KEY =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      // Get user ID
+      function getUserId() {
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+          const user = window.Telegram.WebApp.initDataUnsafe.user;
+          if (user && user.id) {
+            console.log('✅ Got user ID from Telegram WebApp:', user.id);
+            return String(user.id);
+          }
         }
 
-        // Supabase
-        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // Get user ID
-        function getUserId() {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-                const user = window.Telegram.WebApp.initDataUnsafe.user;
-                if (user && user.id) {
-                    console.log('✅ Got user ID from Telegram WebApp:', user.id);
-                    return String(user.id);
-                }
-            }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const userIdFromUrl = urlParams.get('user_id');
-            if (userIdFromUrl) {
-                console.log('✅ Got user ID from URL:', userIdFromUrl);
-                return userIdFromUrl;
-            }
-
-            const saved = localStorage.getItem('telegram_user_id');
-            if (saved) {
-                console.log('✅ Got user ID from localStorage:', saved);
-                return saved;
-            }
-
-            console.warn('⚠️ No user ID found, using test ID');
-            return '123456789';
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdFromUrl = urlParams.get('user_id');
+        if (userIdFromUrl) {
+          console.log('✅ Got user ID from URL:', userIdFromUrl);
+          return userIdFromUrl;
         }
 
-        let userId = getUserId();
-        const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
-
-        // Game state
-        let currentBet = 500;
-        let isSpinning = false;
-        let balance = 0;
-        let walletAddress = null;
-        let wins = 0;
-        let losses = 0;
-        let totalWon = 0;
-        let spinHistory = [];
-        let jackpotPool = 0; // GLOBAL progressive jackpot pool (synced across all players)
-
-        // Limits
-        const MAX_SPINS_PER_DAY = 30;
-        let spinsToday = 0;
-
-        // Create confetti effect (defined early)
-        function createConfetti() {
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.style.position = 'fixed';
-                    confetti.style.width = '10px';
-                    confetti.style.height = '10px';
-                    confetti.style.left = Math.random() * 100 + '%';
-                    confetti.style.top = '-10px';
-                    confetti.style.background = ['#FFD700', '#FFA500', '#FF6347', '#8AC926', '#8b5cf6'][Math.floor(Math.random() * 5)];
-                    confetti.style.borderRadius = '50%';
-                    confetti.style.pointerEvents = 'none';
-                    confetti.style.zIndex = '9999';
-                    confetti.style.animation = 'confetti-fall 3s linear forwards';
-                    document.body.appendChild(confetti);
-
-                    setTimeout(() => confetti.remove(), 3000);
-                }, i * 50);
-            }
+        const saved = localStorage.getItem('telegram_user_id');
+        if (saved) {
+          console.log('✅ Got user ID from localStorage:', saved);
+          return saved;
         }
 
-        // Wheel setup
-        const canvas = document.getElementById('wheel-canvas');
-        const ctx = canvas.getContext('2d');
-        let rotation = 0;
+        console.warn('⚠️ No user ID found, using test ID');
+        return '123456789';
+      }
 
-        // Segments - NEW BALANCED (12 segments, RTP ~94%)
-        // Jackpot is now RARE (8.3% instead of 12.5%)!
-        const segments = [
-            { multiplier: 10, color: '#ef4444', text: '10x' },      // 8.3% - JACKPOT (rare!)
-            { multiplier: 5, color: '#8b5cf6', text: '5x' },        // 8.3% - Big Win
-            { multiplier: 3, color: '#3b82f6', text: '3x' },        // 8.3% - Triple
-            { multiplier: 2, color: '#10b981', text: '2x' },        // 8.3% - Double
-            { multiplier: 2, color: '#10b981', text: '2x' },        // 8.3% - Double (2nd)
-            { multiplier: 1, color: '#059669', text: '1x' },        // 8.3% - Break Even
-            { multiplier: 1, color: '#059669', text: '1x' },        // 8.3% - Break Even (2nd)
-            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },    // 8.3% - Half
-            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },    // 8.3% - Half (2nd)
-            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },    // 8.3% - Half (3rd)
-            { multiplier: 0.3, color: '#4b5563', text: '0.3x' },    // 8.3% - 30% back
-            { multiplier: 0, color: '#dc2626', text: '0x' }         // 8.3% - LOSE ALL
-        ];
-        // Expected RTP: ~94% (challenging but fair)
+      let userId = getUserId();
+      const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
 
-        // Sound system
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx;
-        let soundEnabled = true;
+      // Game state
+      let currentBet = 500;
+      let isSpinning = false;
+      let balance = 0;
+      let walletAddress = null;
+      let wins = 0;
+      let losses = 0;
+      let totalWon = 0;
+      let spinHistory = [];
+      let jackpotPool = 0; // GLOBAL progressive jackpot pool (synced across all players)
 
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new AudioContext();
-                console.log('🔊 Audio initialized');
-            }
+      // Limits
+      const MAX_SPINS_PER_DAY = 30;
+      let spinsToday = 0;
+
+      // Create confetti effect (defined early)
+      function createConfetti() {
+        for (let i = 0; i < 50; i++) {
+          setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'fixed';
+            confetti.style.width = '10px';
+            confetti.style.height = '10px';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = '-10px';
+            confetti.style.background = ['#FFD700', '#FFA500', '#FF6347', '#8AC926', '#8b5cf6'][
+              Math.floor(Math.random() * 5)
+            ];
+            confetti.style.borderRadius = '50%';
+            confetti.style.pointerEvents = 'none';
+            confetti.style.zIndex = '9999';
+            confetti.style.animation = 'confetti-fall 3s linear forwards';
+            document.body.appendChild(confetti);
+
+            setTimeout(() => confetti.remove(), 3000);
+          }, i * 50);
         }
+      }
 
-        const sounds = {
-            spin: () => {
-                if (!audioCtx || !soundEnabled) return;
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.frequency.value = 800;
-                oscillator.type = 'square';
-                gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-                oscillator.start(audioCtx.currentTime);
-                oscillator.stop(audioCtx.currentTime + 0.08);
-            },
+      // Wheel setup
+      const canvas = document.getElementById('wheel-canvas');
+      const ctx = canvas.getContext('2d');
+      let rotation = 0;
 
-            win: () => {
-                if (!audioCtx || !soundEnabled) return;
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
-                oscillator.type = 'sine';
-                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                oscillator.start(audioCtx.currentTime);
-                oscillator.stop(audioCtx.currentTime + 0.3);
-            },
+      // Segments - NEW BALANCED (12 segments, RTP ~94%)
+      // Jackpot is now RARE (8.3% instead of 12.5%)!
+      const segments = [
+        { multiplier: 10, color: '#ef4444', text: '10x' }, // 8.3% - JACKPOT (rare!)
+        { multiplier: 5, color: '#8b5cf6', text: '5x' }, // 8.3% - Big Win
+        { multiplier: 3, color: '#3b82f6', text: '3x' }, // 8.3% - Triple
+        { multiplier: 2, color: '#10b981', text: '2x' }, // 8.3% - Double
+        { multiplier: 2, color: '#10b981', text: '2x' }, // 8.3% - Double (2nd)
+        { multiplier: 1, color: '#059669', text: '1x' }, // 8.3% - Break Even
+        { multiplier: 1, color: '#059669', text: '1x' }, // 8.3% - Break Even (2nd)
+        { multiplier: 0.5, color: '#6b7280', text: '0.5x' }, // 8.3% - Half
+        { multiplier: 0.5, color: '#6b7280', text: '0.5x' }, // 8.3% - Half (2nd)
+        { multiplier: 0.5, color: '#6b7280', text: '0.5x' }, // 8.3% - Half (3rd)
+        { multiplier: 0.3, color: '#4b5563', text: '0.3x' }, // 8.3% - 30% back
+        { multiplier: 0, color: '#dc2626', text: '0x' }, // 8.3% - LOSE ALL
+      ];
+      // Expected RTP: ~94% (challenging but fair)
 
-            bigWin: () => {
-                if (!audioCtx || !soundEnabled) return;
-                for (let i = 0; i < 3; i++) {
-                    setTimeout(() => {
-                        const oscillator = audioCtx.createOscillator();
-                        const gainNode = audioCtx.createGain();
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioCtx.destination);
-                        oscillator.frequency.setValueAtTime(500 + (i * 150), audioCtx.currentTime);
-                        oscillator.frequency.exponentialRampToValueAtTime(800 + (i * 200), audioCtx.currentTime + 0.2);
-                        oscillator.type = 'sine';
-                        gainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                        oscillator.start(audioCtx.currentTime);
-                        oscillator.stop(audioCtx.currentTime + 0.2);
-                    }, i * 100);
-                }
-            },
+      // Sound system
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      let audioCtx;
+      let soundEnabled = true;
 
-            jackpot: () => {
-                if (!audioCtx || !soundEnabled) return;
-                for (let i = 0; i < 8; i++) {
-                    setTimeout(() => {
-                        const oscillator = audioCtx.createOscillator();
-                        const gainNode = audioCtx.createGain();
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioCtx.destination);
-                        oscillator.frequency.value = 600 + (i * 150);
-                        oscillator.type = 'sine';
-                        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-                        oscillator.start(audioCtx.currentTime);
-                        oscillator.stop(audioCtx.currentTime + 0.15);
-                    }, i * 80);
-                }
-            },
-
-            loss: () => {
-                if (!audioCtx || !soundEnabled) return;
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
-                oscillator.type = 'sawtooth';
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                oscillator.start(audioCtx.currentTime);
-                oscillator.stop(audioCtx.currentTime + 0.3);
-            }
-        };
-
-        // Draw wheel
-        function drawWheel() {
-            const centerX = 200;
-            const centerY = 200;
-            const radius = 180;
-
-            ctx.clearRect(0, 0, 400, 400);
-
-            segments.forEach((segment, i) => {
-                const angle = (Math.PI * 2) / segments.length;
-                // Segments start from top (0°) and go clockwise
-                // Segment 0 starts at rotation, segment 1 at rotation + angle, etc.
-                const startAngle = angle * i + rotation;
-                const endAngle = angle * (i + 1) + rotation;
-
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-                ctx.closePath();
-                ctx.fillStyle = segment.color;
-                ctx.fill();
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.rotate(startAngle + angle / 2);
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 24px Arial';
-                ctx.fillText(segment.text, radius * 0.7, 5);
-                ctx.restore();
-            });
+      function initAudio() {
+        if (!audioCtx) {
+          audioCtx = new AudioContext();
+          console.log('🔊 Audio initialized');
         }
+      }
 
-        // Set bet
-        function setBet(amount, clickedButton) {
-            currentBet = amount;
-            document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // If called from button click, highlight it
-            if (clickedButton) {
-                clickedButton.classList.add('active');
-            } else if (window.event && window.event.target) {
-                window.event.target.classList.add('active');
-            }
-            
-            document.getElementById('spin-cost').textContent = amount.toLocaleString();
+      const sounds = {
+        spin: () => {
+          if (!audioCtx || !soundEnabled) return;
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          oscillator.frequency.value = 800;
+          oscillator.type = 'square';
+          gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+          oscillator.start(audioCtx.currentTime);
+          oscillator.stop(audioCtx.currentTime + 0.08);
+        },
 
-            // Clear custom input
-            document.getElementById('custom-bet-input').value = '';
-        }
+        win: () => {
+          if (!audioCtx || !soundEnabled) return;
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+          oscillator.type = 'sine';
+          gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          oscillator.start(audioCtx.currentTime);
+          oscillator.stop(audioCtx.currentTime + 0.3);
+        },
 
-        // Set custom bet (max 50% of balance)
-        function setCustomBet() {
-            const input = document.getElementById('custom-bet-input');
-            const amount = parseInt(input.value);
-
-            if (!amount || amount < 100) {
-                alert('❌ Minimum bet: 100 TAMA');
-                return;
-            }
-
-            const maxBet = Math.floor(balance * 0.5);
-            if (amount > maxBet) {
-                alert(`❌ Maximum bet: ${maxBet.toLocaleString()} TAMA (50% of balance)`);
-                return;
-            }
-
-            if (amount > balance) {
-                alert('❌ Insufficient balance!');
-                return;
-            }
-
-            // Set custom bet
-            currentBet = amount;
-            document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('spin-cost').textContent = amount.toLocaleString();
-
-            // Show success
-            input.style.borderColor = '#8AC926';
+        bigWin: () => {
+          if (!audioCtx || !soundEnabled) return;
+          for (let i = 0; i < 3; i++) {
             setTimeout(() => {
-                input.style.borderColor = 'rgba(255,255,255,0.3)';
-            }, 1000);
+              const oscillator = audioCtx.createOscillator();
+              const gainNode = audioCtx.createGain();
+              oscillator.connect(gainNode);
+              gainNode.connect(audioCtx.destination);
+              oscillator.frequency.setValueAtTime(500 + i * 150, audioCtx.currentTime);
+              oscillator.frequency.exponentialRampToValueAtTime(
+                800 + i * 200,
+                audioCtx.currentTime + 0.2
+              );
+              oscillator.type = 'sine';
+              gainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+              oscillator.start(audioCtx.currentTime);
+              oscillator.stop(audioCtx.currentTime + 0.2);
+            }, i * 100);
+          }
+        },
+
+        jackpot: () => {
+          if (!audioCtx || !soundEnabled) return;
+          for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+              const oscillator = audioCtx.createOscillator();
+              const gainNode = audioCtx.createGain();
+              oscillator.connect(gainNode);
+              gainNode.connect(audioCtx.destination);
+              oscillator.frequency.value = 600 + i * 150;
+              oscillator.type = 'sine';
+              gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+              oscillator.start(audioCtx.currentTime);
+              oscillator.stop(audioCtx.currentTime + 0.15);
+            }, i * 80);
+          }
+        },
+
+        loss: () => {
+          if (!audioCtx || !soundEnabled) return;
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+          oscillator.type = 'sawtooth';
+          gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          oscillator.start(audioCtx.currentTime);
+          oscillator.stop(audioCtx.currentTime + 0.3);
+        },
+      };
+
+      // Draw wheel
+      function drawWheel() {
+        const centerX = 200;
+        const centerY = 200;
+        const radius = 180;
+
+        ctx.clearRect(0, 0, 400, 400);
+
+        segments.forEach((segment, i) => {
+          const angle = (Math.PI * 2) / segments.length;
+          // Segments start from top (0°) and go clockwise
+          // Segment 0 starts at rotation, segment 1 at rotation + angle, etc.
+          const startAngle = angle * i + rotation;
+          const endAngle = angle * (i + 1) + rotation;
+
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+          ctx.closePath();
+          ctx.fillStyle = segment.color;
+          ctx.fill();
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(startAngle + angle / 2);
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 24px Arial';
+          ctx.fillText(segment.text, radius * 0.7, 5);
+          ctx.restore();
+        });
+      }
+
+      // Set bet
+      function setBet(amount, clickedButton) {
+        currentBet = amount;
+        document.querySelectorAll('.bet-btn').forEach((btn) => btn.classList.remove('active'));
+
+        // If called from button click, highlight it
+        if (clickedButton) {
+          clickedButton.classList.add('active');
+        } else if (window.event && window.event.target) {
+          window.event.target.classList.add('active');
         }
 
-        // Format number
-        function formatNumber(num) {
-            return Math.floor(num).toLocaleString();
+        document.getElementById('spin-cost').textContent = amount.toLocaleString();
+
+        // Clear custom input
+        document.getElementById('custom-bet-input').value = '';
+      }
+
+      // Set custom bet (max 50% of balance)
+      function setCustomBet() {
+        const input = document.getElementById('custom-bet-input');
+        const amount = parseInt(input.value);
+
+        if (!amount || amount < 100) {
+          alert('❌ Minimum bet: 100 TAMA');
+          return;
         }
 
-        // Load user data
-        async function loadUserData() {
-            if (!userId || userId === '123456789') {
-                document.getElementById('balance').textContent = '0';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/balance?telegram_id=${userId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    balance = data.total_tama || data.database_tama || data.balance || 0;
-                    document.getElementById('balance').textContent = formatNumber(balance);
-
-                    if (userId && userId !== '123456789') {
-                        localStorage.setItem('telegram_user_id', userId);
-                    }
-
-                    // Update custom bet hint with max amount
-                    const maxBet = Math.floor(balance * 0.5);
-                    document.getElementById('custom-bet-hint').textContent = `Max: ${formatNumber(maxBet)} TAMA (50% of balance)`;
-                }
-            } catch (error) {
-                console.error('Failed to load balance:', error);
-                document.getElementById('balance').textContent = '0';
-            }
-
-            // Load spin counter for today
-            const today = new Date().toDateString();
-            const savedDate = localStorage.getItem('wheel_spin_date');
-            if (savedDate !== today) {
-                spinsToday = 0;
-                localStorage.setItem('wheel_spin_date', today);
-                localStorage.setItem('wheel_spins_today', '0');
-            } else {
-                spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
-            }
-
-            // Update button text
-            const remaining = MAX_SPINS_PER_DAY - spinsToday;
-            if (remaining > 0) {
-                document.getElementById('spin-btn').textContent = `🎡 SPIN (${remaining} left today)`;
-                document.getElementById('spin-btn').disabled = false;
-            } else {
-                document.getElementById('spin-btn').textContent = `⏰ Come back tomorrow`;
-                document.getElementById('spin-btn').disabled = true;
-            }
-
-            // Load jackpot pool
-            loadJackpot();
+        const maxBet = Math.floor(balance * 0.5);
+        if (amount > maxBet) {
+          alert(`❌ Maximum bet: ${maxBet.toLocaleString()} TAMA (50% of balance)`);
+          return;
         }
 
-        // Load jackpot pool from localStorage
-        function loadJackpot() {
-            const saved = localStorage.getItem('wheel_jackpot_pool');
-            jackpotPool = saved ? parseInt(saved) : 5000; // Start at 5,000 TAMA
-            updateJackpotDisplay();
+        if (amount > balance) {
+          alert('❌ Insufficient balance!');
+          return;
         }
 
-        // Update jackpot display
-        function updateJackpotDisplay() {
-            document.getElementById('jackpot-value').textContent = formatNumber(jackpotPool) + ' TAMA';
+        // Set custom bet
+        currentBet = amount;
+        document.querySelectorAll('.bet-btn').forEach((btn) => btn.classList.remove('active'));
+        document.getElementById('spin-cost').textContent = amount.toLocaleString();
+
+        // Show success
+        input.style.borderColor = '#8AC926';
+        setTimeout(() => {
+          input.style.borderColor = 'rgba(255,255,255,0.3)';
+        }, 1000);
+      }
+
+      // Format number
+      function formatNumber(num) {
+        return Math.floor(num).toLocaleString();
+      }
+
+      // Load user data
+      async function loadUserData() {
+        if (!userId || userId === '123456789') {
+          document.getElementById('balance').textContent = '0';
+          return;
         }
 
-        // Add to GLOBAL jackpot (5% of bet) - ASYNC
-        async function addToJackpot(betAmount) {
-            const contribution = Math.floor(betAmount * 0.05);
-            
-            // Update global jackpot via API
-            const result = await updateGlobalJackpot('add', contribution);
-            
-            if (result) {
-                return contribution;
-            } else {
-                console.error('❌ Failed to add to jackpot');
-                return 0;
-            }
-        }
+        try {
+          const response = await fetch(`${API_BASE}/balance?telegram_id=${userId}`);
+          if (response.ok) {
+            const data = await response.json();
+            balance = data.total_tama || data.database_tama || data.balance || 0;
+            document.getElementById('balance').textContent = formatNumber(balance);
 
-        // Win GLOBAL jackpot (reset pool) - ASYNC
-        async function winJackpot() {
-            const won = jackpotPool; // Current jackpot amount
-            
-            // Reset global jackpot via API
-            const result = await updateGlobalJackpot('reset');
-            
-            if (result) {
-                console.log('🎰 JACKPOT WON:', won, '→ Reset to', result.jackpot);
-                return won;
-            } else {
-                console.error('❌ Failed to reset jackpot');
-                return won; // Return won amount anyway
-            }
-        }
-
-        // Load history
-        function loadHistory() {
-            try {
-                const saved = localStorage.getItem(`wheel_history_${userId}`);
-                if (saved) {
-                    const loaded = JSON.parse(saved);
-                    spinHistory = loaded.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                    if (spinHistory.length > 50) {
-                        spinHistory = spinHistory.slice(0, 50);
-                    }
-                    updateHistoryDisplay();
-                }
-
-                // Load stats
-                wins = parseInt(localStorage.getItem(`wheel_wins_${userId}`) || '0');
-                losses = parseInt(localStorage.getItem(`wheel_losses_${userId}`) || '0');
-                totalWon = parseInt(localStorage.getItem(`wheel_totalWon_${userId}`) || '0');
-
-                document.getElementById('wins').textContent = wins;
-                document.getElementById('losses').textContent = losses;
-                document.getElementById('total-won').textContent = formatNumber(totalWon);
-            } catch (e) {
-                console.error('Failed to load history:', e);
-                spinHistory = [];
-            }
-        }
-
-        // Save history
-        function saveHistory() {
-            try {
-                localStorage.setItem(`wheel_history_${userId}`, JSON.stringify(spinHistory.slice(0, 50)));
-                localStorage.setItem(`wheel_wins_${userId}`, wins.toString());
-                localStorage.setItem(`wheel_losses_${userId}`, losses.toString());
-                localStorage.setItem(`wheel_totalWon_${userId}`, totalWon.toString());
-            } catch (e) {
-                console.error('Failed to save history:', e);
-            }
-        }
-
-        // Update history display
-        function updateHistoryDisplay() {
-            const historyList = document.getElementById('history-list');
-            if (!historyList) return;
-
-            if (spinHistory.length === 0) {
-                historyList.innerHTML = '<div class="loading">No spins yet</div>';
-                return;
+            if (userId && userId !== '123456789') {
+              localStorage.setItem('telegram_user_id', userId);
             }
 
-            historyList.innerHTML = spinHistory.slice(0, 10).map(item => {
-                const multiplier = item.multiplier || 0;
-                const winAmount = item.win || 0;
-                const betAmount = item.bet || 0;
-                const netProfit = winAmount - betAmount;
-                const isWin = netProfit > 0;
+            // Update custom bet hint with max amount
+            const maxBet = Math.floor(balance * 0.5);
+            document.getElementById('custom-bet-hint').textContent = `Max: ${formatNumber(
+              maxBet
+            )} TAMA (50% of balance)`;
+          }
+        } catch (error) {
+          console.error('Failed to load balance:', error);
+          document.getElementById('balance').textContent = '0';
+        }
 
-                return `
+        // Load spin counter for today
+        const today = new Date().toDateString();
+        const savedDate = localStorage.getItem('wheel_spin_date');
+        if (savedDate !== today) {
+          spinsToday = 0;
+          localStorage.setItem('wheel_spin_date', today);
+          localStorage.setItem('wheel_spins_today', '0');
+        } else {
+          spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
+        }
+
+        // Update button text
+        const remaining = MAX_SPINS_PER_DAY - spinsToday;
+        if (remaining > 0) {
+          document.getElementById('spin-btn').textContent = `🎡 SPIN (${remaining} left today)`;
+          document.getElementById('spin-btn').disabled = false;
+        } else {
+          document.getElementById('spin-btn').textContent = `⏰ Come back tomorrow`;
+          document.getElementById('spin-btn').disabled = true;
+        }
+
+        // Load jackpot pool
+        loadJackpot();
+      }
+
+      // Load jackpot pool from localStorage
+      function loadJackpot() {
+        const saved = localStorage.getItem('wheel_jackpot_pool');
+        jackpotPool = saved ? parseInt(saved) : 5000; // Start at 5,000 TAMA
+        updateJackpotDisplay();
+      }
+
+      // Update jackpot display
+      function updateJackpotDisplay() {
+        document.getElementById('jackpot-value').textContent = formatNumber(jackpotPool) + ' TAMA';
+      }
+
+      // Add to GLOBAL jackpot (5% of bet) - ASYNC
+      async function addToJackpot(betAmount) {
+        const contribution = Math.floor(betAmount * 0.05);
+
+        // Update global jackpot via API
+        const result = await updateGlobalJackpot('add', contribution);
+
+        if (result) {
+          return contribution;
+        } else {
+          console.error('❌ Failed to add to jackpot');
+          return 0;
+        }
+      }
+
+      // Win GLOBAL jackpot (reset pool) - ASYNC
+      async function winJackpot() {
+        const won = jackpotPool; // Current jackpot amount
+
+        // Reset global jackpot via API
+        const result = await updateGlobalJackpot('reset');
+
+        if (result) {
+          console.log('🎰 JACKPOT WON:', won, '→ Reset to', result.jackpot);
+          return won;
+        } else {
+          console.error('❌ Failed to reset jackpot');
+          return won; // Return won amount anyway
+        }
+      }
+
+      // Load history
+      function loadHistory() {
+        try {
+          const saved = localStorage.getItem(`wheel_history_${userId}`);
+          if (saved) {
+            const loaded = JSON.parse(saved);
+            spinHistory = loaded.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            if (spinHistory.length > 50) {
+              spinHistory = spinHistory.slice(0, 50);
+            }
+            updateHistoryDisplay();
+          }
+
+          // Load stats
+          wins = parseInt(localStorage.getItem(`wheel_wins_${userId}`) || '0');
+          losses = parseInt(localStorage.getItem(`wheel_losses_${userId}`) || '0');
+          totalWon = parseInt(localStorage.getItem(`wheel_totalWon_${userId}`) || '0');
+
+          document.getElementById('wins').textContent = wins;
+          document.getElementById('losses').textContent = losses;
+          document.getElementById('total-won').textContent = formatNumber(totalWon);
+        } catch (e) {
+          console.error('Failed to load history:', e);
+          spinHistory = [];
+        }
+      }
+
+      // Save history
+      function saveHistory() {
+        try {
+          localStorage.setItem(`wheel_history_${userId}`, JSON.stringify(spinHistory.slice(0, 50)));
+          localStorage.setItem(`wheel_wins_${userId}`, wins.toString());
+          localStorage.setItem(`wheel_losses_${userId}`, losses.toString());
+          localStorage.setItem(`wheel_totalWon_${userId}`, totalWon.toString());
+        } catch (e) {
+          console.error('Failed to save history:', e);
+        }
+      }
+
+      // Update history display
+      function updateHistoryDisplay() {
+        const historyList = document.getElementById('history-list');
+        if (!historyList) return;
+
+        if (spinHistory.length === 0) {
+          historyList.innerHTML = '<div class="loading">No spins yet</div>';
+          return;
+        }
+
+        historyList.innerHTML = spinHistory
+          .slice(0, 10)
+          .map((item) => {
+            const multiplier = item.multiplier || 0;
+            const winAmount = item.win || 0;
+            const betAmount = item.bet || 0;
+            const netProfit = winAmount - betAmount;
+            const isWin = netProfit > 0;
+
+            return `
                     <div class="history-item">
                         <div>${multiplier}x → ${item.win.toLocaleString()} TAMA</div>
                         <div class="${isWin ? 'history-win' : 'history-lose'}">
@@ -997,400 +1217,432 @@
                         </div>
                     </div>
                 `;
-            }).join('');
+          })
+          .join('');
+      }
+
+      // Add to history
+      function addToHistory(multiplier, winAmount, betAmount) {
+        const historyItem = {
+          multiplier,
+          win: winAmount,
+          bet: betAmount,
+          timestamp: Date.now(),
+        };
+
+        spinHistory.unshift(historyItem);
+        if (spinHistory.length > 50) {
+          spinHistory = spinHistory.slice(0, 50);
         }
 
-        // Add to history
-        function addToHistory(multiplier, winAmount, betAmount) {
-            const historyItem = {
-                multiplier,
-                win: winAmount,
-                bet: betAmount,
-                timestamp: Date.now()
-            };
+        saveHistory();
+        updateHistoryDisplay();
+      }
 
-            spinHistory.unshift(historyItem);
-            if (spinHistory.length > 50) {
-                spinHistory = spinHistory.slice(0, 50);
+      // Spin
+      async function spin() {
+        if (isSpinning) return;
+
+        // Check daily limit
+        const today = new Date().toDateString();
+        const savedDate = localStorage.getItem('wheel_spin_date');
+        if (savedDate !== today) {
+          // Reset counter for new day
+          spinsToday = 0;
+          localStorage.setItem('wheel_spin_date', today);
+          localStorage.setItem('wheel_spins_today', '0');
+        } else {
+          spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
+        }
+
+        if (spinsToday >= MAX_SPINS_PER_DAY) {
+          document.getElementById(
+            'result'
+          ).textContent = `⏰ Daily limit: ${MAX_SPINS_PER_DAY} spins. Come back tomorrow!`;
+          document.getElementById('result').style.color = '#fbbf24';
+          return;
+        }
+
+        if (balance < currentBet) {
+          document.getElementById('result').textContent = '❌ Insufficient balance!';
+          document.getElementById('result').style.color = '#ff6b6b';
+          return;
+        }
+
+        initAudio();
+        isSpinning = true;
+        document.getElementById('spin-btn').disabled = true;
+
+        // Deduct bet via API
+        const betResponse = await updateBalanceOnServer(-currentBet);
+        if (!betResponse || betResponse.error) {
+          console.error('❌ Failed to deduct bet:', betResponse?.error);
+          showResult('❌ Error: Could not process bet. Please try again.', 0);
+          isSpinning = false;
+          document.getElementById('spin-btn').disabled = false;
+          await loadUserData(); // Reload balance
+          return;
+        }
+
+        document.getElementById('result').textContent = '🎡 Spinning...';
+        document.getElementById('result').style.color = '#fff';
+
+        // Random target rotation
+        const targetRotation = rotation + Math.PI * 2 * (5 + Math.random() * 5);
+        const startTime = Date.now();
+        const duration = 3000;
+
+        // Spin sound
+        const spinInterval = setInterval(() => sounds.spin(), 200);
+
+        async function animate() {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          rotation = targetRotation * easeOut;
+          drawWheel();
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            clearInterval(spinInterval);
+
+            // Calculate result - POINTER IS AT TOP = 270° (3π/2)
+            const normalizedRotation = ((rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+            const segmentAngle = (Math.PI * 2) / segments.length;
+
+            // Pointer is at TOP of circle = 270° = 3π/2 (or -π/2)
+            // In canvas, arc() angles: 0° = right, 90° = bottom, 180° = left, 270° = top
+            const pointerAngle = (3 * Math.PI) / 2; // 270° - top of circle
+
+            // Calculate relative angle from current rotation to pointer
+            const relativeAngle = (pointerAngle - normalizedRotation + 2 * Math.PI) % (2 * Math.PI);
+
+            // Find which segment is at this angle
+            let segmentIndex = Math.floor(relativeAngle / segmentAngle);
+
+            // Ensure valid index
+            segmentIndex = segmentIndex % segments.length;
+            if (segmentIndex < 0) segmentIndex += segments.length;
+
+            const multiplier = segments[segmentIndex].multiplier;
+
+            // Debug log
+            console.log('🎡 Wheel result:', {
+              rotation: normalizedRotation.toFixed(4),
+              rotationDegrees: ((normalizedRotation * 180) / Math.PI).toFixed(1),
+              pointerAngle: '270° (top)',
+              relativeAngle: relativeAngle.toFixed(4),
+              relativeAngleDegrees: ((relativeAngle * 180) / Math.PI).toFixed(1),
+              segmentIndex,
+              multiplier,
+              segmentText: segments[segmentIndex].text,
+              segmentColor: segments[segmentIndex].color,
+              allSegments: segments.map((s, i) => `${i}:${s.text}`),
+            });
+            const winAmount = Math.floor(currentBet * multiplier);
+
+            // Update stats
+            const netProfit = winAmount - currentBet;
+            if (netProfit > 0) {
+              wins++;
+              totalWon += netProfit;
+            } else if (netProfit < 0) {
+              losses++;
             }
 
-            saveHistory();
-            updateHistoryDisplay();
-        }
+            // Update spin counter
+            spinsToday++;
+            localStorage.setItem('wheel_spins_today', spinsToday.toString());
 
-        // Spin
-        async function spin() {
-            if (isSpinning) return;
-
-            // Check daily limit
-            const today = new Date().toDateString();
-            const savedDate = localStorage.getItem('wheel_spin_date');
-            if (savedDate !== today) {
-                // Reset counter for new day
-                spinsToday = 0;
-                localStorage.setItem('wheel_spin_date', today);
-                localStorage.setItem('wheel_spins_today', '0');
+            // Update spin button with remaining spins
+            const remaining = MAX_SPINS_PER_DAY - spinsToday;
+            if (remaining > 0) {
+              document.getElementById('spin-btn').textContent = `🎡 SPIN (${remaining} left today)`;
             } else {
-                spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
+              document.getElementById('spin-btn').textContent = `⏰ Come back tomorrow`;
+              document.getElementById('spin-btn').disabled = true;
             }
 
-            if (spinsToday >= MAX_SPINS_PER_DAY) {
-                document.getElementById('result').textContent = `⏰ Daily limit: ${MAX_SPINS_PER_DAY} spins. Come back tomorrow!`;
-                document.getElementById('result').style.color = '#fbbf24';
-                return;
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('losses').textContent = losses;
+            document.getElementById('total-won').textContent = formatNumber(totalWon);
+
+            // Add to GLOBAL jackpot pool (5% of bet)
+            const jackpotContribution = await addToJackpot(currentBet);
+
+            // Play sound and show result FIRST (before API call)
+            const resultBox = document.getElementById('result');
+            if (multiplier >= 10) {
+              // JACKPOT WIN! Get the entire pool!
+              const jackpotWon = await winJackpot();
+              const totalWin = winAmount + jackpotWon;
+              resultBox.textContent = `🎰 JACKPOT! ${multiplier}x + ${formatNumber(
+                jackpotWon
+              )} POOL = +${formatNumber(totalWin)} TAMA!`;
+              resultBox.style.color = '#FFD700';
+              sounds.jackpot();
+              createConfetti();
+
+              // Update balance with jackpot
+              balance += jackpotWon;
+              document.getElementById('balance').textContent = formatNumber(balance);
+            } else if (multiplier >= 5) {
+              resultBox.textContent = `🎉 BIG WIN! ${multiplier}x = +${formatNumber(
+                netProfit
+              )} TAMA! (won ${formatNumber(winAmount)})`;
+              resultBox.style.color = '#8b5cf6';
+              sounds.bigWin();
+              createConfetti();
+            } else if (multiplier >= 2) {
+              resultBox.textContent = `⭐ Nice! ${multiplier}x = +${formatNumber(
+                netProfit
+              )} TAMA! (won ${formatNumber(winAmount)})`;
+              resultBox.style.color = '#10b981';
+              sounds.win();
+            } else if (multiplier === 1) {
+              resultBox.textContent = `😐 Break Even! ${multiplier}x = ${formatNumber(
+                winAmount
+              )} TAMA (no profit)`;
+              resultBox.style.color = '#6b7280';
+            } else {
+              resultBox.textContent = `😔 ${multiplier}x = ${formatNumber(
+                winAmount
+              )} TAMA (lost ${formatNumber(Math.abs(netProfit))})`;
+              resultBox.style.color = '#ff6b6b';
+              sounds.loss();
             }
 
-            if (balance < currentBet) {
-                document.getElementById('result').textContent = '❌ Insufficient balance!';
-                document.getElementById('result').style.color = '#ff6b6b';
-                return;
+            // Add to history
+            addToHistory(multiplier, winAmount, currentBet);
+
+            // CRITICAL: Re-enable button IMMEDIATELY (don't wait for API)
+            isSpinning = false;
+            const spinBtn = document.getElementById('spin-btn');
+            if (spinBtn) {
+              spinBtn.disabled = false;
             }
 
-            initAudio();
-            isSpinning = true;
-            document.getElementById('spin-btn').disabled = true;
-
-            // Deduct bet via API
-            const betResponse = await updateBalanceOnServer(-currentBet);
-            if (!betResponse || betResponse.error) {
-                console.error('❌ Failed to deduct bet:', betResponse?.error);
-                showResult('❌ Error: Could not process bet. Please try again.', 0);
-                isSpinning = false;
-                document.getElementById('spin-btn').disabled = false;
-                await loadUserData(); // Reload balance
-                return;
-            }
-
-            document.getElementById('result').textContent = '🎡 Spinning...';
-            document.getElementById('result').style.color = '#fff';
-
-            // Random target rotation
-            const targetRotation = rotation + Math.PI * 2 * (5 + Math.random() * 5);
-            const startTime = Date.now();
-            const duration = 3000;
-
-            // Spin sound
-            const spinInterval = setInterval(() => sounds.spin(), 200);
-
-            async function animate() {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easeOut = 1 - Math.pow(1 - progress, 3);
-                rotation = targetRotation * easeOut;
-                drawWheel();
-
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
+            // Update balance on server with win amount (bet already deducted)
+            // IMPORTANT: Only call ONCE per spin to avoid duplicate API calls!
+            if (winAmount > 0) {
+              try {
+                const winResponse = await updateBalanceOnServer(winAmount);
+                if (winResponse && winResponse.balance !== undefined) {
+                  console.log('✅ Win balance synced:', winResponse.balance);
                 } else {
-                    clearInterval(spinInterval);
-
-                    // Calculate result - POINTER IS AT TOP = 270° (3π/2)
-                    const normalizedRotation = ((rotation % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2);
-                    const segmentAngle = (Math.PI * 2) / segments.length;
-
-                    // Pointer is at TOP of circle = 270° = 3π/2 (or -π/2)
-                    // In canvas, arc() angles: 0° = right, 90° = bottom, 180° = left, 270° = top
-                    const pointerAngle = 3 * Math.PI / 2; // 270° - top of circle
-
-                    // Calculate relative angle from current rotation to pointer
-                    const relativeAngle = ((pointerAngle - normalizedRotation) + 2 * Math.PI) % (2 * Math.PI);
-
-                    // Find which segment is at this angle
-                    let segmentIndex = Math.floor(relativeAngle / segmentAngle);
-
-                    // Ensure valid index
-                    segmentIndex = segmentIndex % segments.length;
-                    if (segmentIndex < 0) segmentIndex += segments.length;
-
-                    const multiplier = segments[segmentIndex].multiplier;
-
-                    // Debug log
-                    console.log('🎡 Wheel result:', {
-                        rotation: normalizedRotation.toFixed(4),
-                        rotationDegrees: (normalizedRotation * 180 / Math.PI).toFixed(1),
-                        pointerAngle: '270° (top)',
-                        relativeAngle: relativeAngle.toFixed(4),
-                        relativeAngleDegrees: (relativeAngle * 180 / Math.PI).toFixed(1),
-                        segmentIndex,
-                        multiplier,
-                        segmentText: segments[segmentIndex].text,
-                        segmentColor: segments[segmentIndex].color,
-                        allSegments: segments.map((s, i) => `${i}:${s.text}`)
-                    });
-                    const winAmount = Math.floor(currentBet * multiplier);
-
-                    // Update stats
-                    const netProfit = winAmount - currentBet;
-                    if (netProfit > 0) {
-                        wins++;
-                        totalWon += netProfit;
-                    } else if (netProfit < 0) {
-                        losses++;
-                    }
-
-                    // Update spin counter
-                    spinsToday++;
-                    localStorage.setItem('wheel_spins_today', spinsToday.toString());
-
-                    // Update spin button with remaining spins
-                    const remaining = MAX_SPINS_PER_DAY - spinsToday;
-                    if (remaining > 0) {
-                        document.getElementById('spin-btn').textContent = `🎡 SPIN (${remaining} left today)`;
-                    } else {
-                        document.getElementById('spin-btn').textContent = `⏰ Come back tomorrow`;
-                        document.getElementById('spin-btn').disabled = true;
-                    }
-
-                    document.getElementById('wins').textContent = wins;
-                    document.getElementById('losses').textContent = losses;
-                    document.getElementById('total-won').textContent = formatNumber(totalWon);
-
-                    // Add to GLOBAL jackpot pool (5% of bet)
-                    const jackpotContribution = await addToJackpot(currentBet);
-
-                    // Play sound and show result FIRST (before API call)
-                    const resultBox = document.getElementById('result');
-                    if (multiplier >= 10) {
-                        // JACKPOT WIN! Get the entire pool!
-                        const jackpotWon = await winJackpot();
-                        const totalWin = winAmount + jackpotWon;
-                        resultBox.textContent = `🎰 JACKPOT! ${multiplier}x + ${formatNumber(jackpotWon)} POOL = +${formatNumber(totalWin)} TAMA!`;
-                        resultBox.style.color = '#FFD700';
-                        sounds.jackpot();
-                        createConfetti();
-
-                        // Update balance with jackpot
-                        balance += jackpotWon;
-                        document.getElementById('balance').textContent = formatNumber(balance);
-                    } else if (multiplier >= 5) {
-                        resultBox.textContent = `🎉 BIG WIN! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
-                        resultBox.style.color = '#8b5cf6';
-                        sounds.bigWin();
-                        createConfetti();
-                    } else if (multiplier >= 2) {
-                        resultBox.textContent = `⭐ Nice! ${multiplier}x = +${formatNumber(netProfit)} TAMA! (won ${formatNumber(winAmount)})`;
-                        resultBox.style.color = '#10b981';
-                        sounds.win();
-                    } else if (multiplier === 1) {
-                        resultBox.textContent = `😐 Break Even! ${multiplier}x = ${formatNumber(winAmount)} TAMA (no profit)`;
-                        resultBox.style.color = '#6b7280';
-                    } else {
-                        resultBox.textContent = `😔 ${multiplier}x = ${formatNumber(winAmount)} TAMA (lost ${formatNumber(Math.abs(netProfit))})`;
-                        resultBox.style.color = '#ff6b6b';
-                        sounds.loss();
-                    }
-
-                    // Add to history
-                    addToHistory(multiplier, winAmount, currentBet);
-
-                    // CRITICAL: Re-enable button IMMEDIATELY (don't wait for API)
-                    isSpinning = false;
-                    const spinBtn = document.getElementById('spin-btn');
-                    if (spinBtn) {
-                        spinBtn.disabled = false;
-                    }
-
-                    // Update balance on server with win amount (bet already deducted) - async, don't block
-                    // IMPORTANT: Only call ONCE per spin to avoid duplicate API calls!
-                    if (winAmount > 0) {
-                        updateBalanceOnServer(winAmount).catch(err => {
-                            console.error('Error updating balance:', err);
-                        });
-                    }
+                  console.error('❌ Failed to sync win balance:', winResponse);
                 }
+              } catch (err) {
+                console.error('❌ Error updating win balance:', err);
+              }
             }
-            animate();
+          }
         }
+        animate();
+      }
 
-        // Update balance on server
-        async function updateBalanceOnServer(amount) {
-            try {
-                const initData = window.Telegram?.WebApp?.initData || '';
+      // Update balance on server
+      async function updateBalanceOnServer(amount) {
+        try {
+          const initData = window.Telegram?.WebApp?.initData || '';
 
-                const requestBody = {
-                    telegram_id: String(userId),
-                    amount: amount,
-                    bet: amount < 0 ? Math.abs(amount) : 0,
-                    win: amount > 0 ? amount : 0,
-                    symbols: ['🎡', '🎡', '🎡'],
-                    init_data: initData
-                };
+          const requestBody = {
+            telegram_id: String(userId),
+            amount: amount,
+            bet: amount < 0 ? Math.abs(amount) : 0,
+            win: amount > 0 ? amount : 0,
+            symbols: ['🎡', '🎡', '🎡'],
+            init_data: initData,
+          };
 
-                // Add wallet_address if wallet user
-                if (userId.startsWith('wallet_') && walletAddress) {
-                    requestBody.wallet_address = walletAddress;
-                }
+          // Add wallet_address if wallet user
+          if (userId.startsWith('wallet_') && walletAddress) {
+            requestBody.wallet_address = walletAddress;
+          }
 
-                const response = await fetch(`${API_BASE}/slots/spin`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
-                });
+          console.log(`📡 Calling API with amount: ${amount}, bet: ${requestBody.bet}, win: ${requestBody.win}`);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.balance !== undefined || data.total_tama !== undefined) {
-                        balance = data.total_tama || data.database_tama || data.balance || balance;
-                        document.getElementById('balance').textContent = formatNumber(balance);
-                        console.log('✅ Balance synced with server:', balance);
-                        return data;
-                    }
-                } else {
-                    console.error('Failed to update balance on server:', response.status);
-                    return { error: `API returned ${response.status}` };
-                }
-            } catch (error) {
-                console.error('Error updating balance:', error);
-                return { error: error.message };
+          const response = await fetch(`${API_BASE}/slots/spin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('📥 API Response:', data);
+            
+            if (data.balance !== undefined || data.total_tama !== undefined) {
+              balance = data.total_tama || data.database_tama || data.balance || balance;
+              document.getElementById('balance').textContent = formatNumber(balance);
+              console.log(`✅ Balance synced: ${balance} (from API: ${data.balance || data.total_tama})`);
+              return data;
+            } else {
+              console.error('❌ API response missing balance field:', data);
+              return { error: 'Missing balance in response', data };
             }
+          } else {
+            const errorText = await response.text();
+            console.error(`❌ API returned ${response.status}:`, errorText);
+            return { error: `API returned ${response.status}`, details: errorText };
+          }
+        } catch (error) {
+          console.error('❌ Error calling API:', error);
+          return { error: error.message };
+        }
+      }
+
+      // How to Play
+      function showHowToPlay() {
+        document.getElementById('howtoplay-modal').style.display = 'block';
+      }
+
+      function closeHowToPlay() {
+        document.getElementById('howtoplay-modal').style.display = 'none';
+      }
+
+      // Provably Fair
+      function showProvablyFair() {
+        document.getElementById('provably-fair-modal').style.display = 'block';
+        calculateUserStats();
+        displayRecentSpins();
+      }
+
+      function closeProvablyFair() {
+        document.getElementById('provably-fair-modal').style.display = 'none';
+      }
+
+      function calculateUserStats() {
+        if (spinHistory.length === 0) {
+          document.getElementById('stat-spins').textContent = '0';
+          document.getElementById('stat-wagered').textContent = '0';
+          document.getElementById('stat-won').textContent = '0';
+          document.getElementById('stat-winrate').textContent = '0%';
+          document.getElementById('stat-bigwin').textContent = '0';
+          document.getElementById('stat-rtp').textContent = '0%';
+          return;
         }
 
+        const totalSpins = spinHistory.length;
+        const totalWagered = spinHistory.reduce((sum, spin) => sum + (spin.bet || 0), 0);
+        const totalWonAmount = spinHistory.reduce((sum, spin) => sum + (spin.win || 0), 0);
+        const winsCount = spinHistory.filter((spin) => spin.win - spin.bet > 0).length;
+        const winRate = ((winsCount / totalSpins) * 100).toFixed(1);
+        const biggestWin = Math.max(...spinHistory.map((spin) => spin.win || 0));
+        const rtp = totalWagered > 0 ? ((totalWonAmount / totalWagered) * 100).toFixed(1) : 0;
 
-        // How to Play
-        function showHowToPlay() {
-            document.getElementById('howtoplay-modal').style.display = 'block';
+        document.getElementById('stat-spins').textContent = totalSpins.toLocaleString();
+        document.getElementById('stat-wagered').textContent = totalWagered.toLocaleString();
+        document.getElementById('stat-won').textContent = totalWonAmount.toLocaleString();
+        document.getElementById('stat-winrate').textContent = winRate + '%';
+        document.getElementById('stat-bigwin').textContent = biggestWin.toLocaleString();
+        document.getElementById('stat-rtp').textContent = rtp + '%';
+      }
+
+      function displayRecentSpins() {
+        const container = document.getElementById('recent-spins');
+        container.innerHTML = '';
+
+        const recent = spinHistory.slice(0, 10);
+        if (recent.length === 0) {
+          container.innerHTML =
+            '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">No spins yet</div>';
+          return;
         }
 
-        function closeHowToPlay() {
-            document.getElementById('howtoplay-modal').style.display = 'none';
-        }
+        for (const spin of recent) {
+          const div = document.createElement('div');
+          div.style.cssText =
+            'padding: 8px; margin-bottom: 5px; background: rgba(255,255,255,0.05); border-radius: 5px; display: flex; justify-content: space-between;';
 
-        // Provably Fair
-        function showProvablyFair() {
-            document.getElementById('provably-fair-modal').style.display = 'block';
-            calculateUserStats();
-            displayRecentSpins();
-        }
+          const netProfit = (spin.win || 0) - (spin.bet || 0);
+          const color = netProfit > 0 ? '#8AC926' : '#ff6b6b';
 
-        function closeProvablyFair() {
-            document.getElementById('provably-fair-modal').style.display = 'none';
-        }
-
-        function calculateUserStats() {
-            if (spinHistory.length === 0) {
-                document.getElementById('stat-spins').textContent = '0';
-                document.getElementById('stat-wagered').textContent = '0';
-                document.getElementById('stat-won').textContent = '0';
-                document.getElementById('stat-winrate').textContent = '0%';
-                document.getElementById('stat-bigwin').textContent = '0';
-                document.getElementById('stat-rtp').textContent = '0%';
-                return;
-            }
-
-            const totalSpins = spinHistory.length;
-            const totalWagered = spinHistory.reduce((sum, spin) => sum + (spin.bet || 0), 0);
-            const totalWonAmount = spinHistory.reduce((sum, spin) => sum + (spin.win || 0), 0);
-            const winsCount = spinHistory.filter(spin => (spin.win - spin.bet) > 0).length;
-            const winRate = ((winsCount / totalSpins) * 100).toFixed(1);
-            const biggestWin = Math.max(...spinHistory.map(spin => spin.win || 0));
-            const rtp = totalWagered > 0 ? ((totalWonAmount / totalWagered) * 100).toFixed(1) : 0;
-
-            document.getElementById('stat-spins').textContent = totalSpins.toLocaleString();
-            document.getElementById('stat-wagered').textContent = totalWagered.toLocaleString();
-            document.getElementById('stat-won').textContent = totalWonAmount.toLocaleString();
-            document.getElementById('stat-winrate').textContent = winRate + '%';
-            document.getElementById('stat-bigwin').textContent = biggestWin.toLocaleString();
-            document.getElementById('stat-rtp').textContent = rtp + '%';
-        }
-
-        function displayRecentSpins() {
-            const container = document.getElementById('recent-spins');
-            container.innerHTML = '';
-
-            const recent = spinHistory.slice(0, 10);
-            if (recent.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">No spins yet</div>';
-                return;
-            }
-
-            for (const spin of recent) {
-                const div = document.createElement('div');
-                div.style.cssText = 'padding: 8px; margin-bottom: 5px; background: rgba(255,255,255,0.05); border-radius: 5px; display: flex; justify-content: space-between;';
-
-                const netProfit = (spin.win || 0) - (spin.bet || 0);
-                const color = netProfit > 0 ? '#8AC926' : '#ff6b6b';
-
-                div.innerHTML = `
+          div.innerHTML = `
                     <span>${spin.multiplier}x</span>
                     <span>Bet: ${(spin.bet || 0).toLocaleString()}</span>
-                    <span style="color: ${color}; font-weight: bold;">${netProfit > 0 ? '+' : ''}${netProfit.toLocaleString()}</span>
+                    <span style="color: ${color}; font-weight: bold;">${
+            netProfit > 0 ? '+' : ''
+          }${netProfit.toLocaleString()}</span>
                 `;
-                container.appendChild(div);
-            }
+          container.appendChild(div);
         }
+      }
 
-        // Load global jackpot from API
-        async function loadGlobalJackpot() {
-            try {
-                const response = await fetch(`${API_BASE}/jackpot.php`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    jackpotPool = data.jackpot;
-                    document.getElementById('jackpot-pool-display').textContent = formatNumber(jackpotPool) + ' TAMA';
-                    console.log('🔥 Global jackpot loaded:', jackpotPool);
-                } else {
-                    console.error('❌ Failed to load jackpot:', data.error);
-                }
-            } catch (error) {
-                console.error('❌ Error loading jackpot:', error);
-            }
+      // Load global jackpot from API
+      async function loadGlobalJackpot() {
+        try {
+          const response = await fetch(`${API_BASE}/jackpot.php`);
+          const data = await response.json();
+
+          if (data.success) {
+            jackpotPool = data.jackpot;
+            document.getElementById('jackpot-pool-display').textContent =
+              formatNumber(jackpotPool) + ' TAMA';
+            console.log('🔥 Global jackpot loaded:', jackpotPool);
+          } else {
+            console.error('❌ Failed to load jackpot:', data.error);
+          }
+        } catch (error) {
+          console.error('❌ Error loading jackpot:', error);
         }
+      }
 
-        // Update global jackpot (add contribution)
-        async function updateGlobalJackpot(action, amount = 0) {
-            try {
-                const response = await fetch(`${API_BASE}/jackpot.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action, amount })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    jackpotPool = data.jackpot;
-                    document.getElementById('jackpot-pool-display').textContent = formatNumber(jackpotPool) + ' TAMA';
-                    console.log(`🔥 Jackpot ${action}:`, data.jackpot, '(change:', data.change, ')');
-                    return data;
-                } else {
-                    console.error('❌ Failed to update jackpot:', data.error);
-                    return null;
-                }
-            } catch (error) {
-                console.error('❌ Error updating jackpot:', error);
-                return null;
-            }
+      // Update global jackpot (add contribution)
+      async function updateGlobalJackpot(action, amount = 0) {
+        try {
+          const response = await fetch(`${API_BASE}/jackpot.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, amount }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            jackpotPool = data.jackpot;
+            document.getElementById('jackpot-pool-display').textContent =
+              formatNumber(jackpotPool) + ' TAMA';
+            console.log(`🔥 Jackpot ${action}:`, data.jackpot, '(change:', data.change, ')');
+            return data;
+          } else {
+            console.error('❌ Failed to update jackpot:', data.error);
+            return null;
+          }
+        } catch (error) {
+          console.error('❌ Error updating jackpot:', error);
+          return null;
         }
+      }
 
-        // Real-time jackpot sync (poll every 5 seconds)
-        function startJackpotSync() {
-            setInterval(async () => {
-                await loadGlobalJackpot();
-            }, 5000); // Update every 5 seconds
-        }
+      // Real-time jackpot sync (poll every 5 seconds)
+      function startJackpotSync() {
+        setInterval(async () => {
+          await loadGlobalJackpot();
+        }, 5000); // Update every 5 seconds
+      }
 
-        // Initialize
-        function initialize() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                userId = getUserId();
-                console.log('🚀 Initializing with user ID:', userId);
-                loadUserData();
-                loadHistory();
-                loadGlobalJackpot(); // Load global jackpot
-                startJackpotSync(); // Start real-time sync
-                drawWheel();
-            } else {
-                setTimeout(initialize, 100);
-            }
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
+      // Initialize
+      function initialize() {
+        if (window.Telegram && window.Telegram.WebApp) {
+          userId = getUserId();
+          console.log('🚀 Initializing with user ID:', userId);
+          loadUserData();
+          loadHistory();
+          loadGlobalJackpot(); // Load global jackpot
+          startJackpotSync(); // Start real-time sync
+          drawWheel();
         } else {
-            setTimeout(initialize, 100);
+          setTimeout(initialize, 100);
         }
-    </script>
-</body>
-</html>
+      }
 
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+      } else {
+        setTimeout(initialize, 100);
+      }
+    </script>
+  </body>
+</html>
