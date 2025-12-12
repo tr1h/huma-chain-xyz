@@ -171,35 +171,75 @@ def get_button_text(lang, button_key):
     buttons = {
         'en': {
             'back': '🔙 Back',
+            'back_to_menu': '🔙 Back to Menu',
             'referral': '🔗 Referral',
             'share': '📤 Share',
             'copy': '📋 Copy Code',
             'mint': '🎨 Mint NFT',
-            'view_website': '🌐 View on Website'
+            'view_website': '🌐 View on Website',
+            'my_nfts': '🖼️ My NFTs',
+            'withdraw': '💸 Withdraw TAMA',
+            'quests': '📋 Quests',
+            'badges': '🏆 Badges',
+            'rank': '🎖️ My Rank',
+            'leaderboard': '🏅 Leaderboard',
+            'stats': '📊 My Stats',
+            'cancel': '❌ Cancel',
+            'confirm': '✅ Confirm'
         },
         'ru': {
             'back': '🔙 Назад',
+            'back_to_menu': '🔙 Назад в меню',
             'referral': '🔗 Реферальная',
             'share': '📤 Поделиться',
             'copy': '📋 Копировать код',
             'mint': '🎨 Минт NFT',
-            'view_website': '🌐 Смотреть на сайте'
+            'view_website': '🌐 Смотреть на сайте',
+            'my_nfts': '🖼️ Мои NFT',
+            'withdraw': '💸 Вывести TAMA',
+            'quests': '📋 Квесты',
+            'badges': '🏆 Значки',
+            'rank': '🎖️ Рейтинг',
+            'leaderboard': '🏅 Лидерборд',
+            'stats': '📊 Статистика',
+            'cancel': '❌ Отмена',
+            'confirm': '✅ Подтвердить'
         },
         'zh': {
             'back': '🔙 返回',
+            'back_to_menu': '🔙 返回菜单',
             'referral': '🔗 推荐',
             'share': '📤 分享',
             'copy': '📋 复制代码',
             'mint': '🎨 铸造 NFT',
-            'view_website': '🌐 在网站上查看'
+            'view_website': '🌐 在网站上查看',
+            'my_nfts': '🖼️ 我的 NFT',
+            'withdraw': '💸 提取 TAMA',
+            'quests': '📋 任务',
+            'badges': '🏆 徽章',
+            'rank': '🎖️ 我的排名',
+            'leaderboard': '🏅 排行榜',
+            'stats': '📊 我的统计',
+            'cancel': '❌ 取消',
+            'confirm': '✅ 确认'
         },
         'es': {
             'back': '🔙 Atrás',
+            'back_to_menu': '🔙 Volver al menú',
             'referral': '🔗 Referidos',
             'share': '📤 Compartir',
             'copy': '📋 Copiar código',
             'mint': '🎨 Mintear NFT',
-            'view_website': '🌐 Ver en sitio web'
+            'view_website': '🌐 Ver en sitio web',
+            'my_nfts': '🖼️ Mis NFT',
+            'withdraw': '💸 Retirar TAMA',
+            'quests': '📋 Misiones',
+            'badges': '🏆 Insignias',
+            'rank': '🎖️ Mi Rango',
+            'leaderboard': '🏅 Clasificación',
+            'stats': '📊 Mis Estadísticas',
+            'cancel': '❌ Cancelar',
+            'confirm': '✅ Confirmar'
         }
     }
     return buttons.get(lang, buttons['en']).get(button_key, button_key)

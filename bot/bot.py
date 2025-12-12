@@ -1182,30 +1182,72 @@ def handle_language_selection_callback(call):
             mint_url = MINT_URL
 
         # Localized button texts
-        if new_lang == 'ru':
-            daily_text = "Ежедневная награда"
-            my_nfts_text = "Мои NFT"
-            mint_nft_text = "Минт NFT"
-            withdraw_text = "Вывести TAMA"
-            referral_text = "Реферальная"
-            stats_text = "Статистика"
-            quests_text = "Квесты"
-            badges_text = "Значки"
-            rank_text = "Рейтинг"
-            leaderboard_text = "Лидерборд"
-            community_text = "Сообщество"
-        else:
-            daily_text = "Daily Reward"
-            my_nfts_text = "My NFTs"
-            mint_nft_text = "Mint NFT"
-            withdraw_text = "Withdraw TAMA"
-            referral_text = "Referral"
-            stats_text = "My Stats"
-            quests_text = "Quests"
-            badges_text = "Badges"
-            rank_text = "My Rank"
-            leaderboard_text = "Leaderboard"
-            community_text = "Community"
+        button_texts_map = {
+            'ru': {
+                'daily': "Ежедневная награда",
+                'my_nfts': "Мои NFT",
+                'mint_nft': "Минт NFT",
+                'withdraw': "Вывести TAMA",
+                'referral': "Реферальная",
+                'stats': "Статистика",
+                'quests': "Квесты",
+                'badges': "Значки",
+                'rank': "Рейтинг",
+                'leaderboard': "Лидерборд",
+                'community': "Сообщество"
+            },
+            'zh': {
+                'daily': "每日奖励",
+                'my_nfts': "我的 NFT",
+                'mint_nft': "铸造 NFT",
+                'withdraw': "提取 TAMA",
+                'referral': "推荐",
+                'stats': "我的统计",
+                'quests': "任务",
+                'badges': "徽章",
+                'rank': "我的排名",
+                'leaderboard': "排行榜",
+                'community': "社区"
+            },
+            'es': {
+                'daily': "Recompensa diaria",
+                'my_nfts': "Mis NFT",
+                'mint_nft': "Mintear NFT",
+                'withdraw': "Retirar TAMA",
+                'referral': "Referidos",
+                'stats': "Mis Estadísticas",
+                'quests': "Misiones",
+                'badges': "Insignias",
+                'rank': "Mi Rango",
+                'leaderboard': "Clasificación",
+                'community': "Comunidad"
+            },
+            'en': {
+                'daily': "Daily Reward",
+                'my_nfts': "My NFTs",
+                'mint_nft': "Mint NFT",
+                'withdraw': "Withdraw TAMA",
+                'referral': "Referral",
+                'stats': "My Stats",
+                'quests': "Quests",
+                'badges': "Badges",
+                'rank': "My Rank",
+                'leaderboard': "Leaderboard",
+                'community': "Community"
+            }
+        }
+        texts = button_texts_map.get(new_lang, button_texts_map['en'])
+        daily_text = texts['daily']
+        my_nfts_text = texts['my_nfts']
+        mint_nft_text = texts['mint_nft']
+        withdraw_text = texts['withdraw']
+        referral_text = texts['referral']
+        stats_text = texts['stats']
+        quests_text = texts['quests']
+        badges_text = texts['badges']
+        rank_text = texts['rank']
+        leaderboard_text = texts['leaderboard']
+        community_text = texts['community']
 
         # Row 1: Daily Reward (highlight if available)
         daily_emoji = "🎁⭐" if can_claim else "🎁"
@@ -1369,6 +1411,19 @@ def send_welcome(message):
             'rank': "我的排名",
             'leaderboard': "排行榜",
             'community': "社区"
+        },
+        'es': {
+            'daily': "Recompensa diaria",
+            'my_nfts': "Mis NFT",
+            'mint_nft': "Mintear NFT",
+            'withdraw': "Retirar TAMA",
+            'referral': "Referidos",
+            'stats': "Mis Estadísticas",
+            'quests': "Misiones",
+            'badges': "Insignias",
+            'rank': "Mi Rango",
+            'leaderboard': "Clasificación",
+            'community': "Comunidad"
         }
     }
 
@@ -4290,10 +4345,80 @@ def handle_callback(call):
     elif call.data == "my_nfts":
         # Show user's NFT collection
         telegram_id = str(call.from_user.id)
+        lang = get_user_language(call.from_user.id) or 'en'
 
         try:
             # Get user's NFTs from database (new structure: tier_name, rarity, earning_multiplier)
             response = supabase.table('user_nfts').select('*').eq('telegram_id', telegram_id).eq('is_active', True).order('minted_at', desc=True).execute()
+
+            # Translation texts
+            texts = {
+                'en': {
+                    'title': '🖼️ **YOUR NFT COLLECTION** 🖼️',
+                    'total': '📦 Total NFTs:',
+                    'balance': '💰 TAMA Balance:',
+                    'boost': '⚡ Active Boost:',
+                    'benefits': '🎮 *NFT Benefits:*',
+                    'benefit1': '• Your best NFT gives you **{mult}x** earning boost!',
+                    'benefit2': '• All TAMA rewards are multiplied automatically',
+                    'benefit3': '• View full collection on website!',
+                    'view_website': '🌐 [View on Website]({url})',
+                    'no_nfts': '📦 You don\'t have any NFTs yet!',
+                    'how_to_get': '💰 *How to get NFTs:*',
+                    'rarity': '• Rarity:',
+                    'boost_text': '• Boost: {mult}x earning',
+                    'minted': '• Minted:'
+                },
+                'ru': {
+                    'title': '🖼️ **ВАША NFT КОЛЛЕКЦИЯ** 🖼️',
+                    'total': '📦 Всего NFT:',
+                    'balance': '💰 Баланс TAMA:',
+                    'boost': '⚡ Активный буст:',
+                    'benefits': '🎮 *Преимущества NFT:*',
+                    'benefit1': '• Ваш лучший NFT даёт **{mult}x** буст заработка!',
+                    'benefit2': '• Все награды TAMA умножаются автоматически',
+                    'benefit3': '• Смотрите полную коллекцию на сайте!',
+                    'view_website': '🌐 [Смотреть на сайте]({url})',
+                    'no_nfts': '📦 У вас пока нет NFT!',
+                    'how_to_get': '💰 *Как получить NFT:*',
+                    'rarity': '• Редкость:',
+                    'boost_text': '• Буст: {mult}x заработка',
+                    'minted': '• Создано:'
+                },
+                'zh': {
+                    'title': '🖼️ **您的 NFT 收藏** 🖼️',
+                    'total': '📦 NFT 总数:',
+                    'balance': '💰 TAMA 余额:',
+                    'boost': '⚡ 活跃加成:',
+                    'benefits': '🎮 *NFT 好处:*',
+                    'benefit1': '• 您最好的 NFT 给您 **{mult}x** 收益加成!',
+                    'benefit2': '• 所有 TAMA 奖励自动倍增',
+                    'benefit3': '• 在网站上查看完整收藏!',
+                    'view_website': '🌐 [在网站上查看]({url})',
+                    'no_nfts': '📦 您还没有 NFT!',
+                    'how_to_get': '💰 *如何获得 NFT:*',
+                    'rarity': '• 稀有度:',
+                    'boost_text': '• 加成: {mult}x 收益',
+                    'minted': '• 铸造时间:'
+                },
+                'es': {
+                    'title': '🖼️ **TU COLECCIÓN NFT** 🖼️',
+                    'total': '📦 Total NFT:',
+                    'balance': '💰 Saldo TAMA:',
+                    'boost': '⚡ Bonificación activa:',
+                    'benefits': '🎮 *Beneficios NFT:*',
+                    'benefit1': '• ¡Tu mejor NFT te da **{mult}x** bonificación de ganancias!',
+                    'benefit2': '• Todas las recompensas TAMA se multiplican automáticamente',
+                    'benefit3': '• ¡Ver colección completa en el sitio web!',
+                    'view_website': '🌐 [Ver en sitio web]({url})',
+                    'no_nfts': '📦 ¡Aún no tienes NFT!',
+                    'how_to_get': '💰 *Cómo obtener NFT:*',
+                    'rarity': '• Rareza:',
+                    'boost_text': '• Bonificación: {mult}x ganancias',
+                    'minted': '• Creado:'
+                }
+            }
+            t = texts.get(lang, texts['en'])
 
             if response.data and len(response.data) > 0:
                 nfts = response.data
@@ -4320,9 +4445,9 @@ def handle_callback(call):
 
                 nft_list = "\n\n".join([
                     f"{i+1}. {get_tier_emoji(nft.get('tier_name', 'Unknown'))} **{nft.get('tier_name', 'Unknown')}** {get_rarity_emoji(nft.get('rarity', 'Common'))}\n"
-                    f"   • Rarity: {nft.get('rarity', 'Common')}\n"
-                    f"   • Boost: {nft.get('earning_multiplier', 1.0)}x earning\n"
-                    f"   • Minted: {nft.get('minted_at', 'Unknown')[:10] if nft.get('minted_at') else 'Unknown'}"
+                    f"   • {t['rarity']} {nft.get('rarity', 'Common')}\n"
+                    f"   • {t['boost_text'].format(mult=nft.get('earning_multiplier', 1.0))}\n"
+                    f"   • {t['minted']} {nft.get('minted_at', 'Unknown')[:10] if nft.get('minted_at') else 'Unknown'}"
                     for i, nft in enumerate(nfts[:10])  # Show max 10
                 ])
 
@@ -4334,20 +4459,20 @@ def handle_callback(call):
                 best_multiplier = max([float(nft.get('earning_multiplier', 1.0)) for nft in nfts])
 
                 text = f"""
-🖼️ **YOUR NFT COLLECTION** 🖼️
+{t['title']}
 
-📦 Total NFTs: **{len(nfts)}**
-💰 TAMA Balance: **{tama_balance:,}**
-⚡ Active Boost: **{best_multiplier}x**
+{t['total']} **{len(nfts)}**
+{t['balance']} **{tama_balance:,}**
+{t['boost']} **{best_multiplier}x**
 
 {nft_list}
 
-🎮 *NFT Benefits:*
-• Your best NFT gives you **{best_multiplier}x** earning boost!
-• All TAMA rewards are multiplied automatically
-• View full collection on website!
+{t['benefits']}
+{t['benefit1'].format(mult=best_multiplier)}
+{t['benefit2']}
+{t['benefit3']}
 
-🌐 [View on Website]({MINT_URL}my-nfts.html?user_id={telegram_id})
+{t['view_website'].format(url=f'{MINT_URL}my-nfts.html?user_id={telegram_id}')}
                 """
             else:
                 # No NFTs yet
@@ -4355,13 +4480,13 @@ def handle_callback(call):
                 tama_balance = leaderboard_response.data[0].get('tama', 0) if leaderboard_response.data else 0
 
                 text = f"""
-🖼️ **YOUR NFT COLLECTION** 🖼️
+{t['title']}
 
-📦 You don't have any NFTs yet!
+{t['no_nfts']}
 
-💰 Your TAMA Balance: **{tama_balance:,}**
+{t['balance']} **{tama_balance:,}**
 
-💰 *How to get NFTs:*
+{t['how_to_get']}
 
 **🥉 Bronze NFT** 💰
 • Cost: 2,500 TAMA or 0.05 SOL
@@ -4383,10 +4508,10 @@ def handle_callback(call):
 
             keyboard = types.InlineKeyboardMarkup()
             keyboard.row(
-                types.InlineKeyboardButton("🎨 Mint NFT", callback_data="mint_nft")
+                types.InlineKeyboardButton(get_button_text(lang, 'mint'), callback_data="mint_nft")
             )
             keyboard.row(
-                types.InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_menu")
+                types.InlineKeyboardButton(get_button_text(lang, 'back_to_menu'), callback_data="back_to_menu")
             )
 
             try:
@@ -4396,7 +4521,8 @@ def handle_callback(call):
                 bot.send_message(call.message.chat.id, text, parse_mode='Markdown', reply_markup=keyboard)
         except Exception as e:
             print(f"Error showing NFTs: {e}")
-            bot.answer_callback_query(call.id, "❌ Error loading NFTs")
+            error_text = "❌ Error loading NFTs" if lang == 'en' else "❌ Ошибка загрузки NFT" if lang == 'ru' else "❌ 加载 NFT 错误" if lang == 'zh' else "❌ Error al cargar NFT"
+            bot.answer_callback_query(call.id, error_text)
 
     elif call.data == "withdraw_tama":
         # Show withdrawal options
@@ -5907,8 +6033,17 @@ Please try again later!
         bot.answer_callback_query(call.id)
 
     elif call.data == "back_to_menu":
-        # Return to main menu
-        send_welcome(call.message)
+        # Return to main menu with user's language
+        # Create a message object from callback
+        class FakeMessage:
+            def __init__(self, call_obj):
+                self.from_user = call_obj.from_user
+                self.chat = call_obj.message.chat
+                self.text = "/start"
+                self.chat.type = 'private'
+        
+        fake_msg = FakeMessage(call)
+        send_welcome(fake_msg)
 
 # Mini-games removed - available in main game only
 # Handler for guess number game
