@@ -604,9 +604,7 @@
         
         // Limits
         const MAX_SPINS_PER_DAY = 30;
-        const COOLDOWN_SECONDS = 30;
         let spinsToday = 0;
-        let lastSpinTime = 0;
 
         // Create confetti effect (defined early)
         function createConfetti() {
@@ -1022,16 +1020,6 @@
                 return;
             }
             
-            // Check cooldown
-            const now = Date.now();
-            const timeSinceLastSpin = (now - lastSpinTime) / 1000;
-            if (lastSpinTime > 0 && timeSinceLastSpin < COOLDOWN_SECONDS) {
-                const remaining = Math.ceil(COOLDOWN_SECONDS - timeSinceLastSpin);
-                document.getElementById('result').textContent = `⏳ Cooldown: ${remaining} seconds`;
-                document.getElementById('result').style.color = '#fbbf24';
-                return;
-            }
-            
             if (balance < currentBet) {
                 document.getElementById('result').textContent = '❌ Insufficient balance!';
                 document.getElementById('result').style.color = '#ff6b6b';
@@ -1120,9 +1108,8 @@
                         losses++;
                     }
                     
-                    // Update spin counter and cooldown
+                    // Update spin counter
                     spinsToday++;
-                    lastSpinTime = Date.now();
                     localStorage.setItem('wheel_spins_today', spinsToday.toString());
                     
                     // Update spin button with remaining spins
