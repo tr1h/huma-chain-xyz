@@ -1387,6 +1387,9 @@
               // Update balance with jackpot
               balance += jackpotWon;
               document.getElementById('balance').textContent = formatNumber(balance);
+              
+              // CRITICAL: Update winAmount to include jackpot for API call
+              winAmount = totalWin; // Include jackpot in win amount
             } else if (multiplier >= 5) {
               resultBox.textContent = `🎉 BIG WIN! ${multiplier}x = +${formatNumber(
                 netProfit
