@@ -4745,6 +4745,11 @@
                     <div class="game-card-name">SUPER TAMA BROS</div>
                     <div class="game-card-cost">100 TAMA | 3 Levels | Win: up to 1000+ TAMA!</div>
                 </div>
+                <div class="game-card" data-game="colormatch" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); cursor: pointer;">
+                    <div class="game-card-icon">🎨</div>
+                    <div class="game-card-name">TAMA COLOR MATCH</div>
+                    <div class="game-card-cost">50-300 TAMA | Memory Game | Win: up to 5x!</div>
+                </div>
             </div>
 
             <!-- Game Arenas (will be shown when game is selected) -->
@@ -9081,6 +9086,13 @@
                 if (gameName === 'platformer') {
                     const userId = window.TELEGRAM_USER_ID || '';
                     window.open(`/super-tama-bros.html?user_id=${userId}`, '_blank');
+                    return;
+                }
+
+                // For colormatch - open tama-color-match.html
+                if (gameName === 'colormatch') {
+                    const userId = window.TELEGRAM_USER_ID || '';
+                    window.open(`/tama-color-match.html?user_id=${userId}`, '_blank');
                     return;
                 }
 
@@ -13997,6 +14009,13 @@ ${link}`;
             if (game === 'platformer') {
                 const userId = window.TELEGRAM_USER_ID || '';
                 window.open(`/super-tama-bros.html?user_id=${userId}`, '_blank');
+                return;
+            }
+
+            // Для colormatch - открываем tama-color-match.html
+            if (game === 'colormatch') {
+                const userId = window.TELEGRAM_USER_ID || '';
+                window.open(`/tama-color-match.html?user_id=${userId}`, '_blank');
                 return;
             }
 

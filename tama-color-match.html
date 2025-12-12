@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎨 TAMA COLOR MATCH - Memory Game</title>
+    
+    <!-- Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 500px;
+            width: 100%;
+            background: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 3px solid #8AC926;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
+        .balance-section {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .balance-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8AC926;
+        }
+
+        .bet-section {
+            margin-bottom: 20px;
+        }
+
+        .bet-label {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .bet-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .bet-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .bet-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .bet-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .bet-btn.selected {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .game-area {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 300px;
+        }
+
+        .colors-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .color-btn {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            border: 4px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-btn:active {
+            transform: scale(0.95);
+        }
+
+        .color-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .color-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255,255,255,0.8);
+            border-color: white;
+        }
+
+        .color-btn.wrong {
+            animation: shake 0.5s;
+            background: #ef4444 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Colors */
+        .color-red {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .color-blue {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .color-green {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .color-yellow {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .game-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-info-item {
+            display: inline-block;
+            margin: 0 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .game-info-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 5px;
+        }
+
+        .game-info-value {
+            color: #FFD700;
+        }
+
+        .game-status {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        .game-status.waiting {
+            color: #8AC926;
+        }
+
+        .game-status.playing {
+            color: #3b82f6;
+        }
+
+        .game-status.watching {
+            color: #f59e0b;
+        }
+
+        .game-status.game-over {
+            color: #ef4444;
+        }
+
+        .game-status.win {
+            color: #10b981;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .control-btn.start {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .control-btn.start:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);
+        }
+
+        .control-btn.exit {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-details {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .colors-grid {
+                gap: 10px;
+            }
+
+            .color-btn {
+                border-width: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎨 TAMA COLOR MATCH</h1>
+            <p>Repeat the color sequence!</p>
+        </div>
+
+        <!-- Balance -->
+        <div class="balance-section">
+            <div>
+                <div class="balance-label">Balance</div>
+                <div class="balance-value" id="balance">Loading...</div>
+            </div>
+            <button class="control-btn exit" onclick="goBack()">✕ EXIT</button>
+        </div>
+
+        <!-- Bet Selection -->
+        <div class="bet-section">
+            <div class="bet-label">Select Bet:</div>
+            <div class="bet-buttons">
+                <button class="bet-btn" data-bet="50">50 TAMA</button>
+                <button class="bet-btn" data-bet="100">100 TAMA</button>
+                <button class="bet-btn" data-bet="200">200 TAMA</button>
+                <button class="bet-btn" data-bet="300">300 TAMA</button>
+            </div>
+        </div>
+
+        <!-- Game Info -->
+        <div class="game-info">
+            <div class="game-info-item">
+                <div class="game-info-label">Round</div>
+                <div class="game-info-value" id="round">0</div>
+            </div>
+            <div class="game-info-item">
+                <div class="game-info-label">Sequence</div>
+                <div class="game-info-value" id="sequence-length">0</div>
+            </div>
+            <div class="game-info-item">
+                <div class="game-info-label">Reward</div>
+                <div class="game-info-value" id="current-reward">0 TAMA</div>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status waiting" id="game-status">Select bet and press START!</div>
+
+        <!-- Game Area -->
+        <div class="game-area">
+            <div class="colors-grid" id="colors-grid">
+                <button class="color-btn color-red" data-color="red" id="color-red"></button>
+                <button class="color-btn color-blue" data-color="blue" id="color-blue"></button>
+                <button class="color-btn color-green" data-color="green" id="color-green"></button>
+                <button class="color-btn color-yellow" data-color="yellow" id="color-yellow"></button>
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="control-buttons">
+            <button class="control-btn start" id="start-btn">🎮 START GAME</button>
+        </div>
+
+        <!-- Result Section -->
+        <div class="result-section" id="result-section">
+            <div class="result-title" id="result-title"></div>
+            <div class="result-details" id="result-details"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // API Configuration
+        const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+
+        // Get user ID
+        function getUserId() {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) {
+                    return String(user.id);
+                }
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const userIdFromUrl = urlParams.get('user_id');
+            if (userIdFromUrl) {
+                return userIdFromUrl;
+            }
+
+            const saved = localStorage.getItem('telegram_user_id');
+            if (saved) {
+                return saved;
+            }
+
+            return '123456789'; // Test ID
+        }
+
+        let userId = getUserId();
+        let balance = 0;
+        let selectedBet = 0;
+
+        // Load user balance
+        async function loadBalance() {
+            try {
+                const response = await fetch(`${API_BASE}/balance?telegram_id=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    balance = data.total_tama || data.database_tama || data.balance || 0;
+                    document.getElementById('balance').textContent = balance.toLocaleString();
+                }
+            } catch (error) {
+                console.error('Failed to load balance:', error);
+                document.getElementById('balance').textContent = '0';
+            }
+        }
+
+        // Update balance on server
+        async function updateBalance(amount, description = '') {
+            try {
+                const initData = window.Telegram?.WebApp?.initData || '';
+                
+                const response = await fetch(`${API_BASE}/slots/spin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: String(userId),
+                        amount: amount,
+                        bet: amount < 0 ? Math.abs(amount) : 0,
+                        win: amount > 0 ? amount : 0,
+                        symbols: ['🎨', '🎨', '🎨'],
+                        init_data: initData,
+                        description: description
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.balance !== undefined || data.total_tama !== undefined) {
+                        balance = data.total_tama || data.database_tama || data.balance || balance;
+                        document.getElementById('balance').textContent = balance.toLocaleString();
+                        return data;
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating balance:', error);
+            }
+            return null;
+        }
+
+        // Format number
+        function formatNumber(num) {
+            return Math.floor(num).toLocaleString();
+        }
+
+        // Go back
+        function goBack() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.close();
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        // 🎨 COLOR MATCH GAME
+        const colorMatchGame = {
+            colors: ['red', 'blue', 'green', 'yellow'],
+            sequence: [],
+            playerSequence: [],
+            currentRound: 0,
+            isPlaying: false,
+            isWatching: false,
+            betAmount: 0,
+            reward: 0,
+
+            init() {
+                // Bet selection
+                document.querySelectorAll('.bet-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (this.isPlaying) return;
+                        
+                        document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        this.betAmount = parseInt(btn.dataset.bet);
+                    });
+                });
+
+                // Color buttons
+                document.querySelectorAll('.color-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (!this.isPlaying || this.isWatching) return;
+                        this.handleColorClick(btn.dataset.color);
+                    });
+                });
+
+                // Start button
+                document.getElementById('start-btn').addEventListener('click', () => {
+                    this.startGame();
+                });
+            },
+
+            startGame() {
+                if (this.isPlaying) return;
+
+                if (!this.betAmount || this.betAmount === 0) {
+                    this.updateStatus('Please select a bet!', 'waiting');
+                    return;
+                }
+
+                if (balance < this.betAmount) {
+                    this.updateStatus('❌ Not enough TAMA!', 'game-over');
+                    return;
+                }
+
+                // Deduct bet
+                balance -= this.betAmount;
+                document.getElementById('balance').textContent = formatNumber(balance);
+                updateBalance(-this.betAmount, 'TAMA Color Match game entry');
+
+                // Reset game
+                this.sequence = [];
+                this.playerSequence = [];
+                this.currentRound = 0;
+                this.reward = 0;
+                this.isPlaying = true;
+                this.isWatching = true;
+
+                // Disable bet buttons
+                document.querySelectorAll('.bet-btn').forEach(btn => btn.disabled = true);
+                document.getElementById('start-btn').disabled = true;
+
+                // Start first round
+                this.nextRound();
+            },
+
+            nextRound() {
+                this.currentRound++;
+                this.playerSequence = [];
+                
+                // Add new color to sequence
+                const newColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+                this.sequence.push(newColor);
+
+                // Update UI
+                document.getElementById('round').textContent = this.currentRound;
+                document.getElementById('sequence-length').textContent = this.sequence.length;
+                this.updateStatus(`Round ${this.currentRound} - Watch the sequence!`, 'watching');
+
+                // Disable color buttons
+                document.querySelectorAll('.color-btn').forEach(btn => {
+                    btn.classList.add('disabled');
+                });
+
+                // Show sequence
+                this.showSequence();
+            },
+
+            async showSequence() {
+                this.isWatching = true;
+
+                for (let i = 0; i < this.sequence.length; i++) {
+                    await this.sleep(600); // Delay between colors
+                    const color = this.sequence[i];
+                    this.highlightColor(color);
+                    await this.sleep(400); // Highlight duration
+                    this.unhighlightColor(color);
+                }
+
+                // Enable color buttons for player input
+                await this.sleep(300);
+                this.isWatching = false;
+                document.querySelectorAll('.color-btn').forEach(btn => {
+                    btn.classList.remove('disabled');
+                });
+                this.updateStatus(`Round ${this.currentRound} - Repeat the sequence!`, 'playing');
+            },
+
+            highlightColor(color) {
+                const btn = document.getElementById(`color-${color}`);
+                if (btn) {
+                    btn.classList.add('active');
+                    // Play sound effect (optional)
+                    this.playSound(color);
+                }
+            },
+
+            unhighlightColor(color) {
+                const btn = document.getElementById(`color-${color}`);
+                if (btn) {
+                    btn.classList.remove('active');
+                }
+            },
+
+            playSound(color) {
+                // Simple beep sound (can be enhanced with actual audio files)
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                // Different frequencies for different colors
+                const frequencies = {
+                    red: 200,
+                    blue: 300,
+                    green: 400,
+                    yellow: 500
+                };
+
+                oscillator.frequency.value = frequencies[color] || 300;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            },
+
+            handleColorClick(color) {
+                if (this.isWatching) return;
+
+                this.playerSequence.push(color);
+                this.highlightColor(color);
+                setTimeout(() => this.unhighlightColor(color), 200);
+
+                // Check if sequence is complete
+                if (this.playerSequence.length === this.sequence.length) {
+                    this.checkSequence();
+                } else {
+                    // Check if current input is correct
+                    const currentIndex = this.playerSequence.length - 1;
+                    if (this.playerSequence[currentIndex] !== this.sequence[currentIndex]) {
+                        this.gameOver();
+                    }
+                }
+            },
+
+            checkSequence() {
+                // Check if player sequence matches
+                if (this.playerSequence.join(',') === this.sequence.join(',')) {
+                    // Correct! Calculate reward
+                    const roundReward = Math.floor(this.betAmount * 0.1 * this.currentRound);
+                    this.reward += roundReward;
+                    
+                    document.getElementById('current-reward').textContent = `${this.reward} TAMA`;
+                    this.updateStatus(`✅ Round ${this.currentRound} complete! +${roundReward} TAMA`, 'win');
+
+                    // Continue to next round after delay
+                    setTimeout(() => {
+                        this.nextRound();
+                    }, 1500);
+                } else {
+                    this.gameOver();
+                }
+            },
+
+            gameOver() {
+                this.isPlaying = false;
+                this.isWatching = false;
+
+                // Show wrong color
+                const wrongIndex = this.playerSequence.length - 1;
+                if (wrongIndex >= 0 && wrongIndex < this.sequence.length) {
+                    const wrongColor = this.playerSequence[wrongIndex];
+                    const btn = document.getElementById(`color-${wrongColor}`);
+                    if (btn) {
+                        btn.classList.add('wrong');
+                        setTimeout(() => btn.classList.remove('wrong'), 500);
+                    }
+                }
+
+                // Calculate final reward
+                let finalReward = 0;
+                if (this.currentRound > 0) {
+                    // Base reward for rounds completed
+                    finalReward = Math.floor(this.reward);
+                    
+                    // Bonus for longer sequences
+                    if (this.currentRound >= 10) {
+                        finalReward += Math.floor(this.betAmount * 2); // 2x bonus
+                    } else if (this.currentRound >= 7) {
+                        finalReward += Math.floor(this.betAmount * 1.5); // 1.5x bonus
+                    } else if (this.currentRound >= 5) {
+                        finalReward += Math.floor(this.betAmount * 1); // 1x bonus
+                    }
+                }
+
+                // Update balance
+                if (finalReward > 0) {
+                    balance += finalReward;
+                    document.getElementById('balance').textContent = formatNumber(balance);
+                    updateBalance(finalReward, `TAMA Color Match: ${this.currentRound} rounds, ${this.sequence.length} sequence length`);
+                }
+
+                // Show result
+                this.showResult(finalReward);
+
+                // Reset UI
+                document.querySelectorAll('.bet-btn').forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('selected');
+                });
+                document.getElementById('start-btn').disabled = false;
+                document.querySelectorAll('.color-btn').forEach(btn => {
+                    btn.classList.add('disabled');
+                });
+
+                this.updateStatus(`Game Over! Reached round ${this.currentRound}`, 'game-over');
+            },
+
+            showResult(finalReward) {
+                const resultSection = document.getElementById('result-section');
+                const resultTitle = document.getElementById('result-title');
+                const resultDetails = document.getElementById('result-details');
+
+                if (finalReward > 0) {
+                    resultTitle.textContent = `🎉 Great Job!`;
+                    resultTitle.style.color = '#10b981';
+                    resultDetails.innerHTML = `
+                        <strong>Rounds Completed:</strong> ${this.currentRound}<br>
+                        <strong>Sequence Length:</strong> ${this.sequence.length}<br>
+                        <strong>Reward:</strong> +${finalReward} TAMA<br>
+                        <strong>Net:</strong> ${finalReward - this.betAmount >= 0 ? '+' : ''}${finalReward - this.betAmount} TAMA
+                    `;
+                } else {
+                    resultTitle.textContent = `😢 Try Again!`;
+                    resultTitle.style.color = '#ef4444';
+                    resultDetails.innerHTML = `
+                        <strong>Rounds Completed:</strong> ${this.currentRound}<br>
+                        <strong>Sequence Length:</strong> ${this.sequence.length}<br>
+                        <strong>Reward:</strong> 0 TAMA<br>
+                        <strong>Net:</strong> -${this.betAmount} TAMA
+                    `;
+                }
+
+                resultSection.classList.add('show');
+            },
+
+            updateStatus(text, className) {
+                const statusEl = document.getElementById('game-status');
+                statusEl.textContent = text;
+                statusEl.className = `game-status ${className}`;
+            },
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        };
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBalance();
+            colorMatchGame.init();
+        });
+    </script>
+</body>
+</html>
+
