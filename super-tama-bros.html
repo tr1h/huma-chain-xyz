@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🍄 SUPER TAMA BROS - Play-to-Earn Platformer</title>
-    
+
     <!-- Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -213,7 +213,7 @@
         <!-- Game Canvas -->
         <div class="game-canvas-container">
             <canvas id="game-canvas" width="960" height="540"></canvas>
-            
+
             <!-- Mobile Controls -->
             <div class="mobile-controls" id="mobile-controls">
                 <div class="mobile-controls-inner">
@@ -289,7 +289,7 @@
         async function updateBalance(amount, description = '') {
             try {
                 const initData = window.Telegram?.WebApp?.initData || '';
-                
+
                 const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -356,6 +356,43 @@
             camera: { x: 0 },
             levelWidth: 3000,
             animationFrame: 0,
+            
+            // 🎮 MULTIPLE LEVELS SYSTEM
+            currentLevel: 1,
+            maxLevel: 3,
+            levels: [
+                {
+                    id: 1,
+                    name: 'World 1-1',
+                    difficulty: 'Easy',
+                    levelWidth: 3000,
+                    timeLimit: 90,
+                    baseReward: 100,
+                    description: 'Start your adventure!'
+                },
+                {
+                    id: 2,
+                    name: 'World 1-2',
+                    difficulty: 'Medium',
+                    levelWidth: 4000,
+                    timeLimit: 120,
+                    baseReward: 200,
+                    description: 'More enemies, more coins!'
+                },
+                {
+                    id: 3,
+                    name: 'World 2-1',
+                    difficulty: 'Hard',
+                    levelWidth: 5000,
+                    timeLimit: 150,
+                    baseReward: 500,
+                    description: 'The ultimate challenge!'
+                }
+            ],
+            
+            // 🍄 POWER-UP SYSTEM
+            playerPowerUp: null, // 'mushroom', 'fire', 'star', null
+            powerUpTimer: 0,
 
             init() {
                 this.canvas = document.getElementById('game-canvas');
@@ -405,7 +442,7 @@
             setupMobileControls() {
                 const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
                 const mobileControls = document.getElementById('mobile-controls');
-                
+
                 if (isTouchDevice && mobileControls) {
                     mobileControls.classList.add('show');
                 }
@@ -447,21 +484,36 @@
             },
 
             start() {
+                // Reset to level 1
+                this.currentLevel = 1;
+                this.startLevel(1);
+            },
+
+            startLevel(levelNum) {
+                const level = this.levels[levelNum - 1];
+                if (!level) {
+                    this.endGame();
+                    return;
+                }
+
                 this.gameActive = true;
                 this.score = 0;
                 this.coinsCollected = 0;
                 this.lives = 3;
-                this.gameTime = 60;
+                this.gameTime = level.timeLimit;
+                this.levelWidth = level.levelWidth;
+                this.playerPowerUp = null; // Reset power-up
+                this.powerUpTimer = 0;
 
                 // Disable start button
                 const startBtn = document.getElementById('start-btn');
                 if (startBtn) {
                     startBtn.disabled = true;
-                    startBtn.textContent = '🎮 Playing...';
+                    startBtn.textContent = `🎮 ${level.name} - Playing...`;
                 }
 
                 // Clear result
-                document.getElementById('game-result').textContent = '';
+                document.getElementById('game-result').textContent = `🌍 ${level.name} - ${level.description}`;
 
                 // Initialize player
                 this.player = {
@@ -473,6 +525,7 @@
                     vy: 0,
                     jumping: false,
                     onGround: false,
+                    isBig: false, // For Super Mushroom
                     jump() {
                         if (this.onGround) {
                             this.vy = -12;
@@ -482,8 +535,8 @@
                     }
                 };
 
-                // Generate level
-                this.generateLevel();
+                // Generate level based on level number
+                this.generateLevel(levelNum);
 
                 // Start timer
                 this.timer = setInterval(() => {
@@ -499,7 +552,7 @@
                 this.gameLoop();
             },
 
-            generateLevel() {
+            generateLevel(levelNum = 1) {
                 this.platforms = [];
                 this.coins = [];
                 this.enemies = [];
@@ -508,6 +561,10 @@
                 this.pipes = [];
                 this.powerups = [];
                 this.particles = [];
+
+                const level = this.levels[levelNum - 1];
+                const enemyCount = 10 + (levelNum * 5); // More enemies per level
+                const questionBlockCount = 10 + (levelNum * 3); // More blocks per level
 
                 // Ground
                 for (let i = 0; i < this.levelWidth / 30; i++) {
@@ -598,18 +655,29 @@
                     });
                 });
 
-                // Enemies
-                for (let i = 0; i < 15; i++) {
+                // Enemies (more per level)
+                for (let i = 0; i < enemyCount; i++) {
                     this.enemies.push({
-                        x: 300 + i * 200,
+                        x: 300 + i * (this.levelWidth / enemyCount),
                         y: 426,
                         width: 24,
                         height: 24,
-                        vx: 1.5,
+                        vx: 1.5 + (levelNum * 0.3), // Faster on higher levels
                         direction: 1,
                         type: 'goomba',
                         dead: false
                     });
+                }
+
+                // 🍄 POWER-UPS: Super Mushroom (spawn randomly in question blocks)
+                // Some question blocks will drop mushrooms instead of coins
+                const mushroomBlocks = Math.floor(questionBlockCount / 3); // 1/3 of blocks
+                for (let i = 0; i < mushroomBlocks; i++) {
+                    const blockIndex = Math.floor(Math.random() * this.questionBlocks.length);
+                    if (this.questionBlocks[blockIndex]) {
+                        this.questionBlocks[blockIndex].hasMushroom = true;
+                        this.questionBlocks[blockIndex].coins = 0; // No coins, but mushroom!
+                    }
                 }
 
                 // Finish flag
@@ -648,6 +716,7 @@
                 this.updatePlayer();
                 this.updateEnemies();
                 this.updateParticles();
+                this.updatePowerUps();
                 this.checkCollisions();
 
                 // Draw everything
@@ -699,6 +768,19 @@
 
                 this.ctx.strokeText(`★ ${this.score}`, 480, 40);
                 this.ctx.fillText(`★ ${this.score}`, 480, 40);
+
+                // Level indicator
+                const level = this.levels[this.currentLevel - 1];
+                this.ctx.strokeText(`🌍 ${level.name}`, 600, 40);
+                this.ctx.fillText(`🌍 ${level.name}`, 600, 40);
+
+                // Power-up indicator
+                if (this.playerPowerUp) {
+                    const powerUpEmoji = this.playerPowerUp === 'mushroom' ? '🍄' : 
+                                       this.playerPowerUp === 'star' ? '⭐' : '🔥';
+                    this.ctx.strokeText(`${powerUpEmoji}`, 750, 40);
+                    this.ctx.fillText(`${powerUpEmoji}`, 750, 40);
+                }
 
                 // Progress bar
                 const progress = (this.player.x / this.levelWidth) * 100;
@@ -782,18 +864,34 @@
                         this.player.vy < 0) {
 
                         block.hit = true;
-                        this.coinsCollected += block.coins;
-                        this.score += block.coins * 10;
-
-                        for (let i = 0; i < block.coins; i++) {
-                            this.particles.push({
-                                x: block.x + 12,
+                        
+                        // 🍄 POWER-UP: Super Mushroom spawns from block
+                        if (block.hasMushroom) {
+                            this.powerups.push({
+                                x: block.x,
                                 y: block.y,
-                                vx: (Math.random() - 0.5) * 4,
-                                vy: -4,
-                                life: 30,
-                                type: 'coin'
+                                width: 20,
+                                height: 20,
+                                type: 'mushroom',
+                                vx: 1.5,
+                                vy: -2,
+                                collected: false
                             });
+                        } else {
+                            // Normal coins
+                            this.coinsCollected += block.coins;
+                            this.score += block.coins * 10;
+
+                            for (let i = 0; i < block.coins; i++) {
+                                this.particles.push({
+                                    x: block.x + 12,
+                                    y: block.y,
+                                    vx: (Math.random() - 0.5) * 4,
+                                    vy: -4,
+                                    life: 30,
+                                    type: 'coin'
+                                });
+                            }
                         }
 
                         this.player.vy = 1;
@@ -883,6 +981,41 @@
                 if (this.finishFlag && !this.finishFlag.reached &&
                     this.player.x + this.player.width > this.finishFlag.x) {
                     this.finishFlag.reached = true;
+                    this.completeLevel();
+                }
+            },
+
+            completeLevel() {
+                // Stop game loop temporarily
+                this.gameActive = false;
+                clearInterval(this.timer);
+                cancelAnimationFrame(this.animFrame);
+
+                const level = this.levels[this.currentLevel - 1];
+                const timeBonus = this.gameTime * 5;
+                const levelReward = level.baseReward;
+                const totalReward = this.coinsCollected * 10 + timeBonus + levelReward;
+
+                // Show level complete message
+                const resultElement = document.getElementById('game-result');
+                if (resultElement) {
+                    resultElement.innerHTML =
+                        `<strong>🏆 ${level.name} COMPLETE!</strong><br>` +
+                        `Coins: ${this.coinsCollected} (+${this.coinsCollected * 10} TAMA)<br>` +
+                        `Time Bonus: ${timeBonus} TAMA<br>` +
+                        `Level Bonus: +${levelReward} TAMA<br>` +
+                        `<strong>Total: +${totalReward} TAMA!</strong>`;
+                }
+
+                // Check if there's a next level
+                if (this.currentLevel < this.maxLevel) {
+                    // Next level after 2 seconds
+                    setTimeout(() => {
+                        this.currentLevel++;
+                        this.startLevel(this.currentLevel);
+                    }, 2000);
+                } else {
+                    // All levels complete!
                     this.winGame();
                 }
             },
@@ -892,22 +1025,35 @@
                 clearInterval(this.timer);
                 cancelAnimationFrame(this.animFrame);
 
+                // Calculate total reward from all levels
+                let totalReward = 0;
+                let totalCoins = this.coinsCollected;
+                let totalScore = this.score;
+
+                // Add rewards from all completed levels
+                for (let i = 1; i <= this.currentLevel; i++) {
+                    const level = this.levels[i - 1];
+                    totalReward += level.baseReward;
+                }
+
+                // Add coin and time bonuses
                 const timeBonus = this.gameTime * 5;
-                const totalReward = this.coinsCollected * 10 + timeBonus + 200;
+                totalReward += totalCoins * 10 + timeBonus + 500; // Bonus for completing all levels
 
                 balance += totalReward;
                 document.getElementById('balance').textContent = formatNumber(balance);
-                updateBalance(totalReward, `Super Tama Bros: Level complete! Coins: ${this.coinsCollected}, Time: ${this.gameTime}s`);
+                updateBalance(totalReward, `Super Tama Bros: ALL LEVELS COMPLETE! Coins: ${totalCoins}, Score: ${totalScore}`);
 
                 const resultElement = document.getElementById('game-result');
                 if (resultElement) {
                     resultElement.innerHTML =
-                        `<strong>🏆 LEVEL COMPLETE!</strong><br>` +
-                        `Coins: ${this.coinsCollected} (+${this.coinsCollected * 10} TAMA)<br>` +
+                        `<strong>🏆🎉 ALL LEVELS COMPLETE! 🎉🏆</strong><br>` +
+                        `You completed all ${this.maxLevel} levels!<br>` +
+                        `Total Coins: ${totalCoins} (+${totalCoins * 10} TAMA)<br>` +
                         `Time Bonus: ${timeBonus} TAMA<br>` +
-                        `Finish Bonus: +200 TAMA<br>` +
-                        `<strong>Total: +${totalReward} TAMA!</strong><br>` +
-                        `Net: +${totalReward - 100} TAMA 🎉`;
+                        `Completion Bonus: +500 TAMA<br>` +
+                        `<strong>Total Reward: +${totalReward} TAMA!</strong><br>` +
+                        `Net: +${totalReward - 100} TAMA 🚀`;
                 }
 
                 const startBtn = document.getElementById('start-btn');
@@ -1005,6 +1151,25 @@
                     } else if (p.type === 'brick') {
                         this.ctx.fillStyle = '#DC2626';
                         this.ctx.fillRect(p.x, p.y, 4, 4);
+                    }
+                });
+
+                // 🍄 Draw Power-ups (Super Mushroom)
+                this.powerups.forEach(powerup => {
+                    if (!powerup.collected && powerup.type === 'mushroom') {
+                        // Draw mushroom (red with white spots)
+                        this.ctx.fillStyle = '#DC2626';
+                        this.ctx.beginPath();
+                        this.ctx.arc(powerup.x + 10, powerup.y + 8, 8, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.fillStyle = '#FFF';
+                        this.ctx.fillRect(powerup.x + 6, powerup.y + 12, 8, 8);
+                        // White spots
+                        this.ctx.fillStyle = '#FFF';
+                        this.ctx.beginPath();
+                        this.ctx.arc(powerup.x + 7, powerup.y + 6, 2, 0, Math.PI * 2);
+                        this.ctx.arc(powerup.x + 13, powerup.y + 6, 2, 0, Math.PI * 2);
+                        this.ctx.fill();
                     }
                 });
 
