@@ -394,6 +394,17 @@ switch ($path) {
         }
         break;
 
+    case '/wheel/jackpot':
+        if ($method === 'GET') {
+            handleWheelJackpot($supabaseUrl, $supabaseKey, 'GET');
+        } elseif ($method === 'POST') {
+            handleWheelJackpot($supabaseUrl, $supabaseKey, 'POST');
+        } else {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+        }
+        break;
+
     default:
         // Ensure JSON response for unknown routes
         ob_clean();
@@ -998,7 +1009,7 @@ function handleLeaderboardUpsert($url, $key) {
             // 4. ⚠️ CRITICAL: Если баланс увеличился БЕЗ транзакции (skip_transaction_log=false) - это подозрительно!
             //    Это может быть авто-сохранение со старыми данными после игр
             $suspiciousIncrease = ($incomingTama > $existingTama) && !$skip_transaction_log;
-            
+
             if ($levelWasDowngraded || $incomingTama < $existingTama || $suspiciousIncrease) {
                 if ($suspiciousIncrease) {
                     error_log("⚠️ PROTECTION: Rejected suspicious balance increase from {$existingTama} to {$incomingTama} (likely stale data from auto-save). Keeping current balance.");
@@ -4874,6 +4885,96 @@ function handleGetJackpotPool($url, $key) {
         http_response_code(500);
         error_log('❌ Get jackpot pool error: ' . $e->getMessage());
         echo json_encode(['error' => 'Internal server error', 'message' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Handle Wheel Jackpot API
+ * GET /api/tama/wheel/jackpot - Get current jackpot
+ * POST /api/tama/wheel/jackpot - Update jackpot (add/reset/set)
+ */
+function handleWheelJackpot($url, $key, $method) {
+    try {
+        if ($method === 'GET') {
+            // Get current jackpot
+            $result = supabaseRequest($url, $key, 'GET', 'wheel_jackpot', [
+                'id' => 'eq.1'
+            ]);
+            
+            if (!empty($result['data'])) {
+                $jackpot = $result['data'][0];
+                echo json_encode([
+                    'success' => true,
+                    'jackpot' => floatval($jackpot['amount']),
+                    'last_updated' => $jackpot['updated_at']
+                ]);
+            } else {
+                // Initialize jackpot if doesn't exist
+                $initResult = supabaseRequest($url, $key, 'POST', 'wheel_jackpot', [], [
+                    'id' => 1,
+                    'amount' => 5000,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                
+                echo json_encode([
+                    'success' => true,
+                    'jackpot' => 5000,
+                    'last_updated' => date('Y-m-d H:i:s')
+                ]);
+            }
+        } elseif ($method === 'POST') {
+            // Update jackpot
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            $action = $input['action'] ?? 'add'; // 'add' or 'reset' or 'set'
+            $amount = floatval($input['amount'] ?? 0);
+            
+            // Get current jackpot
+            $result = supabaseRequest($url, $key, 'GET', 'wheel_jackpot', [
+                'id' => 'eq.1'
+            ]);
+            
+            $currentJackpot = 5000;
+            if (!empty($result['data'])) {
+                $currentJackpot = floatval($result['data'][0]['amount']);
+            }
+            
+            if ($action === 'add') {
+                // Add to jackpot (5% of bet)
+                $newJackpot = $currentJackpot + $amount;
+            } elseif ($action === 'reset') {
+                // Reset after win
+                $newJackpot = 5000; // Reset to base amount
+            } elseif ($action === 'set') {
+                // Admin set specific amount
+                $newJackpot = $amount;
+            } else {
+                throw new Exception('Invalid action');
+            }
+            
+            // Update jackpot
+            $updateResult = supabaseRequest($url, $key, 'PATCH', 'wheel_jackpot', [
+                'id' => 'eq.1'
+            ], [
+                'amount' => $newJackpot,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            echo json_encode([
+                'success' => true,
+                'jackpot' => $newJackpot,
+                'previous' => $currentJackpot,
+                'change' => $newJackpot - $currentJackpot
+            ]);
+        }
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        error_log('❌ Wheel jackpot error: ' . $e->getMessage());
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
     }
 }
 ?>

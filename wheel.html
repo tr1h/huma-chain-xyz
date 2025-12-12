@@ -1461,7 +1461,9 @@
             requestBody.wallet_address = walletAddress;
           }
 
-          console.log(`📡 Calling API with amount: ${amount}, bet: ${requestBody.bet}, win: ${requestBody.win}`);
+          console.log(
+            `📡 Calling API with amount: ${amount}, bet: ${requestBody.bet}, win: ${requestBody.win}`
+          );
 
           const response = await fetch(`${API_BASE}/slots/spin`, {
             method: 'POST',
@@ -1472,11 +1474,13 @@
           if (response.ok) {
             const data = await response.json();
             console.log('📥 API Response:', data);
-            
+
             if (data.balance !== undefined || data.total_tama !== undefined) {
               balance = data.total_tama || data.database_tama || data.balance || balance;
               document.getElementById('balance').textContent = formatNumber(balance);
-              console.log(`✅ Balance synced: ${balance} (from API: ${data.balance || data.total_tama})`);
+              console.log(
+                `✅ Balance synced: ${balance} (from API: ${data.balance || data.total_tama})`
+              );
               return data;
             } else {
               console.error('❌ API response missing balance field:', data);
@@ -1573,7 +1577,8 @@
       // Load global jackpot from API
       async function loadGlobalJackpot() {
         try {
-          const response = await fetch(`${API_BASE}/jackpot.php`);
+          // Use router.php endpoint instead of direct jackpot.php
+          const response = await fetch(`${API_BASE}/wheel/jackpot`);
           const data = await response.json();
 
           if (data.success) {
@@ -1592,7 +1597,8 @@
       // Update global jackpot (add contribution)
       async function updateGlobalJackpot(action, amount = 0) {
         try {
-          const response = await fetch(`${API_BASE}/jackpot.php`, {
+          // Use router.php endpoint instead of direct jackpot.php
+          const response = await fetch(`${API_BASE}/wheel/jackpot`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action, amount }),
