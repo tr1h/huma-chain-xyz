@@ -995,8 +995,16 @@ function handleLeaderboardUpsert($url, $key) {
             // 1. Если уровень был понижен (и скорректирован) - всегда используем больший баланс
             // 2. Если уровень одинаковый, но баланс меньше - используем больший
             // 3. Если уровень выше, но баланс меньше - используем больший (защита от частичного сброса)
-            if ($levelWasDowngraded || $incomingTama < $existingTama) {
-                error_log("⚠️ PROTECTION: Preserving higher balance {$existingTama} over {$incomingTama} (level was downgraded: " . ($levelWasDowngraded ? 'yes' : 'no') . ")");
+            // 4. ⚠️ CRITICAL: Если баланс увеличился БЕЗ транзакции (skip_transaction_log=false) - это подозрительно!
+            //    Это может быть авто-сохранение со старыми данными после игр
+            $suspiciousIncrease = ($incomingTama > $existingTama) && !$skip_transaction_log;
+            
+            if ($levelWasDowngraded || $incomingTama < $existingTama || $suspiciousIncrease) {
+                if ($suspiciousIncrease) {
+                    error_log("⚠️ PROTECTION: Rejected suspicious balance increase from {$existingTama} to {$incomingTama} (likely stale data from auto-save). Keeping current balance.");
+                } else {
+                    error_log("⚠️ PROTECTION: Preserving higher balance {$existingTama} over {$incomingTama} (level was downgraded: " . ($levelWasDowngraded ? 'yes' : 'no') . ")");
+                }
                 $tama = $existingTama; // Используем существующий баланс
             }
 
