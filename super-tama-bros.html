@@ -356,7 +356,7 @@
             camera: { x: 0 },
             levelWidth: 3000,
             animationFrame: 0,
-            
+
             // 🎮 MULTIPLE LEVELS SYSTEM
             currentLevel: 1,
             maxLevel: 3,
@@ -389,7 +389,7 @@
                     description: 'The ultimate challenge!'
                 }
             ],
-            
+
             // 🍄 POWER-UP SYSTEM
             playerPowerUp: null, // 'mushroom', 'fire', 'star', null
             powerUpTimer: 0,
@@ -747,6 +747,28 @@
                 });
             },
 
+            updatePowerUps() {
+                // Update power-up positions (mushrooms bounce)
+                this.powerups.forEach(powerup => {
+                    if (powerup.type === 'mushroom' && !powerup.collected) {
+                        powerup.x += powerup.vx;
+                        powerup.vy += 0.3; // Gravity
+                        powerup.y += powerup.vy;
+                        
+                        // Bounce on ground
+                        if (powerup.y > 426) {
+                            powerup.y = 426;
+                            powerup.vy = -3;
+                        }
+                        
+                        // Change direction when hitting walls
+                        if (powerup.x < 0 || powerup.x > this.levelWidth - powerup.width) {
+                            powerup.vx *= -1;
+                        }
+                    }
+                });
+            },
+
             drawUI() {
                 const panelHeight = 60;
                 this.ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
@@ -776,7 +798,7 @@
 
                 // Power-up indicator
                 if (this.playerPowerUp) {
-                    const powerUpEmoji = this.playerPowerUp === 'mushroom' ? '🍄' : 
+                    const powerUpEmoji = this.playerPowerUp === 'mushroom' ? '🍄' :
                                        this.playerPowerUp === 'star' ? '⭐' : '🔥';
                     this.ctx.strokeText(`${powerUpEmoji}`, 750, 40);
                     this.ctx.fillText(`${powerUpEmoji}`, 750, 40);
@@ -864,7 +886,7 @@
                         this.player.vy < 0) {
 
                         block.hit = true;
-                        
+
                         // 🍄 POWER-UP: Super Mushroom spawns from block
                         if (block.hasMushroom) {
                             this.powerups.push({

@@ -9082,9 +9082,10 @@
                     return;
                 }
 
-                // For platformer - immediately open fullscreen!
+                // For platformer - open super-tama-bros.html
                 if (gameName === 'platformer') {
-                    openPlatformerFullscreen();
+                    const userId = window.TELEGRAM_USER_ID || '';
+                    window.open(`/super-tama-bros.html?user_id=${userId}`, '_blank');
                     return;
                 }
 
@@ -13996,10 +13997,11 @@ ${link}`;
                 window.open(`/slots.html?user_id=${userId}`, '_blank');
                 return;
             }
-            
-            // Для platformer - сразу открываем fullscreen!
+
+            // Для platformer - открываем super-tama-bros.html
             if (game === 'platformer') {
-                openPlatformerFullscreen();
+                const userId = window.TELEGRAM_USER_ID || '';
+                window.open(`/super-tama-bros.html?user_id=${userId}`, '_blank');
                 return;
             }
 
