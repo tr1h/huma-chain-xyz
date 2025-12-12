@@ -8732,7 +8732,7 @@
                         pet_data: pet_data,
                         pet_name: gameState.petType || 'Gotchi',
                         pet_type: gameState.petType || 'kawai',
-                        skip_transaction_log: true  // Skip auto-logging, we log manually
+                        skip_transaction_log: false  // ⚠️ CRITICAL: Set to false to enable balance protection!
                 };
 
                 console.log('📤 Sending to API:', {
