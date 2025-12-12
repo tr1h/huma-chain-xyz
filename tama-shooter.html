@@ -472,9 +472,9 @@
                     y: canvas.height - 60,
                     width: 40,
                     height: 40,
-                    speed: 5,
+                    speed: 6, // Быстрее движение
                     shootCooldown: 0,
-                    shootDelay: 15
+                    shootDelay: 10 // БЫСТРЕЕ стрельба! Was: 15
                 };
 
                 // Disable controls
@@ -495,22 +495,22 @@
                 this.wave++;
                 document.getElementById('wave').textContent = this.wave;
 
-                // Spawn enemies
-                const enemyCount = 5 + this.wave * 2;
-                const rows = Math.min(3 + Math.floor(this.wave / 2), 5);
+                // Spawn enemies (МЕНЬШЕ врагов, но сложнее)
+                const enemyCount = 8 + this.wave * 1; // Was: 5 + wave * 2
+                const rows = Math.min(2 + Math.floor(this.wave / 3), 4); // Was: 3 + wave/2, max 5
                 const cols = Math.ceil(enemyCount / rows);
 
                 for (let row = 0; row < rows; row++) {
                     for (let col = 0; col < cols; col++) {
                         this.enemies.push({
-                            x: 50 + col * 80,
-                            y: 50 + row * 60,
-                            width: 40,
-                            height: 40,
-                            speed: 0.5 + this.wave * 0.1,
+                            x: 100 + col * 70,
+                            y: 80 + row * 50,
+                            width: 35,
+                            height: 35,
+                            speed: 0.3 + this.wave * 0.05, // МЕДЛЕННЕЕ! Was: 0.5 + wave * 0.1
                             direction: 1,
-                            health: 1 + Math.floor(this.wave / 3),
-                            maxHealth: 1 + Math.floor(this.wave / 3),
+                            health: 1 + Math.floor(this.wave / 4), // Здоровье растёт медленнее
+                            maxHealth: 1 + Math.floor(this.wave / 4),
                             shootCooldown: Math.random() * 120
                         });
                     }
@@ -543,15 +543,15 @@
                 // Keep player in bounds
                 this.player.x = Math.max(this.player.width / 2, Math.min(canvas.width - this.player.width / 2, this.player.x));
 
-                // Auto shoot
+                // Auto shoot (БЫСТРЕЕ!)
                 this.player.shootCooldown--;
                 if (this.player.shootCooldown <= 0) {
                     this.bullets.push({
                         x: this.player.x,
                         y: this.player.y - 20,
-                        width: 4,
-                        height: 15,
-                        speed: 8,
+                        width: 5, // Шире пули
+                        height: 18, // Длиннее пули
+                        speed: 10, // БЫСТРЕЕ! Was: 8
                         damage: 1
                     });
                     this.player.shootCooldown = this.player.shootDelay;
@@ -578,7 +578,7 @@
                 if (moveDown) {
                     this.enemies.forEach(enemy => {
                         enemy.direction *= -1;
-                        enemy.y += 20;
+                        enemy.y += 15; // МЕНЬШЕ спуск! Was: 20
                     });
                 }
 
@@ -621,12 +621,13 @@
                     }
                 }
 
-                // Check if enemies reached bottom
-                this.enemies.forEach(enemy => {
-                    if (enemy.y > canvas.height - 100) {
-                        this.loseLife();
-                    }
-                });
+                // Check if enemies reached bottom (только если действительно близко!)
+                const criticalEnemies = this.enemies.filter(enemy => enemy.y > canvas.height - 80);
+                if (criticalEnemies.length > 0) {
+                    this.loseLife();
+                    // Удалить критических врагов
+                    this.enemies = this.enemies.filter(enemy => enemy.y <= canvas.height - 80);
+                }
 
                 // Update particles
                 this.particles.forEach((p, index) => {
@@ -708,10 +709,8 @@
                 
                 if (this.lives <= 0) {
                     this.gameOver();
-                } else {
-                    // Clear enemies at bottom
-                    this.enemies = this.enemies.filter(e => e.y <= canvas.height - 100);
                 }
+                // Enemies already cleared in the check
             },
 
             winGame() {
