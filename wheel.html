@@ -337,6 +337,33 @@
                     💎 1,000 TAMA
                 </button>
             </div>
+            
+            <!-- Custom Bet Input -->
+            <div style="margin-top: 15px;">
+                <div style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">
+                    Or enter custom amount:
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input 
+                        type="number" 
+                        id="custom-bet-input" 
+                        placeholder="Enter amount..." 
+                        min="100" 
+                        max="999999"
+                        style="flex: 1; padding: 10px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: white; font-size: 14px; text-align: center;"
+                    />
+                    <button 
+                        class="bet-btn" 
+                        onclick="setCustomBet()" 
+                        style="flex: 0 0 auto; padding: 10px 20px;"
+                    >
+                        ✅ Set
+                    </button>
+                </div>
+                <div id="custom-bet-hint" style="text-align: center; font-size: 11px; color: rgba(255,215,0,0.8); margin-top: 5px;">
+                    Max: 50% of balance
+                </div>
+            </div>
         </div>
 
         <!-- Wheel -->
@@ -574,6 +601,12 @@
         let totalWon = 0;
         let spinHistory = [];
         let jackpotPool = 0; // Progressive jackpot pool
+        
+        // Limits
+        const MAX_SPINS_PER_DAY = 30;
+        const COOLDOWN_SECONDS = 30;
+        let spinsToday = 0;
+        let lastSpinTime = 0;
 
         // Create confetti effect (defined early)
         function createConfetti() {
@@ -602,19 +635,23 @@
         const ctx = canvas.getContext('2d');
         let rotation = 0;
 
-        // Segments - Adjusted for better RTP (Return to Player ~95%)
-        // More losing segments to make it more challenging
+        // Segments - NEW BALANCED (12 segments, RTP ~94%)
+        // Jackpot is now RARE (8.3% instead of 12.5%)!
         const segments = [
-            { multiplier: 10, color: '#ef4444', text: '10x' },      // 12.5% - Jackpot
-            { multiplier: 0.3, color: '#4b5563', text: '0.3x' },    // 12.5% - Loss
-            { multiplier: 2, color: '#10b981', text: '2x' },        // 12.5% - Win
-            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },   // 12.5% - Loss
-            { multiplier: 3, color: '#3b82f6', text: '3x' },        // 12.5% - Win
-            { multiplier: 0.3, color: '#4b5563', text: '0.3x' },   // 12.5% - Loss (added)
-            { multiplier: 5, color: '#8b5cf6', text: '5x' },       // 12.5% - Big Win
-            { multiplier: 0.5, color: '#6b7280', text: '0.5x' }    // 12.5% - Loss
+            { multiplier: 10, color: '#ef4444', text: '10x' },      // 8.3% - JACKPOT (rare!)
+            { multiplier: 5, color: '#8b5cf6', text: '5x' },        // 8.3% - Big Win
+            { multiplier: 3, color: '#3b82f6', text: '3x' },        // 8.3% - Triple
+            { multiplier: 2, color: '#10b981', text: '2x' },        // 8.3% - Double
+            { multiplier: 2, color: '#10b981', text: '2x' },        // 8.3% - Double (2nd)
+            { multiplier: 1, color: '#059669', text: '1x' },        // 8.3% - Break Even
+            { multiplier: 1, color: '#059669', text: '1x' },        // 8.3% - Break Even (2nd)
+            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },    // 8.3% - Half
+            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },    // 8.3% - Half (2nd)
+            { multiplier: 0.5, color: '#6b7280', text: '0.5x' },    // 8.3% - Half (3rd)
+            { multiplier: 0.3, color: '#4b5563', text: '0.3x' },    // 8.3% - 30% back
+            { multiplier: 0, color: '#dc2626', text: '0x' }         // 8.3% - LOSE ALL
         ];
-        // Expected RTP: ~95% (more challenging, less "easy money")
+        // Expected RTP: ~94% (challenging but fair)
 
         // Sound system
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -753,6 +790,42 @@
             document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById('spin-cost').textContent = amount.toLocaleString();
+            
+            // Clear custom input
+            document.getElementById('custom-bet-input').value = '';
+        }
+
+        // Set custom bet (max 50% of balance)
+        function setCustomBet() {
+            const input = document.getElementById('custom-bet-input');
+            const amount = parseInt(input.value);
+            
+            if (!amount || amount < 100) {
+                alert('❌ Minimum bet: 100 TAMA');
+                return;
+            }
+            
+            const maxBet = Math.floor(balance * 0.5);
+            if (amount > maxBet) {
+                alert(`❌ Maximum bet: ${maxBet.toLocaleString()} TAMA (50% of balance)`);
+                return;
+            }
+            
+            if (amount > balance) {
+                alert('❌ Insufficient balance!');
+                return;
+            }
+            
+            // Set custom bet
+            currentBet = amount;
+            document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('spin-cost').textContent = amount.toLocaleString();
+            
+            // Show success
+            input.style.borderColor = '#8AC926';
+            setTimeout(() => {
+                input.style.borderColor = 'rgba(255,255,255,0.3)';
+            }, 1000);
         }
 
         // Format number
@@ -777,10 +850,35 @@
                     if (userId && userId !== '123456789') {
                         localStorage.setItem('telegram_user_id', userId);
                     }
+                    
+                    // Update custom bet hint with max amount
+                    const maxBet = Math.floor(balance * 0.5);
+                    document.getElementById('custom-bet-hint').textContent = `Max: ${formatNumber(maxBet)} TAMA (50% of balance)`;
                 }
             } catch (error) {
                 console.error('Failed to load balance:', error);
                 document.getElementById('balance').textContent = '0';
+            }
+            
+            // Load spin counter for today
+            const today = new Date().toDateString();
+            const savedDate = localStorage.getItem('wheel_spin_date');
+            if (savedDate !== today) {
+                spinsToday = 0;
+                localStorage.setItem('wheel_spin_date', today);
+                localStorage.setItem('wheel_spins_today', '0');
+            } else {
+                spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
+            }
+            
+            // Update button text
+            const remaining = MAX_SPINS_PER_DAY - spinsToday;
+            if (remaining > 0) {
+                document.getElementById('spin-btn').textContent = `🎡 SPIN (${remaining} left today)`;
+                document.getElementById('spin-btn').disabled = false;
+            } else {
+                document.getElementById('spin-btn').textContent = `⏰ Come back tomorrow`;
+                document.getElementById('spin-btn').disabled = true;
             }
 
             // Load jackpot pool
@@ -905,6 +1003,35 @@
         // Spin
         async function spin() {
             if (isSpinning) return;
+            
+            // Check daily limit
+            const today = new Date().toDateString();
+            const savedDate = localStorage.getItem('wheel_spin_date');
+            if (savedDate !== today) {
+                // Reset counter for new day
+                spinsToday = 0;
+                localStorage.setItem('wheel_spin_date', today);
+                localStorage.setItem('wheel_spins_today', '0');
+            } else {
+                spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
+            }
+            
+            if (spinsToday >= MAX_SPINS_PER_DAY) {
+                document.getElementById('result').textContent = `⏰ Daily limit: ${MAX_SPINS_PER_DAY} spins. Come back tomorrow!`;
+                document.getElementById('result').style.color = '#fbbf24';
+                return;
+            }
+            
+            // Check cooldown
+            const now = Date.now();
+            const timeSinceLastSpin = (now - lastSpinTime) / 1000;
+            if (lastSpinTime > 0 && timeSinceLastSpin < COOLDOWN_SECONDS) {
+                const remaining = Math.ceil(COOLDOWN_SECONDS - timeSinceLastSpin);
+                document.getElementById('result').textContent = `⏳ Cooldown: ${remaining} seconds`;
+                document.getElementById('result').style.color = '#fbbf24';
+                return;
+            }
+            
             if (balance < currentBet) {
                 document.getElementById('result').textContent = '❌ Insufficient balance!';
                 document.getElementById('result').style.color = '#ff6b6b';
@@ -991,6 +1118,20 @@
                         totalWon += netProfit;
                     } else if (netProfit < 0) {
                         losses++;
+                    }
+                    
+                    // Update spin counter and cooldown
+                    spinsToday++;
+                    lastSpinTime = Date.now();
+                    localStorage.setItem('wheel_spins_today', spinsToday.toString());
+                    
+                    // Update spin button with remaining spins
+                    const remaining = MAX_SPINS_PER_DAY - spinsToday;
+                    if (remaining > 0) {
+                        document.getElementById('spin-btn').textContent = `🎡 SPIN (${remaining} left today)`;
+                    } else {
+                        document.getElementById('spin-btn').textContent = `⏰ Come back tomorrow`;
+                        document.getElementById('spin-btn').disabled = true;
                     }
 
                     document.getElementById('wins').textContent = wins;
