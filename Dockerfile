@@ -19,15 +19,8 @@ COPY api/ /app/api/
 # Copy .htaccess from root for routing
 COPY .htaccess /app/.htaccess
 
-# Ensure .htaccess in api/ directory exists for routing
-RUN echo 'RewriteEngine On\n\
-RewriteBase /api\n\
-RewriteCond %{REQUEST_FILENAME} !-f\n\
-RewriteCond %{REQUEST_FILENAME} !-d\n\
-RewriteRule ^tama(/.*)?$ tama_supabase.php [QSA,L]\n\
-RewriteCond %{REQUEST_URI} ^/api/mint-nft-onchain\n\
-RewriteCond %{REQUEST_FILENAME} !-f\n\
-RewriteRule ^mint-nft-onchain$ mint-nft-onchain-wrapper.php [QSA,L]' > /app/api/.htaccess
+# Use .htaccess from repository (don't overwrite)
+# api/.htaccess already contains routing rules
 
 # Configure Apache with proper routing
 RUN echo '<VirtualHost *:80>\n\
@@ -45,6 +38,10 @@ RUN echo '<VirtualHost *:80>\n\
         Require all granted\n\
         RewriteEngine On\n\
     </Directory>\n\
+    # Fallback: Route /api/tama-v2/* to tama_api_v2.php (modular API)\n\
+    RewriteCond %{REQUEST_URI} ^/api/tama-v2\n\
+    RewriteCond %{REQUEST_FILENAME} !-f\n\
+    RewriteRule ^/api/tama-v2(.*)$ /api/tama_api_v2.php [QSA,L]\n\
     # Fallback: Route /api/tama/* to tama_supabase.php if .htaccess fails\n\
     RewriteCond %{REQUEST_URI} ^/api/tama\n\
     RewriteCond %{REQUEST_URI} !tama_supabase\.php$\n\
