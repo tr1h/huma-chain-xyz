@@ -32,14 +32,13 @@ require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/load_keypairs.php';
 setSecurityHeaders();
 
-// Config
+// Config - same as tama_supabase.php
 $supabaseUrl = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase.co';
-$supabaseKey = getenv('SUPABASE_KEY');
+$supabaseKey = getenv('SUPABASE_KEY') ?: getenv('SUPABASE_ANON_KEY');
 
+// Fallback for testing (same key as in old API)
 if (!$supabaseKey) {
-    http_response_code(500);
-    echo json_encode(['error' => 'SUPABASE_KEY not configured']);
-    exit();
+    $supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
 }
 
 // Rate limiting
