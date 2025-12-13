@@ -519,6 +519,9 @@
 
                 // Start game loop
                 this.gameLoop();
+                
+                // Start periodic logging
+                setTimeout(() => this.logGameState(), 5000);
             },
 
             startLevel(levelNum) {
@@ -726,6 +729,16 @@
                 this.draw();
 
                 requestAnimationFrame(() => this.gameLoop());
+            },
+
+            // Периодическое логирование состояния игры (каждые 5 секунд)
+            logGameState() {
+                if (!this.isRunning) return;
+                
+                console.log(`📊 Game State: Level=${this.level}, Wave=${this.wave}, Enemies=${this.enemies.length}, Boss=${this.boss ? `HP:${this.boss.health}/${this.boss.maxHealth}` : 'None'}, Lives=${this.lives}, Score=${this.score}, Kills=${this.enemiesKilled}`);
+                
+                // Логируем каждые 5 секунд
+                setTimeout(() => this.logGameState(), 5000);
             },
 
             update() {
