@@ -3,7 +3,7 @@
 🌍 Full Localization System for Solana Tamagotchi Bot
 Complete translations for all menus, submenus, and messages
 
-Supported Languages:
+Supported Languages (13):
 - EN (English) - Default
 - RU (Russian/Русский)
 - ZH (Chinese/中文)
@@ -15,6 +15,8 @@ Supported Languages:
 - KO (Korean/한국어)
 - TR (Turkish/Türkçe)
 - DE (German/Deutsch)
+- AR (Arabic/العربية)
+- VI (Vietnamese/Tiếng Việt)
 """
 
 SUPPORTED_LANGUAGES = {
@@ -29,6 +31,8 @@ SUPPORTED_LANGUAGES = {
     'ko': {'name': 'Korean', 'flag': '🇰🇷', 'native': '한국어'},
     'tr': {'name': 'Turkish', 'flag': '🇹🇷', 'native': 'Türkçe'},
     'de': {'name': 'German', 'flag': '🇩🇪', 'native': 'Deutsch'},
+    'ar': {'name': 'Arabic', 'flag': '🇸🇦', 'native': 'العربية'},
+    'vi': {'name': 'Vietnamese', 'flag': '🇻🇳', 'native': 'Tiếng Việt'},
 }
 
 # =============================================================================
@@ -47,6 +51,8 @@ BUTTONS = {
         'ko': '🎮 지금 플레이',
         'tr': '🎮 Şimdi Oyna',
         'de': '🎮 Jetzt Spielen',
+        'ar': '🎮 العب الآن',
+        'vi': '🎮 Chơi Ngay',
     },
     'daily_reward': {
         'en': '🎁 Daily Reward',

@@ -18,7 +18,7 @@ Supported Languages:
 
 from telebot import types
 
-# Supported languages configuration
+# Supported languages configuration (13 languages)
 SUPPORTED_LANGUAGES = {
     'en': {'name': 'English', 'flag': '🇬🇧', 'native': 'English'},
     'ru': {'name': 'Russian', 'flag': '🇷🇺', 'native': 'Русский'},
@@ -31,6 +31,8 @@ SUPPORTED_LANGUAGES = {
     'ko': {'name': 'Korean', 'flag': '🇰🇷', 'native': '한국어'},
     'tr': {'name': 'Turkish', 'flag': '🇹🇷', 'native': 'Türkçe'},
     'de': {'name': 'German', 'flag': '🇩🇪', 'native': 'Deutsch'},
+    'ar': {'name': 'Arabic', 'flag': '🇸🇦', 'native': 'العربية'},
+    'vi': {'name': 'Vietnamese', 'flag': '🇻🇳', 'native': 'Tiếng Việt'},
 }
 
 # Language changed messages
@@ -46,6 +48,8 @@ LANGUAGE_CHANGED_MESSAGES = {
     'ko': '✅ 언어가 한국어로 변경되었습니다!',
     'tr': '✅ Dil Türkçe olarak değiştirildi!',
     'de': '✅ Sprache auf Deutsch geändert!',
+    'ar': '✅ تم تغيير اللغة إلى العربية!',
+    'vi': '✅ Đã đổi ngôn ngữ sang Tiếng Việt!',
 }
 
 # Choose language messages
@@ -61,12 +65,14 @@ CHOOSE_LANGUAGE_MESSAGES = {
     'ko': '🌍 **언어 선택**\n\n원하는 언어를 선택하세요:',
     'tr': '🌍 **Dilinizi Seçin**\n\nTercih ettiğiniz dili seçin:',
     'de': '🌍 **Wähle deine Sprache**\n\nWähle deine bevorzugte Sprache:',
+    'ar': '🌍 **اختر لغتك**\n\nاختر لغتك المفضلة:',
+    'vi': '🌍 **Chọn Ngôn Ngữ**\n\nChọn ngôn ngữ ưa thích của bạn:',
 }
 
 
 def create_language_keyboard() -> types.InlineKeyboardMarkup:
     """
-    Create inline keyboard with language selection buttons (11 languages)
+    Create inline keyboard with language selection buttons (13 languages)
     
     Returns:
         InlineKeyboardMarkup with language buttons
@@ -103,9 +109,15 @@ def create_language_keyboard() -> types.InlineKeyboardMarkup:
         types.InlineKeyboardButton("🇩🇪 Deutsch", callback_data="lang_de")
     )
     
-    # Row 6: Turkish
+    # Row 6: Turkish, Arabic
     keyboard.add(
-        types.InlineKeyboardButton("🇹🇷 Türkçe", callback_data="lang_tr")
+        types.InlineKeyboardButton("🇹🇷 Türkçe", callback_data="lang_tr"),
+        types.InlineKeyboardButton("🇸🇦 العربية", callback_data="lang_ar")
+    )
+    
+    # Row 7: Vietnamese
+    keyboard.add(
+        types.InlineKeyboardButton("🇻🇳 Tiếng Việt", callback_data="lang_vi")
     )
     
     return keyboard
