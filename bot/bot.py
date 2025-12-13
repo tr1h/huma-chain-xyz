@@ -1124,198 +1124,45 @@ def show_language_selector(call):
 # Callback handler for language selection (from inline buttons)
 @bot.callback_query_handler(func=lambda call: call.data.startswith('lang_'))
 def handle_language_selection_callback(call):
-    """Handle language selection from inline keyboard"""
+    """Handle language selection from inline keyboard - then show main menu"""
     user_id = call.from_user.id
 
     if not LOCALIZATION_ENABLED:
         bot.answer_callback_query(call.id, "⚠️ Not available")
         return
 
-    # Get selected language
-    new_lang = handle_language_callback(call.data)  # 'en', 'ru', or 'zh'
+    # Get selected language from callback data (lang_en, lang_ru, lang_ko, etc.)
+    new_lang = call.data.replace('lang_', '')
+    
+    # Validate language
+    if new_lang not in SUPPORTED_LANGS:
+        new_lang = 'en'
 
     # Save to database
     if save_user_language(user_id, new_lang):
-        # Show checkmark in notification with appropriate language
-        confirmation_messages = {
-            'en': "✅ Language changed to English",
-            'ru': "✅ Язык изменён на русский",
-            'zh': "✅ 语言已更改为中文"
-        }
-        bot.answer_callback_query(call.id, confirmation_messages.get(new_lang, "✅ Language changed"))
+        # Get confirmation message in the new language
+        from language_selector import LANGUAGE_CHANGED_MESSAGES
+        confirmation = LANGUAGE_CHANGED_MESSAGES.get(new_lang, "✅ Language changed!")
+        
+        # Show notification
+        bot.answer_callback_query(call.id, confirmation)
 
-        # Delete old message
+        # Delete old message (language selection)
         try:
             bot.delete_message(call.message.chat.id, call.message.message_id)
         except:
             pass
 
-        # Get user stats for welcome message
-        telegram_id = str(call.from_user.id)
-        streak_days = daily_rewards.get_streak(telegram_id)
-        can_claim, _ = daily_rewards.can_claim(telegram_id)
-
-        # Fetch TAMA balance
-        try:
-            leaderboard_response = supabase.table('leaderboard').select('tama, level, xp').eq('telegram_id', telegram_id).execute()
-            user_data = leaderboard_response.data[0] if leaderboard_response.data else {}
-            tama_balance = user_data.get('tama', 0)
-            level = user_data.get('level', 1)
-
-            # Show balance in welcome message
-            if new_lang == 'ru':
-                balance_text = f"💰 *Твой баланс:* {tama_balance:,} TAMA (Ур. {level})"
-            else:
-                balance_text = f"💰 *Your Balance:* {tama_balance:,} TAMA (Lvl {level})"
-        except Exception as e:
-            balance_text = "💰 *Your Balance:* Loading..." if new_lang == 'en' else "💰 *Твой баланс:* Загрузка..."
-
-        # Use localized welcome text
-        if LOCALIZATION_ENABLED:
-            welcome_text = t('help', new_lang)
-            # Add balance and streak info
-            if new_lang == 'ru':
-                welcome_text = welcome_text.replace('/stats - Твоя статистика', f'/stats - Твоя статистика\n\n{balance_text}\n🔥 Серия: {streak_days} дн.')
-            else:
-                welcome_text = welcome_text.replace('/stats - Check your stats', f'/stats - Check your stats\n\n{balance_text}\n🔥 Streak: {streak_days} days')
-        else:
-            welcome_text = f"""🎮 Welcome to Solana Tamagotchi!
-
-{balance_text}
-🔥 Streak: {streak_days} days"""
-
-        # Create inline keyboard with localized buttons
-        keyboard = types.InlineKeyboardMarkup()
-
-        # Get user's wallet for referral links
-        username = call.from_user.username or call.from_user.first_name
-        wallet_address = get_wallet_by_telegram(telegram_id)
-
-        if wallet_address:
-            game_url = f"{GAME_URL}?ref={wallet_address}&tg_id={user_id}&tg_username={username}"
-            mint_url = f"{MINT_URL}?ref={wallet_address}&tg_id={user_id}&tg_username={username}"
-        else:
-            game_url = GAME_URL
-            mint_url = MINT_URL
-
-        # Localized button texts
-        button_texts_map = {
-            'ru': {
-                'daily': "Ежедневная награда",
-                'my_nfts': "Мои NFT",
-                'mint_nft': "Минт NFT",
-                'withdraw': "Вывести TAMA",
-                'referral': "Реферальная",
-                'stats': "Статистика",
-                'quests': "Квесты",
-                'badges': "Значки",
-                'rank': "Рейтинг",
-                'leaderboard': "Лидерборд",
-                'community': "Сообщество"
-            },
-            'zh': {
-                'daily': "每日奖励",
-                'my_nfts': "我的 NFT",
-                'mint_nft': "铸造 NFT",
-                'withdraw': "提取 TAMA",
-                'referral': "推荐",
-                'stats': "我的统计",
-                'quests': "任务",
-                'badges': "徽章",
-                'rank': "我的排名",
-                'leaderboard': "排行榜",
-                'community': "社区"
-            },
-            'es': {
-                'daily': "Recompensa diaria",
-                'my_nfts': "Mis NFT",
-                'mint_nft': "Mintear NFT",
-                'withdraw': "Retirar TAMA",
-                'referral': "Referidos",
-                'stats': "Mis Estadísticas",
-                'quests': "Misiones",
-                'badges': "Insignias",
-                'rank': "Mi Rango",
-                'leaderboard': "Clasificación",
-                'community': "Comunidad"
-            },
-            'en': {
-                'daily': "Daily Reward",
-                'my_nfts': "My NFTs",
-                'mint_nft': "Mint NFT",
-                'withdraw': "Withdraw TAMA",
-                'referral': "Referral",
-                'stats': "My Stats",
-                'quests': "Quests",
-                'badges': "Badges",
-                'rank': "My Rank",
-                'leaderboard': "Leaderboard",
-                'community': "Community"
-            }
-        }
-        texts = button_texts_map.get(new_lang, button_texts_map['en'])
-        daily_text = texts['daily']
-        my_nfts_text = texts['my_nfts']
-        mint_nft_text = texts['mint_nft']
-        withdraw_text = texts['withdraw']
-        referral_text = texts['referral']
-        stats_text = texts['stats']
-        quests_text = texts['quests']
-        badges_text = texts['badges']
-        rank_text = texts['rank']
-        leaderboard_text = texts['leaderboard']
-        community_text = texts['community']
-
-        # Row 1: Daily Reward (highlight if available)
-        daily_emoji = "🎁⭐" if can_claim else "🎁"
-        keyboard.row(types.InlineKeyboardButton(f"{daily_emoji} {daily_text}", callback_data="daily_reward"))
-
-        # Row 2: NFT Menu
-        keyboard.row(
-            types.InlineKeyboardButton(f"🖼️ {my_nfts_text}", callback_data="my_nfts"),
-            types.InlineKeyboardButton(f"🎨 {mint_nft_text}", callback_data="mint_nft")
-        )
-
-        # Row 3: Withdrawal Button
-        keyboard.row(types.InlineKeyboardButton(f"💸 {withdraw_text}", callback_data="withdraw_tama"))
-
-        # Row 4: Referral
-        keyboard.row(types.InlineKeyboardButton(f"🔗 {referral_text}", callback_data="get_referral"))
-
-        # Row 5: Stats & Quests
-        keyboard.row(
-            types.InlineKeyboardButton(f"📊 {stats_text}", callback_data="my_stats_detailed"),
-            types.InlineKeyboardButton(f"📋 {quests_text}", callback_data="view_quests")
-        )
-
-        # Row 6: Badges & Rank
-        keyboard.row(
-            types.InlineKeyboardButton(f"🏆 {badges_text}", callback_data="view_badges"),
-            types.InlineKeyboardButton(f"🎖️ {rank_text}", callback_data="view_rank")
-        )
-
-        # Row 7: Leaderboard
-        keyboard.row(types.InlineKeyboardButton(f"🏅 {leaderboard_text}", callback_data="leaderboard"))
-
-        # Row 8: Community + Language
-        keyboard.row(
-            types.InlineKeyboardButton(f"👥 {community_text}", url="https://t.me/gotchigamechat"),
-            types.InlineKeyboardButton("🌍 Language", callback_data="lang_select")
-        )
-
-        # Add language hint
-        if LOCALIZATION_ENABLED:
-            lang_hint = t('language_command_info', new_lang)
-            welcome_text += f"\n\n{lang_hint}"
-
-        # Send new message with confirmation
-        confirmation_msg = confirmation + "\n\n---\n\n"
-        bot.send_message(
-            call.message.chat.id,
-            confirmation_msg + welcome_text,
-            parse_mode='Markdown',
-            reply_markup=keyboard
-        )
+        # Create a fake message object to call send_welcome
+        # This will show the main menu in the new language
+        class FakeMessage:
+            def __init__(self, original_call):
+                self.from_user = original_call.from_user
+                self.chat = original_call.message.chat
+                self.text = '/start'
+        
+        fake_msg = FakeMessage(call)
+        send_welcome(fake_msg)
     else:
         bot.answer_callback_query(call.id, "❌ Error saving language")
 
@@ -1468,7 +1315,8 @@ def send_welcome(message):
             lang_hint = t('language_command_info', lang)
             welcome_text += f"\n\n{lang_hint}"
         print(f"📤 Sending welcome message to user {message.from_user.id}...")
-        bot.reply_to(message, welcome_text, parse_mode='Markdown', reply_markup=keyboard)
+        # Use send_message instead of reply_to (works better with callbacks)
+        bot.send_message(message.chat.id, welcome_text, parse_mode='Markdown', reply_markup=keyboard)
         print(f"✅ Welcome message sent successfully to user {message.from_user.id}")
     except Exception as send_error:
         print(f"❌ ERROR sending welcome message: {send_error}")
@@ -1476,7 +1324,7 @@ def send_welcome(message):
         traceback.print_exc()
         # Try to send a simple fallback message
         try:
-            bot.reply_to(message, "Welcome to Solana Tamagotchi! 🎮\n\nSorry, there was an error loading your profile. Please try /start again.")
+            bot.send_message(message.chat.id, "Welcome to Solana Tamagotchi! 🎮\n\nSorry, there was an error loading your profile. Please try /start again.")
             print(f"✅ Sent fallback message")
         except Exception as fallback_error:
             print(f"❌ Even fallback message failed: {fallback_error}")
