@@ -74,10 +74,10 @@ try:
         SUPPORTED_LANGS
     )
     LOCALIZATION_ENABLED = True
-    print("✅ Localization enabled (11 languages: EN, RU, ZH, ES, PT, JA, FR, HI, KO, TR, DE)")
+    print("✅ Localization enabled (13 languages: EN, RU, ZH, ES, PT, JA, FR, HI, KO, TR, DE, AR, VI)")
 except Exception as e:
     LOCALIZATION_ENABLED = False
-    SUPPORTED_LANGS = ['en', 'ru', 'zh', 'es']
+    SUPPORTED_LANGS = ['en', 'ru', 'zh', 'es', 'pt', 'ja', 'fr', 'hi', 'ko', 'tr', 'de', 'ar', 'vi']
     print(f"⚠️ Localization disabled: {e}")
 
 # Load environment variables (optional .env)
