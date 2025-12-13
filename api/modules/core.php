@@ -60,29 +60,34 @@ function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [],
 }
 
 /**
- * Return JSON error response
+ * Return JSON error response (check if already defined in security.php)
  */
-function returnError($message, $code = 400, $details = null) {
-    http_response_code($code);
-    $response = ['success' => false, 'error' => $message];
-    if ($details) $response['details'] = $details;
-    echo json_encode($response);
-    exit();
+if (!function_exists('returnError')) {
+    function returnError($message, $code = 400, $details = null) {
+        http_response_code($code);
+        $response = ['success' => false, 'error' => $message];
+        if ($details) $response['details'] = $details;
+        echo json_encode($response);
+        exit();
+    }
 }
 
 /**
- * Return JSON success response
+ * Return JSON success response (check if already defined in security.php)
  */
-function returnSuccess($data, $message = null) {
-    $response = ['success' => true];
-    if ($message) $response['message'] = $message;
-    if (is_array($data)) {
-        $response = array_merge($response, $data);
-    } else {
-        $response['data'] = $data;
+if (!function_exists('returnSuccess')) {
+    function returnSuccess($data, $message = null) {
+        $response = ['success' => true];
+        if ($message) $response['message'] = $message;
+        if (is_array($data)) {
+            $response = array_merge($response, $data);
+        } else {
+            $response['data'] = $data;
+        }
+        echo json_encode($response);
+        exit();
     }
-    echo json_encode($response);
-    exit();
+}
 }
 
 /**
