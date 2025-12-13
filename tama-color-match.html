@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🎨 TAMA COLOR MATCH - Memory Game</title>
-    
+
     <!-- Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -434,7 +434,7 @@
         async function updateBalance(amount, description = '') {
             try {
                 const initData = window.Telegram?.WebApp?.initData || '';
-                
+
                 const response = await fetch(`${API_BASE}/slots/spin`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -493,7 +493,7 @@
                 document.querySelectorAll('.bet-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         if (this.isPlaying) return;
-                        
+
                         document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
                         btn.classList.add('selected');
                         this.betAmount = parseInt(btn.dataset.bet);
@@ -551,7 +551,7 @@
             nextRound() {
                 this.currentRound++;
                 this.playerSequence = [];
-                
+
                 // Add new color to sequence
                 const newColor = this.colors[Math.floor(Math.random() * this.colors.length)];
                 this.sequence.push(newColor);
@@ -657,7 +657,7 @@
                     // Correct! Calculate reward
                     const roundReward = Math.floor(this.betAmount * 0.1 * this.currentRound);
                     this.reward += roundReward;
-                    
+
                     document.getElementById('current-reward').textContent = `${this.reward} TAMA`;
                     this.updateStatus(`✅ Round ${this.currentRound} complete! +${roundReward} TAMA`, 'win');
 
@@ -690,7 +690,7 @@
                 if (this.currentRound > 0) {
                     // Base reward for rounds completed
                     finalReward = Math.floor(this.reward);
-                    
+
                     // Bonus for longer sequences
                     if (this.currentRound >= 10) {
                         finalReward += Math.floor(this.betAmount * 2); // 2x bonus

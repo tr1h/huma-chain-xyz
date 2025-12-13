@@ -754,13 +754,13 @@
                         powerup.x += powerup.vx;
                         powerup.vy += 0.3; // Gravity
                         powerup.y += powerup.vy;
-                        
+
                         // Bounce on ground
                         if (powerup.y > 426) {
                             powerup.y = 426;
                             powerup.vy = -3;
                         }
-                        
+
                         // Change direction when hitting walls
                         if (powerup.x < 0 || powerup.x > this.levelWidth - powerup.width) {
                             powerup.vx *= -1;

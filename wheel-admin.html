@@ -352,9 +352,10 @@
         </div>
     </div>
 
+    <script src="js/config.js"></script>
     <script>
-        const SUPABASE_URL = 'https://xyzcompany.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhtZGRxd3l1dGRnb2VhdHJ1Y3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwMTc0ODUsImV4cCI6MjA0OTU5MzQ4NX0.8yQW0-TQPyTpHKYr9-Fk8Qzs5_xyJlYmEW7vHWpWKs4';
+        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = window.CONFIG?.SUPABASE_KEY || '';
 
         let allTransactions = [];
 

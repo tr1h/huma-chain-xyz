@@ -1866,6 +1866,7 @@
 
     <!-- Supabase - defer -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="js/config.js" defer></script>
 
     <!-- Unified Auth System - defer -->
     <script src="js/auth.js" defer></script>
@@ -1879,10 +1880,10 @@
 
     <script>
         // ==============================================
-        // CONFIG
+        // CONFIG - using centralized config
         // ==============================================
-        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_KEY = window.CONFIG?.SUPABASE_KEY || '';
         // Use shared supabase client from auth.js if available, otherwise create one
         // This prevents multiple GoTrueClient instances warning
         let mintSupabase;

@@ -5,18 +5,18 @@
  */
 
 // ============================================
-// ANALYTICS CONFIG
+// ANALYTICS CONFIG - using centralized config
 // ============================================
 const ANALYTICS_CONFIG = {
-    SUPABASE_URL: 'https://zfrazyupameidxpjihrh.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU',
+    SUPABASE_URL: window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co',
+    SUPABASE_ANON_KEY: window.CONFIG?.SUPABASE_KEY || '',
     TRACK_ENDPOINT: '/api/track', // Optional: your analytics endpoint
-    ENABLE_TRACKING: true
+    ENABLE_TRACKING: window.CONFIG?.FEATURES?.ANALYTICS_ENABLED ?? true
 };
 
-// Initialize Supabase for analytics
-const analyticsSupabase = window.supabase ? 
-    window.supabase.createClient(ANALYTICS_CONFIG.SUPABASE_URL, ANALYTICS_CONFIG.SUPABASE_ANON_KEY) : null;
+// Initialize Supabase for analytics - use shared client
+const analyticsSupabase = window.getSupabase ? window.getSupabase() : 
+    (window.supabase ? window.supabase.createClient(ANALYTICS_CONFIG.SUPABASE_URL, ANALYTICS_CONFIG.SUPABASE_ANON_KEY) : null);
 
 // ============================================
 // TRACKING FUNCTIONS

@@ -13,10 +13,11 @@ CREATE TABLE wheel_jackpot (
     CONSTRAINT single_row CHECK (id = 1)
 );
 
--- Insert initial jackpot
+-- Insert initial jackpot (or update if exists)
 INSERT INTO wheel_jackpot (id, amount, updated_at)
 VALUES (1, 5000, NOW())
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id)
+DO UPDATE SET updated_at = NOW();
 
 -- Enable RLS (Row Level Security)
 ALTER TABLE wheel_jackpot ENABLE ROW LEVEL SECURITY;
@@ -37,20 +38,24 @@ USING (true);
 ## 🔧 How It Works
 
 ### 1. **Single Global Jackpot**
+
 - Only ONE row in database (id=1)
 - All players see same jackpot
 - Updates in real-time
 
 ### 2. **Jackpot Growth**
+
 - Every bet adds 5% to jackpot
 - Example: 1000 TAMA bet → +50 TAMA to jackpot
 
 ### 3. **Jackpot Win**
+
 - Player hits 10x multiplier
 - Wins entire jackpot pool
 - Jackpot resets to 5000 TAMA
 
 ### 4. **Real-Time Updates**
+
 - Frontend polls every 5 seconds
 - Shows live jackpot amount
 - Synced across all players
@@ -58,10 +63,11 @@ USING (true);
 ## 📡 API Endpoints
 
 ### GET `/api/jackpot.php`
+
 ```json
 {
   "success": true,
-  "jackpot": 12345.50,
+  "jackpot": 12345.5,
   "last_updated": "2025-12-12 10:30:00"
 }
 ```
@@ -69,6 +75,7 @@ USING (true);
 ### POST `/api/jackpot.php`
 
 **Add to jackpot (after bet):**
+
 ```json
 {
   "action": "add",
@@ -77,6 +84,7 @@ USING (true);
 ```
 
 **Reset jackpot (after win):**
+
 ```json
 {
   "action": "reset"
@@ -84,6 +92,7 @@ USING (true);
 ```
 
 **Admin set jackpot:**
+
 ```json
 {
   "action": "set",
@@ -115,4 +124,3 @@ USING (true);
 2. Upload `api/jackpot.php` to server
 3. Update `wheel.html` to use global jackpot
 4. Test with multiple browsers/devices
-

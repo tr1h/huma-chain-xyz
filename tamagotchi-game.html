@@ -58,6 +58,7 @@
     <!-- Critical scripts (load first, but async to not block) -->
     <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="js/config.js" defer></script>
 
     <!-- Unified Auth System (Telegram + Wallet) - defer to not block rendering -->
     <script src="js/auth.js" defer></script>
@@ -13028,12 +13029,12 @@ ${link}`;
             });
         }
 
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+        // Supabase Configuration - using centralized config
+        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_KEY || '';
 
-        // API Configuration (UPDATED TO RENDER)
-        const TAMA_API_BASE = 'https://api.solanatamagotchi.com/api/tama';
+        // API Configuration - using centralized config
+        const TAMA_API_BASE = window.CONFIG?.API_BASE || 'https://api.solanatamagotchi.com/api/tama';
 
         // Treasury addresses for SOL distribution
         const TREASURY_MAIN = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';

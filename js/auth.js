@@ -10,18 +10,18 @@
  */
 
 // ============================================
-// CONFIG
+// CONFIG - using centralized config if available
 // ============================================
 const AUTH_CONFIG = {
-    SUPABASE_URL: 'https://zfrazyupameidxpjihrh.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU',
-    TELEGRAM_BOT_USERNAME: 'GotchiGameBot',
+    SUPABASE_URL: window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co',
+    SUPABASE_ANON_KEY: window.CONFIG?.SUPABASE_KEY || '',
+    TELEGRAM_BOT_USERNAME: window.CONFIG?.TELEGRAM?.BOT_USERNAME || 'GotchiGameBot',
     SESSION_KEY: 'gotchi_auth_session',
-    SESSION_EXPIRY: 7 * 24 * 60 * 60 * 1000 // 7 days
+    SESSION_EXPIRY: window.CONFIG?.SECURITY?.SESSION_TIMEOUT || 7 * 24 * 60 * 60 * 1000 // 7 days
 };
 
-// Initialize Supabase
-const supabase = window.supabase ? window.supabase.createClient(AUTH_CONFIG.SUPABASE_URL, AUTH_CONFIG.SUPABASE_ANON_KEY) : null;
+// Initialize Supabase - use shared client if available
+const supabase = window.getSupabase ? window.getSupabase() : (window.supabase ? window.supabase.createClient(AUTH_CONFIG.SUPABASE_URL, AUTH_CONFIG.SUPABASE_ANON_KEY) : null);
 
 // ============================================
 // AUTH STATE

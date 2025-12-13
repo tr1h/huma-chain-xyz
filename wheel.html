@@ -2,36 +2,42 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <title>🎡 Lucky Wheel - Solana Tamagotchi</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="max-age=3600" />
+    <title>Lucky Wheel - Solana Tamagotchi</title>
+    
+    <!-- Preconnect to external domains for faster loading -->
+    <link rel="preconnect" href="https://telegram.org" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://api.solanatamagotchi.com" crossorigin>
+    <link rel="dns-prefetch" href="https://zfrazyupameidxpjihrh.supabase.co">
+    
+    <!-- Load critical scripts with async/defer -->
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="js/config.js" defer></script>
 
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
+      *{margin:0;padding:0;box-sizing:border-box}
+      
       body {
         background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #1a0033 100%);
+        background-attachment: fixed;
         min-height: 100vh;
-        font-family: 'Arial', sans-serif;
+        font-family: Arial, sans-serif;
         color: white;
         overflow-x: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 10px;
+        -webkit-font-smoothing: antialiased;
       }
 
       .container {
         max-width: 500px;
         width: 100%;
+        contain: layout style;
       }
 
       .header {
@@ -45,6 +51,7 @@
         background: linear-gradient(45deg, #ffd700, #ffa500);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       .balance-section {
@@ -52,6 +59,7 @@
         padding: 15px;
         border-radius: 15px;
         margin-bottom: 20px;
+        contain: layout style;
       }
 
       .balance-item {
@@ -79,16 +87,13 @@
         text-align: center;
         box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
         animation: jackpotPulse 2s ease-in-out infinite;
+        will-change: box-shadow;
+        contain: layout style paint;
       }
 
       @keyframes jackpotPulse {
-        0%,
-        100% {
-          box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-        }
-        50% {
-          box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
-        }
+        0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+        50% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
       }
 
       .jackpot-label {
@@ -158,8 +163,9 @@
         color: white;
         font-weight: bold;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: transform 0.2s, box-shadow 0.2s;
         font-size: 14px;
+        will-change: transform;
       }
 
       .bet-btn:hover {
@@ -178,6 +184,7 @@
         width: 100%;
         max-width: 400px;
         margin: 0 auto 20px;
+        contain: layout style paint;
       }
 
       #wheel-canvas {
@@ -185,13 +192,15 @@
         height: auto;
         border-radius: 50%;
         box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        will-change: transform;
+        transform: translateZ(0);
       }
 
       .wheel-pointer {
         position: absolute;
         top: -10px;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%) translateZ(0);
         width: 0;
         height: 0;
         border-left: 15px solid transparent;
@@ -211,9 +220,10 @@
         font-size: 20px;
         font-weight: bold;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: transform 0.2s, box-shadow 0.2s;
         margin-bottom: 15px;
         box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        will-change: transform;
       }
 
       .spin-button:hover:not(:disabled) {
@@ -241,14 +251,19 @@
       }
 
       @keyframes confetti-fall {
-        0% {
-          transform: translateY(0) rotate(0deg);
-          opacity: 1;
-        }
-        100% {
-          transform: translateY(100vh) rotate(720deg);
-          opacity: 0;
-        }
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+      }
+
+      .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        animation: confetti-fall 3s linear forwards;
+        will-change: transform, opacity;
       }
 
       .history-section {
@@ -277,17 +292,31 @@
         font-size: 14px;
       }
 
-      .history-win {
-        color: #8ac926;
+      .history-win { color: #8ac926; }
+      .history-lose { color: #ff6b6b; }
+      .loading { text-align: center; color: rgba(255, 255, 255, 0.5); }
+      
+      /* GPU-accelerated modals */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        overflow-y: auto;
+        transform: translateZ(0);
       }
-
-      .history-lose {
-        color: #ff6b6b;
-      }
-
-      .loading {
-        text-align: center;
-        color: rgba(255, 255, 255, 0.5);
+      
+      .modal-content {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        margin: 20px auto;
+        max-width: 600px;
+        padding: 20px;
+        border-radius: 15px;
+        color: white;
       }
     </style>
   </head>
@@ -759,47 +788,52 @@
     </div>
 
     <script>
-      // Initialize Telegram WebApp
-      const tg = window.Telegram?.WebApp;
-      if (tg) {
-        tg.ready();
-        tg.expand();
-      }
-
-      // Supabase
-      const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
-      const SUPABASE_KEY =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-      // Get user ID
-      function getUserId() {
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-          const user = window.Telegram.WebApp.initDataUnsafe.user;
-          if (user && user.id) {
-            console.log('✅ Got user ID from Telegram WebApp:', user.id);
-            return String(user.id);
-          }
+      // Performance: Use strict mode
+      'use strict';
+      
+      // Initialize Telegram WebApp (deferred)
+      let tg = null;
+      
+      // Lazy-init Supabase (only when needed) - uses centralized config
+      const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+      const SUPABASE_KEY = window.CONFIG?.SUPABASE_KEY || '';
+      let supabase = null;
+      const getSupabase = () => {
+        if (!supabase && window.supabase && SUPABASE_KEY) {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         }
+        return supabase;
+      };
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const userIdFromUrl = urlParams.get('user_id');
-        if (userIdFromUrl) {
-          console.log('✅ Got user ID from URL:', userIdFromUrl);
-          return userIdFromUrl;
-        }
+      // Cache DOM elements for performance
+      const DOM = {};
+      const cacheDOM = () => {
+        DOM.balance = document.getElementById('balance');
+        DOM.jackpotValue = document.getElementById('jackpot-value');
+        DOM.wins = document.getElementById('wins');
+        DOM.losses = document.getElementById('losses');
+        DOM.totalWon = document.getElementById('total-won');
+        DOM.spinBtn = document.getElementById('spin-btn');
+        DOM.spinCost = document.getElementById('spin-cost');
+        DOM.result = document.getElementById('result');
+        DOM.historyList = document.getElementById('history-list');
+        DOM.customBetInput = document.getElementById('custom-bet-input');
+        DOM.customBetHint = document.getElementById('custom-bet-hint');
+        DOM.canvas = document.getElementById('wheel-canvas');
+      };
 
-        const saved = localStorage.getItem('telegram_user_id');
-        if (saved) {
-          console.log('✅ Got user ID from localStorage:', saved);
-          return saved;
-        }
+      // Get user ID (optimized with early returns)
+      const getUserId = () => {
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (tgUser?.id) return String(tgUser.id);
+        
+        const urlId = new URLSearchParams(window.location.search).get('user_id');
+        if (urlId) return urlId;
+        
+        return localStorage.getItem('telegram_user_id') || '123456789';
+      };
 
-        console.warn('⚠️ No user ID found, using test ID');
-        return '123456789';
-      }
-
-      let userId = getUserId();
+      let userId = null; // Defer until init
       const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
 
       // Game state
@@ -811,39 +845,41 @@
       let losses = 0;
       let totalWon = 0;
       let spinHistory = [];
-      let jackpotPool = 0; // GLOBAL progressive jackpot pool (synced across all players)
+      let jackpotPool = 0;
 
       // Limits
       const MAX_SPINS_PER_DAY = 30;
       let spinsToday = 0;
 
-      // Create confetti effect (defined early)
+      // Confetti colors pre-computed
+      const CONFETTI_COLORS = ['#FFD700', '#FFA500', '#FF6347', '#8AC926', '#8b5cf6'];
+      
+      // Optimized confetti using DocumentFragment and CSS classes
       function createConfetti() {
-        for (let i = 0; i < 50; i++) {
-          setTimeout(() => {
-            const confetti = document.createElement('div');
-            confetti.style.position = 'fixed';
-            confetti.style.width = '10px';
-            confetti.style.height = '10px';
-            confetti.style.left = Math.random() * 100 + '%';
-            confetti.style.top = '-10px';
-            confetti.style.background = ['#FFD700', '#FFA500', '#FF6347', '#8AC926', '#8b5cf6'][
-              Math.floor(Math.random() * 5)
-            ];
-            confetti.style.borderRadius = '50%';
-            confetti.style.pointerEvents = 'none';
-            confetti.style.zIndex = '9999';
-            confetti.style.animation = 'confetti-fall 3s linear forwards';
-            document.body.appendChild(confetti);
-
-            setTimeout(() => confetti.remove(), 3000);
-          }, i * 50);
+        const fragment = document.createDocumentFragment();
+        const confettiCount = 30; // Reduced from 50 for better performance
+        
+        for (let i = 0; i < confettiCount; i++) {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = (Math.random() * 100) + '%';
+          confetti.style.top = '-10px';
+          confetti.style.background = CONFETTI_COLORS[Math.floor(Math.random() * 5)];
+          confetti.style.animationDelay = (i * 30) + 'ms';
+          fragment.appendChild(confetti);
         }
+        
+        document.body.appendChild(fragment);
+        
+        // Batch remove after animation
+        setTimeout(() => {
+          document.querySelectorAll('.confetti').forEach(c => c.remove());
+        }, 3500);
       }
 
-      // Wheel setup
-      const canvas = document.getElementById('wheel-canvas');
-      const ctx = canvas.getContext('2d');
+      // Wheel setup - defer canvas init
+      let canvas = null;
+      let ctx = null;
       let rotation = 0;
 
       // Segments - NEW BALANCED (12 segments, RTP ~94%)
@@ -864,122 +900,99 @@
       ];
       // Expected RTP: ~94% (challenging but fair)
 
-      // Sound system
+      // Sound system - optimized with reusable nodes
       const AudioContext = window.AudioContext || window.webkitAudioContext;
-      let audioCtx;
+      let audioCtx = null;
       let soundEnabled = true;
 
-      function initAudio() {
+      const initAudio = () => {
         if (!audioCtx) {
           audioCtx = new AudioContext();
-          console.log('🔊 Audio initialized');
         }
-      }
+        return audioCtx;
+      };
+
+      // Optimized sound helper
+      const playTone = (freq, type, duration, gain = 0.1) => {
+        if (!audioCtx || !soundEnabled) return;
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        osc.type = type;
+        g.gain.setValueAtTime(gain, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + duration);
+      };
 
       const sounds = {
-        spin: () => {
-          if (!audioCtx || !soundEnabled) return;
-          const oscillator = audioCtx.createOscillator();
-          const gainNode = audioCtx.createGain();
-          oscillator.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          oscillator.frequency.value = 800;
-          oscillator.type = 'square';
-          gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-          oscillator.start(audioCtx.currentTime);
-          oscillator.stop(audioCtx.currentTime + 0.08);
-        },
-
+        spin: () => playTone(800, 'square', 0.08, 0.08),
         win: () => {
           if (!audioCtx || !soundEnabled) return;
-          const oscillator = audioCtx.createOscillator();
-          const gainNode = audioCtx.createGain();
-          oscillator.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
-          oscillator.type = 'sine';
-          gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-          oscillator.start(audioCtx.currentTime);
-          oscillator.stop(audioCtx.currentTime + 0.3);
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.connect(g);
+          g.connect(audioCtx.destination);
+          osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+          osc.type = 'sine';
+          g.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          osc.start(audioCtx.currentTime);
+          osc.stop(audioCtx.currentTime + 0.3);
         },
-
         bigWin: () => {
           if (!audioCtx || !soundEnabled) return;
           for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-              const oscillator = audioCtx.createOscillator();
-              const gainNode = audioCtx.createGain();
-              oscillator.connect(gainNode);
-              gainNode.connect(audioCtx.destination);
-              oscillator.frequency.setValueAtTime(500 + i * 150, audioCtx.currentTime);
-              oscillator.frequency.exponentialRampToValueAtTime(
-                800 + i * 200,
-                audioCtx.currentTime + 0.2
-              );
-              oscillator.type = 'sine';
-              gainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-              oscillator.start(audioCtx.currentTime);
-              oscillator.stop(audioCtx.currentTime + 0.2);
-            }, i * 100);
+            setTimeout(() => playTone(500 + i * 150, 'sine', 0.2, 0.18), i * 100);
           }
         },
-
         jackpot: () => {
           if (!audioCtx || !soundEnabled) return;
           for (let i = 0; i < 8; i++) {
-            setTimeout(() => {
-              const oscillator = audioCtx.createOscillator();
-              const gainNode = audioCtx.createGain();
-              oscillator.connect(gainNode);
-              gainNode.connect(audioCtx.destination);
-              oscillator.frequency.value = 600 + i * 150;
-              oscillator.type = 'sine';
-              gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-              oscillator.start(audioCtx.currentTime);
-              oscillator.stop(audioCtx.currentTime + 0.15);
-            }, i * 80);
+            setTimeout(() => playTone(600 + i * 150, 'sine', 0.15, 0.15), i * 80);
           }
         },
-
         loss: () => {
           if (!audioCtx || !soundEnabled) return;
-          const oscillator = audioCtx.createOscillator();
-          const gainNode = audioCtx.createGain();
-          oscillator.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
-          oscillator.type = 'sawtooth';
-          gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-          oscillator.start(audioCtx.currentTime);
-          oscillator.stop(audioCtx.currentTime + 0.3);
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.connect(g);
+          g.connect(audioCtx.destination);
+          osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+          osc.type = 'sawtooth';
+          g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          osc.start(audioCtx.currentTime);
+          osc.stop(audioCtx.currentTime + 0.3);
         },
       };
 
-      // Draw wheel
-      function drawWheel() {
-        const centerX = 200;
-        const centerY = 200;
-        const radius = 180;
+      // Pre-computed wheel constants
+      const WHEEL_CENTER = 200;
+      const WHEEL_RADIUS = 180;
+      const SEGMENT_COUNT = 12;
+      const SEGMENT_ANGLE = (Math.PI * 2) / SEGMENT_COUNT;
+      const TEXT_RADIUS = WHEEL_RADIUS * 0.7;
 
+      // Draw wheel - optimized with pre-computed values
+      function drawWheel() {
+        if (!ctx) return;
+        
         ctx.clearRect(0, 0, 400, 400);
 
-        segments.forEach((segment, i) => {
-          const angle = (Math.PI * 2) / segments.length;
-          // Segments start from top (0°) and go clockwise
-          // Segment 0 starts at rotation, segment 1 at rotation + angle, etc.
-          const startAngle = angle * i + rotation;
-          const endAngle = angle * (i + 1) + rotation;
+        for (let i = 0; i < SEGMENT_COUNT; i++) {
+          const segment = segments[i];
+          const startAngle = SEGMENT_ANGLE * i + rotation;
+          const endAngle = SEGMENT_ANGLE * (i + 1) + rotation;
 
+          // Draw segment
           ctx.beginPath();
-          ctx.moveTo(centerX, centerY);
-          ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+          ctx.moveTo(WHEEL_CENTER, WHEEL_CENTER);
+          ctx.arc(WHEEL_CENTER, WHEEL_CENTER, WHEEL_RADIUS, startAngle, endAngle);
           ctx.closePath();
           ctx.fillStyle = segment.color;
           ctx.fill();
@@ -987,77 +1000,72 @@
           ctx.lineWidth = 2;
           ctx.stroke();
 
+          // Draw text
           ctx.save();
-          ctx.translate(centerX, centerY);
-          ctx.rotate(startAngle + angle / 2);
+          ctx.translate(WHEEL_CENTER, WHEEL_CENTER);
+          ctx.rotate(startAngle + SEGMENT_ANGLE / 2);
           ctx.textAlign = 'center';
           ctx.fillStyle = '#fff';
           ctx.font = 'bold 24px Arial';
-          ctx.fillText(segment.text, radius * 0.7, 5);
+          ctx.fillText(segment.text, TEXT_RADIUS, 5);
           ctx.restore();
-        });
+        }
       }
 
-      // Set bet
+      // Set bet - optimized with cached selectors
       function setBet(amount, clickedButton) {
         currentBet = amount;
-        document.querySelectorAll('.bet-btn').forEach((btn) => btn.classList.remove('active'));
+        document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
 
-        // If called from button click, highlight it
         if (clickedButton) {
           clickedButton.classList.add('active');
-        } else if (window.event && window.event.target) {
+        } else if (window.event?.target) {
           window.event.target.classList.add('active');
         }
 
-        document.getElementById('spin-cost').textContent = amount.toLocaleString();
-
-        // Clear custom input
-        document.getElementById('custom-bet-input').value = '';
+        if (DOM.spinCost) DOM.spinCost.textContent = amount.toLocaleString();
+        if (DOM.customBetInput) DOM.customBetInput.value = '';
       }
 
       // Set custom bet (max 50% of balance)
       function setCustomBet() {
-        const input = document.getElementById('custom-bet-input');
-        const amount = parseInt(input.value);
+        const input = DOM.customBetInput;
+        if (!input) return;
+        
+        const amount = parseInt(input.value, 10);
 
         if (!amount || amount < 100) {
-          alert('❌ Minimum bet: 100 TAMA');
+          alert('Minimum bet: 100 TAMA');
           return;
         }
 
         const maxBet = Math.floor(balance * 0.5);
         if (amount > maxBet) {
-          alert(`❌ Maximum bet: ${maxBet.toLocaleString()} TAMA (50% of balance)`);
+          alert(`Maximum bet: ${maxBet.toLocaleString()} TAMA (50% of balance)`);
           return;
         }
 
         if (amount > balance) {
-          alert('❌ Insufficient balance!');
+          alert('Insufficient balance!');
           return;
         }
 
-        // Set custom bet
         currentBet = amount;
-        document.querySelectorAll('.bet-btn').forEach((btn) => btn.classList.remove('active'));
-        document.getElementById('spin-cost').textContent = amount.toLocaleString();
+        document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
+        if (DOM.spinCost) DOM.spinCost.textContent = amount.toLocaleString();
 
-        // Show success
         input.style.borderColor = '#8AC926';
-        setTimeout(() => {
-          input.style.borderColor = 'rgba(255,255,255,0.3)';
-        }, 1000);
+        setTimeout(() => { input.style.borderColor = 'rgba(255,255,255,0.3)'; }, 1000);
       }
 
-      // Format number
-      function formatNumber(num) {
-        return Math.floor(num).toLocaleString();
-      }
+      // Format number - cached Intl.NumberFormat for performance
+      const numberFormatter = new Intl.NumberFormat();
+      const formatNumber = (num) => numberFormatter.format(Math.floor(num));
 
-      // Load user data
+      // Load user data - optimized with parallel requests where possible
       async function loadUserData() {
         if (!userId || userId === '123456789') {
-          document.getElementById('balance').textContent = '0';
+          if (DOM.balance) DOM.balance.textContent = '0';
           return;
         }
 
@@ -1066,21 +1074,19 @@
           if (response.ok) {
             const data = await response.json();
             balance = data.total_tama || data.database_tama || data.balance || 0;
-            document.getElementById('balance').textContent = formatNumber(balance);
+            if (DOM.balance) DOM.balance.textContent = formatNumber(balance);
 
-            if (userId && userId !== '123456789') {
+            if (userId !== '123456789') {
               localStorage.setItem('telegram_user_id', userId);
             }
 
-            // Update custom bet hint with max amount
             const maxBet = Math.floor(balance * 0.5);
-            document.getElementById('custom-bet-hint').textContent = `Max: ${formatNumber(
-              maxBet
-            )} TAMA (50% of balance)`;
+            if (DOM.customBetHint) {
+              DOM.customBetHint.textContent = `Max: ${formatNumber(maxBet)} TAMA (50% of balance)`;
+            }
           }
         } catch (error) {
-          console.error('Failed to load balance:', error);
-          document.getElementById('balance').textContent = '0';
+          if (DOM.balance) DOM.balance.textContent = '0';
         }
 
         // Load spin counter for today
@@ -1091,33 +1097,37 @@
           localStorage.setItem('wheel_spin_date', today);
           localStorage.setItem('wheel_spins_today', '0');
         } else {
-          spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0');
+          spinsToday = parseInt(localStorage.getItem('wheel_spins_today') || '0', 10);
         }
 
         // Update button text
+        updateSpinButton();
+        loadJackpot();
+      }
+
+      // Update spin button state
+      function updateSpinButton() {
+        if (!DOM.spinBtn) return;
         const remaining = MAX_SPINS_PER_DAY - spinsToday;
         if (remaining > 0) {
-          document.getElementById('spin-btn').textContent = `🎡 SPIN (${remaining} left today)`;
-          document.getElementById('spin-btn').disabled = false;
+          DOM.spinBtn.textContent = `SPIN (${remaining} left today)`;
+          DOM.spinBtn.disabled = false;
         } else {
-          document.getElementById('spin-btn').textContent = `⏰ Come back tomorrow`;
-          document.getElementById('spin-btn').disabled = true;
+          DOM.spinBtn.textContent = `Come back tomorrow`;
+          DOM.spinBtn.disabled = true;
         }
-
-        // Load jackpot pool
-        loadJackpot();
       }
 
       // Load jackpot pool from localStorage
       function loadJackpot() {
         const saved = localStorage.getItem('wheel_jackpot_pool');
-        jackpotPool = saved ? parseInt(saved) : 5000; // Start at 5,000 TAMA
+        jackpotPool = saved ? parseInt(saved, 10) : 5000;
         updateJackpotDisplay();
       }
 
       // Update jackpot display
       function updateJackpotDisplay() {
-        document.getElementById('jackpot-value').textContent = formatNumber(jackpotPool) + ' TAMA';
+        if (DOM.jackpotValue) DOM.jackpotValue.textContent = formatNumber(jackpotPool) + ' TAMA';
       }
 
       // Add to GLOBAL jackpot (5% of bet) - ASYNC
@@ -1151,90 +1161,68 @@
         }
       }
 
-      // Load history
+      // Load history - optimized
       function loadHistory() {
         try {
           const saved = localStorage.getItem(`wheel_history_${userId}`);
           if (saved) {
-            const loaded = JSON.parse(saved);
-            spinHistory = loaded.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            if (spinHistory.length > 50) {
-              spinHistory = spinHistory.slice(0, 50);
-            }
+            spinHistory = JSON.parse(saved);
+            spinHistory.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            if (spinHistory.length > 50) spinHistory.length = 50;
             updateHistoryDisplay();
           }
 
-          // Load stats
-          wins = parseInt(localStorage.getItem(`wheel_wins_${userId}`) || '0');
-          losses = parseInt(localStorage.getItem(`wheel_losses_${userId}`) || '0');
-          totalWon = parseInt(localStorage.getItem(`wheel_totalWon_${userId}`) || '0');
+          wins = parseInt(localStorage.getItem(`wheel_wins_${userId}`) || '0', 10);
+          losses = parseInt(localStorage.getItem(`wheel_losses_${userId}`) || '0', 10);
+          totalWon = parseInt(localStorage.getItem(`wheel_totalWon_${userId}`) || '0', 10);
 
-          document.getElementById('wins').textContent = wins;
-          document.getElementById('losses').textContent = losses;
-          document.getElementById('total-won').textContent = formatNumber(totalWon);
+          if (DOM.wins) DOM.wins.textContent = wins;
+          if (DOM.losses) DOM.losses.textContent = losses;
+          if (DOM.totalWon) DOM.totalWon.textContent = formatNumber(totalWon);
         } catch (e) {
-          console.error('Failed to load history:', e);
           spinHistory = [];
         }
       }
 
-      // Save history
+      // Save history - debounced to reduce writes
+      let saveHistoryTimeout = null;
       function saveHistory() {
-        try {
-          localStorage.setItem(`wheel_history_${userId}`, JSON.stringify(spinHistory.slice(0, 50)));
-          localStorage.setItem(`wheel_wins_${userId}`, wins.toString());
-          localStorage.setItem(`wheel_losses_${userId}`, losses.toString());
-          localStorage.setItem(`wheel_totalWon_${userId}`, totalWon.toString());
-        } catch (e) {
-          console.error('Failed to save history:', e);
-        }
+        if (saveHistoryTimeout) clearTimeout(saveHistoryTimeout);
+        saveHistoryTimeout = setTimeout(() => {
+          try {
+            localStorage.setItem(`wheel_history_${userId}`, JSON.stringify(spinHistory.slice(0, 50)));
+            localStorage.setItem(`wheel_wins_${userId}`, String(wins));
+            localStorage.setItem(`wheel_losses_${userId}`, String(losses));
+            localStorage.setItem(`wheel_totalWon_${userId}`, String(totalWon));
+          } catch (e) {}
+        }, 100);
       }
 
-      // Update history display
+      // Update history display - optimized with innerHTML building
       function updateHistoryDisplay() {
-        const historyList = document.getElementById('history-list');
-        if (!historyList) return;
+        if (!DOM.historyList) return;
 
         if (spinHistory.length === 0) {
-          historyList.innerHTML = '<div class="loading">No spins yet</div>';
+          DOM.historyList.innerHTML = '<div class="loading">No spins yet</div>';
           return;
         }
 
-        historyList.innerHTML = spinHistory
-          .slice(0, 10)
-          .map((item) => {
-            const multiplier = item.multiplier || 0;
-            const winAmount = item.win || 0;
-            const betAmount = item.bet || 0;
-            const netProfit = winAmount - betAmount;
-            const isWin = netProfit > 0;
-
-            return `
-                    <div class="history-item">
-                        <div>${multiplier}x → ${item.win.toLocaleString()} TAMA</div>
-                        <div class="${isWin ? 'history-win' : 'history-lose'}">
-                            ${isWin ? '+' : ''}${formatNumber(netProfit)} TAMA
-                        </div>
-                    </div>
-                `;
-          })
-          .join('');
+        let html = '';
+        const len = Math.min(spinHistory.length, 10);
+        for (let i = 0; i < len; i++) {
+          const item = spinHistory[i];
+          const netProfit = (item.win || 0) - (item.bet || 0);
+          const cls = netProfit > 0 ? 'history-win' : 'history-lose';
+          const sign = netProfit > 0 ? '+' : '';
+          html += `<div class="history-item"><div>${item.multiplier || 0}x → ${formatNumber(item.win || 0)} TAMA</div><div class="${cls}">${sign}${formatNumber(netProfit)} TAMA</div></div>`;
+        }
+        DOM.historyList.innerHTML = html;
       }
 
       // Add to history
       function addToHistory(multiplier, winAmount, betAmount) {
-        const historyItem = {
-          multiplier,
-          win: winAmount,
-          bet: betAmount,
-          timestamp: Date.now(),
-        };
-
-        spinHistory.unshift(historyItem);
-        if (spinHistory.length > 50) {
-          spinHistory = spinHistory.slice(0, 50);
-        }
-
+        spinHistory.unshift({ multiplier, win: winAmount, bet: betAmount, timestamp: Date.now() });
+        if (spinHistory.length > 50) spinHistory.length = 50;
         saveHistory();
         updateHistoryDisplay();
       }
@@ -1387,7 +1375,7 @@
               // Update balance with jackpot
               balance += jackpotWon;
               document.getElementById('balance').textContent = formatNumber(balance);
-              
+
               // CRITICAL: Update winAmount to include jackpot for API call
               winAmount = totalWin; // Include jackpot in win amount
             } else if (multiplier >= 5) {
@@ -1580,77 +1568,85 @@
       // Load global jackpot from API
       async function loadGlobalJackpot() {
         try {
-          // Use router.php endpoint instead of direct jackpot.php
           const response = await fetch(`${API_BASE}/wheel/jackpot`);
           const data = await response.json();
-
           if (data.success) {
             jackpotPool = data.jackpot;
-            document.getElementById('jackpot-pool-display').textContent =
-              formatNumber(jackpotPool) + ' TAMA';
-            console.log('🔥 Global jackpot loaded:', jackpotPool);
-          } else {
-            console.error('❌ Failed to load jackpot:', data.error);
+            updateJackpotDisplay();
           }
-        } catch (error) {
-          console.error('❌ Error loading jackpot:', error);
-        }
+        } catch (error) {}
       }
 
       // Update global jackpot (add contribution)
       async function updateGlobalJackpot(action, amount = 0) {
         try {
-          // Use router.php endpoint instead of direct jackpot.php
           const response = await fetch(`${API_BASE}/wheel/jackpot`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action, amount }),
           });
-
           const data = await response.json();
-
           if (data.success) {
             jackpotPool = data.jackpot;
-            document.getElementById('jackpot-pool-display').textContent =
-              formatNumber(jackpotPool) + ' TAMA';
-            console.log(`🔥 Jackpot ${action}:`, data.jackpot, '(change:', data.change, ')');
+            updateJackpotDisplay();
             return data;
-          } else {
-            console.error('❌ Failed to update jackpot:', data.error);
-            return null;
           }
+          return null;
         } catch (error) {
-          console.error('❌ Error updating jackpot:', error);
           return null;
         }
       }
 
-      // Real-time jackpot sync (poll every 5 seconds)
+      // Real-time jackpot sync - increased interval for better performance
+      let jackpotSyncInterval = null;
       function startJackpotSync() {
-        setInterval(async () => {
-          await loadGlobalJackpot();
-        }, 5000); // Update every 5 seconds
+        if (jackpotSyncInterval) return;
+        jackpotSyncInterval = setInterval(loadGlobalJackpot, 10000); // 10 seconds instead of 5
       }
 
-      // Initialize
+      // Initialize - optimized with deferred loading
       function initialize() {
-        if (window.Telegram && window.Telegram.WebApp) {
-          userId = getUserId();
-          console.log('🚀 Initializing with user ID:', userId);
-          loadUserData();
-          loadHistory();
-          loadGlobalJackpot(); // Load global jackpot
-          startJackpotSync(); // Start real-time sync
-          drawWheel();
-        } else {
-          setTimeout(initialize, 100);
+        // Cache DOM elements first
+        cacheDOM();
+        
+        // Initialize canvas
+        canvas = DOM.canvas;
+        if (canvas) {
+          ctx = canvas.getContext('2d', { alpha: false });
         }
+        
+        // Initialize Telegram WebApp
+        tg = window.Telegram?.WebApp;
+        if (tg) {
+          tg.ready();
+          tg.expand();
+        }
+        
+        userId = getUserId();
+        
+        // Draw wheel immediately for perceived performance
+        drawWheel();
+        
+        // Load data in parallel
+        Promise.all([
+          loadUserData(),
+          loadGlobalJackpot()
+        ]).then(() => {
+          loadHistory();
+          startJackpotSync();
+        });
       }
 
+      // Optimized initialization
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initialize);
       } else {
-        setTimeout(initialize, 100);
+        // Use requestIdleCallback for non-critical init, fallback to setTimeout
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(initialize, { timeout: 100 });
+        } else {
+          setTimeout(initialize, 0);
+        }
       }
     </script>
   </body>

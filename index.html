@@ -71,6 +71,7 @@
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
 
     <!-- Unified Auth System -->
     <script src="js/auth.js"></script>
@@ -1920,9 +1921,9 @@
 
         async function loadLiveStats() {
             try {
-                // Supabase configuration
-                const SUPABASE_URL = 'https://zfrazyupameidxpjihrh.supabase.co';
-                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzc1NTAsImV4cCI6MjA3NTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
+                // Supabase configuration - using centralized config
+                const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+                const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_KEY || '';
 
                 console.log('📊 Loading LIVE STATS...');
 

@@ -1526,10 +1526,10 @@
             updateUI() {
                 document.getElementById('score').textContent = this.score.toLocaleString();
                 const levelData = this.levels[this.level - 1];
-                
+
                 // Обновляем уровень
                 document.getElementById('level').textContent = this.level;
-                
+
                 // Show wave or boss indicator
                 if (this.boss) {
                     document.getElementById('wave').textContent = `BOSS`;
@@ -1538,9 +1538,9 @@
                     document.getElementById('wave').textContent = `${this.wave}/${levelData.waves}`;
                     document.getElementById('wave').style.color = '#00ff88';
                 }
-                
+
                 document.getElementById('lives').textContent = this.lives;
-                
+
                 // Показываем комбо в UI (если есть)
                 const comboEl = document.getElementById('combo');
                 if (comboEl) {

@@ -123,42 +123,40 @@
             return;
         }
         
-        // ⚠️ БЕЗОПАСНОСТЬ: Используем только хеш пароля, НЕ открытый пароль!
-        // Получить хеш пароля из конфигурации (множественные источники)
-        const adminPasswordHash = (typeof ADMIN_PASSWORD_HASH !== 'undefined' ? ADMIN_PASSWORD_HASH : null) || 
-                                  (typeof window.ADMIN_PASSWORD_HASH !== 'undefined' ? window.ADMIN_PASSWORD_HASH : null) ||
+        // ⚠️ SECURITY: Use ONLY password hash, NEVER plaintext!
+        // Get password hash from configuration (multiple sources)
+        const adminPasswordHash = window.ADMIN_PASSWORD_HASH || 
                                   (document.querySelector('meta[name="admin-password-hash"]')?.content) ||
                                   null;
         
-        // Для локальной разработки: можно использовать открытый пароль из admin-password.js
-        // НО НЕ ИЗ META-ТЕГА! (meta-тег виден всем в исходниках HTML)
-        const adminPassword = (typeof ADMIN_PASSWORD !== 'undefined' ? ADMIN_PASSWORD : null) || 
-                             (typeof window.ADMIN_PASSWORD !== 'undefined' ? window.ADMIN_PASSWORD : null) ||
-                             null; // ⚠️ НЕ читаем из meta-тега!
-        
-        if (!adminPassword && !adminPasswordHash) {
+        if (!adminPasswordHash) {
             if (errorDiv) {
                 errorDiv.textContent = 'Error: Password not configured!';
-                errorDiv.innerHTML += '<br><small style="color: #666;">For local dev: Create admin-password.js<br>For production: Add &lt;meta name="admin-password-hash" content="SHA256_HASH"&gt; in &lt;head&gt;</small>';
+                errorDiv.innerHTML += '<br><small style="color: #666;">Add admin-password.js or set meta tag with hash</small>';
             }
+            logAccess('config_error', { error: 'No password hash configured' });
             return;
         }
         
         let isValid = false;
         
-        // Проверка пароля
-        if (adminPasswordHash && adminPasswordHash !== '') {
-            // Использовать хеш (безопаснее)
+        // Use secure verification function if available
+        if (typeof window.verifyAdminPassword === 'function') {
+            try {
+                isValid = await window.verifyAdminPassword(password);
+            } catch (e) {
+                console.error('Password verification error');
+                isValid = false;
+            }
+        } else {
+            // Fallback: manual hash comparison
             try {
                 const hash = await sha256(password);
                 isValid = hash === adminPasswordHash;
             } catch (e) {
-                console.error('Hash comparison error:', e);
+                console.error('Hash comparison error');
                 isValid = false;
             }
-        } else if (adminPassword) {
-            // Прямое сравнение (только для локальной разработки из admin-password.js)
-            isValid = password === adminPassword;
         }
         
         if (isValid) {
