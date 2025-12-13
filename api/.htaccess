@@ -1,7 +1,12 @@
 RewriteEngine On
 RewriteBase /api
 
-# Route tama/* to tama_supabase.php
+# Route tama-v2/* to new modular API (for testing)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^tama-v2(/.*)?$ tama_api_v2.php [QSA,L]
+
+# Route tama/* to tama_supabase.php (production)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^tama(/.*)?$ tama_supabase.php [QSA,L]
