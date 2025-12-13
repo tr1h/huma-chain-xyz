@@ -72,6 +72,7 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
+    <script src="js/i18n-landing.js"></script>
 
     <!-- Unified Auth System -->
     <script src="js/auth.js"></script>
@@ -371,26 +372,29 @@
                         </div>
                     </div>
                 </div>
-                <h1 style="font-size: 2.5em; margin: 20px 0; color: #FFCA3A;">SOLANA TAMAGOTCHI</h1>
-                <p class="hero-subtitle">The Ultimate Blockchain Pet Game on Solana! Play, Earn & Collect NFT Pets 🚀</p>
+                <!-- 🌍 Language Selector Button -->
+                <button id="lang-selector-btn" onclick="showLandingLanguageSelector()" style="position: fixed; top: 20px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #9945FF, #14F195); border: 3px solid rgba(255,255,255,0.3); font-size: 24px; cursor: pointer; box-shadow: 0 4px 20px rgba(153,69,255,0.4); transition: all 0.3s;">🌍</button>
+                
+                <h1 style="font-size: 2.5em; margin: 20px 0; color: #FFCA3A;" data-i18n="hero_title">SOLANA TAMAGOTCHI</h1>
+                <p class="hero-subtitle" data-i18n="hero_subtitle">The Ultimate Blockchain Pet Game on Solana! Play, Earn & Collect NFT Pets 🚀</p>
                 <div class="hero-buttons" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
-                    <button onclick="window.open('https://t.me/GotchiGameBot', '_blank')" class="btn-connect" style="background: linear-gradient(135deg, #26A5E4, #0088cc); font-size: 16px;">
+                    <button onclick="window.open('https://t.me/GotchiGameBot', '_blank')" class="btn-connect" style="background: linear-gradient(135deg, #26A5E4, #0088cc); font-size: 16px;" data-i18n="play_telegram">
                         🎮 Play in Telegram
                     </button>
-                    <button onclick="window.location.href='/tamagotchi-game.html'" class="btn-connect" style="background: linear-gradient(135deg, #8AC926, #6FA01A); font-size: 16px; font-weight: bold;">
+                    <button onclick="window.location.href='/tamagotchi-game.html'" class="btn-connect" style="background: linear-gradient(135deg, #8AC926, #6FA01A); font-size: 16px; font-weight: bold;" data-i18n="play_browser">
                         🌐 Play in Browser
                     </button>
-                    <button onclick="window.location.href='mint'" class="btn-connect" style="background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%); font-size: 16px;">
-                        💎 Mint NFT
+                    <button onclick="window.location.href='mint'" class="btn-connect" style="background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%); font-size: 16px;" data-i18n="mint_nft">
+                        🎨 Mint NFT
                     </button>
-                    <button onclick="window.location.href='/whitepaper'" class="btn-connect" style="background: linear-gradient(135deg, #9945FF 0%, #14F195 100%); font-size: 16px; font-weight: bold;">
-                        📖 Whitepaper
+                    <button onclick="window.location.href='/whitepaper'" class="btn-connect" style="background: linear-gradient(135deg, #9945FF 0%, #14F195 100%); font-size: 16px; font-weight: bold;" data-i18n="whitepaper">
+                        📄 Whitepaper
                     </button>
-                    <button onclick="window.location.href='blog/'" class="btn-connect" style="background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%); font-size: 16px;">
-                        📚 Blog
+                    <button onclick="window.location.href='blog/'" class="btn-connect" style="background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%); font-size: 16px;" data-i18n="blog">
+                        📰 Blog
                     </button>
-                    <button onclick="window.location.href='profile'" class="btn-connect" style="background: linear-gradient(135deg, #8AC926 0%, #6FA01A 100%); font-size: 16px;">
-                        👤 Profile
+                    <button onclick="window.location.href='profile'" class="btn-connect" style="background: linear-gradient(135deg, #8AC926 0%, #6FA01A 100%); font-size: 16px;" data-i18n="my_profile">
+                        👤 My Profile
                     </button>
                     <!-- Wallet Connection Section -->
                     <div id="landing-wallet-container">
@@ -420,44 +424,44 @@
 
         <!-- Features Section -->
         <section id="features-section" class="features-section">
-            <h2 class="section-title">🎮 GAME FEATURES</h2>
+            <h2 class="section-title" data-i18n="game_features">🎮 GAME FEATURES</h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <span class="feature-icon">🐾</span>
-                    <h3 class="feature-title">10 Pet Types</h3>
-                    <p class="feature-desc">Cat, Dog, Dragon, Fox, Bear, Rabbit, Panda, Lion, Unicorn, Wolf + Traits!</p>
+                    <h3 class="feature-title" data-i18n="feature_pets">10 Pet Types</h3>
+                    <p class="feature-desc" data-i18n="feature_pets_desc">Cat, Dog, Dragon, Fox, Bear, Rabbit, Panda, Lion, Unicorn, Wolf + Traits!</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">⭐</span>
-                    <h3 class="feature-title">Evolution System</h3>
-                    <p class="feature-desc">Level up and evolve your pet through 5 epic stages</p>
+                    <h3 class="feature-title" data-i18n="feature_evolution">Evolution System</h3>
+                    <p class="feature-desc" data-i18n="feature_evolution_desc">Level up and evolve your pet through 5 epic stages</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">💰</span>
-                    <h3 class="feature-title">Play & Earn</h3>
-                    <p class="feature-desc">Earn TAMA tokens by playing and caring for your pet</p>
+                    <h3 class="feature-title" data-i18n="feature_earn">Play & Earn</h3>
+                    <p class="feature-desc" data-i18n="feature_earn_desc">Earn TAMA tokens by playing and caring for your pet</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">🏆</span>
-                    <h3 class="feature-title">Achievements</h3>
-                    <p class="feature-desc">Unlock 15+ achievements and earn rewards</p>
+                    <h3 class="feature-title" data-i18n="feature_achievements">Achievements</h3>
+                    <p class="feature-desc" data-i18n="feature_achievements_desc">Unlock 15+ achievements and earn rewards</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">🖱️</span>
-                    <h3 class="feature-title">Click to Earn</h3>
-                    <p class="feature-desc">Click your pet to gain XP and unlock bonuses</p>
+                    <h3 class="feature-title" data-i18n="feature_click">Click to Earn</h3>
+                    <p class="feature-desc" data-i18n="feature_click_desc">Click your pet to gain XP and unlock bonuses</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">👥</span>
-                    <h3 class="feature-title">Leaderboard</h3>
-                    <p class="feature-desc">Compete globally and climb the ranks</p>
+                    <h3 class="feature-title" data-i18n="feature_leaderboard">Leaderboard</h3>
+                    <p class="feature-desc" data-i18n="feature_leaderboard_desc">Compete globally and climb the ranks</p>
                 </div>
             </div>
         </section>
 
         <!-- Tokenomics Section -->
         <section id="tokenomics-section" class="features-section" style="background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(69, 123, 157, 0.95)); padding: 80px 20px;">
-            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 20px;">💰 TOKENOMICS</h2>
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 20px;" data-i18n="tokenomics">💰 TOKENOMICS</h2>
             <p style="text-align: center; max-width: 800px; margin: 0 auto 50px; font-size: 1.1em; opacity: 0.9;">
                 Total Supply: 1,000,000,000 TAMA | SPL Token on Solana
             </p>
@@ -518,7 +522,7 @@
 
         <!-- Pet Showcase -->
         <section class="pets-section">
-            <h2 class="section-title">🎨 CHOOSE YOUR PET</h2>
+            <h2 class="section-title" data-i18n="choose_pet">🎨 CHOOSE YOUR PET</h2>
             <div class="pets-grid">
                 <div class="pet-preview">😺</div>
                 <div class="pet-preview">🐶</div>
@@ -530,7 +534,7 @@
 
         <!-- How to Play Section -->
         <section class="features-section" style="background: linear-gradient(135deg, rgba(69, 123, 157, 0.95), rgba(29, 53, 87, 0.95)); padding: 80px 20px;">
-            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;">🚀 HOW TO PLAY</h2>
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;" data-i18n="how_to_play">🚀 HOW TO PLAY</h2>
 
             <!-- Free vs Premium Choice -->
             <div style="max-width: 1000px; margin: 0 auto 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: stretch;">
@@ -538,7 +542,7 @@
                 <div style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.15), rgba(106, 153, 78, 0.15)); border: 3px solid #8AC926; border-radius: 20px; padding: 40px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         <div style="font-size: 3em; margin-bottom: 15px;">🆓</div>
-                        <h3 style="font-size: 2em; margin-bottom: 15px; color: #8AC926;">FREE MODE</h3>
+                        <h3 style="font-size: 2em; margin-bottom: 15px; color: #8AC926;" data-i18n="free_mode">FREE MODE</h3>
                         <p style="font-size: 1.8em; font-weight: bold; margin: 20px 0; color: #8AC926;">$0</p>
                         <ul style="list-style: none; padding: 0; text-align: left; margin: 20px 0;">
                             <li style="margin: 10px 0; opacity: 0.9;">✅ Virtual pet</li>
@@ -563,7 +567,7 @@
                     <div style="position: absolute; top: -15px; right: 20px; background: #E63946; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold;">POPULAR</div>
                     <div>
                         <div style="font-size: 3em; margin-bottom: 15px;">💎</div>
-                        <h3 style="font-size: 2em; margin-bottom: 15px; color: #FFB703;">PREMIUM (NFT)</h3>
+                        <h3 style="font-size: 2em; margin-bottom: 15px; color: #FFB703;" data-i18n="premium_nft">PREMIUM (NFT)</h3>
                         <p style="font-size: 1.8em; font-weight: bold; margin: 20px 0; color: #FFB703;">
                             From 0.1 SOL<br>
                             <span style="font-size: 0.6em; opacity: 0.8;">Bronze/Silver/Gold tiers</span>
@@ -586,22 +590,22 @@
             <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
                 <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(255, 202, 58, 0.3);">
                     <div style="font-size: 4em; margin-bottom: 20px;">1️⃣</div>
-                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFCA3A;">Open Telegram</h3>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFCA3A;" data-i18n="step_telegram">Open Telegram</h3>
                     <p style="opacity: 0.9;">Search for <strong>@GotchiGameBot</strong> and click Start</p>
                 </div>
                 <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(138, 201, 38, 0.3);">
                     <div style="font-size: 4em; margin-bottom: 20px;">2️⃣</div>
-                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #8AC926;">Choose Mode</h3>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #8AC926;" data-i18n="step_choose">Choose Mode</h3>
                     <p style="opacity: 0.9;">🆓 Free (virtual) or 💎 Premium (NFT) - your choice!</p>
                 </div>
                 <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(255, 183, 3, 0.3);">
                     <div style="font-size: 4em; margin-bottom: 20px;">3️⃣</div>
-                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFB703;">Play & Earn</h3>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFB703;" data-i18n="step_play">Play & Earn</h3>
                     <p style="opacity: 0.9;">Click, complete quests, earn TAMA tokens</p>
                 </div>
                 <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(230, 57, 70, 0.3);">
                     <div style="font-size: 4em; margin-bottom: 20px;">4️⃣</div>
-                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #E63946;">Withdraw</h3>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #E63946;" data-i18n="step_withdraw">Withdraw</h3>
                     <p style="opacity: 0.9;">Connect wallet and withdraw your TAMA to blockchain</p>
                 </div>
             </div>
@@ -609,7 +613,7 @@
 
         <!-- Roadmap Section -->
         <section class="features-section" style="background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(138, 201, 38, 0.1)); padding: 80px 20px;">
-            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;">🗺️ ROADMAP</h2>
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;" data-i18n="roadmap">🗺️ ROADMAP</h2>
             <div style="max-width: 1000px; margin: 0 auto;">
                 <!-- Q4 2024-Q3 2025 (COMPLETED) -->
                 <div style="display: flex; gap: 30px; margin-bottom: 40px; position: relative;">
@@ -707,7 +711,7 @@
 
         <!-- FAQ Section -->
         <section class="features-section" style="background: linear-gradient(135deg, rgba(69, 123, 157, 0.95), rgba(29, 53, 87, 0.95)); padding: 80px 20px;">
-            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;">❓ FAQ</h2>
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;" data-i18n="faq">❓ FAQ</h2>
             <div style="max-width: 900px; margin: 0 auto;">
                 <!-- FAQ Item 1 -->
                 <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 4px solid #FFCA3A;">
@@ -804,7 +808,7 @@
 
         <!-- Stats Section -->
         <section class="stats-section">
-            <h2 class="section-title">📊 LIVE STATS</h2>
+            <h2 class="section-title" data-i18n="live_stats">📊 LIVE STATS</h2>
             <div class="stats-grid">
                 <div class="stat-card stat-card-players">
                     <div class="stat-icon">👥</div>
@@ -865,7 +869,7 @@
                     <!-- Support -->
                     <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 30px; border: 3px solid #8AC926; text-align: center; position: relative; z-index: 12;">
                         <div style="font-size: 48px; margin-bottom: 15px;">💬</div>
-                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;">Support</h3>
+                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;" data-i18n="footer_support">Support</h3>
                         <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; line-height: 1.6;">Need help? Contact us via Telegram bot or email</p>
                         <a href="https://t.me/GotchiGameBot" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #26A5E4, #0088cc); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; margin: 5px; transition: transform 0.3s; cursor: pointer; position: relative; z-index: 13;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                             📱 Telegram Bot
@@ -878,7 +882,7 @@
                     <!-- Community -->
                     <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 30px; border: 3px solid #8AC926; text-align: center; position: relative; z-index: 12;">
                         <div style="font-size: 48px; margin-bottom: 15px;">🌐</div>
-                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;">Community</h3>
+                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;" data-i18n="footer_community">Community</h3>
                         <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; line-height: 1.6;">Join our community and stay updated</p>
                         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                             <a href="https://x.com/GotchiGame" target="_blank" style="display: inline-block; background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 2px solid #8AC926; cursor: pointer; position: relative; z-index: 13; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='scale(1)'">
@@ -893,7 +897,7 @@
                     <!-- Business -->
                     <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 30px; border: 3px solid #8AC926; text-align: center; position: relative; z-index: 12;">
                         <div style="font-size: 48px; margin-bottom: 15px;">🤝</div>
-                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;">Business</h3>
+                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;" data-i18n="footer_business">Business</h3>
                         <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; line-height: 1.6;">Partnerships, collaborations, or media inquiries</p>
                         <a href="mailto:gotchigame@proton.me" style="display: inline-block; background: linear-gradient(135deg, #FFCA3A, #FFA500); color: #1D3557; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; transition: transform 0.3s; cursor: pointer; position: relative; z-index: 13;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                             📧 Business Email
@@ -923,7 +927,7 @@
                     <a href="/privacy" style="color: rgba(241, 250, 238, 0.7); text-decoration: none;">Privacy</a>
                     <a href="/disclaimer" style="color: rgba(241, 250, 238, 0.7); text-decoration: none;">Risk Warning</a>
                 </div>
-                <p class="footer-text">Made with ❤️ on Solana | Powered by Phantom Wallet</p>
+                <p class="footer-text" data-i18n="footer_made_with">Made with ❤️ on Solana | Powered by Phantom Wallet</p>
                 <p style="color: rgba(241, 250, 238, 0.6); font-size: 0.85rem; margin-top: 10px;">
                     📧 <a href="mailto:gotchigame@proton.me" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">gotchigame@proton.me</a>
                 </p>
