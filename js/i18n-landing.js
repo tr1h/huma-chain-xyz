@@ -785,6 +785,115 @@ const LANDING_TRANSLATIONS = {
         de: 'NFT-Stufen ansehen',
         ar: 'عرض مستويات NFT',
         vi: 'Xem cấp độ NFT'
+    },
+
+    // ========== HERO BADGES ==========
+    'hero_free': {
+        en: '✅ 100% Free to Play',
+        ru: '✅ 100% Бесплатно',
+        zh: '✅ 100%免费游玩',
+        es: '✅ 100% Gratis',
+        pt: '✅ 100% Grátis',
+        ja: '✅ 100%無料プレイ',
+        fr: '✅ 100% Gratuit',
+        hi: '✅ 100% मुफ्त',
+        ko: '✅ 100% 무료',
+        tr: '✅ 100% Ücretsiz',
+        de: '✅ 100% Kostenlos',
+        ar: '✅ مجاني 100%',
+        vi: '✅ Miễn phí 100%'
+    },
+    'hero_earn': {
+        en: '💰 Earn Real TAMA Tokens',
+        ru: '💰 Зарабатывай реальные TAMA',
+        zh: '💰 赚取真实TAMA代币',
+        es: '💰 Gana Tokens TAMA Reales',
+        pt: '💰 Ganhe Tokens TAMA Reais',
+        ja: '💰 本物のTAMAトークンを稼ぐ',
+        fr: '💰 Gagnez de Vrais Tokens TAMA',
+        hi: '💰 असली TAMA टोकन कमाएं',
+        ko: '💰 실제 TAMA 토큰 획득',
+        tr: '💰 Gerçek TAMA Token Kazan',
+        de: '💰 Echte TAMA-Token verdienen',
+        ar: '💰 اكسب رموز TAMA حقيقية',
+        vi: '💰 Kiếm Token TAMA Thật'
+    },
+    'hero_nft': {
+        en: '🎨 Unique NFT Pets',
+        ru: '🎨 Уникальные NFT питомцы',
+        zh: '🎨 独特的NFT宠物',
+        es: '🎨 Mascotas NFT Únicas',
+        pt: '🎨 Pets NFT Únicos',
+        ja: '🎨 ユニークなNFTペット',
+        fr: '🎨 Animaux NFT Uniques',
+        hi: '🎨 यूनिक NFT पेट्स',
+        ko: '🎨 유니크 NFT 펫',
+        tr: '🎨 Benzersiz NFT Petler',
+        de: '🎨 Einzigartige NFT-Haustiere',
+        ar: '🎨 حيوانات NFT فريدة',
+        vi: '🎨 Thú Cưng NFT Độc Đáo'
+    },
+
+    // ========== STEP DESCRIPTIONS ==========
+    'step_telegram_desc': {
+        en: 'Search for @GotchiGameBot and click Start',
+        ru: 'Найди @GotchiGameBot и нажми Старт',
+        zh: '搜索 @GotchiGameBot 并点击开始',
+        es: 'Busca @GotchiGameBot y pulsa Iniciar',
+        pt: 'Procure @GotchiGameBot e clique em Iniciar',
+        ja: '@GotchiGameBot を検索してスタート',
+        fr: 'Recherchez @GotchiGameBot et cliquez sur Démarrer',
+        hi: '@GotchiGameBot खोजें और स्टार्ट दबाएं',
+        ko: '@GotchiGameBot 검색 후 시작 클릭',
+        tr: '@GotchiGameBot ara ve Başlat\'a tıkla',
+        de: 'Suche @GotchiGameBot und klicke Start',
+        ar: 'ابحث عن @GotchiGameBot واضغط ابدأ',
+        vi: 'Tìm @GotchiGameBot và nhấn Bắt đầu'
+    },
+    'step_choose_desc': {
+        en: '🆓 Free (virtual) or 💎 Premium (NFT) - your choice!',
+        ru: '🆓 Бесплатно (виртуальный) или 💎 Премиум (NFT) - твой выбор!',
+        zh: '🆓 免费（虚拟）或 💎 高级版（NFT）- 你的选择！',
+        es: '🆓 Gratis (virtual) o 💎 Premium (NFT) - ¡tú eliges!',
+        pt: '🆓 Grátis (virtual) ou 💎 Premium (NFT) - sua escolha!',
+        ja: '🆓 無料（仮想）か 💎 プレミアム（NFT）- あなたの選択！',
+        fr: '🆓 Gratuit (virtuel) ou 💎 Premium (NFT) - à vous de choisir !',
+        hi: '🆓 फ्री (वर्चुअल) या 💎 प्रीमियम (NFT) - आपकी पसंद!',
+        ko: '🆓 무료 (가상) 또는 💎 프리미엄 (NFT) - 선택하세요!',
+        tr: '🆓 Ücretsiz (sanal) veya 💎 Premium (NFT) - senin seçimin!',
+        de: '🆓 Kostenlos (virtuell) oder 💎 Premium (NFT) - deine Wahl!',
+        ar: '🆓 مجاني (افتراضي) أو 💎 مميز (NFT) - اختيارك!',
+        vi: '🆓 Miễn phí (ảo) hoặc 💎 Cao cấp (NFT) - lựa chọn của bạn!'
+    },
+    'step_play_desc': {
+        en: 'Click, complete quests, earn TAMA tokens',
+        ru: 'Кликай, выполняй квесты, зарабатывай TAMA',
+        zh: '点击、完成任务、赚取TAMA代币',
+        es: 'Haz clic, completa misiones, gana tokens TAMA',
+        pt: 'Clique, complete missões, ganhe tokens TAMA',
+        ja: 'クリック、クエスト完了、TAMAトークン獲得',
+        fr: 'Cliquez, complétez des quêtes, gagnez des tokens TAMA',
+        hi: 'क्लिक करें, क्वेस्ट पूरे करें, TAMA टोकन कमाएं',
+        ko: '클릭하고, 퀘스트 완료하고, TAMA 토큰 획득',
+        tr: 'Tıkla, görevleri tamamla, TAMA token kazan',
+        de: 'Klicken, Quests abschließen, TAMA-Token verdienen',
+        ar: 'انقر، أكمل المهام، اكسب رموز TAMA',
+        vi: 'Nhấp, hoàn thành nhiệm vụ, kiếm token TAMA'
+    },
+    'step_withdraw_desc': {
+        en: 'Connect wallet and withdraw your TAMA to blockchain',
+        ru: 'Подключи кошелек и выводи TAMA на блокчейн',
+        zh: '连接钱包并将TAMA提取到区块链',
+        es: 'Conecta tu cartera y retira TAMA a la blockchain',
+        pt: 'Conecte a carteira e saque TAMA para a blockchain',
+        ja: 'ウォレット接続してTAMAをブロックチェーンに出金',
+        fr: 'Connectez votre portefeuille et retirez TAMA vers la blockchain',
+        hi: 'वॉलेट कनेक्ट करें और TAMA को ब्लॉकचेन में निकालें',
+        ko: '지갑 연결 후 TAMA를 블록체인으로 출금',
+        tr: 'Cüzdan bağla ve TAMA\'yı blockchain\'e çek',
+        de: 'Wallet verbinden und TAMA zur Blockchain auszahlen',
+        ar: 'اربط المحفظة واسحب TAMA إلى البلوكتشين',
+        vi: 'Kết nối ví và rút TAMA về blockchain'
     }
 };
 
