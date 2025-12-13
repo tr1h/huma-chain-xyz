@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L7LVQM50LV"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-L7LVQM50LV');</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1D3557">
+
+    <title>Solana Tamagotchi - Juego NFT Play-to-Earn de Mascotas en Telegram | Token TAMA</title>
+    <meta name="title" content="Solana Tamagotchi - Juego NFT Play-to-Earn de Mascotas en Telegram | Token TAMA">
+    <meta name="description" content="¡Juega, gana y colecciona mascotas NFT en Solana! 🐾 Juego Tamagotchi gratis en Telegram con recompensas reales en tokens TAMA. Crea NFTs, mejora mascotas, obtén hasta 3x boost. ¡Únete a nuestra comunidad!">
+    <meta name="keywords" content="solana tamagotchi, play to earn, juego p2e, mascotas nft, juego telegram, solana nft, token tama, juego blockchain, mascotas crypto, juego solana, crypto gratis, ganar crypto jugando, tamagotchi nft, mascotas metaverso, juegos web3">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://solanatamagotchi.com/es/">
+
+    <link rel="alternate" hreflang="en" href="https://solanatamagotchi.com/" />
+    <link rel="alternate" hreflang="ru" href="https://solanatamagotchi.com/ru/" />
+    <link rel="alternate" hreflang="zh" href="https://solanatamagotchi.com/zh/" />
+    <link rel="alternate" hreflang="es" href="https://solanatamagotchi.com/es/" />
+    <link rel="alternate" hreflang="ja" href="https://solanatamagotchi.com/ja/" />
+    <link rel="alternate" hreflang="ko" href="https://solanatamagotchi.com/ko/" />
+    <link rel="alternate" hreflang="x-default" href="https://solanatamagotchi.com/" />
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://solanatamagotchi.com/es/">
+    <meta property="og:title" content="Solana Tamagotchi - Juego NFT Play-to-Earn de Mascotas 🐾">
+    <meta property="og:description" content="¡Juego Tamagotchi gratis en Telegram con recompensas TAMA reales en Solana! Crea NFTs, gana tokens, compite globalmente. ¡100% gratis para empezar!">
+    <meta property="og:image" content="https://solanatamagotchi.com/og-image.png">
+    <meta property="og:locale" content="es_ES">
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/landing.css">
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/i18n-landing.js"></script>
+    <script>localStorage.setItem('siteLang', 'es');</script>
+
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #1D3557 0%, #457B9D 50%, #1D3557 100%); min-height: 100vh; color: #F1FAEE; margin: 0; }
+        .hero-section { text-align: center; padding: 80px 20px; }
+        .hero-title { font-family: 'Press Start 2P', cursive; font-size: clamp(1.5rem, 5vw, 3rem); color: #FFCA3A; text-shadow: 4px 4px 0 #1D3557; margin-bottom: 20px; }
+        .hero-subtitle { font-size: 1.3em; max-width: 800px; margin: 0 auto 40px; opacity: 0.95; }
+        .btn-primary { display: inline-block; padding: 15px 30px; margin: 10px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.3s; text-decoration: none; color: white; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .btn-telegram { background: linear-gradient(135deg, #26A5E4, #0088cc); }
+        .btn-browser { background: linear-gradient(135deg, #8AC926, #6FA01A); }
+        .btn-mint { background: linear-gradient(135deg, #FFB703, #FB8500); }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .feature-card { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; text-align: center; border: 2px solid rgba(138, 201, 38, 0.3); transition: transform 0.3s; }
+        .feature-card:hover { transform: translateY(-10px); }
+        .feature-icon { font-size: 4em; margin-bottom: 20px; }
+        .feature-title { font-size: 1.3em; color: #FFCA3A; margin-bottom: 15px; }
+        .section-title { font-family: 'Press Start 2P', cursive; font-size: clamp(1.2rem, 3vw, 2rem); color: #FFCA3A; text-align: center; margin: 60px 0 40px; }
+        .footer { text-align: center; padding: 40px 20px; background: rgba(0,0,0,0.3); margin-top: 60px; }
+        .lang-btn { position: fixed; top: 20px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #9945FF, #14F195); border: 3px solid rgba(255,255,255,0.3); font-size: 24px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <button class="lang-btn" onclick="showLandingLanguageSelector()">🇪🇸</button>
+
+    <section class="hero-section">
+        <div style="font-size: 5em; margin-bottom: 20px;">🐾</div>
+        <h1 class="hero-title">SOLANA TAMAGOTCHI</h1>
+        <p class="hero-subtitle">¡El juego de mascotas blockchain definitivo en Solana! Juega, gana y colecciona mascotas NFT 🚀</p>
+        <div>
+            <a href="https://t.me/GotchiGameBot" target="_blank" class="btn-primary btn-telegram">🎮 Jugar en Telegram</a>
+            <a href="/tamagotchi-game.html" class="btn-primary btn-browser">🌐 Jugar en Navegador</a>
+            <a href="/mint" class="btn-primary btn-mint">🎨 Crear NFT</a>
+        </div>
+        <p style="margin-top: 30px; opacity: 0.8;">✅ 100% Gratis | 💰 Tokens TAMA Reales | 🎮 10+ Mini Juegos</p>
+    </section>
+
+    <section style="padding: 60px 20px;">
+        <h2 class="section-title">🎮 CARACTERÍSTICAS</h2>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon">🐾</div><h3 class="feature-title">10 Tipos de Mascotas</h3><p>¡Gato, Perro, Dragón, Zorro, Oso, Conejo, Panda, León, Unicornio, Lobo + Rasgos!</p></div>
+            <div class="feature-card"><div class="feature-icon">⭐</div><h3 class="feature-title">Sistema de Evolución</h3><p>Sube de nivel y evoluciona tu mascota a través de 5 etapas épicas</p></div>
+            <div class="feature-card"><div class="feature-icon">💰</div><h3 class="feature-title">Juega y Gana</h3><p>Gana tokens TAMA jugando y cuidando a tu mascota</p></div>
+            <div class="feature-card"><div class="feature-icon">🏆</div><h3 class="feature-title">Logros</h3><p>Desbloquea 15+ logros y gana recompensas</p></div>
+            <div class="feature-card"><div class="feature-icon">🖱️</div><h3 class="feature-title">Click para Ganar</h3><p>Haz clic en tu mascota para ganar XP y desbloquear bonos</p></div>
+            <div class="feature-card"><div class="feature-icon">👥</div><h3 class="feature-title">Clasificación</h3><p>Compite globalmente y sube en el ranking</p></div>
+        </div>
+    </section>
+
+    <section style="background: rgba(0,0,0,0.2); padding: 60px 20px;">
+        <h2 class="section-title">🚀 CÓMO JUGAR</h2>
+        <div class="features-grid" style="max-width: 1000px;">
+            <div class="feature-card"><div class="feature-icon">1️⃣</div><h3 class="feature-title">Abre Telegram</h3><p>Busca <strong>@GotchiGameBot</strong> y pulsa Iniciar</p></div>
+            <div class="feature-card"><div class="feature-icon">2️⃣</div><h3 class="feature-title">Elige Modo</h3><p>🆓 Gratis (virtual) o 💎 Premium (NFT) - ¡tú eliges!</p></div>
+            <div class="feature-card"><div class="feature-icon">3️⃣</div><h3 class="feature-title">Juega y Gana</h3><p>Haz clic, completa misiones, gana tokens TAMA</p></div>
+            <div class="feature-card"><div class="feature-icon">4️⃣</div><h3 class="feature-title">Retira</h3><p>Conecta tu cartera y retira TAMA a la blockchain</p></div>
+        </div>
+    </section>
+
+    <section style="text-align: center; padding: 80px 20px;">
+        <h2 class="section-title">🎮 ¡EMPIEZA A JUGAR AHORA!</h2>
+        <p style="font-size: 1.2em; margin-bottom: 30px;">¡Únete a miles de jugadores que ya están ganando tokens TAMA!</p>
+        <a href="https://t.me/GotchiGameBot" target="_blank" class="btn-primary btn-telegram" style="font-size: 18px; padding: 20px 40px;">🚀 JUGAR EN TELEGRAM</a>
+    </section>
+
+    <footer class="footer">
+        <div style="margin-bottom: 20px;">
+            <a href="https://x.com/GotchiGame" target="_blank" style="color: white; margin: 0 15px; font-size: 24px;">🐦</a>
+            <a href="https://t.me/GotchiGameBot" target="_blank" style="color: white; margin: 0 15px; font-size: 24px;">📱</a>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <a href="/" style="color: rgba(255,255,255,0.8); margin: 0 10px;">English</a>
+            <a href="/ru/" style="color: rgba(255,255,255,0.8); margin: 0 10px;">Русский</a>
+            <a href="/zh/" style="color: rgba(255,255,255,0.8); margin: 0 10px;">中文</a>
+            <a href="/ja/" style="color: rgba(255,255,255,0.8); margin: 0 10px;">日本語</a>
+            <a href="/ko/" style="color: rgba(255,255,255,0.8); margin: 0 10px;">한국어</a>
+            <a href="/es/" style="color: #FFCA3A; margin: 0 10px;">Español</a>
+        </div>
+        <p style="opacity: 0.7;">Hecho con ❤️ en Solana | Powered by Phantom Wallet</p>
+    </footer>
+</body>
+</html>
