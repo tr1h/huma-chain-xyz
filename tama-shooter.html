@@ -822,13 +822,14 @@
                     }
                 });
 
-                // Check if wave is complete
-                if (this.enemies.length === 0 && !this.boss && this.isRunning && !this.isPaused) {
+                // Check if wave is complete (ТОЛЬКО если враги были заспавнены и убиты!)
+                if (this.enemies.length === 0 && !this.boss && this.isRunning && !this.isPaused && this.wave > 0) {
                     const levelData = this.levels[this.level - 1];
+                    // Проверяем что мы действительно прошли волну (не просто нет врагов)
                     if (this.wave < levelData.waves) {
                         setTimeout(() => this.nextWave(), 2000);
                     } else if (this.level < this.maxLevels) {
-                        // Spawn boss
+                        // Spawn boss (только если прошли все волны!)
                         setTimeout(() => this.spawnBoss(), 2000);
                     } else {
                         // Final boss defeated
@@ -1081,6 +1082,7 @@
                 document.getElementById('lives').textContent = this.lives;
 
                 if (this.lives <= 0) {
+                    // Игра окончена - вызываем gameOver
                     this.gameOver();
                 }
                 // Enemies already cleared in the check
