@@ -61,7 +61,7 @@ try:
     )
     # Import new multi-language helpers
     from bot_translations import (
-        btn, welcome_text, lang_changed, get_menu_buttons,
+        btn, welcome_text as get_welcome_msg, lang_changed, get_menu_buttons,
         error_msg, daily_claimed, daily_wait,
         stats_header, stats_balance, stats_keep_playing,
         referral_header, referral_total, referral_earned,
@@ -1034,23 +1034,24 @@ def handle_start(message):
                 # Determine language
                 lang = determine_user_language(message)
 
-                # Send welcome with referral info (localized) - using new translation system
-                welcome_text = tr('welcome', lang)
+                # Send welcome with referral info (localized) - using new 13-language system
+                welcome_text = get_welcome_msg(True, lang)  # True = has referral
 
                 keyboard = types.InlineKeyboardMarkup()
+                menu = get_menu_buttons(lang)
                 keyboard.row(
                     types.InlineKeyboardButton(
-                        "🔗 Get My Referral Link" if lang == 'en' else "🔗 Моя реферальная ссылка" if lang == 'ru' else "🔗 我的推荐链接",
+                        menu['referral'],
                         callback_data="get_referral"
                     ),
                     types.InlineKeyboardButton(
-                        "📊 My Stats" if lang == 'en' else "📊 Моя статистика" if lang == 'ru' else "📊 我的统计",
+                        menu['stats'],
                         callback_data="my_stats"
                     )
                 )
                 keyboard.row(
                     types.InlineKeyboardButton(
-                        "🎮 Play Now" if lang == 'en' else "🎮 Играть" if lang == 'ru' else "🎮 开始游戏",
+                        menu['play'],
                         url=GAME_URL
                     )
                 )
@@ -1359,11 +1360,11 @@ def send_welcome(message):
             else:
                 balance_text = "💰 *Your Balance:* Loading..."
 
-        # Use new translation system for welcome message
-        print(f"📝 Getting welcome text translation...")
-        welcome_text = t('welcome_no_referral', lang)
-        print(f"✅ Welcome text loaded: {len(welcome_text) if welcome_text else 0} chars")
-        welcome_text = f"{balance_text}\n\n{welcome_text}"
+        # Use new translation system for welcome message (13 languages)
+        print(f"📝 Getting welcome text translation for lang={lang}...")
+        welcome_msg = get_welcome_msg(False, lang)  # False = no referral
+        print(f"✅ Welcome text loaded: {len(welcome_msg) if welcome_msg else 0} chars")
+        welcome_text = f"{balance_text}\n\n{welcome_msg}"
     except Exception as setup_error:
         print(f"❌ ERROR in send_welcome setup: {setup_error}")
         import traceback
