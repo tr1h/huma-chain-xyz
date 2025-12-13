@@ -748,12 +748,28 @@
                 });
 
                 // Check if wave is complete
-                if (this.enemies.length === 0 && this.isRunning) {
-                    if (this.wave < 10) {
-                        setTimeout(() => this.nextWave(), 1500);
+                if (this.enemies.length === 0 && !this.boss && this.isRunning && !this.isPaused) {
+                    const levelData = this.levels[this.level - 1];
+                    if (this.wave < levelData.waves) {
+                        setTimeout(() => this.nextWave(), 2000);
+                    } else if (this.level < this.maxLevels) {
+                        // Spawn boss
+                        setTimeout(() => this.spawnBoss(), 2000);
                     } else {
+                        // Final boss defeated
                         this.winGame();
                     }
+                }
+                
+                // Check if boss defeated
+                if (this.boss && this.boss.health <= 0) {
+                    this.createExplosion(this.boss.x, this.boss.y);
+                    this.boss = null;
+                    this.score += 100;
+                    // Spawn power-up
+                    this.spawnPowerUp(canvas.width / 2, canvas.height / 2);
+                    // Continue to next level
+                    setTimeout(() => this.completeLevel(), 2000);
                 }
 
                 // Check if enemies reached bottom (только если действительно близко!)
