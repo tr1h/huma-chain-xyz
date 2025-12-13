@@ -544,6 +544,8 @@
 
                 // Start first wave after delay
                 setTimeout(() => {
+                    console.log(`📊 ===== LEVEL ${levelNum} STARTED =====`);
+                    console.log(`📊 Level: ${levelData.name}, Max Waves: ${levelData.waves}, Enemy Types: ${levelData.enemyTypes.join(', ')}`);
                     console.log(`✅ Starting wave 1 for level ${levelNum}`);
                     this.nextWave();
                 }, 2000);
@@ -553,14 +555,19 @@
                 this.wave++;
                 const levelData = this.levels[this.level - 1];
 
+                console.log(`🌊 ===== WAVE ${this.wave} STARTING =====`);
+                console.log(`🌊 Level: ${this.level}, Wave: ${this.wave}/${levelData.waves}`);
+
                 // Check if boss wave (ПОСЛЕ всех волн!)
                 if (this.wave > levelData.waves && this.level < this.maxLevels) {
+                    console.log(`👾 All waves completed! Spawning boss for level ${this.level}...`);
                     this.spawnBoss();
                     return;
                 }
 
                 // Check if level complete (ПОСЛЕ всех волн и босса!)
                 if (this.wave > levelData.waves && this.level >= this.maxLevels) {
+                    console.log(`🏆 All levels completed! Final level complete!`);
                     this.completeLevel();
                     return;
                 }
@@ -577,6 +584,8 @@
                 const enemyCount = 8 + this.level * 3 + this.wave * 2; // УВЕЛИЧЕНО!
                 const rows = Math.min(2 + Math.floor(this.level / 2), 5); // Больше рядов!
                 const cols = Math.ceil(enemyCount / rows);
+
+                console.log(`👾 Spawning enemies: Count=${enemyCount}, Rows=${rows}, Cols=${cols}`);
 
                 // Очищаем старых врагов (на всякий случай)
                 this.enemies = [];
@@ -598,6 +607,8 @@
                 // Проверка что враги заспавнились
                 if (this.enemies.length === 0) {
                     console.error(`❌ No enemies spawned for wave ${this.wave}, level ${this.level}!`);
+                } else {
+                    console.log(`✅ Spawned ${this.enemies.length} enemies for wave ${this.wave}`);
                 }
 
                 // Show wave message
@@ -647,26 +658,35 @@
 
             spawnBoss() {
                 const levelData = this.levels[this.level - 1];
+                const bossHealth = 30 + this.level * 10;
+                console.log(`👾 ===== BOSS SPAWNING =====`);
+                console.log(`👾 Level: ${this.level}, Boss: ${levelData.name}, Health: ${bossHealth}`);
+                
                 this.boss = {
                     x: canvas.width / 2,
                     y: 100,
                     width: 80,
                     height: 80,
-                    health: 30 + this.level * 10, // БОЛЬШЕ HP! Was: 20 + level * 5
-                    maxHealth: 30 + this.level * 10,
+                    health: bossHealth,
+                    maxHealth: bossHealth,
                     speed: 0.8 + this.level * 0.1, // БЫСТРЕЕ движение!
                     direction: 1,
                     shootCooldown: 0,
                     pattern: 'horizontal'
                 };
+                console.log(`✅ Boss spawned with ${bossHealth} HP`);
                 this.showMessage(`👾 BOSS APPEARED: ${levelData.name}!\n💡 Keep shooting! Avoid red bullets!`, 3000);
             },
 
             completeLevel() {
                 this.isPaused = true;
 
+                console.log(`🏆 ===== LEVEL ${this.level} COMPLETE =====`);
+                console.log(`🏆 Stats: Score=${this.score}, Kills=${this.enemiesKilled}, Lives=${this.lives}`);
+
                 // Calculate level reward
                 const levelReward = 200 + (this.wave - 1) * 50;
+                console.log(`💰 Level reward: ${levelReward} TAMA`);
 
                 // Update balance immediately
                 balance += levelReward;
@@ -679,8 +699,10 @@
                 // Continue to next level
                 setTimeout(() => {
                     if (this.level < this.maxLevels) {
+                        const nextLevel = this.level + 1;
+                        console.log(`➡️ Transitioning to Level ${nextLevel}...`);
                         // Переход к следующему уровню
-                        this.level++;
+                        this.level = nextLevel;
                         this.wave = 0;
                         this.boss = null; // Очищаем босса
                         this.enemies = []; // Очищаем врагов
@@ -691,6 +713,7 @@
                         console.log(`✅ Starting Level ${this.level}`);
                     } else {
                         // Все уровни пройдены - победа!
+                        console.log(`🎉 All levels completed! Victory!`);
                         this.winGame();
                     }
                 }, 3000);
@@ -842,6 +865,7 @@
                                 this.score += 10;
                                 this.enemiesKilled++;
                                 this.createExplosion(enemy.x, enemy.y);
+                                console.log(`💥 Enemy killed! Type: ${enemy.type}, Total kills: ${this.enemiesKilled}, Enemies left: ${this.enemies.length}`);
                             }
                         }
                     });
@@ -860,6 +884,10 @@
                             // Визуальный эффект попадания (маленький взрыв)
                             this.createExplosion(bullet.x, bullet.y);
 
+                            // Логирование попадания в босса
+                            const healthPercent = Math.round((this.boss.health / this.boss.maxHealth) * 100);
+                            console.log(`🎯 Boss hit! HP: ${this.boss.health}/${this.boss.maxHealth} (${healthPercent}%)`);
+
                             // Обновляем UI
                             this.updateUI();
                         }
@@ -869,20 +897,26 @@
                 // Check if wave is complete (ТОЛЬКО если враги были заспавнены и убиты!)
                 if (this.enemies.length === 0 && !this.boss && this.isRunning && !this.isPaused && this.wave > 0) {
                     const levelData = this.levels[this.level - 1];
+                    console.log(`✅ Wave ${this.wave} complete! Enemies killed: ${this.enemiesKilled}`);
                     // Проверяем что мы действительно прошли волну (не просто нет врагов)
                     if (this.wave < levelData.waves) {
+                        console.log(`➡️ Moving to next wave...`);
                         setTimeout(() => this.nextWave(), 2000);
                     } else if (this.level < this.maxLevels) {
                         // Spawn boss (только если прошли все волны!)
+                        console.log(`👾 All waves complete! Spawning boss...`);
                         setTimeout(() => this.spawnBoss(), 2000);
                     } else {
                         // Final boss defeated
+                        console.log(`🎉 All levels and waves complete! Victory!`);
                         this.winGame();
                     }
                 }
 
                 // Check if boss defeated
                 if (this.boss && this.boss.health <= 0) {
+                    console.log(`👾 ===== BOSS DEFEATED! =====`);
+                    console.log(`👾 Level: ${this.level}, Score: ${this.score}, Kills: ${this.enemiesKilled}`);
                     this.createExplosion(this.boss.x, this.boss.y);
                     this.boss = null;
                     this.score += 100;
@@ -1129,8 +1163,11 @@
             loseLife() {
                 this.lives--;
                 document.getElementById('lives').textContent = this.lives;
+                console.log(`💔 Life lost! Lives remaining: ${this.lives}`);
 
                 if (this.lives <= 0) {
+                    console.log(`💀 ===== GAME OVER =====`);
+                    console.log(`💀 Final stats: Level=${this.level}, Wave=${this.wave}, Score=${this.score}, Kills=${this.enemiesKilled}`);
                     // Игра окончена - вызываем gameOver
                     this.gameOver();
                 }
@@ -1199,11 +1236,16 @@
             gameOver() {
                 this.isRunning = false;
 
+                console.log(`💀 ===== GAME OVER =====`);
+                console.log(`💀 Final stats: Level=${this.level}, Wave=${this.wave}, Score=${this.score}, Kills=${this.enemiesKilled}, Lives=${this.lives}`);
+
                 // Calculate partial reward
                 const killReward = this.enemiesKilled * 5;
                 const levelReward = (this.level - 1) * 100;
                 const waveReward = (this.wave - 1) * 20;
                 const totalReward = Math.max(0, killReward + levelReward + waveReward);
+
+                console.log(`💰 Rewards: Kills=${killReward}, Level=${levelReward}, Wave=${waveReward}, Total=${totalReward} TAMA`);
 
                 if (totalReward > 0) {
                     balance += totalReward;
