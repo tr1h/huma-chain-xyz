@@ -14,9 +14,9 @@ require_once __DIR__ . '/marketplace.php';
  * Route API request
  */
 function routeRequest($endpoint, $method, $url, $key) {
-    // Remove leading slash and 'api/tama' prefix
+    // Remove leading slash and 'api/tama' or 'api/tama-v2' prefix
     $endpoint = trim($endpoint, '/');
-    $endpoint = preg_replace('#^api/tama/?#', '', $endpoint);
+    $endpoint = preg_replace('#^api/tama(-v2)?/?#', '', $endpoint);
     
     // Route map
     $routes = [
