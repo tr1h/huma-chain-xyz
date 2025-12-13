@@ -1,450 +1,395 @@
 # -*- coding: utf-8 -*-
 """
-🌍 Submenu Translations
-Переводы для всех подменю бота
+🌍 Submenu Translations V2
+Full translations for all submenus (11 languages)
+
+Languages: EN, RU, ZH, ES, PT, JA, FR, HI, KO, TR, DE
 """
 
+from full_localization import (
+    BUTTONS, STATS, REFERRAL, BADGES, QUESTS, NFTS, 
+    WITHDRAW, LEADERBOARD, HELP, ERRORS, DAILY,
+    get_button, get_text
+)
+
+
 def get_stats_text(lang, total_tama, rank_data, total_refs, ref_count, pending_count, streak_days, badges_count):
-    """Get translated stats text"""
-    if lang == 'ru':
-        return f"""
-📊 **Полная статистика**
+    """Get translated stats text for all 11 languages"""
+    
+    # Get translated labels
+    header = get_text('STATS', 'header', lang)
+    balance = get_text('STATS', 'balance', lang, amount=f"{total_tama:,}")
+    rank = get_text('STATS', 'rank', lang, rank=rank_data['name'])
+    refs_header = get_text('STATS', 'referrals_header', lang)
+    total_invited = get_text('STATS', 'total_invited', lang, count=total_refs)
+    active = get_text('STATS', 'active', lang, count=ref_count)
+    pending = get_text('STATS', 'pending', lang, count=pending_count)
+    activity_header = get_text('STATS', 'activity_header', lang)
+    login_streak = get_text('STATS', 'login_streak', lang, days=streak_days)
+    badges_earned = get_text('STATS', 'badges_earned', lang, count=badges_count)
+    keep_playing = get_text('STATS', 'keep_playing', lang)
+    
+    progress_bar = "▓" * min(total_refs % 10, 10) + "░" * max(10 - (total_refs % 10), 0)
+    
+    return f"""
+{header}
 
-💰 **Баланс TAMA:** {total_tama:,}
-{rank_data['emoji']} **Ранг:** {rank_data['name']}
+{balance}
+{rank_data['emoji']} {rank}
 
-👥 **Рефералы:**
-• Приглашено: {total_refs}
-• Активных: {ref_count}
-• Ожидают: {pending_count}
+{refs_header}
+{total_invited}
+{active}
+{pending}
 
-🔥 **Активность:**
-• Серия входов: {streak_days} дн.
-• Получено значков: {badges_count}
-
-📈 **Прогресс:**
-{"▓" * min(total_refs % 10, 10)}{"░" * max(10 - (total_refs % 10), 0)}
-
-💰 **Продолжай играть и приглашать друзей!**
-        """
-    elif lang == 'zh':
-        return f"""
-📊 **完整统计**
-
-💰 **TAMA 余额:** {total_tama:,}
-{rank_data['emoji']} **等级:** {rank_data['name']}
-
-👥 **推荐:**
-• 邀请总数: {total_refs}
-• 活跃: {ref_count}
-• 待定: {pending_count}
-
-🔥 **活动:**
-• 连续登录: {streak_days} 天
-• 获得徽章: {badges_count}
-
-📈 **进度:**
-{"▓" * min(total_refs % 10, 10)}{"░" * max(10 - (total_refs % 10), 0)}
-
-💰 **继续玩游戏和邀请朋友!**
-        """
-    else:
-        return f"""
-📊 **Your Full Stats**
-
-💰 **TAMA Balance:** {total_tama:,}
-{rank_data['emoji']} **Rank:** {rank_data['name']}
-
-👥 **Referrals:**
-• Total invited: {total_refs}
-• Active: {ref_count}
-• Pending: {pending_count}
-
-🔥 **Activity:**
-• Login streak: {streak_days} days
-• Badges earned: {badges_count}
+{activity_header}
+{login_streak}
+{badges_earned}
 
 📈 **Progress:**
-{"▓" * min(total_refs % 10, 10)}{"░" * max(10 - (total_refs % 10), 0)}
+{progress_bar}
 
-💰 **Keep playing and inviting friends!**
-        """
+{keep_playing}
+    """
 
 
 def get_referral_text(lang, ref_code, total_referrals, pending_count, total_earnings):
-    """Get translated referral text"""
-    if lang == 'ru':
-        return f"""
-🔗 <b>Твой реферальный код:</b>
+    """Get translated referral text for all 11 languages"""
+    
+    header = get_text('REFERRAL', 'header', lang)
+    your_stats = get_text('REFERRAL', 'your_stats', lang)
+    total_refs = get_text('REFERRAL', 'total_referrals', lang, count=total_referrals + pending_count)
+    total_earned = get_text('REFERRAL', 'total_earned', lang, amount=f"{total_earnings:,}")
+    earn_instantly = get_text('REFERRAL', 'earn_instantly', lang)
+    per_friend = get_text('REFERRAL', 'per_friend', lang)
+    just_share = get_text('REFERRAL', 'just_share', lang)
+    accumulates = get_text('REFERRAL', 'accumulates', lang)
+    
+    return f"""
+{header}
 
 <code>{ref_code}</code>
 
-📊 <b>Твоя статистика:</b>
-• 👥 Всего рефералов: {total_referrals + pending_count}
-• 💰 Заработано: {total_earnings:,} TAMA
+{your_stats}
+{total_refs}
+{total_earned}
 
-💰 <b>Зарабатывай мгновенно (БЕЗ КОШЕЛЬКА!):</b>
-• 1,000 TAMA за каждого друга мгновенно!
-• Просто делись ссылкой и зарабатывай!
-• TAMA копятся на твоём аккаунте
-"""
-    elif lang == 'zh':
-        return f"""
-🔗 <b>您的推荐代码:</b>
-
-<code>{ref_code}</code>
-
-📊 <b>您的统计:</b>
-• 👥 推荐总数: {total_referrals + pending_count}
-• 💰 总收入: {total_earnings:,} TAMA
-
-💰 <b>即时赚取 (无需钱包!):</b>
-• 每位朋友立即获得 1,000 TAMA!
-• 只需分享链接即可赚取!
-• TAMA 累积在您的账户中
-"""
-    else:
-        return f"""
-🔗 <b>Your Referral Code:</b>
-
-<code>{ref_code}</code>
-
-📊 <b>Your Stats:</b>
-• 👥 Total Referrals: {total_referrals + pending_count}
-• 💰 Total Earned: {total_earnings:,} TAMA
-
-💰 <b>Earn instantly (NO WALLET NEEDED!):</b>
-• 1,000 TAMA for each friend instantly!
-• Just share your link and earn!
-• TAMA accumulates in your account
+{earn_instantly}
+{per_friend}
+{just_share}
+{accumulates}
 """
 
 
 def get_badges_text(lang, badges_text_content):
-    """Get translated badges text"""
-    if lang == 'ru':
-        return f"""
-🏆 **Твои значки**
+    """Get translated badges text for all 11 languages"""
+    
+    header = get_text('BADGES', 'header', lang)
+    how_to_earn = get_text('BADGES', 'how_to_earn', lang)
+    early_bird = get_text('BADGES', 'early_bird', lang)
+    streak_master = get_text('BADGES', 'streak_master', lang)
+    referral_king = get_text('BADGES', 'referral_king', lang)
+    
+    return f"""
+{header}
 
 {badges_text_content}
 
-💰 **Как получить больше:**
-• 🌟 Ранняя пташка - В первых 100 пользователей
-• 🔥 Мастер серий - 30 дней подряд
-• 👑 Король рефералов - 50+ рефералов
-• 💰 Щедрый - 100+ рефералов
-• 🎮 Геймер - 100 мини-игр
-• 🍀 Удачливый - Джекпот колеса
-        """
-    elif lang == 'zh':
-        return f"""
-🏆 **您的徽章**
-
-{badges_text_content}
-
-💰 **如何获得更多:**
-• 🌟 早起鸟 - 前 100 位用户
-• 🔥 连胜大师 - 连续 30 天
-• 👑 推荐之王 - 50+ 推荐
-• 💰 慷慨 - 100+ 推荐
-• 🎮 游戏玩家 - 100 个小游戏
-• 🍀 幸运 - 轮盘大奖
-        """
-    else:
-        return f"""
-🏆 **Your Badges**
-
-{badges_text_content}
-
-💰 **How to earn more:**
-• 🌟 Early Bird - Be in first 100 users
-• 🔥 Streak Master - 30 days streak
-• 👑 Referral King - 50+ referrals
+{how_to_earn}
+{early_bird}
+{streak_master}
+{referral_king}
 • 💰 Generous - 100+ referrals
 • 🎮 Gamer - 100 mini-games
 • 🍀 Lucky - Wheel jackpot
-        """
+    """
 
 
 def get_button_text(lang, button_key):
-    """Get translated button text"""
-    buttons = {
-        'en': {
-            'back': '🔙 Back',
-            'back_to_menu': '🔙 Back to Menu',
-            'referral': '🔗 Referral',
-            'share': '📤 Share',
-            'copy': '📋 Copy Code',
-            'mint': '🎨 Mint NFT',
-            'view_website': '🌐 View on Website',
-            'my_nfts': '🖼️ My NFTs',
-            'withdraw': '💸 Withdraw TAMA',
-            'quests': '📋 Quests',
-            'badges': '🏆 Badges',
-            'rank': '🎖️ My Rank',
-            'leaderboard': '🏅 Leaderboard',
-            'stats': '📊 My Stats',
-            'cancel': '❌ Cancel',
-            'confirm': '✅ Confirm'
-        },
-        'ru': {
-            'back': '🔙 Назад',
-            'back_to_menu': '🔙 Назад в меню',
-            'referral': '🔗 Реферальная',
-            'share': '📤 Поделиться',
-            'copy': '📋 Копировать код',
-            'mint': '🎨 Минт NFT',
-            'view_website': '🌐 Смотреть на сайте',
-            'my_nfts': '🖼️ Мои NFT',
-            'withdraw': '💸 Вывести TAMA',
-            'quests': '📋 Квесты',
-            'badges': '🏆 Значки',
-            'rank': '🎖️ Рейтинг',
-            'leaderboard': '🏅 Лидерборд',
-            'stats': '📊 Статистика',
-            'cancel': '❌ Отмена',
-            'confirm': '✅ Подтвердить'
-        },
-        'zh': {
-            'back': '🔙 返回',
-            'back_to_menu': '🔙 返回菜单',
-            'referral': '🔗 推荐',
-            'share': '📤 分享',
-            'copy': '📋 复制代码',
-            'mint': '🎨 铸造 NFT',
-            'view_website': '🌐 在网站上查看',
-            'my_nfts': '🖼️ 我的 NFT',
-            'withdraw': '💸 提取 TAMA',
-            'quests': '📋 任务',
-            'badges': '🏆 徽章',
-            'rank': '🎖️ 我的排名',
-            'leaderboard': '🏅 排行榜',
-            'stats': '📊 我的统计',
-            'cancel': '❌ 取消',
-            'confirm': '✅ 确认'
-        },
-        'es': {
-            'back': '🔙 Atrás',
-            'back_to_menu': '🔙 Volver al menú',
-            'referral': '🔗 Referidos',
-            'share': '📤 Compartir',
-            'copy': '📋 Copiar código',
-            'mint': '🎨 Mintear NFT',
-            'view_website': '🌐 Ver en sitio web',
-            'my_nfts': '🖼️ Mis NFT',
-            'withdraw': '💸 Retirar TAMA',
-            'quests': '📋 Misiones',
-            'badges': '🏆 Insignias',
-            'rank': '🎖️ Mi Rango',
-            'leaderboard': '🏅 Clasificación',
-            'stats': '📊 Mis Estadísticas',
-            'cancel': '❌ Cancelar',
-            'confirm': '✅ Confirmar'
-        }
-    }
-    return buttons.get(lang, buttons['en']).get(button_key, button_key)
+    """Get translated button text for all 11 languages"""
+    return get_button(button_key, lang)
 
 
 def get_no_badges_text(lang):
     """Get 'no badges yet' text"""
-    texts = {
-        'en': 'No badges yet. Play and invite friends!',
-        'ru': 'Пока нет значков. Играй и приглашай друзей!',
-        'zh': '还没有徽章。玩游戏和邀请朋友!',
-        'es': '¡Aún no tienes insignias. Juega e invita amigos!'
-    }
-    return texts.get(lang, texts['en'])
+    return get_text('BADGES', 'no_badges', lang)
 
 
 def get_rank_text(lang, rank_emoji, rank_name, total_refs, next_rank_name, refs_needed):
-    """Get translated rank text"""
-    if lang == 'ru':
-        return f"""
-{rank_emoji} **Твой ранг: {rank_name}**
+    """Get translated rank text for all 11 languages"""
+    
+    rank_headers = {
+        'en': f"{rank_emoji} **Your Rank: {rank_name}**",
+        'ru': f"{rank_emoji} **Твой ранг: {rank_name}**",
+        'zh': f"{rank_emoji} **您的等级: {rank_name}**",
+        'es': f"{rank_emoji} **Tu rango: {rank_name}**",
+        'pt': f"{rank_emoji} **Seu rank: {rank_name}**",
+        'ja': f"{rank_emoji} **あなたのランク: {rank_name}**",
+        'fr': f"{rank_emoji} **Ton rang : {rank_name}**",
+        'hi': f"{rank_emoji} **आपका रैंक: {rank_name}**",
+        'ko': f"{rank_emoji} **귀하의 랭크: {rank_name}**",
+        'tr': f"{rank_emoji} **Rütbeniz: {rank_name}**",
+        'de': f"{rank_emoji} **Dein Rang: {rank_name}**",
+    }
+    
+    stats_labels = {
+        'en': "📊 **Stats:**",
+        'ru': "📊 **Статистика:**",
+        'zh': "📊 **统计:**",
+        'es': "📊 **Estadísticas:**",
+        'pt': "📊 **Estatísticas:**",
+        'ja': "📊 **統計:**",
+        'fr': "📊 **Statistiques :**",
+        'hi': "📊 **आँकड़े:**",
+        'ko': "📊 **통계:**",
+        'tr': "📊 **İstatistikler:**",
+        'de': "📊 **Statistiken:**",
+    }
+    
+    referrals_labels = {
+        'en': f"• Referrals: {total_refs}",
+        'ru': f"• Рефералов: {total_refs}",
+        'zh': f"• 推荐数: {total_refs}",
+        'es': f"• Referidos: {total_refs}",
+        'pt': f"• Indicações: {total_refs}",
+        'ja': f"• 紹介数: {total_refs}",
+        'fr': f"• Parrainages : {total_refs}",
+        'hi': f"• रेफरल: {total_refs}",
+        'ko': f"• 추천수: {total_refs}",
+        'tr': f"• Referanslar: {total_refs}",
+        'de': f"• Empfehlungen: {total_refs}",
+    }
+    
+    needed_labels = {
+        'en': f"• Needed for {next_rank_name}: {refs_needed}",
+        'ru': f"• Требуется для {next_rank_name}: {refs_needed}",
+        'zh': f"• 达到 {next_rank_name} 需要: {refs_needed}",
+        'es': f"• Necesarios para {next_rank_name}: {refs_needed}",
+        'pt': f"• Necessários para {next_rank_name}: {refs_needed}",
+        'ja': f"• {next_rank_name}まであと: {refs_needed}",
+        'fr': f"• Requis pour {next_rank_name} : {refs_needed}",
+        'hi': f"• {next_rank_name} के लिए आवश्यक: {refs_needed}",
+        'ko': f"• {next_rank_name}까지 필요: {refs_needed}",
+        'tr': f"• {next_rank_name} için gerekli: {refs_needed}",
+        'de': f"• Benötigt für {next_rank_name}: {refs_needed}",
+    }
+    
+    keep_inviting = {
+        'en': "🎯 **Keep inviting friends!**",
+        'ru': "🎯 **Продолжай приглашать друзей!**",
+        'zh': "🎯 **继续邀请朋友!**",
+        'es': "🎯 **¡Sigue invitando amigos!**",
+        'pt': "🎯 **Continue convidando amigos!**",
+        'ja': "🎯 **友達を招待し続けよう！**",
+        'fr': "🎯 **Continue à inviter des amis !**",
+        'hi': "🎯 **दोस्तों को आमंत्रित करते रहें!**",
+        'ko': "🎯 **계속 친구를 초대하세요!**",
+        'tr': "🎯 **Arkadaş davet etmeye devam et!**",
+        'de': "🎯 **Lade weiter Freunde ein!**",
+    }
+    
+    return f"""
+{rank_headers.get(lang, rank_headers['en'])}
 
-📊 **Статистика:**
-• Рефералов: {total_refs}
-• Требуется для {next_rank_name}: {refs_needed}
+{stats_labels.get(lang, stats_labels['en'])}
+{referrals_labels.get(lang, referrals_labels['en'])}
+{needed_labels.get(lang, needed_labels['en'])}
 
-🎯 **Продолжай приглашать друзей!**
-        """
-    elif lang == 'zh':
-        return f"""
-{rank_emoji} **您的等级: {rank_name}**
-
-📊 **统计:**
-• 推荐数: {total_refs}
-• 达到 {next_rank_name} 需要: {refs_needed}
-
-🎯 **继续邀请朋友!**
-        """
-    elif lang == 'es':
-        return f"""
-{rank_emoji} **Tu rango: {rank_name}**
-
-📊 **Estadísticas:**
-• Referidos: {total_refs}
-• Necesarios para {next_rank_name}: {refs_needed}
-
-🎯 **¡Sigue invitando amigos!**
-        """
-    else:
-        return f"""
-{rank_emoji} **Your Rank: {rank_name}**
-
-📊 **Stats:**
-• Referrals: {total_refs}
-• Needed for {next_rank_name}: {refs_needed}
-
-🎯 **Keep inviting friends!**
-        """
+{keep_inviting.get(lang, keep_inviting['en'])}
+    """
 
 
 def get_quests_header(lang):
     """Get quests header text"""
-    texts = {
-        'en': '📋 **Referral Quests**\n\n',
-        'ru': '📋 **Реферальные квесты**\n\n',
-        'zh': '📋 **推荐任务**\n\n',
-        'es': '📋 **Misiones de Referidos**\n\n'
-    }
-    return texts.get(lang, texts['en'])
+    return get_text('QUESTS', 'header', lang)
+
+
+def get_quests_completed(lang):
+    """Get completed quest label"""
+    return get_text('QUESTS', 'completed', lang)
+
+
+def get_quests_in_progress(lang):
+    """Get in progress quest label"""
+    return get_text('QUESTS', 'in_progress', lang)
+
+
+def get_quests_invite_tip(lang):
+    """Get invite tip text"""
+    return get_text('QUESTS', 'invite_tip', lang)
 
 
 def get_nfts_text(lang, nft_count, tama_balance, best_multiplier, nft_list, telegram_id, mint_url):
-    """Get translated NFT collection text"""
+    """Get translated NFT collection text for all 11 languages"""
+    
+    header = get_text('NFTS', 'collection_header', lang)
+    total_nfts = get_text('NFTS', 'total_nfts', lang, count=nft_count)
+    balance = get_text('STATS', 'balance', lang, amount=f"{tama_balance:,}")
+    active_boost = get_text('NFTS', 'active_boost', lang, multiplier=best_multiplier)
+    benefits = get_text('NFTS', 'benefits', lang, multiplier=best_multiplier)
+    
     if nft_count > 0:
-        if lang == 'ru':
-            return f"""
-🖼️ **ТВОЯ КОЛЛЕКЦИЯ NFT** 🖼️
+        view_labels = {
+            'en': f"🌐 [View on Website]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'ru': f"🌐 [Смотреть на сайте]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'zh': f"🌐 [在网站上查看]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'es': f"🌐 [Ver en sitio web]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'pt': f"🌐 [Ver no site]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'ja': f"🌐 [ウェブサイトで見る]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'fr': f"🌐 [Voir sur le site]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'hi': f"🌐 [वेबसाइट पर देखें]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'ko': f"🌐 [웹사이트에서 보기]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'tr': f"🌐 [Web sitesinde gör]({mint_url}my-nfts.html?user_id={telegram_id})",
+            'de': f"🌐 [Auf Website ansehen]({mint_url}my-nfts.html?user_id={telegram_id})",
+        }
+        
+        return f"""
+{header}
 
-📦 Всего NFT: **{nft_count}**
-💰 Баланс TAMA: **{tama_balance:,}**
-⚡ Активный буст: **{best_multiplier}x**
-
-{nft_list}
-
-🎮 *Преимущества NFT:*
-• Твой лучший NFT даёт **{best_multiplier}x** буст к заработку!
-• Все награды TAMA умножаются автоматически
-• Смотри полную коллекцию на сайте!
-
-🌐 [Смотреть на сайте]({mint_url}my-nfts.html?user_id={telegram_id})
-            """
-        elif lang == 'zh':
-            return f"""
-🖼️ **您的 NFT 收藏** 🖼️
-
-📦 NFT 总数: **{nft_count}**
-💰 TAMA 余额: **{tama_balance:,}**
-⚡ 活跃加成: **{best_multiplier}x**
+{total_nfts}
+{balance}
+{active_boost}
 
 {nft_list}
 
-🎮 *NFT 优势:*
-• 您最好的 NFT 提供 **{best_multiplier}x** 收益加成!
-• 所有 TAMA 奖励自动翻倍
-• 在网站上查看完整收藏!
+{benefits}
 
-🌐 [在网站上查看]({mint_url}my-nfts.html?user_id={telegram_id})
-            """
-        else:
-            return f"""
-🖼️ **YOUR NFT COLLECTION** 🖼️
-
-📦 Total NFTs: **{nft_count}**
-💰 TAMA Balance: **{tama_balance:,}**
-⚡ Active Boost: **{best_multiplier}x**
-
-{nft_list}
-
-🎮 *NFT Benefits:*
-• Your best NFT gives you **{best_multiplier}x** earning boost!
-• All TAMA rewards are multiplied automatically
-• View full collection on website!
-
-🌐 [View on Website]({mint_url}my-nfts.html?user_id={telegram_id})
-            """
+{view_labels.get(lang, view_labels['en'])}
+        """
     else:
-        if lang == 'ru':
-            return f"""
-🖼️ **ТВОЯ КОЛЛЕКЦИЯ NFT** 🖼️
+        no_nfts = get_text('NFTS', 'no_nfts', lang)
+        
+        how_to_get = {
+            'en': "💰 *How to get NFTs:*",
+            'ru': "💰 *Как получить NFT:*",
+            'zh': "💰 *如何获得 NFT:*",
+            'es': "💰 *Cómo obtener NFTs:*",
+            'pt': "💰 *Como obter NFTs:*",
+            'ja': "💰 *NFTの入手方法:*",
+            'fr': "💰 *Comment obtenir des NFT :*",
+            'hi': "💰 *NFT कैसे प्राप्त करें:*",
+            'ko': "💰 *NFT 획득 방법:*",
+            'tr': "💰 *NFT nasıl alınır:*",
+            'de': "💰 *Wie man NFTs bekommt:*",
+        }
+        
+        mint_cta = {
+            'en': "🎨 Tap \"Mint NFT\" to start!",
+            'ru': "🎨 Нажми \"Минт NFT\" чтобы начать!",
+            'zh': "🎨 点击\"铸造NFT\"开始！",
+            'es': "🎨 ¡Toca \"Mintear NFT\" para empezar!",
+            'pt': "🎨 Toque em \"Cunhar NFT\" para começar!",
+            'ja': "🎨 「NFTミント」をタップして始めよう！",
+            'fr': "🎨 Appuie sur \"Créer NFT\" pour commencer !",
+            'hi': "🎨 शुरू करने के लिए \"NFT मिंट करें\" टैप करें!",
+            'ko': "🎨 시작하려면 \"NFT 민팅\"을 탭하세요!",
+            'tr': "🎨 Başlamak için \"NFT Bas\"a dokunun!",
+            'de': "🎨 Tippe auf \"NFT Minten\" um zu starten!",
+        }
+        
+        return f"""
+{header}
 
-📦 У тебя пока нет NFT!
+{no_nfts}
 
-💰 Твой баланс TAMA: **{tama_balance:,}**
+{balance}
 
-💰 *Как получить NFT:*
-
-**🥉 Бронзовый NFT** 💰
-• Цена: 2,500 TAMA или 0.05 SOL
-• Буст: 2-3x к заработку
-• Редкость: Common/Rare
-
-**🥈 Серебряный NFT** 💎
-• Цена: 1 SOL
-• Буст: 2.3x к заработку
-• Редкость: Uncommon/Rare
-
-**🥇 Золотой NFT** 🌟
-• Цена: 3 SOL
-• Буст: 2.7x к заработку
-• Редкость: Rare/Epic
-
-🎨 Нажми "Минт NFT" чтобы начать!
-            """
-        elif lang == 'zh':
-            return f"""
-🖼️ **您的 NFT 收藏** 🖼️
-
-📦 您还没有任何 NFT!
-
-💰 您的 TAMA 余额: **{tama_balance:,}**
-
-💰 *如何获得 NFT:*
-
-**🥉 青铜 NFT** 💰
-• 价格: 2,500 TAMA 或 0.05 SOL
-• 加成: 2-3x 收益
-• 稀有度: Common/Rare
-
-**🥈 白银 NFT** 💎
-• 价格: 1 SOL
-• 加成: 2.3x 收益
-• 稀有度: Uncommon/Rare
-
-**🥇 黄金 NFT** 🌟
-• 价格: 3 SOL
-• 加成: 2.7x 收益
-• 稀有度: Rare/Epic
-
-🎨 点击"铸造 NFT"开始!
-            """
-        else:
-            return f"""
-🖼️ **YOUR NFT COLLECTION** 🖼️
-
-📦 You don't have any NFTs yet!
-
-💰 Your TAMA Balance: **{tama_balance:,}**
-
-💰 *How to get NFTs:*
+{how_to_get.get(lang, how_to_get['en'])}
 
 **🥉 Bronze NFT** 💰
 • Cost: 2,500 TAMA or 0.05 SOL
 • Boost: 2-3x earning
-• Rarity: Common/Rare
 
 **🥈 Silver NFT** 💎
 • Cost: 1 SOL
 • Boost: 2.3x earning
-• Rarity: Uncommon/Rare
 
 **🥇 Gold NFT** 🌟
 • Cost: 3 SOL
 • Boost: 2.7x earning
-• Rarity: Rare/Epic
 
-🎨 Tap "Mint NFT" to start!
-            """
+{mint_cta.get(lang, mint_cta['en'])}
+        """
 
+
+def get_withdraw_text(lang, tama_balance):
+    """Get translated withdraw text"""
+    
+    header = get_text('WITHDRAW', 'header', lang)
+    mainnet = get_text('WITHDRAW', 'mainnet_launch', lang)
+    what_to_know = get_text('WITHDRAW', 'what_to_know', lang)
+    tama_safe = get_text('WITHDRAW', 'tama_safe', lang)
+    balance = get_text('STATS', 'balance', lang, amount=f"{tama_balance:,}")
+    
+    status_labels = {
+        'en': "**Current Status:**\n• Devnet: ✅ Active (testing)\n• Mainnet: 🔄 Coming Q1 2026",
+        'ru': "**Текущий статус:**\n• Devnet: ✅ Активен (тестирование)\n• Mainnet: 🔄 Запуск Q1 2026",
+        'zh': "**当前状态:**\n• Devnet: ✅ 活跃 (测试中)\n• Mainnet: 🔄 2026年Q1上线",
+        'es': "**Estado actual:**\n• Devnet: ✅ Activo (pruebas)\n• Mainnet: 🔄 Próximamente Q1 2026",
+        'pt': "**Status atual:**\n• Devnet: ✅ Ativo (teste)\n• Mainnet: 🔄 Em breve Q1 2026",
+        'ja': "**現在の状況:**\n• Devnet: ✅ 稼働中 (テスト)\n• Mainnet: 🔄 2026年Q1開始",
+        'fr': "**Statut actuel :**\n• Devnet : ✅ Actif (test)\n• Mainnet : 🔄 Bientôt Q1 2026",
+        'hi': "**वर्तमान स्थिति:**\n• Devnet: ✅ सक्रिय (परीक्षण)\n• Mainnet: 🔄 Q1 2026 में आ रहा है",
+        'ko': "**현재 상태:**\n• Devnet: ✅ 활성 (테스트)\n• Mainnet: 🔄 2026년 1분기 예정",
+        'tr': "**Mevcut Durum:**\n• Devnet: ✅ Aktif (test)\n• Mainnet: 🔄 Q1 2026'da geliyor",
+        'de': "**Aktueller Status:**\n• Devnet: ✅ Aktiv (Test)\n• Mainnet: 🔄 Kommt Q1 2026",
+    }
+    
+    return f"""
+{header}
+
+{mainnet}
+
+{what_to_know}
+
+{status_labels.get(lang, status_labels['en'])}
+
+{balance}
+
+{tama_safe}
+
+📊 Track: https://solanatamagotchi.com/treasury-monitor.html
+    """
+
+
+def get_leaderboard_header(lang):
+    """Get leaderboard header"""
+    return get_text('LEADERBOARD', 'header', lang)
+
+
+def get_leaderboard_no_players(lang):
+    """Get no players text"""
+    return get_text('LEADERBOARD', 'no_players', lang)
+
+
+def get_daily_claimed_text(lang, amount):
+    """Get daily reward claimed text"""
+    return get_text('DAILY', 'claimed', lang, amount=amount)
+
+
+def get_daily_already_claimed_text(lang, hours, minutes):
+    """Get daily already claimed text"""
+    return get_text('DAILY', 'already_claimed', lang, hours=hours, minutes=minutes)
+
+
+def get_help_text(lang):
+    """Get full help text"""
+    header = get_text('HELP', 'header', lang)
+    game_commands = get_text('HELP', 'game_commands', lang)
+    social_commands = get_text('HELP', 'social_commands', lang)
+    need_help = get_text('HELP', 'need_help', lang)
+    
+    return f"""
+{header}
+
+{game_commands}
+
+{social_commands}
+
+{need_help}
+    """
+
+
+def get_error_text(lang, error_type='generic'):
+    """Get error message"""
+    return get_text('ERRORS', error_type, lang)
