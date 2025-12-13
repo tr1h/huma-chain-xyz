@@ -689,7 +689,7 @@
                                 y: this.player.y - 20,
                                 width: 5,
                                 height: 18,
-                                speed: 10,
+                                speed: 8, // Та же скорость что и обычные пули
                                 damage: 1,
                                 isEnemy: false // ИГРОК стреляет!
                             });
@@ -847,12 +847,12 @@
                     setTimeout(() => this.completeLevel(), 2000);
                 }
 
-                // Check if enemies reached bottom (только если действительно близко!)
-                const criticalEnemies = this.enemies.filter(enemy => enemy.y > canvas.height - 80);
+                // Check if enemies reached bottom (БОЛЬШЕ опасности!)
+                const criticalEnemies = this.enemies.filter(enemy => enemy.y > canvas.height - 100);
                 if (criticalEnemies.length > 0) {
                     this.loseLife();
                     // Удалить критических врагов
-                    this.enemies = this.enemies.filter(enemy => enemy.y <= canvas.height - 80);
+                    this.enemies = this.enemies.filter(enemy => enemy.y <= canvas.height - 100);
                 }
 
                 // Update particles
