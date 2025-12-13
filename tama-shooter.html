@@ -654,17 +654,29 @@
                 // Calculate level reward
                 const levelReward = 200 + (this.wave - 1) * 50;
 
+                // Update balance immediately
+                balance += levelReward;
+                document.getElementById('balance').textContent = balance.toLocaleString();
+                updateBalance(levelReward, `TAMA Shooter: Level ${this.level} Complete!`);
+
                 // Show level complete screen
                 this.showMessage(`Level ${this.level} Complete! +${levelReward} TAMA`, 3000);
 
                 // Continue to next level
                 setTimeout(() => {
                     if (this.level < this.maxLevels) {
+                        // Переход к следующему уровню
                         this.level++;
                         this.wave = 0;
-                        this.startLevel(this.level);
-                        this.isPaused = false;
+                        this.boss = null; // Очищаем босса
+                        this.enemies = []; // Очищаем врагов
+                        this.bullets = []; // Очищаем пули
+                        this.powerups = []; // Очищаем power-ups
+                        this.isPaused = false; // Снимаем паузу
+                        this.startLevel(this.level); // Запускаем следующий уровень
+                        console.log(`✅ Starting Level ${this.level}`);
                     } else {
+                        // Все уровни пройдены - победа!
                         this.winGame();
                     }
                 }, 3000);
