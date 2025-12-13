@@ -66,6 +66,8 @@ BUTTONS = {
         'ko': '🎁 일일 보상',
         'tr': '🎁 Günlük Ödül',
         'de': '🎁 Tägliche Belohnung',
+        'ar': '🎁 المكافأة اليومية',
+        'vi': '🎁 Phần Thưởng Hàng Ngày',
     },
     'my_nfts': {
         'en': '🖼️ My NFTs',
@@ -79,6 +81,8 @@ BUTTONS = {
         'ko': '🖼️ 내 NFT',
         'tr': '🖼️ NFT\'lerim',
         'de': '🖼️ Meine NFTs',
+        'ar': '🖼️ NFT الخاصة بي',
+        'vi': '🖼️ NFT Của Tôi',
     },
     'mint_nft': {
         'en': '🎨 Mint NFT',
@@ -92,6 +96,8 @@ BUTTONS = {
         'ko': '🎨 NFT 민팅',
         'tr': '🎨 NFT Bas',
         'de': '🎨 NFT Minten',
+        'ar': '🎨 سك NFT',
+        'vi': '🎨 Đúc NFT',
     },
     'withdraw': {
         'en': '💸 Withdraw TAMA',
@@ -105,6 +111,8 @@ BUTTONS = {
         'ko': '💸 TAMA 출금',
         'tr': '💸 TAMA Çek',
         'de': '💸 TAMA Abheben',
+        'ar': '💸 سحب TAMA',
+        'vi': '💸 Rút TAMA',
     },
     'referral': {
         'en': '🔗 Referral Link',
@@ -118,6 +126,8 @@ BUTTONS = {
         'ko': '🔗 추천 링크',
         'tr': '🔗 Referans Linki',
         'de': '🔗 Empfehlungslink',
+        'ar': '🔗 رابط الإحالة',
+        'vi': '🔗 Liên Kết Giới Thiệu',
     },
     'stats': {
         'en': '📊 My Stats',
@@ -131,6 +141,8 @@ BUTTONS = {
         'ko': '📊 내 통계',
         'tr': '📊 İstatistiklerim',
         'de': '📊 Meine Statistiken',
+        'ar': '📊 إحصائياتي',
+        'vi': '📊 Thống Kê',
     },
     'quests': {
         'en': '📋 Quests',
@@ -144,6 +156,8 @@ BUTTONS = {
         'ko': '📋 퀘스트',
         'tr': '📋 Görevler',
         'de': '📋 Aufgaben',
+        'ar': '📋 المهام',
+        'vi': '📋 Nhiệm Vụ',
     },
     'badges': {
         'en': '🏆 Badges',
@@ -157,6 +171,8 @@ BUTTONS = {
         'ko': '🏆 뱃지',
         'tr': '🏆 Rozetler',
         'de': '🏆 Abzeichen',
+        'ar': '🏆 الشارات',
+        'vi': '🏆 Huy Hiệu',
     },
     'rank': {
         'en': '🎖️ My Rank',
@@ -170,6 +186,8 @@ BUTTONS = {
         'ko': '🎖️ 내 랭크',
         'tr': '🎖️ Rütbem',
         'de': '🎖️ Mein Rang',
+        'ar': '🎖️ رتبتي',
+        'vi': '🎖️ Hạng Của Tôi',
     },
     'leaderboard': {
         'en': '🏅 Leaderboard',
@@ -183,6 +201,8 @@ BUTTONS = {
         'ko': '🏅 리더보드',
         'tr': '🏅 Sıralama',
         'de': '🏅 Rangliste',
+        'ar': '🏅 لوحة المتصدرين',
+        'vi': '🏅 Bảng Xếp Hạng',
     },
     'community': {
         'en': '👥 Community',
@@ -196,6 +216,8 @@ BUTTONS = {
         'ko': '👥 커뮤니티',
         'tr': '👥 Topluluk',
         'de': '👥 Community',
+        'ar': '👥 المجتمع',
+        'vi': '👥 Cộng Đồng',
     },
     'language': {
         'en': '🌍 Language',
@@ -209,6 +231,8 @@ BUTTONS = {
         'ko': '🌍 언어',
         'tr': '🌍 Dil',
         'de': '🌍 Sprache',
+        'ar': '🌍 اللغة',
+        'vi': '🌍 Ngôn Ngữ',
     },
     'back': {
         'en': '🔙 Back',
@@ -222,6 +246,8 @@ BUTTONS = {
         'ko': '🔙 뒤로',
         'tr': '🔙 Geri',
         'de': '🔙 Zurück',
+        'ar': '🔙 رجوع',
+        'vi': '🔙 Quay Lại',
     },
     'back_to_menu': {
         'en': '🔙 Back to Menu',
@@ -235,6 +261,8 @@ BUTTONS = {
         'ko': '🔙 메뉴로 돌아가기',
         'tr': '🔙 Menüye Dön',
         'de': '🔙 Zurück zum Menü',
+        'ar': '🔙 العودة للقائمة',
+        'vi': '🔙 Quay Lại Menu',
     },
     'share': {
         'en': '📤 Share',
@@ -248,6 +276,8 @@ BUTTONS = {
         'ko': '📤 공유',
         'tr': '📤 Paylaş',
         'de': '📤 Teilen',
+        'ar': '📤 مشاركة',
+        'vi': '📤 Chia Sẻ',
     },
     'copy_code': {
         'en': '📋 Copy Code',
@@ -261,6 +291,8 @@ BUTTONS = {
         'ko': '📋 코드 복사',
         'tr': '📋 Kodu Kopyala',
         'de': '📋 Code Kopieren',
+        'ar': '📋 نسخ الكود',
+        'vi': '📋 Sao Chép Mã',
     },
     'help': {
         'en': '❓ Help',
@@ -274,6 +306,8 @@ BUTTONS = {
         'ko': '❓ 도움말',
         'tr': '❓ Yardım',
         'de': '❓ Hilfe',
+        'ar': '❓ مساعدة',
+        'vi': '❓ Trợ Giúp',
     },
     'cancel': {
         'en': '❌ Cancel',
@@ -287,6 +321,8 @@ BUTTONS = {
         'ko': '❌ 취소',
         'tr': '❌ İptal',
         'de': '❌ Abbrechen',
+        'ar': '❌ إلغاء',
+        'vi': '❌ Hủy',
     },
     'confirm': {
         'en': '✅ Confirm',
@@ -300,6 +336,8 @@ BUTTONS = {
         'ko': '✅ 확인',
         'tr': '✅ Onayla',
         'de': '✅ Bestätigen',
+        'ar': '✅ تأكيد',
+        'vi': '✅ Xác Nhận',
     },
     'view_website': {
         'en': '🌐 View on Website',
@@ -313,6 +351,8 @@ BUTTONS = {
         'ko': '🌐 웹사이트에서 보기',
         'tr': '🌐 Web Sitesinde Gör',
         'de': '🌐 Auf Website Ansehen',
+        'ar': '🌐 عرض على الموقع',
+        'vi': '🌐 Xem Trên Web',
     },
 }
 
@@ -518,6 +558,42 @@ Du wurdest von einem Freund eingeladen! 🎁
 • 🎁 Schließe Quests für Belohnungen ab
 
 🚀 Tippe auf "🎮 Jetzt Spielen" um zu starten!""",
+
+        'ar': """🎉 **مرحباً بك في Solana Tamagotchi!**
+
+تمت دعوتك من قبل صديق! 🎁
+
+🔗 **ابدأ في كسب TAMA:**
+• احصل على رابط الإحالة الخاص بك أدناه
+• شارك مع الأصدقاء = 1,000 TAMA لكل واحد!
+• مكافآت تصل إلى 100,000 TAMA!
+
+🎮 **مميزات اللعبة:**
+• 🐾 تبنَّ وربِّ حيوانات NFT
+• 🎰 العب Lucky Slots و Lucky Wheel
+• 💰 اكسب عملات TAMA
+• 🏆 تنافس في لوحات المتصدرين
+• 🎁 أكمل المهام للحصول على مكافآت
+
+🚀 انقر على "🎮 العب الآن" للبدء!""",
+
+        'vi': """🎉 **Chào mừng đến với Solana Tamagotchi!**
+
+Bạn được mời bởi một người bạn! 🎁
+
+🔗 **Bắt đầu kiếm TAMA:**
+• Nhận liên kết giới thiệu của bạn bên dưới
+• Chia sẻ với bạn bè = 1,000 TAMA mỗi người!
+• Phần thưởng cột mốc lên đến 100,000 TAMA!
+
+🎮 **Tính năng trò chơi:**
+• 🐾 Nhận nuôi và nuôi dưỡng thú cưng NFT
+• 🎰 Chơi Lucky Slots & Lucky Wheel
+• 💰 Kiếm token TAMA
+• 🏆 Cạnh tranh trên bảng xếp hạng
+• 🎁 Hoàn thành nhiệm vụ để nhận thưởng
+
+🚀 Nhấn "🎮 Chơi Ngay" để bắt đầu!""",
     },
 
     'no_referral': {
@@ -696,6 +772,38 @@ Das ultimative Play-to-Earn NFT-Haustierspiel auf Solana! 🐾
 🚀 Tippe auf "🎮 Jetzt Spielen" um dein Abenteuer zu starten!
 
 💎 **Pro-Tipp:** Teile deinen Empfehlungslink für Bonus-TAMA!""",
+
+        'ar': """🎉 **مرحباً بك في Solana Tamagotchi!**
+
+أفضل لعبة NFT للحيوانات الأليفة على Solana! 🐾
+
+🎮 **مميزات اللعبة:**
+• 🐾 تبنَّ وربِّ حيوانات NFT فريدة
+• 🎰 العب Lucky Slots و Lucky Wheel
+• 💰 اكسب عملات TAMA
+• 🏆 تنافس في التصنيفات العالمية
+• 🎁 أكمل المهام اليومية
+• 🤝 ادعُ أصدقاء، اكسب 1,000 TAMA لكل إحالة!
+
+🚀 انقر على "🎮 العب الآن" لبدء مغامرتك!
+
+💎 **نصيحة:** شارك رابط الإحالة لكسب TAMA إضافي!""",
+
+        'vi': """🎉 **Chào mừng đến với Solana Tamagotchi!**
+
+Trò chơi NFT thú cưng Play-to-Earn tuyệt vời nhất trên Solana! 🐾
+
+🎮 **Tính năng trò chơi:**
+• 🐾 Nhận nuôi và nuôi dưỡng thú cưng NFT độc đáo
+• 🎰 Chơi Lucky Slots & Lucky Wheel
+• 💰 Kiếm token TAMA
+• 🏆 Cạnh tranh trên bảng xếp hạng toàn cầu
+• 🎁 Hoàn thành nhiệm vụ hàng ngày
+• 🤝 Mời bạn bè, kiếm 1,000 TAMA mỗi lượt giới thiệu!
+
+🚀 Nhấn "🎮 Chơi Ngay" để bắt đầu cuộc phiêu lưu!
+
+💎 **Mẹo Pro:** Chia sẻ liên kết giới thiệu để kiếm thêm TAMA!""",
     },
 }
 
@@ -715,6 +823,8 @@ LANGUAGE_SELECTION = {
         'ko': '🌍 **언어 선택**\n\n원하는 언어를 선택하세요:',
         'tr': '🌍 **Dilinizi Seçin**\n\nTercih ettiğiniz dili seçin:',
         'de': '🌍 **Wähle deine Sprache**\n\nWähle deine bevorzugte Sprache:',
+        'ar': '🌍 **اختر لغتك**\n\nاختر لغتك المفضلة:',
+        'vi': '🌍 **Chọn Ngôn Ngữ**\n\nChọn ngôn ngữ ưa thích của bạn:',
     },
     'changed': {
         'en': '✅ Language changed to English!',
@@ -728,6 +838,8 @@ LANGUAGE_SELECTION = {
         'ko': '✅ 언어가 한국어로 변경되었습니다!',
         'tr': '✅ Dil Türkçe olarak değiştirildi!',
         'de': '✅ Sprache auf Deutsch geändert!',
+        'ar': '✅ تم تغيير اللغة إلى العربية!',
+        'vi': '✅ Đã đổi ngôn ngữ sang Tiếng Việt!',
     },
 }
 
@@ -747,6 +859,8 @@ STATS = {
         'ko': '📊 **전체 통계**',
         'tr': '📊 **İstatistikleriniz**',
         'de': '📊 **Deine Statistiken**',
+        'ar': '📊 **إحصائياتك الكاملة**',
+        'vi': '📊 **Thống Kê Đầy Đủ**',
     },
     'balance': {
         'en': '💰 **TAMA Balance:** {amount}',
@@ -760,6 +874,8 @@ STATS = {
         'ko': '💰 **TAMA 잔액:** {amount}',
         'tr': '💰 **TAMA Bakiyesi:** {amount}',
         'de': '💰 **TAMA-Guthaben:** {amount}',
+        'ar': '💰 **رصيد TAMA:** {amount}',
+        'vi': '💰 **Số dư TAMA:** {amount}',
     },
     'rank': {
         'en': '🎖️ **Rank:** {rank}',
@@ -773,6 +889,8 @@ STATS = {
         'ko': '🎖️ **랭크:** {rank}',
         'tr': '🎖️ **Rütbe:** {rank}',
         'de': '🎖️ **Rang:** {rank}',
+        'ar': '🎖️ **الرتبة:** {rank}',
+        'vi': '🎖️ **Hạng:** {rank}',
     },
     'referrals_header': {
         'en': '👥 **Referrals:**',
@@ -786,6 +904,8 @@ STATS = {
         'ko': '👥 **추천:**',
         'tr': '👥 **Referanslar:**',
         'de': '👥 **Empfehlungen:**',
+        'ar': '👥 **الإحالات:**',
+        'vi': '👥 **Giới thiệu:**',
     },
     'total_invited': {
         'en': '• Total invited: {count}',
@@ -799,6 +919,8 @@ STATS = {
         'ko': '• 총 초대: {count}',
         'tr': '• Toplam davetli: {count}',
         'de': '• Gesamt eingeladen: {count}',
+        'ar': '• إجمالي المدعوين: {count}',
+        'vi': '• Tổng đã mời: {count}',
     },
     'active': {
         'en': '• Active: {count}',
@@ -812,6 +934,8 @@ STATS = {
         'ko': '• 활성: {count}',
         'tr': '• Aktif: {count}',
         'de': '• Aktiv: {count}',
+        'ar': '• النشطين: {count}',
+        'vi': '• Hoạt động: {count}',
     },
     'pending': {
         'en': '• Pending: {count}',
@@ -825,6 +949,8 @@ STATS = {
         'ko': '• 대기중: {count}',
         'tr': '• Beklemede: {count}',
         'de': '• Ausstehend: {count}',
+        'ar': '• قيد الانتظار: {count}',
+        'vi': '• Đang chờ: {count}',
     },
     'activity_header': {
         'en': '🔥 **Activity:**',
@@ -838,6 +964,8 @@ STATS = {
         'ko': '🔥 **활동:**',
         'tr': '🔥 **Aktivite:**',
         'de': '🔥 **Aktivität:**',
+        'ar': '🔥 **النشاط:**',
+        'vi': '🔥 **Hoạt động:**',
     },
     'login_streak': {
         'en': '• Login streak: {days} days',
@@ -851,6 +979,8 @@ STATS = {
         'ko': '• 로그인 연속: {days}일',
         'tr': '• Giriş serisi: {days} gün',
         'de': '• Login-Serie: {days} Tage',
+        'ar': '• سلسلة تسجيل الدخول: {days} يوم',
+        'vi': '• Chuỗi đăng nhập: {days} ngày',
     },
     'badges_earned': {
         'en': '• Badges earned: {count}',
@@ -864,6 +994,8 @@ STATS = {
         'ko': '• 획득한 뱃지: {count}',
         'tr': '• Kazanılan rozetler: {count}',
         'de': '• Verdiente Abzeichen: {count}',
+        'ar': '• الشارات المكتسبة: {count}',
+        'vi': '• Huy hiệu đã kiếm: {count}',
     },
     'keep_playing': {
         'en': '💰 **Keep playing and inviting friends!**',
@@ -877,6 +1009,8 @@ STATS = {
         'ko': '💰 **계속 플레이하고 친구를 초대하세요!**',
         'tr': '💰 **Oynamaya ve arkadaş davet etmeye devam edin!**',
         'de': '💰 **Spiele weiter und lade Freunde ein!**',
+        'ar': '💰 **استمر في اللعب ودعوة الأصدقاء!**',
+        'vi': '💰 **Tiếp tục chơi và mời bạn bè!**',
     },
 }
 
@@ -896,6 +1030,8 @@ REFERRAL = {
         'ko': '🔗 **귀하의 추천 코드:**',
         'tr': '🔗 **Referans Kodunuz:**',
         'de': '🔗 **Dein Empfehlungscode:**',
+        'ar': '🔗 **كود الإحالة الخاص بك:**',
+        'vi': '🔗 **Mã Giới Thiệu Của Bạn:**',
     },
     'your_stats': {
         'en': '📊 **Your Stats:**',
@@ -909,6 +1045,8 @@ REFERRAL = {
         'ko': '📊 **귀하의 통계:**',
         'tr': '📊 **İstatistikleriniz:**',
         'de': '📊 **Deine Statistiken:**',
+        'ar': '📊 **إحصائياتك:**',
+        'vi': '📊 **Thống kê của bạn:**',
     },
     'total_referrals': {
         'en': '• 👥 Total Referrals: {count}',
@@ -922,6 +1060,8 @@ REFERRAL = {
         'ko': '• 👥 총 추천: {count}',
         'tr': '• 👥 Toplam Referans: {count}',
         'de': '• 👥 Gesamt Empfehlungen: {count}',
+        'ar': '• 👥 إجمالي الإحالات: {count}',
+        'vi': '• 👥 Tổng giới thiệu: {count}',
     },
     'total_earned': {
         'en': '• 💰 Total Earned: {amount} TAMA',
@@ -935,6 +1075,8 @@ REFERRAL = {
         'ko': '• 💰 총 수익: {amount} TAMA',
         'tr': '• 💰 Toplam Kazanç: {amount} TAMA',
         'de': '• 💰 Gesamt Verdient: {amount} TAMA',
+        'ar': '• 💰 إجمالي الأرباح: {amount} TAMA',
+        'vi': '• 💰 Tổng kiếm được: {amount} TAMA',
     },
     'earn_instantly': {
         'en': '💰 **Earn instantly (NO WALLET NEEDED!):**',
@@ -948,6 +1090,8 @@ REFERRAL = {
         'ko': '💰 **즉시 적립 (지갑 필요 없음!):**',
         'tr': '💰 **Anında kazan (CÜZDAN GEREKMEZ!):**',
         'de': '💰 **Sofort verdienen (KEINE WALLET NÖTIG!):**',
+        'ar': '💰 **اكسب فوراً (بدون محفظة!):**',
+        'vi': '💰 **Kiếm ngay (KHÔNG CẦN VÍ!):**',
     },
     'per_friend': {
         'en': '• 1,000 TAMA for each friend instantly!',
@@ -961,6 +1105,8 @@ REFERRAL = {
         'ko': '• 친구당 즉시 1,000 TAMA!',
         'tr': '• Her arkadaş için anında 1,000 TAMA!',
         'de': '• 1,000 TAMA pro Freund sofort!',
+        'ar': '• 1,000 TAMA لكل صديق فوراً!',
+        'vi': '• 1,000 TAMA cho mỗi bạn bè ngay lập tức!',
     },
     'just_share': {
         'en': '• Just share your link and earn!',
@@ -974,6 +1120,8 @@ REFERRAL = {
         'ko': '• 링크를 공유하고 적립하세요!',
         'tr': '• Sadece linkini paylaş ve kazan!',
         'de': '• Teile einfach deinen Link und verdiene!',
+        'ar': '• فقط شارك رابطك واكسب!',
+        'vi': '• Chỉ cần chia sẻ liên kết và kiếm!',
     },
     'accumulates': {
         'en': '• TAMA accumulates in your account',
@@ -987,6 +1135,8 @@ REFERRAL = {
         'ko': '• TAMA가 계정에 누적됩니다',
         'tr': '• TAMA hesabınızda birikir',
         'de': '• TAMA sammelt sich in deinem Konto',
+        'ar': '• TAMA يتراكم في حسابك',
+        'vi': '• TAMA tích lũy trong tài khoản của bạn',
     },
 }
 
@@ -1038,6 +1188,8 @@ BADGES = {
         'ko': '🏆 **귀하의 뱃지**',
         'tr': '🏆 **Rozetleriniz**',
         'de': '🏆 **Deine Abzeichen**',
+        'ar': '🏆 **شاراتك**',
+        'vi': '🏆 **Huy Hiệu Của Bạn**',
     },
     'no_badges': {
         'en': 'No badges yet. Play and invite friends!',
@@ -1051,6 +1203,8 @@ BADGES = {
         'ko': '아직 뱃지가 없습니다. 플레이하고 친구를 초대하세요!',
         'tr': 'Henüz rozet yok. Oyna ve arkadaşlarını davet et!',
         'de': 'Noch keine Abzeichen. Spiele und lade Freunde ein!',
+        'ar': 'لا توجد شارات بعد. العب وادعُ أصدقاء!',
+        'vi': 'Chưa có huy hiệu. Chơi và mời bạn bè!',
     },
     'how_to_earn': {
         'en': '💰 **How to earn more:**',
@@ -1064,6 +1218,8 @@ BADGES = {
         'ko': '💰 **더 많이 획득하는 방법:**',
         'tr': '💰 **Daha fazla nasıl kazanılır:**',
         'de': '💰 **So verdienst du mehr:**',
+        'ar': '💰 **كيف تكسب المزيد:**',
+        'vi': '💰 **Cách kiếm thêm:**',
     },
     'early_bird': {
         'en': '• 🌟 Early Bird - Be in first 100 users',
@@ -1122,6 +1278,8 @@ QUESTS = {
         'ko': '📋 **추천 퀘스트**',
         'tr': '📋 **Referans Görevleri**',
         'de': '📋 **Empfehlungs-Quests**',
+        'ar': '📋 **مهام الإحالة**',
+        'vi': '📋 **Nhiệm Vụ Giới Thiệu**',
     },
     'completed': {
         'en': '✅ Completed',
@@ -1135,6 +1293,8 @@ QUESTS = {
         'ko': '✅ 완료',
         'tr': '✅ Tamamlandı',
         'de': '✅ Abgeschlossen',
+        'ar': '✅ مكتمل',
+        'vi': '✅ Hoàn thành',
     },
     'in_progress': {
         'en': '🔄 In Progress',
@@ -1148,6 +1308,8 @@ QUESTS = {
         'ko': '🔄 진행중',
         'tr': '🔄 Devam Ediyor',
         'de': '🔄 In Bearbeitung',
+        'ar': '🔄 قيد التنفيذ',
+        'vi': '🔄 Đang tiến hành',
     },
     'invite_tip': {
         'en': '💡 Invite friends to complete more quests!',
@@ -1180,6 +1342,8 @@ NFTS = {
         'ko': '🖼️ **NFT 컬렉션** 🖼️',
         'tr': '🖼️ **NFT KOLEKSİYONUNUZ** 🖼️',
         'de': '🖼️ **DEINE NFT-SAMMLUNG** 🖼️',
+        'ar': '🖼️ **مجموعة NFT الخاصة بك** 🖼️',
+        'vi': '🖼️ **BỘ SƯU TẬP NFT** 🖼️',
     },
     'total_nfts': {
         'en': '📦 Total NFTs: **{count}**',
@@ -1193,6 +1357,8 @@ NFTS = {
         'ko': '📦 총 NFT: **{count}**',
         'tr': '📦 Toplam NFT: **{count}**',
         'de': '📦 Gesamt NFTs: **{count}**',
+        'ar': '📦 إجمالي NFT: **{count}**',
+        'vi': '📦 Tổng NFT: **{count}**',
     },
     'active_boost': {
         'en': '⚡ Active Boost: **{multiplier}x**',
@@ -1206,6 +1372,8 @@ NFTS = {
         'ko': '⚡ 활성 부스트: **{multiplier}x**',
         'tr': '⚡ Aktif Boost: **{multiplier}x**',
         'de': '⚡ Aktiver Boost: **{multiplier}x**',
+        'ar': '⚡ التعزيز النشط: **{multiplier}x**',
+        'vi': '⚡ Boost hoạt động: **{multiplier}x**',
     },
     'no_nfts': {
         'en': '📦 You don\'t have any NFTs yet!',
@@ -1219,6 +1387,8 @@ NFTS = {
         'ko': '📦 아직 NFT가 없습니다!',
         'tr': '📦 Henüz hiç NFT\'niz yok!',
         'de': '📦 Du hast noch keine NFTs!',
+        'ar': '📦 ليس لديك أي NFT بعد!',
+        'vi': '📦 Bạn chưa có NFT nào!',
     },
     'benefits': {
         'en': '🎮 *NFT Benefits:*\n• Your best NFT gives you **{multiplier}x** earning boost!\n• All TAMA rewards are multiplied automatically',
@@ -1251,6 +1421,8 @@ WITHDRAW = {
         'ko': '💸 **TAMA 출금**',
         'tr': '💸 **TAMA Çek**',
         'de': '💸 **TAMA Abheben**',
+        'ar': '💸 **سحب TAMA**',
+        'vi': '💸 **Rút TAMA**',
     },
     'mainnet_launch': {
         'en': '🚀 **Mainnet Launch:** Q1 2026',
@@ -1309,6 +1481,8 @@ ERRORS = {
         'ko': '❌ 문제가 발생했습니다. 다시 시도해주세요.',
         'tr': '❌ Bir şeyler yanlış gitti. Lütfen tekrar deneyin.',
         'de': '❌ Etwas ist schiefgelaufen. Bitte versuche es erneut.',
+        'ar': '❌ حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+        'vi': '❌ Đã xảy ra lỗi. Vui lòng thử lại.',
     },
     'no_data': {
         'en': '⚠️ No data found. Start playing first!',
@@ -1354,6 +1528,8 @@ LEADERBOARD = {
         'ko': '🏅 **상위 10명**',
         'tr': '🏅 **En İyi 10 Oyuncu**',
         'de': '🏅 **Top 10 Spieler**',
+        'ar': '🏅 **أفضل 10 لاعبين**',
+        'vi': '🏅 **Top 10 Người Chơi**',
     },
     'no_players': {
         'en': 'No players yet. Be the first!',
@@ -1367,6 +1543,8 @@ LEADERBOARD = {
         'ko': '아직 플레이어가 없습니다. 첫 번째가 되세요!',
         'tr': 'Henüz oyuncu yok. İlk sen ol!',
         'de': 'Noch keine Spieler. Sei der Erste!',
+        'ar': 'لا يوجد لاعبون بعد. كن الأول!',
+        'vi': 'Chưa có người chơi. Hãy là người đầu tiên!',
     },
 }
 
@@ -1386,6 +1564,8 @@ HELP = {
         'ko': '📚 **Solana Tamagotchi 명령어**',
         'tr': '📚 **Solana Tamagotchi Komutları**',
         'de': '📚 **Solana Tamagotchi Befehle**',
+        'ar': '📚 **أوامر Solana Tamagotchi**',
+        'vi': '📚 **Lệnh Solana Tamagotchi**',
     },
     'game_commands': {
         'en': '**Game Commands:**\n/start - Start playing\n/stats - View your statistics\n/daily - Claim daily reward',
@@ -1425,6 +1605,8 @@ HELP = {
         'ko': '**도움이 필요하신가요?** @gotchigamechat 가입',
         'tr': '**Yardım mı lazım?** @gotchigamechat\'e katıl',
         'de': '**Brauchst du Hilfe?** Tritt @gotchigamechat bei',
+        'ar': '**تحتاج مساعدة؟** انضم @gotchigamechat',
+        'vi': '**Cần trợ giúp?** Tham gia @gotchigamechat',
     },
 }
 
