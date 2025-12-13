@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🚀 TAMA SHOOTER - Space Invaders</title>
-    
+
     <!-- Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -267,7 +267,7 @@
         <!-- Game Canvas -->
         <div class="game-canvas-wrapper">
             <canvas id="game-canvas" width="800" height="600"></canvas>
-            
+
             <!-- Game Over Overlay -->
             <div class="game-over-overlay" id="game-over">
                 <div class="game-over-title" id="game-over-title">GAME OVER</div>
@@ -387,6 +387,8 @@
             isPaused: false,
             score: 0,
             wave: 0,
+            level: 1,
+            maxLevels: 5,
             lives: 3,
             betAmount: 0,
             enemiesKilled: 0,
@@ -396,10 +398,28 @@
             enemies: [],
             particles: [],
             powerups: [],
+            boss: null,
+            
+            // Power-ups
+            tripleShot: false,
+            tripleShotTimer: 0,
+            rapidFire: false,
+            rapidFireTimer: 0,
+            shield: false,
+            shieldTimer: 0,
             
             keys: {},
             mouseX: canvas.width / 2,
             
+            // Level data
+            levels: [
+                { name: 'Space Station', waves: 5, enemyTypes: ['basic'] },
+                { name: 'Asteroid Field', waves: 5, enemyTypes: ['basic', 'fast'] },
+                { name: 'Alien Planet', waves: 5, enemyTypes: ['basic', 'fast', 'tank'] },
+                { name: 'Deep Space', waves: 5, enemyTypes: ['basic', 'fast', 'tank', 'shooter'] },
+                { name: 'Final Boss', waves: 1, enemyTypes: ['boss'] }
+            ],
+
             init() {
                 // Bet selection
                 document.querySelectorAll('.bet-btn').forEach(btn => {
@@ -459,12 +479,22 @@
                 this.isRunning = true;
                 this.score = 0;
                 this.wave = 0;
+                this.level = 1;
                 this.lives = 3;
                 this.enemiesKilled = 0;
                 this.bullets = [];
                 this.enemies = [];
                 this.particles = [];
                 this.powerups = [];
+                this.boss = null;
+                
+                // Reset power-ups
+                this.tripleShot = false;
+                this.tripleShotTimer = 0;
+                this.rapidFire = false;
+                this.rapidFireTimer = 0;
+                this.shield = false;
+                this.shieldTimer = 0;
 
                 // Create player
                 this.player = {
@@ -484,37 +514,142 @@
                 // Update UI
                 this.updateUI();
 
-                // Start first wave
-                this.nextWave();
+                // Start first wave of first level
+                this.startLevel(1);
 
                 // Start game loop
                 this.gameLoop();
             },
 
+            startLevel(levelNum) {
+                this.level = levelNum;
+                this.wave = 0;
+                const levelData = this.levels[levelNum - 1];
+                
+                // Show level start message
+                this.showMessage(`Level ${levelNum}: ${levelData.name}`, 2000);
+                
+                // Start first wave after delay
+                setTimeout(() => {
+                    this.nextWave();
+                }, 2000);
+            },
+
             nextWave() {
                 this.wave++;
-                document.getElementById('wave').textContent = this.wave;
+                const levelData = this.levels[this.level - 1];
+                
+                // Check if boss wave
+                if (this.wave > levelData.waves && this.level < this.maxLevels) {
+                    this.spawnBoss();
+                    return;
+                }
+                
+                // Check if level complete
+                if (this.wave > levelData.waves) {
+                    this.completeLevel();
+                    return;
+                }
 
-                // Spawn enemies (МЕНЬШЕ врагов, но сложнее)
-                const enemyCount = 8 + this.wave * 1; // Was: 5 + wave * 2
-                const rows = Math.min(2 + Math.floor(this.wave / 3), 4); // Was: 3 + wave/2, max 5
+                document.getElementById('wave').textContent = `${this.level}-${this.wave}`;
+
+                // Spawn enemies based on level
+                const enemyCount = 6 + this.level * 2 + this.wave;
+                const rows = Math.min(2 + Math.floor(this.level / 2), 4);
                 const cols = Math.ceil(enemyCount / rows);
 
                 for (let row = 0; row < rows; row++) {
                     for (let col = 0; col < cols; col++) {
-                        this.enemies.push({
-                            x: 100 + col * 70,
-                            y: 80 + row * 50,
-                            width: 35,
-                            height: 35,
-                            speed: 0.3 + this.wave * 0.05, // МЕДЛЕННЕЕ! Was: 0.5 + wave * 0.1
-                            direction: 1,
-                            health: 1 + Math.floor(this.wave / 4), // Здоровье растёт медленнее
-                            maxHealth: 1 + Math.floor(this.wave / 4),
-                            shootCooldown: Math.random() * 120
-                        });
+                        // Random enemy type based on level
+                        const availableTypes = levelData.enemyTypes;
+                        const enemyType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+                        
+                        this.spawnEnemy(100 + col * 70, 80 + row * 50, enemyType);
                     }
                 }
+                
+                // Show wave message
+                this.showMessage(`Wave ${this.wave}`, 1000);
+            },
+
+            spawnEnemy(x, y, type) {
+                const baseSpeed = 0.3 + this.level * 0.05;
+                const baseHealth = 1 + Math.floor(this.level / 2);
+                
+                let enemy = {
+                    x: x,
+                    y: y,
+                    width: 35,
+                    height: 35,
+                    speed: baseSpeed,
+                    direction: 1,
+                    health: baseHealth,
+                    maxHealth: baseHealth,
+                    shootCooldown: Math.random() * 120,
+                    type: type
+                };
+
+                // Type-specific properties
+                switch(type) {
+                    case 'fast':
+                        enemy.speed = baseSpeed * 1.5;
+                        enemy.width = 30;
+                        enemy.height = 30;
+                        break;
+                    case 'tank':
+                        enemy.speed = baseSpeed * 0.6;
+                        enemy.health = baseHealth * 3;
+                        enemy.maxHealth = enemy.health;
+                        enemy.width = 45;
+                        enemy.height = 45;
+                        break;
+                    case 'shooter':
+                        enemy.health = baseHealth * 2;
+                        enemy.maxHealth = enemy.health;
+                        enemy.shootCooldown = 60;
+                        break;
+                }
+
+                this.enemies.push(enemy);
+            },
+
+            spawnBoss() {
+                const levelData = this.levels[this.level - 1];
+                this.boss = {
+                    x: canvas.width / 2,
+                    y: 100,
+                    width: 80,
+                    height: 80,
+                    health: 20 + this.level * 5,
+                    maxHealth: 20 + this.level * 5,
+                    speed: 0.5,
+                    direction: 1,
+                    shootCooldown: 0,
+                    pattern: 'horizontal'
+                };
+                this.showMessage(`BOSS: ${levelData.name}`, 2000);
+            },
+
+            completeLevel() {
+                this.isPaused = true;
+                
+                // Calculate level reward
+                const levelReward = 200 + (this.wave - 1) * 50;
+                
+                // Show level complete screen
+                this.showMessage(`Level ${this.level} Complete! +${levelReward} TAMA`, 3000);
+                
+                // Continue to next level
+                setTimeout(() => {
+                    if (this.level < this.maxLevels) {
+                        this.level++;
+                        this.wave = 0;
+                        this.startLevel(this.level);
+                        this.isPaused = false;
+                    } else {
+                        this.winGame();
+                    }
+                }, 3000);
             },
 
             gameLoop() {
@@ -569,7 +704,7 @@
                 let moveDown = false;
                 this.enemies.forEach(enemy => {
                     enemy.x += enemy.speed * enemy.direction;
-                    
+
                     if (enemy.x <= 0 || enemy.x >= canvas.width - enemy.width) {
                         moveDown = true;
                     }
@@ -598,7 +733,7 @@
                             bullet.x < enemy.x + enemy.width / 2 &&
                             bullet.y < enemy.y + enemy.height / 2 &&
                             bullet.y > enemy.y - enemy.height / 2) {
-                            
+
                             enemy.health -= bullet.damage;
                             this.bullets.splice(bIndex, 1);
 
@@ -642,10 +777,56 @@
                 this.updateUI();
             },
 
+            updateBoss() {
+                // Boss movement pattern
+                if (this.boss.pattern === 'horizontal') {
+                    this.boss.x += this.boss.speed * this.boss.direction;
+                    if (this.boss.x <= this.boss.width / 2 || this.boss.x >= canvas.width - this.boss.width / 2) {
+                        this.boss.direction *= -1;
+                    }
+                }
+                
+                // Boss shooting
+                this.boss.shootCooldown--;
+                if (this.boss.shootCooldown <= 0) {
+                    // Boss shoots 3 bullets
+                    for (let i = -1; i <= 1; i++) {
+                        this.bullets.push({
+                            x: this.boss.x + i * 20,
+                            y: this.boss.y + this.boss.height / 2,
+                            width: 6,
+                            height: 20,
+                            speed: -4,
+                            damage: 1,
+                            isEnemy: true
+                        });
+                    }
+                    this.boss.shootCooldown = 30;
+                }
+            },
+
+            spawnPowerUp(x, y) {
+                const types = ['triple', 'rapid', 'shield', 'health'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                this.powerups.push({
+                    x: x,
+                    y: y,
+                    width: 30,
+                    height: 30,
+                    type: type,
+                    speed: 1,
+                    collected: false
+                });
+            },
+
             draw() {
                 // Clear canvas
                 ctx.fillStyle = '#000';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw background based on level
+                this.drawBackground();
 
                 // Draw stars (background)
                 ctx.fillStyle = '#ffffff';
@@ -663,23 +844,89 @@
                 ctx.lineTo(this.player.x + 20, this.player.y + 20);
                 ctx.closePath();
                 ctx.fill();
+                
+                // Draw shield effect
+                if (this.shield) {
+                    ctx.strokeStyle = '#0088ff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(this.player.x, this.player.y, 30, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
 
                 // Draw bullets
-                ctx.fillStyle = '#00ff88';
                 this.bullets.forEach(bullet => {
+                    if (bullet.isEnemy) {
+                        ctx.fillStyle = '#ff0000'; // Enemy bullets (red)
+                    } else {
+                        ctx.fillStyle = '#00ff88'; // Player bullets (green)
+                    }
                     ctx.fillRect(bullet.x - bullet.width / 2, bullet.y, bullet.width, bullet.height);
                 });
 
                 // Draw enemies
                 this.enemies.forEach(enemy => {
-                    // Enemy body
-                    ctx.fillStyle = `rgb(${255 - enemy.health * 50}, 50, ${50 + enemy.health * 50})`;
+                    // Different colors for different types
+                    let color = '#ff0000'; // Basic (red)
+                    if (enemy.type === 'fast') color = '#0088ff'; // Fast (blue)
+                    if (enemy.type === 'tank') color = '#ffaa00'; // Tank (yellow)
+                    if (enemy.type === 'shooter') color = '#00ff88'; // Shooter (green)
+                    
+                    ctx.fillStyle = color;
                     ctx.fillRect(enemy.x - enemy.width / 2, enemy.y - enemy.height / 2, enemy.width, enemy.height);
                     
                     // Enemy eyes
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(enemy.x - 8, enemy.y - 5, 6, 6);
+                    ctx.fillRect(enemy.x + 2, enemy.y - 5, 6, 6);
+                });
+
+                // Draw boss
+                if (this.boss) {
+                    // Boss body
+                    ctx.fillStyle = '#8b5cf6';
+                    ctx.fillRect(this.boss.x - this.boss.width / 2, this.boss.y - this.boss.height / 2, this.boss.width, this.boss.height);
+                    
+                    // Boss health bar
+                    const barWidth = this.boss.width;
+                    const barHeight = 5;
+                    const healthPercent = this.boss.health / this.boss.maxHealth;
+                    
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(this.boss.x - barWidth / 2, this.boss.y - this.boss.height / 2 - 10, barWidth, barHeight);
                     ctx.fillStyle = '#ff0000';
-                    ctx.fillRect(enemy.x - 10, enemy.y - 5, 8, 8);
-                    ctx.fillRect(enemy.x + 2, enemy.y - 5, 8, 8);
+                    ctx.fillRect(this.boss.x - barWidth / 2, this.boss.y - this.boss.height / 2 - 10, barWidth * healthPercent, barHeight);
+                    
+                    // Boss eyes
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(this.boss.x - 15, this.boss.y - 10, 12, 12);
+                    ctx.fillRect(this.boss.x + 3, this.boss.y - 10, 12, 12);
+                }
+
+                // Draw power-ups
+                this.powerups.forEach(powerup => {
+                    if (powerup.collected) return;
+                    
+                    let color = '#ff00ff';
+                    let symbol = '?';
+                    if (powerup.type === 'triple') { color = '#ff8800'; symbol = '🔥'; }
+                    if (powerup.type === 'rapid') { color = '#00ff00'; symbol = '⚡'; }
+                    if (powerup.type === 'shield') { color = '#0088ff'; symbol = '🛡️'; }
+                    if (powerup.type === 'health') { color = '#ff0000'; symbol = '❤️'; }
+                    
+                    ctx.fillStyle = color;
+                    ctx.fillRect(powerup.x - powerup.width / 2, powerup.y - powerup.height / 2, powerup.width, powerup.height);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(symbol, powerup.x, powerup.y + 7);
+                    ctx.textAlign = 'left';
+                    
+                    // Move down
+                    powerup.y += powerup.speed;
+                    if (powerup.y > canvas.height) {
+                        powerup.collected = true;
+                    }
                 });
 
                 // Draw particles
@@ -706,11 +953,51 @@
             loseLife() {
                 this.lives--;
                 document.getElementById('lives').textContent = this.lives;
-                
+
                 if (this.lives <= 0) {
                     this.gameOver();
                 }
                 // Enemies already cleared in the check
+            },
+
+            drawBackground() {
+                // Different backgrounds for different levels
+                const bgColors = [
+                    { top: '#000011', bottom: '#000033' }, // Level 1: Deep space
+                    { top: '#1a0a00', bottom: '#330000' }, // Level 2: Asteroid field
+                    { top: '#001a00', bottom: '#003300' }, // Level 3: Alien planet
+                    { top: '#00001a', bottom: '#000033' }, // Level 4: Deep space
+                    { top: '#1a001a', bottom: '#330033' }  // Level 5: Final boss
+                ];
+                
+                const bg = bgColors[this.level - 1] || bgColors[0];
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, bg.top);
+                gradient.addColorStop(1, bg.bottom);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            },
+
+            showMessage(text, duration) {
+                // Simple message display (can be enhanced)
+                const messageEl = document.createElement('div');
+                messageEl.textContent = text;
+                messageEl.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0,0,0,0.9);
+                    color: #00ff88;
+                    padding: 20px 40px;
+                    border-radius: 10px;
+                    font-size: 24px;
+                    font-weight: bold;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(messageEl);
+                setTimeout(() => messageEl.remove(), duration);
             },
 
             winGame() {
@@ -719,13 +1006,14 @@
                 // Calculate reward
                 const baseReward = this.betAmount * 2;
                 const scoreBonus = Math.floor(this.score / 10);
-                const waveBonus = this.wave * 50;
-                const totalReward = baseReward + scoreBonus + waveBonus;
+                const levelBonus = this.level * 200;
+                const completionBonus = 2000; // Bonus for completing all levels
+                const totalReward = baseReward + scoreBonus + levelBonus + completionBonus;
 
                 // Update balance
                 balance += totalReward;
                 document.getElementById('balance').textContent = balance.toLocaleString();
-                updateBalance(totalReward, `TAMA Shooter: Wave ${this.wave}, Score ${this.score}, ${this.enemiesKilled} kills`);
+                updateBalance(totalReward, `TAMA Shooter: Level ${this.level}, Score ${this.score}, ${this.enemiesKilled} kills - COMPLETE!`);
 
                 // Show result
                 this.showGameOver(true, totalReward);
@@ -736,13 +1024,14 @@
 
                 // Calculate partial reward
                 const killReward = this.enemiesKilled * 5;
+                const levelReward = (this.level - 1) * 100;
                 const waveReward = (this.wave - 1) * 20;
-                const totalReward = Math.max(0, killReward + waveReward);
+                const totalReward = Math.max(0, killReward + levelReward + waveReward);
 
                 if (totalReward > 0) {
                     balance += totalReward;
                     document.getElementById('balance').textContent = balance.toLocaleString();
-                    updateBalance(totalReward, `TAMA Shooter: Wave ${this.wave}, ${this.enemiesKilled} kills`);
+                    updateBalance(totalReward, `TAMA Shooter: Level ${this.level}, Wave ${this.wave}, ${this.enemiesKilled} kills`);
                 }
 
                 // Show result
@@ -758,7 +1047,7 @@
                     title.textContent = '🏆 VICTORY!';
                     title.className = 'game-over-title result-win';
                     stats.innerHTML = `
-                        <strong>Waves Completed:</strong> ${this.wave}/10<br>
+                        <strong>Levels Completed:</strong> ${this.level}/${this.maxLevels}<br>
                         <strong>Enemies Killed:</strong> ${this.enemiesKilled}<br>
                         <strong>Score:</strong> ${this.score}<br>
                         <strong>Reward:</strong> +${reward} TAMA<br>
@@ -768,6 +1057,7 @@
                     title.textContent = '💀 GAME OVER';
                     title.className = 'game-over-title result-lose';
                     stats.innerHTML = `
+                        <strong>Level Reached:</strong> ${this.level}<br>
                         <strong>Wave Reached:</strong> ${this.wave}<br>
                         <strong>Enemies Killed:</strong> ${this.enemiesKilled}<br>
                         <strong>Score:</strong> ${this.score}<br>
@@ -788,7 +1078,8 @@
 
             updateUI() {
                 document.getElementById('score').textContent = this.score;
-                document.getElementById('wave').textContent = this.wave;
+                const levelData = this.levels[this.level - 1];
+                document.getElementById('wave').textContent = `${this.level}-${this.wave}`;
                 document.getElementById('lives').textContent = this.lives;
             }
         };
