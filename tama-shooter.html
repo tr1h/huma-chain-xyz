@@ -981,6 +981,34 @@
                         }
                     }
                 });
+                
+                // ✅ КРИТИЧНО: Проверка коллизий ВРАЖЕСКИХ пуль с ИГРОКОМ!
+                this.bullets.forEach((bullet, bIndex) => {
+                    // Только вражеские пули!
+                    if (!bullet.isEnemy) return;
+                    
+                    // Проверка коллизии с игроком
+                    if (bullet.x > this.player.x - this.player.width / 2 &&
+                        bullet.x < this.player.x + this.player.width / 2 &&
+                        bullet.y > this.player.y - this.player.height / 2 &&
+                        bullet.y < this.player.y + this.player.height / 2) {
+                        
+                        // Пуля попала в игрока!
+                        this.bullets.splice(bIndex, 1);
+                        
+                        // Проверка щита
+                        if (this.shield && this.shieldTimer > 0) {
+                            // Щит поглотил удар
+                            this.createExplosion(this.player.x, this.player.y, '#0088ff', 10);
+                            console.log(`🛡️ Shield blocked enemy bullet!`);
+                        } else {
+                            // Игрок получил урон
+                            this.createExplosion(this.player.x, this.player.y, '#ff0000', 15);
+                            console.log(`💥 Player hit by enemy bullet!`);
+                            this.loseLife();
+                        }
+                    }
+                });
 
                 // Check if wave is complete (ТОЛЬКО если враги были заспавнены и убиты!)
                 if (this.enemies.length === 0 && !this.boss && this.isRunning && !this.isPaused && this.wave > 0 && !this.isTransitioning) {
@@ -1074,25 +1102,29 @@
                         this.boss.direction *= -1;
                     }
                 }
-
-                // Boss shooting (сбалансированная стрельба)
-                this.boss.shootCooldown--;
-                if (this.boss.shootCooldown <= 0) {
-                    // Boss shoots 5-7 bullets в зависимости от уровня
-                    const bulletCount = 5 + Math.min(this.level, 2);
-                    const spread = bulletCount > 5 ? 20 : 25;
-                    for (let i = -Math.floor(bulletCount / 2); i <= Math.floor(bulletCount / 2); i++) {
-                        this.bullets.push({
-                            x: this.boss.x + i * spread,
-                            y: this.boss.y + this.boss.height / 2,
-                            width: 8,
-                            height: 25,
-                            speed: -3.5 - this.level * 0.25, // Более плавное увеличение скорости
-                            damage: 1,
-                            isEnemy: true
-                        });
+                
+                // Boss shooting (только если босс может стрелять - начиная с 3 уровня!)
+                if (this.boss.canShoot) {
+                    this.boss.shootCooldown--;
+                    if (this.boss.shootCooldown <= 0) {
+                        // Boss shoots 5-7 bullets в зависимости от уровня
+                        const bulletCount = 5 + Math.min(this.level - 2, 2); // На 3 уровне = 5, на 4 = 6, на 5 = 7
+                        const spread = bulletCount > 5 ? 20 : 25;
+                        for (let i = -Math.floor(bulletCount / 2); i <= Math.floor(bulletCount / 2); i++) {
+                            this.bullets.push({
+                                x: this.boss.x + i * spread,
+                                y: this.boss.y + this.boss.height / 2,
+                                width: 8,
+                                height: 25,
+                                speed: -3.5 - (this.level - 2) * 0.25, // Более плавное увеличение скорости
+                                damage: 1,
+                                isEnemy: true
+                            });
+                        }
+                        // Частота стрельбы зависит от уровня
+                        this.boss.shootCooldown = 40 - (this.level - 2) * 3; // На 3 уровне = 40, на 4 = 37, на 5 = 34, минимум 30
+                        console.log(`👾 Boss shooting ${bulletCount} bullets!`);
                     }
-                    this.boss.shootCooldown = 35 - this.level * 2; // Более сбалансированная частота, минимум 25
                 }
             },
 
