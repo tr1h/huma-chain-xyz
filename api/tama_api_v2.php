@@ -27,8 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header('Content-Type: application/json');
 
-// Load security
+// Load security and keypairs
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/load_keypairs.php';
 setSecurityHeaders();
 
 // Config
@@ -42,7 +43,6 @@ if (!$supabaseKey) {
 }
 
 // Rate limiting
-require_once __DIR__ . '/load_keypairs.php';
 $clientIP = getClientIP();
 if (!checkRateLimit($clientIP, 100, 60)) {
     http_response_code(429);
