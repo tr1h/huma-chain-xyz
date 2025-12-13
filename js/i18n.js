@@ -605,6 +605,146 @@ const TRANSLATIONS = {
         en: 'Rank', ru: 'Ранг', zh: '排名', es: 'Rango', pt: 'Ranking',
         ja: 'ランク', fr: 'Rang', hi: 'रैंक', ko: '순위', tr: 'Sıralama',
         de: 'Rang', ar: 'الترتيب', vi: 'Hạng'
+    },
+
+    // ========== WITHDRAW MODAL ==========
+    'withdraw_tama': {
+        en: 'Withdraw TAMA', ru: 'Вывод TAMA', zh: '提取TAMA', es: 'Retirar TAMA', pt: 'Sacar TAMA',
+        ja: 'TAMA出金', fr: 'Retirer TAMA', hi: 'TAMA निकालें', ko: 'TAMA 출금', tr: 'TAMA Çek',
+        de: 'TAMA abheben', ar: 'سحب TAMA', vi: 'Rút TAMA'
+    },
+    'your_balance': {
+        en: 'Your Balance', ru: 'Ваш баланс', zh: '您的余额', es: 'Tu Saldo', pt: 'Seu Saldo',
+        ja: '残高', fr: 'Votre Solde', hi: 'आपका बैलेंस', ko: '잔액', tr: 'Bakiyeniz',
+        de: 'Ihr Guthaben', ar: 'رصيدك', vi: 'Số dư của bạn'
+    },
+    'wallet_address': {
+        en: 'Wallet Address', ru: 'Адрес кошелька', zh: '钱包地址', es: 'Dirección de Cartera', pt: 'Endereço da Carteira',
+        ja: 'ウォレットアドレス', fr: 'Adresse du Portefeuille', hi: 'वॉलेट एड्रेस', ko: '지갑 주소', tr: 'Cüzdan Adresi',
+        de: 'Wallet-Adresse', ar: 'عنوان المحفظة', vi: 'Địa chỉ ví'
+    },
+    'saved_wallets': {
+        en: 'Saved Wallets', ru: 'Сохраненные кошельки', zh: '已保存的钱包', es: 'Carteras Guardadas', pt: 'Carteiras Salvas',
+        ja: '保存済みウォレット', fr: 'Portefeuilles Enregistrés', hi: 'सहेजे गए वॉलेट', ko: '저장된 지갑', tr: 'Kayıtlı Cüzdanlar',
+        de: 'Gespeicherte Wallets', ar: 'المحافظ المحفوظة', vi: 'Ví đã lưu'
+    },
+    'use_selected': {
+        en: 'Use Selected', ru: 'Использовать', zh: '使用选中', es: 'Usar Seleccionado', pt: 'Usar Selecionado',
+        ja: '選択を使用', fr: 'Utiliser Sélectionné', hi: 'चयनित का उपयोग करें', ko: '선택 사용', tr: 'Seçileni Kullan',
+        de: 'Ausgewählte verwenden', ar: 'استخدام المحدد', vi: 'Sử dụng đã chọn'
+    },
+    'delete': {
+        en: 'Delete', ru: 'Удалить', zh: '删除', es: 'Eliminar', pt: 'Excluir',
+        ja: '削除', fr: 'Supprimer', hi: 'हटाएं', ko: '삭제', tr: 'Sil',
+        de: 'Löschen', ar: 'حذف', vi: 'Xóa'
+    },
+    'connect_phantom': {
+        en: 'Connect Phantom Wallet', ru: 'Подключить Phantom', zh: '连接Phantom钱包', es: 'Conectar Phantom', pt: 'Conectar Phantom',
+        ja: 'Phantomを接続', fr: 'Connecter Phantom', hi: 'Phantom कनेक्ट करें', ko: 'Phantom 연결', tr: 'Phantom Bağla',
+        de: 'Phantom verbinden', ar: 'ربط Phantom', vi: 'Kết nối Phantom'
+    },
+    'connected': {
+        en: 'Connected', ru: 'Подключено', zh: '已连接', es: 'Conectado', pt: 'Conectado',
+        ja: '接続済み', fr: 'Connecté', hi: 'कनेक्टेड', ko: '연결됨', tr: 'Bağlı',
+        de: 'Verbunden', ar: 'متصل', vi: 'Đã kết nối'
+    },
+    'disconnect': {
+        en: 'Disconnect', ru: 'Отключить', zh: '断开连接', es: 'Desconectar', pt: 'Desconectar',
+        ja: '切断', fr: 'Déconnecter', hi: 'डिस्कनेक्ट', ko: '연결 해제', tr: 'Bağlantıyı Kes',
+        de: 'Trennen', ar: 'قطع الاتصال', vi: 'Ngắt kết nối'
+    },
+    'or_enter_manually': {
+        en: 'Or enter wallet address manually:', ru: 'Или введите адрес вручную:', zh: '或手动输入钱包地址:',
+        es: 'O ingresa la dirección manualmente:', pt: 'Ou digite o endereço manualmente:', ja: 'または手動で入力:',
+        fr: 'Ou entrez l\'adresse manuellement:', hi: 'या मैन्युअल रूप से दर्ज करें:', ko: '또는 수동으로 입력:',
+        tr: 'Veya manuel olarak girin:', de: 'Oder manuell eingeben:', ar: 'أو أدخل العنوان يدوياً:', vi: 'Hoặc nhập thủ công:'
+    },
+    'withdrawal_amount': {
+        en: 'Withdrawal Amount', ru: 'Сумма вывода', zh: '提现金额', es: 'Monto de Retiro', pt: 'Valor do Saque',
+        ja: '出金額', fr: 'Montant du Retrait', hi: 'निकासी राशि', ko: '출금 금액', tr: 'Çekim Miktarı',
+        de: 'Auszahlungsbetrag', ar: 'مبلغ السحب', vi: 'Số tiền rút'
+    },
+    'amount': {
+        en: 'Amount', ru: 'Сумма', zh: '金额', es: 'Monto', pt: 'Valor',
+        ja: '金額', fr: 'Montant', hi: 'राशि', ko: '금액', tr: 'Miktar',
+        de: 'Betrag', ar: 'المبلغ', vi: 'Số tiền'
+    },
+    'fee': {
+        en: 'Fee', ru: 'Комиссия', zh: '手续费', es: 'Comisión', pt: 'Taxa',
+        ja: '手数料', fr: 'Frais', hi: 'शुल्क', ko: '수수료', tr: 'Ücret',
+        de: 'Gebühr', ar: 'رسوم', vi: 'Phí'
+    },
+    'you_will_receive': {
+        en: 'You will receive', ru: 'Вы получите', zh: '您将收到', es: 'Recibirás', pt: 'Você receberá',
+        ja: '受取額', fr: 'Vous recevrez', hi: 'आपको मिलेगा', ko: '받을 금액', tr: 'Alacağınız',
+        de: 'Sie erhalten', ar: 'ستحصل على', vi: 'Bạn sẽ nhận'
+    },
+    'confirm_withdrawal': {
+        en: 'Confirm Withdrawal', ru: 'Подтвердить вывод', zh: '确认提现', es: 'Confirmar Retiro', pt: 'Confirmar Saque',
+        ja: '出金を確認', fr: 'Confirmer le Retrait', hi: 'निकासी की पुष्टि करें', ko: '출금 확인', tr: 'Çekimi Onayla',
+        de: 'Auszahlung bestätigen', ar: 'تأكيد السحب', vi: 'Xác nhận rút tiền'
+    },
+    'open_in_browser': {
+        en: 'Open in Browser', ru: 'Открыть в браузере', zh: '在浏览器中打开', es: 'Abrir en Navegador', pt: 'Abrir no Navegador',
+        ja: 'ブラウザで開く', fr: 'Ouvrir dans le Navigateur', hi: 'ब्राउज़र में खोलें', ko: '브라우저에서 열기', tr: 'Tarayıcıda Aç',
+        de: 'Im Browser öffnen', ar: 'فتح في المتصفح', vi: 'Mở trong trình duyệt'
+    },
+    'processing_withdrawal': {
+        en: 'Processing withdrawal...', ru: 'Обработка вывода...', zh: '正在处理提现...', es: 'Procesando retiro...', pt: 'Processando saque...',
+        ja: '出金処理中...', fr: 'Traitement du retrait...', hi: 'निकासी प्रोसेस हो रही है...', ko: '출금 처리 중...', tr: 'Çekim işleniyor...',
+        de: 'Auszahlung wird verarbeitet...', ar: 'جاري معالجة السحب...', vi: 'Đang xử lý rút tiền...'
+    },
+    'validating_request': {
+        en: 'Validating request...', ru: 'Проверка запроса...', zh: '验证请求中...', es: 'Validando solicitud...', pt: 'Validando solicitação...',
+        ja: 'リクエスト検証中...', fr: 'Validation de la demande...', hi: 'अनुरोध सत्यापित हो रहा है...', ko: '요청 검증 중...', tr: 'İstek doğrulanıyor...',
+        de: 'Anfrage wird validiert...', ar: 'جاري التحقق من الطلب...', vi: 'Đang xác thực yêu cầu...'
+    },
+    'processing_transaction': {
+        en: 'Processing transaction...', ru: 'Обработка транзакции...', zh: '处理交易中...', es: 'Procesando transacción...', pt: 'Processando transação...',
+        ja: 'トランザクション処理中...', fr: 'Traitement de la transaction...', hi: 'लेनदेन प्रोसेस हो रहा है...', ko: '트랜잭션 처리 중...', tr: 'İşlem yapılıyor...',
+        de: 'Transaktion wird verarbeitet...', ar: 'جاري معالجة المعاملة...', vi: 'Đang xử lý giao dịch...'
+    },
+    'confirming_blockchain': {
+        en: 'Confirming on blockchain...', ru: 'Подтверждение в блокчейне...', zh: '在区块链上确认...', es: 'Confirmando en blockchain...', pt: 'Confirmando na blockchain...',
+        ja: 'ブロックチェーンで確認中...', fr: 'Confirmation sur la blockchain...', hi: 'ब्लॉकचेन पर पुष्टि हो रही है...', ko: '블록체인에서 확인 중...', tr: 'Blockchain\'de onaylanıyor...',
+        de: 'Bestätigung auf Blockchain...', ar: 'جاري التأكيد على البلوكتشين...', vi: 'Đang xác nhận trên blockchain...'
+    },
+    'withdrawal_history': {
+        en: 'Withdrawal History', ru: 'История выводов', zh: '提现历史', es: 'Historial de Retiros', pt: 'Histórico de Saques',
+        ja: '出金履歴', fr: 'Historique des Retraits', hi: 'निकासी इतिहास', ko: '출금 내역', tr: 'Çekim Geçmişi',
+        de: 'Auszahlungsverlauf', ar: 'سجل السحوبات', vi: 'Lịch sử rút tiền'
+    },
+
+    // ========== NFT MODAL ==========
+    'nft_collection': {
+        en: 'NFT Collection', ru: 'Коллекция NFT', zh: 'NFT收藏', es: 'Colección NFT', pt: 'Coleção NFT',
+        ja: 'NFTコレクション', fr: 'Collection NFT', hi: 'NFT संग्रह', ko: 'NFT 컬렉션', tr: 'NFT Koleksiyonu',
+        de: 'NFT-Sammlung', ar: 'مجموعة NFT', vi: 'Bộ sưu tập NFT'
+    },
+    'my_nft_collection': {
+        en: 'My NFT Collection', ru: 'Моя коллекция NFT', zh: '我的NFT收藏', es: 'Mi Colección NFT', pt: 'Minha Coleção NFT',
+        ja: 'マイNFTコレクション', fr: 'Ma Collection NFT', hi: 'मेरा NFT संग्रह', ko: '내 NFT 컬렉션', tr: 'NFT Koleksiyonum',
+        de: 'Meine NFT-Sammlung', ar: 'مجموعتي NFT', vi: 'Bộ sưu tập NFT của tôi'
+    },
+    'mint_new_nft': {
+        en: 'Mint New NFT Pet', ru: 'Создать нового NFT питомца', zh: '铸造新NFT宠物', es: 'Crear Nueva Mascota NFT', pt: 'Criar Novo Pet NFT',
+        ja: '新しいNFTペットを作成', fr: 'Créer un Nouveau Pet NFT', hi: 'नया NFT पेट बनाएं', ko: '새 NFT 펫 발행', tr: 'Yeni NFT Pet Oluştur',
+        de: 'Neues NFT-Haustier erstellen', ar: 'إنشاء حيوان NFT جديد', vi: 'Tạo thú cưng NFT mới'
+    },
+    'mint_with_tama': {
+        en: 'Mint with TAMA', ru: 'Создать за TAMA', zh: '用TAMA铸造', es: 'Crear con TAMA', pt: 'Criar com TAMA',
+        ja: 'TAMAで作成', fr: 'Créer avec TAMA', hi: 'TAMA से बनाएं', ko: 'TAMA로 발행', tr: 'TAMA ile Oluştur',
+        de: 'Mit TAMA erstellen', ar: 'إنشاء بـ TAMA', vi: 'Tạo bằng TAMA'
+    },
+    'mint_with_sol': {
+        en: 'Mint with SOL', ru: 'Создать за SOL', zh: '用SOL铸造', es: 'Crear con SOL', pt: 'Criar com SOL',
+        ja: 'SOLで作成', fr: 'Créer avec SOL', hi: 'SOL से बनाएं', ko: 'SOL로 발행', tr: 'SOL ile Oluştur',
+        de: 'Mit SOL erstellen', ar: 'إنشاء بـ SOL', vi: 'Tạo bằng SOL'
+    },
+    'connect_wallet': {
+        en: 'Connect Wallet', ru: 'Подключить кошелек', zh: '连接钱包', es: 'Conectar Cartera', pt: 'Conectar Carteira',
+        ja: 'ウォレットを接続', fr: 'Connecter le Portefeuille', hi: 'वॉलेट कनेक्ट करें', ko: '지갑 연결', tr: 'Cüzdan Bağla',
+        de: 'Wallet verbinden', ar: 'ربط المحفظة', vi: 'Kết nối ví'
     }
 };
 

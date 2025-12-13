@@ -5597,22 +5597,22 @@
     <div class="referral-modal" id="nft-modal" style="display: none;">
         <div class="referral-content">
             <div class="referral-header">
-                <h2>🖼️ NFT Collection</h2>
+                <h2>🖼️ <span data-i18n="nft_collection">NFT Collection</span></h2>
                 <button class="close-btn" id="close-nft">✕</button>
             </div>
             <div class="referral-body">
                 <!-- NFT Collection Stats -->
                 <div class="referral-progress" style="margin-bottom: 20px;">
-                    <h4>📊 My NFT Collection</h4>
-                    <div class="referral-status" id="nft-stats">Loading...</div>
+                    <h4>📊 <span data-i18n="my_nft_collection">My NFT Collection</span></h4>
+                    <div class="referral-status" id="nft-stats" data-i18n="loading">Loading...</div>
                 </div>
 
                 <!-- Mint Button - Moved to top -->
                 <div style="text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 20px;">
-                    <button class="share-btn" id="mint-nft-btn">✨ Mint New NFT Pet</button>
+                    <button class="share-btn" id="mint-nft-btn">✨ <span data-i18n="mint_new_nft">Mint New NFT Pet</span></button>
                     <div id="mint-options" style="display: none; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                        <button class="share-btn" id="mint-with-tama-btn" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926;">💰 Mint with TAMA</button>
-                        <button class="share-btn" id="mint-with-sol-btn" style="background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea;">💎 Mint with SOL</button>
+                        <button class="share-btn" id="mint-with-tama-btn" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926;">💰 <span data-i18n="mint_with_tama">Mint with TAMA</span></button>
+                        <button class="share-btn" id="mint-with-sol-btn" style="background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea;">💎 <span data-i18n="mint_with_sol">Mint with SOL</span></button>
                     </div>
                 </div>
 
@@ -5623,8 +5623,8 @@
 
                 <!-- Wallet Connect (optional) -->
                 <div class="wallet-connect" id="wallet-connect-section" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.1);">
-                    <p style="text-align: center; margin: 10px 0; font-size: 14px; opacity: 0.8;">Connect Phantom to mint on-chain NFTs</p>
-                    <button class="share-btn" id="connect-wallet-btn" style="width: 100%; max-width: 300px;">👛 Connect Wallet</button>
+                    <p style="text-align: center; margin: 10px 0; font-size: 14px; opacity: 0.8;" data-i18n="connect_phantom_nft">Connect Phantom to mint on-chain NFTs</p>
+                    <button class="share-btn" id="connect-wallet-btn" style="width: 100%; max-width: 300px;">👛 <span data-i18n="connect_wallet">Connect Wallet</span></button>
                 </div>
             </div>
         </div>
@@ -5644,61 +5644,61 @@
     <div class="referral-modal" id="withdraw-modal" style="display: none;">
         <div class="referral-content">
             <div class="referral-header">
-                <h2>💸 Withdraw TAMA</h2>
+                <h2>💸 <span data-i18n="withdraw_tama">Withdraw TAMA</span></h2>
                 <button class="close-btn" id="close-withdraw">✕</button>
             </div>
             <div class="referral-body">
                 <div class="referral-progress" style="margin-bottom: 20px;">
-                    <h4>💰 Your Balance</h4>
-                    <div id="withdraw-balance" style="font-size: 24px; font-weight: bold; color: #8AC926; margin-top: 10px;">Loading...</div>
+                    <h4>💰 <span data-i18n="your_balance">Your Balance</span></h4>
+                    <div id="withdraw-balance" style="font-size: 24px; font-weight: bold; color: #8AC926; margin-top: 10px;" data-i18n="loading">Loading...</div>
                 </div>
 
                 <div id="withdraw-wallet-section" style="margin-bottom: 20px;">
-                    <h4 style="color: #8AC926; margin-bottom: 10px;">👛 Wallet Address</h4>
+                    <h4 style="color: #8AC926; margin-bottom: 10px;">👛 <span data-i18n="wallet_address">Wallet Address</span></h4>
 
                     <!-- Saved Wallets List -->
                     <div id="saved-wallets-section" style="margin-bottom: 15px; display: none;">
-                        <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8); font-size: 14px;">💾 Saved Wallets:</label>
+                        <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8); font-size: 14px;">💾 <span data-i18n="saved_wallets">Saved Wallets</span>:</label>
                         <select id="saved-wallets-select" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(138, 201, 38, 0.3); background: rgba(0,0,0,0.3); color: white; font-family: monospace; font-size: 14px; margin-bottom: 10px;">
-                            <option value="">Select saved wallet...</option>
+                            <option value="" data-i18n="select_saved_wallet">Select saved wallet...</option>
                         </select>
                         <div style="display: flex; gap: 10px;">
-                            <button id="use-selected-wallet-btn" class="share-btn" style="flex: 1; padding: 8px; font-size: 12px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; color: #8AC926;">Use Selected</button>
-                            <button id="delete-wallet-btn" class="share-btn" style="flex: 1; padding: 8px; font-size: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444;">Delete</button>
+                            <button id="use-selected-wallet-btn" class="share-btn" style="flex: 1; padding: 8px; font-size: 12px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; color: #8AC926;" data-i18n="use_selected">Use Selected</button>
+                            <button id="delete-wallet-btn" class="share-btn" style="flex: 1; padding: 8px; font-size: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444;" data-i18n="delete">Delete</button>
                         </div>
                     </div>
 
                     <!-- Phantom Wallet Option -->
                     <div id="phantom-connect-section" style="margin-bottom: 15px;">
                         <button class="share-btn" id="connect-phantom-btn" style="width: 100%; margin-bottom: 10px;">
-                            👛 Connect Phantom Wallet
+                            👛 <span data-i18n="connect_phantom">Connect Phantom Wallet</span>
                         </button>
                         <div id="phantom-connected" style="display: none; padding: 15px; background: rgba(138, 201, 38, 0.1); border-radius: 10px; border: 2px solid #8AC926;">
-                            <div style="color: #8AC926; font-weight: bold; margin-bottom: 5px;">✅ Connected</div>
+                            <div style="color: #8AC926; font-weight: bold; margin-bottom: 5px;">✅ <span data-i18n="connected">Connected</span></div>
                             <div id="phantom-address" style="font-family: monospace; font-size: 12px; word-break: break-all;"></div>
                             <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button id="save-phantom-wallet-btn" style="flex: 1; padding: 5px 10px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 5px; color: #8AC926; cursor: pointer; font-size: 12px;">💾 Save</button>
-                                <button id="disconnect-phantom" style="flex: 1; padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Disconnect</button>
+                                <button id="save-phantom-wallet-btn" style="flex: 1; padding: 5px 10px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 5px; color: #8AC926; cursor: pointer; font-size: 12px;">💾 <span data-i18n="save">Save</span></button>
+                                <button id="disconnect-phantom" style="flex: 1; padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;" data-i18n="disconnect">Disconnect</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Manual Input Option -->
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid rgba(255,255,255,0.1);">
-                        <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8);">Or enter wallet address manually:</label>
+                        <label style="display: block; margin-bottom: 8px; color: rgba(255,255,255,0.8);" data-i18n="or_enter_manually">Or enter wallet address manually:</label>
                         <div style="display: flex; gap: 10px;">
-                            <input type="text" id="withdraw-wallet-input" placeholder="Enter Solana wallet address..."
+                            <input type="text" id="withdraw-wallet-input" data-i18n-placeholder="enter_wallet_address" placeholder="Enter Solana wallet address..."
                                    style="flex: 1; padding: 12px; border-radius: 8px; border: 2px solid rgba(138, 201, 38, 0.3); background: rgba(0,0,0,0.3); color: white; font-family: monospace; font-size: 14px;">
-                            <button id="save-wallet-btn" class="share-btn" style="padding: 12px 20px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; color: #8AC926; border-radius: 8px; cursor: pointer; font-size: 14px; white-space: nowrap;">💾 Save</button>
+                            <button id="save-wallet-btn" class="share-btn" style="padding: 12px 20px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; color: #8AC926; border-radius: 8px; cursor: pointer; font-size: 14px; white-space: nowrap;">💾 <span data-i18n="save">Save</span></button>
                         </div>
-                        <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.6);">
+                        <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.6);" data-i18n="open_browser_tip">
                             💡 You can also open in browser for full Phantom support
                         </div>
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <h4 style="color: #8AC926; margin-bottom: 10px;">💵 Withdrawal Amount</h4>
+                    <h4 style="color: #8AC926; margin-bottom: 10px;">💵 <span data-i18n="withdrawal_amount">Withdrawal Amount</span></h4>
                     <input type="number" id="withdraw-amount-input" placeholder="Enter amount (min 1,000 TAMA)"
                            min="1000" step="1"
                            style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(138, 201, 38, 0.3); background: rgba(0,0,0,0.3); color: white; font-size: 16px;">
@@ -5712,25 +5712,25 @@
 
                 <div id="withdraw-summary" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 2px solid rgba(138, 201, 38, 0.2); margin-bottom: 20px; display: none;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <span>Amount:</span>
+                        <span data-i18n="amount">Amount</span>:
                         <span id="summary-amount" style="font-weight: bold;"></span>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #ef4444;">
-                        <span>Fee (5%):</span>
+                        <span><span data-i18n="fee">Fee</span> (5%):</span>
                         <span id="summary-fee" style="font-weight: bold;"></span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 18px; font-weight: bold; color: #8AC926;">
-                        <span>You will receive:</span>
+                        <span data-i18n="you_will_receive">You will receive</span>:
                         <span id="summary-receive"></span>
                     </div>
                 </div>
 
                 <div style="text-align: center;">
                     <button class="share-btn" id="confirm-withdraw-btn" style="width: 100%; max-width: 400px; background: linear-gradient(135deg, #10b981, #059669); font-size: 18px; padding: 15px;" disabled>
-                        💸 Confirm Withdrawal
+                        💸 <span data-i18n="confirm_withdrawal">Confirm Withdrawal</span>
                     </button>
                     <button class="share-btn" id="open-browser-withdraw" style="width: 100%; max-width: 400px; margin-top: 10px; background: rgba(138, 201, 38, 0.2); border: 2px solid #8AC926; color: #8AC926; font-size: 14px; padding: 10px;">
-                        🌐 Open in Browser (Full Phantom Support)
+                        🌐 <span data-i18n="open_in_browser">Open in Browser</span>
                     </button>
                 </div>
 
@@ -5739,14 +5739,14 @@
                     <div style="text-align: center; margin-bottom: 15px;">
                         <div class="spinner" style="border: 4px solid rgba(59, 130, 246, 0.3); border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
                     </div>
-                    <div id="withdraw-progress-text" style="text-align: center; color: #3b82f6; font-weight: bold; margin-bottom: 10px;">Processing withdrawal...</div>
+                    <div id="withdraw-progress-text" style="text-align: center; color: #3b82f6; font-weight: bold; margin-bottom: 10px;" data-i18n="processing_withdrawal">Processing withdrawal...</div>
                     <div id="withdraw-progress-bar" style="width: 100%; height: 8px; background: rgba(59, 130, 246, 0.2); border-radius: 4px; overflow: hidden;">
                         <div id="withdraw-progress-fill" style="height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); width: 0%; transition: width 0.3s ease;"></div>
                     </div>
                     <div id="withdraw-progress-steps" style="margin-top: 15px; font-size: 12px; color: rgba(255,255,255,0.7);">
-                        <div id="step-1">⏳ Validating request...</div>
-                        <div id="step-2" style="display: none;">⏳ Processing transaction...</div>
-                        <div id="step-3" style="display: none;">⏳ Confirming on blockchain...</div>
+                        <div id="step-1">⏳ <span data-i18n="validating_request">Validating request...</span></div>
+                        <div id="step-2" style="display: none;">⏳ <span data-i18n="processing_transaction">Processing transaction...</span></div>
+                        <div id="step-3" style="display: none;">⏳ <span data-i18n="confirming_blockchain">Confirming on blockchain...</span></div>
                     </div>
                 </div>
 
@@ -5757,7 +5757,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <h4 style="color: #8AC926; margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px;">
                             <span>📜</span>
-                            <span>Withdrawal History</span>
+                            <span data-i18n="withdrawal_history">Withdrawal History</span>
                         </h4>
                         <button id="refresh-history-btn" style="padding: 8px 15px; background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; border-radius: 8px; color: #8AC926; cursor: pointer; font-size: 14px; transition: all 0.3s;"
                                 onmouseover="this.style.background='rgba(138, 201, 38, 0.3)';"
