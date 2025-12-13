@@ -385,6 +385,7 @@
             height: 600,
             isRunning: false,
             isPaused: false,
+            isTransitioning: false, // Флаг для предотвращения множественных переходов
             score: 0,
             wave: 0,
             level: 1,
@@ -477,6 +478,7 @@
 
                 // Reset game
                 this.isRunning = true;
+                this.isTransitioning = false; // Сбрасываем флаг перехода
                 this.score = 0;
                 this.wave = 0;
                 this.level = 1;
@@ -534,6 +536,7 @@
                 this.level = levelNum;
                 this.wave = 0;
                 this.isPaused = false; // Убеждаемся что игра не на паузе
+                this.isTransitioning = false; // Сбрасываем флаг перехода
                 const levelData = this.levels[levelNum - 1];
 
                 // Очищаем все перед новым уровнем
@@ -555,6 +558,7 @@
             },
 
             nextWave() {
+                this.isTransitioning = false; // Сбрасываем флаг при начале новой волны
                 this.wave++;
                 const levelData = this.levels[this.level - 1];
 
@@ -660,6 +664,7 @@
             },
 
             spawnBoss() {
+                this.isTransitioning = false; // Сбрасываем флаг при спавне босса
                 const levelData = this.levels[this.level - 1];
                 const bossHealth = 30 + this.level * 10;
                 console.log(`👾 ===== BOSS SPAWNING =====`);
@@ -712,11 +717,13 @@
                         this.bullets = []; // Очищаем пули
                         this.powerups = []; // Очищаем power-ups
                         this.isPaused = false; // Снимаем паузу
+                        this.isTransitioning = false; // Сбрасываем флаг перехода
                         this.startLevel(this.level); // Запускаем следующий уровень
                         console.log(`✅ Starting Level ${this.level}`);
                     } else {
                         // Все уровни пройдены - победа!
                         console.log(`🎉 All levels completed! Victory!`);
+                        this.isTransitioning = false;
                         this.winGame();
                     }
                 }, 3000);
@@ -908,20 +915,28 @@
                 });
 
                 // Check if wave is complete (ТОЛЬКО если враги были заспавнены и убиты!)
-                if (this.enemies.length === 0 && !this.boss && this.isRunning && !this.isPaused && this.wave > 0) {
+                if (this.enemies.length === 0 && !this.boss && this.isRunning && !this.isPaused && this.wave > 0 && !this.isTransitioning) {
+                    this.isTransitioning = true; // Блокируем повторные вызовы!
                     const levelData = this.levels[this.level - 1];
                     console.log(`✅ Wave ${this.wave} complete! Enemies killed: ${this.enemiesKilled}`);
                     // Проверяем что мы действительно прошли волну (не просто нет врагов)
                     if (this.wave < levelData.waves) {
                         console.log(`➡️ Moving to next wave...`);
-                        setTimeout(() => this.nextWave(), 2000);
+                        setTimeout(() => {
+                            this.isTransitioning = false; // Разблокируем после перехода
+                            this.nextWave();
+                        }, 2000);
                     } else if (this.level < this.maxLevels) {
                         // Spawn boss (только если прошли все волны!)
                         console.log(`👾 All waves complete! Spawning boss...`);
-                        setTimeout(() => this.spawnBoss(), 2000);
+                        setTimeout(() => {
+                            this.isTransitioning = false; // Разблокируем после спавна босса
+                            this.spawnBoss();
+                        }, 2000);
                     } else {
                         // Final boss defeated
                         console.log(`🎉 All levels and waves complete! Victory!`);
+                        this.isTransitioning = false;
                         this.winGame();
                     }
                 }
