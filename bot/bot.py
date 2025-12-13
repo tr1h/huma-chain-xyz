@@ -48,7 +48,7 @@ except Exception as e:
     faq_handler = None
     print(f"⚠️ FAQ Handler disabled: {e}")
 
-# Import localization system (RU/EN support)
+# Import localization system (11 languages support)
 try:
     from localization import t, detect_language
     from submenu_translations import get_stats_text, get_referral_text, get_badges_text, get_button_text
@@ -56,12 +56,28 @@ try:
         create_language_keyboard,
         get_language_selection_message,
         handle_language_callback,
-        get_language_changed_message
+        get_language_changed_message,
+        SUPPORTED_LANGUAGES
+    )
+    # Import new multi-language helpers
+    from bot_translations import (
+        btn, welcome_text, lang_changed, get_menu_buttons,
+        error_msg, daily_claimed, daily_wait,
+        stats_header, stats_balance, stats_keep_playing,
+        referral_header, referral_total, referral_earned,
+        badges_header, badges_none,
+        quests_header, quests_completed, quests_in_progress, quests_tip,
+        nft_header, nft_none, nft_total, nft_boost,
+        withdraw_header, withdraw_mainnet, withdraw_safe,
+        leaderboard_header, leaderboard_empty,
+        help_header, help_game_commands, help_social_commands, help_need_help,
+        SUPPORTED_LANGS
     )
     LOCALIZATION_ENABLED = True
-    print("✅ Localization enabled (RU/EN support)")
+    print("✅ Localization enabled (11 languages: EN, RU, ZH, ES, PT, JA, FR, HI, KO, TR, DE)")
 except Exception as e:
     LOCALIZATION_ENABLED = False
+    SUPPORTED_LANGS = ['en', 'ru', 'zh', 'es']
     print(f"⚠️ Localization disabled: {e}")
 
 # Load environment variables (optional .env)
@@ -1371,75 +1387,34 @@ def send_welcome(message):
         game_url = GAME_URL
         mint_url = MINT_URL
 
-    # Localized button texts
-    button_texts = {
-        'en': {
-            'daily': "Daily Reward",
-            'my_nfts': "My NFTs",
-            'mint_nft': "Mint NFT",
-            'withdraw': "Withdraw TAMA",
-            'referral': "Referral",
-            'stats': "My Stats",
-            'quests': "Quests",
-            'badges': "Badges",
-            'rank': "My Rank",
-            'leaderboard': "Leaderboard",
-            'community': "Community"
-        },
-        'ru': {
-            'daily': "Ежедневная награда",
-            'my_nfts': "Мои NFT",
-            'mint_nft': "Минт NFT",
-            'withdraw': "Вывести TAMA",
-            'referral': "Реферальная",
-            'stats': "Статистика",
-            'quests': "Квесты",
-            'badges': "Значки",
-            'rank': "Рейтинг",
-            'leaderboard': "Лидерборд",
-            'community': "Сообщество"
-        },
-        'zh': {
-            'daily': "每日奖励",
-            'my_nfts': "我的 NFT",
-            'mint_nft': "铸造 NFT",
-            'withdraw': "提取 TAMA",
-            'referral': "推荐",
-            'stats': "我的统计",
-            'quests': "任务",
-            'badges': "徽章",
-            'rank': "我的排名",
-            'leaderboard': "排行榜",
-            'community': "社区"
-        },
-        'es': {
-            'daily': "Recompensa diaria",
-            'my_nfts': "Mis NFT",
-            'mint_nft': "Mintear NFT",
-            'withdraw': "Retirar TAMA",
-            'referral': "Referidos",
-            'stats': "Mis Estadísticas",
-            'quests': "Misiones",
-            'badges': "Insignias",
-            'rank': "Mi Rango",
-            'leaderboard': "Clasificación",
-            'community': "Comunidad"
-        }
-    }
-
-    # Get button texts for current language (fallback to English)
-    texts = button_texts.get(lang, button_texts['en'])
-    daily_text = texts['daily']
-    my_nfts_text = texts['my_nfts']
-    mint_nft_text = texts['mint_nft']
-    withdraw_text = texts['withdraw']
-    referral_text = texts['referral']
-    stats_text = texts['stats']
-    quests_text = texts['quests']
-    badges_text = texts['badges']
-    rank_text = texts['rank']
-    leaderboard_text = texts['leaderboard']
-    community_text = texts['community']
+    # Get localized button texts using new multi-language system
+    # Supports: EN, RU, ZH, ES, PT, JA, FR, HI, KO, TR, DE
+    try:
+        menu = get_menu_buttons(lang)
+        daily_text = menu['daily'].replace('🎁 ', '')
+        my_nfts_text = menu['my_nfts'].replace('🖼️ ', '')
+        mint_nft_text = menu['mint_nft'].replace('🎨 ', '')
+        withdraw_text = menu['withdraw'].replace('💸 ', '')
+        referral_text = menu['referral'].replace('🔗 ', '')
+        stats_text = menu['stats'].replace('📊 ', '')
+        quests_text = menu['quests'].replace('📋 ', '')
+        badges_text = menu['badges'].replace('🏆 ', '')
+        rank_text = menu['rank'].replace('🎖️ ', '')
+        leaderboard_text = menu['leaderboard'].replace('🏅 ', '')
+        community_text = menu['community'].replace('👥 ', '')
+    except Exception as e:
+        print(f"⚠️ Failed to get menu buttons: {e}, using English fallback")
+        daily_text = "Daily Reward"
+        my_nfts_text = "My NFTs"
+        mint_nft_text = "Mint NFT"
+        withdraw_text = "Withdraw TAMA"
+        referral_text = "Referral"
+        stats_text = "My Stats"
+        quests_text = "Quests"
+        badges_text = "Badges"
+        rank_text = "My Rank"
+        leaderboard_text = "Leaderboard"
+        community_text = "Community"
 
     # Row 1: Daily Reward (highlight if available)
     daily_emoji = "🎁⭐" if can_claim else "🎁"
