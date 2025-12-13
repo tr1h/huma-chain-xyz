@@ -442,7 +442,7 @@
                     const rect = canvas.getBoundingClientRect();
                     const touch = e.touches[0];
                     this.mouseX = (touch.clientX - rect.left) * (canvas.width / rect.width);
-                });
+                }, { passive: false }); // Явно указываем passive: false для preventDefault
 
                 // Start button
                 document.getElementById('start-btn').addEventListener('click', () => {
@@ -522,15 +522,29 @@
             },
 
             startLevel(levelNum) {
+                // Проверка валидности уровня
+                if (levelNum < 1 || levelNum > this.maxLevels) {
+                    console.error(`❌ Invalid level number: ${levelNum}`);
+                    return;
+                }
+
                 this.level = levelNum;
                 this.wave = 0;
+                this.isPaused = false; // Убеждаемся что игра не на паузе
                 const levelData = this.levels[levelNum - 1];
+
+                // Очищаем все перед новым уровнем
+                this.enemies = [];
+                this.bullets = [];
+                this.boss = null;
+                this.powerups = [];
 
                 // Show level start message
                 this.showMessage(`Level ${levelNum}: ${levelData.name}`, 2000);
 
                 // Start first wave after delay
                 setTimeout(() => {
+                    console.log(`✅ Starting wave 1 for level ${levelNum}`);
                     this.nextWave();
                 }, 2000);
             },
@@ -874,8 +888,13 @@
                     this.score += 100;
                     // Spawn power-up
                     this.spawnPowerUp(canvas.width / 2, canvas.height / 2);
+                    // Показываем сообщение о победе над боссом
+                    this.showMessage(`👾 BOSS DEFEATED!`, 2000);
                     // Continue to next level
-                    setTimeout(() => this.completeLevel(), 2000);
+                    setTimeout(() => {
+                        console.log(`✅ Boss defeated, completing level ${this.level}`);
+                        this.completeLevel();
+                    }, 2000);
                 }
 
                 // Check if enemies reached bottom (БОЛЬШЕ опасности!)
