@@ -86,6 +86,31 @@
             font-size: 16px;
             font-weight: bold;
             color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-value:hover {
+            transform: scale(1.1);
+        }
+        
+        #combo {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff00ff;
+            text-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+            display: none;
+            z-index: 100;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
         }
 
         .game-canvas-wrapper {
@@ -409,6 +434,12 @@
             shield: false,
             shieldTimer: 0,
 
+            // Combo system для дополнительных очков
+            combo: 0,
+            comboMultiplier: 1,
+            lastKillTime: 0,
+            comboDisplay: null,
+
             keys: {},
             mouseX: canvas.width / 2,
 
@@ -504,9 +535,9 @@
                     y: canvas.height - 60,
                     width: 40,
                     height: 40,
-                    speed: 5, // Немного медленнее для баланса
+                    speed: 6, // Улучшенная скорость для более динамичного геймплея
                     shootCooldown: 0,
-                    shootDelay: 15 // МЕДЛЕННЕЕ стрельба для сложности! Was: 10
+                    shootDelay: 12 // Сбалансированная стрельба
                 };
 
                 // Disable controls
@@ -587,9 +618,9 @@
 
                 document.getElementById('wave').textContent = `${this.level}-${this.wave}`;
 
-                // Spawn enemies based on level (БОЛЬШЕ врагов!)
-                const enemyCount = 8 + this.level * 3 + this.wave * 2; // УВЕЛИЧЕНО!
-                const rows = Math.min(2 + Math.floor(this.level / 2), 5); // Больше рядов!
+                // Spawn enemies based on level (сбалансированное количество)
+                const enemyCount = 6 + this.level * 2 + this.wave * 1.5; // Более плавное увеличение
+                const rows = Math.min(2 + Math.floor(this.level / 2), 4); // Максимум 4 ряда
                 const cols = Math.ceil(enemyCount / rows);
 
                 console.log(`👾 Spawning enemies: Count=${enemyCount}, Rows=${rows}, Cols=${cols}`);
@@ -666,7 +697,7 @@
             spawnBoss() {
                 this.isTransitioning = false; // Сбрасываем флаг при спавне босса
                 const levelData = this.levels[this.level - 1];
-                const bossHealth = 30 + this.level * 10;
+                const bossHealth = 25 + this.level * 8; // Более сбалансированный HP
                 console.log(`👾 ===== BOSS SPAWNING =====`);
                 console.log(`👾 Level: ${this.level}, Boss: ${levelData.name}, Health: ${bossHealth}`);
                 
@@ -677,7 +708,7 @@
                     height: 80,
                     health: bossHealth,
                     maxHealth: bossHealth,
-                    speed: 0.8 + this.level * 0.1, // БЫСТРЕЕ движение!
+                    speed: 0.7 + this.level * 0.08, // Более плавное увеличение скорости
                     direction: 1,
                     shootCooldown: 0,
                     pattern: 'horizontal'
@@ -829,7 +860,7 @@
                 if (moveDown) {
                     this.enemies.forEach(enemy => {
                         enemy.direction *= -1;
-                        enemy.y += 20 + this.level * 2; // БОЛЬШЕ спуск! Сложнее!
+                        enemy.y += 15 + this.level * 1.5; // Более плавный спуск
                     });
                 }
 
@@ -882,10 +913,40 @@
 
                             if (enemy.health <= 0) {
                                 this.enemies.splice(eIndex, 1);
-                                this.score += 10;
+                                
+                                // Комбо система
+                                const now = Date.now();
+                                if (now - this.lastKillTime < 2000) { // 2 секунды на комбо
+                                    this.combo++;
+                                    this.comboMultiplier = 1 + Math.floor(this.combo / 5); // +1 за каждые 5 убийств
+                                } else {
+                                    this.combo = 1;
+                                    this.comboMultiplier = 1;
+                                }
+                                this.lastKillTime = now;
+                                
+                                // Очки с комбо множителем
+                                const baseScore = 10;
+                                const comboBonus = this.combo * 2;
+                                const scoreGain = (baseScore + comboBonus) * this.comboMultiplier;
+                                this.score += Math.floor(scoreGain);
+                                
                                 this.enemiesKilled++;
-                                this.createExplosion(enemy.x, enemy.y);
-                                console.log(`💥 Enemy killed! Type: ${enemy.type}, Total kills: ${this.enemiesKilled}, Enemies left: ${this.enemies.length}`);
+                                
+                                // Разные цвета взрывов для разных типов врагов
+                                let explosionColor = '#ffaa00';
+                                if (enemy.type === 'fast') explosionColor = '#0088ff';
+                                if (enemy.type === 'tank') explosionColor = '#ff8800';
+                                if (enemy.type === 'shooter') explosionColor = '#00ff88';
+                                
+                                this.createExplosion(enemy.x, enemy.y, explosionColor, 15);
+                                
+                                // Показываем комбо на экране
+                                if (this.combo > 1) {
+                                    this.showCombo(enemy.x, enemy.y, this.combo, this.comboMultiplier);
+                                }
+                                
+                                console.log(`💥 Enemy killed! Type: ${enemy.type}, Combo: ${this.combo}x${this.comboMultiplier}, Score: +${Math.floor(scoreGain)}, Total kills: ${this.enemiesKilled}`);
                             }
                         }
                     });
@@ -972,10 +1033,28 @@
                     p.x += p.vx;
                     p.y += p.vy;
                     p.life--;
+                    p.vx *= 0.98; // Замедление для более плавного эффекта
+                    p.vy *= 0.98;
                     if (p.life <= 0) {
                         this.particles.splice(index, 1);
                     }
                 });
+                
+                // Update combo display
+                if (this.comboDisplay) {
+                    this.comboDisplay.y -= 2;
+                    this.comboDisplay.life--;
+                    if (this.comboDisplay.life <= 0) {
+                        this.comboDisplay = null;
+                    }
+                }
+                
+                // Сброс комбо если прошло слишком много времени
+                const now = Date.now();
+                if (now - this.lastKillTime > 3000 && this.combo > 0) {
+                    this.combo = 0;
+                    this.comboMultiplier = 1;
+                }
 
                 this.updateUI();
             },
@@ -989,22 +1068,24 @@
                     }
                 }
 
-                // Boss shooting (БОЛЬШЕ пуль, БЫСТРЕЕ!)
+                // Boss shooting (сбалансированная стрельба)
                 this.boss.shootCooldown--;
                 if (this.boss.shootCooldown <= 0) {
-                    // Boss shoots 7 bullets in a spread pattern (БОЛЬШЕ!)
-                    for (let i = -3; i <= 3; i++) {
+                    // Boss shoots 5-7 bullets в зависимости от уровня
+                    const bulletCount = 5 + Math.min(this.level, 2);
+                    const spread = bulletCount > 5 ? 20 : 25;
+                    for (let i = -Math.floor(bulletCount / 2); i <= Math.floor(bulletCount / 2); i++) {
                         this.bullets.push({
-                            x: this.boss.x + i * 20,
+                            x: this.boss.x + i * spread,
                             y: this.boss.y + this.boss.height / 2,
                             width: 8,
                             height: 25,
-                            speed: -4 - this.level * 0.3, // БЫСТРЕЕ пули! Сложнее уклоняться!
+                            speed: -3.5 - this.level * 0.25, // Более плавное увеличение скорости
                             damage: 1,
                             isEnemy: true
                         });
                     }
-                    this.boss.shootCooldown = 30 - this.level * 2; // Чаще стреляет! Минимум 20
+                    this.boss.shootCooldown = 35 - this.level * 2; // Более сбалансированная частота, минимум 25
                 }
             },
 
@@ -1039,14 +1120,25 @@
                     ctx.fillRect(x, y, 2, 2);
                 }
 
-                // Draw player
+                // Draw player (улучшенная визуализация)
                 ctx.fillStyle = '#00ff88';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#00ff88';
                 ctx.beginPath();
                 ctx.moveTo(this.player.x, this.player.y - 20);
                 ctx.lineTo(this.player.x - 20, this.player.y + 20);
                 ctx.lineTo(this.player.x + 20, this.player.y + 20);
                 ctx.closePath();
                 ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Двигательные следы для динамичности
+                if (Math.abs(this.player.x - this.mouseX) > 1) {
+                    ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
+                    ctx.beginPath();
+                    ctx.arc(this.player.x, this.player.y + 25, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
 
                 // Draw shield effect
                 if (this.shield) {
@@ -1057,17 +1149,22 @@
                     ctx.stroke();
                 }
 
-                // Draw bullets
+                // Draw bullets (улучшенная визуализация)
                 this.bullets.forEach(bullet => {
                     if (bullet.isEnemy) {
-                        ctx.fillStyle = '#ff0000'; // Enemy bullets (red)
+                        ctx.fillStyle = '#ff0000';
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = '#ff0000';
                     } else {
-                        ctx.fillStyle = '#00ff88'; // Player bullets (green)
+                        ctx.fillStyle = '#00ff88';
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = '#00ff88';
                     }
                     ctx.fillRect(bullet.x - bullet.width / 2, bullet.y, bullet.width, bullet.height);
+                    ctx.shadowBlur = 0;
                 });
 
-                // Draw enemies
+                // Draw enemies (улучшенная визуализация)
                 this.enemies.forEach(enemy => {
                     // Different colors for different types
                     let color = '#ff0000'; // Basic (red)
@@ -1075,13 +1172,20 @@
                     if (enemy.type === 'tank') color = '#ffaa00'; // Tank (yellow)
                     if (enemy.type === 'shooter') color = '#00ff88'; // Shooter (green)
 
+                    // Свечение для врагов
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = color;
                     ctx.fillStyle = color;
                     ctx.fillRect(enemy.x - enemy.width / 2, enemy.y - enemy.height / 2, enemy.width, enemy.height);
+                    ctx.shadowBlur = 0;
 
-                    // Enemy eyes
+                    // Enemy eyes (более выразительные)
                     ctx.fillStyle = '#ffffff';
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = '#ffffff';
                     ctx.fillRect(enemy.x - 8, enemy.y - 5, 6, 6);
                     ctx.fillRect(enemy.x + 2, enemy.y - 5, 6, 6);
+                    ctx.shadowBlur = 0;
                 });
 
                 // Draw boss
@@ -1141,7 +1245,7 @@
                     ctx.textAlign = 'left';
                 }
 
-                // Draw power-ups
+                // Draw power-ups (улучшенная визуализация с анимацией)
                 this.powerups.forEach(powerup => {
                     if (powerup.collected) return;
 
@@ -1152,10 +1256,18 @@
                     if (powerup.type === 'shield') { color = '#0088ff'; symbol = '🛡️'; }
                     if (powerup.type === 'health') { color = '#ff0000'; symbol = '❤️'; }
 
+                    // Пульсирующий эффект
+                    const pulse = Math.sin(Date.now() / 200) * 3;
+                    const size = powerup.width + pulse;
+                    
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = color;
                     ctx.fillStyle = color;
-                    ctx.fillRect(powerup.x - powerup.width / 2, powerup.y - powerup.height / 2, powerup.width, powerup.height);
+                    ctx.fillRect(powerup.x - size / 2, powerup.y - size / 2, size, size);
+                    ctx.shadowBlur = 0;
+                    
                     ctx.fillStyle = '#ffffff';
-                    ctx.font = '20px Arial';
+                    ctx.font = `${20 + pulse}px Arial`;
                     ctx.textAlign = 'center';
                     ctx.fillText(symbol, powerup.x, powerup.y + 7);
                     ctx.textAlign = 'left';
@@ -1167,23 +1279,44 @@
                     }
                 });
 
-                // Draw particles
-                ctx.fillStyle = '#ffaa00';
+                // Draw particles (улучшенные с цветами)
                 this.particles.forEach(p => {
-                    ctx.globalAlpha = p.life / 30;
-                    ctx.fillRect(p.x, p.y, 3, 3);
+                    ctx.globalAlpha = p.life / 40;
+                    ctx.fillStyle = p.color || '#ffaa00';
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size || 3, 0, Math.PI * 2);
+                    ctx.fill();
                 });
+                ctx.globalAlpha = 1;
+                
+                // Draw combo display
+                if (this.comboDisplay) {
+                    ctx.globalAlpha = this.comboDisplay.life / 60;
+                    ctx.fillStyle = '#00ff88';
+                    ctx.font = `bold ${20 + this.comboDisplay.combo}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`COMBO x${this.comboDisplay.combo}!`, this.comboDisplay.x, this.comboDisplay.y);
+                    if (this.comboDisplay.multiplier > 1) {
+                        ctx.fillStyle = '#ff00ff';
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillText(`${this.comboDisplay.multiplier}x MULTIPLIER!`, this.comboDisplay.x, this.comboDisplay.y + 25);
+                    }
+                    ctx.textAlign = 'left';
+                }
                 ctx.globalAlpha = 1;
             },
 
-            createExplosion(x, y) {
-                for (let i = 0; i < 10; i++) {
+            createExplosion(x, y, color = '#ffaa00', size = 10) {
+                // Более красивые взрывы с разными цветами
+                for (let i = 0; i < size; i++) {
                     this.particles.push({
                         x: x,
                         y: y,
-                        vx: (Math.random() - 0.5) * 4,
-                        vy: (Math.random() - 0.5) * 4,
-                        life: 30
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        life: 40,
+                        color: color,
+                        size: 2 + Math.random() * 3
                     });
                 }
             },
@@ -1329,11 +1462,42 @@
             },
 
             updateUI() {
-                document.getElementById('score').textContent = this.score;
+                document.getElementById('score').textContent = this.score.toLocaleString();
                 const levelData = this.levels[this.level - 1];
-                document.getElementById('wave').textContent = `${this.level}-${this.wave}`;
+                
+                // Show wave or boss indicator
+                if (this.boss) {
+                    document.getElementById('wave').textContent = `BOSS ${this.level}`;
+                    document.getElementById('wave').style.color = '#ff00ff';
+                } else {
+                    document.getElementById('wave').textContent = `${this.level}-${this.wave}`;
+                    document.getElementById('wave').style.color = '#00ff88';
+                }
+                
                 document.getElementById('lives').textContent = this.lives;
-            }
+                
+                // Показываем комбо в UI (если есть)
+                const comboEl = document.getElementById('combo');
+                if (comboEl) {
+                    if (this.combo > 1) {
+                        comboEl.textContent = `COMBO: ${this.combo}x${this.comboMultiplier}`;
+                        comboEl.style.display = 'block';
+                        comboEl.style.color = '#ff00ff';
+                    } else {
+                        comboEl.style.display = 'none';
+                    }
+                }
+            },
+            
+            showCombo(x, y, combo, multiplier) {
+                this.comboDisplay = {
+                    x: x,
+                    y: y,
+                    combo: combo,
+                    multiplier: multiplier,
+                    life: 60
+                };
+            },
         };
 
         // Initialize
