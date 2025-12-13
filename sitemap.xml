@@ -1,64 +1,209 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-
-<!-- Homepage -->
-<url>
-  <loc>https://solanatamagotchi.com/</loc>
-  <lastmod>2025-11-13</lastmod>
-  <changefreq>daily</changefreq>
-  <priority>1.0</priority>
-</url>
-
-<!-- Main Game -->
-<url>
-  <loc>https://solanatamagotchi.com/tamagotchi-game.html</loc>
-  <lastmod>2025-11-13</lastmod>
-  <changefreq>daily</changefreq>
-  <priority>1.0</priority>
-</url>
-
-<!-- NFT Mint -->
-<url>
-  <loc>https://solanatamagotchi.com/mint.html</loc>
-  <lastmod>2025-11-13</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>0.9</priority>
-</url>
-
-<!-- Referral System -->
-<url>
-  <loc>https://solanatamagotchi.com/referral.html</loc>
-  <lastmod>2025-11-13</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>0.8</priority>
-</url>
-
-<!-- My NFTs -->
-<url>
-  <loc>https://solanatamagotchi.com/my-nfts.html</loc>
-  <lastmod>2025-11-13</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>0.7</priority>
-</url>
-
-<!-- Blog -->
-<url>
-  <loc>https://solanatamagotchi.com/blog/</loc>
-  <lastmod>2025-11-13</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>0.8</priority>
-</url>
-
-<!-- Telegram Game -->
-<url>
-  <loc>https://solanatamagotchi.com/telegram-game.html</loc>
-  <lastmod>2025-11-13</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>0.7</priority>
-</url>
-
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    
+    <!-- Main Pages -->
+    <url>
+        <loc>https://solanatamagotchi.com/</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://solanatamagotchi.com/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://solanatamagotchi.com/ru/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://solanatamagotchi.com/zh/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://solanatamagotchi.com/ja/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="https://solanatamagotchi.com/ko/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://solanatamagotchi.com/es/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://solanatamagotchi.com/"/>
+    </url>
+    
+    <!-- Game -->
+    <url>
+        <loc>https://solanatamagotchi.com/tamagotchi-game.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
+    <!-- Mint NFT -->
+    <url>
+        <loc>https://solanatamagotchi.com/mint.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
+    <!-- Whitepaper -->
+    <url>
+        <loc>https://solanatamagotchi.com/whitepaper.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Profile -->
+    <url>
+        <loc>https://solanatamagotchi.com/profile.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Marketplace -->
+    <url>
+        <loc>https://solanatamagotchi.com/marketplace.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Mini Games -->
+    <url>
+        <loc>https://solanatamagotchi.com/wheel.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/slots.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Referral -->
+    <url>
+        <loc>https://solanatamagotchi.com/referral.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    
+    <!-- My NFTs -->
+    <url>
+        <loc>https://solanatamagotchi.com/my-nfts.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Localized Landing Pages -->
+    <url>
+        <loc>https://solanatamagotchi.com/ru/</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://solanatamagotchi.com/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://solanatamagotchi.com/ru/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://solanatamagotchi.com/zh/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://solanatamagotchi.com/ja/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="https://solanatamagotchi.com/ko/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://solanatamagotchi.com/es/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://solanatamagotchi.com/"/>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/zh/</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://solanatamagotchi.com/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://solanatamagotchi.com/ru/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://solanatamagotchi.com/zh/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://solanatamagotchi.com/ja/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="https://solanatamagotchi.com/ko/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://solanatamagotchi.com/es/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://solanatamagotchi.com/"/>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/ja/</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://solanatamagotchi.com/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://solanatamagotchi.com/ru/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://solanatamagotchi.com/zh/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://solanatamagotchi.com/ja/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="https://solanatamagotchi.com/ko/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://solanatamagotchi.com/es/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://solanatamagotchi.com/"/>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/ko/</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://solanatamagotchi.com/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://solanatamagotchi.com/ru/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://solanatamagotchi.com/zh/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://solanatamagotchi.com/ja/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="https://solanatamagotchi.com/ko/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://solanatamagotchi.com/es/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://solanatamagotchi.com/"/>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/es/</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://solanatamagotchi.com/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://solanatamagotchi.com/ru/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://solanatamagotchi.com/zh/"/>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://solanatamagotchi.com/ja/"/>
+        <xhtml:link rel="alternate" hreflang="ko" href="https://solanatamagotchi.com/ko/"/>
+        <xhtml:link rel="alternate" hreflang="es" href="https://solanatamagotchi.com/es/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://solanatamagotchi.com/"/>
+    </url>
+    
+    <!-- Blog -->
+    <url>
+        <loc>https://solanatamagotchi.com/blog/</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/blog/solana-tamagotchi-december-2025-update-multilingual.html</loc>
+        <lastmod>2025-12-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/blog/solana-tamagotchi-updates-november-2025.html</loc>
+        <lastmod>2025-11-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/blog/how-to-play-solana-tamagotchi-guide.html</loc>
+        <lastmod>2025-12-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/blog/how-to-earn-crypto-playing-games.html</loc>
+        <lastmod>2025-12-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Legal Pages -->
+    <url>
+        <loc>https://solanatamagotchi.com/terms.html</loc>
+        <lastmod>2025-12-01</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/privacy.html</loc>
+        <lastmod>2025-12-01</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    <url>
+        <loc>https://solanatamagotchi.com/disclaimer.html</loc>
+        <lastmod>2025-12-01</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    
 </urlset>
-
