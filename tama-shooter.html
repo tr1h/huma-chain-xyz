@@ -1230,12 +1230,17 @@
             winGame() {
                 this.isRunning = false;
 
+                console.log(`🎉 ===== VICTORY! =====`);
+                console.log(`🎉 Final stats: Level=${this.level}, Score=${this.score}, Kills=${this.enemiesKilled}, Lives=${this.lives}`);
+
                 // Calculate reward
                 const baseReward = this.betAmount * 2;
                 const scoreBonus = Math.floor(this.score / 10);
                 const levelBonus = this.level * 200;
                 const completionBonus = 2000; // Bonus for completing all levels
                 const totalReward = baseReward + scoreBonus + levelBonus + completionBonus;
+
+                console.log(`💰 Rewards: Base=${baseReward}, Score=${scoreBonus}, Level=${levelBonus}, Completion=${completionBonus}, Total=${totalReward} TAMA`);
 
                 // Update balance
                 balance += totalReward;
