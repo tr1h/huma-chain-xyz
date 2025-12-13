@@ -605,9 +605,17 @@
 
                 // Check if boss wave (ПОСЛЕ всех волн!)
                 if (this.wave > levelData.waves && this.level < this.maxLevels) {
-                    console.log(`👾 All waves completed! Spawning boss for level ${this.level}...`);
-                    this.spawnBoss();
-                    return;
+                    // Проверяем есть ли босс на этом уровне
+                    if (levelData.hasBoss || this.level >= 3) {
+                        console.log(`👾 All waves completed! Spawning boss for level ${this.level}...`);
+                        this.spawnBoss();
+                        return;
+                    } else {
+                        // Если нет босса, переходим к следующему уровню
+                        console.log(`✅ Level ${this.level} complete! Moving to next level...`);
+                        this.completeLevel();
+                        return;
+                    }
                 }
 
                 // Check if level complete (ПОСЛЕ всех волн и босса!)
