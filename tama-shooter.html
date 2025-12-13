@@ -89,11 +89,11 @@
             text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
             transition: all 0.3s ease;
         }
-        
+
         .stat-value:hover {
             transform: scale(1.1);
         }
-        
+
         #combo {
             position: absolute;
             top: 10px;
@@ -107,7 +107,7 @@
             z-index: 100;
             animation: pulse 1s infinite;
         }
-        
+
         @keyframes pulse {
             0%, 100% { transform: translateX(-50%) scale(1); }
             50% { transform: translateX(-50%) scale(1.1); }
@@ -280,6 +280,10 @@
                 <div class="stat-value" id="score">0</div>
             </div>
             <div class="stat-item">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat-item">
                 <div class="stat-label">Wave</div>
                 <div class="stat-value" id="wave">0</div>
             </div>
@@ -448,9 +452,9 @@
             levels: [
                 { name: 'Space Station', waves: 6, enemyTypes: ['basic'] }, // БОЛЬШЕ волн!
                 { name: 'Asteroid Field', waves: 6, enemyTypes: ['basic', 'fast'] },
-                { name: 'Alien Planet', waves: 7, enemyTypes: ['basic', 'fast', 'tank'] },
-                { name: 'Deep Space', waves: 7, enemyTypes: ['basic', 'fast', 'tank', 'shooter'] },
-                { name: 'Final Boss', waves: 1, enemyTypes: ['boss'] }
+                { name: 'Alien Planet', waves: 7, enemyTypes: ['basic', 'fast', 'tank'], hasBoss: true }, // Босс на 3 уровне!
+                { name: 'Deep Space', waves: 7, enemyTypes: ['basic', 'fast', 'tank', 'shooter'], hasBoss: true }, // Босс на 4 уровне!
+                { name: 'Final Boss', waves: 1, enemyTypes: ['boss'], hasBoss: true } // Финальный босс!
             ],
 
             init() {
@@ -521,7 +525,7 @@
                 this.particles = [];
                 this.powerups = [];
                 this.boss = null;
-                
+
                 // Reset combo
                 this.combo = 0;
                 this.comboMultiplier = 1;
@@ -559,7 +563,7 @@
 
                 // Start game loop
                 this.gameLoop();
-                
+
                 // Start periodic logging
                 setTimeout(() => this.logGameState(), 5000);
             },
@@ -715,7 +719,7 @@
                 const bossHealth = 25 + this.level * 8; // Более сбалансированный HP
                 console.log(`👾 ===== BOSS SPAWNING =====`);
                 console.log(`👾 Level: ${this.level}, Boss: ${levelData.name}, Health: ${bossHealth}`);
-                
+
                 this.boss = {
                     x: canvas.width / 2,
                     y: 100,
@@ -787,9 +791,9 @@
             // Периодическое логирование состояния игры (каждые 5 секунд)
             logGameState() {
                 if (!this.isRunning) return;
-                
+
                 console.log(`📊 Game State: Level=${this.level}, Wave=${this.wave}, Enemies=${this.enemies.length}, Boss=${this.boss ? `HP:${this.boss.health}/${this.boss.maxHealth}` : 'None'}, Lives=${this.lives}, Score=${this.score}, Kills=${this.enemiesKilled}`);
-                
+
                 // Логируем каждые 5 секунд
                 setTimeout(() => this.logGameState(), 5000);
             },
@@ -928,7 +932,7 @@
 
                             if (enemy.health <= 0) {
                                 this.enemies.splice(eIndex, 1);
-                                
+
                                 // Комбо система
                                 const now = Date.now();
                                 if (now - this.lastKillTime < 2000) { // 2 секунды на комбо
@@ -939,28 +943,28 @@
                                     this.comboMultiplier = 1;
                                 }
                                 this.lastKillTime = now;
-                                
+
                                 // Очки с комбо множителем
                                 const baseScore = 10;
                                 const comboBonus = this.combo * 2;
                                 const scoreGain = (baseScore + comboBonus) * this.comboMultiplier;
                                 this.score += Math.floor(scoreGain);
-                                
+
                                 this.enemiesKilled++;
-                                
+
                                 // Разные цвета взрывов для разных типов врагов
                                 let explosionColor = '#ffaa00';
                                 if (enemy.type === 'fast') explosionColor = '#0088ff';
                                 if (enemy.type === 'tank') explosionColor = '#ff8800';
                                 if (enemy.type === 'shooter') explosionColor = '#00ff88';
-                                
+
                                 this.createExplosion(enemy.x, enemy.y, explosionColor, 15);
-                                
+
                                 // Показываем комбо на экране
                                 if (this.combo > 1) {
                                     this.showCombo(enemy.x, enemy.y, this.combo, this.comboMultiplier);
                                 }
-                                
+
                                 console.log(`💥 Enemy killed! Type: ${enemy.type}, Combo: ${this.combo}x${this.comboMultiplier}, Score: +${Math.floor(scoreGain)}, Total kills: ${this.enemiesKilled}`);
                             }
                         }
@@ -989,21 +993,21 @@
                         }
                     }
                 });
-                
+
                 // ✅ КРИТИЧНО: Проверка коллизий ВРАЖЕСКИХ пуль с ИГРОКОМ!
                 this.bullets.forEach((bullet, bIndex) => {
                     // Только вражеские пули!
                     if (!bullet.isEnemy) return;
-                    
+
                     // Проверка коллизии с игроком
                     if (bullet.x > this.player.x - this.player.width / 2 &&
                         bullet.x < this.player.x + this.player.width / 2 &&
                         bullet.y > this.player.y - this.player.height / 2 &&
                         bullet.y < this.player.y + this.player.height / 2) {
-                        
+
                         // Пуля попала в игрока!
                         this.bullets.splice(bIndex, 1);
-                        
+
                         // Проверка щита
                         if (this.shield && this.shieldTimer > 0) {
                             // Щит поглотил удар
@@ -1082,7 +1086,7 @@
                         this.particles.splice(index, 1);
                     }
                 });
-                
+
                 // Update combo display
                 if (this.comboDisplay) {
                     this.comboDisplay.y -= 2;
@@ -1091,7 +1095,7 @@
                         this.comboDisplay = null;
                     }
                 }
-                
+
                 // Сброс комбо если прошло слишком много времени
                 const now = Date.now();
                 if (now - this.lastKillTime > 3000 && this.combo > 0) {
@@ -1110,7 +1114,7 @@
                         this.boss.direction *= -1;
                     }
                 }
-                
+
                 // Boss shooting (только если босс может стрелять - начиная с 3 уровня!)
                 if (this.boss.canShoot) {
                     this.boss.shootCooldown--;
@@ -1178,7 +1182,7 @@
                 ctx.closePath();
                 ctx.fill();
                 ctx.shadowBlur = 0;
-                
+
                 // Двигательные следы для динамичности
                 if (Math.abs(this.player.x - this.mouseX) > 1) {
                     ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
@@ -1306,13 +1310,13 @@
                     // Пульсирующий эффект
                     const pulse = Math.sin(Date.now() / 200) * 3;
                     const size = powerup.width + pulse;
-                    
+
                     ctx.shadowBlur = 15;
                     ctx.shadowColor = color;
                     ctx.fillStyle = color;
                     ctx.fillRect(powerup.x - size / 2, powerup.y - size / 2, size, size);
                     ctx.shadowBlur = 0;
-                    
+
                     ctx.fillStyle = '#ffffff';
                     ctx.font = `${20 + pulse}px Arial`;
                     ctx.textAlign = 'center';
@@ -1335,7 +1339,7 @@
                     ctx.fill();
                 });
                 ctx.globalAlpha = 1;
-                
+
                 // Draw combo display
                 if (this.comboDisplay) {
                     ctx.globalAlpha = this.comboDisplay.life / 60;
@@ -1512,12 +1516,15 @@
                 document.getElementById('score').textContent = this.score.toLocaleString();
                 const levelData = this.levels[this.level - 1];
                 
+                // Обновляем уровень
+                document.getElementById('level').textContent = this.level;
+                
                 // Show wave or boss indicator
                 if (this.boss) {
-                    document.getElementById('wave').textContent = `BOSS ${this.level}`;
+                    document.getElementById('wave').textContent = `BOSS`;
                     document.getElementById('wave').style.color = '#ff00ff';
                 } else {
-                    document.getElementById('wave').textContent = `${this.level}-${this.wave}`;
+                    document.getElementById('wave').textContent = `${this.wave}/${levelData.waves}`;
                     document.getElementById('wave').style.color = '#00ff88';
                 }
                 
@@ -1535,7 +1542,7 @@
                     }
                 }
             },
-            
+
             showCombo(x, y, combo, multiplier) {
                 this.comboDisplay = {
                     x: x,
