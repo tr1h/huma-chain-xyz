@@ -1036,11 +1036,19 @@
                         }, 2000);
                     } else if (this.level < this.maxLevels) {
                         // Spawn boss (только если прошли все волны!)
-                        console.log(`👾 All waves complete! Spawning boss...`);
-                        setTimeout(() => {
-                            this.isTransitioning = false; // Разблокируем после спавна босса
-                            this.spawnBoss();
-                        }, 2000);
+                        const levelData = this.levels[this.level - 1];
+                        if (levelData.hasBoss || this.level >= 3) {
+                            console.log(`👾 All waves complete! Spawning boss for level ${this.level}...`);
+                            setTimeout(() => {
+                                this.isTransitioning = false; // Разблокируем после спавна босса
+                                this.spawnBoss();
+                            }, 2000);
+                        } else {
+                            // Если нет босса, переходим к следующему уровню
+                            console.log(`✅ Level ${this.level} complete! Moving to next level...`);
+                            this.isTransitioning = false;
+                            this.completeLevel();
+                        }
                     } else {
                         // Final boss defeated
                         console.log(`🎉 All levels and waves complete! Victory!`);
@@ -1239,11 +1247,14 @@
                     ctx.shadowBlur = 0;
                 });
 
-                // Draw boss
+                // Draw boss (УЛУЧШЕННАЯ ВИЗУАЛИЗАЦИЯ!)
                 if (this.boss) {
-                    // Boss body (bigger and more visible)
+                    // Boss body (bigger and more visible with glow)
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#8b5cf6';
                     ctx.fillStyle = '#8b5cf6';
                     ctx.fillRect(this.boss.x - this.boss.width / 2, this.boss.y - this.boss.height / 2, this.boss.width, this.boss.height);
+                    ctx.shadowBlur = 0;
 
                     // Boss outline (glowing effect)
                     ctx.strokeStyle = '#ff00ff';
