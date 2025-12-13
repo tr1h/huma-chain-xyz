@@ -343,6 +343,268 @@ const TRANSLATIONS = {
         en: 'Invite Friends', ru: 'Пригласить друзей', zh: '邀请朋友', es: 'Invitar amigos', pt: 'Convidar amigos',
         ja: '友達を招待', fr: 'Inviter des amis', hi: 'दोस्तों को आमंत्रित करें', ko: '친구 초대', tr: 'Arkadaşları Davet Et',
         de: 'Freunde einladen', ar: 'دعوة الأصدقاء', vi: 'Mời bạn bè'
+    },
+
+    // ========== GAME NAMES ==========
+    'lucky_slots': {
+        en: 'Lucky Slots', ru: 'Счастливые слоты', zh: '幸运老虎机', es: 'Tragamonedas', pt: 'Caça-níqueis',
+        ja: 'ラッキースロット', fr: 'Machines à sous', hi: 'लकी स्लॉट्स', ko: '럭키 슬롯', tr: 'Şanslı Slot',
+        de: 'Glücksslots', ar: 'سلوتس محظوظة', vi: 'Máy xèng may mắn'
+    },
+    'lucky_slots_desc': {
+        en: '🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!', ru: '🎰 Ставка: 100-2000 TAMA | Выиграй джекпот!', 
+        zh: '🎰 投注: 100-2000 TAMA | 赢取奖池!', es: '🎰 Apuesta: 100-2000 TAMA | ¡Gana el Jackpot!',
+        pt: '🎰 Aposta: 100-2000 TAMA | Ganhe o Jackpot!', ja: '🎰 ベット: 100-2000 TAMA | ジャックポットを獲得!',
+        fr: '🎰 Mise: 100-2000 TAMA | Gagnez le Jackpot!', hi: '🎰 दांव: 100-2000 TAMA | जैकपॉट जीतें!',
+        ko: '🎰 베팅: 100-2000 TAMA | 잭팟 획득!', tr: '🎰 Bahis: 100-2000 TAMA | Jackpot Kazan!',
+        de: '🎰 Einsatz: 100-2000 TAMA | Gewinne den Jackpot!', ar: '🎰 رهان: 100-2000 | اربح الجائزة الكبرى!',
+        vi: '🎰 Cược: 100-2000 TAMA | Trúng Jackpot!'
+    },
+    'lucky_wheel': {
+        en: 'Lucky Wheel', ru: 'Колесо удачи', zh: '幸运转盘', es: 'Rueda de la Suerte', pt: 'Roda da Sorte',
+        ja: 'ラッキーホイール', fr: 'Roue de la Fortune', hi: 'लकी व्हील', ko: '행운의 바퀴', tr: 'Şans Çarkı',
+        de: 'Glücksrad', ar: 'عجلة الحظ', vi: 'Vòng quay may mắn'
+    },
+    'lucky_wheel_desc': {
+        en: 'Bet: 500-1000 TAMA | Win: up to 10x!', ru: 'Ставка: 500-1000 TAMA | Выигрыш: до 10x!',
+        zh: '投注: 500-1000 TAMA | 赢: 最高10倍!', es: 'Apuesta: 500-1000 TAMA | Gana: hasta 10x!',
+        pt: 'Aposta: 500-1000 TAMA | Ganhe: até 10x!', ja: 'ベット: 500-1000 TAMA | 勝利: 最大10倍!',
+        fr: 'Mise: 500-1000 TAMA | Gain: jusqu\'à 10x!', hi: 'दांव: 500-1000 TAMA | जीत: 10x तक!',
+        ko: '베팅: 500-1000 TAMA | 승리: 최대 10배!', tr: 'Bahis: 500-1000 TAMA | Kazanç: 10x\'e kadar!',
+        de: 'Einsatz: 500-1000 TAMA | Gewinn: bis zu 10x!', ar: 'رهان: 500-1000 | ربح: حتى 10x!',
+        vi: 'Cược: 500-1000 TAMA | Thắng: lên đến 10x!'
+    },
+    'super_tama_bros': {
+        en: 'SUPER TAMA BROS', ru: 'СУПЕР ТАМА БРОС', zh: '超级塔马兄弟', es: 'SUPER TAMA BROS', pt: 'SUPER TAMA BROS',
+        ja: 'スーパータマブラザーズ', fr: 'SUPER TAMA BROS', hi: 'सुपर तमा ब्रदर्स', ko: '슈퍼 타마 브로스', tr: 'SÜPER TAMA BROS',
+        de: 'SUPER TAMA BROS', ar: 'سوبر تاما بروس', vi: 'SUPER TAMA BROS'
+    },
+    'super_tama_bros_desc': {
+        en: '100 TAMA | 3 Levels | Win: up to 1000+ TAMA!', ru: '100 TAMA | 3 уровня | Выигрыш: до 1000+ TAMA!',
+        zh: '100 TAMA | 3关 | 赢: 最高1000+ TAMA!', es: '100 TAMA | 3 Niveles | Gana: hasta 1000+ TAMA!',
+        pt: '100 TAMA | 3 Níveis | Ganhe: até 1000+ TAMA!', ja: '100 TAMA | 3レベル | 勝利: 1000+ TAMAまで!',
+        fr: '100 TAMA | 3 Niveaux | Gain: jusqu\'à 1000+ TAMA!', hi: '100 TAMA | 3 लेवल | जीत: 1000+ TAMA तक!',
+        ko: '100 TAMA | 3레벨 | 승리: 1000+ TAMA까지!', tr: '100 TAMA | 3 Seviye | Kazanç: 1000+ TAMA\'ya kadar!',
+        de: '100 TAMA | 3 Level | Gewinn: bis zu 1000+ TAMA!', ar: '100 TAMA | 3 مستويات | ربح: حتى 1000+!',
+        vi: '100 TAMA | 3 Cấp | Thắng: lên đến 1000+ TAMA!'
+    },
+    'color_match': {
+        en: 'TAMA COLOR MATCH', ru: 'ТАМА ЦВЕТА', zh: '塔马颜色配对', es: 'COLORES TAMA', pt: 'CORES TAMA',
+        ja: 'タマカラーマッチ', fr: 'COULEURS TAMA', hi: 'तमा कलर मैच', ko: '타마 컬러 매치', tr: 'TAMA RENK EŞLEŞTİRME',
+        de: 'TAMA FARBSPIEL', ar: 'تاما الألوان', vi: 'TAMA GHÉP MÀU'
+    },
+    'color_match_desc': {
+        en: '50-300 TAMA | Memory Game | Win: up to 5x!', ru: '50-300 TAMA | Игра на память | Выигрыш: до 5x!',
+        zh: '50-300 TAMA | 记忆游戏 | 赢: 最高5倍!', es: '50-300 TAMA | Juego de Memoria | Gana: hasta 5x!',
+        pt: '50-300 TAMA | Jogo de Memória | Ganhe: até 5x!', ja: '50-300 TAMA | メモリーゲーム | 勝利: 最大5倍!',
+        fr: '50-300 TAMA | Jeu de Mémoire | Gain: jusqu\'à 5x!', hi: '50-300 TAMA | मेमोरी गेम | जीत: 5x तक!',
+        ko: '50-300 TAMA | 메모리 게임 | 승리: 최대 5배!', tr: '50-300 TAMA | Hafıza Oyunu | Kazanç: 5x\'e kadar!',
+        de: '50-300 TAMA | Gedächtnisspiel | Gewinn: bis zu 5x!', ar: '50-300 TAMA | لعبة الذاكرة | ربح: حتى 5x!',
+        vi: '50-300 TAMA | Trò chơi trí nhớ | Thắng: lên đến 5x!'
+    },
+    'tama_shooter': {
+        en: 'TAMA SHOOTER', ru: 'ТАМА СТРЕЛЯЛКА', zh: '塔马射击', es: 'TAMA SHOOTER', pt: 'TAMA SHOOTER',
+        ja: 'タマシューター', fr: 'TAMA SHOOTER', hi: 'तमा शूटर', ko: '타마 슈터', tr: 'TAMA SHOOTER',
+        de: 'TAMA SHOOTER', ar: 'تاما شوتر', vi: 'TAMA BẮN SÚNG'
+    },
+    'tama_shooter_desc': {
+        en: '100-500 TAMA | 10 Waves | Win: up to 3x!', ru: '100-500 TAMA | 10 волн | Выигрыш: до 3x!',
+        zh: '100-500 TAMA | 10波 | 赢: 最高3倍!', es: '100-500 TAMA | 10 Oleadas | Gana: hasta 3x!',
+        pt: '100-500 TAMA | 10 Ondas | Ganhe: até 3x!', ja: '100-500 TAMA | 10ウェーブ | 勝利: 最大3倍!',
+        fr: '100-500 TAMA | 10 Vagues | Gain: jusqu\'à 3x!', hi: '100-500 TAMA | 10 वेव | जीत: 3x तक!',
+        ko: '100-500 TAMA | 10웨이브 | 승리: 최대 3배!', tr: '100-500 TAMA | 10 Dalga | Kazanç: 3x\'e kadar!',
+        de: '100-500 TAMA | 10 Wellen | Gewinn: bis zu 3x!', ar: '100-500 TAMA | 10 موجات | ربح: حتى 3x!',
+        vi: '100-500 TAMA | 10 Wave | Thắng: lên đến 3x!'
+    },
+    'dice_roll': {
+        en: 'Dice Roll', ru: 'Кости', zh: '骰子', es: 'Dados', pt: 'Dados',
+        ja: 'サイコロ', fr: 'Dés', hi: 'पासा', ko: '주사위', tr: 'Zar',
+        de: 'Würfel', ar: 'نرد', vi: 'Xúc xắc'
+    },
+    'pet_battle': {
+        en: 'PET BATTLE ARENA', ru: 'АРЕНА ПИТОМЦЕВ', zh: '宠物竞技场', es: 'ARENA DE MASCOTAS', pt: 'ARENA DE PETS',
+        ja: 'ペットバトルアリーナ', fr: 'ARÈNE DE COMBAT', hi: 'पेट बैटल एरीना', ko: '펫 배틀 아레나', tr: 'EVCIL HAYVAN ARENASI',
+        de: 'PET KAMPFARENA', ar: 'ساحة قتال الحيوانات', vi: 'ĐẤU TRƯỜNG THÚ CƯNG'
+    },
+    'choose_pet_battle': {
+        en: 'Choose your NFT pet and battle!', ru: 'Выбери своего NFT питомца и сражайся!', zh: '选择你的NFT宠物战斗!',
+        es: '¡Elige tu mascota NFT y batalla!', pt: 'Escolha seu pet NFT e batalhe!', ja: 'NFTペットを選んでバトル!',
+        fr: 'Choisissez votre pet NFT et combattez!', hi: 'अपना NFT पेट चुनें और लड़ें!', ko: 'NFT 펫을 선택하고 싸우세요!',
+        tr: 'NFT evcil hayvanınızı seçin ve savaşın!', de: 'Wähle dein NFT-Haustier und kämpfe!',
+        ar: 'اختر حيوانك NFT وقاتل!', vi: 'Chọn thú cưng NFT và chiến đấu!'
+    },
+    'tama_tower': {
+        en: 'TAMA TOWER', ru: 'ТАМА БАШНЯ', zh: '塔马塔', es: 'TORRE TAMA', pt: 'TORRE TAMA',
+        ja: 'タマタワー', fr: 'TOUR TAMA', hi: 'तमा टावर', ko: '타마 타워', tr: 'TAMA KULESİ',
+        de: 'TAMA TURM', ar: 'برج تاما', vi: 'THÁP TAMA'
+    },
+    'tower_desc': {
+        en: 'Build a tower! Higher = more reward! But it can fall anytime!', ru: 'Строй башню! Выше = больше награда! Но может упасть!',
+        zh: '建塔! 越高=越多奖励! 但可能随时倒塌!', es: '¡Construye una torre! Más alto = más recompensa! ¡Pero puede caer!',
+        pt: 'Construa uma torre! Mais alto = mais recompensa! Mas pode cair!', ja: 'タワーを建てよう! 高い = 報酬UP! でも倒れるかも!',
+        fr: 'Construisez une tour! Plus haut = plus de récompense! Mais elle peut tomber!', hi: 'टावर बनाओ! ऊंचा = ज्यादा इनाम! लेकिन गिर सकता है!',
+        ko: '타워를 쌓으세요! 높을수록 = 더 많은 보상! 하지만 무너질 수 있어요!', tr: 'Bir kule inşa et! Yüksek = daha fazla ödül! Ama düşebilir!',
+        de: 'Bau einen Turm! Höher = mehr Belohnung! Aber er kann fallen!', ar: 'ابن برجاً! أعلى = مكافأة أكبر! لكنه قد يسقط!',
+        vi: 'Xây tháp! Cao hơn = nhiều phần thưởng hơn! Nhưng có thể đổ!'
+    },
+    'precision_click': {
+        en: 'PRECISION CLICK', ru: 'ТОЧНЫЙ КЛИК', zh: '精准点击', es: 'CLIC PRECISO', pt: 'CLIQUE PRECISO',
+        ja: 'プレシジョンクリック', fr: 'CLIC PRÉCIS', hi: 'प्रिसिशन क्लिक', ko: '정밀 클릭', tr: 'HASSAS TIKLA',
+        de: 'PRÄZISIONSKLICK', ar: 'نقرة دقيقة', vi: 'NHẤP CHÍNH XÁC'
+    },
+    'precision_desc': {
+        en: 'Click exactly when the target is in the center!', ru: 'Кликни точно когда цель в центре!', zh: '当目标在中心时精确点击!',
+        es: '¡Haz clic exactamente cuando el objetivo esté en el centro!', pt: 'Clique exatamente quando o alvo estiver no centro!',
+        ja: 'ターゲットが中央にあるときにクリック!', fr: 'Cliquez exactement quand la cible est au centre!',
+        hi: 'जब टारगेट बीच में हो तब क्लिक करें!', ko: '타겟이 중앙에 있을 때 정확히 클릭하세요!',
+        tr: 'Hedef tam ortadayken tıklayın!', de: 'Klicke genau wenn das Ziel in der Mitte ist!',
+        ar: 'انقر بالضبط عندما يكون الهدف في المنتصف!', vi: 'Nhấp chính xác khi mục tiêu ở giữa!'
+    },
+    'roulette': {
+        en: 'ROULETTE', ru: 'РУЛЕТКА', zh: '轮盘', es: 'RULETA', pt: 'ROLETA',
+        ja: 'ルーレット', fr: 'ROULETTE', hi: 'रूलेट', ko: '룰렛', tr: 'RULET',
+        de: 'ROULETTE', ar: 'روليت', vi: 'VÒNG QUAY'
+    },
+    'roulette_desc': {
+        en: 'Place your bets! Classic casino game!', ru: 'Делай ставки! Классическая казино игра!', zh: '下注! 经典赌场游戏!',
+        es: '¡Haz tus apuestas! ¡Juego de casino clásico!', pt: 'Faça suas apostas! Jogo de cassino clássico!',
+        ja: 'ベットしよう! クラシックカジノゲーム!', fr: 'Placez vos paris! Jeu de casino classique!',
+        hi: 'अपने दांव लगाओ! क्लासिक कैसीनो गेम!', ko: '베팅하세요! 클래식 카지노 게임!',
+        tr: 'Bahislerinizi koyun! Klasik kumarhane oyunu!', de: 'Platzieren Sie Ihre Wetten! Klassisches Casinospiel!',
+        ar: 'ضع رهاناتك! لعبة كازينو كلاسيكية!', vi: 'Đặt cược! Trò chơi casino cổ điển!'
+    },
+    'card_game': {
+        en: 'CARD GAME', ru: 'КАРТЫ', zh: '纸牌', es: 'CARTAS', pt: 'CARTAS',
+        ja: 'カードゲーム', fr: 'JEU DE CARTES', hi: 'कार्ड गेम', ko: '카드 게임', tr: 'KART OYUNU',
+        de: 'KARTENSPIEL', ar: 'لعبة الورق', vi: 'BÀI'
+    },
+    'card_game_desc': {
+        en: 'Play Blackjack! Beat the dealer!', ru: 'Играй в блэкджек! Обыграй дилера!', zh: '玩21点! 击败庄家!',
+        es: '¡Juega al Blackjack! ¡Gana al crupier!', pt: 'Jogue Blackjack! Vença o dealer!',
+        ja: 'ブラックジャックをプレイ! ディーラーに勝て!', fr: 'Jouez au Blackjack! Battez le croupier!',
+        hi: 'ब्लैकजैक खेलो! डीलर को हराओ!', ko: '블랙잭 플레이! 딜러를 이겨라!',
+        tr: 'Blackjack oyna! Krupiyeyi yen!', de: 'Spiele Blackjack! Schlage den Dealer!',
+        ar: 'العب بلاك جاك! اهزم الموزع!', vi: 'Chơi Blackjack! Đánh bại nhà cái!'
+    },
+
+    // ========== GAME BUTTONS ==========
+    'start': {
+        en: 'START!', ru: 'СТАРТ!', zh: '开始!', es: '¡INICIO!', pt: 'INICIAR!',
+        ja: 'スタート!', fr: 'DÉMARRER!', hi: 'शुरू!', ko: '시작!', tr: 'BAŞLA!',
+        de: 'START!', ar: 'ابدأ!', vi: 'BẮT ĐẦU!'
+    },
+    'roll': {
+        en: 'ROLL!', ru: 'БРОСИТЬ!', zh: '掷!', es: '¡TIRAR!', pt: 'ROLAR!',
+        ja: 'ロール!', fr: 'LANCER!', hi: 'रोल!', ko: '굴려!', tr: 'AT!',
+        de: 'WÜRFELN!', ar: 'ارمِ!', vi: 'LĂN!'
+    },
+    'start_battle': {
+        en: 'START BATTLE!', ru: 'НАЧАТЬ БОЙ!', zh: '开始战斗!', es: '¡INICIAR BATALLA!', pt: 'INICIAR BATALHA!',
+        ja: 'バトル開始!', fr: 'COMMENCER LE COMBAT!', hi: 'युद्ध शुरू!', ko: '전투 시작!', tr: 'SAVAŞI BAŞLAT!',
+        de: 'KAMPF STARTEN!', ar: 'ابدأ المعركة!', vi: 'BẮT ĐẦU CHIẾN ĐẤU!'
+    },
+    'add_block': {
+        en: 'ADD BLOCK', ru: 'ДОБАВИТЬ БЛОК', zh: '添加方块', es: 'AÑADIR BLOQUE', pt: 'ADICIONAR BLOCO',
+        ja: 'ブロック追加', fr: 'AJOUTER UN BLOC', hi: 'ब्लॉक जोड़ें', ko: '블록 추가', tr: 'BLOK EKLE',
+        de: 'BLOCK HINZUFÜGEN', ar: 'إضافة كتلة', vi: 'THÊM KHỐI'
+    },
+    'cash_out': {
+        en: 'CASH OUT', ru: 'ЗАБРАТЬ', zh: '提现', es: 'RETIRAR', pt: 'SACAR',
+        ja: 'キャッシュアウト', fr: 'ENCAISSER', hi: 'कैश आउट', ko: '캐시아웃', tr: 'PARA ÇEK',
+        de: 'AUSZAHLEN', ar: 'سحب النقود', vi: 'RÚT TIỀN'
+    },
+    'start_building': {
+        en: 'START BUILDING!', ru: 'НАЧАТЬ СТРОИТЬ!', zh: '开始建造!', es: '¡EMPEZAR A CONSTRUIR!', pt: 'COMEÇAR A CONSTRUIR!',
+        ja: '建設開始!', fr: 'COMMENCER À CONSTRUIRE!', hi: 'बिल्डिंग शुरू!', ko: '건설 시작!', tr: 'İNŞAATA BAŞLA!',
+        de: 'MIT DEM BAU BEGINNEN!', ar: 'ابدأ البناء!', vi: 'BẮT ĐẦU XÂY!'
+    },
+    'deal_cards': {
+        en: 'DEAL CARDS!', ru: 'РАЗДАТЬ КАРТЫ!', zh: '发牌!', es: '¡REPARTIR CARTAS!', pt: 'DISTRIBUIR CARTAS!',
+        ja: 'カード配布!', fr: 'DISTRIBUER LES CARTES!', hi: 'कार्ड बांटो!', ko: '카드 돌려!', tr: 'KART DAĞIT!',
+        de: 'KARTEN GEBEN!', ar: 'وزع الورق!', vi: 'CHIA BÀI!'
+    },
+    'hit': {
+        en: 'HIT', ru: 'ЕЩЁ', zh: '要牌', es: 'PEDIR', pt: 'PEDIR',
+        ja: 'ヒット', fr: 'TIRER', hi: 'हिट', ko: '히트', tr: 'ÇEK',
+        de: 'KARTE', ar: 'اسحب', vi: 'BỐC'
+    },
+    'stand': {
+        en: 'STAND', ru: 'СТОП', zh: '停牌', es: 'PLANTARSE', pt: 'PARAR',
+        ja: 'スタンド', fr: 'RESTER', hi: 'स्टैंड', ko: '스탠드', tr: 'KAL',
+        de: 'HALTEN', ar: 'توقف', vi: 'DỪNG'
+    },
+    'perfect': {
+        en: 'Perfect', ru: 'Идеально', zh: '完美', es: 'Perfecto', pt: 'Perfeito',
+        ja: 'パーフェクト', fr: 'Parfait', hi: 'परफेक्ट', ko: '퍼펙트', tr: 'Mükemmel',
+        de: 'Perfekt', ar: 'مثالي', vi: 'Hoàn hảo'
+    },
+    'wins': {
+        en: 'Wins', ru: 'Победы', zh: '胜利', es: 'Victorias', pt: 'Vitórias',
+        ja: '勝利', fr: 'Victoires', hi: 'जीत', ko: '승리', tr: 'Kazanılan',
+        de: 'Siege', ar: 'انتصارات', vi: 'Thắng'
+    },
+    'losses': {
+        en: 'Losses', ru: 'Поражения', zh: '失败', es: 'Derrotas', pt: 'Derrotas',
+        ja: '敗北', fr: 'Défaites', hi: 'हार', ko: '패배', tr: 'Kaybedilen',
+        de: 'Niederlagen', ar: 'خسائر', vi: 'Thua'
+    },
+
+    // ========== MODALS ==========
+    'top_players': {
+        en: 'Top Players', ru: 'Топ игроков', zh: '顶级玩家', es: 'Mejores Jugadores', pt: 'Melhores Jogadores',
+        ja: 'トッププレイヤー', fr: 'Meilleurs Joueurs', hi: 'टॉप प्लेयर्स', ko: '최고 플레이어', tr: 'En İyi Oyuncular',
+        de: 'Top Spieler', ar: 'أفضل اللاعبين', vi: 'Người chơi hàng đầu'
+    },
+    'change_name': {
+        en: 'Change Your Name', ru: 'Изменить имя', zh: '更改名字', es: 'Cambiar Nombre', pt: 'Alterar Nome',
+        ja: '名前を変更', fr: 'Changer de Nom', hi: 'नाम बदलें', ko: '이름 변경', tr: 'Adını Değiştir',
+        de: 'Namen ändern', ar: 'غير اسمك', vi: 'Đổi tên'
+    },
+    'choose_display_name': {
+        en: 'Choose your display name:', ru: 'Выберите отображаемое имя:', zh: '选择您的显示名称:', es: 'Elige tu nombre:',
+        pt: 'Escolha seu nome de exibição:', ja: '表示名を選択:', fr: 'Choisissez votre nom:', hi: 'अपना नाम चुनें:',
+        ko: '표시 이름을 선택하세요:', tr: 'Görünen adınızı seçin:', de: 'Wählen Sie Ihren Anzeigenamen:',
+        ar: 'اختر اسم العرض الخاص بك:', vi: 'Chọn tên hiển thị của bạn:'
+    },
+    'enter_name': {
+        en: 'Enter your name', ru: 'Введите имя', zh: '输入名字', es: 'Ingresa tu nombre', pt: 'Digite seu nome',
+        ja: '名前を入力', fr: 'Entrez votre nom', hi: 'अपना नाम दर्ज करें', ko: '이름을 입력하세요', tr: 'Adınızı girin',
+        de: 'Namen eingeben', ar: 'أدخل اسمك', vi: 'Nhập tên của bạn'
+    },
+    'help_guide': {
+        en: 'Help & Guide', ru: 'Помощь и гайд', zh: '帮助和指南', es: 'Ayuda y Guía', pt: 'Ajuda e Guia',
+        ja: 'ヘルプ＆ガイド', fr: 'Aide & Guide', hi: 'सहायता और गाइड', ko: '도움말 및 가이드', tr: 'Yardım ve Rehber',
+        de: 'Hilfe & Anleitung', ar: 'المساعدة والدليل', vi: 'Trợ giúp & Hướng dẫn'
+    },
+    'quick_start': {
+        en: 'Quick Start', ru: 'Быстрый старт', zh: '快速开始', es: 'Inicio Rápido', pt: 'Início Rápido',
+        ja: 'クイックスタート', fr: 'Démarrage Rapide', hi: 'क्विक स्टार्ट', ko: '빠른 시작', tr: 'Hızlı Başlangıç',
+        de: 'Schnellstart', ar: 'بداية سريعة', vi: 'Bắt đầu nhanh'
+    },
+    'how_to_earn': {
+        en: 'How to Earn', ru: 'Как заработать', zh: '如何赚取', es: 'Cómo Ganar', pt: 'Como Ganhar',
+        ja: '稼ぎ方', fr: 'Comment Gagner', hi: 'कैसे कमाएं', ko: '수익 방법', tr: 'Nasıl Kazanılır',
+        de: 'Wie man verdient', ar: 'كيف تكسب', vi: 'Cách kiếm tiền'
+    },
+    'shop_guide': {
+        en: 'Shop Guide', ru: 'Гайд по магазину', zh: '商店指南', es: 'Guía de Tienda', pt: 'Guia da Loja',
+        ja: 'ショップガイド', fr: 'Guide Boutique', hi: 'शॉप गाइड', ko: '상점 가이드', tr: 'Mağaza Rehberi',
+        de: 'Shop-Anleitung', ar: 'دليل المتجر', vi: 'Hướng dẫn cửa hàng'
+    },
+    'faq': {
+        en: 'FAQ', ru: 'ЧаВо', zh: '常见问题', es: 'Preguntas', pt: 'Perguntas', ja: 'よくある質問',
+        fr: 'FAQ', hi: 'अक्सर पूछे जाने वाले प्रश्न', ko: '자주 묻는 질문', tr: 'SSS',
+        de: 'FAQ', ar: 'الأسئلة الشائعة', vi: 'Câu hỏi thường gặp'
+    },
+    'level': {
+        en: 'Level', ru: 'Уровень', zh: '等级', es: 'Nivel', pt: 'Nível',
+        ja: 'レベル', fr: 'Niveau', hi: 'लेवल', ko: '레벨', tr: 'Seviye',
+        de: 'Level', ar: 'المستوى', vi: 'Cấp'
+    },
+    'rank': {
+        en: 'Rank', ru: 'Ранг', zh: '排名', es: 'Rango', pt: 'Ranking',
+        ja: 'ランク', fr: 'Rang', hi: 'रैंक', ko: '순위', tr: 'Sıralama',
+        de: 'Rang', ar: 'الترتيب', vi: 'Hạng'
     }
 };
 

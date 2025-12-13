@@ -3839,7 +3839,7 @@
             <div class="header-stats">
                 <div class="header-stat">
                     <div class="header-stat-value" id="level-display">Lvl 1</div>
-                    <div class="header-stat-label">Level</div>
+                    <div class="header-stat-label" data-i18n="level">Level</div>
                 </div>
                 <div class="header-stat">
                     <div class="header-stat-value" id="tama-display">0</div>
@@ -3847,7 +3847,7 @@
                 </div>
                 <div class="header-stat">
                     <div class="header-stat-value" id="rank-display">#---</div>
-                    <div class="header-stat-label">Rank</div>
+                    <div class="header-stat-label" data-i18n="rank">Rank</div>
                 </div>
                 </div>
             </div>
@@ -4759,7 +4759,7 @@
     <div class="minigames-modal" id="minigames-modal">
         <div class="minigames-content">
             <div class="minigames-header">
-                <h2>🎮 Mini Games</h2>
+                <h2>🎮 <span data-i18n="mini_games">Mini Games</span></h2>
                 <button class="close-btn" id="close-minigames">✕</button>
             </div>
 
@@ -4768,28 +4768,28 @@
                 <!-- Lucky Slots - открывает slots.html -->
                 <div class="game-card" data-game="luckyslots" style="background: linear-gradient(135deg, #FFD700, #FFA500); cursor: pointer;">
                     <div class="game-card-icon">🎰</div>
-                    <div class="game-card-name">Lucky Slots</div>
-                    <div class="game-card-cost">🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!</div>
+                    <div class="game-card-name" data-i18n="lucky_slots">Lucky Slots</div>
+                    <div class="game-card-cost" data-i18n="lucky_slots_desc">🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!</div>
                 </div>
                 <div class="game-card" data-game="wheel" style="background: linear-gradient(135deg, #f59e0b, #d97706); cursor: pointer;">
                     <div class="game-card-icon">🎡</div>
-                    <div class="game-card-name">Lucky Wheel</div>
-                    <div class="game-card-cost">Bet: 500-1000 TAMA | Win: up to 10x!</div>
+                    <div class="game-card-name" data-i18n="lucky_wheel">Lucky Wheel</div>
+                    <div class="game-card-cost" data-i18n="lucky_wheel_desc">Bet: 500-1000 TAMA | Win: up to 10x!</div>
                 </div>
                 <div class="game-card" data-game="platformer" style="background: linear-gradient(135deg, #ef4444, #dc2626); cursor: pointer;">
                     <div class="game-card-icon">🍄</div>
-                    <div class="game-card-name">SUPER TAMA BROS</div>
-                    <div class="game-card-cost">100 TAMA | 3 Levels | Win: up to 1000+ TAMA!</div>
+                    <div class="game-card-name" data-i18n="super_tama_bros">SUPER TAMA BROS</div>
+                    <div class="game-card-cost" data-i18n="super_tama_bros_desc">100 TAMA | 3 Levels | Win: up to 1000+ TAMA!</div>
                 </div>
                 <div class="game-card" data-game="colormatch" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); cursor: pointer;">
                     <div class="game-card-icon">🎨</div>
-                    <div class="game-card-name">TAMA COLOR MATCH</div>
-                    <div class="game-card-cost">50-300 TAMA | Memory Game | Win: up to 5x!</div>
+                    <div class="game-card-name" data-i18n="color_match">TAMA COLOR MATCH</div>
+                    <div class="game-card-cost" data-i18n="color_match_desc">50-300 TAMA | Memory Game | Win: up to 5x!</div>
                 </div>
                 <div class="game-card" data-game="shooter" style="background: linear-gradient(135deg, #1e40af, #1e3a8a); cursor: pointer;">
                     <div class="game-card-icon">🚀</div>
-                    <div class="game-card-name">TAMA SHOOTER</div>
-                    <div class="game-card-cost">100-500 TAMA | 10 Waves | Win: up to 3x!</div>
+                    <div class="game-card-name" data-i18n="tama_shooter">TAMA SHOOTER</div>
+                    <div class="game-card-cost" data-i18n="tama_shooter_desc">100-500 TAMA | 10 Waves | Win: up to 3x!</div>
                 </div>
             </div>
 
@@ -4837,14 +4837,14 @@
                 <div style="text-align: center; font-size: 32px; margin: 30px 0; min-height: 80px; font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.5);" id="slots-result"></div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <button id="slots-spin-btn" style="padding: 25px 60px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 28px; box-shadow: 0 8px 25px rgba(16,185,129,0.4); transition: transform 0.2s;">🎰 SPIN!</button>
-                    <button onclick="backToGames()" style="padding: 25px 50px; background: #6b7280; border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; margin-left: 20px; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;">Back</button>
+                    <button id="slots-spin-btn" style="padding: 25px 60px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; font-size: 28px; box-shadow: 0 8px 25px rgba(16,185,129,0.4); transition: transform 0.2s;">🎰 <span data-i18n="spin">SPIN!</span></button>
+                    <button onclick="backToGames()" style="padding: 25px 50px; background: #6b7280; border: none; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; margin-left: 20px; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;" data-i18n="back">Back</button>
                 </div>
             </div>
 
             <!-- 🎲 DICE ROLL -->
             <div class="game-arena" id="dice-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">🎲 Dice Roll</h3>
+                <h3 style="text-align: center; margin-bottom: 15px;">🎲 <span data-i18n="dice_roll">Dice Roll</span></h3>
 
                 <!-- Bet Selection -->
                 <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
@@ -4864,8 +4864,8 @@
                 <div style="text-align: center; font-size: 18px; margin: 20px 0; min-height: 80px;" id="dice-result"></div>
 
                 <div style="text-align: center; margin-top: 15px;">
-                    <button id="dice-roll-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🎲 ROLL!</button>
-                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                    <button id="dice-roll-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🎲 <span data-i18n="roll">ROLL!</span></button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;" data-i18n="back">Back</button>
                 </div>
             </div>
 
@@ -4876,8 +4876,8 @@
 
             <!-- ⚔️ PET BATTLE ARENA -->
             <div class="game-arena" id="battle-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">⚔️ PET BATTLE ARENA</h3>
-                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Choose your NFT pet and battle!</p>
+                <h3 style="text-align: center; margin-bottom: 15px;">⚔️ <span data-i18n="pet_battle">PET BATTLE ARENA</span></h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;" data-i18n="choose_pet_battle">Choose your NFT pet and battle!</p>
 
                 <!-- Balance Display -->
                 <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2)); border-radius: 10px; border: 2px solid rgba(239, 68, 68, 0.3);">
@@ -4913,8 +4913,8 @@
 
                 <!-- Controls -->
                 <div style="text-align: center; margin-top: 15px;">
-                    <button id="battle-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">⚔️ START BATTLE!</button>
-                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                    <button id="battle-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">⚔️ <span data-i18n="start_battle">START BATTLE!</span></button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;" data-i18n="back">Back</button>
                 </div>
 
                 <!-- Stats -->
@@ -4927,8 +4927,8 @@
 
             <!-- 🏗️ TAMA TOWER -->
             <div class="game-arena" id="tower-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">🏗️ TAMA TOWER</h3>
-                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Build a tower! Higher = more reward! But it can fall anytime!</p>
+                <h3 style="text-align: center; margin-bottom: 15px;">🏗️ <span data-i18n="tama_tower">TAMA TOWER</span></h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;" data-i18n="tower_desc">Build a tower! Higher = more reward! But it can fall anytime!</p>
 
                 <!-- Balance Display -->
                 <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.2)); border-radius: 10px; border: 2px solid rgba(139, 92, 246, 0.3);">
@@ -4954,10 +4954,10 @@
 
                 <!-- Controls -->
                 <div style="text-align: center; margin-top: 15px;">
-                    <button id="tower-add-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none;">➕ ADD BLOCK</button>
-                    <button id="tower-cashout-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;">💰 CASH OUT</button>
-                    <button id="tower-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🏗️ START BUILDING!</button>
-                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                    <button id="tower-add-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none;">➕ <span data-i18n="add_block">ADD BLOCK</span></button>
+                    <button id="tower-cashout-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;">💰 <span data-i18n="cash_out">CASH OUT</span></button>
+                    <button id="tower-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🏗️ <span data-i18n="start_building">START BUILDING!</span></button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;" data-i18n="back">Back</button>
                 </div>
 
                 <!-- Stats -->
@@ -4969,8 +4969,8 @@
 
             <!-- 🎯 PRECISION CLICK -->
             <div class="game-arena" id="precision-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">🎯 PRECISION CLICK</h3>
-                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Click exactly when the target is in the center!</p>
+                <h3 style="text-align: center; margin-bottom: 15px;">🎯 <span data-i18n="precision_click">PRECISION CLICK</span></h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;" data-i18n="precision_desc">Click exactly when the target is in the center!</p>
 
                 <!-- Balance Display -->
                 <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); border-radius: 10px; border: 2px solid rgba(245, 158, 11, 0.3);">
@@ -4997,21 +4997,21 @@
 
                 <!-- Controls -->
                 <div style="text-align: center; margin-top: 15px;">
-                    <button id="precision-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🎯 START!</button>
-                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                    <button id="precision-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🎯 <span data-i18n="start">START!</span></button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;" data-i18n="back">Back</button>
                 </div>
 
                 <!-- Stats -->
                 <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">
-                    <div>Perfect: <span id="precision-perfect" style="color: #10b981; font-weight: bold;">0</span></div>
+                    <div><span data-i18n="perfect">Perfect</span>: <span id="precision-perfect" style="color: #10b981; font-weight: bold;">0</span></div>
                     <div>Total Won: <span id="precision-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
                 </div>
             </div>
 
             <!-- 🎲 ROULETTE -->
             <div class="game-arena" id="roulette-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">🎲 ROULETTE</h3>
-                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Place your bets! Classic casino game!</p>
+                <h3 style="text-align: center; margin-bottom: 15px;">🎲 <span data-i18n="roulette">ROULETTE</span></h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;" data-i18n="roulette_desc">Place your bets! Classic casino game!</p>
 
                 <!-- Balance Display -->
                 <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-radius: 10px; border: 2px solid rgba(16, 185, 129, 0.3);">
@@ -5046,22 +5046,22 @@
 
                 <!-- Controls -->
                 <div style="text-align: center; margin-top: 15px;">
-                    <button id="roulette-spin-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🎲 SPIN!</button>
-                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                    <button id="roulette-spin-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🎲 <span data-i18n="spin">SPIN!</span></button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;" data-i18n="back">Back</button>
                 </div>
 
                 <!-- Stats -->
                 <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">
-                    <div>Wins: <span id="roulette-wins" style="color: #10b981; font-weight: bold;">0</span></div>
-                    <div>Losses: <span id="roulette-losses" style="color: #ef4444; font-weight: bold;">0</span></div>
-                    <div>Total Won: <span id="roulette-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
+                    <div><span data-i18n="wins">Wins</span>: <span id="roulette-wins" style="color: #10b981; font-weight: bold;">0</span></div>
+                    <div><span data-i18n="losses">Losses</span>: <span id="roulette-losses" style="color: #ef4444; font-weight: bold;">0</span></div>
+                    <div><span data-i18n="total_won">Total Won</span>: <span id="roulette-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
                 </div>
             </div>
 
             <!-- 🃏 CARD GAME (Durak) -->
             <div class="game-arena" id="cards-arena" style="display: none;">
-                <h3 style="text-align: center; margin-bottom: 15px;">🃏 CARD GAME</h3>
-                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">Play Durak! Beat the dealer!</p>
+                <h3 style="text-align: center; margin-bottom: 15px;">🃏 <span data-i18n="card_game">CARD GAME</span></h3>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;" data-i18n="card_game_desc">Play Blackjack! Beat the dealer!</p>
 
                 <!-- Balance Display -->
                 <div style="text-align: center; margin-bottom: 20px; padding: 10px 15px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(219, 39, 119, 0.2)); border-radius: 10px; border: 2px solid rgba(236, 72, 153, 0.3);">
@@ -5092,17 +5092,17 @@
 
                 <!-- Controls -->
                 <div style="text-align: center; margin-top: 15px;">
-                    <button id="cards-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #ec4899, #db2777); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🃏 DEAL CARDS!</button>
-                    <button id="cards-hit-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;">HIT</button>
-                    <button id="cards-stand-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;">STAND</button>
-                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;">Back</button>
+                    <button id="cards-start-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #ec4899, #db2777); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px;">🃏 <span data-i18n="deal_cards">DEAL CARDS!</span></button>
+                    <button id="cards-hit-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;" data-i18n="hit">HIT</button>
+                    <button id="cards-stand-btn" style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; display: none; margin-left: 10px;" data-i18n="stand">STAND</button>
+                    <button onclick="backToGames()" style="padding: 15px 30px; background: #6b7280; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 16px;" data-i18n="back">Back</button>
                 </div>
 
                 <!-- Stats -->
                 <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.7);">
-                    <div>Wins: <span id="cards-wins" style="color: #10b981; font-weight: bold;">0</span></div>
-                    <div>Losses: <span id="cards-losses" style="color: #ef4444; font-weight: bold;">0</span></div>
-                    <div>Total Won: <span id="cards-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
+                    <div><span data-i18n="wins">Wins</span>: <span id="cards-wins" style="color: #10b981; font-weight: bold;">0</span></div>
+                    <div><span data-i18n="losses">Losses</span>: <span id="cards-losses" style="color: #ef4444; font-weight: bold;">0</span></div>
+                    <div><span data-i18n="total_won">Total Won</span>: <span id="cards-total-won" style="color: #fbbf24; font-weight: bold;">0</span> TAMA</div>
                 </div>
             </div>
 
@@ -5362,11 +5362,11 @@
     <div class="leaderboard-modal" id="leaderboard-modal">
         <div class="leaderboard-content">
             <div class="leaderboard-header">
-                <h2>🏆 Top Players</h2>
+                <h2>🏆 <span data-i18n="top_players">Top Players</span></h2>
                 <button class="close-btn" id="close-leaderboard">✕</button>
             </div>
             <div id="leaderboard-list" class="leaderboard-list">
-                <div class="loading">Loading...</div>
+                <div class="loading" data-i18n="loading">Loading...</div>
             </div>
         </div>
     </div>
@@ -5375,24 +5375,25 @@
     <div class="leaderboard-modal" id="edit-name-modal">
         <div class="leaderboard-content" style="max-width: 400px;">
             <div class="leaderboard-header">
-                <h2>✏️ Change Your Name</h2>
+                <h2>✏️ <span data-i18n="change_name">Change Your Name</span></h2>
                 <button class="close-btn" id="close-edit-name">✕</button>
             </div>
             <div style="padding: 20px;">
-                <p style="margin-bottom: 15px; opacity: 0.8;">Choose your display name:</p>
+                <p style="margin-bottom: 15px; opacity: 0.8;" data-i18n="choose_display_name">Choose your display name:</p>
                 <input
                     type="text"
                     id="new-name-input"
+                    data-i18n-placeholder="enter_name"
                     placeholder="Enter your name"
                     maxlength="20"
                     style="width: 100%; padding: 12px; font-size: 16px; border: 2px solid #4a5568; border-radius: 8px; background: #2d3748; color: white; font-family: 'Courier New', monospace; margin-bottom: 15px;"
                 />
                 <div style="display: flex; gap: 10px;">
                     <button id="save-name-btn" style="flex: 1; padding: 12px; background: #fbbf24; color: #1a202c; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
-                        💾 Save
+                        💾 <span data-i18n="save">Save</span>
                     </button>
                     <button id="cancel-name-btn" style="flex: 1; padding: 12px; background: #4a5568; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
-                        ✕ Cancel
+                        ✕ <span data-i18n="cancel">Cancel</span>
                     </button>
                 </div>
                 <p id="name-change-status" style="margin-top: 10px; text-align: center; font-size: 14px;"></p>
@@ -5404,14 +5405,14 @@
     <div class="help-modal" id="help-modal">
         <div class="help-content">
             <div class="help-header">
-                <h2>📚 Help & Guide</h2>
+                <h2>📚 <span data-i18n="help_guide">Help & Guide</span></h2>
                 <button class="close-btn" id="close-help">✕</button>
             </div>
             <div class="help-tabs">
-                <button class="help-tab active" data-tab="quickstart">🚀 Quick Start</button>
-                <button class="help-tab" data-tab="earn">💰 How to Earn</button>
-                <button class="help-tab" data-tab="shop">🛒 Shop Guide</button>
-                <button class="help-tab" data-tab="faq">❓ FAQ</button>
+                <button class="help-tab active" data-tab="quickstart">🚀 <span data-i18n="quick_start">Quick Start</span></button>
+                <button class="help-tab" data-tab="earn">💰 <span data-i18n="how_to_earn">How to Earn</span></button>
+                <button class="help-tab" data-tab="shop">🛒 <span data-i18n="shop_guide">Shop Guide</span></button>
+                <button class="help-tab" data-tab="faq">❓ <span data-i18n="faq">FAQ</span></button>
             </div>
             <div class="help-content-area">
                 <div class="help-tab-content active" id="quickstart-content">
