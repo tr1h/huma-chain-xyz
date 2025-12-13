@@ -521,6 +521,12 @@
                 this.particles = [];
                 this.powerups = [];
                 this.boss = null;
+                
+                // Reset combo
+                this.combo = 0;
+                this.comboMultiplier = 1;
+                this.lastKillTime = 0;
+                this.comboDisplay = null;
 
                 // Reset power-ups
                 this.tripleShot = false;
