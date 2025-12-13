@@ -166,10 +166,30 @@ const TRANSLATIONS = {
         ja: 'クエスト', fr: 'Quêtes', hi: 'क्वेस्ट', ko: '퀘스트', tr: 'Görevler',
         de: 'Aufgaben', ar: 'المهام', vi: 'Nhiệm vụ'
     },
+    'daily_quests': {
+        en: 'Daily Quests', ru: 'Дневные квесты', zh: '每日任务', es: 'Misiones diarias', pt: 'Missões diárias',
+        ja: 'デイリークエスト', fr: 'Quêtes quotidiennes', hi: 'दैनिक क्वेस्ट', ko: '일일 퀘스트', tr: 'Günlük görevler',
+        de: 'Tägliche Aufgaben', ar: 'المهام اليومية', vi: 'Nhiệm vụ hàng ngày'
+    },
     'daily_clicks': {
         en: 'Daily Clicks', ru: 'Дневные клики', zh: '每日点击', es: 'Clics diarios', pt: 'Cliques diários',
         ja: 'デイリークリック', fr: 'Clics quotidiens', hi: 'दैनिक क्लिक', ko: '일일 클릭', tr: 'Günlük tıklama',
         de: 'Tägliche Klicks', ar: 'النقرات اليومية', vi: 'Nhấp hàng ngày'
+    },
+    'click_master': {
+        en: 'Click Master', ru: 'Мастер кликов', zh: '点击大师', es: 'Maestro del clic', pt: 'Mestre dos cliques',
+        ja: 'クリックマスター', fr: 'Maître du clic', hi: 'क्लिक मास्टर', ko: '클릭 마스터', tr: 'Tıklama Ustası',
+        de: 'Klick-Meister', ar: 'سيد النقر', vi: 'Bậc thầy click'
+    },
+    'click_50_times': {
+        en: 'Click your pet 50 times', ru: 'Кликни на питомца 50 раз', zh: '点击宠物50次', es: 'Haz clic 50 veces', pt: 'Clique 50 vezes',
+        ja: 'ペットを50回クリック', fr: 'Clique 50 fois', hi: '50 बार क्लिक करें', ko: '50번 클릭하기', tr: '50 kez tıkla',
+        de: '50 mal klicken', ar: 'انقر 50 مرة', vi: 'Nhấp 50 lần'
+    },
+    'reach_level_5': {
+        en: 'Reach level 5', ru: 'Достигни 5 уровня', zh: '达到5级', es: 'Alcanza nivel 5', pt: 'Alcance nível 5',
+        ja: 'レベル5に到達', fr: 'Atteins niveau 5', hi: 'लेवल 5 पाएं', ko: '레벨 5 달성', tr: 'Seviye 5 ulaş',
+        de: 'Level 5 erreichen', ar: 'وصول المستوى 5', vi: 'Đạt cấp 5'
     },
 
     // ========== MINI GAMES ==========
@@ -231,14 +251,44 @@ const TRANSLATIONS = {
         de: 'Shop', ar: 'متجر', vi: 'Cửa hàng'
     },
     'nfts': {
-        en: 'NFTs', ru: 'NFT', zh: 'NFT', es: 'NFTs', pt: 'NFTs',
-        ja: 'NFT', fr: 'NFTs', hi: 'NFT', ko: 'NFT', tr: 'NFT',
-        de: 'NFTs', ar: 'NFT', vi: 'NFT'
+        en: 'NFT', ru: 'NFT', zh: 'NFT', es: 'NFT', pt: 'NFT',
+        ja: 'NFT', fr: 'NFT', hi: 'NFT', ko: 'NFT', tr: 'NFT',
+        de: 'NFT', ar: 'NFT', vi: 'NFT'
     },
     'profile': {
         en: 'Profile', ru: 'Профиль', zh: '个人资料', es: 'Perfil', pt: 'Perfil',
         ja: 'プロフィール', fr: 'Profil', hi: 'प्रोफाइल', ko: '프로필', tr: 'Profil',
         de: 'Profil', ar: 'الملف الشخصي', vi: 'Hồ sơ'
+    },
+    'top': {
+        en: 'Top', ru: 'Топ', zh: '排行', es: 'Top', pt: 'Top',
+        ja: 'ランキング', fr: 'Top', hi: 'टॉप', ko: '순위', tr: 'Sıralama',
+        de: 'Top', ar: 'الأفضل', vi: 'Xếp hạng'
+    },
+    'cash': {
+        en: 'Cash', ru: 'Вывод', zh: '提现', es: 'Cobrar', pt: 'Sacar',
+        ja: '出金', fr: 'Retrait', hi: 'निकासी', ko: '출금', tr: 'Çekim',
+        de: 'Auszahlen', ar: 'سحب', vi: 'Rút tiền'
+    },
+    'more': {
+        en: 'More', ru: 'Ещё', zh: '更多', es: 'Más', pt: 'Mais',
+        ja: 'その他', fr: 'Plus', hi: 'और', ko: '더보기', tr: 'Daha',
+        de: 'Mehr', ar: 'المزيد', vi: 'Thêm'
+    },
+    'help': {
+        en: 'Help', ru: 'Помощь', zh: '帮助', es: 'Ayuda', pt: 'Ajuda',
+        ja: 'ヘルプ', fr: 'Aide', hi: 'सहायता', ko: '도움말', tr: 'Yardım',
+        de: 'Hilfe', ar: 'مساعدة', vi: 'Trợ giúp'
+    },
+    'my_link': {
+        en: 'My Link', ru: 'Моя ссылка', zh: '我的链接', es: 'Mi enlace', pt: 'Meu link',
+        ja: 'リンク', fr: 'Mon lien', hi: 'मेरा लिंक', ko: '내 링크', tr: 'Bağlantım',
+        de: 'Mein Link', ar: 'رابطي', vi: 'Liên kết'
+    },
+    'experience': {
+        en: 'Experience', ru: 'Опыт', zh: '经验', es: 'Experiencia', pt: 'Experiência',
+        ja: '経験値', fr: 'Expérience', hi: 'अनुभव', ko: '경험치', tr: 'Deneyim',
+        de: 'Erfahrung', ar: 'الخبرة', vi: 'Kinh nghiệm'
     },
 
     // ========== LANGUAGE SELECTOR ==========
