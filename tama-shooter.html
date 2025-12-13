@@ -539,15 +539,21 @@
                 this.wave++;
                 const levelData = this.levels[this.level - 1];
 
-                // Check if boss wave
+                // Check if boss wave (ПОСЛЕ всех волн!)
                 if (this.wave > levelData.waves && this.level < this.maxLevels) {
                     this.spawnBoss();
                     return;
                 }
 
-                // Check if level complete
-                if (this.wave > levelData.waves) {
+                // Check if level complete (ПОСЛЕ всех волн и босса!)
+                if (this.wave > levelData.waves && this.level >= this.maxLevels) {
                     this.completeLevel();
+                    return;
+                }
+
+                // Проверка что волна валидна
+                if (this.wave > levelData.waves) {
+                    console.warn(`⚠️ Wave ${this.wave} exceeds max waves ${levelData.waves} for level ${this.level}`);
                     return;
                 }
 
@@ -558,14 +564,26 @@
                 const rows = Math.min(2 + Math.floor(this.level / 2), 5); // Больше рядов!
                 const cols = Math.ceil(enemyCount / rows);
 
+                // Очищаем старых врагов (на всякий случай)
+                this.enemies = [];
+
                 for (let row = 0; row < rows; row++) {
                     for (let col = 0; col < cols; col++) {
                         // Random enemy type based on level
                         const availableTypes = levelData.enemyTypes;
+                        if (availableTypes.length === 0) {
+                            console.error(`❌ No enemy types for level ${this.level}!`);
+                            continue;
+                        }
                         const enemyType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
 
                         this.spawnEnemy(100 + col * 70, 80 + row * 50, enemyType);
                     }
+                }
+
+                // Проверка что враги заспавнились
+                if (this.enemies.length === 0) {
+                    console.error(`❌ No enemies spawned for wave ${this.wave}, level ${this.level}!`);
                 }
 
                 // Show wave message
@@ -653,7 +671,7 @@
             },
 
             gameLoop() {
-                if (!this.isRunning) return;
+                if (!this.isRunning || this.isPaused) return;
 
                 this.update();
                 this.draw();
