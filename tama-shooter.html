@@ -392,14 +392,14 @@
             lives: 3,
             betAmount: 0,
             enemiesKilled: 0,
-            
+
             player: null,
             bullets: [],
             enemies: [],
             particles: [],
             powerups: [],
             boss: null,
-            
+
             // Power-ups
             tripleShot: false,
             tripleShotTimer: 0,
@@ -407,10 +407,10 @@
             rapidFireTimer: 0,
             shield: false,
             shieldTimer: 0,
-            
+
             keys: {},
             mouseX: canvas.width / 2,
-            
+
             // Level data
             levels: [
                 { name: 'Space Station', waves: 5, enemyTypes: ['basic'] },
@@ -487,7 +487,7 @@
                 this.particles = [];
                 this.powerups = [];
                 this.boss = null;
-                
+
                 // Reset power-ups
                 this.tripleShot = false;
                 this.tripleShotTimer = 0;
@@ -525,10 +525,10 @@
                 this.level = levelNum;
                 this.wave = 0;
                 const levelData = this.levels[levelNum - 1];
-                
+
                 // Show level start message
                 this.showMessage(`Level ${levelNum}: ${levelData.name}`, 2000);
-                
+
                 // Start first wave after delay
                 setTimeout(() => {
                     this.nextWave();
@@ -538,13 +538,13 @@
             nextWave() {
                 this.wave++;
                 const levelData = this.levels[this.level - 1];
-                
+
                 // Check if boss wave
                 if (this.wave > levelData.waves && this.level < this.maxLevels) {
                     this.spawnBoss();
                     return;
                 }
-                
+
                 // Check if level complete
                 if (this.wave > levelData.waves) {
                     this.completeLevel();
@@ -563,11 +563,11 @@
                         // Random enemy type based on level
                         const availableTypes = levelData.enemyTypes;
                         const enemyType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
-                        
+
                         this.spawnEnemy(100 + col * 70, 80 + row * 50, enemyType);
                     }
                 }
-                
+
                 // Show wave message
                 this.showMessage(`Wave ${this.wave}`, 1000);
             },
@@ -575,7 +575,7 @@
             spawnEnemy(x, y, type) {
                 const baseSpeed = 0.3 + this.level * 0.05;
                 const baseHealth = 1 + Math.floor(this.level / 2);
-                
+
                 let enemy = {
                     x: x,
                     y: y,
@@ -627,18 +627,18 @@
                     shootCooldown: 0,
                     pattern: 'horizontal'
                 };
-                this.showMessage(`BOSS: ${levelData.name}`, 2000);
+                this.showMessage(`👾 BOSS APPEARED: ${levelData.name}!\n💡 Keep shooting! Avoid red bullets!`, 3000);
             },
 
             completeLevel() {
                 this.isPaused = true;
-                
+
                 // Calculate level reward
                 const levelReward = 200 + (this.wave - 1) * 50;
-                
+
                 // Show level complete screen
                 this.showMessage(`Level ${this.level} Complete! +${levelReward} TAMA`, 3000);
-                
+
                 // Continue to next level
                 setTimeout(() => {
                     if (this.level < this.maxLevels) {
@@ -760,7 +760,7 @@
                         this.winGame();
                     }
                 }
-                
+
                 // Check if boss defeated
                 if (this.boss && this.boss.health <= 0) {
                     this.createExplosion(this.boss.x, this.boss.y);
@@ -802,29 +802,29 @@
                     }
                 }
                 
-                // Boss shooting
+                // Boss shooting (БОЛЬШЕ пуль, но МЕДЛЕННЕЕ)
                 this.boss.shootCooldown--;
                 if (this.boss.shootCooldown <= 0) {
-                    // Boss shoots 3 bullets
-                    for (let i = -1; i <= 1; i++) {
+                    // Boss shoots 5 bullets in a spread pattern
+                    for (let i = -2; i <= 2; i++) {
                         this.bullets.push({
-                            x: this.boss.x + i * 20,
+                            x: this.boss.x + i * 25,
                             y: this.boss.y + this.boss.height / 2,
-                            width: 6,
-                            height: 20,
-                            speed: -4,
+                            width: 8,
+                            height: 25,
+                            speed: -3, // МЕДЛЕННЕЕ для уклонения
                             damage: 1,
                             isEnemy: true
                         });
                     }
-                    this.boss.shootCooldown = 30;
+                    this.boss.shootCooldown = 40; // Реже стреляет
                 }
             },
 
             spawnPowerUp(x, y) {
                 const types = ['triple', 'rapid', 'shield', 'health'];
                 const type = types[Math.floor(Math.random() * types.length)];
-                
+
                 this.powerups.push({
                     x: x,
                     y: y,
@@ -860,7 +860,7 @@
                 ctx.lineTo(this.player.x + 20, this.player.y + 20);
                 ctx.closePath();
                 ctx.fill();
-                
+
                 // Draw shield effect
                 if (this.shield) {
                     ctx.strokeStyle = '#0088ff';
@@ -887,10 +887,10 @@
                     if (enemy.type === 'fast') color = '#0088ff'; // Fast (blue)
                     if (enemy.type === 'tank') color = '#ffaa00'; // Tank (yellow)
                     if (enemy.type === 'shooter') color = '#00ff88'; // Shooter (green)
-                    
+
                     ctx.fillStyle = color;
                     ctx.fillRect(enemy.x - enemy.width / 2, enemy.y - enemy.height / 2, enemy.width, enemy.height);
-                    
+
                     // Enemy eyes
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(enemy.x - 8, enemy.y - 5, 6, 6);
@@ -899,37 +899,72 @@
 
                 // Draw boss
                 if (this.boss) {
-                    // Boss body
+                    // Boss body (bigger and more visible)
                     ctx.fillStyle = '#8b5cf6';
                     ctx.fillRect(this.boss.x - this.boss.width / 2, this.boss.y - this.boss.height / 2, this.boss.width, this.boss.height);
                     
-                    // Boss health bar
-                    const barWidth = this.boss.width;
-                    const barHeight = 5;
+                    // Boss outline (glowing effect)
+                    ctx.strokeStyle = '#ff00ff';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(this.boss.x - this.boss.width / 2 - 2, this.boss.y - this.boss.height / 2 - 2, this.boss.width + 4, this.boss.height + 4);
+
+                    // Boss health bar (BIGGER and MORE VISIBLE!)
+                    const barWidth = 200; // Much wider!
+                    const barHeight = 15; // Much taller!
                     const healthPercent = this.boss.health / this.boss.maxHealth;
-                    
+                    const barX = this.boss.x - barWidth / 2;
+                    const barY = this.boss.y - this.boss.height / 2 - 30;
+
+                    // Background
                     ctx.fillStyle = '#333';
-                    ctx.fillRect(this.boss.x - barWidth / 2, this.boss.y - this.boss.height / 2 - 10, barWidth, barHeight);
-                    ctx.fillStyle = '#ff0000';
-                    ctx.fillRect(this.boss.x - barWidth / 2, this.boss.y - this.boss.height / 2 - 10, barWidth * healthPercent, barHeight);
+                    ctx.fillRect(barX, barY, barWidth, barHeight);
                     
-                    // Boss eyes
+                    // Health fill (color changes based on health)
+                    if (healthPercent > 0.6) {
+                        ctx.fillStyle = '#00ff00'; // Green when healthy
+                    } else if (healthPercent > 0.3) {
+                        ctx.fillStyle = '#ffaa00'; // Orange when damaged
+                    } else {
+                        ctx.fillStyle = '#ff0000'; // Red when almost dead
+                    }
+                    ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+                    
+                    // Border
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(barX, barY, barWidth, barHeight);
+                    
+                    // Health text
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`BOSS HP: ${this.boss.health}/${this.boss.maxHealth} (${Math.round(healthPercent * 100)}%)`, this.boss.x, barY - 5);
+                    ctx.textAlign = 'left';
+
+                    // Boss eyes (glowing)
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(this.boss.x - 15, this.boss.y - 10, 12, 12);
                     ctx.fillRect(this.boss.x + 3, this.boss.y - 10, 12, 12);
+                    
+                    // Boss label
+                    ctx.fillStyle = '#ff00ff';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('👾 BOSS', this.boss.x, this.boss.y + this.boss.height / 2 + 20);
+                    ctx.textAlign = 'left';
                 }
 
                 // Draw power-ups
                 this.powerups.forEach(powerup => {
                     if (powerup.collected) return;
-                    
+
                     let color = '#ff00ff';
                     let symbol = '?';
                     if (powerup.type === 'triple') { color = '#ff8800'; symbol = '🔥'; }
                     if (powerup.type === 'rapid') { color = '#00ff00'; symbol = '⚡'; }
                     if (powerup.type === 'shield') { color = '#0088ff'; symbol = '🛡️'; }
                     if (powerup.type === 'health') { color = '#ff0000'; symbol = '❤️'; }
-                    
+
                     ctx.fillStyle = color;
                     ctx.fillRect(powerup.x - powerup.width / 2, powerup.y - powerup.height / 2, powerup.width, powerup.height);
                     ctx.fillStyle = '#ffffff';
@@ -937,7 +972,7 @@
                     ctx.textAlign = 'center';
                     ctx.fillText(symbol, powerup.x, powerup.y + 7);
                     ctx.textAlign = 'left';
-                    
+
                     // Move down
                     powerup.y += powerup.speed;
                     if (powerup.y > canvas.height) {
@@ -985,7 +1020,7 @@
                     { top: '#00001a', bottom: '#000033' }, // Level 4: Deep space
                     { top: '#1a001a', bottom: '#330033' }  // Level 5: Final boss
                 ];
-                
+
                 const bg = bgColors[this.level - 1] || bgColors[0];
                 const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
                 gradient.addColorStop(0, bg.top);
