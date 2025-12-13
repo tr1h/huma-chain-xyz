@@ -570,6 +570,34 @@
                 </div>
             </div>
 
+            <!-- Quick Stats Dashboard -->
+            <div class="quick-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 15px;">
+                <div class="quick-stat" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">👥 Total Players</div>
+                    <div id="stat-total-players" style="font-size: 24px; font-weight: bold;">--</div>
+                </div>
+                <div class="quick-stat" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">🎮 Active Today</div>
+                    <div id="stat-active-today" style="font-size: 24px; font-weight: bold;">--</div>
+                </div>
+                <div class="quick-stat" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">💎 Total NFTs Minted</div>
+                    <div id="stat-total-nfts" style="font-size: 24px; font-weight: bold;">--</div>
+                </div>
+                <div class="quick-stat" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">🔥 Burn Rate (24h)</div>
+                    <div id="stat-burn-rate" style="font-size: 24px; font-weight: bold;">--</div>
+                </div>
+                <div class="quick-stat" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">💰 Total TAMA Supply</div>
+                    <div id="stat-total-tama" style="font-size: 24px; font-weight: bold;">--</div>
+                </div>
+                <div class="quick-stat" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">🎰 Jackpot Pool</div>
+                    <div id="stat-jackpot-pool" style="font-size: 24px; font-weight: bold;">--</div>
+                </div>
+            </div>
+
             <!-- Wallet Cards -->
             <div class="wallets-grid" id="wallets-grid">
                 <div class="wallet-card treasury" onclick="showWalletDetails('treasury')">
@@ -2640,7 +2668,68 @@
             }
         });
 
+        // Load quick stats
+        async function loadQuickStats() {
+            try {
+                // Total players
+                const playersRes = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=count`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY }
+                });
+                const playersData = await playersRes.json();
+                document.getElementById('stat-total-players').textContent = 
+                    (playersData.length || 0).toLocaleString();
+
+                // Active today (updated in last 24h)
+                const yesterday = new Date(Date.now() - 24*60*60*1000).toISOString();
+                const activeRes = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=count&updated_at=gte.${yesterday}`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY }
+                });
+                const activeData = await activeRes.json();
+                document.getElementById('stat-active-today').textContent = 
+                    (activeData.length || 0).toLocaleString();
+
+                // Total NFTs
+                const nftsRes = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=count&is_active=eq.true`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY }
+                });
+                const nftsData = await nftsRes.json();
+                document.getElementById('stat-total-nfts').textContent = 
+                    (nftsData.length || 0).toLocaleString();
+
+                // Burn rate (24h)
+                const burnRes = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=like.*burn*&created_at=gte.${yesterday}`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY }
+                });
+                const burnData = await burnRes.json();
+                const burnTotal = (burnData || []).reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
+                document.getElementById('stat-burn-rate').textContent = 
+                    Math.round(burnTotal).toLocaleString() + ' TAMA';
+
+                // Total TAMA in circulation
+                const tamaRes = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=tama`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY }
+                });
+                const tamaData = await tamaRes.json();
+                const totalTama = (tamaData || []).reduce((sum, p) => sum + (p.tama || 0), 0);
+                document.getElementById('stat-total-tama').textContent = 
+                    Math.round(totalTama).toLocaleString();
+
+                // Jackpot pool
+                const jackpotRes = await fetch(`${SUPABASE_URL}/rest/v1/slots_jackpot_pool?id=eq.1`, {
+                    headers: { 'apikey': SUPABASE_ANON_KEY }
+                });
+                const jackpotData = await jackpotRes.json();
+                const jackpot = jackpotData[0]?.current_pool || 0;
+                document.getElementById('stat-jackpot-pool').textContent = 
+                    Math.round(jackpot).toLocaleString() + ' TAMA';
+
+            } catch (error) {
+                console.error('Error loading quick stats:', error);
+            }
+        }
+
         // Load on page load
+        loadQuickStats();
         loadWalletBalances();
         loadProjectTransactions();
         startAutoUpdate();
