@@ -413,10 +413,10 @@
 
             // Level data
             levels: [
-                { name: 'Space Station', waves: 5, enemyTypes: ['basic'] },
-                { name: 'Asteroid Field', waves: 5, enemyTypes: ['basic', 'fast'] },
-                { name: 'Alien Planet', waves: 5, enemyTypes: ['basic', 'fast', 'tank'] },
-                { name: 'Deep Space', waves: 5, enemyTypes: ['basic', 'fast', 'tank', 'shooter'] },
+                { name: 'Space Station', waves: 6, enemyTypes: ['basic'] }, // БОЛЬШЕ волн!
+                { name: 'Asteroid Field', waves: 6, enemyTypes: ['basic', 'fast'] },
+                { name: 'Alien Planet', waves: 7, enemyTypes: ['basic', 'fast', 'tank'] },
+                { name: 'Deep Space', waves: 7, enemyTypes: ['basic', 'fast', 'tank', 'shooter'] },
                 { name: 'Final Boss', waves: 1, enemyTypes: ['boss'] }
             ],
 
@@ -502,9 +502,9 @@
                     y: canvas.height - 60,
                     width: 40,
                     height: 40,
-                    speed: 6, // Быстрее движение
+                    speed: 5, // Немного медленнее для баланса
                     shootCooldown: 0,
-                    shootDelay: 10 // БЫСТРЕЕ стрельба! Was: 15
+                    shootDelay: 15 // МЕДЛЕННЕЕ стрельба для сложности! Was: 10
                 };
 
                 // Disable controls
@@ -553,9 +553,9 @@
 
                 document.getElementById('wave').textContent = `${this.level}-${this.wave}`;
 
-                // Spawn enemies based on level
-                const enemyCount = 6 + this.level * 2 + this.wave;
-                const rows = Math.min(2 + Math.floor(this.level / 2), 4);
+                // Spawn enemies based on level (БОЛЬШЕ врагов!)
+                const enemyCount = 8 + this.level * 3 + this.wave * 2; // УВЕЛИЧЕНО!
+                const rows = Math.min(2 + Math.floor(this.level / 2), 5); // Больше рядов!
                 const cols = Math.ceil(enemyCount / rows);
 
                 for (let row = 0; row < rows; row++) {
@@ -573,8 +573,8 @@
             },
 
             spawnEnemy(x, y, type) {
-                const baseSpeed = 0.3 + this.level * 0.05;
-                const baseHealth = 1 + Math.floor(this.level / 2);
+                const baseSpeed = 0.5 + this.level * 0.1; // БЫСТРЕЕ враги!
+                const baseHealth = 1 + Math.floor(this.level * 1.5); // БОЛЬШЕ HP!
 
                 let enemy = {
                     x: x,
@@ -597,16 +597,16 @@
                         enemy.height = 30;
                         break;
                     case 'tank':
-                        enemy.speed = baseSpeed * 0.6;
-                        enemy.health = baseHealth * 3;
+                        enemy.speed = baseSpeed * 0.7; // Немного быстрее
+                        enemy.health = baseHealth * 4; // БОЛЬШЕ HP! Was: 3
                         enemy.maxHealth = enemy.health;
                         enemy.width = 45;
                         enemy.height = 45;
                         break;
                     case 'shooter':
-                        enemy.health = baseHealth * 2;
+                        enemy.health = baseHealth * 2.5; // БОЛЬШЕ HP! Was: 2
                         enemy.maxHealth = enemy.health;
-                        enemy.shootCooldown = 60;
+                        enemy.shootCooldown = 50; // Чаще стреляет! Was: 60
                         break;
                 }
 
@@ -620,9 +620,9 @@
                     y: 100,
                     width: 80,
                     height: 80,
-                    health: 20 + this.level * 5,
-                    maxHealth: 20 + this.level * 5,
-                    speed: 0.5,
+                    health: 30 + this.level * 10, // БОЛЬШЕ HP! Was: 20 + level * 5
+                    maxHealth: 30 + this.level * 10,
+                    speed: 0.8 + this.level * 0.1, // БЫСТРЕЕ движение!
                     direction: 1,
                     shootCooldown: 0,
                     pattern: 'horizontal'
@@ -716,7 +716,7 @@
                     } else {
                         bullet.y -= bullet.speed; // Пули игрока (speed положительный, например 10)
                     }
-                    
+
                     // Удаляем пули за пределами экрана
                     if (bullet.isEnemy) {
                         if (bullet.y > canvas.height + bullet.height) {
@@ -742,16 +742,39 @@
                 if (moveDown) {
                     this.enemies.forEach(enemy => {
                         enemy.direction *= -1;
-                        enemy.y += 15; // МЕНЬШЕ спуск! Was: 20
+                        enemy.y += 20 + this.level * 2; // БОЛЬШЕ спуск! Сложнее!
                     });
                 }
 
-                // Enemy shooting
+                // Enemy shooting (БОЛЬШЕ стрельбы!)
                 this.enemies.forEach(enemy => {
                     enemy.shootCooldown--;
-                    if (enemy.shootCooldown <= 0 && Math.random() < 0.01) {
-                        // Enemy bullet (implement if needed)
-                        enemy.shootCooldown = 120;
+                    if (enemy.type === 'shooter') {
+                        // Shooter враги стреляют чаще!
+                        if (enemy.shootCooldown <= 0 && Math.random() < 0.05) {
+                            this.bullets.push({
+                                x: enemy.x,
+                                y: enemy.y + enemy.height / 2,
+                                width: 6,
+                                height: 20,
+                                speed: -4 - this.level * 0.5, // БЫСТРЕЕ пули!
+                                damage: 1,
+                                isEnemy: true
+                            });
+                            enemy.shootCooldown = 60 - this.level * 5; // Чаще стреляют!
+                        }
+                    } else if (enemy.shootCooldown <= 0 && Math.random() < 0.02) {
+                        // Обычные враги тоже стреляют!
+                        this.bullets.push({
+                            x: enemy.x,
+                            y: enemy.y + enemy.height / 2,
+                            width: 5,
+                            height: 18,
+                            speed: -3 - this.level * 0.3,
+                            damage: 1,
+                            isEnemy: true
+                        });
+                        enemy.shootCooldown = 120 - this.level * 10;
                     }
                 });
 
@@ -759,7 +782,7 @@
                 this.bullets.forEach((bullet, bIndex) => {
                     // Пропускаем вражеские пули
                     if (bullet.isEnemy) return;
-                    
+
                     // Проверка коллизий с обычными врагами
                     this.enemies.forEach((enemy, eIndex) => {
                         if (bullet.x > enemy.x - enemy.width / 2 &&
@@ -778,21 +801,21 @@
                             }
                         }
                     });
-                    
+
                     // ✅ КРИТИЧНО: Проверка коллизий с БОССОМ!
                     if (this.boss) {
                         if (bullet.x > this.boss.x - this.boss.width / 2 &&
                             bullet.x < this.boss.x + this.boss.width / 2 &&
                             bullet.y < this.boss.y + this.boss.height / 2 &&
                             bullet.y > this.boss.y - this.boss.height / 2) {
-                            
+
                             // Пуля попала в босса!
                             this.boss.health -= bullet.damage;
                             this.bullets.splice(bIndex, 1);
-                            
+
                             // Визуальный эффект попадания (маленький взрыв)
                             this.createExplosion(bullet.x, bullet.y);
-                            
+
                             // Обновляем UI
                             this.updateUI();
                         }
@@ -854,22 +877,22 @@
                     }
                 }
 
-                // Boss shooting (БОЛЬШЕ пуль, но МЕДЛЕННЕЕ)
+                // Boss shooting (БОЛЬШЕ пуль, БЫСТРЕЕ!)
                 this.boss.shootCooldown--;
                 if (this.boss.shootCooldown <= 0) {
-                    // Boss shoots 5 bullets in a spread pattern
-                    for (let i = -2; i <= 2; i++) {
+                    // Boss shoots 7 bullets in a spread pattern (БОЛЬШЕ!)
+                    for (let i = -3; i <= 3; i++) {
                         this.bullets.push({
-                            x: this.boss.x + i * 25,
+                            x: this.boss.x + i * 20,
                             y: this.boss.y + this.boss.height / 2,
                             width: 8,
                             height: 25,
-                            speed: -3, // МЕДЛЕННЕЕ для уклонения
+                            speed: -4 - this.level * 0.3, // БЫСТРЕЕ пули! Сложнее уклоняться!
                             damage: 1,
                             isEnemy: true
                         });
                     }
-                    this.boss.shootCooldown = 40; // Реже стреляет
+                    this.boss.shootCooldown = 30 - this.level * 2; // Чаще стреляет! Минимум 20
                 }
             },
 
