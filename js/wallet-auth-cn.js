@@ -46,6 +46,26 @@ async function connectWallet() {
                 window.WALLET_ADDRESS = walletAddress;
                 window.WALLET_USER_ID = accountResult.user_id;
                 
+                // 📊 Track wallet connection in Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'wallet_connected', {
+                        'wallet_type': 'phantom',
+                        'wallet_address': walletAddress.substring(0, 8) + '...',
+                        'is_new_user': accountResult.message === 'Account created successfully',
+                        'user_id': accountResult.user_id,
+                        'language': new URLSearchParams(window.location.search).get('lang') || 'en'
+                    });
+                    
+                    // Track account creation if new user
+                    if (accountResult.message === 'Account created successfully') {
+                        gtag('event', 'account_created', {
+                            'auth_method': 'wallet',
+                            'wallet_type': 'phantom',
+                            'language': new URLSearchParams(window.location.search).get('lang') || 'en'
+                        });
+                    }
+                }
+                
                 // Load game state
                 await loadGameStateFromWallet();
                 
@@ -69,6 +89,26 @@ async function connectWallet() {
                     
                     window.WALLET_ADDRESS = walletAddress;
                     window.WALLET_USER_ID = accountResult.user_id;
+                    
+                    // 📊 Track wallet connection in Google Analytics
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'wallet_connected', {
+                            'wallet_type': 'solflare',
+                            'wallet_address': walletAddress.substring(0, 8) + '...',
+                            'is_new_user': accountResult.message === 'Account created successfully',
+                            'user_id': accountResult.user_id,
+                            'language': new URLSearchParams(window.location.search).get('lang') || 'en'
+                        });
+                        
+                        // Track account creation if new user
+                        if (accountResult.message === 'Account created successfully') {
+                            gtag('event', 'account_created', {
+                                'auth_method': 'wallet',
+                                'wallet_type': 'solflare',
+                                'language': new URLSearchParams(window.location.search).get('lang') || 'en'
+                            });
+                        }
+                    }
                     
                     await loadGameStateFromWallet();
                     

@@ -8,7 +8,35 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-L7LVQM50LV');
+      
+      // Get language from URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const lang = urlParams.get('lang') || 'en';
+      
+      // Configure Google Analytics with language
+      gtag('config', 'G-L7LVQM50LV', {
+        'language': lang,
+        'page_path': window.location.pathname + window.location.search,
+        'custom_map': {
+          'dimension1': 'language',
+          'dimension2': 'auth_method'
+        }
+      });
+      
+      // Track page view with language
+      gtag('event', 'page_view', {
+        'language': lang,
+        'page_location': window.location.href,
+        'page_title': document.title
+      });
+      
+      // Track language parameter
+      if (lang && lang !== 'en') {
+        gtag('event', 'language_detected', {
+          'language': lang,
+          'source': 'url_parameter'
+        });
+      }
     </script>
 
     <meta charset="UTF-8">
@@ -7678,7 +7706,7 @@
             // Also save directly via API to ensure balance is persisted
             if (window.WALLET_ADDRESS && window.WalletSave) {
                 // Save for wallet users
-                window.WalletSave.save(gameState).catch(err => 
+                window.WalletSave.save(gameState).catch(err =>
                     console.warn('⚠️ Failed to save balance after shop purchase (wallet):', err)
                 );
             } else if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
@@ -7921,7 +7949,7 @@
             // Also save directly via API to ensure balance is persisted
             if (window.WALLET_ADDRESS && window.WalletSave) {
                 // Save for wallet users
-                window.WalletSave.save(gameState).catch(err => 
+                window.WalletSave.save(gameState).catch(err =>
                     console.warn('⚠️ Failed to save balance after skin purchase (wallet):', err)
                 );
             } else if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
@@ -8701,7 +8729,7 @@
             // Check if Supabase config is available
             const supabaseUrl = window.CONFIG?.SUPABASE_URL || typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : 'https://zfrazyupameidxpjihrh.supabase.co';
             const supabaseKey = window.CONFIG?.SUPABASE_ANON_KEY || typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : null;
-            
+
             if (!supabaseKey) {
                 console.warn('⚠️ Supabase API key not available, skipping transaction log');
                 return;
@@ -8709,7 +8737,7 @@
 
             try {
                 // Get username: Telegram username or wallet address prefix
-                const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username 
+                const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username
                     || (window.WALLET_ADDRESS ? `Wallet_${window.WALLET_ADDRESS.substring(0, 8)}` : userId);
 
                 const response = await fetch(`${supabaseUrl}/rest/v1/transactions`, {
