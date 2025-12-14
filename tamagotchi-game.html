@@ -7676,7 +7676,13 @@
             triggerAutoSave(true); // Force critical save
 
             // Also save directly via API to ensure balance is persisted
-            if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
+            if (window.WALLET_ADDRESS && window.WalletSave) {
+                // Save for wallet users
+                window.WalletSave.save(gameState).catch(err => 
+                    console.warn('⚠️ Failed to save balance after shop purchase (wallet):', err)
+                );
+            } else if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
+                // Save for Telegram users
                 fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -7891,7 +7897,7 @@
             equipSkin(skinId);
 
             // ✅ FIX: Log transaction with correct parameter order and NEGATIVE amount
-            if (typeof logTransaction === 'function' && window.TELEGRAM_USER_ID) {
+            if (typeof logTransaction === 'function' && (window.TELEGRAM_USER_ID || window.WALLET_USER_ID)) {
                 logTransaction(
                     'spend_skin',      // type
                     -skin.price,       // amount (NEGATIVE for spending!)
@@ -7913,7 +7919,13 @@
             triggerAutoSave(true); // Force critical save
 
             // Also save directly via API to ensure balance is persisted
-            if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
+            if (window.WALLET_ADDRESS && window.WalletSave) {
+                // Save for wallet users
+                window.WalletSave.save(gameState).catch(err => 
+                    console.warn('⚠️ Failed to save balance after skin purchase (wallet):', err)
+                );
+            } else if (window.TELEGRAM_USER_ID && typeof TAMA_API_BASE !== 'undefined') {
+                // Save for Telegram users
                 fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -8683,10 +8695,13 @@
 
         // Log transaction directly to Supabase
         async function logTransaction(type, amount, balanceBefore, balanceAfter, metadata = {}) {
-            if (!window.TELEGRAM_USER_ID) return;
+            const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
+            if (!userId) return;
 
             try {
-                const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.TELEGRAM_USER_ID;
+                // Get username: Telegram username or wallet address prefix
+                const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username 
+                    || (window.WALLET_ADDRESS ? `Wallet_${window.WALLET_ADDRESS.substring(0, 8)}` : userId);
 
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
                     method: 'POST',
@@ -8697,13 +8712,17 @@
                         'Prefer': 'return=minimal'
                     },
                     body: JSON.stringify({
-                        user_id: window.TELEGRAM_USER_ID,
+                        user_id: userId,
                         username: username,
                         type: type,
                         amount: amount,
                         balance_before: balanceBefore,
                         balance_after: balanceAfter,
-                        metadata: metadata
+                        metadata: {
+                            ...metadata,
+                            wallet_address: window.WALLET_ADDRESS || null,
+                            account_type: window.WALLET_ADDRESS ? 'wallet' : 'telegram'
+                        }
                     })
                 });
 

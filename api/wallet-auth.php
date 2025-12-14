@@ -221,6 +221,9 @@ function handleCreateAccount($url, $key, $input = null) {
         $result = supabaseRequest($url, $key, 'POST', 'wallet_users', [], $newUser);
         
         if ($result['code'] >= 200 && $result['code'] < 300) {
+            // Generate referral code for new user
+            $referralCode = generateReferralCodeFromWallet($walletAddress);
+            
             echo json_encode([
                 'success' => true,
                 'user_id' => $userId,
