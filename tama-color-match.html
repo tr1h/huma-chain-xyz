@@ -7,6 +7,8 @@
 
     <!-- Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- i18n for translations -->
+    <script src="js/i18n.js"></script>
 
     <style>
         * {
@@ -312,22 +314,22 @@
     <div class="game-container">
         <!-- Header -->
         <div class="header">
-            <h1>🎨 TAMA COLOR MATCH</h1>
-            <p>Repeat the color sequence!</p>
+            <h1>🎨 <span data-i18n="color_match">TAMA COLOR MATCH</span></h1>
+            <p data-i18n="repeat_sequence">Repeat the color sequence!</p>
         </div>
 
         <!-- Balance -->
         <div class="balance-section">
             <div>
-                <div class="balance-label">Balance</div>
-                <div class="balance-value" id="balance">Loading...</div>
+                <div class="balance-label" data-i18n="your_balance">Balance</div>
+                <div class="balance-value" id="balance" data-i18n="loading">Loading...</div>
             </div>
-            <button class="control-btn exit" onclick="goBack()">✕ EXIT</button>
+            <button class="control-btn exit" onclick="goBack()" data-i18n="exit">✕ EXIT</button>
         </div>
 
         <!-- Bet Selection -->
         <div class="bet-section">
-            <div class="bet-label">Select Bet:</div>
+            <div class="bet-label" data-i18n="select_bet">Select Bet:</div>
             <div class="bet-buttons">
                 <button class="bet-btn" data-bet="50">50 TAMA</button>
                 <button class="bet-btn" data-bet="100">100 TAMA</button>
@@ -353,7 +355,7 @@
         </div>
 
         <!-- Game Status -->
-        <div class="game-status waiting" id="game-status">Select bet and press START!</div>
+        <div class="game-status waiting" id="game-status" data-i18n="select_bet_and_start">Select bet and press START!</div>
 
         <!-- Game Area -->
         <div class="game-area">
@@ -367,7 +369,7 @@
 
         <!-- Control Buttons -->
         <div class="control-buttons">
-            <button class="control-btn start" id="start-btn">🎮 START GAME</button>
+            <button class="control-btn start" id="start-btn" data-i18n="start_game">🎮 START GAME</button>
         </div>
 
         <!-- Result Section -->
@@ -765,6 +767,12 @@
 
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', () => {
+            // Initialize i18n
+            if (typeof initI18n === 'function') {
+                initI18n();
+                updatePageTranslations();
+            }
+            
             loadBalance();
             colorMatchGame.init();
         });

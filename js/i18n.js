@@ -1,7 +1,7 @@
 /**
  * 🌍 Internationalization (i18n) System for Solana Tamagotchi
  * Supports 13 languages with beautiful language selector
- * 
+ *
  * Usage:
  *   t('key') - Get translation for current language
  *   setLanguage('ru') - Change language
@@ -352,7 +352,7 @@ const TRANSLATIONS = {
         de: 'Glücksslots', ar: 'سلوتس محظوظة', vi: 'Máy xèng may mắn'
     },
     'lucky_slots_desc': {
-        en: '🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!', ru: '🎰 Ставка: 100-2000 TAMA | Выиграй джекпот!', 
+        en: '🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!', ru: '🎰 Ставка: 100-2000 TAMA | Выиграй джекпот!',
         zh: '🎰 投注: 100-2000 TAMA | 赢取奖池!', es: '🎰 Apuesta: 100-2000 TAMA | ¡Gana el Jackpot!',
         pt: '🎰 Aposta: 100-2000 TAMA | Ganhe o Jackpot!', ja: '🎰 ベット: 100-2000 TAMA | ジャックポットを獲得!',
         fr: '🎰 Mise: 100-2000 TAMA | Gagnez le Jackpot!', hi: '🎰 दांव: 100-2000 TAMA | जैकपॉट जीतें!',
@@ -547,6 +547,106 @@ const TRANSLATIONS = {
         en: 'Losses', ru: 'Поражения', zh: '失败', es: 'Derrotas', pt: 'Derrotas',
         ja: '敗北', fr: 'Défaites', hi: 'हार', ko: '패배', tr: 'Kaybedilen',
         de: 'Niederlagen', ar: 'خسائر', vi: 'Thua'
+    },
+    'game_over': {
+        en: 'GAME OVER', ru: 'ИГРА ОКОНЧЕНА', zh: '游戏结束', es: 'JUEGO TERMINADO', pt: 'FIM DE JOGO',
+        ja: 'ゲームオーバー', fr: 'JEU TERMINÉ', hi: 'गेम ओवर', ko: '게임 오버', tr: 'OYUN BİTTİ',
+        de: 'SPIEL VORBEI', ar: 'انتهت اللعبة', vi: 'KẾT THÚC'
+    },
+    'play_again': {
+        en: '🔄 PLAY AGAIN', ru: '🔄 ИГРАТЬ СНОВА', zh: '🔄 再玩一次', es: '🔄 JUGAR DE NUEVO', pt: '🔄 JOGAR NOVAMENTE',
+        ja: '🔄 もう一度プレイ', fr: '🔄 REJOUER', hi: '🔄 फिर से खेलें', ko: '🔄 다시 플레이', tr: '🔄 TEKRAR OYNA',
+        de: '🔄 NOCHMAL SPIELEN', ar: '🔄 العب مرة أخرى', vi: '🔄 CHƠI LẠI'
+    },
+    'select_bet': {
+        en: 'Select Bet:', ru: 'Выберите ставку:', zh: '选择投注:', es: 'Selecciona apuesta:', pt: 'Selecione aposta:',
+        ja: 'ベットを選択:', fr: 'Choisissez la mise:', hi: 'दांव चुनें:', ko: '베팅 선택:', tr: 'Bahis seçin:',
+        de: 'Einsatz wählen:', ar: 'اختر الرهان:', vi: 'Chọn cược:'
+    },
+    'choose_bet': {
+        en: 'Choose your bet:', ru: 'Выберите ставку:', zh: '选择您的投注:', es: 'Elige tu apuesta:', pt: 'Escolha sua aposta:',
+        ja: 'ベットを選択:', fr: 'Choisissez votre mise:', hi: 'अपना दांव चुनें:', ko: '베팅을 선택하세요:', tr: 'Bahsinizi seçin:',
+        de: 'Wählen Sie Ihren Einsatz:', ar: 'اختر رهانك:', vi: 'Chọn cược của bạn:'
+    },
+    'enter_amount': {
+        en: 'Or enter custom amount:', ru: 'Или введите сумму:', zh: '或输入自定义金额:', es: 'O ingresa cantidad:', pt: 'Ou digite o valor:',
+        ja: 'または金額を入力:', fr: 'Ou entrez un montant:', hi: 'या राशि दर्ज करें:', ko: '또는 금액 입력:', tr: 'Veya miktar girin:',
+        de: 'Oder Betrag eingeben:', ar: 'أو أدخل المبلغ:', vi: 'Hoặc nhập số tiền:'
+    },
+    'enter_amount_placeholder': {
+        en: 'Enter amount...', ru: 'Введите сумму...', zh: '输入金额...', es: 'Ingresa cantidad...', pt: 'Digite o valor...',
+        ja: '金額を入力...', fr: 'Entrez le montant...', hi: 'राशि दर्ज करें...', ko: '금액 입력...', tr: 'Miktar girin...',
+        de: 'Betrag eingeben...', ar: 'أدخل المبلغ...', vi: 'Nhập số tiền...'
+    },
+    'max_bet_hint': {
+        en: 'Max: 50% of balance', ru: 'Макс: 50% от баланса', zh: '最大: 余额的50%', es: 'Máx: 50% del saldo', pt: 'Máx: 50% do saldo',
+        ja: '最大: 残高の50%', fr: 'Max: 50% du solde', hi: 'अधिकतम: शेष का 50%', ko: '최대: 잔액의 50%', tr: 'Maks: Bakiyenin %50\'si',
+        de: 'Max: 50% des Guthabens', ar: 'الحد الأقصى: 50% من الرصيد', vi: 'Tối đa: 50% số dư'
+    },
+    'score': {
+        en: 'Score', ru: 'Счет', zh: '分数', es: 'Puntuación', pt: 'Pontuação',
+        ja: 'スコア', fr: 'Score', hi: 'स्कोर', ko: '점수', tr: 'Skor',
+        de: 'Punkte', ar: 'النقاط', vi: 'Điểm'
+    },
+    'level': {
+        en: 'Level', ru: 'Уровень', zh: '等级', es: 'Nivel', pt: 'Nível',
+        ja: 'レベル', fr: 'Niveau', hi: 'स्तर', ko: '레벨', tr: 'Seviye',
+        de: 'Level', ar: 'المستوى', vi: 'Cấp độ'
+    },
+    'wave': {
+        en: 'Wave', ru: 'Волна', zh: '波', es: 'Oleada', pt: 'Onda',
+        ja: 'ウェーブ', fr: 'Vague', hi: 'वेव', ko: '웨이브', tr: 'Dalga',
+        de: 'Welle', ar: 'موجة', vi: 'Wave'
+    },
+    'lives': {
+        en: 'Lives', ru: 'Жизни', zh: '生命', es: 'Vidas', pt: 'Vidas',
+        ja: 'ライフ', fr: 'Vies', hi: 'जीवन', ko: '생명', tr: 'Canlar',
+        de: 'Leben', ar: 'حياة', vi: 'Mạng'
+    },
+    'enemies': {
+        en: 'Enemies', ru: 'Враги', zh: '敌人', es: 'Enemigos', pt: 'Inimigos',
+        ja: '敵', fr: 'Ennemis', hi: 'दुश्मन', ko: '적', tr: 'Düşmanlar',
+        de: 'Feinde', ar: 'أعداء', vi: 'Kẻ thù'
+    },
+    'start_game': {
+        en: '🚀 START GAME', ru: '🚀 НАЧАТЬ ИГРУ', zh: '🚀 开始游戏', es: '🚀 INICIAR JUEGO', pt: '🚀 INICIAR JOGO',
+        ja: '🚀 ゲーム開始', fr: '🚀 COMMENCER', hi: '🚀 गेम शुरू करें', ko: '🚀 게임 시작', tr: '🚀 OYUNA BAŞLA',
+        de: '🚀 SPIEL STARTEN', ar: '🚀 ابدأ اللعبة', vi: '🚀 BẮT ĐẦU'
+    },
+    'win_up_to': {
+        en: 'Win up to', ru: 'Выиграй до', zh: '赢取最高', es: 'Gana hasta', pt: 'Ganhe até',
+        ja: '最大勝利', fr: 'Gagnez jusqu\'à', hi: 'तक जीतें', ko: '최대 획득', tr: 'Kazanç',
+        de: 'Gewinne bis zu', ar: 'اربح حتى', vi: 'Thắng lên đến'
+    },
+    'spin_and_win': {
+        en: 'Spin and win up to 10x!', ru: 'Крути и выигрывай до 10x!', zh: '旋转并赢取最高10倍!', es: '¡Gira y gana hasta 10x!', pt: 'Gire e ganhe até 10x!',
+        ja: '回して最大10倍を獲得!', fr: 'Tournez et gagnez jusqu\'à 10x!', hi: 'घुमाएं और 10x तक जीतें!', ko: '돌려서 최대 10배 획득!', tr: 'Çevir ve 10x\'e kadar kazan!',
+        de: 'Drehen und bis zu 10x gewinnen!', ar: 'أدر واربح حتى 10x!', vi: 'Quay và thắng lên đến 10x!'
+    },
+    'progressive_jackpot': {
+        en: '🎰 PROGRESSIVE JACKPOT 🎰', ru: '🎰 ПРОГРЕССИВНЫЙ ДЖЕКПОТ 🎰', zh: '🎰 累积大奖 🎰', es: '🎰 JACKPOT PROGRESIVO 🎰', pt: '🎰 JACKPOT PROGRESSIVO 🎰',
+        ja: '🎰 プログレッシブジャックポット 🎰', fr: '🎰 JACKPOT PROGRESSIF 🎰', hi: '🎰 प्रोग्रेसिव जैकपॉट 🎰', ko: '🎰 프로그레시브 잭팟 🎰', tr: '🎰 PROGRESIF JACKPOT 🎰',
+        de: '🎰 PROGRESSIVER JACKPOT 🎰', ar: '🎰 الجائزة الكبرى التراكمية 🎰', vi: '🎰 JACKPOT TÍCH LŨY 🎰'
+    },
+    'jackpot_grows': {
+        en: '5% of each bet grows the pool!', ru: '5% от каждой ставки увеличивает джекпот!', zh: '每次投注的5%增加奖池!', es: '¡5% de cada apuesta aumenta el bote!', pt: '5% de cada aposta aumenta o prêmio!',
+        ja: '各ベットの5%がプールを増やします!', fr: '5% de chaque mise augmente le jackpot!', hi: 'प्रत्येक दांव का 5% पूल बढ़ाता है!', ko: '각 베팅의 5%가 잭팟을 증가시킵니다!', tr: 'Her bahsin %5\'i havuzu büyütür!',
+        de: '5% jeder Wette erhöht den Jackpot!', ar: '5% من كل رهان يزيد الجائزة!', vi: '5% mỗi cược tăng jackpot!'
+    },
+    'connect_wallet': {
+        en: '🔗 Connect Wallet', ru: '🔗 Подключить кошелек', zh: '🔗 连接钱包', es: '🔗 Conectar Cartera', pt: '🔗 Conectar Carteira',
+        ja: '🔗 ウォレットを接続', fr: '🔗 Connecter le Portefeuille', hi: '🔗 वॉलेट कनेक्ट करें', ko: '🔗 지갑 연결', tr: '🔗 Cüzdan Bağla',
+        de: '🔗 Wallet verbinden', ar: '🔗 ربط المحفظة', vi: '🔗 Kết nối ví'
+    },
+    'connected_wallet': {
+        en: '🔗 Connected Wallet', ru: '🔗 Подключенный кошелек', zh: '🔗 已连接钱包', es: '🔗 Cartera Conectada', pt: '🔗 Carteira Conectada',
+        ja: '🔗 接続済みウォレット', fr: '🔗 Portefeuille Connecté', hi: '🔗 कनेक्टेड वॉलेट', ko: '🔗 연결된 지갑', tr: '🔗 Bağlı Cüzdan',
+        de: '🔗 Wallet verbunden', ar: '🔗 محفظة متصلة', vi: '🔗 Ví đã kết nối'
+    },
+    'disconnect': {
+        en: 'Disconnect', ru: 'Отключить', zh: '断开连接', es: 'Desconectar', pt: 'Desconectar',
+        ja: '切断', fr: 'Déconnecter', hi: 'डिस्कनेक्ट', ko: '연결 해제', tr: 'Bağlantıyı Kes',
+        de: 'Trennen', ar: 'قطع الاتصال', vi: 'Ngắt kết nối'
     },
 
     // ========== MODALS ==========
@@ -763,14 +863,14 @@ function t(key, params = {}) {
         console.warn(`[i18n] Missing translation key: ${key}`);
         return key;
     }
-    
+
     let text = translation[currentLanguage] || translation['en'] || key;
-    
+
     // Simple parameter interpolation: {param} -> value
     Object.keys(params).forEach(param => {
         text = text.replace(new RegExp(`{${param}}`, 'g'), params[param]);
     });
-    
+
     return text;
 }
 
@@ -782,13 +882,13 @@ function setLanguage(langCode) {
     if (SUPPORTED_LANGUAGES[langCode]) {
         currentLanguage = langCode;
         localStorage.setItem('gameLanguage', langCode);
-        
+
         // Update all elements with data-i18n attribute
         updatePageTranslations();
-        
+
         // Dispatch event for custom handlers
         window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: langCode } }));
-        
+
         console.log(`[i18n] Language changed to: ${langCode} (${SUPPORTED_LANGUAGES[langCode].native})`);
     } else {
         console.warn(`[i18n] Unsupported language: ${langCode}`);
@@ -812,13 +912,13 @@ function updatePageTranslations() {
         const key = el.getAttribute('data-i18n');
         el.textContent = t(key);
     });
-    
+
     // Update elements with data-i18n-placeholder attribute
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         el.placeholder = t(key);
     });
-    
+
     // Update elements with data-i18n-title attribute
     document.querySelectorAll('[data-i18n-title]').forEach(el => {
         const key = el.getAttribute('data-i18n-title');
@@ -832,7 +932,7 @@ function updatePageTranslations() {
 function initI18n() {
     // Try to get language from various sources
     let lang = 'en';
-    
+
     // 1. Check localStorage
     const savedLang = localStorage.getItem('gameLanguage');
     if (savedLang && SUPPORTED_LANGUAGES[savedLang]) {
@@ -852,10 +952,10 @@ function initI18n() {
             lang = browserLang;
         }
     }
-    
+
     currentLanguage = lang;
     console.log(`[i18n] Initialized with language: ${lang}`);
-    
+
     // Update page on DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', updatePageTranslations);
@@ -871,7 +971,7 @@ function showLanguageSelector() {
     // Remove existing modal if any
     const existingModal = document.getElementById('language-selector-modal');
     if (existingModal) existingModal.remove();
-    
+
     // Create modal
     const modal = document.createElement('div');
     modal.id = 'language-selector-modal';
@@ -884,7 +984,7 @@ function showLanguageSelector() {
             </div>
             <div class="lang-modal-grid">
                 ${Object.entries(SUPPORTED_LANGUAGES).map(([code, lang]) => `
-                    <button class="lang-btn ${code === currentLanguage ? 'active' : ''}" 
+                    <button class="lang-btn ${code === currentLanguage ? 'active' : ''}"
                             onclick="selectLanguage('${code}')">
                         <span class="lang-flag">${lang.flag}</span>
                         <span class="lang-name">${lang.native}</span>
@@ -893,7 +993,7 @@ function showLanguageSelector() {
             </div>
         </div>
     `;
-    
+
     // Add styles if not already added
     if (!document.getElementById('lang-selector-styles')) {
         const styles = document.createElement('style');
@@ -911,17 +1011,17 @@ function showLanguageSelector() {
                 justify-content: center;
                 animation: fadeIn 0.2s ease;
             }
-            
+
             @keyframes fadeIn {
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
-            
+
             @keyframes slideUp {
                 from { transform: translateY(20px); opacity: 0; }
                 to { transform: translateY(0); opacity: 1; }
             }
-            
+
             .lang-modal-overlay {
                 position: absolute;
                 top: 0;
@@ -931,7 +1031,7 @@ function showLanguageSelector() {
                 background: rgba(0, 0, 0, 0.7);
                 backdrop-filter: blur(5px);
             }
-            
+
             .lang-modal-content {
                 position: relative;
                 background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -945,7 +1045,7 @@ function showLanguageSelector() {
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 animation: slideUp 0.3s ease;
             }
-            
+
             .lang-modal-header {
                 display: flex;
                 justify-content: space-between;
@@ -954,13 +1054,13 @@ function showLanguageSelector() {
                 padding-bottom: 15px;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             }
-            
+
             .lang-modal-title {
                 font-size: 20px;
                 font-weight: bold;
                 color: #fff;
             }
-            
+
             .lang-modal-close {
                 background: rgba(255, 255, 255, 0.1);
                 border: none;
@@ -972,18 +1072,18 @@ function showLanguageSelector() {
                 font-size: 16px;
                 transition: all 0.2s;
             }
-            
+
             .lang-modal-close:hover {
                 background: rgba(255, 255, 255, 0.2);
                 transform: scale(1.1);
             }
-            
+
             .lang-modal-grid {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
             }
-            
+
             .lang-btn {
                 display: flex;
                 align-items: center;
@@ -996,28 +1096,28 @@ function showLanguageSelector() {
                 transition: all 0.2s;
                 color: #fff;
             }
-            
+
             .lang-btn:hover {
                 background: rgba(255, 255, 255, 0.1);
                 border-color: rgba(138, 43, 226, 0.5);
                 transform: translateY(-2px);
             }
-            
+
             .lang-btn.active {
                 background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(75, 0, 130, 0.3));
                 border-color: #8a2be2;
                 box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
             }
-            
+
             .lang-flag {
                 font-size: 24px;
             }
-            
+
             .lang-name {
                 font-size: 14px;
                 font-weight: 500;
             }
-            
+
             /* Mobile adjustments */
             @media (max-width: 400px) {
                 .lang-modal-grid {
@@ -1030,7 +1130,7 @@ function showLanguageSelector() {
         `;
         document.head.appendChild(styles);
     }
-    
+
     document.body.appendChild(modal);
 }
 
@@ -1051,7 +1151,7 @@ function hideLanguageSelector() {
 function selectLanguage(langCode) {
     setLanguage(langCode);
     hideLanguageSelector();
-    
+
     // Show confirmation toast
     showToast(`${SUPPORTED_LANGUAGES[langCode].flag} ${SUPPORTED_LANGUAGES[langCode].native}`);
 }
@@ -1062,7 +1162,7 @@ function selectLanguage(langCode) {
 function showToast(message, duration = 2000) {
     const existingToast = document.querySelector('.i18n-toast');
     if (existingToast) existingToast.remove();
-    
+
     const toast = document.createElement('div');
     toast.className = 'i18n-toast';
     toast.textContent = message;
@@ -1080,7 +1180,7 @@ function showToast(message, duration = 2000) {
         animation: toastIn 0.3s ease;
         box-shadow: 0 5px 20px rgba(138, 43, 226, 0.4);
     `;
-    
+
     if (!document.getElementById('toast-animation-style')) {
         const style = document.createElement('style');
         style.id = 'toast-animation-style';
@@ -1092,9 +1192,9 @@ function showToast(message, duration = 2000) {
         `;
         document.head.appendChild(style);
     }
-    
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.animation = 'toastIn 0.3s ease reverse';
         setTimeout(() => toast.remove(), 300);
@@ -1111,7 +1211,7 @@ function createLanguageButton() {
     btn.innerHTML = `${SUPPORTED_LANGUAGES[currentLanguage].flag}`;
     btn.title = t('language');
     btn.onclick = showLanguageSelector;
-    
+
     // Add button styles if not exists
     if (!document.getElementById('lang-btn-styles')) {
         const style = document.createElement('style');
@@ -1138,12 +1238,12 @@ function createLanguageButton() {
         `;
         document.head.appendChild(style);
     }
-    
+
     // Update flag when language changes
     window.addEventListener('languageChanged', (e) => {
         btn.innerHTML = `${SUPPORTED_LANGUAGES[e.detail.language].flag}`;
     });
-    
+
     return btn;
 }
 

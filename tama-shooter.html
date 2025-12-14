@@ -7,6 +7,8 @@
 
     <!-- Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- i18n for translations -->
+    <script src="js/i18n.js"></script>
 
     <style>
         * {
@@ -272,23 +274,23 @@
         <!-- Stats Bar -->
         <div class="stats-bar">
             <div class="stat-item">
-                <div class="stat-label">Balance</div>
+                <div class="stat-label" data-i18n="your_balance">Balance</div>
                 <div class="stat-value" id="balance">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Score</div>
+                <div class="stat-label" data-i18n="score">Score</div>
                 <div class="stat-value" id="score">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Level</div>
+                <div class="stat-label" data-i18n="level">Level</div>
                 <div class="stat-value" id="level">1</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Wave</div>
+                <div class="stat-label" data-i18n="wave">Wave</div>
                 <div class="stat-value" id="wave">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Lives</div>
+                <div class="stat-label" data-i18n="lives">Lives</div>
                 <div class="stat-value" id="lives">3</div>
             </div>
         </div>
@@ -300,16 +302,16 @@
 
             <!-- Game Over Overlay -->
             <div class="game-over-overlay" id="game-over">
-                <div class="game-over-title" id="game-over-title">GAME OVER</div>
+                <div class="game-over-title" id="game-over-title" data-i18n="game_over">GAME OVER</div>
                 <div class="game-over-stats" id="game-over-stats"></div>
-                <button class="start-btn" onclick="location.reload()">🔄 PLAY AGAIN</button>
+                <button class="start-btn" onclick="location.reload()" data-i18n="play_again">🔄 PLAY AGAIN</button>
             </div>
         </div>
 
         <!-- Controls -->
         <div class="controls">
             <div class="control-section">
-                <div class="bet-label">Select Bet:</div>
+                <div class="bet-label" data-i18n="select_bet">Select Bet:</div>
                 <div class="bet-buttons">
                     <button class="bet-btn" data-bet="100">100 TAMA</button>
                     <button class="bet-btn" data-bet="200">200 TAMA</button>
@@ -317,7 +319,7 @@
                     <button class="bet-btn" data-bet="500">500 TAMA</button>
                 </div>
             </div>
-            <button class="start-btn" id="start-btn">🚀 START GAME</button>
+            <button class="start-btn" id="start-btn" data-i18n="start_game">🚀 START GAME</button>
             <div class="mobile-hint">💡 Move: Touch/Mouse | Shoot: Auto</div>
         </div>
     </div>
@@ -1567,6 +1569,11 @@
 
         // Initialize
         window.addEventListener('DOMContentLoaded', () => {
+            // Initialize i18n
+            if (typeof initI18n === 'function') {
+                initI18n();
+                updatePageTranslations();
+            }
             loadBalance();
             game.init();
         });

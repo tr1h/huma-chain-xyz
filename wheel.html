@@ -324,15 +324,15 @@
     <div class="container">
       <!-- Header -->
       <div class="header">
-        <h1>🎡 LUCKY WHEEL 🎡</h1>
-        <p>Spin and win up to 10x!</p>
+        <h1>🎡 <span data-i18n="lucky_wheel">LUCKY WHEEL</span> 🎡</h1>
+        <p data-i18n="spin_and_win">Spin and win up to 10x!</p>
       </div>
 
       <!-- Jackpot Section -->
       <div class="jackpot-section">
-        <div class="jackpot-label">🎰 PROGRESSIVE JACKPOT 🎰</div>
+        <div class="jackpot-label" data-i18n="progressive_jackpot">🎰 PROGRESSIVE JACKPOT 🎰</div>
         <div class="jackpot-value" id="jackpot-value">0</div>
-        <div style="font-size: 11px; color: rgba(0, 0, 0, 0.7); margin-top: 5px">
+        <div style="font-size: 11px; color: rgba(0, 0, 0, 0.7); margin-top: 5px" data-i18n="jackpot_grows">
           5% of each bet grows the pool!
         </div>
       </div>
@@ -340,21 +340,21 @@
       <!-- Balance Section -->
       <div class="balance-section">
         <div class="balance-item">
-          <div class="balance-label">💰 BALANCE</div>
-          <div class="balance-value" id="balance">Loading...</div>
+          <div class="balance-label" data-i18n="your_balance">💰 BALANCE</div>
+          <div class="balance-value" id="balance" data-i18n="loading">Loading...</div>
         </div>
 
         <div class="stats-grid">
           <div class="stat-box">
-            <div class="stat-label">Wins</div>
+            <div class="stat-label" data-i18n="wins">Wins</div>
             <div class="stat-value" id="wins">0</div>
           </div>
           <div class="stat-box">
-            <div class="stat-label">Losses</div>
+            <div class="stat-label" data-i18n="losses">Losses</div>
             <div class="stat-value" id="losses" style="color: #ff6b6b">0</div>
           </div>
           <div class="stat-box">
-            <div class="stat-label">Total Won</div>
+            <div class="stat-label" data-i18n="total_won">Total Won</div>
             <div class="stat-value" id="total-won">0</div>
           </div>
         </div>
@@ -362,7 +362,7 @@
 
       <!-- Bet Selection -->
       <div class="bet-section">
-        <div class="bet-label">Choose your bet:</div>
+        <div class="bet-label" data-i18n="choose_bet">Choose your bet:</div>
         <div class="bet-buttons">
           <button class="bet-btn active" onclick="setBet(500, this)">💵 500 TAMA</button>
           <button class="bet-btn" onclick="setBet(1000, this)">💎 1,000 TAMA</button>
@@ -378,12 +378,13 @@
               margin-bottom: 5px;
             "
           >
-            Or enter custom amount:
+            <span data-i18n="enter_amount">Or enter custom amount:</span>
           </div>
           <div style="display: flex; gap: 10px; align-items: center">
             <input
               type="number"
               id="custom-bet-input"
+              data-i18n-placeholder="enter_amount_placeholder"
               placeholder="Enter amount..."
               min="100"
               max="999999"
@@ -415,7 +416,7 @@
               margin-top: 5px;
             "
           >
-            Max: 50% of balance
+            <span data-i18n="max_bet_hint">Max: 50% of balance</span>
           </div>
         </div>
       </div>
@@ -432,13 +433,13 @@
       </button>
 
       <!-- Result -->
-      <div class="result-box" id="result">Select bet and spin the wheel!</div>
+      <div class="result-box" id="result" data-i18n="select_bet">Select bet and spin the wheel!</div>
 
       <!-- History -->
       <div class="history-section">
-        <div class="history-title">📜 Recent Spins</div>
+        <div class="history-title" data-i18n="recent_spins">📜 Recent Spins</div>
         <div id="history-list">
-          <div class="loading">No spins yet</div>
+          <div class="loading" data-i18n="no_spins_yet">No spins yet</div>
         </div>
       </div>
 
@@ -1606,6 +1607,12 @@
 
       // Initialize - optimized with deferred loading
       function initialize() {
+        // Initialize i18n
+        if (typeof initI18n === 'function') {
+            initI18n();
+            updatePageTranslations();
+        }
+        
         // Cache DOM elements first
         cacheDOM();
         

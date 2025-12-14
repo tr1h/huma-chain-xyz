@@ -7,6 +7,8 @@
 
     <!-- Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- i18n for translations -->
+    <script src="js/i18n.js"></script>
 
     <style>
         * {
@@ -205,9 +207,9 @@
         <div class="game-header">
             <h1>🍄 SUPER TAMA BROS</h1>
             <div class="balance-display">
-                💰 <span id="balance">Loading...</span> TAMA
+                💰 <span id="balance" data-i18n="loading">Loading...</span> TAMA
             </div>
-            <button class="exit-btn" onclick="goBack()">✕ EXIT</button>
+            <button class="exit-btn" onclick="goBack()" data-i18n="exit">✕ EXIT</button>
         </div>
 
         <!-- Game Canvas -->
@@ -229,7 +231,7 @@
         <!-- Footer -->
         <div class="game-footer">
             <div class="game-result" id="game-result"></div>
-            <button class="start-btn" id="start-btn">🍄 START GAME (100 TAMA)</button>
+            <button class="start-btn" id="start-btn" data-i18n="start_game">🍄 START GAME (100 TAMA)</button>
         </div>
     </div>
 
@@ -1315,6 +1317,12 @@
 
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', () => {
+            // Initialize i18n
+            if (typeof initI18n === 'function') {
+                initI18n();
+                updatePageTranslations();
+            }
+            
             loadBalance();
             platformerGame.init();
         });

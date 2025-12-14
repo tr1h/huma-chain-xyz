@@ -7,9 +7,11 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
+    <!-- i18n for translations -->
+    <script src="js/i18n.js"></script>
     <!-- Solana Wallet Adapter -->
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -38,7 +40,7 @@
             background: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%);
             border-radius: 30px;
             padding: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
                         inset 0 0 50px rgba(138, 201, 38, 0.1);
             border: 3px solid #8AC926;
         }
@@ -475,20 +477,20 @@
         <div class="slot-machine">
             <!-- Header -->
             <div class="header">
-                <h1>🎰 LUCKY SLOTS 🎰</h1>
-                <p>Win up to 100x your bet!</p>
+                <h1>🎰 <span data-i18n="lucky_slots">LUCKY SLOTS</span> 🎰</h1>
+                <p data-i18n="win_up_to">Win up to</p>
             </div>
 
             <!-- Wallet Connection Section -->
             <div id="wallet-section" style="display: none; background: rgba(138, 201, 38, 0.1); border: 1px solid #8AC926; border-radius: 15px; padding: 15px; margin-bottom: 15px; text-align: center;">
-                <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 8px;">🔗 Connected Wallet</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 8px;" data-i18n="connected_wallet">🔗 Connected Wallet</div>
                 <div id="wallet-address" style="font-size: 11px; color: #8AC926; font-family: monospace; word-break: break-all; margin-bottom: 8px;"></div>
-                <button onclick="disconnectWallet()" style="background: rgba(255,68,68,0.2); border: 1px solid #ff4444; padding: 5px 15px; border-radius: 8px; color: #ff4444; cursor: pointer; font-size: 11px;">
+                <button onclick="disconnectWallet()" style="background: rgba(255,68,68,0.2); border: 1px solid #ff4444; padding: 5px 15px; border-radius: 8px; color: #ff4444; cursor: pointer; font-size: 11px;" data-i18n="disconnect">
                     Disconnect
                 </button>
             </div>
             <div id="connect-wallet-btn-container" style="text-align: center; margin-bottom: 15px;">
-                <button id="connect-wallet-btn" onclick="connectWallet()" style="background: linear-gradient(135deg, #8AC926, #6fa01f); border: none; padding: 12px 24px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 15px rgba(138, 201, 38, 0.3); transition: all 0.3s;">
+                <button id="connect-wallet-btn" onclick="connectWallet()" style="background: linear-gradient(135deg, #8AC926, #6fa01f); border: none; padding: 12px 24px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 15px rgba(138, 201, 38, 0.3); transition: all 0.3s;" data-i18n="connect_wallet">
                     🔗 Connect Wallet
                 </button>
             </div>
@@ -496,15 +498,15 @@
             <!-- Balance Section -->
             <div class="balance-section">
                 <div class="balance-item">
-                    <div class="balance-label">Balance</div>
+                    <div class="balance-label" data-i18n="your_balance">Balance</div>
                     <div class="balance-value" id="balance">0</div>
                 </div>
                 <div class="balance-item">
-                    <div class="balance-label">Free Spins</div>
+                    <div class="balance-label" data-i18n="free_spins">Free Spins</div>
                     <div class="balance-value" id="free-spins">3</div>
                 </div>
                 <div class="balance-item">
-                    <div class="balance-label">Total Won</div>
+                    <div class="balance-label" data-i18n="total_won">Total Won</div>
                     <div class="balance-value" id="total-won">0</div>
                 </div>
             </div>
@@ -512,9 +514,9 @@
             <!-- Jackpot Pool Section -->
             <div class="balance-section" style="background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.2)); border: 2px solid #FFD700; margin-bottom: 20px;">
                 <div class="balance-item" style="width: 100%; text-align: center;">
-                    <div class="balance-label" style="color: #FFD700; font-size: 14px; font-weight: bold;">🎰 JACKPOT POOL 🎰</div>
-                    <div class="balance-value" id="jackpot-pool" style="color: #FFD700; font-size: 24px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">Loading...</div>
-                    <div style="font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 5px;">5% of each bet goes to the pool</div>
+                    <div class="balance-label" style="color: #FFD700; font-size: 14px; font-weight: bold;" data-i18n="progressive_jackpot">🎰 JACKPOT POOL 🎰</div>
+                    <div class="balance-value" id="jackpot-pool" style="color: #FFD700; font-size: 24px; text-shadow: 0 0 10px rgba(255,215,0,0.5);" data-i18n="loading">Loading...</div>
+                    <div style="font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 5px;" data-i18n="jackpot_grows">5% of each bet grows the pool!</div>
                 </div>
             </div>
 
@@ -536,7 +538,7 @@
 
             <!-- Bet Selection -->
             <div class="bet-section">
-                <div class="bet-label">Select Bet Amount (TAMA):</div>
+                <div class="bet-label" data-i18n="select_bet">Select Bet Amount (TAMA):</div>
                 <div class="bet-buttons">
                     <button class="bet-btn active" data-bet="100" onclick="selectBet(100)">
                         💰 100
@@ -551,12 +553,13 @@
 
                 <!-- Custom Bet -->
                 <div class="custom-bet-container">
-                    <div class="custom-bet-label">🎯 Custom Bet (Max 50% of balance)</div>
+                    <div class="custom-bet-label" data-i18n="max_bet_hint">🎯 Custom Bet (Max 50% of balance)</div>
                     <div class="custom-bet-input-group">
                         <input
                             type="number"
                             id="custom-bet-input"
                             class="custom-bet-input"
+                            data-i18n-placeholder="enter_amount_placeholder"
                             placeholder="Enter amount..."
                             min="100"
                             onkeypress="if(event.key === 'Enter') setCustomBet()"
@@ -581,7 +584,7 @@
 
             <!-- Paytable -->
             <div class="paytable">
-                <div class="paytable-title">💰 Prize Table 💰</div>
+                <div class="paytable-title" data-i18n="prize_table">💰 Prize Table 💰</div>
                 <div class="paytable-row">
                     <div class="paytable-symbols">
                         <span>🍒</span><span>🍒</span><span>🍒</span>
@@ -628,15 +631,15 @@
 
             <!-- History -->
             <div class="history-section">
-                <div class="history-title">📜 Recent Spins</div>
+                <div class="history-title" data-i18n="recent_spins">📜 Recent Spins</div>
                 <div id="history-list">
-                    <div class="loading">No spins yet</div>
+                    <div class="loading" data-i18n="no_spins_yet">No spins yet</div>
                 </div>
             </div>
 
             <!-- Buttons -->
             <div style="text-align: center; margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button onclick="showHowToPlay()" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; font-size: 14px;">
+                <button onclick="showHowToPlay()" style="background: rgba(138, 201, 38, 0.2); border: 1px solid #8AC926; padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; font-size: 14px;" data-i18n="how_to_play">
                     📖 How to Play
                 </button>
                 <button onclick="showProvablyFair()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 10px; color: white; cursor: pointer; font-size: 14px;">
@@ -1237,7 +1240,7 @@
 
         // API Base URL
         const API_BASE = 'https://api.solanatamagotchi.com/api/tama';
-        
+
         // Load user balance and data
         async function loadUserData() {
             // Ensure userId is set
@@ -1344,7 +1347,7 @@
                             .select('tama')
                             .eq('telegram_id', userId)
                             .maybeSingle();
-                        
+
                         if (!error && leaderboardData) {
                             balance = leaderboardData.tama || 0;
                             console.log('✅ Balance loaded from Supabase:', balance);
@@ -1392,7 +1395,7 @@
         // Select bet
         function selectBet(amount) {
             if (isSpinning) return;
-            
+
             currentBet = amount;
 
             // Update button states
@@ -1498,7 +1501,7 @@
                 console.log('⚠️ Spin already in progress, ignoring click');
                 return;
             }
-            
+
             // Set flag IMMEDIATELY to prevent double-clicks
             isSpinning = true;
             const spinBtn = document.getElementById('spin-btn');
@@ -1516,7 +1519,7 @@
 
             // Initialize audio on first interaction
             initAudio();
-            
+
             hideResult();
 
             // Update balance in backend (deduct bet) - API will return updated balance
@@ -1550,7 +1553,7 @@
 
             // Spin animation (will show result symbols one by one)
             await playSpinAnimation(result);
-            
+
             // Check win
             const isWin = result[0] === result[1] && result[1] === result[2];
             let winAmount = 0;
@@ -1566,7 +1569,7 @@
                 // Balance is already updated by updateBalance() from API response
                 // Add win to total won
                 totalWon += winAmount;
-                
+
                 // If jackpot was won, API already added it to balance
                 if (isJackpot && apiResponse && apiResponse.jackpot && apiResponse.jackpot.jackpot_win > 0) {
                     const jackpotWin = apiResponse.jackpot.jackpot_win;
@@ -1592,7 +1595,7 @@
                 document.getElementById('win-line').classList.add('active');
                 showResult(`🎉 YOU WON ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
                 }
-                
+
                 if (multiplier >= 20) {
                     createConfetti();
                 }
@@ -1635,7 +1638,7 @@
 
             // Spin animation (will show result symbols one by one)
             await playSpinAnimation(result);
-            
+
             // Check win
             const isWin = result[0] === result[1] && result[1] === result[2];
             let winAmount = 0;
@@ -1675,7 +1678,7 @@
                 document.getElementById('win-line').classList.add('active');
                 showResult(`🎁 FREE SPIN WIN: ${formatNumber(winAmount)} TAMA! (x${multiplier})`, true);
                 }
-                
+
                 if (multiplier >= 20) {
                     createConfetti();
                 }
@@ -1698,7 +1701,7 @@
         function playSpinAnimation(result) {
             return new Promise(resolve => {
                 const reels = ['reel1', 'reel2', 'reel3'];
-                
+
                 // Start spinning - show random symbols while spinning
                 const spinInterval = setInterval(() => {
                     reels.forEach(reelId => {
@@ -1767,12 +1770,12 @@
         function weightedRandom(weights) {
             const total = Object.values(weights).reduce((a, b) => a + b, 0);
             let random = Math.random() * total;
-            
+
             for (const [symbol, weight] of Object.entries(weights)) {
                 random -= weight;
                 if (random <= 0) return symbol;
             }
-            
+
             return '🍒'; // Fallback
         }
 
@@ -1836,7 +1839,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     if (data.balance !== undefined) {
@@ -1878,19 +1881,19 @@
                             .select('tama')
                             .eq('telegram_id', String(userId))
                             .maybeSingle();
-                        
+
                         if (leaderboardData) {
                             const currentBalance = leaderboardData.tama || 0;
                             const newBalance = currentBalance + amount;
-                            
+
                             await supabase
                                 .from('leaderboard')
                                 .update({ tama: newBalance })
                                 .eq('telegram_id', String(userId));
-                            
+
                             balance = newBalance;
                             document.getElementById('balance').textContent = formatNumber(balance);
-                            
+
                             // Log transaction
                             await supabase.from('transactions').insert({
                                 telegram_id: String(userId),
@@ -2000,7 +2003,7 @@
                     confetti.style.background = ['#FFD700', '#FFA500', '#FF6347', '#8AC926'][Math.floor(Math.random() * 4)];
                     confetti.style.animationDelay = Math.random() * 0.5 + 's';
                     document.body.appendChild(confetti);
-                    
+
                     setTimeout(() => confetti.remove(), 3000);
                 }, i * 50);
             }
@@ -2013,6 +2016,11 @@
 
         // Initialize - wait for Telegram Web App to be ready
         function initialize() {
+            // Initialize i18n
+            if (typeof initI18n === 'function') {
+                initI18n();
+                updatePageTranslations();
+            }
             // Check for wallet connection first
             const storedWallet = localStorage.getItem('wallet_address');
             if (storedWallet) {
