@@ -3859,7 +3859,6 @@
         <!-- Navigation Buttons -->
         <div class="nav-buttons">
             <button class="nav-btn minigames-btn" id="minigames-btn">🎮 <span data-i18n="games">Games</span></button>
-            <button class="nav-btn shop-btn" id="shop-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-weight: bold;">🛒 <span data-i18n="shop">Shop</span></button>
             <button class="nav-btn leaderboard-btn" id="leaderboard-btn">🏆 <span data-i18n="top">Top</span></button>
             <button class="nav-btn nft-btn" id="nft-btn">🖼️ <span data-i18n="nfts">NFT</span></button>
             <button class="nav-btn withdraw-btn" id="withdraw-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold;">💸 <span data-i18n="cash">Cash</span></button>
@@ -3896,7 +3895,8 @@
             <div class="heart-cloud" style="top: 50px; left: -30px; animation-delay: 0s;">💜</div>
             <div class="heart-cloud" style="top: 150px; left: -30px; animation-delay: 10s;">💗</div>
 
-            <!-- Shop button removed from main screen - only in modal -->
+            <!-- Shop button - round floating button -->
+            <button class="shop-btn" id="shop-btn" title="Shop">🛒</button>
             <div class="pet-change-btn" id="pet-change-btn" title="Change Pet">🐾</div>
             <div class="combo-counter" id="combo-counter">🔥 COMBO x<span id="combo-value">0</span></div>
             <div class="pet-status" id="pet-status"></div>
@@ -7550,7 +7550,6 @@
             shopBtn.addEventListener('click', () => {
                 console.log('🛒 Shop button clicked!');
                 shopModal.classList.add('active');
-                shopBtn.style.display = 'none'; // Hide button when shop opens
                 // Load items by default
                 document.getElementById('shop-items').style.display = 'block';
                 document.getElementById('shop-skins').style.display = 'none';
@@ -7563,7 +7562,6 @@
         if (closeShop && shopModal) {
             closeShop.addEventListener('click', () => {
                 shopModal.classList.remove('active');
-                if (shopBtn) shopBtn.style.display = 'flex'; // Show button again
             });
         }
 
@@ -7572,9 +7570,8 @@
             shopModal.addEventListener('click', (e) => {
             if (e.target.id === 'shop-modal') {
                     shopModal.classList.remove('active');
-                    if (shopBtn) shopBtn.style.display = 'flex'; // Show button again
-            }
-        });
+                }
+            });
         }
 
         function buyItem(itemType, price) {
