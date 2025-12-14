@@ -3,8 +3,13 @@
 [![Live Demo](https://img.shields.io/badge/Live-solanatamagotchi.com-blue)](https://solanatamagotchi.com)
 [![Telegram Bot](https://img.shields.io/badge/Telegram-@gotchigamebot-blue)](https://t.me/gotchigamebot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Languages](https://img.shields.io/badge/Languages-13-green)](https://solanatamagotchi.com)
 
-A blockchain-based Tamagotchi game on Solana with Play-to-Earn mechanics, NFT pets, and mini-games.
+A blockchain-based Tamagotchi game on Solana with Play-to-Earn mechanics, NFT pets, and mini-games. **Now available in 13 languages!**
+
+## 🌍 Supported Languages
+
+🇺🇸 English | 🇷🇺 Русский | 🇨🇳 中文 | 🇯🇵 日本語 | 🇰🇷 한국어 | 🇪🇸 Español | 🇧🇷 Português | 🇫🇷 Français | 🇩🇪 Deutsch | 🇹🇷 Türkçe | 🇮🇳 हिन्दी | 🇸🇦 العربية | 🇻🇳 Tiếng Việt
 
 ## 🚀 Features
 
@@ -29,6 +34,13 @@ A blockchain-based Tamagotchi game on Solana with Play-to-Earn mechanics, NFT pe
 - Wallet connection (Phantom, Solflare)
 - Admin panels with password protection
 - Transaction logging & monitoring
+
+### 🌍 Internationalization (NEW!)
+- **13 Languages** supported across all platforms
+- **SEO-optimized pages** for RU, ZH, JA, KO, ES markets
+- **Dynamic language switching** with beautiful modal selector
+- **Auto-detection** from browser/Telegram settings
+- **hreflang tags** for international SEO
 
 ## 📁 Project Structure
 
@@ -157,10 +169,19 @@ cp .env.example .env
 ## 📊 Game Stats
 
 - **Total Transactions**: 60,000+
-- **Active Users**: 14+
+- **Active Users**: 1,000+
 - **NFTs Minted**: 104
-- **Total TAMA Earned**: 2,455 TAMA
-- **Total TAMA Spent**: 315,000 TAMA
+- **Languages**: 13
+- **SEO Pages**: 6 regional versions
+
+## 🗺️ Roadmap
+
+| Phase | Status | Details |
+|-------|--------|---------|
+| Q4 2024 - Q3 2025 | ✅ Done | Devnet, Telegram bot, NFT minting, P2E mechanics |
+| Q4 2025 | ⚡ Now | 13-language localization, SEO expansion, economy balancing |
+| Q1 2026 | 🚀 Next | Mainnet launch, DEX listing (Raydium/Jupiter) |
+| Q2 2026 | 📱 Planned | Mobile apps, PvP battles, breeding system |
 
 ## 🔗 Links
 
