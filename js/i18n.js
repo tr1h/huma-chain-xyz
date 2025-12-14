@@ -966,7 +966,7 @@ const TRANSLATIONS = {
         ar: 'أدخل عنوان المحفظة...',
         vi: 'Nhập địa chỉ ví...'
     },
-    
+
     // ========== MINT PAGE ==========
     'mint_your_nft_pet': {
         en: '🎨 MINT YOUR NFT PET',
@@ -1205,23 +1205,34 @@ function initI18n() {
     // Try to get language from various sources
     let lang = 'en';
 
-    // 1. Check localStorage
-    const savedLang = localStorage.getItem('gameLanguage');
-    if (savedLang && SUPPORTED_LANGUAGES[savedLang]) {
-        lang = savedLang;
+    // 1. ✅ ПРИОРИТЕТ #1: URL параметр (самый высокий приоритет)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    if (urlLang && SUPPORTED_LANGUAGES[urlLang]) {
+        lang = urlLang;
+        // Сохранить в localStorage для будущих визитов
+        localStorage.setItem('gameLanguage', urlLang);
+        console.log(`[i18n] Language set from URL parameter: ${urlLang}`);
     }
-    // 2. Check Telegram WebApp
-    else if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
-        const tgLang = window.Telegram.WebApp.initDataUnsafe.user.language_code;
-        if (SUPPORTED_LANGUAGES[tgLang]) {
-            lang = tgLang;
-        }
-    }
-    // 3. Check browser language
+    // 2. Check localStorage
     else {
-        const browserLang = navigator.language?.split('-')[0];
-        if (SUPPORTED_LANGUAGES[browserLang]) {
-            lang = browserLang;
+        const savedLang = localStorage.getItem('gameLanguage');
+        if (savedLang && SUPPORTED_LANGUAGES[savedLang]) {
+            lang = savedLang;
+        }
+        // 3. Check Telegram WebApp
+        else if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
+            const tgLang = window.Telegram.WebApp.initDataUnsafe.user.language_code;
+            if (SUPPORTED_LANGUAGES[tgLang]) {
+                lang = tgLang;
+            }
+        }
+        // 4. Check browser language
+        else {
+            const browserLang = navigator.language?.split('-')[0];
+            if (SUPPORTED_LANGUAGES[browserLang]) {
+                lang = browserLang;
+            }
         }
     }
 
