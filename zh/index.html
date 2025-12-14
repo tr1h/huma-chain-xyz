@@ -17,7 +17,7 @@
     <!-- Primary Meta Tags - CHINESE -->
     <title>Solana Tamagotchi - Telegram上的Play-to-Earn NFT宠物游戏 | TAMA代币</title>
     <meta name="title" content="Solana Tamagotchi - Telegram上的Play-to-Earn NFT宠物游戏 | TAMA代币">
-    <meta name="description" content="在Solana上玩赚并收集NFT宠物！🐾 Telegram免费Tamagotchi游戏，获得真正的TAMA代币奖励。铸造NFT，升级宠物，获得最高3倍加成。加入我们不断壮大的社区！">
+    <meta name="description" content="在Solana上玩赚并收集NFT宠物！🐾 100%免费浏览器游戏，无需Telegram！连接钱包即可开始，赚取真正的TAMA代币奖励。铸造NFT，升级宠物，获得最高5倍加成。支持手机和电脑，无需VPN！">
     <meta name="keywords" content="solana tamagotchi, play to earn, p2e游戏, nft宠物, telegram游戏, solana nft, tama代币, 区块链游戏, 加密宠物, solana游戏, 免费加密货币, 玩游戏赚加密货币, tamagotchi nft, 元宇宙宠物, web3游戏, 赚钱游戏">
     <meta name="author" content="Solana Tamagotchi Team">
     <meta name="robots" content="index, follow">
@@ -36,7 +36,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://solanatamagotchi.com/zh/">
     <meta property="og:title" content="Solana Tamagotchi - Play-to-Earn NFT宠物游戏 🐾">
-    <meta property="og:description" content="Telegram免费Tamagotchi游戏，在Solana上获得真正的TAMA奖励！铸造NFT，赚取代币，全球竞争。100%免费开始！">
+    <meta property="og:description" content="100%免费浏览器游戏，无需Telegram！连接Solana钱包即可开始，赚取真正的TAMA代币。铸造NFT，升级宠物，获得最高5倍加成。支持手机和电脑，无需VPN！">
     <meta property="og:image" content="https://solanatamagotchi.com/og-image.png">
     <meta property="og:site_name" content="Solana Tamagotchi">
     <meta property="og:locale" content="zh_CN">
@@ -45,7 +45,7 @@
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://solanatamagotchi.com/zh/">
     <meta property="twitter:title" content="Solana Tamagotchi - Play-to-Earn NFT宠物游戏 🐾">
-    <meta property="twitter:description" content="Telegram免费Tamagotchi游戏，在Solana上获得真正的TAMA奖励！铸造NFT，赚取代币，全球竞争。">
+    <meta property="twitter:description" content="100%免费浏览器游戏，无需Telegram！连接Solana钱包即可开始，赚取真正的TAMA代币。铸造NFT，升级宠物，获得最高5倍加成。">
     <meta property="twitter:image" content="https://solanatamagotchi.com/twitter-image.png">
     <meta property="twitter:site" content="@GotchiGame">
 
@@ -77,6 +77,7 @@
     <!-- Force Chinese language -->
     <script>
         localStorage.setItem('siteLang', 'zh');
+        localStorage.setItem('gameLanguage', 'zh'); // Also set for game
     </script>
 
     <style>
@@ -125,7 +126,7 @@
         .btn-telegram { background: linear-gradient(135deg, #26A5E4, #0088cc); }
         .btn-browser { background: linear-gradient(135deg, #8AC926, #6FA01A); }
         .btn-mint { background: linear-gradient(135deg, #FFB703, #FB8500); }
-        
+
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -192,21 +193,21 @@
         <div style="font-size: 5em; margin-bottom: 20px;">🐾</div>
         <h1 class="hero-title">SOLANA 电子宠物</h1>
         <p class="hero-subtitle">终极区块链宠物游戏！玩耍、赚取并收集NFT宠物 🚀</p>
-        
+
         <div>
-            <a href="https://t.me/GotchiGameBot" target="_blank" class="btn-primary btn-telegram">
-                🎮 在Telegram中玩
+            <a href="/tamagotchi-game.html?lang=zh" class="btn-primary btn-browser" style="font-size: 18px; padding: 20px 40px;">
+                🌐 立即在浏览器中玩
             </a>
-            <a href="/tamagotchi-game.html" class="btn-primary btn-browser">
-                🌐 在浏览器中玩
-            </a>
-            <a href="/mint" class="btn-primary btn-mint">
+            <a href="/mint?lang=zh" class="btn-primary btn-mint">
                 🎨 铸造NFT
             </a>
+            <a href="https://t.me/GotchiGameBot" target="_blank" class="btn-primary btn-telegram" style="opacity: 0.7;">
+                🎮 Telegram (需要VPN)
+            </a>
         </div>
-        
-        <p style="margin-top: 30px; opacity: 0.8;">
-            ✅ 100%免费 &nbsp;|&nbsp; 💰 真正的TAMA代币 &nbsp;|&nbsp; 🎮 10+迷你游戏
+
+        <p style="margin-top: 30px; opacity: 0.8; font-size: 1.1em;">
+            ✅ 100%免费 &nbsp;|&nbsp; 💰 真正的TAMA代币 &nbsp;|&nbsp; 🎮 10+迷你游戏 &nbsp;|&nbsp; 🌐 无需Telegram &nbsp;|&nbsp; 📱 支持手机
         </p>
     </section>
 
@@ -253,57 +254,139 @@
         <div class="features-grid" style="max-width: 1000px;">
             <div class="feature-card">
                 <div class="feature-icon">1️⃣</div>
-                <h3 class="feature-title">打开Telegram</h3>
-                <p>搜索 <strong>@GotchiGameBot</strong> 并点击开始</p>
+                <h3 class="feature-title">打开浏览器</h3>
+                <p>点击"🌐 在浏览器中玩"按钮，无需Telegram！</p>
+                <p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">✅ 支持Chrome、Safari、微信浏览器</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">2️⃣</div>
-                <h3 class="feature-title">选择模式</h3>
-                <p>🆓 免费（虚拟）或 💎 高级版（NFT）- 你的选择！</p>
+                <h3 class="feature-title">连接钱包</h3>
+                <p>连接Phantom或Solflare钱包（如果没有，可以免费创建）</p>
+                <p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">💼 钱包用于保存游戏进度和提取TAMA</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">3️⃣</div>
-                <h3 class="feature-title">玩赚</h3>
-                <p>点击，完成任务，赚取TAMA代币</p>
+                <h3 class="feature-title">开始游戏</h3>
+                <p>🆓 免费模式：虚拟宠物，赚取TAMA（1x倍率）</p>
+                <p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">💎 高级模式：NFT宠物，最高5x倍率</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">4️⃣</div>
-                <h3 class="feature-title">提现</h3>
-                <p>连接钱包并将TAMA提取到区块链</p>
+                <h3 class="feature-title">赚取和提现</h3>
+                <p>点击宠物、完成任务、赚取TAMA代币</p>
+                <p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px;">💰 随时提取TAMA到你的Solana钱包</p>
+            </div>
+        </div>
+
+        <!-- Important Note for Chinese Users -->
+        <div style="max-width: 800px; margin: 40px auto; padding: 25px; background: rgba(138, 201, 38, 0.15); border: 2px solid #8AC926; border-radius: 15px; text-align: center;">
+            <h3 style="color: #8AC926; margin-bottom: 15px;">💡 重要提示</h3>
+            <p style="font-size: 1.1em; line-height: 1.8;">
+                <strong>✅ 无需Telegram！</strong> 游戏完全在浏览器中运行，支持钱包连接。<br>
+                <strong>✅ 无需VPN！</strong> 直接访问即可开始游戏。<br>
+                <strong>✅ 数据安全！</strong> 游戏进度保存在区块链上，不会丢失。
+            </p>
+        </div>
+    </section>
+
+    <!-- Benefits for Chinese Users -->
+    <section style="padding: 60px 20px; background: rgba(138, 201, 38, 0.05);">
+        <h2 class="section-title">🇨🇳 专为中国用户优化</h2>
+        <div class="features-grid" style="max-width: 1000px;">
+            <div class="feature-card" style="border-color: rgba(138, 201, 38, 0.5);">
+                <div class="feature-icon">🌐</div>
+                <h3 class="feature-title">无需Telegram</h3>
+                <p>游戏完全在浏览器中运行，无需VPN或Telegram。直接访问即可开始！</p>
+            </div>
+            <div class="feature-card" style="border-color: rgba(138, 201, 38, 0.5);">
+                <div class="feature-icon">💼</div>
+                <h3 class="feature-title">钱包连接</h3>
+                <p>使用Phantom、Solflare或其他Solana钱包连接。数据保存在区块链上，安全可靠。</p>
+            </div>
+            <div class="feature-card" style="border-color: rgba(138, 201, 38, 0.5);">
+                <div class="feature-icon">📱</div>
+                <h3 class="feature-title">多平台支持</h3>
+                <p>支持电脑、手机、平板。支持Chrome、Safari、微信浏览器等所有主流浏览器。</p>
+            </div>
+            <div class="feature-card" style="border-color: rgba(138, 201, 38, 0.5);">
+                <div class="feature-icon">🔒</div>
+                <h3 class="feature-title">数据安全</h3>
+                <p>游戏进度保存在Supabase云端，即使清除浏览器缓存也不会丢失数据。</p>
             </div>
         </div>
     </section>
 
     <!-- CTA -->
-    <section style="text-align: center; padding: 80px 20px;">
+    <section style="text-align: center; padding: 80px 20px; background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(255, 202, 58, 0.1));">
         <h2 class="section-title">🎮 立即开始游戏！</h2>
         <p style="font-size: 1.2em; margin-bottom: 30px; opacity: 0.9;">
             加入已经在赚取TAMA代币的数千名玩家！
         </p>
-        <div>
-            <a href="https://t.me/GotchiGameBot" target="_blank" class="btn-primary btn-telegram" style="font-size: 18px; padding: 20px 40px;">
-                🚀 在TELEGRAM中游玩
+        <p style="font-size: 1em; margin-bottom: 40px; opacity: 0.8; max-width: 600px; margin-left: auto; margin-right: auto;">
+            🆓 100%免费开始 | 💰 赚取真正的TAMA代币 | 🎨 收集NFT宠物 | 🏆 全球排行榜
+        </p>
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+            <a href="/tamagotchi-game.html?lang=zh" class="btn-primary btn-browser" style="font-size: 20px; padding: 25px 50px; box-shadow: 0 10px 40px rgba(138, 201, 38, 0.4);">
+                🚀 立即开始游戏
             </a>
+            <a href="/mint?lang=zh" class="btn-primary btn-mint" style="font-size: 18px; padding: 25px 40px;">
+                💎 查看NFT
+            </a>
+        </div>
+        <div style="margin-top: 40px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; max-width: 700px; margin-left: auto; margin-right: auto;">
+            <p style="font-size: 0.95em; opacity: 0.9; line-height: 1.8;">
+                <strong>🎁 新用户奖励：</strong>推荐好友即可获得1000 TAMA！<br>
+                <strong>💼 需要钱包：</strong>Phantom、Solflare或其他Solana钱包（免费创建）<br>
+                <strong>🌐 支持平台：</strong>电脑、手机、平板 - 任何浏览器！
+            </p>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div style="margin-bottom: 20px;">
-            <a href="https://x.com/GotchiGame" target="_blank" style="color: white; text-decoration: none; margin: 0 15px; font-size: 24px;">🐦</a>
-            <a href="https://t.me/GotchiGameBot" target="_blank" style="color: white; text-decoration: none; margin: 0 15px; font-size: 24px;">📱</a>
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #FFCA3A; margin-bottom: 20px; font-size: 1.2em;">🔗 快速链接</h3>
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+                <a href="/tamagotchi-game.html?lang=zh" style="color: rgba(255,255,255,0.9); text-decoration: none; padding: 10px 20px; background: rgba(138, 201, 38, 0.2); border-radius: 8px; transition: all 0.3s;">🎮 开始游戏</a>
+                <a href="/mint?lang=zh" style="color: rgba(255,255,255,0.9); text-decoration: none; padding: 10px 20px; background: rgba(255, 183, 3, 0.2); border-radius: 8px; transition: all 0.3s;">🎨 铸造NFT</a>
+                <a href="/whitepaper" style="color: rgba(255,255,255,0.9); text-decoration: none; padding: 10px 20px; background: rgba(153, 69, 255, 0.2); border-radius: 8px; transition: all 0.3s;">📖 白皮书</a>
+                <a href="/blog/" style="color: rgba(255,255,255,0.9); text-decoration: none; padding: 10px 20px; background: rgba(147, 51, 234, 0.2); border-radius: 8px; transition: all 0.3s;">📰 博客</a>
+            </div>
         </div>
+
         <div style="margin-bottom: 20px;">
-            <a href="/" style="color: rgba(255,255,255,0.8); margin: 0 10px;">English</a>
-            <a href="/ru/" style="color: rgba(255,255,255,0.8); margin: 0 10px;">Русский</a>
-            <a href="/zh/" style="color: #FFCA3A; margin: 0 10px;">中文</a>
-            <a href="/ja/" style="color: rgba(255,255,255,0.8); margin: 0 10px;">日本語</a>
+            <a href="https://x.com/GotchiGame" target="_blank" style="color: white; text-decoration: none; margin: 0 15px; font-size: 24px; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🐦</a>
+            <a href="https://t.me/GotchiGameBot" target="_blank" style="color: white; text-decoration: none; margin: 0 15px; font-size: 24px; transition: transform 0.3s; opacity: 0.7;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="需要VPN">📱</a>
         </div>
-        <p style="opacity: 0.7;">
+
+        <div style="margin-bottom: 20px;">
+            <p style="opacity: 0.8; margin-bottom: 10px;">🌍 选择语言 / Choose Language:</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="/" style="color: rgba(255,255,255,0.8); margin: 0 5px; text-decoration: none;">🇬🇧 English</a>
+                <a href="/ru/" style="color: rgba(255,255,255,0.8); margin: 0 5px; text-decoration: none;">🇷🇺 Русский</a>
+                <a href="/zh/" style="color: #FFCA3A; margin: 0 5px; text-decoration: none; font-weight: bold;">🇨🇳 中文</a>
+                <a href="/ja/" style="color: rgba(255,255,255,0.8); margin: 0 5px; text-decoration: none;">🇯🇵 日本語</a>
+                <a href="/ko/" style="color: rgba(255,255,255,0.8); margin: 0 5px; text-decoration: none;">🇰🇷 한국어</a>
+                <a href="/es/" style="color: rgba(255,255,255,0.8); margin: 0 5px; text-decoration: none;">🇪🇸 Español</a>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            <p style="opacity: 0.9; line-height: 1.8; font-size: 0.95em;">
+                <strong>💡 提示：</strong>游戏完全在浏览器中运行，无需下载或安装。<br>
+                连接Solana钱包即可开始，支持Phantom、Solflare等所有主流钱包。
+            </p>
+        </div>
+
+        <p style="opacity: 0.7; margin-bottom: 10px;">
             在Solana上用❤️制作 | 由Phantom钱包提供支持
         </p>
         <p style="opacity: 0.5; font-size: 0.9em; margin-top: 15px;">
-            📧 <a href="mailto:gotchigame@proton.me" style="color: rgba(255,255,255,0.6);">gotchigame@proton.me</a>
+            📧 <a href="mailto:gotchigame@proton.me" style="color: rgba(255,255,255,0.6); text-decoration: none;">gotchigame@proton.me</a>
+            &nbsp;|&nbsp;
+            <a href="/terms" style="color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 10px;">条款</a>
+            <a href="/privacy" style="color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 10px;">隐私</a>
+            <a href="/disclaimer" style="color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 10px;">风险提示</a>
         </p>
     </footer>
 </body>
