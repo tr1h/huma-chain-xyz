@@ -3772,32 +3772,32 @@
         <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 40px; border-radius: 20px; max-width: 450px; text-align: center; box-shadow: 0 10px 50px rgba(0,0,0,0.5); border: 2px solid #9333EA;">
             <!-- Connected State (hidden by default) -->
             <div id="wallet-connected-info" style="display: none;">
-                <h2 style="color: #10B981; margin-bottom: 20px; font-size: 24px;">✅ Wallet Connected</h2>
+                <h2 style="color: #10B981; margin-bottom: 20px; font-size: 24px;" data-i18n="wallet_connected">✅ Wallet Connected</h2>
                 <p style="color: #E9D5FF; margin-bottom: 15px; font-size: 14px;">
                     <span id="wallet-modal-address" style="font-weight: bold; color: #FFCA3A;"></span>
                 </p>
-                <button id="disconnect-wallet-btn-modal" style="padding: 12px 30px; background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transition: transform 0.2s; width: 100%;">
+                <button id="disconnect-wallet-btn-modal" style="padding: 12px 30px; background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transition: transform 0.2s; width: 100%;" data-i18n="disconnect_wallet">
                     🔌 Disconnect Wallet
                 </button>
-                <button id="close-wallet-modal" style="padding: 10px 20px; background: rgba(255,255,255,0.1); color: #E9D5FF; border: 2px solid #9333EA; border-radius: 12px; font-size: 14px; cursor: pointer; width: 100%;">
+                <button id="close-wallet-modal" style="padding: 10px 20px; background: rgba(255,255,255,0.1); color: #E9D5FF; border: 2px solid #9333EA; border-radius: 12px; font-size: 14px; cursor: pointer; width: 100%;" data-i18n="close">
                     ✕ Close
                 </button>
             </div>
 
             <!-- Not Connected State -->
             <div id="wallet-not-connected-info">
-            <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">🔐 Connect Wallet</h2>
-            <p style="color: #E9D5FF; margin-bottom: 30px; line-height: 1.6;">
+            <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;" data-i18n="connect_wallet_title">🔐 Connect Wallet</h2>
+            <p style="color: #E9D5FF; margin-bottom: 30px; line-height: 1.6;" data-i18n="connect_wallet_desc">
                 Connect your Phantom or Solflare wallet to start playing and save your progress<br>
-                <span style="font-size: 14px; opacity: 0.8;">Your game data will be securely saved on the blockchain</span>
+                <span style="font-size: 14px; opacity: 0.8;" data-i18n="game_data_saved">Your game data will be securely saved on the blockchain</span>
             </p>
-            <button id="connect-wallet-btn-modal" style="padding: 18px 40px; background: linear-gradient(135deg, #9945FF, #9333EA); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(153, 69, 255, 0.4); transition: transform 0.2s; width: 100%;">
+            <button id="connect-wallet-btn-modal" style="padding: 18px 40px; background: linear-gradient(135deg, #9945FF, #9333EA); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(153, 69, 255, 0.4); transition: transform 0.2s; width: 100%;" data-i18n="connect_wallet">
                 👛 Connect Wallet
             </button>
             <p style="color: #999; font-size: 12px; margin-top: 20px;">
-                Don't have a wallet? <a href="https://phantom.app/" target="_blank" style="color: #9945FF; text-decoration: none;">Download Phantom</a>
+                <span data-i18n="download_phantom">Don't have a wallet? <a href="https://phantom.app/" target="_blank" style="color: #9945FF; text-decoration: none;">Download Phantom</a></span>
             </p>
-            <p style="color: #666; font-size: 11px; margin-top: 15px;">
+            <p style="color: #666; font-size: 11px; margin-top: 15px;" data-i18n="game_data_saved">
                 💡 Your game data will be securely saved on the blockchain
             </p>
             </div>

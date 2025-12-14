@@ -5,21 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <meta http-equiv="Cache-Control" content="max-age=3600" />
     <title>Lucky Wheel - Solana Tamagotchi</title>
-    
+
     <!-- Preconnect to external domains for faster loading -->
-    <link rel="preconnect" href="https://telegram.org" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preconnect" href="https://api.solanatamagotchi.com" crossorigin>
-    <link rel="dns-prefetch" href="https://zfrazyupameidxpjihrh.supabase.co">
-    
+    <link rel="preconnect" href="https://telegram.org" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://api.solanatamagotchi.com" crossorigin />
+    <link rel="dns-prefetch" href="https://zfrazyupameidxpjihrh.supabase.co" />
+
     <!-- Load critical scripts with async/defer -->
     <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="js/config.js" defer></script>
 
     <style>
-      *{margin:0;padding:0;box-sizing:border-box}
-      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
         background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #1a0033 100%);
         background-attachment: fixed;
@@ -92,8 +96,13 @@
       }
 
       @keyframes jackpotPulse {
-        0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
-        50% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+        0%,
+        100% {
+          box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+        50% {
+          box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+        }
       }
 
       .jackpot-label {
@@ -251,8 +260,14 @@
       }
 
       @keyframes confetti-fall {
-        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
       }
 
       .confetti {
@@ -292,10 +307,17 @@
         font-size: 14px;
       }
 
-      .history-win { color: #8ac926; }
-      .history-lose { color: #ff6b6b; }
-      .loading { text-align: center; color: rgba(255, 255, 255, 0.5); }
-      
+      .history-win {
+        color: #8ac926;
+      }
+      .history-lose {
+        color: #ff6b6b;
+      }
+      .loading {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
       /* GPU-accelerated modals */
       .modal {
         display: none;
@@ -309,7 +331,7 @@
         overflow-y: auto;
         transform: translateZ(0);
       }
-      
+
       .modal-content {
         background: linear-gradient(135deg, #1a1a2e, #16213e);
         margin: 20px auto;
@@ -332,7 +354,10 @@
       <div class="jackpot-section">
         <div class="jackpot-label" data-i18n="progressive_jackpot">🎰 PROGRESSIVE JACKPOT 🎰</div>
         <div class="jackpot-value" id="jackpot-value">0</div>
-        <div style="font-size: 11px; color: rgba(0, 0, 0, 0.7); margin-top: 5px" data-i18n="jackpot_grows">
+        <div
+          style="font-size: 11px; color: rgba(0, 0, 0, 0.7); margin-top: 5px"
+          data-i18n="jackpot_grows"
+        >
           5% of each bet grows the pool!
         </div>
       </div>
@@ -433,7 +458,9 @@
       </button>
 
       <!-- Result -->
-      <div class="result-box" id="result" data-i18n="select_bet">Select bet and spin the wheel!</div>
+      <div class="result-box" id="result" data-i18n="select_bet">
+        Select bet and spin the wheel!
+      </div>
 
       <!-- History -->
       <div class="history-section">
@@ -791,12 +818,13 @@
     <script>
       // Performance: Use strict mode
       'use strict';
-      
+
       // Initialize Telegram WebApp (deferred)
       let tg = null;
-      
+
       // Lazy-init Supabase (only when needed) - uses centralized config
-      const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+      const SUPABASE_URL =
+        window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
       const SUPABASE_KEY = window.CONFIG?.SUPABASE_KEY || '';
       let supabase = null;
       const getSupabase = () => {
@@ -827,10 +855,10 @@
       const getUserId = () => {
         const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
         if (tgUser?.id) return String(tgUser.id);
-        
+
         const urlId = new URLSearchParams(window.location.search).get('user_id');
         if (urlId) return urlId;
-        
+
         return localStorage.getItem('telegram_user_id') || '123456789';
       };
 
@@ -854,27 +882,27 @@
 
       // Confetti colors pre-computed
       const CONFETTI_COLORS = ['#FFD700', '#FFA500', '#FF6347', '#8AC926', '#8b5cf6'];
-      
+
       // Optimized confetti using DocumentFragment and CSS classes
       function createConfetti() {
         const fragment = document.createDocumentFragment();
         const confettiCount = 30; // Reduced from 50 for better performance
-        
+
         for (let i = 0; i < confettiCount; i++) {
           const confetti = document.createElement('div');
           confetti.className = 'confetti';
-          confetti.style.left = (Math.random() * 100) + '%';
+          confetti.style.left = Math.random() * 100 + '%';
           confetti.style.top = '-10px';
           confetti.style.background = CONFETTI_COLORS[Math.floor(Math.random() * 5)];
-          confetti.style.animationDelay = (i * 30) + 'ms';
+          confetti.style.animationDelay = i * 30 + 'ms';
           fragment.appendChild(confetti);
         }
-        
+
         document.body.appendChild(fragment);
-        
+
         // Batch remove after animation
         setTimeout(() => {
-          document.querySelectorAll('.confetti').forEach(c => c.remove());
+          document.querySelectorAll('.confetti').forEach((c) => c.remove());
         }, 3500);
       }
 
@@ -982,7 +1010,7 @@
       // Draw wheel - optimized with pre-computed values
       function drawWheel() {
         if (!ctx) return;
-        
+
         ctx.clearRect(0, 0, 400, 400);
 
         for (let i = 0; i < SEGMENT_COUNT; i++) {
@@ -1016,7 +1044,7 @@
       // Set bet - optimized with cached selectors
       function setBet(amount, clickedButton) {
         currentBet = amount;
-        document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.bet-btn').forEach((btn) => btn.classList.remove('active'));
 
         if (clickedButton) {
           clickedButton.classList.add('active');
@@ -1032,7 +1060,7 @@
       function setCustomBet() {
         const input = DOM.customBetInput;
         if (!input) return;
-        
+
         const amount = parseInt(input.value, 10);
 
         if (!amount || amount < 100) {
@@ -1052,11 +1080,13 @@
         }
 
         currentBet = amount;
-        document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.bet-btn').forEach((btn) => btn.classList.remove('active'));
         if (DOM.spinCost) DOM.spinCost.textContent = amount.toLocaleString();
 
         input.style.borderColor = '#8AC926';
-        setTimeout(() => { input.style.borderColor = 'rgba(255,255,255,0.3)'; }, 1000);
+        setTimeout(() => {
+          input.style.borderColor = 'rgba(255,255,255,0.3)';
+        }, 1000);
       }
 
       // Format number - cached Intl.NumberFormat for performance
@@ -1191,7 +1221,10 @@
         if (saveHistoryTimeout) clearTimeout(saveHistoryTimeout);
         saveHistoryTimeout = setTimeout(() => {
           try {
-            localStorage.setItem(`wheel_history_${userId}`, JSON.stringify(spinHistory.slice(0, 50)));
+            localStorage.setItem(
+              `wheel_history_${userId}`,
+              JSON.stringify(spinHistory.slice(0, 50))
+            );
             localStorage.setItem(`wheel_wins_${userId}`, String(wins));
             localStorage.setItem(`wheel_losses_${userId}`, String(losses));
             localStorage.setItem(`wheel_totalWon_${userId}`, String(totalWon));
@@ -1215,7 +1248,9 @@
           const netProfit = (item.win || 0) - (item.bet || 0);
           const cls = netProfit > 0 ? 'history-win' : 'history-lose';
           const sign = netProfit > 0 ? '+' : '';
-          html += `<div class="history-item"><div>${item.multiplier || 0}x → ${formatNumber(item.win || 0)} TAMA</div><div class="${cls}">${sign}${formatNumber(netProfit)} TAMA</div></div>`;
+          html += `<div class="history-item"><div>${item.multiplier || 0}x → ${formatNumber(
+            item.win || 0
+          )} TAMA</div><div class="${cls}">${sign}${formatNumber(netProfit)} TAMA</div></div>`;
         }
         DOM.historyList.innerHTML = html;
       }
@@ -1609,36 +1644,33 @@
       function initialize() {
         // Initialize i18n
         if (typeof initI18n === 'function') {
-            initI18n();
-            updatePageTranslations();
+          initI18n();
+          updatePageTranslations();
         }
-        
+
         // Cache DOM elements first
         cacheDOM();
-        
+
         // Initialize canvas
         canvas = DOM.canvas;
         if (canvas) {
           ctx = canvas.getContext('2d', { alpha: false });
         }
-        
+
         // Initialize Telegram WebApp
         tg = window.Telegram?.WebApp;
         if (tg) {
           tg.ready();
           tg.expand();
         }
-        
+
         userId = getUserId();
-        
+
         // Draw wheel immediately for perceived performance
         drawWheel();
-        
+
         // Load data in parallel
-        Promise.all([
-          loadUserData(),
-          loadGlobalJackpot()
-        ]).then(() => {
+        Promise.all([loadUserData(), loadGlobalJackpot()]).then(() => {
           loadHistory();
           startJackpotSync();
         });
