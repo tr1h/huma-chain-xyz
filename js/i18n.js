@@ -845,6 +845,126 @@ const TRANSLATIONS = {
         en: 'Connect Wallet', ru: 'Подключить кошелек', zh: '连接钱包', es: 'Conectar Cartera', pt: 'Conectar Carteira',
         ja: 'ウォレットを接続', fr: 'Connecter le Portefeuille', hi: 'वॉलेट कनेक्ट करें', ko: '지갑 연결', tr: 'Cüzdan Bağla',
         de: 'Wallet verbinden', ar: 'ربط المحفظة', vi: 'Kết nối ví'
+    },
+    'wallet_connected': {
+        en: 'Wallet Connected', ru: 'Кошелек подключен', zh: '钱包已连接', es: 'Cartera Conectada', pt: 'Carteira Conectada',
+        ja: 'ウォレット接続済み', fr: 'Portefeuille Connecté', hi: 'वॉलेट कनेक्टेड', ko: '지갑 연결됨', tr: 'Cüzdan Bağlandı',
+        de: 'Wallet verbunden', ar: 'تم ربط المحفظة', vi: 'Đã kết nối ví'
+    },
+    'disconnect_wallet': {
+        en: 'Disconnect Wallet', ru: 'Отключить кошелек', zh: '断开钱包', es: 'Desconectar Cartera', pt: 'Desconectar Carteira',
+        ja: 'ウォレットを切断', fr: 'Déconnecter le Portefeuille', hi: 'वॉलेट डिस्कनेक्ट करें', ko: '지갑 연결 해제', tr: 'Cüzdan Bağlantısını Kes',
+        de: 'Wallet trennen', ar: 'قطع ربط المحفظة', vi: 'Ngắt kết nối ví'
+    },
+    'connect_wallet_title': {
+        en: 'Connect Wallet', ru: 'Подключить кошелек', zh: '连接钱包', es: 'Conectar Cartera', pt: 'Conectar Carteira',
+        ja: 'ウォレットを接続', fr: 'Connecter le Portefeuille', hi: 'वॉलेट कनेक्ट करें', ko: '지갑 연결', tr: 'Cüzdan Bağla',
+        de: 'Wallet verbinden', ar: 'ربط المحفظة', vi: 'Kết nối ví'
+    },
+    'connect_wallet_desc': {
+        en: 'Connect your Phantom or Solflare wallet to start playing and save your progress', 
+        ru: 'Подключите кошелек Phantom или Solflare чтобы начать играть и сохранять прогресс',
+        zh: '连接您的Phantom或Solflare钱包以开始游戏并保存进度',
+        es: 'Conecta tu cartera Phantom o Solflare para comenzar a jugar y guardar tu progreso',
+        pt: 'Conecte sua carteira Phantom ou Solflare para começar a jogar e salvar seu progresso',
+        ja: 'PhantomまたはSolflareウォレットを接続してゲームを開始し、進行状況を保存します',
+        fr: 'Connectez votre portefeuille Phantom ou Solflare pour commencer à jouer et sauvegarder votre progression',
+        hi: 'खेलना शुरू करने और अपनी प्रगति सहेजने के लिए अपना Phantom या Solflare वॉलेट कनेक्ट करें',
+        ko: 'Phantom 또는 Solflare 지갑을 연결하여 게임을 시작하고 진행 상황을 저장하세요',
+        tr: 'Oynamaya başlamak ve ilerlemenizi kaydetmek için Phantom veya Solflare cüzdanınızı bağlayın',
+        de: 'Verbinden Sie Ihre Phantom- oder Solflare-Wallet, um zu spielen und Ihren Fortschritt zu speichern',
+        ar: 'قم بربط محفظة Phantom أو Solflare للبدء في اللعب وحفظ تقدمك',
+        vi: 'Kết nối ví Phantom hoặc Solflare của bạn để bắt đầu chơi và lưu tiến trình'
+    },
+    'game_data_saved': {
+        en: 'Your game data will be securely saved on the blockchain',
+        ru: 'Ваши игровые данные будут безопасно сохранены в блокчейне',
+        zh: '您的游戏数据将安全地保存在区块链上',
+        es: 'Tus datos del juego se guardarán de forma segura en la blockchain',
+        pt: 'Seus dados do jogo serão salvos com segurança na blockchain',
+        ja: 'ゲームデータはブロックチェーンに安全に保存されます',
+        fr: 'Vos données de jeu seront sauvegardées en toute sécurité sur la blockchain',
+        hi: 'आपका गेम डेटा ब्लॉकचेन पर सुरक्षित रूप से सहेजा जाएगा',
+        ko: '게임 데이터가 블록체인에 안전하게 저장됩니다',
+        tr: 'Oyun verileriniz blockchain\'de güvenli bir şekilde kaydedilecek',
+        de: 'Ihre Spieldaten werden sicher auf der Blockchain gespeichert',
+        ar: 'سيتم حفظ بيانات اللعبة الخاصة بك بأمان على البلوك تشين',
+        vi: 'Dữ liệu trò chơi của bạn sẽ được lưu an toàn trên blockchain'
+    },
+    'download_phantom': {
+        en: 'Don\'t have a wallet? Download Phantom', 
+        ru: 'Нет кошелька? Скачайте Phantom',
+        zh: '没有钱包？下载Phantom',
+        es: '¿No tienes cartera? Descarga Phantom',
+        pt: 'Não tem carteira? Baixe o Phantom',
+        ja: 'ウォレットをお持ちでないですか？Phantomをダウンロード',
+        fr: 'Vous n\'avez pas de portefeuille ? Téléchargez Phantom',
+        hi: 'वॉलेट नहीं है? Phantom डाउनलोड करें',
+        ko: '지갑이 없으신가요? Phantom 다운로드',
+        tr: 'Cüzdanınız yok mu? Phantom\'ı indirin',
+        de: 'Keine Wallet? Phantom herunterladen',
+        ar: 'ليس لديك محفظة؟ قم بتنزيل Phantom',
+        vi: 'Chưa có ví? Tải xuống Phantom'
+    },
+    'connect_phantom_nft': {
+        en: 'Connect Phantom to mint on-chain NFTs',
+        ru: 'Подключите Phantom для создания NFT в блокчейне',
+        zh: '连接Phantom以铸造链上NFT',
+        es: 'Conecta Phantom para crear NFTs en cadena',
+        pt: 'Conecte o Phantom para criar NFTs na cadeia',
+        ja: 'チェーン上NFTを作成するにはPhantomを接続',
+        fr: 'Connectez Phantom pour créer des NFT sur la chaîne',
+        hi: 'चेन पर NFT बनाने के लिए Phantom कनेक्ट करें',
+        ko: '체인상 NFT를 발행하려면 Phantom 연결',
+        tr: 'Zincir üzerinde NFT oluşturmak için Phantom\'ı bağlayın',
+        de: 'Phantom verbinden, um On-Chain-NFTs zu erstellen',
+        ar: 'قم بربط Phantom لإنشاء NFTs على السلسلة',
+        vi: 'Kết nối Phantom để tạo NFT trên chuỗi'
+    },
+    'select_saved_wallet': {
+        en: 'Saved Wallets:', 
+        ru: 'Сохраненные кошельки:',
+        zh: '已保存的钱包:',
+        es: 'Carteras Guardadas:',
+        pt: 'Carteiras Salvas:',
+        ja: '保存されたウォレット:',
+        fr: 'Portefeuilles Enregistrés:',
+        hi: 'सहेजे गए वॉलेट:',
+        ko: '저장된 지갑:',
+        tr: 'Kayıtlı Cüzdanlar:',
+        de: 'Gespeicherte Wallets:',
+        ar: 'المحافظ المحفوظة:',
+        vi: 'Ví đã lưu:'
+    },
+    'open_browser_tip': {
+        en: 'You can also open in browser for full Phantom support',
+        ru: 'Вы также можете открыть в браузере для полной поддержки Phantom',
+        zh: '您也可以在浏览器中打开以获得完整的Phantom支持',
+        es: 'También puedes abrir en el navegador para soporte completo de Phantom',
+        pt: 'Você também pode abrir no navegador para suporte completo do Phantom',
+        ja: '完全なPhantomサポートのためにブラウザで開くこともできます',
+        fr: 'Vous pouvez également ouvrir dans le navigateur pour un support Phantom complet',
+        hi: 'पूर्ण Phantom समर्थन के लिए आप ब्राउज़र में भी खोल सकते हैं',
+        ko: '전체 Phantom 지원을 위해 브라우저에서 열 수도 있습니다',
+        tr: 'Tam Phantom desteği için tarayıcıda da açabilirsiniz',
+        de: 'Sie können auch im Browser öffnen für vollständige Phantom-Unterstützung',
+        ar: 'يمكنك أيضًا فتحه في المتصفح للحصول على دعم Phantom الكامل',
+        vi: 'Bạn cũng có thể mở trong trình duyệt để có hỗ trợ Phantom đầy đủ'
+    },
+    'enter_wallet_address': {
+        en: 'Enter wallet address...',
+        ru: 'Введите адрес кошелька...',
+        zh: '输入钱包地址...',
+        es: 'Ingresa la dirección de la cartera...',
+        pt: 'Digite o endereço da carteira...',
+        ja: 'ウォレットアドレスを入力...',
+        fr: 'Entrez l\'adresse du portefeuille...',
+        hi: 'वॉलेट पता दर्ज करें...',
+        ko: '지갑 주소 입력...',
+        tr: 'Cüzdan adresini girin...',
+        de: 'Wallet-Adresse eingeben...',
+        ar: 'أدخل عنوان المحفظة...',
+        vi: 'Nhập địa chỉ ví...'
     }
 };
 

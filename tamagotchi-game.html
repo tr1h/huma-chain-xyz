@@ -8698,16 +8698,25 @@
             const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID;
             if (!userId) return;
 
+            // Check if Supabase config is available
+            const supabaseUrl = window.CONFIG?.SUPABASE_URL || typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : 'https://zfrazyupameidxpjihrh.supabase.co';
+            const supabaseKey = window.CONFIG?.SUPABASE_ANON_KEY || typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : null;
+            
+            if (!supabaseKey) {
+                console.warn('⚠️ Supabase API key not available, skipping transaction log');
+                return;
+            }
+
             try {
                 // Get username: Telegram username or wallet address prefix
                 const username = window.Telegram?.WebApp?.initDataUnsafe?.user?.username 
                     || (window.WALLET_ADDRESS ? `Wallet_${window.WALLET_ADDRESS.substring(0, 8)}` : userId);
 
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
+                const response = await fetch(`${supabaseUrl}/rest/v1/transactions`, {
                     method: 'POST',
                     headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`,
                         'Content-Type': 'application/json',
                         'Prefer': 'return=minimal'
                     },
