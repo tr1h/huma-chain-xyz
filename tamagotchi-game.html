@@ -1212,7 +1212,7 @@
 
         /* Shop button */
         .shop-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 20px;
             background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
@@ -1227,7 +1227,7 @@
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: transform 0.2s;
-            z-index: 9999 !important; /* CRITICAL FIX: Very high z-index + !important */
+            z-index: 10000 !important; /* CRITICAL FIX: Very high z-index + !important */
             pointer-events: auto !important; /* Ensure clickable */
         }
 
@@ -3813,6 +3813,9 @@
         <img src="logo.png" alt="Solana Tamagotchi">
     </a>
 
+    <!-- Shop button - round floating button (outside container for proper positioning) -->
+    <button class="shop-btn" id="shop-btn" title="Shop">🛒</button>
+
     <div class="game-container">
         <!-- Pet Selector 🐾 - Top Row -->
         <div class="pet-selector-top">
@@ -3895,8 +3898,6 @@
             <div class="heart-cloud" style="top: 50px; left: -30px; animation-delay: 0s;">💜</div>
             <div class="heart-cloud" style="top: 150px; left: -30px; animation-delay: 10s;">💗</div>
 
-            <!-- Shop button - round floating button -->
-            <button class="shop-btn" id="shop-btn" title="Shop">🛒</button>
             <div class="pet-change-btn" id="pet-change-btn" title="Change Pet">🐾</div>
             <div class="combo-counter" id="combo-counter">🔥 COMBO x<span id="combo-value">0</span></div>
             <div class="pet-status" id="pet-status"></div>
