@@ -1466,20 +1466,20 @@
 
     <main class="container" role="main">
         <header class="header">
-            <h1>🎨 MINT YOUR NFT PET</h1>
-            <p class="subtitle">5 TIERS | BONDING CURVE | FIXED BOOSTS</p>
+            <h1 data-i18n="mint_your_nft_pet">🎨 MINT YOUR NFT PET</h1>
+            <p class="subtitle" data-i18n="mint_subtitle">5 TIERS | BONDING CURVE | FIXED BOOSTS</p>
         </header>
 
         <section class="wallet-section" aria-label="Wallet Connection">
             <div class="wallet-info">
-                <div>👛 <span id="wallet-status">Connect Wallet</span></div>
+                <div>👛 <span id="wallet-status" data-i18n="connect_wallet">Connect Wallet</span></div>
                 <div>SOL: <span id="sol-balance">0</span></div>
-                <div>TAMA: <span id="tama-balance">Loading...</span></div>
+                <div>TAMA: <span id="tama-balance" data-i18n="loading">Loading...</span></div>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
-                <button class="btn-faucet" onclick="openFaucet()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: 2px solid #FFD700;">🚰 Get Test SOL</button>
-                <button class="btn-my-nfts" onclick="viewMyNFTs()">🖼️ MY NFTs</button>
+                <button class="btn-connect" onclick="connectWallet()" data-i18n="connect_wallet">Connect Wallet</button>
+                <button class="btn-faucet" onclick="openFaucet()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: 2px solid #FFD700;" data-i18n="get_test_sol">🚰 Get Test SOL</button>
+                <button class="btn-my-nfts" onclick="viewMyNFTs()" data-i18n="my_nfts">🖼️ MY NFTs</button>
             </div>
         </section>
 
@@ -1877,8 +1877,24 @@
 
     <!-- Legal Checkbox for Minting - defer -->
     <script src="js/legal-checkbox.js" defer></script>
+    
+    <!-- i18n System for Localization -->
+    <script src="js/i18n.js"></script>
 
     <script>
+        // ==============================================
+        // i18n INITIALIZATION
+        // ==============================================
+        // Initialize i18n with language from URL parameter
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang') || localStorage.getItem('gameLanguage') || 'en';
+            if (typeof setLanguage === 'function' && SUPPORTED_LANGUAGES && SUPPORTED_LANGUAGES[lang]) {
+                setLanguage(lang);
+                console.log('🌍 Language set to:', lang);
+            }
+        });
+
         // ==============================================
         // CONFIG - using centralized config
         // ==============================================
