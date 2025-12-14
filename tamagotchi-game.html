@@ -2147,6 +2147,10 @@
             background: linear-gradient(135deg, #1a202c, #2d3748);
             border: 2px solid #4a5568;
             border-radius: 10px;
+        }
+
+        .more-menu-dropdown.show {
+            display: block;
             padding: 10px;
             min-width: 150px;
             z-index: 1000;
@@ -3855,6 +3859,7 @@
         <!-- Navigation Buttons -->
         <div class="nav-buttons">
             <button class="nav-btn minigames-btn" id="minigames-btn">🎮 <span data-i18n="games">Games</span></button>
+            <button class="nav-btn shop-btn" id="shop-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-weight: bold;">🛒 <span data-i18n="shop">Shop</span></button>
             <button class="nav-btn leaderboard-btn" id="leaderboard-btn">🏆 <span data-i18n="top">Top</span></button>
             <button class="nav-btn nft-btn" id="nft-btn">🖼️ <span data-i18n="nfts">NFT</span></button>
             <button class="nav-btn withdraw-btn" id="withdraw-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold;">💸 <span data-i18n="cash">Cash</span></button>
@@ -3862,6 +3867,7 @@
             <div class="more-menu-container" style="position: relative;">
                 <button class="nav-btn more-btn" id="more-btn" style="background: linear-gradient(135deg, #6b7280, #4b5563); color: white;">⋯ <span data-i18n="more">More</span></button>
                 <div class="more-menu-dropdown" id="more-menu" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 5px; background: linear-gradient(135deg, #1a202c, #2d3748); border: 2px solid #4a5568; border-radius: 10px; padding: 10px; min-width: 150px; z-index: 1000; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+                    <button class="more-menu-item" id="more-wallet-btn" style="width: 100%; padding: 12px; margin: 5px 0; background: rgba(153, 69, 255, 0.2); border: 1px solid #9945FF; border-radius: 8px; color: white; cursor: pointer; text-align: left; font-size: 14px;">👛 <span data-i18n="connect_wallet">Connect Wallet</span></button>
                     <button class="more-menu-item" id="more-help-btn" style="width: 100%; padding: 12px; margin: 5px 0; background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; border-radius: 8px; color: white; cursor: pointer; text-align: left; font-size: 14px;">📚 <span data-i18n="help">Help</span></button>
                     <button class="more-menu-item" id="more-referral-btn" style="width: 100%; padding: 12px; margin: 5px 0; background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea; border-radius: 8px; color: white; cursor: pointer; text-align: left; font-size: 14px;">🔗 <span data-i18n="my_link">My Link</span></button>
                     <button class="more-menu-item" id="more-profile-btn" style="width: 100%; padding: 12px; margin: 5px 0; background: rgba(102, 126, 234, 0.2); border: 1px solid #667eea; border-radius: 8px; color: white; cursor: pointer; text-align: left; font-size: 14px;">👤 <span data-i18n="profile">Profile</span></button>
@@ -12414,6 +12420,7 @@
         // More Menu Button
         const moreBtn = document.getElementById('more-btn');
         const moreMenu = document.getElementById('more-menu');
+        const moreWalletBtn = document.getElementById('more-wallet-btn');
         const moreHelpBtn = document.getElementById('more-help-btn');
         const moreReferralBtn = document.getElementById('more-referral-btn');
         const moreProfileBtn = document.getElementById('more-profile-btn');
@@ -12434,6 +12441,16 @@
         }
 
         // More Menu Items
+        if (moreWalletBtn) {
+            moreWalletBtn.addEventListener('click', () => {
+                const walletModal = document.getElementById('wallet-connect-modal');
+                if (walletModal) {
+                    walletModal.style.display = 'flex';
+                }
+                moreMenu.classList.remove('show');
+            });
+        }
+
         if (moreHelpBtn && helpModal) {
             moreHelpBtn.addEventListener('click', () => {
                 helpModal.classList.add('show');
