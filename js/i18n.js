@@ -1220,20 +1220,15 @@ function initI18n() {
         if (savedLang && SUPPORTED_LANGUAGES[savedLang]) {
             lang = savedLang;
         }
-        // 3. Check Telegram WebApp
+        // 3. Check Telegram WebApp (only if no saved language)
         else if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
             const tgLang = window.Telegram.WebApp.initDataUnsafe.user.language_code;
             if (SUPPORTED_LANGUAGES[tgLang]) {
                 lang = tgLang;
             }
         }
-        // 4. Check browser language
-        else {
-            const browserLang = navigator.language?.split('-')[0];
-            if (SUPPORTED_LANGUAGES[browserLang]) {
-                lang = browserLang;
-            }
-        }
+        // 4. Browser language - DISABLED: Always default to English
+        // (Removed automatic browser language detection to keep English as default)
     }
 
     currentLanguage = lang;
