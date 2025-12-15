@@ -1,5 +1,5 @@
-/**
- * 🔒 Centralized Configuration for Solana Tamagotchi
+﻿/**
+ * рџ”’ Centralized Configuration for Solana Tamagotchi
  * 
  * Single source of truth for all configuration.
  * Supports devnet (current) and mainnet (future).
@@ -14,7 +14,7 @@
   'use strict';
 
   // ============================================
-  // 🌐 NETWORK CONFIGURATION
+  // рџЊђ NETWORK CONFIGURATION
   // ============================================
   // Change this to 'mainnet' when ready for production
   const SOLANA_NETWORK = 'devnet'; // 'devnet' | 'mainnet'
@@ -37,7 +37,7 @@
   };
 
   // ============================================
-  // 🔍 ENVIRONMENT DETECTION  
+  // рџ”Ќ ENVIRONMENT DETECTION  
   // ============================================
   const hostname = window.location.hostname;
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
@@ -46,7 +46,7 @@
   const isDev = isLocalhost || isGithubPages;
 
   // ============================================
-  // 📦 MAIN CONFIGURATION
+  // рџ“¦ MAIN CONFIGURATION
   // ============================================
   const CONFIG = {
     // Environment info
@@ -56,7 +56,7 @@
     VERSION: '1.0.0',
 
     // ==========================================
-    // 🗄️ SUPABASE
+    // рџ—„пёЏ SUPABASE
     // ==========================================
     SUPABASE_URL: 'https://zfrazyupameidxpjihrh.supabase.co',
     
@@ -68,12 +68,12 @@
     })(),
 
     // ==========================================
-    // 🌐 API ENDPOINTS
+    // рџЊђ API ENDPOINTS
     // ==========================================
     API_BASE: 'https://api.solanatamagotchi.com/api/tama',
     
     // ==========================================
-    // ⛓️ SOLANA CONFIGURATION
+    // в›“пёЏ SOLANA CONFIGURATION
     // ==========================================
     SOLANA: {
       NETWORK: SOLANA_NETWORK,
@@ -86,7 +86,7 @@
     },
 
     // ==========================================
-    // 🎮 GAME URLS
+    // рџЋ® GAME URLS
     // ==========================================
     URLS: {
       GAME: 'https://solanatamagotchi.com/tamagotchi-game.html',
@@ -98,7 +98,7 @@
     },
 
     // ==========================================
-    // 🤖 TELEGRAM
+    // рџ¤– TELEGRAM
     // ==========================================
     TELEGRAM: {
       BOT_USERNAME: 'GotchiGameBot',
@@ -107,7 +107,7 @@
     },
 
     // ==========================================
-    // ⚙️ GAME SETTINGS
+    // вљ™пёЏ GAME SETTINGS
     // ==========================================
     GAME: {
       MAX_SPINS_PER_DAY: 30,
@@ -118,7 +118,7 @@
     },
 
     // ==========================================
-    // 🔒 SECURITY
+    // рџ”’ SECURITY
     // ==========================================
     SECURITY: {
       RATE_LIMIT_PER_MINUTE: 100,
@@ -127,7 +127,7 @@
     },
 
     // ==========================================
-    // 🚀 FEATURE FLAGS
+    // рџљЂ FEATURE FLAGS
     // ==========================================
     FEATURES: {
       SOUND_ENABLED: true,
@@ -150,7 +150,7 @@
   Object.freeze(CONFIG.FEATURES);
 
   // ============================================
-  // 🔧 HELPER FUNCTIONS
+  // рџ”§ HELPER FUNCTIONS
   // ============================================
   
   // Lazy Supabase client
@@ -179,12 +179,8 @@
 
   // Log in dev mode
   if (CONFIG.IS_DEV) {
-    console.log('🔧 Config loaded:', {
-      ENV: CONFIG.ENV,
-      NETWORK: CONFIG.SOLANA.NETWORK,
-      API: CONFIG.API_BASE,
-      VERSION: CONFIG.VERSION
-    });
+    // [cleaned]
   }
 
 })();
+

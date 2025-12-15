@@ -1,0 +1,201 @@
+﻿/* =============================================================================
+   MAINNET READY IMPROVEMENTS - v2.0.0
+   Added: 2025-12-15
+   Purpose: Better UX, accessibility, and performance
+   ============================================================================= */
+
+/* Improved button sizes for mobile (min 48px touch target) */
+.action-btn {
+    min-height: 48px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+.action-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* Better spacing between sections */
+.game-stats {
+    margin-bottom: 20px !important;
+}
+
+.action-buttons {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+/* Loading state */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    animation: toastSlideUp 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast.success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.toast.error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.toast.info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+@keyframes toastSlideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Empty state styling */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.empty-state-text {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Better visual hierarchy */
+.level-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #000;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+    z-index: 10;
+}
+
+.level-badge .level-number {
+    font-size: 20px;
+    display: block;
+    line-height: 1;
+}
+
+.level-badge .level-label {
+    font-size: 10px;
+    opacity: 0.8;
+    display: block;
+}
+
+/* Accessibility: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Better mobile responsiveness */
+@media (max-width: 480px) {
+    .action-btn {
+        font-size: 15px !important;
+        padding: 12px 16px !important;
+    }
+    
+    .header-stat-value {
+        font-size: 16px !important;
+    }
+    
+    .header-stat-label {
+        font-size: 10px !important;
+    }
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better contrast for text */
+.game-header {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Improved progress bars */
+.progress-bar {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progress-bar-fill {
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px currentColor;
+}
+
+/* =============================================================================
+   END OF MAINNET IMPROVEMENTS
+   ============================================================================= */

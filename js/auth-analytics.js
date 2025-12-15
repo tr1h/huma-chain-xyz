@@ -1,7 +1,7 @@
-/**
- * 📊 Analytics Module for Telegram Auth
+﻿/**
+ * рџ“Љ Analytics Module for Telegram Auth
  * 
- * Сбор статистики и аналитики по авторизованным пользователям
+ * РЎР±РѕСЂ СЃС‚Р°С‚РёСЃС‚РёРєРё Рё Р°РЅР°Р»РёС‚РёРєРё РїРѕ Р°РІС‚РѕСЂРёР·РѕРІР°РЅРЅС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј
  */
 
 // ============================================
@@ -49,7 +49,7 @@ function trackAction(action, data = {}) {
     
     // Log to console in development
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.log('📊 Track:', trackingData);
+        // [cleaned]
     }
     
     // Send to analytics endpoint if available
@@ -283,4 +283,5 @@ window.GotchiAnalytics = {
     getUserSegments: getUserSegments,
     updateLastActive: updateLastActive
 };
+
 

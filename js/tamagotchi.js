@@ -1,7 +1,7 @@
 ﻿    <script>
         // вљ пёЏ IMMEDIATE DEBUG LOG - This should appear FIRST
-        console.log('рџљЂ SCRIPT STARTED - tamagotchi-game.html loaded');
-        console.log('рџ“Ќ Script execution beginning at:', new Date().toISOString());
+        // [cleaned]
+        // [cleaned].toISOString());
 
         // ========== SKINS CONFIGURATION (INLINE) ==========
         const SKINS_CONFIG = {
@@ -177,7 +177,7 @@
             return true;
         }
 
-        console.log('вњ… Skins config loaded, enabled skins:', getEnabledSkins().length);
+        // [cleaned].length);
 
         // рџ”’ Utility function to escape HTML and prevent XSS
         function escapeHtml(text) {
@@ -194,14 +194,14 @@
                 const savedPet = localStorage.getItem('tamagotchi-pet') || 'kawai';
                 if (document.body && !document.body.getAttribute('data-pet')) {
                     document.body.setAttribute('data-pet', savedPet);
-                    console.log('вњ… Early pet initialization - data-pet set to:', savedPet);
+                    // [cleaned]
                 } else if (!document.body) {
                     // If body not ready, set it when DOM is ready
                     document.addEventListener('DOMContentLoaded', function() {
                         const savedPet = localStorage.getItem('tamagotchi-pet') || 'kawai';
                         if (!document.body.getAttribute('data-pet')) {
                             document.body.setAttribute('data-pet', savedPet);
-                            console.log('вњ… Early pet initialization (DOM ready) - data-pet set to:', savedPet);
+                            // [cleaned] - data-pet set to:', savedPet);
                         }
                     });
                 }
@@ -347,7 +347,7 @@
             const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD in UTC
 
             if (gameState.lastResetDate !== today) {
-                console.log('рџ”„ Daily reset! Old:', gameState.dailyEarned, 'в†’ New:', 0);
+                // [cleaned]
                 gameState.dailyEarned = 0;
                 gameState.lastResetDate = today;
 
@@ -355,8 +355,8 @@
                 const poolInfo = getCurrentDailyPool();
                 gameState.personalDailyLimit = poolInfo.dailyPool; // Use full daily pool (no personal cap)
 
-                console.log('рџ“Љ Daily Pool Info:', poolInfo);
-                console.log('рџ’° Personal Daily Limit:', gameState.personalDailyLimit, 'TAMA');
+                // [cleaned]
+                // [cleaned]
 
                 // Update UI
                 updateDailyEarnedUI();
@@ -426,8 +426,8 @@
         let petSprite, petArea, levelDisplay, tamaDisplay, rankDisplay, messageDiv, feedBtn, playBtn, healBtn;
 
         // Early logging to verify script is loading
-        console.log('%cрџљЂ GAME SCRIPT LOADING...', 'font-size: 16px; font-weight: bold; color: #00ff00;');
-        console.log('Script execution started at:', new Date().toISOString());
+        // [cleaned]
+        // [cleaned].toISOString());
 
         // Save button removed - using auto-save instead
 
@@ -1069,13 +1069,7 @@
 
             // Log economy config values (only on first click or when combo resets)
             if (gameState.combo === 1 || gameState.combo === 0) {
-                console.log('рџ’° Economy Config:', {
-                    BASE_CLICK_REWARD,
-                    clickPower,
-                    clickEfficiency: localClickEfficiency,
-                    combo: gameState.combo,
-                    nftBoost: window.userNFTBoost
-                });
+                // [cleaned]
             }
 
             const comboBonus = Math.floor(gameState.combo / COMBO_BONUS_DIVIDER);
@@ -1099,8 +1093,7 @@
 
             // Log detailed calculation (only on first click or when combo resets)
             if (gameState.combo === 1 || gameState.combo === 0) {
-                console.log('рџ§® Reward Calculation:', {
-                    clickPower: clickPower.toFixed(2),
+                // [cleaned],
                     BASE_CLICK_REWARD,
                     comboBonus,
                     cappedComboBonus,
@@ -1118,7 +1111,7 @@
                 const multiplier = (1 + window.userNFTBoost); // Convert boost back to multiplier for display
                 earnedTama *= multiplier;
                 if (gameState.combo === 1 || gameState.combo === 0) {
-                    console.log(`рџ–јпёЏ NFT Boost Applied: ${earnedTamaBeforeBoost.toFixed(2)} TAMA Г— ${multiplier.toFixed(2)} = ${earnedTama.toFixed(2)} TAMA`);
+                    // [cleaned]} TAMA Г— ${multiplier.toFixed(2)} = ${earnedTama.toFixed(2)} TAMA`);
                 }
             }
 
@@ -1133,7 +1126,7 @@
                 // Daily limit reached!
                 setTimeout(() => { isProcessingClick = false; }, 10);
                 showMessage('вЏ° Daily limit reached! Come back tomorrow!', 'error');
-                console.log('рџљ« Daily limit reached! Earned today:', gameState.dailyEarned, '/ Limit:', gameState.personalDailyLimit);
+                // [cleaned]
 
                 // Show special modal
                 const poolInfo = getCurrentDailyPool();
@@ -1148,22 +1141,20 @@
 
             // Cap earned TAMA to available today
             if (earnedTama > availableToday) {
-                console.log(`вљ пёЏ Capping reward: ${earnedTama.toFixed(2)} в†’ ${availableToday.toFixed(2)} TAMA (daily limit)`);
+                // [cleaned]} в†’ ${availableToday.toFixed(2)} TAMA (daily limit)`);
                 earnedTama = availableToday;
             }
 
             // Log transaction BEFORE updating balance
             const balanceBefore = gameState.tama;
-            console.log('рџ’° TAMA Update:', {
-                balanceBefore: balanceBefore.toFixed(2),
+            // [cleaned],
                 earnedTama: earnedTama.toFixed(2),
                 willAdd: earnedTama.toFixed(2)
             });
             gameState.tama += earnedTama;
             gameState.dailyEarned += earnedTama; // Track daily earned
             const balanceAfter = gameState.tama;
-            console.log('рџ’° TAMA After:', {
-                balanceAfter: balanceAfter.toFixed(2),
+            // [cleaned],
                 difference: (balanceAfter - balanceBefore).toFixed(2)
             });
             gameState.xp += earnedXP;
@@ -1602,23 +1593,23 @@
         }
 
         // Shop system
-        console.log('рџ›’ Setting up shop system...');
+        // [cleaned]
         const shopBtn = document.getElementById('shop-btn');
         const closeShop = document.getElementById('close-shop');
         const shopModal = document.getElementById('shop-modal');
 
-        console.log('Shop elements:', { shopBtn, closeShop, shopModal });
+        // [cleaned]
 
         if (shopBtn && shopModal) {
             shopBtn.addEventListener('click', () => {
-                console.log('рџ›’ Shop button clicked!');
+                // [cleaned]
                 shopModal.classList.add('active');
                 shopBtn.style.display = 'none'; // Hide button when shop opens
                 // Load items by default
                 document.getElementById('shop-items').style.display = 'block';
                 document.getElementById('shop-skins').style.display = 'none';
             });
-            console.log('вњ… Shop button listener added');
+            // [cleaned]
         } else {
             console.error('вќЊ Shop button or modal not found!', { shopBtn, shopModal });
         }
@@ -2203,12 +2194,12 @@
                 const refCode = urlParams.get('ref');
 
                 if (refCode && refCode.startsWith('TAMA')) {
-                    console.log('рџЋЃ Referral code detected:', refCode);
+                    // [cleaned]
 
                     // Get current user info
                     const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
                     if (!telegramUser?.id) {
-                        console.log('вќЊ No Telegram user data available');
+                        // [cleaned]
                         return;
                     }
 
@@ -2230,11 +2221,7 @@
 
                         // Check if this is not self-referral
                         if (referrerId !== currentUserId) {
-                            console.log('вњ… Valid referral detected:', {
-                                referrer: referrerId,
-                                referred: currentUserId,
-                                code: refCode
-                            });
+                            // [cleaned]
 
                             // Check if referral already exists
                             const existingRefResponse = await fetch(`${SUPABASE_URL}/rest/v1/referrals?referrer_telegram_id=eq.${referrerId}&referred_telegram_id=eq.${currentUserId}`, {
@@ -2247,16 +2234,16 @@
                             const existingRefs = await existingRefResponse.json();
 
                             if (existingRefs && existingRefs.length > 0) {
-                                console.log('вњ… Referral already exists, skipping creation in game');
-                                console.log('рџ“Љ Referral was created by bot, game will only track progress');
+                                // [cleaned]
+                                // [cleaned]
                             } else {
-                                console.log('вљ пёЏ No referral found - this should have been created by bot');
-                                console.log('рџ”„ Game will not create referral records (bot handles this)');
+                                // [cleaned]
+                                // [cleaned]');
                             }
 
                             // Always award TAMA to referrer (even if referral was created by bot)
                             try {
-                                console.log('рџ’° Awarding TAMA to referrer...');
+                                // [cleaned]
 
                                 // Get current TAMA balance
                                 const currentBalanceResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${referrerId}&select=tama`, {
@@ -2288,19 +2275,19 @@
                                 });
 
                                 if (updateResponse.ok) {
-                                    console.log('вњ… TAMA awarded to referrer:', referrerId, '+1000 TAMA');
+                                    // [cleaned]
                                     showNotification("рџЋ‰ Referral successful! Your referrer earned 1,000 TAMA!");
                                 } else {
-                                    console.log('вќЊ Failed to award TAMA to referrer');
+                                    // [cleaned]
                                 }
                             } catch (error) {
-                                console.log('вќЊ Error awarding TAMA to referrer:', error);
+                                // [cleaned]
                             }
                         } else {
-                            console.log('вљ пёЏ Self-referral detected, ignoring');
+                            // [cleaned]
                         }
                     } else {
-                        console.log('вќЊ Referrer not found for code:', refCode);
+                        // [cleaned]
                     }
                 }
             } catch (error) {
@@ -2325,11 +2312,11 @@
                                        (window.Telegram?.WebApp?.initData && window.Telegram.WebApp.initData.includes('user='));
 
                 if ((forceAuth === 'wallet' || (forceAuth !== 'telegram' && !hasTelegramUser)) && window.WalletAuth) {
-                    console.log('рџ”ђ Attempting wallet authentication...');
+                    // [cleaned]
                     const walletInit = await window.WalletAuth.init();
 
                     if (walletInit.success && walletInit.walletAddress) {
-                        console.log('вњ… Wallet authenticated:', walletInit.walletAddress);
+                        // [cleaned]
                         window.WALLET_ADDRESS = walletInit.walletAddress;
                         window.WALLET_USER_ID = walletInit.userData?.user_id || 'wallet_' + walletInit.walletAddress.substring(0, 12);
 
@@ -2354,9 +2341,9 @@
                             if (data.questClicksCompleted !== undefined) gameState.questClicksCompleted = data.questClicksCompleted;
                             if (data.questLevelCompleted !== undefined) gameState.questLevelCompleted = data.questLevelCompleted;
                             cloudLoaded = true;
-                            console.log('вњ… Game state loaded from wallet');
+                            // [cleaned]
                         } else {
-                            console.log('в„№пёЏ No saved game state for wallet, starting fresh');
+                            // [cleaned]
                         }
 
                         // рџЋ“ Start onboarding for new users
@@ -2367,7 +2354,7 @@
                         }
                     } else if (walletInit.needsConnection) {
                         // Show wallet connection modal
-                        console.log('рџ“± Wallet connection needed');
+                        // [cleaned]
                         const modal = document.getElementById('wallet-connect-modal');
                         if (modal) {
                             modal.style.display = 'flex';
@@ -2378,10 +2365,7 @@
                 // вњ… РџР РРћР РРўР•Рў 2: Telegram Р°РІС‚РѕСЂРёР·Р°С†РёСЏ (РµСЃР»Рё РґРѕСЃС‚СѓРїРЅР° Рё РЅРµ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ wallet)
                 if (!cloudLoaded && (forceAuth === 'telegram' || (!forceAuth && hasTelegramUser))) {
                     // Debug: Log Telegram WebApp state
-                    console.log('рџ”Ќ Telegram WebApp check:', {
-                        telegramExists: !!window.Telegram,
-                        webAppExists: !!window.Telegram?.WebApp,
-                        initData: window.Telegram?.WebApp?.initData?.substring(0, 100) + '...',
+                    // [cleaned] + '...',
                         initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe,
                         user: window.Telegram?.WebApp?.initDataUnsafe?.user
                     });
@@ -2392,19 +2376,12 @@
                     if (user && user.id) {
                         // вљ пёЏ CRITICAL: Always convert to string for consistency
                         userId = String(user.id);
-                        console.log('вњ… Method 1: Got user from initDataUnsafe:', {
-                            id: userId,
-                            idType: typeof userId,
-                            originalId: user.id,
-                            originalIdType: typeof user.id,
-                            username: user.username,
-                            first_name: user.first_name
-                        });
+                        // [cleaned]
                     } else {
                         // Method 2: Try parsing initData manually
                         const initData = window.Telegram.WebApp.initData;
                         if (initData) {
-                            console.log('рџ”Ќ Method 2: Trying to parse initData manually');
+                            // [cleaned]
                             try {
                                 const params = new URLSearchParams(initData);
                                 const userParam = params.get('user');
@@ -2412,14 +2389,7 @@
                                     const parsedUser = JSON.parse(decodeURIComponent(userParam));
                                     // вљ пёЏ CRITICAL: Always convert to string for consistency
                                     userId = String(parsedUser.id || '');
-                                    console.log('вњ… Method 2: Parsed user from initData:', {
-                                        id: userId,
-                                        idType: typeof userId,
-                                        originalId: parsedUser.id,
-                                        originalIdType: typeof parsedUser.id,
-                                        username: parsedUser.username,
-                                        first_name: parsedUser.first_name
-                                    });
+                                    // [cleaned]
                                 }
                             } catch (e) {
                                 console.error('вќЊ Failed to parse initData:', e);
@@ -2430,13 +2400,8 @@
                     if (userId) {
                         // вљ пёЏ CRITICAL: Always store as string for consistency
                         const userIdStr = String(userId);
-                        console.log('рџ“Ґ Loading from Supabase for user:', userIdStr);
-                        console.log('рџ”Ќ User ID type check:', {
-                            original: userId,
-                            asString: userIdStr,
-                            originalType: typeof userId,
-                            stringType: typeof userIdStr
-                        });
+                        // [cleaned]
+                        // [cleaned]
 
                         cloudLoaded = await loadFromSupabase(userIdStr);
 
@@ -2446,7 +2411,7 @@
                         // вљЎ Load rank immediately (no delay needed)
                         if (rankDisplay && (!rankDisplay.textContent || rankDisplay.textContent === '#---')) {
                             loadLeaderboard().catch(() => {
-                                console.log('Rank load failed, will retry later');
+                                // [cleaned]
                             });
                         }
                     } else {
@@ -2457,7 +2422,7 @@
                             const modal = document.getElementById('wallet-connect-modal');
                             if (modal && modal.style.display !== 'flex') {
                                 modal.style.display = 'flex';
-                                console.log('рџ“± Showing wallet connection modal (Telegram user ID not available)');
+                                // [cleaned]');
                             }
                         }
                     }
@@ -2469,10 +2434,10 @@
                         const modal = document.getElementById('wallet-connect-modal');
                         if (modal && modal.style.display !== 'flex') {
                             modal.style.display = 'flex';
-                            console.log('рџ“± Showing wallet connection modal (no Telegram)');
+                            // [cleaned]');
                         }
                     } else if (window.WALLET_ADDRESS) {
-                        console.log('вњ… Using wallet authentication (no Telegram needed)');
+                        // [cleaned]');
                     } else {
                         console.warn('вљ пёЏ No authentication method available - game will work with localStorage only');
                     }
@@ -2480,31 +2445,31 @@
 
                 // Fallback to localStorage ONLY if cloud load failed
                 if (!cloudLoaded) {
-                    console.log('рџ’ѕ Loading from localStorage (fallback - Supabase failed or no user ID)');
+                    // [cleaned]');
                     const localLoaded = loadFromLocalStorage();
                     if (localLoaded) {
-                        console.log('вњ… Loaded from localStorage as fallback');
+                        // [cleaned]
                         // вњ… Update player name display after loading from localStorage
                         if (typeof updatePlayerNameDisplay === 'function') {
                             setTimeout(() => updatePlayerNameDisplay(), 100);
                         }
                     } else {
-                        console.log('вљ пёЏ No data in localStorage, starting fresh game');
-                        console.log('   This is normal for first-time players');
+                        // [cleaned]
+                        // [cleaned]
                         // Initialize with default values
                         if (typeof updateUI === 'function') {
                             updateUI();
                         }
                     }
                 } else {
-                    console.log('вњ… Using Supabase data (PRIMARY SOURCE) - localStorage ignored');
+                    // [cleaned] - localStorage ignored');
                     // Don't load from localStorage if Supabase data is available
                 }
 
                 // Always update UI after initialization
                 if (typeof updateUI === 'function') {
                 updateUI();
-                    console.log('вњ… UI updated after initialization');
+                    // [cleaned]
                 } else {
                     console.error('вќЊ updateUI function not found!');
                 }
@@ -2517,7 +2482,7 @@
                     checkQuests(),
                     // Load leaderboard (non-blocking)
                     loadLeaderboard().catch(() => {
-                        console.log('Leaderboard load failed, continuing with game');
+                        // [cleaned]
                     })
                 ];
 
@@ -2541,10 +2506,10 @@
                 // вљ пёЏ IMPORTANT: Only load from localStorage if Supabase failed
                 // If cloudLoaded was successful, don't overwrite with localStorage!
                 if (!cloudLoaded) {
-                    console.log('рџ’ѕ Supabase failed, loading from localStorage as fallback');
+                    // [cleaned]
                     loadFromLocalStorage();
                 } else {
-                    console.log('вњ… Supabase data already loaded, ignoring localStorage');
+                    // [cleaned]
                 }
                 updateUI();
             }
@@ -2555,7 +2520,7 @@
             try {
                 // вљ пёЏ CRITICAL: Ensure userId is always a string for consistent querying
                 const userIdStr = String(userId);
-                console.log('рџ”Ќ Loading from Supabase with userId:', userIdStr, '(type:', typeof userIdStr, ')');
+                // [cleaned]');
 
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${userIdStr}&select=*`, {
                     headers: {
@@ -2570,8 +2535,8 @@
                 }
 
                 const data = await response.json();
-                console.log('рџ“¦ Supabase response data:', data);
-                console.log('рџ“Љ Found', data?.length || 0, 'record(s) for user', userIdStr);
+                // [cleaned]
+                // [cleaned] for user', userIdStr);
 
                 if (data && data.length > 0) {
                     // вљ пёЏ If multiple records, use the most recent one (by last_activity or id)
@@ -2579,12 +2544,7 @@
                         ? data.sort((a, b) => (b.last_activity || b.id || 0) - (a.last_activity || a.id || 0))[0]
                         : data[0];
 
-                    console.log('вњ… Using user data:', {
-                        telegram_id: userData.telegram_id,
-                        level: userData.level,
-                        tama: userData.tama,
-                        last_activity: userData.last_activity
-                    });
+                    // [cleaned]
 
                     // вљ пёЏ CRITICAL: Verify telegram_id matches (in case of type mismatch)
                     const dbTelegramId = String(userData.telegram_id || '');
@@ -2604,7 +2564,7 @@
                     // вњ… Load custom username from Supabase (if user changed it)
                     if (userData.telegram_username) {
                         gameState.customUsername = userData.telegram_username;
-                        console.log('вњ… Loaded custom username from Supabase:', gameState.customUsername);
+                        // [cleaned]
                     }
 
                     // Try to parse pet_data if exists
@@ -2635,12 +2595,12 @@
                                 gameState.xp = petData.xp;
                             }
                         } catch (e) {
-                            console.log('Could not parse pet_data:', e);
+                            // [cleaned]
                         }
                     }
 
-                    console.log('вњ… LOADED FROM SUPABASE (PRIMARY):', userData);
-                    console.log('рџ“Љ Current state: TAMA=' + gameState.tama + ', Level=' + gameState.level);
+                    // [cleaned]:', userData);
+                    // [cleaned]
 
                     // вљ пёЏ IMPORTANT: Save to localStorage as backup, but Supabase is source of truth
                     // This ensures localStorage is synced with Supabase, not the other way around
@@ -2720,13 +2680,13 @@
                     // Send to Telegram WebApp
                     window.Telegram.WebApp.sendData(JSON.stringify(messageData));
 
-                    console.log('Data sent to bot:', messageData);
+                    // [cleaned]
                 } catch (error) {
                     console.error('Error sending data to bot:', error);
                     showAutoSaveIndicator('error');
                 }
             } else {
-                console.log('Telegram WebApp not available, simulating save:', action, data);
+                // [cleaned]
                 showAutoSaveIndicator('saved');
             }
         }
@@ -2777,7 +2737,7 @@
                 });
 
                 if (response.ok) {
-                    console.log(`вњ… Transaction logged: ${type} ${amount > 0 ? '+' : ''}${amount} TAMA`);
+                    // [cleaned]
                 } else {
                     console.warn(`вљ пёЏ Failed to log transaction: ${type}`, await response.text());
                 }
@@ -2791,15 +2751,8 @@
             try {
                 // вљ пёЏ CRITICAL: Ensure userId is always a string for consistency
                 const userIdStr = String(userId);
-                console.log('рџ’ѕ Saving to Supabase with userId:', userIdStr, '(type:', typeof userIdStr, ')');
-                console.log('рџ’ѕ Current game state:', {
-                    level: gameState.level,
-                    tama: gameState.tama,
-                    xp: gameState.xp,
-                    hp: gameState.hp,
-                    food: gameState.food,
-                    happy: gameState.happy
-                });
+                // [cleaned]');
+                // [cleaned]
 
                 // Prepare pet_data JSON
                 const pet_data = {
@@ -2827,7 +2780,7 @@
                 // вљ пёЏ IMPORTANT: Use custom username if set, otherwise use Telegram username
                 // This prevents overwriting custom names on auto-save
                 const username = gameState.customUsername || defaultUsername;
-                console.log('рџ’ѕ Using username:', username, '(custom:', !!gameState.customUsername, ')');
+                // [cleaned]');
 
                 // Save via our API (proper way!)
                 // Use skip_transaction_log: true to avoid duplicate logging
@@ -2846,11 +2799,7 @@
                         skip_transaction_log: false  // вљ пёЏ CRITICAL: Set to false to enable balance protection!
                 };
 
-                console.log('рџ“¤ Sending to API:', {
-                    user_id: requestBody.user_id,
-                    level: requestBody.level,
-                    tama: requestBody.tama
-                });
+                // [cleaned]
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -2860,12 +2809,7 @@
 
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('вњ… Saved via API:', {
-                        user_id: userIdStr,
-                        level: gameState.level,
-                        tama: gameState.tama,
-                        api_response: result
-                    });
+                    // [cleaned]
                     return true;
                 } else {
                     const error = await response.text();
@@ -2927,7 +2871,7 @@
             // Check if state has changed (optimization to reduce unnecessary API calls)
             if (!hasStateChanged()) {
                 if (!forceCritical) {
-                    console.log('вЏ­пёЏ Skipping save: no changes detected');
+                    // [cleaned]
                     return; // No changes, skip save
                 }
             }
@@ -2956,7 +2900,7 @@
 
             // вњ… РџР РРћР РРўР•Рў 1: Wallet (РґР»СЏ СЃС‚СЂР°РЅ Р±РµР· Telegram)
             if (window.WALLET_ADDRESS && window.WalletSave) {
-                console.log('рџ’ѕ Saving via wallet:', { address: window.WALLET_ADDRESS, userId: window.WALLET_USER_ID });
+                // [cleaned]
 
                 // рџ“Љ Track wallet activity for DappRadar
                 if (window.DappRadarTracker) {
@@ -2965,7 +2909,7 @@
 
                 window.WalletSave.save(gameState).then(success => {
                     if (success) {
-                        console.log('рџ’ѕ Auto-save successful (Wallet API)');
+                        // [cleaned]');
                         lastSaveTime = Date.now(); // Update save time
                         // Update last saved state
                         lastSavedState = {
@@ -2995,7 +2939,7 @@
                 // Save to Supabase FIRST (primary source of truth)
                 saveDirectToSupabase(window.TELEGRAM_USER_ID).then(success => {
                     if (success) {
-                        console.log('рџ’ѕ Auto-save successful (Supabase)');
+                        // [cleaned]');
                         // Update last saved state
                         lastSavedState = {
                             tama: gameState.tama,
@@ -3067,7 +3011,7 @@
                 const userId = window.TELEGRAM_USER_ID || window.WALLET_ADDRESS || 'default';
                 const storageKey = `tamagotchi_save_${userId}`;
                 localStorage.setItem(storageKey, JSON.stringify(saveData));
-                console.log(`рџ’ѕ Game saved to localStorage with key: ${storageKey}`);
+                // [cleaned]
             } catch (error) {
                 console.error('Failed to save to localStorage:', error);
             }
@@ -3078,7 +3022,7 @@
                 // рџ”‘ Use user-specific key to load correct user's data
                 const userId = window.TELEGRAM_USER_ID || window.WALLET_ADDRESS || 'default';
                 const storageKey = `tamagotchi_save_${userId}`;
-                console.log(`рџ’ѕ Loading from localStorage with key: ${storageKey}`);
+                // [cleaned]
                 const saveData = localStorage.getItem(storageKey);
                 if (saveData) {
                     const data = JSON.parse(saveData);
@@ -3116,10 +3060,10 @@
                         // вњ… Load custom username if saved
                         if (data.customUsername) {
                             gameState.customUsername = data.customUsername;
-                            console.log('вњ… Loaded custom username from localStorage:', data.customUsername);
+                            // [cleaned]
                         }
 
-                        console.log('Game loaded from localStorage');
+                        // [cleaned]
                         return true;
                     }
                 }
@@ -3139,12 +3083,12 @@
         const closeMinigames = document.getElementById('close-minigames');
         const gameSelection = document.getElementById('game-selection');
 
-        console.log('Mini games elements:', { minigamesBtn, minigamesModal, closeMinigames, gameSelection });
+        // [cleaned]
 
         // Open mini games
         if (minigamesBtn && minigamesModal) {
             minigamesBtn.addEventListener('click', () => {
-                console.log('Opening mini games modal');
+                // [cleaned]
                 minigamesModal.classList.add('show');
                 showGameSelection();
             });
@@ -4898,7 +4842,7 @@
 
             setupMobileControls() {
                 // Old buttons removed, use only fullscreen version
-                console.log('Mobile controls will be set up when fullscreen opens');
+                // [cleaned]
             },
 
             requestFullscreen() {
@@ -6512,14 +6456,14 @@
 
         if (moreReferralBtn) {
             moreReferralBtn.addEventListener('click', async () => {
-                console.log('рџ”— Referral button clicked from More menu!');
+                // [cleaned]
                 const referralModal = document.getElementById('referral-modal');
                 if (referralModal) {
                     // Generate referral code and link BEFORE opening modal
                     const code = await generateReferralCode();
                     const link = await generateReferralLink();
 
-                    console.log('рџ”— Generated:', { code, link });
+                    // [cleaned]
 
                     // Display code
                     const codeDisplay = document.getElementById('referral-code-display');
@@ -6527,10 +6471,10 @@
                         if (window.WALLET_ADDRESS && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
                             // For wallet users, show shortened address
                             codeDisplay.textContent = window.WALLET_ADDRESS.substring(0, 12) + '...';
-                            console.log('рџ’ј Showing wallet address:', window.WALLET_ADDRESS.substring(0, 12) + '...');
+                            // [cleaned] + '...');
                         } else {
                             codeDisplay.textContent = code;
-                            console.log('рџ“± Showing referral code:', code);
+                            // [cleaned]
                         }
                     }
 
@@ -6566,12 +6510,12 @@
         const helpTabs = document.querySelectorAll('.help-tab');
         const helpTabContents = document.querySelectorAll('.help-tab-content');
 
-        console.log('Leaderboard elements:', { leaderboardBtn, leaderboardModal, closeLeaderboard, leaderboardList });
+        // [cleaned]
 
         // Open leaderboard
         if (leaderboardBtn && leaderboardModal) {
             leaderboardBtn.addEventListener('click', () => {
-                console.log('Opening leaderboard modal');
+                // [cleaned]
                 leaderboardModal.classList.add('show');
                 loadLeaderboard();
             });
@@ -6704,7 +6648,7 @@
                     if (response.ok) {
                         // вњ… Update custom username in game state
                         gameState.customUsername = newName;
-                        console.log('вњ… Custom username updated in gameState:', newName);
+                        // [cleaned]
 
                         nameChangeStatus.textContent = 'вњ… Name changed successfully!';
                         nameChangeStatus.style.color = '#00ff88';
@@ -6751,7 +6695,7 @@
                     window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name ||
                     'Player';
                 playerNameDisplay.textContent = displayName;
-                console.log('вњ… Updated player name display:', displayName, '(custom:', !!gameState.customUsername, ')');
+                // [cleaned]');
             }
         }
 
@@ -6811,35 +6755,28 @@
 
         // Generate referral code (SAME algorithm as bot.py!)
         async function generateReferralCode() {
-            console.log('рџ”‘ generateReferralCode() called');
+            // [cleaned] called');
 
             // вњ… Try multiple sources for Telegram ID
             const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
 
-            console.log('рџ”Ќ Checking Telegram sources:', {
-                'Telegram exists': !!window.Telegram,
-                'WebApp exists': !!window.Telegram?.WebApp,
-                'initDataUnsafe exists': !!window.Telegram?.WebApp?.initDataUnsafe,
-                'user exists': !!telegramUser,
-                'user.id': telegramUser?.id,
-                'window.TELEGRAM_USER_ID': window.TELEGRAM_USER_ID
-            });
+            // [cleaned]
 
             let telegramId = null;
 
             if (telegramUser && telegramUser.id) {
                 telegramId = String(telegramUser.id);
-                console.log('вњ… Got Telegram ID from WebApp.initDataUnsafe:', telegramId);
+                // [cleaned]
             } else if (window.TELEGRAM_USER_ID) {
                 // Fallback to global TELEGRAM_USER_ID from auth.js
                 telegramId = String(window.TELEGRAM_USER_ID);
-                console.log('вњ… Using TELEGRAM_USER_ID from auth.js:', telegramId);
+                // [cleaned]
             } else {
                 console.error('вќЊ NO TELEGRAM ID FOUND! Both sources are null/undefined');
             }
 
             if (telegramId) {
-                console.log('рџ”‘ Generating referral code for Telegram ID:', telegramId);
+                // [cleaned]
 
                 // Use SHA256 for better distribution (same as bot.py)
                 const encoder = new TextEncoder();
@@ -6859,7 +6796,7 @@
                 }
 
                 const code = 'TAMA' + codePart;
-                console.log('вњ… Generated referral code:', code);
+                // [cleaned]
                 return code;
             }
 
@@ -6907,11 +6844,7 @@
                 // Total count = confirmed + pending
                 const referralCount = (referrals.length || 0) + (pending.length || 0);
 
-                console.log('рџ“Љ Referral Progress:', {
-                    confirmed: referrals.length || 0,
-                    pending: pending.length || 0,
-                    total: referralCount
-                });
+                // [cleaned]
 
                 // РћРїСЂРµРґРµР»РёС‚СЊ С‚РµРєСѓС‰РёР№ milestone
                 const milestones = [5, 10, 25, 50, 100];
@@ -6961,18 +6894,18 @@
                 });
 
             } catch (error) {
-                console.log('Failed to update referral progress:', error);
+                // [cleaned]
             }
         }
 
         // Open referral modal
         if (referralBtn && referralModal) {
             referralBtn.addEventListener('click', async () => {
-                console.log('рџ”— Referral button clicked!');
+                // [cleaned]
                 const code = await generateReferralCode();
                 const link = await generateReferralLink();
 
-                console.log('рџ”— Generated:', { code, link });
+                // [cleaned]
 
                 // Display code
                 const codeDisplay = document.getElementById('referral-code-display');
@@ -6980,10 +6913,10 @@
                     if (window.WALLET_ADDRESS && !window.Telegram?.WebApp?.initDataUnsafe?.user) {
                         // For wallet users, show shortened address
                         codeDisplay.textContent = window.WALLET_ADDRESS.substring(0, 12) + '...';
-                        console.log('рџ’ј Showing wallet address:', window.WALLET_ADDRESS.substring(0, 12) + '...');
+                        // [cleaned] + '...');
                     } else {
                         codeDisplay.textContent = code;
-                        console.log('рџ“± Showing referral code:', code);
+                        // [cleaned]
                     }
                 }
 
@@ -7108,7 +7041,7 @@ ${link}`;
                         })
                     });
                 } catch (error) {
-                    console.log('Sharing event tracking failed:', error);
+                    // [cleaned]
                 }
 
                 // Open Telegram share URL (works in Telegram WebApp)
@@ -7169,7 +7102,7 @@ ${link}`;
                     return null;
                 }
 
-                console.log('рџ”Ќ Fetching unified rank:', { telegramId, walletAddress, userId });
+                // [cleaned]
 
                 const response = await fetch(url);
 
@@ -7178,7 +7111,7 @@ ${link}`;
                 }
 
                 const result = await response.json();
-                console.log('рџ“Љ Unified rank result:', result);
+                // [cleaned]
 
                 if (result.success && result.found && result.data) {
                     return result.data.rank;
@@ -7200,7 +7133,7 @@ ${link}`;
             try {
                 // вљ пёЏ CRITICAL: Ensure telegramId is always a string
                 const telegramIdStr = String(telegramId);
-                console.log('рџ”Ќ Fetching rank for user:', telegramIdStr);
+                // [cleaned]
 
                 // Get user's TAMA balance first
                 const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramIdStr}&select=tama`, {
@@ -7221,7 +7154,7 @@ ${link}`;
                 }
 
                 const userTama = userData[0].tama || 0;
-                console.log('рџ’° User TAMA:', userTama);
+                // [cleaned]
 
                 // Count users with more TAMA (this is the rank)
                 const rankResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=count&tama=gt.${userTama}`, {
@@ -7233,7 +7166,7 @@ ${link}`;
 
                 if (!rankResponse.ok) {
                     // Fallback: get all users and count manually
-                    console.log('вљ пёЏ Count query failed, using fallback method');
+                    // [cleaned]
                     const allUsersResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=telegram_id,tama&order=tama.desc&limit=1000`, {
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
@@ -7246,7 +7179,7 @@ ${link}`;
                         const userIndex = allUsers.findIndex(p => String(p.telegram_id) === telegramIdStr);
                         if (userIndex !== -1) {
                             const rank = userIndex + 1;
-                            console.log('вњ… Rank calculated (fallback):', rank);
+                            // [cleaned]:', rank);
                             return rank;
                         }
                     }
@@ -7256,7 +7189,7 @@ ${link}`;
                 // Parse count from response
                 const countData = await rankResponse.json();
                 const rank = (countData?.length || 0) + 1; // +1 because rank is 1-based
-                console.log('вњ… Rank calculated:', rank);
+                // [cleaned]
                 return rank;
             } catch (error) {
                 console.error('вќЊ Error fetching user rank:', error);
@@ -7283,20 +7216,20 @@ ${link}`;
                     }
                 }
 
-                console.log('рџ“Љ Loading UNIFIED leaderboard for user:', currentUserId);
-                console.log('рџ“Љ Telegram ID:', currentTelegramId, 'Wallet:', currentWalletAddress);
+                // [cleaned]
+                // [cleaned]
 
                 // Fetch from Unified Leaderboard API
                 const response = await fetch(`https://api.solanatamagotchi.com/api/unified-leaderboard.php?action=leaderboard&limit=100`);
 
-                console.log('Unified Leaderboard response status:', response.status);
+                // [cleaned]
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch leaderboard: ${response.status} ${response.statusText}`);
                 }
 
                 const result = await response.json();
-                console.log('Unified Leaderboard result:', result);
+                // [cleaned]
 
                 if (!result.success || !result.data) {
                     throw new Error('Invalid leaderboard response');
@@ -7341,12 +7274,7 @@ ${link}`;
 
                 // Update current user's rank in header
                 if (currentUserId && rankDisplay) {
-                    console.log('рџ”Ќ Looking for user rank:', {
-                        currentUserId,
-                        currentTelegramId,
-                        currentWalletAddress,
-                        leaderboardDataCount: leaderboardData.length
-                    });
+                    // [cleaned]
 
                     // Try to find user in leaderboard data
                     const currentUserData = leaderboardData.find(p => {
@@ -7357,14 +7285,7 @@ ${link}`;
                         );
 
                         if (matches) {
-                            console.log('рџ”Ќ Match found:', {
-                                p_telegram_id: p.telegram_id,
-                                p_wallet_address: p.wallet_address,
-                                p_user_id: p.user_id,
-                                currentTelegramId,
-                                currentWalletAddress,
-                                currentUserId,
-                                matchedBy: (currentTelegramId && p.telegram_id && String(p.telegram_id) === String(currentTelegramId)) ? 'telegram_id' :
+                            // [cleaned] === String(currentTelegramId)) ? 'telegram_id' :
                                           (currentWalletAddress && p.wallet_address && String(p.wallet_address) === String(currentWalletAddress)) ? 'wallet_address' : 'user_id'
                             });
                         }
@@ -7373,22 +7294,16 @@ ${link}`;
                     });
 
                     if (currentUserData) {
-                        console.log('вњ… Found user in leaderboard:', {
-                            rank: currentUserData.rank,
-                            user_id: currentUserData.user_id,
-                            telegram_id: currentUserData.telegram_id,
-                            tama: currentUserData.tama_balance,
-                            level: currentUserData.level
-                        });
+                        // [cleaned]
                         rankDisplay.textContent = `#${currentUserData.rank}`;
-                        console.log('вњ… Rank updated:', currentUserData.rank);
+                        // [cleaned]
                     } else {
                         // User not in top 100, fetch their rank separately from unified API
-                        console.log('вљ пёЏ User not found in top 100, fetching rank separately...');
+                        // [cleaned]
                         fetchUserRankUnified(currentTelegramId, currentWalletAddress, currentUserId).then(rank => {
                             if (rank && rankDisplay) {
                                 rankDisplay.textContent = `#${rank}`;
-                                console.log('вњ… Rank fetched separately:', rank);
+                                // [cleaned]
                             } else if (rankDisplay) {
                                 rankDisplay.textContent = '#---';
                             }
@@ -7413,7 +7328,7 @@ ${link}`;
 
             } catch (error) {
                 console.error('Error loading unified leaderboard:', error);
-                console.log('вљ пёЏ Falling back to Telegram-only leaderboard...');
+                // [cleaned]
 
                 // Fallback to old Telegram-only leaderboard
                 try {
@@ -7442,7 +7357,7 @@ ${link}`;
                             };
                         });
 
-                        console.log('вњ… Loaded Telegram-only leaderboard (fallback)');
+                        // [cleaned]');
                         renderLeaderboard(leaderboardData, currentUserId);
 
                         // Update rank if needed
@@ -7528,11 +7443,11 @@ ${link}`;
 
                         // Save to localStorage
                         localStorage.setItem('economyConfig', JSON.stringify(gameConfig));
-                        console.log('вњ… Loaded economy config from API:', dbConfig.config_name, gameConfig);
+                        // [cleaned]
 
                         return gameConfig;
                     } else {
-                        console.log('вљ пёЏ No active economy config found in database, using defaults');
+                        // [cleaned]
                         return null;
                     }
                 } else {
@@ -7552,12 +7467,12 @@ ${link}`;
             economyChannel.onmessage = (event) => {
                 if (event.data.type === 'config-update') {
                     localStorage.setItem('economyConfig', JSON.stringify(event.data.config));
-                    console.log('вњ… Economy config updated from admin panel!', event.data.config);
+                    // [cleaned]
                     showMessage('вљ™пёЏ Economy settings updated!');
                 }
             };
         } catch (e) {
-            console.log('BroadcastChannel not supported, using localStorage only');
+            // [cleaned]
         }
 
         // вљЎ Load economy config in parallel (non-blocking)
@@ -7617,9 +7532,7 @@ ${link}`;
                     const boostPercentage = (window.userNFTBoost * 100).toFixed(0);
                     const isCapped = totalMultiplier > MAX_BOOST_CAP;
 
-                    console.log(`вњ… Loaded NFT Boost for user ${userId}:`, {
-                        activeNFTs: activeCount,
-                        totalMultiplier: totalMultiplier.toFixed(1) + 'x',
+                    // [cleaned] + 'x',
                         cappedMultiplier: cappedMultiplier.toFixed(1) + 'x',
                         boostPercentage: `+${boostPercentage}%`,
                         isCapped: isCapped
@@ -7633,7 +7546,7 @@ ${link}`;
                     }
                 } else {
                     window.userNFTBoost = 0;
-                    console.log('в„№пёЏ No active NFTs found for user, no boost applied.');
+                    // [cleaned]
                 }
             } catch (e) {
                 console.error('вќЊ Error loading user NFT boost:', e);
@@ -7641,13 +7554,13 @@ ${link}`;
             }
         }
 
-        console.log('рџ“Њ Setting up DOMContentLoaded listener...');
+        // [cleaned]
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                console.log('%cрџЋ® GAME VERSION: 1.9.9 рџЋ®', 'font-size: 20px; font-weight: bold; color: #00ff00; background: #000000; padding: 10px;');
-                console.log('%cрџ“… BUILD: 2025-11-29 19:00 | Unified Auth: Telegram + Wallet', 'font-size: 14px; color: #ffff00;');
-                console.log('вњ… DOM loaded, initializing game...');
+                // [cleaned]
+                // [cleaned]
+                // [cleaned]
 
                 // Initialize wallet connection button
                 const connectBtn = document.getElementById('connect-wallet-btn-modal');
@@ -7676,7 +7589,7 @@ ${link}`;
                         if (window.WalletAuth && typeof window.WalletAuth.disconnect === 'function') {
                             const result = await window.WalletAuth.disconnect();
                             if (result.success) {
-                                console.log('вњ… Wallet disconnected successfully');
+                                // [cleaned]
                                 // Update modal UI to show not connected state
                                 updateWalletModalUI(null);
                                 // Close modal and reload to reset game state
@@ -7745,7 +7658,7 @@ ${link}`;
                 if (!gameContainer) {
                     throw new Error('Game container not found!');
                 }
-                console.log('вњ… Game container found');
+                // [cleaned]
 
             // рџ”§ РРќРР¦РРђР›РР—РђР¦РРЇ DOM Р­Р›Р•РњР•РќРўРћР’
                 petSprite = document.getElementById('pet-sprite');
@@ -7758,17 +7671,7 @@ ${link}`;
                 playBtn = document.getElementById('play-btn');
                 healBtn = document.getElementById('heal-btn');
 
-                console.log('рџ”Ќ DOM Elements initialized:', {
-                    petSprite: !!petSprite,
-                    petArea: !!petArea,
-                    levelDisplay: !!levelDisplay,
-                    tamaDisplay: !!tamaDisplay,
-                    rankDisplay: !!rankDisplay,
-                    messageDiv: !!messageDiv,
-                    feedBtn: !!feedBtn,
-                    playBtn: !!playBtn,
-                    healBtn: !!healBtn
-                });
+                // [cleaned]
 
                 // Re-initialize event listeners if elements are now available
                 if (petArea) {
@@ -7783,7 +7686,7 @@ ${link}`;
                                 clickPet(e);
                             }
                         });
-                        console.log('вњ… Pet click handler re-initialized');
+                        // [cleaned]
                     }
                 }
 
@@ -7898,7 +7801,7 @@ ${link}`;
                     try {
                 window.Telegram.WebApp.ready();
                 window.Telegram.WebApp.expand();
-                        console.log('вњ… Telegram WebApp initialized');
+                        // [cleaned]
 
                 // Give Telegram WebApp time to initialize
                 await new Promise(resolve => setTimeout(resolve, 100));
@@ -7915,12 +7818,7 @@ ${link}`;
             const leaderboardBtn = document.getElementById('leaderboard-btn');
             const leaderboardModal = document.getElementById('leaderboard-modal');
 
-            console.log('Re-checking elements after DOM load:', {
-                minigamesBtn: !!minigamesBtn,
-                minigamesModal: !!minigamesModal,
-                leaderboardBtn: !!leaderboardBtn,
-                leaderboardModal: !!leaderboardModal
-            });
+            // [cleaned]
 
             // Check for referral code first
                 try {
@@ -7930,35 +7828,35 @@ ${link}`;
                 }
 
             // Initialize game
-                console.log('рџЋ® Starting game initialization...');
+                // [cleaned]
             await initGame();
-                console.log('вњ… Game initialized successfully');
+                // [cleaned]
 
             // Initialize theme system
                 if (typeof initThemeSystem === 'function') {
             initThemeSystem();
-                    console.log('вњ… Theme system initialized');
+                    // [cleaned]
                 }
 
             // Initialize pet selector system
                 if (typeof initPetSelector === 'function') {
             initPetSelector();
-                    console.log('вњ… Pet selector initialized');
+                    // [cleaned]
                 }
 
             // Initialize NFT modal
                 if (typeof initNFTModal === 'function') {
             initNFTModal();
-                    console.log('вњ… NFT modal initialized');
+                    // [cleaned]
                 }
 
             // Initialize Withdraw modal
                 if (typeof initWithdrawModal === 'function') {
                     initWithdrawModal();
-                    console.log('вњ… Withdraw modal initialized');
+                    // [cleaned]
                 }
 
-                console.log('рџЋ‰ All systems initialized successfully!');
+                // [cleaned]
 
             } catch (error) {
                 console.error('вќЊ CRITICAL ERROR during initialization:', error);
@@ -8032,7 +7930,7 @@ ${link}`;
             });
             document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
 
-            console.log(`Theme switched to: ${theme}`);
+            // [cleaned]
         }
 
         // Pet Selector System рџђѕ
@@ -8044,7 +7942,7 @@ ${link}`;
             // This ensures pet is visible from the start
             if (!document.body.getAttribute('data-pet')) {
                 document.body.setAttribute('data-pet', savedPet);
-                console.log('вњ… Set initial data-pet:', savedPet);
+                // [cleaned]
             }
 
             switchPet(savedPet);
@@ -8081,7 +7979,7 @@ ${link}`;
                 activeBtn.classList.add('active');
             }
 
-            console.log(`Pet switched to: ${pet}, Theme: ${theme}`);
+            // [cleaned]
         }
 
         // ==================== ACTION BUTTONS ====================
@@ -8099,13 +7997,13 @@ ${link}`;
         document.addEventListener('DOMContentLoaded', function() {
 
             // INITIALIZE MINI GAMES HANDLERS
-            console.log('Initializing mini games handlers...');
+            // [cleaned]
 
             // Game card click handlers
             document.querySelectorAll('.game-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const game = card.dataset.game;
-                    console.log('Game card clicked:', game);
+                    // [cleaned]
                     selectGame(game);
                 });
             });
@@ -8491,12 +8389,12 @@ ${link}`;
 
             if (nftBtn) {
                 nftBtn.addEventListener('click', async () => {
-                    console.log('рџ–јпёЏ NFT button clicked');
+                    // [cleaned]
                     try {
                         // Load NFT collection when opening modal
-                        console.log('рџ“Ґ Loading NFT collection...');
+                        // [cleaned]
                         await loadNFTCollection();
-                        console.log('вњ… NFT collection loaded, opening modal');
+                        // [cleaned]
                         nftModal.style.display = 'block';
 
                         // Check if in Telegram WebApp and show warning
@@ -8619,7 +8517,7 @@ ${link}`;
                 // Force save to Supabase before leaving
                 try {
                     await saveDirectToSupabase(userIdStr);
-                    console.log('вњ… Game state saved before NFT mint page');
+                    // [cleaned]
                 } catch (err) {
                     console.warn('вљ пёЏ Failed to save before navigation:', err);
                 }
@@ -8635,7 +8533,7 @@ ${link}`;
                         const wallet = window.solana.publicKey;
                         if (wallet) {
                             localStorage.setItem('phantom_wallet_address', wallet.toString());
-                            console.log('вњ… Wallet address saved:', wallet.toString());
+                            // [cleaned]);
                         }
                     } catch (err) {
                         console.warn('вљ пёЏ Failed to save wallet:', err);
@@ -8725,7 +8623,7 @@ ${link}`;
                 walletAddress = resp.publicKey.toString();
                 walletConnected = true;
 
-                console.log('вњ… Wallet connected:', walletAddress);
+                // [cleaned]
 
                 // рџ”— NEW: Auto-link wallet to Telegram account
                 await linkWalletToTelegramAccount(walletAddress);
@@ -8764,12 +8662,12 @@ ${link}`;
         async function linkWalletToTelegramAccount(walletAddress) {
             const telegramId = window.TELEGRAM_USER_ID;
             if (!telegramId) {
-                console.log('вљ пёЏ No Telegram ID found, skipping wallet linking');
+                // [cleaned]
                 return;
             }
 
             try {
-                console.log('рџ”— Linking wallet to Telegram account...', { walletAddress, telegramId });
+                // [cleaned]
 
                 // Step 1: Save wallet_address to leaderboard
                 const leaderboardResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
@@ -8786,7 +8684,7 @@ ${link}`;
                 });
 
                 if (leaderboardResponse.ok) {
-                    console.log('вњ… Wallet address saved to leaderboard');
+                    // [cleaned]
                 } else {
                     console.warn('вљ пёЏ Failed to save wallet_address to leaderboard:', await leaderboardResponse.text());
                 }
@@ -8806,10 +8704,10 @@ ${link}`;
                     if (nftsResponse.ok) {
                         const nfts = await nftsResponse.json();
                         orphanedNftIds = nfts.map(nft => nft.id);
-                        console.log(`вњ… Found ${orphanedNftIds.length} orphaned NFT(s) in user_nfts table`);
+                        // [cleaned] in user_nfts table`);
                     }
                 } catch (e) {
-                    console.log('вљ пёЏ wallet_address column might not exist in user_nfts, trying transactions method...');
+                    // [cleaned]
                 }
 
                 // Method 2: Also search transactions table for SOL mints with this wallet (backup method)
@@ -8850,16 +8748,16 @@ ${link}`;
                     });
 
                     if (transactionNftIds.length > 0) {
-                        console.log(`вњ… Found ${transactionNftIds.length} additional orphaned NFT(s) from transactions`);
+                        // [cleaned] from transactions`);
                     }
                 }
 
                 if (orphanedNftIds.length === 0) {
-                    console.log('вњ… No orphaned NFTs found for this wallet');
+                    // [cleaned]
                     return;
                 }
 
-                console.log(`рџ”Ќ Found ${orphanedNftIds.length} orphaned NFT(s) to link:`, orphanedNftIds);
+                // [cleaned] to link:`, orphanedNftIds);
 
                 // Step 3: Update orphaned NFTs with telegram_id
                 for (const nftId of orphanedNftIds) {
@@ -8877,7 +8775,7 @@ ${link}`;
                     });
 
                     if (updateResponse.ok) {
-                        console.log(`вњ… Linked NFT #${nftId} to Telegram account`);
+                        // [cleaned]
                     } else {
                         console.warn(`вљ пёЏ Failed to link NFT #${nftId}:`, await updateResponse.text());
                     }
@@ -8886,7 +8784,7 @@ ${link}`;
                 // Step 4: Show success notification
                 if (orphanedNftIds.length > 0) {
                     showMessage(`рџЋ‰ Linked ${orphanedNftIds.length} NFT(s) to your Telegram account!`);
-                    console.log(`вњ… Successfully linked ${orphanedNftIds.length} orphaned NFT(s)`);
+                    // [cleaned]`);
                 }
 
             } catch (err) {
@@ -8903,12 +8801,12 @@ ${link}`;
             const wallet = walletAddress;
 
             if (!telegramId || !wallet) {
-                console.log('вљ пёЏ Cannot sync: missing telegram_id or wallet_address');
+                // [cleaned]
                 return;
             }
 
             try {
-                console.log('рџ”„ Syncing account data...', { telegramId, wallet });
+                // [cleaned]
 
                 // 1. Update wallet_address in leaderboard
                 await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
@@ -8939,7 +8837,7 @@ ${link}`;
                             if (typeof updateUI === 'function') {
                                 updateUI();
                             }
-                            console.log('вњ… TAMA balance synced from database:', dbBalance);
+                            // [cleaned]
                         }
                     }
                 }
@@ -8947,7 +8845,7 @@ ${link}`;
                 // 3. Link orphaned NFTs (already done in linkWalletToTelegramAccount)
                 await linkWalletToTelegramAccount(wallet);
 
-                console.log('вњ… Account data synced successfully');
+                // [cleaned]
 
             } catch (err) {
                 console.error('вќЊ Error syncing account data:', err);
@@ -8998,10 +8896,10 @@ ${link}`;
                 transaction.lastValidBlockHeight = lastValidBlockHeight;
                 transaction.feePayer = new PublicKey(walletAddress);
 
-                console.log('рџ’° Creating SOL distribution transaction...');
-                console.log(`  рџЏ¦ Treasury Main: ${(priceSOL * 0.50).toFixed(6)} SOL (50%)`);
-                console.log(`  рџ’§ Treasury Liquidity: ${(priceSOL * 0.30).toFixed(6)} SOL (30%)`);
-                console.log(`  рџ‘Ґ Treasury Team: ${(priceSOL * 0.20).toFixed(6)} SOL (20%)`);
+                // [cleaned]
+                // [cleaned].toFixed(6)} SOL (50%)`);
+                // [cleaned].toFixed(6)} SOL (30%)`);
+                // [cleaned].toFixed(6)} SOL (20%)`);
 
                 // Request signature from Phantom
                 const signed = await window.solana.signAndSendTransaction(transaction);
@@ -9012,7 +8910,7 @@ ${link}`;
                 // Extract signature from response
                 const signature = typeof signed === 'string' ? signed : (signed.signature || signed);
 
-                console.log('вњ… SOL distribution transaction confirmed:', signature);
+                // [cleaned]
                 return signature;
 
             } catch (err) {
@@ -9026,7 +8924,7 @@ ${link}`;
         // ==============================================
         window.mintNFTWithSOL = async function(tierName) {
             try {
-                console.log(`рџ’Ћ Minting ${tierName} NFT with SOL in-game...`);
+                // [cleaned]
 
                 if (!walletConnected || !walletAddress) {
                     showMessage('вќЊ Please connect wallet first!', 'error');
@@ -9081,7 +8979,7 @@ ${link}`;
                 let transactionSignature = null;
                 try {
                     transactionSignature = await createAndSendDistributionTransaction(price);
-                    console.log('вњ… Distribution transaction completed:', transactionSignature);
+                    // [cleaned]
                 } catch (distError) {
                     console.error('вљ пёЏ Distribution transaction failed:', distError);
                     showMessage('вќЊ Transaction failed: ' + distError.message, 'error');
@@ -9194,10 +9092,10 @@ ${link}`;
         }
 
         async function loadNFTCollection() {
-            console.log('рџ”Ќ loadNFTCollection called');
+            // [cleaned]
             try {
                 const userId = window.TELEGRAM_USER_ID;
-                console.log('рџ‘¤ Current user ID:', userId);
+                // [cleaned]
                 if (!userId) {
                     console.warn('вљ пёЏ No user ID for NFT loading');
                     const nftStats = document.getElementById('nft-stats');
@@ -9205,7 +9103,7 @@ ${link}`;
                     return;
                 }
 
-                console.log('рџ”Ќ Loading NFTs for user:', userId);
+                // [cleaned]
 
                 // Load NFTs from user_nfts table with nft_designs join
                 // Try to get image_url from nft_designs table via foreign key
@@ -9240,12 +9138,12 @@ ${link}`;
                 const nftGrid = document.getElementById('nft-grid');
                 const nftStats = document.getElementById('nft-stats');
 
-                console.log('рџ“¦ Loaded NFTs:', nfts);
+                // [cleaned]
 
                 // If we have nft_design_id but no image_url, fetch images separately
                 const nftsWithDesignIds = nfts.filter(n => n.nft_design_id && (!n.nft_designs || !n.nft_designs.image_url));
                 if (nftsWithDesignIds.length > 0) {
-                    console.log('рџ–јпёЏ Fetching images for', nftsWithDesignIds.length, 'NFTs...');
+                    // [cleaned]
                     const designIds = [...new Set(nftsWithDesignIds.map(n => n.nft_design_id))];
 
                     try {
@@ -9998,7 +9896,7 @@ ${link}`;
                     return;
                 }
 
-                console.log('Loading withdrawal history for user:', userId);
+                // [cleaned]
                 const apiBase = window.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
 
                 historyDiv.innerHTML = `
@@ -10014,7 +9912,7 @@ ${link}`;
                     }
                 });
 
-                console.log('Withdrawal history response status:', response.status);
+                // [cleaned]
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -10031,7 +9929,7 @@ ${link}`;
                 }
 
                 const result = await response.json();
-                console.log('Withdrawal history result:', result);
+                // [cleaned]
 
                 // API РІРѕР·РІСЂР°С‰Р°РµС‚ { success: true, withdrawals: [...] }
                 const withdrawals = result.withdrawals || result.data || [];
@@ -10356,7 +10254,7 @@ ${link}`;
                                 })
                             });
                             if (saveResponse.ok) {
-                                console.log('вњ… Wallet address saved to database');
+                                // [cleaned]
                             }
                         } catch (e) {
                             console.warn('Failed to save wallet to database:', e);
@@ -10491,4 +10389,5 @@ ${link}`;
                 updateTamaDisplay();
             }
         }
+
 

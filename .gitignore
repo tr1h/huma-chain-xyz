@@ -93,3 +93,5 @@ coverage/
 tmp/
 temp/
 *.tmp
+*.old
+*.backup

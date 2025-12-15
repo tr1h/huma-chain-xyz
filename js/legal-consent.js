@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Legal Consent Modal
  * Shows terms acceptance modal for first-time users
  */
@@ -39,13 +39,13 @@ class LegalConsent {
             <div id="legal-consent-modal" class="legal-consent-overlay">
                 <div class="legal-consent-modal">
                     <div class="legal-consent-header">
-                        <h2>⚠️ Important: Please Read</h2>
+                        <h2>вљ пёЏ Important: Please Read</h2>
                         <p class="legal-consent-subtitle">Before you continue, please review our legal documents</p>
                     </div>
                     
                     <div class="legal-consent-content">
                         <div class="legal-warning-box">
-                            <p><strong>🚨 THIS IS A GAME—NOT AN INVESTMENT OPPORTUNITY.</strong></p>
+                            <p><strong>рџљЁ THIS IS A GAMEвЂ”NOT AN INVESTMENT OPPORTUNITY.</strong></p>
                             <p>TAMA tokens are for in-game use only. You may lose all value. Only participate with funds you can afford to lose.</p>
                         </div>
 
@@ -53,15 +53,15 @@ class LegalConsent {
                             <p><strong>By continuing, you agree to:</strong></p>
                             <ul>
                                 <li>
-                                    <a href="/terms" target="_blank">⚖️ Terms of Service</a>
+                                    <a href="/terms" target="_blank">вљ–пёЏ Terms of Service</a>
                                     <span class="legal-doc-desc">Rules and conditions for using the game</span>
                                 </li>
                                 <li>
-                                    <a href="/privacy" target="_blank">🔒 Privacy Policy</a>
+                                    <a href="/privacy" target="_blank">рџ”’ Privacy Policy</a>
                                     <span class="legal-doc-desc">How we collect and use your data</span>
                                 </li>
                                 <li>
-                                    <a href="/disclaimer" target="_blank">⚠️ Risk Warning</a>
+                                    <a href="/disclaimer" target="_blank">вљ пёЏ Risk Warning</a>
                                     <span class="legal-doc-desc">Important information about risks</span>
                                 </li>
                             </ul>
@@ -385,7 +385,7 @@ class LegalConsent {
         this.hideLegalSidebar();
 
         // Log acceptance (for analytics if needed)
-        console.log('✅ User accepted legal terms');
+        // [cleaned]
     }
 
     hideLegalSidebar() {
@@ -407,7 +407,7 @@ class LegalConsent {
             legalFooter.style.left = '-9999px';
             legalFooter.style.width = '0';
             legalFooter.style.transition = 'opacity 0.3s ease, display 0.3s ease';
-            console.log('✅ Hidden legal footer by ID');
+            // [cleaned]
         }
 
         // Try to find and hide legal sidebar/panel on the right side
@@ -434,7 +434,7 @@ class LegalConsent {
                         el.style.display = 'none';
                         el.style.opacity = '0';
                         el.style.transition = 'opacity 0.3s ease';
-                        console.log('✅ Hidden legal sidebar:', selector);
+                        // [cleaned]
                     }
                 });
             } catch (e) {
@@ -451,7 +451,7 @@ class LegalConsent {
                 el.style.display = 'none';
                 el.style.opacity = '0';
                 el.style.transition = 'opacity 0.3s ease';
-                console.log('✅ Hidden legal sidebar element');
+                // [cleaned]
             }
         });
 
@@ -468,7 +468,7 @@ class LegalConsent {
                     el.style.display = 'none';
                     el.style.opacity = '0';
                     el.style.transition = 'opacity 0.3s ease';
-                    console.log('✅ Hidden legal element that was out of bounds');
+                    // [cleaned]
                 }
             }
         });
@@ -504,4 +504,5 @@ fadeOutStyle.textContent = `
     }
 `;
 document.head.appendChild(fadeOutStyle);
+
 

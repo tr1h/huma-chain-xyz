@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Platform Detection Helper
  * Detects if user is in Telegram Mini App or regular browser
  */
@@ -52,7 +52,7 @@ const PlatformDetector = {
     initPlatformUI() {
         const isTg = this.isTelegram();
         
-        console.log(`🔍 Platform detected: ${this.getPlatform()}`);
+        // [cleaned]}`);
 
         // Hide wallet buttons in Telegram
         this.hideIf('wallet-connect-btn', isTg);
@@ -64,7 +64,7 @@ const PlatformDetector = {
         // Add CSS class to body for platform-specific styles
         document.body.classList.add(isTg ? 'platform-telegram' : 'platform-browser');
         
-        console.log(`✅ Platform UI initialized for ${this.getPlatform()}`);
+        // [cleaned]}`);
     }
 };
 
@@ -79,4 +79,5 @@ if (document.readyState === 'loading') {
 
 // Export for use in other scripts
 window.PlatformDetector = PlatformDetector;
+
 

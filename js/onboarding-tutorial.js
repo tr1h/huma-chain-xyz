@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Onboarding Tutorial for New Users
  * Shows step-by-step guide for first-time players
  */
@@ -30,11 +30,11 @@ const OnboardingTutorial = {
      */
     start() {
         if (!this.shouldShowOnboarding()) {
-            console.log('ℹ️ Onboarding not needed');
+            // [cleaned]
             return;
         }
         
-        console.log('🎓 Starting onboarding tutorial');
+        // [cleaned]
         
         this.currentStep = 0;
         this.createOverlay();
@@ -87,25 +87,25 @@ const OnboardingTutorial = {
         
         const steps = [
             {
-                title: '🎮 Welcome to Solana Tamagotchi!',
+                title: 'рџЋ® Welcome to Solana Tamagotchi!',
                 text: 'Click on your pet to earn TAMA tokens! Each click earns you rewards.',
                 target: '#pet-container',
                 position: 'bottom'
             },
             {
-                title: '❤️ Watch Your Pet\'s Health',
+                title: 'вќ¤пёЏ Watch Your Pet\'s Health',
                 text: 'Keep an eye on Health, Food, and Happiness bars. Feed and play with your pet to keep them happy!',
                 target: '.stats-container',
                 position: 'top'
             },
             {
-                title: '🎯 Complete Daily Quests',
+                title: 'рџЋЇ Complete Daily Quests',
                 text: 'Click 50 times and reach level 5 to earn bonus TAMA!',
                 target: '.quests-section',
                 position: 'left'
             },
             {
-                title: '🔗 Invite Friends & Earn More!',
+                title: 'рџ”— Invite Friends & Earn More!',
                 text: 'Share your referral link to earn bonuses when friends join!',
                 target: '#referral-btn',
                 position: 'bottom'
@@ -129,8 +129,8 @@ const OnboardingTutorial = {
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="font-size: 14px; opacity: 0.8;">Step ${stepIndex + 1} of ${steps.length}</div>
                 <div>
-                    ${stepIndex > 0 ? '<button id="onboarding-prev" style="padding: 10px 20px; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; margin-right: 10px; cursor: pointer;">← Back</button>' : ''}
-                    <button id="onboarding-next" style="padding: 10px 20px; background: white; border: none; border-radius: 8px; color: #667eea; font-weight: bold; cursor: pointer;">${stepIndex === steps.length - 1 ? 'Got it!' : 'Next →'}</button>
+                    ${stepIndex > 0 ? '<button id="onboarding-prev" style="padding: 10px 20px; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; margin-right: 10px; cursor: pointer;">в†ђ Back</button>' : ''}
+                    <button id="onboarding-next" style="padding: 10px 20px; background: white; border: none; border-radius: 8px; color: #667eea; font-weight: bold; cursor: pointer;">${stepIndex === steps.length - 1 ? 'Got it!' : 'Next в†’'}</button>
                 </div>
             </div>
         `;
@@ -218,7 +218,7 @@ const OnboardingTutorial = {
      * Complete onboarding
      */
     complete() {
-        console.log('✅ Onboarding completed!');
+        // [cleaned]
         
         // Mark as completed
         localStorage.setItem('onboarding_completed', 'true');
@@ -232,9 +232,9 @@ const OnboardingTutorial = {
         
         // Show completion message
         this.tooltip.innerHTML = `
-            <h2 style="margin: 0 0 15px 0; font-size: 24px;">🎉 You're Ready!</h2>
+            <h2 style="margin: 0 0 15px 0; font-size: 24px;">рџЋ‰ You're Ready!</h2>
             <p style="margin: 0 0 20px 0; font-size: 16px;">Have fun playing and earning TAMA!</p>
-            <button id="onboarding-close" style="padding: 12px 30px; background: white; border: none; border-radius: 8px; color: #667eea; font-weight: bold; cursor: pointer; width: 100%;">Start Playing! 🚀</button>
+            <button id="onboarding-close" style="padding: 12px 30px; background: white; border: none; border-radius: 8px; color: #667eea; font-weight: bold; cursor: pointer; width: 100%;">Start Playing! рџљЂ</button>
         `;
         
         this.tooltip.style.top = '50%';
@@ -265,7 +265,7 @@ const OnboardingTutorial = {
             el.style.zIndex = '';
         });
         
-        console.log('✅ Onboarding closed');
+        // [cleaned]
     },
 
     /**
@@ -280,5 +280,6 @@ const OnboardingTutorial = {
 // Export for global use
 window.OnboardingTutorial = OnboardingTutorial;
 
-console.log('✅ Onboarding Tutorial loaded');
+// [cleaned]
+
 

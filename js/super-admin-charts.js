@@ -1,6 +1,6 @@
-/**
- * 📊 SUPER ADMIN ADVANCED CHARTS
- * Дополнительные графики для super-admin.html:
+﻿/**
+ * рџ“Љ SUPER ADMIN ADVANCED CHARTS
+ * Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РіСЂР°С„РёРєРё РґР»СЏ super-admin.html:
  * - DAU (Daily Active Users)
  * - Revenue (SOL + TAMA)
  * - Referral Tree
@@ -11,7 +11,7 @@
 let dauChart, revenueChart, referralTreeChart, siteVisitsChart;
 
 /**
- * 📈 DAU Chart (Daily Active Users)
+ * рџ“€ DAU Chart (Daily Active Users)
  */
 async function createDAUChart(players) {
     const canvas = document.getElementById('dau-chart');
@@ -94,7 +94,7 @@ async function createDAUChart(players) {
 }
 
 /**
- * 💰 Revenue Chart (SOL + TAMA)
+ * рџ’° Revenue Chart (SOL + TAMA)
  */
 async function createRevenueChart() {
     const canvas = document.getElementById('revenue-chart');
@@ -221,7 +221,7 @@ async function createRevenueChart() {
 }
 
 /**
- * 🌳 Referral Tree Visualization
+ * рџЊі Referral Tree Visualization
  */
 async function createReferralTree() {
     const container = document.getElementById('referral-tree');
@@ -282,10 +282,10 @@ async function createReferralTree() {
         `;
 
         referrer.referrals.forEach((ref, refIndex) => {
-            const status = ref.status === 'active' ? '✅' : '⏳';
+            const status = ref.status === 'active' ? 'вњ…' : 'вЏі';
             html += `
                 <div style="font-size: 0.9em; opacity: 0.8;">
-                    ${status} → User ${ref.referred_telegram_id} (${new Date(ref.created_at).toLocaleDateString()})
+                    ${status} в†’ User ${ref.referred_telegram_id} (${new Date(ref.created_at).toLocaleDateString()})
                 </div>
             `;
         });
@@ -301,7 +301,7 @@ async function createReferralTree() {
 }
 
 /**
- * 📊 Site Visits & Unique Visitors Chart
+ * рџ“Љ Site Visits & Unique Visitors Chart
  */
 async function createSiteVisitsChart() {
     const canvas = document.getElementById('site-visits-chart');
@@ -408,11 +408,11 @@ async function createSiteVisitsChart() {
 }
 
 /**
- * 🔄 Initialize all advanced charts
+ * рџ”„ Initialize all advanced charts
  */
 async function initAdvancedCharts() {
     try {
-        console.log('📊 Initializing advanced charts...');
+        // [cleaned]
 
         // Fetch data
         const playersResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=tama.desc`, {
@@ -434,9 +434,9 @@ async function initAdvancedCharts() {
         await createReferralTree();
         await createSiteVisitsChart();
 
-        console.log('✅ Advanced charts initialized');
+        // [cleaned]
     } catch (error) {
-        console.error('❌ Error initializing advanced charts:', error);
+        console.error('вќЊ Error initializing advanced charts:', error);
     }
 }
 
@@ -447,5 +447,6 @@ window.createRevenueChart = createRevenueChart;
 window.createReferralTree = createReferralTree;
 window.createSiteVisitsChart = createSiteVisitsChart;
 
-console.log('✅ Super Admin Advanced Charts module loaded');
+// [cleaned]
+
 
