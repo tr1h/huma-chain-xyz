@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Web-based Referral System for Non-Telegram Users
  * Handles referral links and bonuses without Telegram bot
  */
@@ -12,11 +12,11 @@ const ReferralSystem = {
         const referrerAddress = urlParams.get('ref');
         
         if (!referrerAddress) {
-            console.log('ℹ️ No referral code in URL');
+            // [cleaned]
             return null;
         }
         
-        console.log(`🔗 Referral code detected: ${referrerAddress}`);
+        // [cleaned]
         
         // Save referrer for later (when user connects wallet)
         localStorage.setItem('pending_referrer', referrerAddress);
@@ -31,18 +31,18 @@ const ReferralSystem = {
         const referrerAddress = localStorage.getItem('pending_referrer');
         
         if (!referrerAddress) {
-            console.log('ℹ️ No pending referrer');
+            // [cleaned]
             return;
         }
         
         // Check if already processed
         const processedKey = `referral_processed_${newUserWalletAddress}`;
         if (localStorage.getItem(processedKey)) {
-            console.log('ℹ️ Referral bonus already processed');
+            // [cleaned]
             return;
         }
         
-        console.log(`💰 Processing referral bonus for ${referrerAddress}`);
+        // [cleaned]
         
         try {
             // Call API to process referral bonus
@@ -60,7 +60,7 @@ const ReferralSystem = {
             
             if (response.ok) {
                 const result = await response.json();
-                console.log('✅ Referral bonus processed:', result);
+                // [cleaned]
                 
                 // Mark as processed
                 localStorage.setItem(processedKey, 'true');
@@ -69,10 +69,10 @@ const ReferralSystem = {
                 // Show notification
                 this.showReferralSuccess();
             } else {
-                console.error('❌ Failed to process referral bonus');
+                console.error('вќЊ Failed to process referral bonus');
             }
         } catch (error) {
-            console.error('❌ Referral bonus error:', error);
+            console.error('вќЊ Referral bonus error:', error);
         }
     },
 
@@ -96,7 +96,7 @@ const ReferralSystem = {
         const link = this.getReferralLink(walletAddress);
         
         if (!link) {
-            alert('❌ Connect wallet first!');
+            alert('вќЊ Connect wallet first!');
             return;
         }
         
@@ -106,7 +106,7 @@ const ReferralSystem = {
             // Show success message
             this.showCopySuccess();
             
-            console.log('✅ Referral link copied:', link);
+            // [cleaned]
         } catch (error) {
             // Fallback for older browsers
             this.fallbackCopyTextToClipboard(link);
@@ -120,7 +120,7 @@ const ReferralSystem = {
         const link = this.getReferralLink(walletAddress);
         
         if (!link) {
-            alert('❌ Connect wallet first!');
+            alert('вќЊ Connect wallet first!');
             return;
         }
         
@@ -129,14 +129,14 @@ const ReferralSystem = {
             try {
                 await navigator.share({
                     title: 'Solana Tamagotchi',
-                    text: '🐾 Play Solana Tamagotchi and earn TAMA tokens! Join me and get bonus rewards!',
+                    text: 'рџђѕ Play Solana Tamagotchi and earn TAMA tokens! Join me and get bonus rewards!',
                     url: link
                 });
                 
-                console.log('✅ Referral link shared successfully');
+                // [cleaned]
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    console.error('❌ Share failed:', error);
+                    console.error('вќЊ Share failed:', error);
                     // Fallback to copy
                     this.copyReferralLink(walletAddress);
                 }
@@ -175,7 +175,7 @@ const ReferralSystem = {
     showCopySuccess() {
         // Create temporary notification
         const notification = document.createElement('div');
-        notification.innerHTML = '✅ Link copied to clipboard!';
+        notification.innerHTML = 'вњ… Link copied to clipboard!';
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -208,7 +208,7 @@ const ReferralSystem = {
      */
     showReferralSuccess() {
         const notification = document.createElement('div');
-        notification.innerHTML = '🎁 Welcome bonus received! You and your friend got +1,000 TAMA!';
+        notification.innerHTML = 'рџЋЃ Welcome bonus received! You and your friend got +1,000 TAMA!';
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -253,7 +253,7 @@ const ReferralSystem = {
             linkDisplay.value = link;
         }
         
-        console.log('✅ Referral UI updated');
+        // [cleaned]
     }
 };
 
@@ -292,5 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ReferralSystem.checkReferralCode();
 });
 
-console.log('✅ Web Referral System loaded');
+// [cleaned]
+
 

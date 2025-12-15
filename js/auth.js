@@ -1,5 +1,5 @@
-/**
- * 🔐 Unified Authentication System for Solana Tamagotchi
+﻿/**
+ * рџ”ђ Unified Authentication System for Solana Tamagotchi
  * 
  * Handles authentication across all pages:
  * 1. Telegram WebApp (from bot)
@@ -315,16 +315,16 @@ async function loadUserProfile(telegramId) {
  * Tries all available methods in priority order
  */
 async function initAuth() {
-    console.log('🔐 Initializing authentication...');
+    // [cleaned]
     
     // Priority 1: Telegram WebApp (from bot)
     if (isTelegramWebApp()) {
         const webAppUser = getTelegramUserInfo();
         if (webAppUser) {
-            console.log('✅ Telegram WebApp detected');
+            // [cleaned]
             const result = await authViaTelegramWebApp();
             if (result.success) {
-                console.log('✅ Authenticated via Telegram WebApp');
+                // [cleaned]
                 return { success: true, method: 'telegram_webapp', state: authState };
             }
         }
@@ -333,7 +333,7 @@ async function initAuth() {
     // Priority 2: Saved session
     const session = getSession();
     if (session && session.telegramId) {
-        console.log('✅ Restoring session');
+        // [cleaned]
         authState.telegramId = session.telegramId;
         authState.telegramUsername = session.telegramUsername;
         authState.telegramFirstName = session.telegramFirstName;
@@ -353,7 +353,7 @@ async function initAuth() {
     // Priority 3: URL parameter (from bot navigation)
     const telegramId = getTelegramUserId();
     if (telegramId) {
-        console.log('✅ Telegram ID from URL');
+        // [cleaned]
         authState.telegramId = telegramId;
         authState.authMethod = 'url_param';
         authState.isAuthenticated = true;
@@ -374,7 +374,7 @@ async function initAuth() {
         try {
             const resp = await window.solana.connect({ onlyIfTrusted: true });
             if (resp && resp.publicKey) {
-                console.log('✅ Phantom auto-connected');
+                // [cleaned]
                 const result = await authViaWallet();
                 if (result.success) {
                     return { success: true, method: 'wallet_auto', state: authState };
@@ -386,7 +386,7 @@ async function initAuth() {
     }
     
     // Not authenticated
-    console.log('ℹ️ Not authenticated');
+    // [cleaned]
     return { success: false, method: null, state: authState };
 }
 
@@ -438,15 +438,16 @@ window.GotchiAuth = {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initAuth().then(result => {
-            console.log('🔐 Auth initialized:', result);
+            // [cleaned]
             // Dispatch event for other scripts
             window.dispatchEvent(new CustomEvent('gotchiAuthReady', { detail: result }));
         });
     });
 } else {
     initAuth().then(result => {
-        console.log('🔐 Auth initialized:', result);
+        // [cleaned]
         window.dispatchEvent(new CustomEvent('gotchiAuthReady', { detail: result }));
     });
 }
+
 

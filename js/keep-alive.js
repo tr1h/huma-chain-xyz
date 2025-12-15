@@ -1,5 +1,5 @@
-/**
- * 🔄 Keep-Alive Ping for Render.com Free Instance
+﻿/**
+ * рџ”„ Keep-Alive Ping for Render.com Free Instance
  * 
  * Prevents Render.com free instance from spinning down by sending periodic health check requests.
  * Free instances spin down after 15 minutes of inactivity, causing 50+ second delays.
@@ -36,7 +36,7 @@
             
             // Don't wait for response - fire and forget
             if (response.ok) {
-                console.log('✅ Keep-Alive ping sent:', endpoint);
+                // [cleaned]
             }
         } catch (error) {
             // Silently fail - don't spam console
@@ -60,7 +60,7 @@
      */
     function startKeepAlive() {
         if (keepAliveInterval) {
-            console.log('⚠️ Keep-Alive already running');
+            // [cleaned]
             return;
         }
         
@@ -76,12 +76,12 @@
             sendKeepAlivePings();
         }, KEEP_ALIVE_INTERVAL);
         
-        console.log('🔄 Keep-Alive started: pinging API every 5 minutes');
+        // [cleaned]
         
         // Also ping when page becomes visible (user returns to tab)
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && isActive) {
-                console.log('👁️ Page visible - sending keep-alive ping');
+                // [cleaned]
                 sendKeepAlivePings();
             }
         });
@@ -95,7 +95,7 @@
             clearInterval(keepAliveInterval);
             keepAliveInterval = null;
             isActive = false;
-            console.log('⏹️ Keep-Alive stopped');
+            // [cleaned]
         }
     }
     
@@ -117,4 +117,5 @@
     };
     
 })();
+
 

@@ -1,34 +1,34 @@
-// Enhanced Profile JavaScript
+﻿// Enhanced Profile JavaScript
 // Handles all advanced profile features: stats, achievements, charts, NFTs, referrals, etc.
 
 const API_BASE = 'https://api.solanatamagotchi.com';
 
 // Achievement Definitions
 const ACHIEVEMENTS = [
-    { id: 'first_click', name: 'First Click', icon: '🖱️', condition: (data) => data.totalClicks >= 1 },
-    { id: 'click_100', name: '100 Clicks', icon: '💯', condition: (data) => data.totalClicks >= 100 },
-    { id: 'click_1000', name: '1K Clicks', icon: '🔥', condition: (data) => data.totalClicks >= 1000 },
-    { id: 'click_10000', name: '10K Clicks', icon: '⚡', condition: (data) => data.totalClicks >= 10000 },
-    { id: 'level_5', name: 'Level 5', icon: '🎯', condition: (data) => data.level >= 5 },
-    { id: 'level_10', name: 'Level 10', icon: '🏅', condition: (data) => data.level >= 10 },
-    { id: 'tama_1k', name: '1K TAMA', icon: '💰', condition: (data) => data.tama >= 1000 },
-    { id: 'tama_10k', name: '10K TAMA', icon: '💎', condition: (data) => data.tama >= 10000 },
-    { id: 'tama_100k', name: '100K TAMA', icon: '👑', condition: (data) => data.tama >= 100000 },
-    { id: 'first_nft', name: 'First NFT', icon: '🖼️', condition: (data) => data.nfts >= 1 },
-    { id: 'nft_collector', name: 'NFT Collector', icon: '🎨', condition: (data) => data.nfts >= 3 },
-    { id: 'nft_whale', name: 'NFT Whale', icon: '🐋', condition: (data) => data.nfts >= 5 },
-    { id: 'first_referral', name: 'First Friend', icon: '👥', condition: (data) => data.referrals >= 1 },
-    { id: 'referral_5', name: '5 Friends', icon: '🎉', condition: (data) => data.referrals >= 5 },
-    { id: 'referral_10', name: '10 Friends', icon: '🌟', condition: (data) => data.referrals >= 10 },
-    { id: 'top_10', name: 'Top 10 Player', icon: '🏆', condition: (data) => data.rank <= 10 && data.rank > 0 },
-    { id: 'top_3', name: 'Top 3 Player', icon: '🥇', condition: (data) => data.rank <= 3 && data.rank > 0 },
-    { id: 'wallet_linked', name: 'Wallet Linked', icon: '👛', condition: (data) => data.walletLinked },
-    { id: 'twitter_linked', name: 'Twitter Linked', icon: '🐦', condition: (data) => data.twitterLinked },
-    { id: 'daily_login', name: 'Daily Player', icon: '📅', condition: (data) => data.daysPlayed >= 7 }
+    { id: 'first_click', name: 'First Click', icon: 'рџ–±пёЏ', condition: (data) => data.totalClicks >= 1 },
+    { id: 'click_100', name: '100 Clicks', icon: 'рџ’Ї', condition: (data) => data.totalClicks >= 100 },
+    { id: 'click_1000', name: '1K Clicks', icon: 'рџ”Ґ', condition: (data) => data.totalClicks >= 1000 },
+    { id: 'click_10000', name: '10K Clicks', icon: 'вљЎ', condition: (data) => data.totalClicks >= 10000 },
+    { id: 'level_5', name: 'Level 5', icon: 'рџЋЇ', condition: (data) => data.level >= 5 },
+    { id: 'level_10', name: 'Level 10', icon: 'рџЏ…', condition: (data) => data.level >= 10 },
+    { id: 'tama_1k', name: '1K TAMA', icon: 'рџ’°', condition: (data) => data.tama >= 1000 },
+    { id: 'tama_10k', name: '10K TAMA', icon: 'рџ’Ћ', condition: (data) => data.tama >= 10000 },
+    { id: 'tama_100k', name: '100K TAMA', icon: 'рџ‘‘', condition: (data) => data.tama >= 100000 },
+    { id: 'first_nft', name: 'First NFT', icon: 'рџ–јпёЏ', condition: (data) => data.nfts >= 1 },
+    { id: 'nft_collector', name: 'NFT Collector', icon: 'рџЋЁ', condition: (data) => data.nfts >= 3 },
+    { id: 'nft_whale', name: 'NFT Whale', icon: 'рџђ‹', condition: (data) => data.nfts >= 5 },
+    { id: 'first_referral', name: 'First Friend', icon: 'рџ‘Ґ', condition: (data) => data.referrals >= 1 },
+    { id: 'referral_5', name: '5 Friends', icon: 'рџЋ‰', condition: (data) => data.referrals >= 5 },
+    { id: 'referral_10', name: '10 Friends', icon: 'рџЊџ', condition: (data) => data.referrals >= 10 },
+    { id: 'top_10', name: 'Top 10 Player', icon: 'рџЏ†', condition: (data) => data.rank <= 10 && data.rank > 0 },
+    { id: 'top_3', name: 'Top 3 Player', icon: 'рџҐ‡', condition: (data) => data.rank <= 3 && data.rank > 0 },
+    { id: 'wallet_linked', name: 'Wallet Linked', icon: 'рџ‘›', condition: (data) => data.walletLinked },
+    { id: 'twitter_linked', name: 'Twitter Linked', icon: 'рџђ¦', condition: (data) => data.twitterLinked },
+    { id: 'daily_login', name: 'Daily Player', icon: 'рџ“…', condition: (data) => data.daysPlayed >= 7 }
 ];
 
 // Avatar Options
-const AVATARS = ['🐱', '🐶', '🐼', '🐨', '🐸', '🦊', '🐰', '🐻', '🐯', '🦁', '🐮', '🐷'];
+const AVATARS = ['рџђ±', 'рџђ¶', 'рџђј', 'рџђЁ', 'рџђё', 'рџ¦Љ', 'рџђ°', 'рџђ»', 'рџђЇ', 'рџ¦Ѓ', 'рџђ®', 'рџђ·'];
 
 // Global State
 let userData = null;
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (userIdParam && userIdParam.startsWith('wallet_')) {
         // Wait for auth to set window.WALLET_ADDRESS
-        console.log('⏳ Waiting for wallet auth to initialize...');
+        // [cleaned]
         
         // Wait for authReady event or timeout after 5 seconds
         const authReady = new Promise((resolve) => {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 resolve();
             } else {
                 const handler = () => {
-                    console.log('✅ Auth ready event received');
+                    // [cleaned]
                     window.removeEventListener('authReady', handler);
                     resolve();
                 };
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 // Timeout after 5 seconds
                 setTimeout(() => {
-                    console.warn('⚠️ Auth timeout, proceeding anyway');
+                    console.warn('вљ пёЏ Auth timeout, proceeding anyway');
                     window.removeEventListener('authReady', handler);
                     resolve();
                 }, 5000);
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load Profile Data
 async function loadProfile() {
     try {
-        // 🔐 SECURITY CHECK: Verify real authentication
+        // рџ”ђ SECURITY CHECK: Verify real authentication
         const urlParams = new URLSearchParams(window.location.search);
         const userIdFromUrl = urlParams.get('user_id');
         
@@ -114,23 +114,23 @@ async function loadProfile() {
         // If URL has wallet address, check if it matches connected wallet
         if (isUrlWallet) {
             if (authenticatedWallet && authenticatedWallet === userIdFromUrl) {
-                // ✅ Wallet matches - allow access
-                console.log('✅ Wallet address matches connected wallet:', authenticatedWallet);
+                // вњ… Wallet matches - allow access
+                // [cleaned]
                 authenticatedUserId = userIdFromUrl; // Use wallet address as user ID
             } else if (authenticatedWallet && authenticatedWallet !== userIdFromUrl) {
-                // ❌ Different wallet - block access
-                console.warn('🚨 SECURITY: URL wallet does not match connected wallet!');
+                // вќЊ Different wallet - block access
+                console.warn('рџљЁ SECURITY: URL wallet does not match connected wallet!');
                 console.warn('  URL wallet:', userIdFromUrl);
                 console.warn('  Connected wallet:', authenticatedWallet);
-                showError('🚨 ACCESS DENIED! This wallet address does not match your connected wallet.', true);
+                showError('рџљЁ ACCESS DENIED! This wallet address does not match your connected wallet.', true);
                 setTimeout(() => {
                     window.location.href = `profile.html?user_id=${authenticatedWallet}`;
                 }, 3000);
                 return;
             } else {
-                // ⚠️ Wallet in URL but not connected - ask to connect
-                console.warn('⚠️ Wallet address in URL but wallet not connected');
-                showError('❌ Please connect your wallet first! The wallet address in URL must match your connected wallet.', true);
+                // вљ пёЏ Wallet in URL but not connected - ask to connect
+                console.warn('вљ пёЏ Wallet address in URL but wallet not connected');
+                showError('вќЊ Please connect your wallet first! The wallet address in URL must match your connected wallet.', true);
                 setTimeout(() => {
                     window.location.href = 'tamagotchi-game.html';
                 }, 3000);
@@ -141,28 +141,28 @@ async function loadProfile() {
         // If URL has Telegram ID, check if it matches authenticated Telegram ID
         if (isUrlTelegram) {
             if (authenticatedUserId && authenticatedUserId.toString() === userIdFromUrl) {
-                // ✅ Telegram ID matches - allow access
-                console.log('✅ Telegram ID matches authenticated user:', authenticatedUserId);
+                // вњ… Telegram ID matches - allow access
+                // [cleaned]
             } else if (authenticatedUserId && authenticatedUserId.toString() !== userIdFromUrl) {
-                // ❌ Different Telegram ID - block access
-                console.warn('🚨 SECURITY: URL Telegram ID does not match authenticated user!');
+                // вќЊ Different Telegram ID - block access
+                console.warn('рџљЁ SECURITY: URL Telegram ID does not match authenticated user!');
                 console.warn('  URL Telegram ID:', userIdFromUrl);
                 console.warn('  Authenticated Telegram ID:', authenticatedUserId);
-                showError('🚨 ACCESS DENIED! You can only view your own profile.', true);
+                showError('рџљЁ ACCESS DENIED! You can only view your own profile.', true);
                 setTimeout(() => {
                     window.location.href = `profile.html?user_id=${authenticatedUserId}`;
                 }, 3000);
                 return;
             } else {
-                // ⚠️ Telegram ID in URL but not authenticated - allow if from bot
-                console.log('ℹ️ Telegram ID from URL (likely from bot), allowing access');
+                // вљ пёЏ Telegram ID in URL but not authenticated - allow if from bot
+                // [cleaned], allowing access');
                 authenticatedUserId = parseInt(userIdFromUrl);
             }
         }
         
         // Final check: must have at least one authenticated ID
         if (!authenticatedUserId && !authenticatedWallet) {
-            showError('❌ Please login first! Connect your wallet or use Telegram bot.', true);
+            showError('вќЊ Please login first! Connect your wallet or use Telegram bot.', true);
             setTimeout(() => {
                 window.location.href = 'tamagotchi-game.html';
             }, 3000);
@@ -175,10 +175,10 @@ async function loadProfile() {
         // If it's a wallet user, ensure full wallet address
         if (userId && userId.startsWith('wallet_') && authenticatedWallet) {
             userId = authenticatedWallet; // Use full wallet address
-            console.log('🔍 Using full wallet address for profile:', userId);
+            // [cleaned]
         }
         
-        console.log('✅ Security check passed. Loading profile for:', userId);
+        // [cleaned]
         
         // Try simple API first, fallback to full API
         let response;
@@ -198,9 +198,9 @@ async function loadProfile() {
                 throw new Error(data.error || 'Failed to load profile from simple API');
             }
             
-            console.log('✅ Loaded from simple API');
+            // [cleaned]
         } catch (simpleError) {
-            console.warn('⚠️ Simple API failed, trying full API:', simpleError);
+            console.warn('вљ пёЏ Simple API failed, trying full API:', simpleError);
             
             // Fallback to full API
             response = await fetch(`${API_BASE}/api/profile-data.php?user_id=${userId}`);
@@ -215,7 +215,7 @@ async function loadProfile() {
                 throw new Error(data.error || 'Failed to load profile');
             }
             
-            console.log('✅ Loaded from full API');
+            // [cleaned]
         }
         
         userData = data.user;
@@ -252,13 +252,13 @@ async function renderWalletInfo() {
         
         // Display auth method
         if (authMethod === 'telegram_webapp' || authMethod === 'telegram' || telegramId) {
-            document.getElementById('auth-method').textContent = '📱 TELEGRAM';
+            document.getElementById('auth-method').textContent = 'рџ“± TELEGRAM';
             document.getElementById('auth-details').textContent = `User ID: ${telegramId || 'N/A'}`;
         } else if (authMethod === 'wallet' || walletAddress) {
-            document.getElementById('auth-method').textContent = '👛 WALLET';
+            document.getElementById('auth-method').textContent = 'рџ‘› WALLET';
             document.getElementById('auth-details').textContent = walletAddress ? `${walletAddress.substring(0, 4)}...${walletAddress.substring(walletAddress.length - 4)}` : 'N/A';
         } else {
-            document.getElementById('auth-method').textContent = '❓ UNKNOWN';
+            document.getElementById('auth-method').textContent = 'вќ“ UNKNOWN';
             document.getElementById('auth-details').textContent = 'Auth method not detected';
         }
         
@@ -309,7 +309,7 @@ window.copyWalletAddress = function() {
         navigator.clipboard.writeText(walletAddress).then(() => {
             const btn = document.getElementById('copy-wallet-btn');
             const originalText = btn.textContent;
-            btn.textContent = '✅ COPIED!';
+            btn.textContent = 'вњ… COPIED!';
             setTimeout(() => {
                 btn.textContent = originalText;
             }, 2000);
@@ -384,7 +384,7 @@ async function renderChart() {
             // Calculate realistic growth based on level and activity
             const dayProgress = (days - i) / days;
             const baseGrowth = currentBalance * dayProgress;
-            const randomVariation = Math.random() * 0.1 - 0.05; // ±5% variation
+            const randomVariation = Math.random() * 0.1 - 0.05; // В±5% variation
             const dailyBalance = Math.max(0, Math.floor(baseGrowth * (1 + randomVariation)));
             
             dataPoints.push(dailyBalance);
@@ -481,7 +481,7 @@ function renderTransactions() {
     const transactions = userStats.transactions || [];
     
     if (transactions.length === 0) {
-        list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No transactions yet</p></div>';
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon">рџ“­</div><p>No transactions yet</p></div>';
         return;
     }
     
@@ -503,7 +503,7 @@ function renderActivity() {
     const activities = userStats.activities || [];
     
     if (activities.length === 0) {
-        timeline.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No recent activity</p></div>';
+        timeline.innerHTML = '<div class="empty-state"><div class="empty-icon">рџ“­</div><p>No recent activity</p></div>';
         return;
     }
     
@@ -522,14 +522,14 @@ function renderNFTs() {
     const nfts = userStats.nftCollection || [];
     
     if (nfts.length === 0) {
-        grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><div class="empty-icon">🖼️</div><p>No NFTs yet. Start minting!</p></div>';
+        grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><div class="empty-icon">рџ–јпёЏ</div><p>No NFTs yet. Start minting!</p></div>';
         return;
     }
     
     grid.innerHTML = nfts.map(nft => `
         <div class="nft-card">
             <div class="nft-tier ${nft.tier.toLowerCase()}">${nft.tier}</div>
-            <div class="nft-icon">💎</div>
+            <div class="nft-icon">рџ’Ћ</div>
             <div class="nft-boost">${nft.boost}x Boost</div>
         </div>
     `).join('');
@@ -607,7 +607,7 @@ function copyReferralLink() {
     
     const btn = event.target;
     const originalText = btn.textContent;
-    btn.textContent = '✅ COPIED!';
+    btn.textContent = 'вњ… COPIED!';
     setTimeout(() => {
         btn.textContent = originalText;
     }, 2000);
@@ -642,28 +642,28 @@ function formatTime(timestamp) {
 
 function getTransactionIcon(type) {
     const icons = {
-        'click': '🖱️',
-        'minigame': '🎮',
-        'nft_mint': '🖼️',
-        'referral': '👥',
-        'bonus': '🎁',
-        'withdraw': '💸',
-        'quest': '📋'
+        'click': 'рџ–±пёЏ',
+        'minigame': 'рџЋ®',
+        'nft_mint': 'рџ–јпёЏ',
+        'referral': 'рџ‘Ґ',
+        'bonus': 'рџЋЃ',
+        'withdraw': 'рџ’ё',
+        'quest': 'рџ“‹'
     };
-    return icons[type] || '💰';
+    return icons[type] || 'рџ’°';
 }
 
 function getActivityIcon(type) {
     const icons = {
-        'login': '🔐',
-        'level_up': '⬆️',
-        'achievement': '🏆',
-        'nft_mint': '🖼️',
-        'referral': '👥',
-        'minigame': '🎮',
-        'quest_complete': '✅'
+        'login': 'рџ”ђ',
+        'level_up': 'в¬†пёЏ',
+        'achievement': 'рџЏ†',
+        'nft_mint': 'рџ–јпёЏ',
+        'referral': 'рџ‘Ґ',
+        'minigame': 'рџЋ®',
+        'quest_complete': 'вњ…'
     };
-    return icons[type] || '📌';
+    return icons[type] || 'рџ“Њ';
 }
 
 function showSuccess(message) {
@@ -715,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Disconnect handler
     disconnectBtn.addEventListener('click', async () => {
-        if (!confirm('🔌 Disconnect wallet and return to main page?')) {
+        if (!confirm('рџ”Њ Disconnect wallet and return to main page?')) {
             return;
         }
         
@@ -733,7 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Clear session storage
             sessionStorage.clear();
             
-            showMessage('👋 Wallet disconnected!');
+            showMessage('рџ‘‹ Wallet disconnected!');
             
             // Redirect to main page after 1 second
             setTimeout(() => {
@@ -741,7 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1000);
             
         } catch (error) {
-            console.error('❌ Disconnect error:', error);
+            console.error('вќЊ Disconnect error:', error);
             showError('Failed to disconnect wallet');
         }
     });
@@ -752,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
         shareBtn.addEventListener('click', async () => {
             const profileUrl = window.location.href;
             const shareData = {
-                title: '🎮 My Solana Tamagotchi Profile',
+                title: 'рџЋ® My Solana Tamagotchi Profile',
                 text: `Check out my Solana Tamagotchi profile! Level ${userData?.level || '?'}, ${userData?.tama || 0} TAMA earned!`,
                 url: profileUrl
             };
@@ -761,7 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (navigator.share) {
                 try {
                     await navigator.share(shareData);
-                    showMessage('📤 Profile shared!');
+                    showMessage('рџ“¤ Profile shared!');
                     
                     // Track share event
                     if (typeof gtag !== 'undefined') {
@@ -780,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fallback: Copy to clipboard
                 try {
                     await navigator.clipboard.writeText(profileUrl);
-                    showMessage('📋 Profile link copied to clipboard!');
+                    showMessage('рџ“‹ Profile link copied to clipboard!');
                     
                     // Track copy event
                     if (typeof gtag !== 'undefined') {
@@ -798,4 +798,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
 

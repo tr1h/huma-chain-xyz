@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Metaplex NFT Minting Module
  * Creates real on-chain Solana NFTs using Metaplex SDK
  */
@@ -28,10 +28,10 @@ class MetaplexMinter {
                 .use(window.Metaplex.walletAdapterIdentity(this.wallet));
 
             this.initialized = true;
-            console.log('✅ Metaplex initialized');
+            // [cleaned]
             return true;
         } catch (error) {
-            console.error('❌ Metaplex initialization failed:', error);
+            console.error('вќЊ Metaplex initialization failed:', error);
             throw error;
         }
     }
@@ -47,7 +47,7 @@ class MetaplexMinter {
                 await this.init();
             }
 
-            console.log('📤 Uploading metadata to Arweave...', metadata);
+            // [cleaned]
 
             // Upload metadata using Metaplex
             const { uri } = await this.metaplex.nfts().uploadMetadata({
@@ -58,10 +58,10 @@ class MetaplexMinter {
                 properties: metadata.properties || {}
             });
 
-            console.log('✅ Metadata uploaded:', uri);
+            // [cleaned]
             return uri;
         } catch (error) {
-            console.error('❌ Metadata upload failed:', error);
+            console.error('вќЊ Metadata upload failed:', error);
             throw new Error('Failed to upload metadata: ' + error.message);
         }
     }
@@ -94,7 +94,7 @@ class MetaplexMinter {
                 throw new Error('Wallet not connected');
             }
 
-            console.log(`💎 Minting ${tier} ${rarity} NFT...`);
+            // [cleaned]
 
             // 1. Create metadata
             const metadata = {
@@ -129,7 +129,7 @@ class MetaplexMinter {
                 : new window.solanaWeb3.PublicKey('6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM'); // Treasury Main
 
             // 4. Mint NFT
-            console.log('🎨 Creating NFT on-chain...');
+            // [cleaned]
             const { nft, response } = await this.metaplex.nfts().create({
                 uri: metadataUri,
                 name: metadata.name,
@@ -147,9 +147,9 @@ class MetaplexMinter {
             const mintAddress = nft.address.toString();
             const signature = response.signature;
 
-            console.log('✅ NFT minted successfully!');
-            console.log('📍 Mint Address:', mintAddress);
-            console.log('🔗 Transaction:', `https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+            // [cleaned]
+            // [cleaned]
+            // [cleaned]
 
             return {
                 success: true,
@@ -159,7 +159,7 @@ class MetaplexMinter {
                 nftUrl: `https://explorer.solana.com/address/${mintAddress}?cluster=devnet`
             };
         } catch (error) {
-            console.error('❌ NFT minting failed:', error);
+            console.error('вќЊ NFT minting failed:', error);
             throw new Error('Failed to mint NFT: ' + error.message);
         }
     }
@@ -186,7 +186,7 @@ class MetaplexMinter {
                 updateAuthority: nft.updateAuthorityAddress.toString()
             };
         } catch (error) {
-            console.error('❌ NFT verification failed:', error);
+            console.error('вќЊ NFT verification failed:', error);
             return { exists: false, error: error.message };
         }
     }
@@ -196,6 +196,7 @@ class MetaplexMinter {
 if (typeof window !== 'undefined') {
     window.MetaplexMinter = MetaplexMinter;
 }
+
 
 
 

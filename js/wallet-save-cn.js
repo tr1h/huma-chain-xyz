@@ -1,5 +1,5 @@
-/**
- * 💾 Wallet-Based Save System for Chinese Users
+﻿/**
+ * рџ’ѕ Wallet-Based Save System for Chinese Users
  * 
  * This module provides save/load functionality using wallet address instead of Telegram ID.
  * Integrates with wallet-auth-cn.js
@@ -16,7 +16,7 @@ const WALLET_AUTH_API_SAVE = typeof WALLET_AUTH_API !== 'undefined'
  */
 async function saveGameStateToWallet(gameState) {
     if (!window.WALLET_ADDRESS) {
-        console.warn('⚠️ No wallet connected - cannot save');
+        console.warn('вљ пёЏ No wallet connected - cannot save');
         return false;
     }
     
@@ -43,21 +43,21 @@ async function saveGameStateToWallet(gameState) {
         // Check if response is OK and is JSON
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('❌ Save API Error:', response.status, errorText);
+            console.error('вќЊ Save API Error:', response.status, errorText);
             throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
         }
         
         const result = await response.json();
         
         if (result.success) {
-            console.log('✅ Game state saved via wallet');
+            // [cleaned]
             return true;
         } else {
-            console.error('❌ Failed to save game state:', result.error);
+            console.error('вќЊ Failed to save game state:', result.error);
             return false;
         }
     } catch (error) {
-        console.error('❌ Save error:', error);
+        console.error('вќЊ Save error:', error);
         return false;
     }
 }
@@ -67,7 +67,7 @@ async function saveGameStateToWallet(gameState) {
  */
 async function loadGameStateFromWallet() {
     if (!window.WALLET_ADDRESS) {
-        console.warn('⚠️ No wallet connected - cannot load');
+        console.warn('вљ пёЏ No wallet connected - cannot load');
         return null;
     }
     
@@ -84,21 +84,21 @@ async function loadGameStateFromWallet() {
         // Check if response is OK and is JSON
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('❌ Load API Error:', response.status, errorText);
+            console.error('вќЊ Load API Error:', response.status, errorText);
             throw new Error(`API error: ${response.status} - ${errorText.substring(0, 100)}`);
         }
         
         const result = await response.json();
         
         if (result.success && result.exists) {
-            console.log('✅ Game state loaded via wallet:', result);
+            // [cleaned]
             return result;
         } else {
-            console.log('ℹ️ No saved game state found');
+            // [cleaned]
             return null;
         }
     } catch (error) {
-        console.error('❌ Failed to load game state:', error);
+        console.error('вќЊ Failed to load game state:', error);
         return null;
     }
 }
@@ -123,7 +123,7 @@ function updateGameStateFromWallet(walletData) {
             updateUI();
         }
         
-        console.log('✅ Game state updated from wallet');
+        // [cleaned]
     }
 }
 
@@ -133,4 +133,5 @@ window.WalletSave = {
     load: loadGameStateFromWallet,
     update: updateGameStateFromWallet
 };
+
 

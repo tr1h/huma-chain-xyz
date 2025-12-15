@@ -1,5 +1,5 @@
-/**
- * 🔐 Wallet-Based Authentication for Chinese Users
+﻿/**
+ * рџ”ђ Wallet-Based Authentication for Chinese Users
  * 
  * This module provides wallet-first authentication for users who can't access Telegram.
  * Perfect for Chinese users - no Telegram required!
@@ -31,7 +31,7 @@ async function connectWallet() {
             const resp = await window.solana.connect();
             const walletAddress = resp.publicKey.toString();
             
-            console.log('✅ Wallet connected:', walletAddress);
+            // [cleaned]
             
             // Try to get or create account
             const accountResult = await getOrCreateAccount(walletAddress);
@@ -46,7 +46,7 @@ async function connectWallet() {
                 window.WALLET_ADDRESS = walletAddress;
                 window.WALLET_USER_ID = accountResult.user_id;
                 
-                // 📊 Track wallet connection in Google Analytics
+                // рџ“Љ Track wallet connection in Google Analytics
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'wallet_connected', {
                         'wallet_type': 'phantom',
@@ -90,7 +90,7 @@ async function connectWallet() {
                     window.WALLET_ADDRESS = walletAddress;
                     window.WALLET_USER_ID = accountResult.user_id;
                     
-                    // 📊 Track wallet connection in Google Analytics
+                    // рџ“Љ Track wallet connection in Google Analytics
                     if (typeof gtag !== 'undefined') {
                         gtag('event', 'wallet_connected', {
                             'wallet_type': 'solflare',
@@ -117,11 +117,11 @@ async function connectWallet() {
             }
             
             // No wallet found
-            alert('❌ Please install Phantom or Solflare wallet!\n\nDownload: https://phantom.app/');
+            alert('вќЊ Please install Phantom or Solflare wallet!\n\nDownload: https://phantom.app/');
             return { success: false, error: 'No wallet found' };
         }
     } catch (error) {
-        console.error('❌ Wallet connection error:', error);
+        console.error('вќЊ Wallet connection error:', error);
         
         // Show user-friendly error message
         let errorMessage = error.message;
@@ -131,7 +131,7 @@ async function connectWallet() {
         
         // Show alert only if it's not a user cancellation
         if (!error.message.includes('User rejected') && !error.message.includes('User cancelled')) {
-            alert(`❌ Failed to connect wallet\n\n${errorMessage}`);
+            alert(`вќЊ Failed to connect wallet\n\n${errorMessage}`);
         }
         
         return { success: false, error: errorMessage };
@@ -159,7 +159,7 @@ async function getOrCreateAccount(walletAddress) {
         // Check if response is OK
         if (!getResponse.ok) {
             const errorText = await getResponse.text();
-            console.error('❌ API Error:', getResponse.status, errorText);
+            console.error('вќЊ API Error:', getResponse.status, errorText);
             
             // If server returns HTML (405 page), it means routing issue
             if (getResponse.status === 405 || errorText.includes('<html>')) {
@@ -184,7 +184,7 @@ async function getOrCreateAccount(walletAddress) {
             // If JSON parse fails, try to read error text from clone
             try {
                 const errorText = await getResponseClone.text();
-                console.error('❌ Failed to parse JSON response:', errorText.substring(0, 200));
+                console.error('вќЊ Failed to parse JSON response:', errorText.substring(0, 200));
                 
                 // Try to extract JSON from HTML+JSON mix
                 const jsonMatch = errorText.match(/\{[\s\S]*\}/);
@@ -194,7 +194,7 @@ async function getOrCreateAccount(walletAddress) {
                     throw new Error('Invalid server response. Please try again later.');
                 }
             } catch (e) {
-                console.error('❌ JSON parse error:', e);
+                console.error('вќЊ JSON parse error:', e);
                 throw new Error('Invalid server response. Please try again later.');
             }
         }
@@ -220,7 +220,7 @@ async function getOrCreateAccount(walletAddress) {
         // Check if response is OK
         if (!createResponse.ok) {
             const errorText = await createResponse.text();
-            console.error('❌ API Error:', createResponse.status, errorText);
+            console.error('вќЊ API Error:', createResponse.status, errorText);
             
             // If server returns HTML (405 page), it means routing issue
             if (createResponse.status === 405 || errorText.includes('<html>')) {
@@ -238,7 +238,7 @@ async function getOrCreateAccount(walletAddress) {
             // If JSON parse fails, try to read error text from clone
             try {
                 const errorText = await createResponseClone.text();
-                console.error('❌ Failed to parse JSON response:', errorText);
+                console.error('вќЊ Failed to parse JSON response:', errorText);
                 throw new Error('Invalid server response. Please try again later.');
             } catch (e) {
                 throw new Error('Invalid server response. Please try again later.');
@@ -251,7 +251,7 @@ async function getOrCreateAccount(walletAddress) {
             throw new Error(createResult.error || 'Failed to create account');
         }
     } catch (error) {
-        console.error('❌ Account creation error:', error);
+        console.error('вќЊ Account creation error:', error);
         return { success: false, error: error.message };
     }
 }
@@ -280,11 +280,11 @@ async function loadGameStateFromWallet() {
                 updateGameStateFromWallet(result);
             }
             
-            console.log('✅ Game state loaded from wallet:', result);
+            // [cleaned]
             return result;
         }
     } catch (error) {
-        console.error('❌ Failed to load game state:', error);
+        console.error('вќЊ Failed to load game state:', error);
     }
 }
 
@@ -293,7 +293,7 @@ async function loadGameStateFromWallet() {
  */
 async function saveGameStateToWallet(gameState) {
     if (!walletAuthState.walletAddress) {
-        console.warn('⚠️ No wallet connected - cannot save');
+        console.warn('вљ пёЏ No wallet connected - cannot save');
         return false;
     }
     
@@ -318,14 +318,14 @@ async function saveGameStateToWallet(gameState) {
         const result = await response.json();
         
         if (result.success) {
-            console.log('✅ Game state saved to wallet');
+            // [cleaned]
             return true;
         } else {
-            console.error('❌ Failed to save game state:', result.error);
+            console.error('вќЊ Failed to save game state:', result.error);
             return false;
         }
     } catch (error) {
-        console.error('❌ Save error:', error);
+        console.error('вќЊ Save error:', error);
         return false;
     }
 }
@@ -334,7 +334,7 @@ async function saveGameStateToWallet(gameState) {
  * Initialize wallet authentication
  */
 async function initWalletAuth() {
-    console.log('🔐 Initializing wallet authentication...');
+    // [cleaned]
     
     // Check if wallet is already connected (from previous session)
     if (window.solana && window.solana.isPhantom) {
@@ -355,13 +355,13 @@ async function initWalletAuth() {
                     
                     await loadGameStateFromWallet();
                     
-                    console.log('✅ Wallet auto-connected:', walletAddress);
+                    // [cleaned]
                     return { success: true, walletAddress };
                 }
             }
         } catch (error) {
             // User hasn't connected before - that's okay
-            console.log('ℹ️ No previous wallet connection');
+            // [cleaned]
         }
     }
     
@@ -392,10 +392,10 @@ async function disconnectWallet() {
         window.WALLET_ADDRESS = null;
         window.WALLET_USER_ID = null;
         
-        console.log('✅ Wallet disconnected');
+        // [cleaned]
         return { success: true };
     } catch (error) {
-        console.error('❌ Wallet disconnection error:', error);
+        console.error('вќЊ Wallet disconnection error:', error);
         return { success: false, error: error.message };
     }
 }
@@ -410,4 +410,5 @@ window.WalletAuth = {
     getState: () => walletAuthState,
     isAuthenticated: () => walletAuthState.isAuthenticated
 };
+
 
