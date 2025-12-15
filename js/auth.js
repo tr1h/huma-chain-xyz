@@ -1,4 +1,4 @@
-﻿/**
+/**
  * рџ”ђ Unified Authentication System for Solana Tamagotchi
  * 
  * Handles authentication across all pages:

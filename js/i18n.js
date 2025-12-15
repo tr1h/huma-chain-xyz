@@ -1,4 +1,4 @@
-﻿/**
+/**
  * рџЊЌ Internationalization (i18n) System for Solana Tamagotchi
  * Supports 13 languages with beautiful language selector
  *

@@ -1,4 +1,4 @@
-﻿    <script>
+    <script>
         // вљ пёЏ IMMEDIATE DEBUG LOG - This should appear FIRST
         // [cleaned]
         // [cleaned].toISOString());

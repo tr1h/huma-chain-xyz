@@ -1,4 +1,4 @@
-﻿/**
+/**
  * рџЊЌ Solana Tamagotchi - Landing Page i18n (13 Languages)
  * Translations for index.html and other public pages
  */
