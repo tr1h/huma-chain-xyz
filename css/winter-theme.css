@@ -1,0 +1,78 @@
+/* Winter Theme - Snow Only */
+
+/* Winter background */
+body.winter-theme {
+    background: linear-gradient(
+        to bottom,
+        #1a2332 0%,
+        #2d4563 50%,
+        #e8f4f8 100%
+    );
+    background-attachment: fixed;
+}
+
+/* Snowflakes container */
+.snowflakes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* Snowflake style */
+.snowflake {
+    position: absolute;
+    top: -10px;
+    color: #fff;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+    animation: fall linear infinite;
+    opacity: 0.8;
+}
+
+/* Fall animation */
+@keyframes fall {
+    0% {
+        top: -10%;
+        opacity: 0.8;
+    }
+    100% {
+        top: 110%;
+        opacity: 0;
+    }
+}
+
+/* Sway animation */
+@keyframes sway {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(20px);
+    }
+}
+
+/* Snowflake sizes */
+.snowflake.small {
+    font-size: 0.8em;
+}
+
+.snowflake.medium {
+    font-size: 1.2em;
+}
+
+.snowflake.large {
+    font-size: 1.6em;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .snowflake {
+        font-size: 0.8em;
+    }
+}
