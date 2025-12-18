@@ -21,7 +21,10 @@ const AUTH_CONFIG = {
 };
 
 // Initialize Supabase - use shared client if available
-const supabase = window.getSupabase ? window.getSupabase() : (window.supabase ? window.supabase.createClient(AUTH_CONFIG.SUPABASE_URL, AUTH_CONFIG.SUPABASE_ANON_KEY) : null);
+// NOTE: supabase-js UMD exposes global `supabase`, so don't redeclare it here.
+const supabaseClient = window.getSupabase
+    ? window.getSupabase()
+    : (window.supabase ? window.supabase.createClient(AUTH_CONFIG.SUPABASE_URL, AUTH_CONFIG.SUPABASE_ANON_KEY) : null);
 
 // ============================================
 // AUTH STATE
@@ -241,9 +244,9 @@ async function authViaWallet() {
         authState.walletAddress = walletAddress;
         
         // Try to find linked Telegram account
-        if (supabase) {
+        if (supabaseClient) {
             try {
-                const { data: linkedUser, error } = await supabase
+                const { data: linkedUser, error } = await supabaseClient
                     .from('leaderboard')
                     .select('telegram_id, telegram_username')
                     .eq('wallet_address', walletAddress)
@@ -285,10 +288,10 @@ async function authViaWallet() {
  * Load user profile from database
  */
 async function loadUserProfile(telegramId) {
-    if (!supabase || !telegramId) return null;
+    if (!supabaseClient || !telegramId) return null;
     
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('leaderboard')
             .select('*')
             .eq('telegram_id', telegramId)

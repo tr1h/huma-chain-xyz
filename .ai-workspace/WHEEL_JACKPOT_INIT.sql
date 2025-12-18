@@ -13,3 +13,5 @@ SELECT * FROM wheel_jackpot WHERE id = 1;
 -- If you want to reset jackpot to 5000:
 -- UPDATE wheel_jackpot SET amount = 5000, updated_at = NOW() WHERE id = 1;
 
+
+

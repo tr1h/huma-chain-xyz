@@ -37,7 +37,10 @@ if (!$SUPABASE_URL || !$SUPABASE_KEY) {
 
 // Helper function for Supabase requests (matching wallet-auth.php format)
 function supabaseRequest($url, $apiKey, $method, $table, $filters = [], $data = null) {
-    $ch = curl_init();
+    // Load error handlers if not already loaded
+    if (!function_exists('safeCurl')) {
+        require_once __DIR__ . '/helpers/error-handlers.php';
+    }
     
     $queryString = '';
     if (!empty($filters)) {
@@ -61,37 +64,29 @@ function supabaseRequest($url, $apiKey, $method, $table, $filters = [], $data = 
         'Prefer: return=representation'
     ];
     
-    curl_setopt($ch, CURLOPT_URL, $fullUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    
-    if ($method === 'POST' || $method === 'PATCH' || $method === 'PUT') {
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        if ($data) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        }
-    }
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $error = curl_error($ch);
-    curl_close($ch);
-    
-    if ($error) {
-        error_log("❌ CURL Error in profile-data.php: " . $error);
+    try {
+        $response = safeCurl($fullUrl, [
+            'method' => $method,
+            'headers' => $headers,
+            'body' => $data ? safeJsonEncode($data) : null,
+            'timeout' => 10
+        ]);
+        
+        $decoded = safeJsonDecode($response['body']);
+        
+        return [
+            'code' => $response['code'],
+            'data' => $decoded
+        ];
+        
+    } catch (Exception $e) {
+        error_log("❌ Supabase request error in profile-data.php: " . $e->getMessage());
         return [
             'code' => 500,
             'data' => null,
-            'error' => $error
+            'error' => $e->getMessage()
         ];
     }
-    
-    $decoded = json_decode($response, true);
-    
-    return [
-        'code' => $httpCode,
-        'data' => $decoded
-    ];
 }
 
 // GET: Fetch profile data

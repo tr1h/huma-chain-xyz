@@ -4,7 +4,14 @@
  * Verifies on-chain transactions before minting NFTs
  * 
  * SECURITY FIX #1: NFT Payment Verification
+ * Fixed by @Developer following @QA-Tester audit
+ * Date: 2025-12-17
  */
+
+// Error handling configuration
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -16,6 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// Load error handlers
+require_once __DIR__ . '/helpers/error-handlers.php';
+
 /**
  * Verify a Solana transaction on-chain
  * 
@@ -24,8 +34,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
  * @param string $expectedRecipient Expected recipient wallet address
  * @param float $expectedAmount Expected amount in SOL
  * @return array Verification result
+ * @throws Exception on validation errors
  */
 function verifySolanaTransaction($signature, $expectedSender, $expectedRecipient, $expectedAmount) {
+    // Validate inputs
+    if (empty($signature) || empty($expectedSender) || empty($expectedRecipient)) {
+        throw new Exception('Missing required parameters');
+    }
+    
+    if (!isValidSolanaAddress($expectedSender)) {
+        throw new Exception('Invalid sender address format');
+    }
+    
+    if (!isValidSolanaAddress($expectedRecipient)) {
+        throw new Exception('Invalid recipient address format');
+    }
+    
+    if ($expectedAmount <= 0) {
+        throw new Exception('Invalid amount');
+    }
+    
     $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
     
     // RPC request to get transaction details
@@ -42,61 +70,54 @@ function verifySolanaTransaction($signature, $expectedSender, $expectedRecipient
         ]
     ];
     
-    $ch = curl_init($rpcUrl);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestData));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    try {
+        $rpcResponse = safeCurl($rpcUrl, [
+            'method' => 'POST',
+            'body' => safeJsonEncode($requestData),
+            'headers' => ['Content-Type: application/json'],
+            'timeout' => 30
+        ]);
+        
+        if ($rpcResponse['code'] !== 200) {
+            throw new Exception('RPC request failed with HTTP ' . $rpcResponse['code']);
+        }
+        
+        $result = safeJsonDecode($rpcResponse['body']);
     
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
-    
-    if ($curlError) {
-        return [
-            'verified' => false,
-            'error' => 'RPC connection failed: ' . $curlError
-        ];
-    }
-    
-    if ($httpCode !== 200) {
-        return [
-            'verified' => false,
-            'error' => 'RPC request failed with HTTP ' . $httpCode
-        ];
-    }
-    
-    $result = json_decode($response, true);
-    
-    // Check if transaction exists
-    if (!isset($result['result']) || $result['result'] === null) {
-        return [
-            'verified' => false,
-            'error' => 'Transaction not found on blockchain',
-            'signature' => $signature
-        ];
-    }
-    
-    $txData = $result['result'];
-    
-    // Check if transaction was successful
-    if (isset($txData['meta']['err']) && $txData['meta']['err'] !== null) {
-        return [
-            'verified' => false,
-            'error' => 'Transaction failed on blockchain',
-            'signature' => $signature,
-            'blockchain_error' => $txData['meta']['err']
-        ];
-    }
-    
-    // Extract account keys and transaction details
-    $accountKeys = $txData['transaction']['message']['accountKeys'] ?? [];
-    $preBalances = $txData['meta']['preBalances'] ?? [];
-    $postBalances = $txData['meta']['postBalances'] ?? [];
+        // Check if transaction exists
+        if (!isset($result['result']) || $result['result'] === null) {
+            return [
+                'verified' => false,
+                'error' => 'Transaction not found on blockchain',
+                'signature' => $signature
+            ];
+        }
+        
+        $txData = $result['result'];
+        
+        // Validate transaction structure
+        if (!is_array($txData) || !isset($txData['meta']) || !isset($txData['transaction'])) {
+            throw new Exception('Invalid transaction data structure');
+        }
+        
+        // Check if transaction was successful
+        if (isset($txData['meta']['err']) && $txData['meta']['err'] !== null) {
+            return [
+                'verified' => false,
+                'error' => 'Transaction failed on blockchain',
+                'signature' => $signature,
+                'blockchain_error' => $txData['meta']['err']
+            ];
+        }
+        
+        // Extract account keys and transaction details
+        $accountKeys = safeArrayGet($txData, 'transaction', [])['message']['accountKeys'] ?? [];
+        $preBalances = safeArrayGet($txData, 'meta', [])['preBalances'] ?? [];
+        $postBalances = safeArrayGet($txData, 'meta', [])['postBalances'] ?? [];
+        
+        if (!is_array($accountKeys) || !is_array($preBalances) || !is_array($postBalances)) {
+            throw new Exception('Invalid transaction balance data');
+        }
     
     // Find sender and recipient indices
     $senderIndex = -1;
@@ -159,65 +180,70 @@ function verifySolanaTransaction($signature, $expectedSender, $expectedRecipient
     $blockTime = $txData['blockTime'] ?? null;
     $slot = $txData['slot'] ?? null;
     
-    // SUCCESS! Transaction verified
-    return [
-        'verified' => true,
-        'signature' => $signature,
-        'sender' => $expectedSender,
-        'recipient' => $expectedRecipient,
-        'amount_sent' => $actualAmountSent,
-        'amount_received' => $actualAmountReceived,
-        'expected_amount' => $expectedAmount,
-        'block_time' => $blockTime,
-        'slot' => $slot,
-        'timestamp' => date('Y-m-d H:i:s', $blockTime ?? time())
-    ];
+        // SUCCESS! Transaction verified
+        return [
+            'verified' => true,
+            'signature' => $signature,
+            'sender' => $expectedSender,
+            'recipient' => $expectedRecipient,
+            'amount_sent' => $actualAmountSent,
+            'amount_received' => $actualAmountReceived,
+            'expected_amount' => $expectedAmount,
+            'block_time' => $blockTime,
+            'slot' => $slot,
+            'timestamp' => date('Y-m-d H:i:s', $blockTime ?? time())
+        ];
+        
+    } catch (Exception $e) {
+        error_log("❌ Payment verification error: " . $e->getMessage());
+        return [
+            'verified' => false,
+            'error' => 'Verification failed: ' . $e->getMessage()
+        ];
+    }
 }
 
 // Main API endpoint
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    $signature = $input['signature'] ?? null;
-    $sender = $input['sender'] ?? null;
-    $recipient = $input['recipient'] ?? null;
-    $amount = $input['amount'] ?? null;
-    
-    // Validate input
-    if (!$signature || !$sender || !$recipient || !$amount) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Missing required fields: signature, sender, recipient, amount'
+    try {
+        // Read and validate input
+        $input = getJsonInput(['signature', 'sender', 'recipient', 'amount']);
+        
+        $signature = $input['signature'];
+        $sender = $input['sender'];
+        $recipient = $input['recipient'];
+        $amount = (float)$input['amount'];
+        
+        // Verify transaction
+        $verification = verifySolanaTransaction($signature, $sender, $recipient, $amount);
+        
+        if ($verification['verified']) {
+            sendSuccessResponse([
+                'verified' => true,
+                'data' => $verification
+            ]);
+        } else {
+            sendErrorResponse(
+                $verification['error'] ?? 'Verification failed',
+                400,
+                ['details' => $verification]
+            );
+        }
+        
+    } catch (Exception $e) {
+        logError('Payment verification request failed', $e, [
+            'signature' => $signature ?? null,
+            'sender' => $sender ?? null
         ]);
-        exit();
-    }
-    
-    // Verify transaction
-    $verification = verifySolanaTransaction($signature, $sender, $recipient, (float)$amount);
-    
-    if ($verification['verified']) {
-        http_response_code(200);
-        echo json_encode([
-            'success' => true,
-            'verified' => true,
-            'data' => $verification
-        ]);
-    } else {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'verified' => false,
-            'error' => $verification['error'] ?? 'Verification failed',
-            'details' => $verification
-        ]);
+        
+        sendErrorResponse(
+            'Payment verification failed. Please try again.',
+            500,
+            ['details' => $e->getMessage()]
+        );
     }
 } else {
-    http_response_code(405);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Method not allowed. Use POST.'
-    ]);
+    sendErrorResponse('Method not allowed. Use POST.', 405);
 }
 ?>
 

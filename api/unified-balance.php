@@ -28,6 +28,11 @@ $SUPABASE_URL = getenv('SUPABASE_URL') ?: 'https://zfrazyupameidxpjihrh.supabase
 $SUPABASE_KEY = getenv('SUPABASE_ANON_KEY') ?: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcmF6eXVwYW1laWR4cGppaHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5Mzc1NTAsImV4cCI6MjA1MTUxMzU1MH0.1EkMDqCNJoAjcJDh3Dd3yPfus-JpdcwE--z2dhjh7wU';
 
 function supabaseRequest($url, $key, $method, $table, $filters = [], $body = null) {
+    // Load error handlers if not already loaded
+    if (!function_exists('safeCurl')) {
+        require_once __DIR__ . '/helpers/error-handlers.php';
+    }
+    
     $endpoint = "$url/rest/v1/$table";
     
     if (!empty($filters)) {
@@ -42,23 +47,25 @@ function supabaseRequest($url, $key, $method, $table, $filters = [], $body = nul
         "Prefer: return=representation"
     ];
     
-    $ch = curl_init($endpoint);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
-    if ($body !== null) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+    try {
+        $response = safeCurl($endpoint, [
+            'method' => $method,
+            'headers' => $headers,
+            'body' => $body ? safeJsonEncode($body) : null,
+            'timeout' => 10
+        ]);
+        
+        $data = safeJsonDecode($response['body']);
+        
+        return [
+            'code' => $response['code'],
+            'data' => $data
+        ];
+        
+    } catch (Exception $e) {
+        error_log("⚠️ Supabase request failed: " . $e->getMessage());
+        throw new Exception('Database request failed: ' . $e->getMessage());
     }
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    
-    return [
-        'code' => $httpCode,
-        'data' => json_decode($response, true)
-    ];
 }
 
 // GET request

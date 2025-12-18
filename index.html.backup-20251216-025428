@@ -1,0 +1,2435 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L7LVQM50LV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L7LVQM50LV');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1D3557">
+
+    <!-- Primary Meta Tags -->
+    <title>Solana Tamagotchi - Play-to-Earn NFT Pet Game on Telegram | TAMA Token</title>
+    <meta name="title" content="Solana Tamagotchi - Play-to-Earn NFT Pet Game on Telegram | TAMA Token">
+    <meta name="description" content="Play, earn & collect NFT pets on Solana! рџђѕ Free-to-play Tamagotchi game in Telegram with real TAMA token rewards. Mint NFTs, upgrade pets, earn up to 3x boost. Join our growing community!">
+    <meta name="keywords" content="solana tamagotchi, play to earn, p2e game, nft pets, telegram game, solana nft, tama token, blockchain game, crypto pets, solana game, free crypto, earn crypto playing, tamagotchi nft, metaverse pets, web3 gaming">
+    <meta name="author" content="Solana Tamagotchi Team">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://solanatamagotchi.com/">
+
+    <!-- hreflang tags for International SEO -->
+    <link rel="alternate" hreflang="en" href="https://solanatamagotchi.com/" />
+    <link rel="alternate" hreflang="ru" href="https://solanatamagotchi.com/ru/" />
+    <link rel="alternate" hreflang="zh" href="https://solanatamagotchi.com/zh/" />
+    <link rel="alternate" hreflang="es" href="https://solanatamagotchi.com/es/" />
+    <link rel="alternate" hreflang="ja" href="https://solanatamagotchi.com/ja/" />
+    <link rel="alternate" hreflang="ko" href="https://solanatamagotchi.com/ko/" />
+    <link rel="alternate" hreflang="x-default" href="https://solanatamagotchi.com/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://solanatamagotchi.com/">
+    <meta property="og:title" content="Solana Tamagotchi - Play-to-Earn NFT Pet Game рџђѕ">
+    <meta property="og:description" content="Free Tamagotchi game on Telegram with real TAMA rewards on Solana! Mint NFTs, earn tokens, compete globally. 100% free to start playing!">
+    <meta property="og:image" content="https://solanatamagotchi.com/og-image.png">
+    <meta property="og:site_name" content="Solana Tamagotchi">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://solanatamagotchi.com/">
+    <meta property="twitter:title" content="Solana Tamagotchi - Play-to-Earn NFT Pet Game рџђѕ">
+    <meta property="twitter:description" content="Free Tamagotchi game on Telegram with real TAMA rewards on Solana! Mint NFTs, earn tokens, compete globally.">
+    <meta property="twitter:image" content="https://solanatamagotchi.com/twitter-image.png">
+    <meta property="twitter:site" content="@GotchiGame">
+    <meta property="twitter:creator" content="@GotchiGame">
+
+    <!-- Favicon - Google prefers .ico format -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/logo.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/logo.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="theme-color" content="#1D3557">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- Chart.js for Live Stats -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/winter-theme.css">
+
+    <!-- PWA Manifest -->
+    <!-- Removed: manifest.json (not found) -->
+
+    <!-- Solana Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/i18n-landing.js"></script>
+
+    <!-- Unified Auth System -->
+    <script src="js/auth.js"></script>
+    <script src="js/profile-widget.js"></script>
+    <script src="js/snow-animation.js"></script>
+
+    <!-- Metaplex Umi РґР»СЏ NFT РїСЂРѕРІРµСЂРєРё -->
+    <script src="https://unpkg.com/@metaplex-foundation/umi/dist/index.umd.js?v=2"></script>
+    <script src="https://unpkg.com/@metaplex-foundation/umi-bundle-defaults/dist/index.umd.js?v=2"></script>
+    <script src="https://unpkg.com/@metaplex-foundation/mpl-candy-machine/dist/index.umd.js?v=2"></script>
+
+    <!-- JSON-LD Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Solana Tamagotchi",
+      "description": "Free-to-play Tamagotchi game on Telegram with Play-to-Earn mechanics. Earn TAMA tokens on Solana blockchain by caring for NFT pets.",
+      "url": "https://solanatamagotchi.com/",
+      "image": "https://solanatamagotchi.com/og-image.png",
+      "applicationCategory": "Game",
+      "operatingSystem": "Web, iOS, Android",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "1250"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "Solana Tamagotchi Team",
+        "url": "https://solanatamagotchi.com/",
+        "sameAs": [
+          "https://twitter.com/GotchiGame",
+          "https://t.me/GotchiGameBot"
+        ]
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Solana Tamagotchi",
+      "gamePlatform": ["Web Browser", "Telegram", "iOS", "Android"],
+      "genre": ["Play-to-Earn", "Pet Simulation", "Blockchain Game"],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Solana Tamagotchi"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
+
+    <!-- TAMA Blockchain Integration -->
+    <!-- Removed: js/tama-blockchain.js, js/tama-withdraw-ui.js (not found) -->
+
+    <!-- TAMA Withdraw Modal Styles -->
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #1D3557;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .balance-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .balance-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .withdraw-form {
+            margin-bottom: 20px;
+        }
+
+        .withdraw-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .withdraw-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .withdraw-form input:focus {
+            outline: none;
+            border-color: #1D3557;
+        }
+
+        .withdraw-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .withdraw-actions button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1D3557, #457B9D);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 53, 87, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6C757D, #8E9AAF);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Logo Styles рџЋЁ */
+        .game-logo {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 10000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .game-logo:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .game-logo img {
+            height: 70px;
+            width: auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .game-logo {
+                top: 10px;
+                left: 10px;
+            }
+
+            .game-logo img {
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo рџЋЁ -->
+    <a href="/" class="game-logo" title="Back to Home">
+        <img src="logo.png" alt="Solana Tamagotchi">
+    </a>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="pixel-loader"></div>
+            <p class="loading-text">Loading Tamagotchi...</p>
+        </div>
+    </div>
+
+    <!-- Landing Page -->
+    <div id="landing-page" class="landing-page">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <!-- Animated Pet -->
+                <div class="animated-pet-container">
+                    <div class="animated-pet">
+                        <div class="pet-body">рџђѕ</div>
+                        <div class="pet-eyes">
+                            <span class="eye left-eye"></span>
+                            <span class="eye right-eye"></span>
+                        </div>
+                        <div class="pet-sparkles">
+                            <span class="sparkle sparkle-1">вњЁ</span>
+                            <span class="sparkle sparkle-2">в­ђ</span>
+                            <span class="sparkle sparkle-3">рџ’«</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- рџЊЌ Language Selector Button -->
+                <button id="lang-selector-btn" onclick="showLandingLanguageSelector()" style="position: fixed; top: 20px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #9945FF, #14F195); border: 3px solid rgba(255,255,255,0.3); font-size: 24px; cursor: pointer; box-shadow: 0 4px 20px rgba(153,69,255,0.4); transition: all 0.3s;">рџЊЌ</button>
+
+                <h1 style="font-size: 2.5em; margin: 20px 0; color: #FFCA3A;" data-i18n="hero_title">SOLANA TAMAGOTCHI</h1>
+                <p class="hero-subtitle" data-i18n="hero_subtitle">The Ultimate Blockchain Pet Game on Solana! Play, Earn & Collect NFT Pets рџљЂ</p>
+                <div class="hero-buttons" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
+                    <button onclick="window.open('https://t.me/GotchiGameBot', '_blank')" class="btn-connect" style="background: linear-gradient(135deg, #26A5E4, #0088cc); font-size: 16px;" data-i18n="play_telegram">
+                        рџЋ® Play in Telegram
+                    </button>
+                    <button onclick="window.location.href='/tamagotchi-game.html'" class="btn-connect" style="background: linear-gradient(135deg, #8AC926, #6FA01A); font-size: 16px; font-weight: bold;" data-i18n="play_browser">
+                        рџЊђ Play in Browser
+                    </button>
+                    <button onclick="window.location.href='mint'" class="btn-connect" style="background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%); font-size: 16px;" data-i18n="mint_nft">
+                        рџЋЁ Mint NFT
+                    </button>
+                    <button onclick="window.location.href='/whitepaper'" class="btn-connect" style="background: linear-gradient(135deg, #9945FF 0%, #14F195 100%); font-size: 16px; font-weight: bold;" data-i18n="whitepaper">
+                        рџ“„ Whitepaper
+                    </button>
+                    <button onclick="window.location.href='blog/'" class="btn-connect" style="background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%); font-size: 16px;" data-i18n="blog">
+                        рџ“° Blog
+                    </button>
+                    <button onclick="window.location.href='profile'" class="btn-connect" style="background: linear-gradient(135deg, #8AC926 0%, #6FA01A 100%); font-size: 16px;" data-i18n="my_profile">
+                        рџ‘¤ My Profile
+                    </button>
+                    <!-- Wallet Connection Section -->
+                    <div id="landing-wallet-container">
+                        <!-- Not Connected State -->
+                        <button id="landing-connect-btn" class="btn-secondary" style="font-size: 16px;">
+                            рџ‘› Connect Wallet
+                        </button>
+
+                        <!-- Connected State (hidden by default) -->
+                        <div id="landing-wallet-info" style="display: none; background: linear-gradient(135deg, rgba(138, 201, 38, 0.2), rgba(76, 175, 80, 0.2)); padding: 15px 25px; border-radius: 12px; border: 2px solid #8AC926; backdrop-filter: blur(10px); font-family: 'Press Start 2P', cursive; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 20px rgba(138, 201, 38, 0.3);">
+                            <div style="font-size: 10px; color: #8AC926; margin-bottom: 5px;">вњ… CONNECTED</div>
+                            <div id="landing-wallet-address" style="font-size: 14px; color: #FFCA3A; margin-bottom: 8px;"></div>
+                            <div style="display: flex; gap: 15px; font-size: 12px; color: #F5F5F5;">
+                                <span id="landing-wallet-sol">0 SOL</span>
+                                <span id="landing-wallet-tama">0 TAMA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 25px; font-size: 14px; color: rgba(241, 250, 238, 0.8);">
+                    <span style="margin: 0 15px;" data-i18n="hero_free">вњ… 100% Free to Play</span>
+                    <span style="margin: 0 15px;" data-i18n="hero_earn">рџ’° Earn Real TAMA Tokens</span>
+                    <span style="margin: 0 15px;" data-i18n="hero_nft">рџЋЁ Unique NFT Pets</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features-section" class="features-section">
+            <h2 class="section-title" data-i18n="game_features">рџЋ® GAME FEATURES</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">рџђѕ</span>
+                    <h3 class="feature-title" data-i18n="feature_pets">10 Pet Types</h3>
+                    <p class="feature-desc" data-i18n="feature_pets_desc">Cat, Dog, Dragon, Fox, Bear, Rabbit, Panda, Lion, Unicorn, Wolf + Traits!</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">в­ђ</span>
+                    <h3 class="feature-title" data-i18n="feature_evolution">Evolution System</h3>
+                    <p class="feature-desc" data-i18n="feature_evolution_desc">Level up and evolve your pet through 5 epic stages</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">рџ’°</span>
+                    <h3 class="feature-title" data-i18n="feature_earn">Play & Earn</h3>
+                    <p class="feature-desc" data-i18n="feature_earn_desc">Earn TAMA tokens by playing and caring for your pet</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">рџЏ†</span>
+                    <h3 class="feature-title" data-i18n="feature_achievements">Achievements</h3>
+                    <p class="feature-desc" data-i18n="feature_achievements_desc">Unlock 15+ achievements and earn rewards</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">рџ–±пёЏ</span>
+                    <h3 class="feature-title" data-i18n="feature_click">Click to Earn</h3>
+                    <p class="feature-desc" data-i18n="feature_click_desc">Click your pet to gain XP and unlock bonuses</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">рџ‘Ґ</span>
+                    <h3 class="feature-title" data-i18n="feature_leaderboard">Leaderboard</h3>
+                    <p class="feature-desc" data-i18n="feature_leaderboard_desc">Compete globally and climb the ranks</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tokenomics Section -->
+        <section id="tokenomics-section" class="features-section" style="background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(69, 123, 157, 0.95)); padding: 80px 20px;">
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 20px;" data-i18n="tokenomics">рџ’° TOKENOMICS</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 50px; font-size: 1.1em; opacity: 0.9;">
+                Total Supply: 1,000,000,000 TAMA | SPL Token on Solana
+            </p>
+
+            <div class="features-grid" style="max-width: 1200px; margin: 0 auto;">
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.1), rgba(106, 153, 78, 0.1)); border: 2px solid rgba(138, 201, 38, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">рџЋ®</span>
+                    <h3 class="feature-title">Play-to-Earn Pool</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #8AC926;">40%</p>
+                    <p class="feature-desc">400M TAMA<br>Player rewards over 5.5 years</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(255, 183, 3, 0.1), rgba(251, 133, 0, 0.1)); border: 2px solid rgba(255, 183, 3, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">рџ‘Ґ</span>
+                    <h3 class="feature-title">Team & Development</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #FFB703;">20%</p>
+                    <p class="feature-desc">200M TAMA<br>рџ”’ Locked (4-year vesting)</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(230, 57, 70, 0.1), rgba(168, 218, 220, 0.1)); border: 2px solid rgba(230, 57, 70, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">рџ“ў</span>
+                    <h3 class="feature-title">Marketing</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #E63946;">15%</p>
+                    <p class="feature-desc">150M TAMA<br>Partnerships & growth</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(69, 123, 157, 0.1), rgba(168, 218, 220, 0.1)); border: 2px solid rgba(69, 123, 157, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">рџ’§</span>
+                    <h3 class="feature-title">Liquidity</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #457B9D;">10%</p>
+                    <p class="feature-desc">100M TAMA<br>рџ”’ DEX liquidity</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(241, 250, 238, 0.1), rgba(168, 218, 220, 0.1)); border: 2px solid rgba(241, 250, 238, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">рџЋЃ</span>
+                    <h3 class="feature-title">Community</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #F1FAEE;">10%</p>
+                    <p class="feature-desc">100M TAMA<br>Airdrops & rewards</p>
+                </div>
+                <div class="feature-card" style="background: linear-gradient(135deg, rgba(255, 202, 58, 0.1), rgba(251, 133, 0, 0.1)); border: 2px solid rgba(255, 202, 58, 0.3);">
+                    <span class="feature-icon" style="font-size: 3em;">рџЏ¦</span>
+                    <h3 class="feature-title">Reserve</h3>
+                    <p style="font-size: 2em; font-weight: bold; margin: 10px 0; color: #FFCA3A;">5%</p>
+                    <p class="feature-desc">50M TAMA<br>рџ”’ Emergency fund</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 50px;">
+                <p style="font-size: 1.1em; margin-bottom: 20px; opacity: 0.9;">
+                    рџ”’ <strong>Team Tokens Vesting:</strong> 4 years with 6-month cliff (Streamflow)
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="window.open('https://solscan.io/account/Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY?cluster=devnet', '_blank')" class="btn-secondary" style="font-size: 14px; padding: 12px 24px;">
+                        рџ“Љ View Token on Solscan
+                    </button>
+                    <button onclick="window.open('https://solscan.io/account/3tEskbJxeGyz4svTYAUscMiHghriZ2U7Ug6XLBeK82jm?cluster=devnet', '_blank')" class="btn-secondary" style="font-size: 14px; padding: 12px 24px;">
+                        рџ”’ View Vesting Stream
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pet Showcase -->
+        <section class="pets-section">
+            <h2 class="section-title" data-i18n="choose_pet">рџЋЁ CHOOSE YOUR PET</h2>
+            <div class="pets-grid">
+                <div class="pet-preview">рџє</div>
+                <div class="pet-preview">рџђ¶</div>
+                <div class="pet-preview">рџђ‰</div>
+                <div class="pet-preview">рџ¦Љ</div>
+                <div class="pet-preview">рџђ»</div>
+            </div>
+        </section>
+
+        <!-- How to Play Section -->
+        <section class="features-section" style="background: linear-gradient(135deg, rgba(69, 123, 157, 0.95), rgba(29, 53, 87, 0.95)); padding: 80px 20px;">
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;" data-i18n="how_to_play">рџљЂ HOW TO PLAY</h2>
+
+            <!-- Free vs Premium Choice -->
+            <div style="max-width: 1000px; margin: 0 auto 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: stretch;">
+                <!-- FREE MODE -->
+                <div style="background: linear-gradient(135deg, rgba(138, 201, 38, 0.15), rgba(106, 153, 78, 0.15)); border: 3px solid #8AC926; border-radius: 20px; padding: 40px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 3em; margin-bottom: 15px;">рџ†“</div>
+                        <h3 style="font-size: 2em; margin-bottom: 15px; color: #8AC926;" data-i18n="free_mode">FREE MODE</h3>
+                        <p style="font-size: 1.8em; font-weight: bold; margin: 20px 0; color: #8AC926;">$0</p>
+                        <ul style="list-style: none; padding: 0; text-align: left; margin: 20px 0;">
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="free_virtual_pet">вњ… Virtual pet</li>
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="free_earn_tama">вњ… Earn TAMA (1x rate)</li>
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="free_all_features">вњ… All game features</li>
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="free_withdraw">вњ… Withdraw to wallet</li>
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="free_upgrade">вњ… Upgrade to NFT anytime</li>
+                        </ul>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="window.open('https://t.me/GotchiGameBot', '_blank')" style="flex: 1; padding: 15px; background: #26A5E4; color: white; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; cursor: pointer;">
+                            рџ“± Telegram
+                        </button>
+                        <button onclick="window.location.href='/tamagotchi-game.html'" style="flex: 1; padding: 15px; background: #8AC926; color: white; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; cursor: pointer;">
+                            рџЊђ Browser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PREMIUM MODE -->
+                <div style="background: linear-gradient(135deg, rgba(255, 183, 3, 0.15), rgba(251, 133, 0, 0.15)); border: 3px solid #FFB703; border-radius: 20px; padding: 40px; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="position: absolute; top: -15px; right: 20px; background: #E63946; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold;" data-i18n="popular_badge">POPULAR</div>
+                    <div>
+                        <div style="font-size: 3em; margin-bottom: 15px;">рџ’Ћ</div>
+                        <h3 style="font-size: 2em; margin-bottom: 15px; color: #FFB703;" data-i18n="premium_nft">PREMIUM (NFT)</h3>
+                        <p style="font-size: 1.8em; font-weight: bold; margin: 20px 0; color: #FFB703;">
+                            From 0.1 SOL<br>
+                            <span style="font-size: 0.6em; opacity: 0.8;">Bronze/Silver/Gold tiers</span>
+                        </p>
+                        <ul style="list-style: none; padding: 0; text-align: left; margin: 20px 0;">
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="premium_nft_pet">вњ… NFT pet (tradeable)</li>
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="premium_3x_earning">рџљЂ Up to 3x TAMA earning</li>
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="premium_exclusive">рџЋЁ Exclusive pet types</li>
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="premium_tournament">рџЏ† Tournament access</li>
+                            <li style="margin: 10px 0; opacity: 0.9;" data-i18n="premium_sell">рџ’° Sell/trade NFT</li>
+                        </ul>
+                    </div>
+                    <button onclick="window.location.href='/mint'" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #FFB703, #FB8500); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px;" data-i18n="view_nft_tiers">
+                        View NFT Tiers
+                    </button>
+                </div>
+            </div>
+
+            <!-- Steps -->
+            <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+                <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(255, 202, 58, 0.3);">
+                    <div style="font-size: 4em; margin-bottom: 20px;">1пёЏвѓЈ</div>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFCA3A;" data-i18n="step_telegram">Open Telegram</h3>
+                    <p style="opacity: 0.9;" data-i18n="step_telegram_desc">Search for @GotchiGameBot and click Start</p>
+                </div>
+                <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(138, 201, 38, 0.3);">
+                    <div style="font-size: 4em; margin-bottom: 20px;">2пёЏвѓЈ</div>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #8AC926;" data-i18n="step_choose">Choose Mode</h3>
+                    <p style="opacity: 0.9;" data-i18n="step_choose_desc">рџ†“ Free (virtual) or рџ’Ћ Premium (NFT) - your choice!</p>
+                </div>
+                <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(255, 183, 3, 0.3);">
+                    <div style="font-size: 4em; margin-bottom: 20px;">3пёЏвѓЈ</div>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFB703;" data-i18n="step_play">Play & Earn</h3>
+                    <p style="opacity: 0.9;" data-i18n="step_play_desc">Click, complete quests, earn TAMA tokens</p>
+                </div>
+                <div style="text-align: center; padding: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; border: 2px solid rgba(230, 57, 70, 0.3);">
+                    <div style="font-size: 4em; margin-bottom: 20px;">4пёЏвѓЈ</div>
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #E63946;" data-i18n="step_withdraw">Withdraw</h3>
+                    <p style="opacity: 0.9;" data-i18n="step_withdraw_desc">Connect wallet and withdraw your TAMA to blockchain</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap Section -->
+        <section class="features-section" style="background: linear-gradient(135deg, rgba(29, 53, 87, 0.95), rgba(138, 201, 38, 0.1)); padding: 80px 20px;">
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;" data-i18n="roadmap">рџ—єпёЏ ROADMAP</h2>
+            <div style="max-width: 1000px; margin: 0 auto;">
+                <!-- Q4 2024-Q3 2025 (COMPLETED) -->
+                <div style="display: flex; gap: 30px; margin-bottom: 40px; position: relative;">
+                    <div style="flex-shrink: 0; width: 100px; text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">вњ…</div>
+                        <div style="font-weight: bold; color: #8AC926; font-size: 1.2em;">2024-2025</div>
+                    </div>
+                    <div style="flex: 1; background: rgba(138, 201, 38, 0.1); border-left: 4px solid #8AC926; padding: 20px 30px; border-radius: 10px;">
+                        <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #8AC926;">Launch Phase вњ… COMPLETED</h3>
+                        <ul style="list-style: none; padding: 0; opacity: 0.9;">
+                            <li style="margin-bottom: 8px;">вњ… Solana Devnet deployment</li>
+                            <li style="margin-bottom: 8px;">вњ… Telegram bot launch (@GotchiGameBot)</li>
+                            <li style="margin-bottom: 8px;">вњ… NFT minting system (Multi-Tier)</li>
+                            <li style="margin-bottom: 8px;">вњ… Play-to-Earn mechanics</li>
+                            <li style="margin-bottom: 8px;">вњ… Team token vesting (4Y, Streamflow)</li>
+                            <li style="margin-bottom: 8px;">вњ… Landing page + Tokenomics</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Q4 2025 (CURRENT) -->
+                <div style="display: flex; gap: 30px; margin-bottom: 40px;">
+                    <div style="flex-shrink: 0; width: 100px; text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">вљЎ</div>
+                        <div style="font-weight: bold; color: #FFB703; font-size: 1.2em;">Q4 2025</div>
+                        <div style="font-size: 0.7em; color: #FFB703; margin-top: 5px;">в†ђ NOW</div>
+                    </div>
+                    <div style="flex: 1; background: rgba(255, 183, 3, 0.2); border-left: 4px solid #FFB703; padding: 20px 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(255, 183, 3, 0.3);">
+                        <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #FFB703;">NFT Integration & Testing вљЎ</h3>
+                        <ul style="list-style: none; padding: 0; opacity: 0.9;">
+                            <li style="margin-bottom: 8px;">рџ”„ NFT benefits integration (2x earning)</li>
+                            <li style="margin-bottom: 8px;">рџ”„ Multi-tier pricing (Bronze/Silver/Gold)</li>
+                            <li style="margin-bottom: 8px;">рџ”„ Admin panel for NFT management</li>
+                            <li style="margin-bottom: 8px;">рџ”„ Economy balancing & testing</li>
+                            <li style="margin-bottom: 8px;">рџ”њ Pre-launch marketing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Q1 2026 -->
+                <div style="display: flex; gap: 30px; margin-bottom: 40px;">
+                    <div style="flex-shrink: 0; width: 100px; text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">рџљЂ</div>
+                        <div style="font-weight: bold; color: #E63946; font-size: 1.2em;">Q1 2026</div>
+                    </div>
+                    <div style="flex: 1; background: rgba(230, 57, 70, 0.1); border-left: 4px solid #E63946; padding: 20px 30px; border-radius: 10px;">
+                        <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #E63946;">Mainnet Launch рџљЂ</h3>
+                        <ul style="list-style: none; padding: 0; opacity: 0.9;">
+                            <li style="margin-bottom: 8px;">рџ”њ Solana Mainnet migration</li>
+                            <li style="margin-bottom: 8px;">рџ”њ DEX listing (Raydium, Jupiter)</li>
+                            <li style="margin-bottom: 8px;">рџ”њ Liquidity pool launch</li>
+                            <li style="margin-bottom: 8px;">рџ”њ Marketing campaign</li>
+                            <li style="margin-bottom: 8px;">рџ”њ Community airdrops</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Q2 2026 -->
+                <div style="display: flex; gap: 30px; margin-bottom: 40px;">
+                    <div style="flex-shrink: 0; width: 100px; text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">рџ“±</div>
+                        <div style="font-weight: bold; color: #457B9D; font-size: 1.2em;">Q2 2026</div>
+                    </div>
+                    <div style="flex: 1; background: rgba(69, 123, 157, 0.1); border-left: 4px solid #457B9D; padding: 20px 30px; border-radius: 10px;">
+                        <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #457B9D;">Expansion Phase рџ“±</h3>
+                        <ul style="list-style: none; padding: 0; opacity: 0.9;">
+                            <li style="margin-bottom: 8px;">рџ“± Mobile app (iOS/Android)</li>
+                            <li style="margin-bottom: 8px;">рџЋЁ New NFT collections</li>
+                            <li style="margin-bottom: 8px;">рџЋ® More mini-games</li>
+                            <li style="margin-bottom: 8px;">рџЏ† Tournament system</li>
+                            <li style="margin-bottom: 8px;">рџЊђ Multi-language support</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Q3 2026 -->
+                <div style="display: flex; gap: 30px;">
+                    <div style="flex-shrink: 0; width: 100px; text-align: center;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">рџ’Ћ</div>
+                        <div style="font-weight: bold; color: #F1FAEE; font-size: 1.2em;">Q3 2026</div>
+                    </div>
+                    <div style="flex: 1; background: rgba(241, 250, 238, 0.05); border-left: 4px solid #F1FAEE; padding: 20px 30px; border-radius: 10px;">
+                        <h3 style="font-size: 1.5em; margin-bottom: 15px; color: #F1FAEE;">Ecosystem Growth рџ’Ћ</h3>
+                        <ul style="list-style: none; padding: 0; opacity: 0.9;">
+                            <li style="margin-bottom: 8px;">рџ¤ќ Strategic partnerships</li>
+                            <li style="margin-bottom: 8px;">рџ’° TAMA staking</li>
+                            <li style="margin-bottom: 8px;">рџ›’ NFT marketplace</li>
+                            <li style="margin-bottom: 8px;">рџЋЃ Seasonal events</li>
+                            <li style="margin-bottom: 8px;">рџ“Љ DAO governance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="features-section" style="background: linear-gradient(135deg, rgba(69, 123, 157, 0.95), rgba(29, 53, 87, 0.95)); padding: 80px 20px;">
+            <h2 class="section-title" style="font-size: 2.5em; margin-bottom: 50px;" data-i18n="faq">вќ“ FAQ</h2>
+            <div style="max-width: 900px; margin: 0 auto;">
+                <!-- FAQ Item 1 -->
+                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 4px solid #FFCA3A;">
+                    <h3 style="font-size: 1.3em; margin-bottom: 10px; color: #FFCA3A;">рџЄ™ What is TAMA token?</h3>
+                    <p style="opacity: 0.9; line-height: 1.6;">TAMA is an SPL token on Solana blockchain. Total supply: 1 billion tokens. You can earn TAMA by playing the game and withdraw it to your wallet.</p>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 4px solid #8AC926;">
+                    <h3 style="font-size: 1.3em; margin-bottom: 10px; color: #8AC926;">рџ’° How to earn TAMA tokens?</h3>
+                    <p style="opacity: 0.9; line-height: 1.6;">
+                        вЂў Daily login: +25 TAMA<br>
+                        вЂў Feed pet: +5 TAMA<br>
+                        вЂў Play with pet: +10 TAMA<br>
+                        вЂў Train pet: +15 TAMA<br>
+                        вЂў Level up: +50 TAMA<br>
+                        вЂў Referrals: +100 TAMA per friend
+                    </p>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 4px solid #FFB703;">
+                    <h3 style="font-size: 1.3em; margin-bottom: 10px; color: #FFB703;">рџЋЁ How to mint NFT?</h3>
+                    <p style="opacity: 0.9; line-height: 1.6; margin-bottom: 15px;">Click "рџ’Ћ Mint NFT" button and choose tier: рџҐ‰ Bronze (2,500 TAMA / 0.05 SOL) for 2-3x, рџҐ€ Silver (0.1 SOL) for 2.5-3.5x, or рџҐ‡ Gold (0.2 SOL) for 3-4x earning boost. Silver/Gold have bonus chances for Epic/Legendary rarity!</p>
+
+                    <!-- TAMA Distribution -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 15px; margin-top: 15px; border: 1px solid rgba(255, 183, 3, 0.3);">
+                        <h4 style="font-size: 1.1em; margin-bottom: 10px; color: #FFB703;">рџ’° Where does your TAMA go? (Transparency)</h4>
+                        <p style="opacity: 0.9; line-height: 1.6; font-size: 0.95em;">
+                            When you mint NFT with TAMA (e.g., Bronze: 2,500 TAMA):<br>
+                            вЂў <strong style="color: #E63946;">40% в†’ Burn</strong> (reduces total supply, increases value)<br>
+                            вЂў <strong style="color: #457B9D;">30% в†’ Treasury</strong> (team & development)<br>
+                            вЂў <strong style="color: #8AC926;">30% в†’ P2E Pool</strong> (returns to players as rewards)<br><br>
+                            <em style="opacity: 0.8;">This ensures sustainable economy and fair distribution! рџЋЇ</em>
+                        </p>
+                        <a href="treasury-monitor" target="_blank" style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: linear-gradient(135deg, #FFB703, #FF8C00); color: #000; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 0.9em; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">рџ“Љ View Treasury Monitor в†’</a>
+                    </div>
+
+                    <!-- SOL Distribution -->
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 15px; margin-top: 15px; border: 1px solid rgba(147, 51, 234, 0.3);">
+                        <h4 style="font-size: 1.1em; margin-bottom: 10px; color: #9333EA;">рџ’Ћ Where does your SOL go? (Transparency)</h4>
+                        <p style="opacity: 0.9; line-height: 1.6; font-size: 0.95em;">
+                            When you mint NFT with SOL (Silver: 0.1 SOL / Gold: 0.2 SOL):<br>
+                            вЂў <strong style="color: #FFB703;">50% в†’ Treasury Main</strong> (team operations & development)<br>
+                            вЂў <strong style="color: #3B82F6;">30% в†’ Treasury Liquidity</strong> (DEX liquidity pool)<br>
+                            вЂў <strong style="color: #10B981;">20% в†’ Treasury Team</strong> (team compensation)<br><br>
+                            <em style="opacity: 0.8;">All SOL goes to building sustainable ecosystem! рџљЂ</em>
+                        </p>
+                        <a href="treasury-monitor" target="_blank" style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: linear-gradient(135deg, #9333EA, #7C3AED); color: #fff; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 0.9em; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">рџ“Љ View Treasury Monitor в†’</a>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 4px solid #457B9D;">
+                    <h3 style="font-size: 1.3em; margin-bottom: 10px; color: #457B9D;">рџЋ® Is it free to play?</h3>
+                    <p style="opacity: 0.9; line-height: 1.6;">Yes! 100% free to play. Just open Telegram bot @GotchiGameBot and start playing. No initial investment required. NFT minting is optional.</p>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 4px solid #E63946;">
+                    <h3 style="font-size: 1.3em; margin-bottom: 10px; color: #E63946;">рџ’ё How to withdraw tokens?</h3>
+                    <p style="opacity: 0.9; line-height: 1.6;">Connect your Phantom wallet in the game, click "Withdraw to Blockchain", enter amount, and confirm. Tokens will be sent to your Solana wallet. Minimum: 100 TAMA.</p>
+                </div>
+
+                <!-- FAQ Item 6 -->
+                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 4px solid #F1FAEE;">
+                    <h3 style="font-size: 1.3em; margin-bottom: 10px; color: #F1FAEE;">рџ”— What blockchain is this?</h3>
+                    <p style="opacity: 0.9; line-height: 1.6;">Solana blockchain (currently Devnet, migrating to Mainnet in Q1 2026). Fast, cheap, and eco-friendly. Compatible with Phantom, Solflare wallets.</p>
+                </div>
+
+                <!-- FAQ Item 7 -->
+                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; border-left: 4px solid #FFCA3A;">
+                    <h3 style="font-size: 1.3em; margin-bottom: 10px; color: #FFCA3A;">рџ“Љ Where to buy TAMA?</h3>
+                    <p style="opacity: 0.9; line-height: 1.6;">TAMA will be available on Raydium and Jupiter DEX after Mainnet launch (Q1 2026). Currently you can only earn it by playing the game.</p>
+                </div>
+            </div>
+
+            <!-- CTA at the end of FAQ -->
+            <div style="text-align: center; margin-top: 50px;">
+                <p style="font-size: 1.2em; margin-bottom: 25px;">Still have questions?</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="window.open('https://t.me/GotchiGameBot', '_blank')" class="btn-connect" style="background: linear-gradient(135deg, #26A5E4, #0088cc);">
+                        рџ“± Play in Telegram
+                    </button>
+                    <button onclick="window.location.href='/tamagotchi-game.html'" class="btn-connect" style="background: linear-gradient(135deg, #8AC926, #6FA01A);">
+                        рџЊђ Play in Browser
+                    </button>
+                    <button onclick="window.open('https://x.com/GotchiGame', '_blank')" class="btn-connect" style="background: linear-gradient(135deg, #1DA1F2, #0d8bd9);">
+                        рџђ¦ Follow on X
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <h2 class="section-title" data-i18n="live_stats">рџ“Љ LIVE STATS</h2>
+            <div class="stats-grid">
+                <div class="stat-card stat-card-players">
+                    <div class="stat-icon">рџ‘Ґ</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="landing-total-players">0</div>
+                        <div class="stat-label">Total Players</div>
+                        <div class="stat-subtitle" id="player-count-subtitle">Loading...</div>
+                        <canvas id="chart-players" class="stat-chart"></canvas>
+                    </div>
+                    <div class="stat-pulse"></div>
+                </div>
+                <div class="stat-card stat-card-nfts">
+                    <div class="stat-icon">рџЋЁ</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="landing-nfts-minted">0</div>
+                        <div class="stat-label">NFTs Minted</div>
+                        <div class="stat-subtitle">Unique pets</div>
+                        <canvas id="chart-nfts" class="stat-chart"></canvas>
+                    </div>
+                    <div class="stat-pulse"></div>
+                </div>
+                <div class="stat-card stat-card-tama">
+                    <div class="stat-icon">рџ’°</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="landing-tama-distributed">0</div>
+                        <div class="stat-label">TAMA Distributed</div>
+                        <div class="stat-subtitle">Earned by players</div>
+                        <canvas id="chart-tama" class="stat-chart"></canvas>
+                    </div>
+                    <div class="stat-pulse"></div>
+                </div>
+                <div class="stat-card stat-card-wallets">
+                    <div class="stat-icon">рџ‘›</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="landing-active-wallets">0</div>
+                        <div class="stat-label">Active Wallets</div>
+                        <div class="stat-subtitle">Connected users</div>
+                        <canvas id="chart-wallets" class="stat-chart"></canvas>
+                    </div>
+                    <div class="stat-pulse"></div>
+                </div>
+            </div>
+            <div class="stats-footer">
+                <div class="live-indicator">
+                    <span class="pulse-dot"></span>
+                    <span>Live data вЂў Updates every 30s</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact & Support Section -->
+        <section class="contact-section" style="background: linear-gradient(135deg, rgba(29, 53, 87, 0.9), rgba(45, 69, 100, 0.9)); padding: 60px 20px; margin-top: 80px; border-top: 4px solid #8AC926; position: relative; z-index: 10;">
+            <div class="container" style="max-width: 1200px; margin: 0 auto; position: relative; z-index: 11;">
+                <h2 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; text-align: center; margin-bottom: 40px; font-size: clamp(1.2rem, 3vw, 1.8rem); text-shadow: 3px 3px 0 #1D3557;">
+                    рџ“ћ CONTACT & SUPPORT
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 40px;">
+                    <!-- Support -->
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 30px; border: 3px solid #8AC926; text-align: center; position: relative; z-index: 12;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">рџ’¬</div>
+                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;" data-i18n="footer_support">Support</h3>
+                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; line-height: 1.6;">Need help? Contact us via Telegram bot or email</p>
+                        <a href="https://t.me/GotchiGameBot" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #26A5E4, #0088cc); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; margin: 5px; transition: transform 0.3s; cursor: pointer; position: relative; z-index: 13;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            рџ“± Telegram Bot
+                        </a>
+                        <a href="mailto:gotchigame@proton.me" style="display: inline-block; background: linear-gradient(135deg, #8AC926, #6FA01A); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; margin: 5px; transition: transform 0.3s; cursor: pointer; position: relative; z-index: 13;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            вњ‰пёЏ Email Support
+                        </a>
+                    </div>
+
+                    <!-- Community -->
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 30px; border: 3px solid #8AC926; text-align: center; position: relative; z-index: 12;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">рџЊђ</div>
+                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;" data-i18n="footer_community">Community</h3>
+                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; line-height: 1.6;">Join our community and stay updated</p>
+                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <a href="https://x.com/GotchiGame" target="_blank" style="display: inline-block; background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 2px solid #8AC926; cursor: pointer; position: relative; z-index: 13; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='scale(1)'">
+                                рџђ¦ Twitter/X
+                            </a>
+                            <a href="https://t.me/GotchiGameBot" target="_blank" style="display: inline-block; background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; border: 2px solid #8AC926; cursor: pointer; position: relative; z-index: 13; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='scale(1)'">
+                                рџ“± Telegram
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Business -->
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 30px; border: 3px solid #8AC926; text-align: center; position: relative; z-index: 12;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">рџ¤ќ</div>
+                        <h3 style="font-family: 'Press Start 2P', cursive; color: #FFCA3A; font-size: 0.9rem; margin-bottom: 15px;" data-i18n="footer_business">Business</h3>
+                        <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; line-height: 1.6;">Partnerships, collaborations, or media inquiries</p>
+                        <a href="mailto:gotchigame@proton.me" style="display: inline-block; background: linear-gradient(135deg, #FFCA3A, #FFA500); color: #1D3557; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; transition: transform 0.3s; cursor: pointer; position: relative; z-index: 13;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            рџ“§ Business Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <div class="footer-content">
+                <div class="social-links">
+                    <a href="https://x.com/GotchiGame" target="_blank" class="social-link" data-tooltip-disabled="Follow us on Twitter for updates!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="fadeIn">рџђ¦</a>
+                    <a href="https://t.me/GotchiGameBot" target="_blank" class="social-link" data-tooltip-disabled="Play the game in Telegram!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="bounce">рџ“±</a>
+                </div>
+                <div style="margin: 15px 0; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">Home</a>
+                    <a href="/tamagotchi-game" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">Play Game</a>
+                    <a href="/mint" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">Mint NFT</a>
+                    <a href="/whitepaper" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">рџ“– Whitepaper</a>
+                    <a href="/blog/" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">рџ“љ Blog</a>
+                    <a href="/profile" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">рџ‘¤ Profile</a>
+                </div>
+                <div style="margin: 10px 0; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; font-size: 0.9em;">
+                    <a href="/terms" style="color: rgba(241, 250, 238, 0.7); text-decoration: none;">Terms</a>
+                    <a href="/privacy" style="color: rgba(241, 250, 238, 0.7); text-decoration: none;">Privacy</a>
+                    <a href="/disclaimer" style="color: rgba(241, 250, 238, 0.7); text-decoration: none;">Risk Warning</a>
+                </div>
+                <p class="footer-text" data-i18n="footer_made_with">Made with вќ¤пёЏ on Solana | Powered by Phantom Wallet</p>
+                <!-- Product Hunt Badge -->
+                <div style="margin: 20px 0; text-align: center;">
+                    <a href="https://www.producthunt.com/products/solana-tamagotchi?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-solana&#0045;tamagotchi" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                        <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1050204&theme=light&t=1765750524414" 
+                             alt="Solana&#0032;Tamagotchi - Play&#0045;to&#0045;earn&#0032;nft&#0032;pet&#0032;game&#0032;on&#0032;telegram&#0032;&#0124;&#0032;tama&#0032;token | Product Hunt" 
+                             style="width: 250px; height: 54px; transition: transform 0.2s; display: inline-block;" 
+                             width="250" 
+                             height="54"
+                             onmouseover="this.style.transform='scale(1.05)'"
+                             onmouseout="this.style.transform='scale(1)'" />
+                    </a>
+                </div>
+                <p style="color: rgba(241, 250, 238, 0.6); font-size: 0.85rem; margin-top: 10px;">
+                    рџ“§ <a href="mailto:gotchigame@proton.me" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">gotchigame@proton.me</a>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app" class="app-container hidden">
+
+        <!-- Header -->
+        <header class="game-header">
+            <div class="header-content">
+                <h1 class="game-title" style="cursor: pointer;" onclick="window.location.href='/'">рџђѕ SOLANA TAMAGOTCHI</h1>
+                <div class="wallet-info">
+                    <button id="wallet-btn" class="wallet-button">
+                        <span class="wallet-icon">рџ‘›</span>
+                        <span class="wallet-text">Connect Wallet</span>
+                    </button>
+                    <div id="balance-display" class="balance-display hidden">
+                        <span class="balance-sol" data-tooltip-disabled="Your Solana wallet balance" data-tooltip-disabled-position="bottom" data-tooltip-disabled-animation="fadeIn">0 SOL</span>
+                        <span class="balance-tama" style="cursor: pointer; position: relative; display: inline-block;" onclick="showTAMADetails()" data-tooltip-disabled="Click to view TAMA details!" data-tooltip-disabled-position="bottom" data-tooltip-disabled-animation="slideUp" data-tooltip-disabled-type="info">0 TAMA
+                            <!-- TAMA Hover Dropdown -->
+                            <div class="tama-header-dropdown" style="position: absolute; top: 100%; right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 20px; margin-top: 15px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; color: #333; min-width: 300px;">
+                                <div style="font-size: 12px; margin-bottom: 15px;">
+                                    <div style="font-weight: bold; margin-bottom: 10px; color: #2ecc71;">рџ’° Earn TAMA:</div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>рџЊ… Daily Login:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+25 TAMA</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>рџЌ” Feed Pet:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+5 TAMA</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>рџЋ® Play:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+10 TAMA</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>рџ’Є Train:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+15 TAMA</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                        <span>рџ†™ Level Up:</span>
+                                        <span style="color: #2ecc71; font-weight: bold;">+50 TAMA</span>
+                                    </div>
+
+                                    <div style="border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px;">
+                                        <div style="font-weight: bold; margin-bottom: 10px; color: #e74c3c;">рџ’ё Spend TAMA:</div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                            <span>рџ¦‹ Evolve Pet:</span>
+                                            <span style="color: #e74c3c; font-weight: bold;">-50 TAMA</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button id="tama-history-btn" class="action-btn secondary" style="width: 100%; font-size: 12px; padding: 8px; margin-bottom: 8px;">
+                                    рџ“њ View TAMA History
+                                </button>
+                                <button onclick="TAMAWithdrawUI.createWithdrawModal()" class="action-btn" style="width: 100%; font-size: 12px; padding: 8px; background: linear-gradient(135deg, #FF6B6B, #FF8E8E);">
+                                    рџ’Ћ Withdraw to Blockchain
+                                </button>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="network-indicator">
+                <span id="network-status" class="network-status">Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="game-main">
+
+            <!-- Left Panel - Tamagotchi Device -->
+            <section class="tamagotchi-device">
+                <div class="device-shell">
+                    <div class="device-screen">
+                        <!-- Pet Display -->
+                        <div id="pet-display" class="pet-display">
+                            <canvas id="pet-canvas" class="pet-canvas" data-tooltip-disabled="Click your pet to gain XP and make it happy! рџђѕ" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="pulse" data-tooltip-disabled-type="success"></canvas>
+                            <div id="pet-info" class="pet-info">
+                                <h2 id="pet-name" class="pet-name">No Pet</h2>
+                                <p id="pet-type" class="pet-type">Select or create a pet</p>
+                                <div id="pet-level" class="pet-level">Level 1</div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Display -->
+                        <div class="stats-display">
+                            <div class="stat-bar" data-tooltip-disabled="Hunger level - feed your pet when low!" data-tooltip-disabled-position="left" data-tooltip-disabled-animation="slideUp">
+                                <span class="stat-icon">рџЌ”</span>
+                                <div class="stat-bar-bg">
+                                    <div id="hunger-bar" class="stat-bar-fill hunger" style="width: 100%"></div>
+                                </div>
+                                <span id="hunger-value" class="stat-value">100</span>
+                            </div>
+                            <div class="stat-bar" data-tooltip-disabled="Energy level - let your pet sleep when tired!" data-tooltip-disabled-position="left" data-tooltip-disabled-animation="fadeIn">
+                                <span class="stat-icon">вљЎ</span>
+                                <div class="stat-bar-bg">
+                                    <div id="energy-bar" class="stat-bar-fill energy" style="width: 100%"></div>
+                                </div>
+                                <span id="energy-value" class="stat-value">100</span>
+                            </div>
+                            <div class="stat-bar" data-tooltip-disabled="Happiness level - play with your pet to keep it happy!" data-tooltip-disabled-position="left" data-tooltip-disabled-animation="scaleIn">
+                                <span class="stat-icon">рџЉ</span>
+                                <div class="stat-bar-bg">
+                                    <div id="happy-bar" class="stat-bar-fill happy" style="width: 100%"></div>
+                                </div>
+                                <span id="happy-value" class="stat-value">100</span>
+                            </div>
+                            <div class="stat-bar" data-tooltip-disabled="Health level - heal your pet when injured!" data-tooltip-disabled-position="left" data-tooltip-disabled-animation="pulse" data-tooltip-disabled-type="warning">
+                                <span class="stat-icon">вќ¤пёЏ</span>
+                                <div class="stat-bar-bg">
+                                    <div id="health-bar" class="stat-bar-fill health" style="width: 100%"></div>
+                                </div>
+                                <span id="health-value" class="stat-value">100</span>
+                            </div>
+                        </div>
+
+                        <!-- XP Bar -->
+                        <div class="xp-display" data-tooltip-disabled="Experience points - click your pet to gain XP!" data-tooltip-disabled-position="bottom" data-tooltip-disabled-animation="bounce" data-tooltip-disabled-type="success">
+                            <div class="xp-bar-bg">
+                                <div id="xp-bar" class="xp-bar-fill" style="width: 0%"></div>
+                            </div>
+                            <span id="xp-text" class="xp-text">0 / 100 XP</span>
+                        </div>
+                    </div>
+
+                    <!-- Device Buttons -->
+                    <div class="device-buttons">
+                        <button id="feed-btn" class="device-btn">
+                            <span class="btn-icon">рџЌ”</span>
+                        </button>
+                        <button id="play-btn" class="device-btn">
+                            <span class="btn-icon">рџЋ®</span>
+                        </button>
+                        <button id="sleep-btn" class="device-btn">
+                            <span class="btn-icon">рџґ</span>
+                        </button>
+                        <button id="heal-btn" class="device-btn">
+                            <span class="btn-icon">рџ’Љ</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel - Controls & Info -->
+            <section class="game-controls">
+
+
+                <!-- Pet Management -->
+                <div class="control-panel">
+                    <h3 class="panel-title">рџђѕ Pet Management</h3>
+                    <div class="button-group">
+                        <button id="shop-btn" class="action-btn primary" data-tooltip-disabled="Buy food, toys, and items for your pet!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="scaleIn">
+                            <span>рџ›’ TAMA Shop</span>
+                            <small>Buy items with TAMA</small>
+                        </button>
+                        <button id="referral-btn" class="action-btn secondary" data-tooltip-disabled="Invite friends and earn TAMA rewards!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="slideUp">
+                            <span>рџ”— Referrals</span>
+                            <small>Earn 100+50 TAMA per friend</small>
+                        </button>
+                        <button id="evolve-pet-btn" class="action-btn secondary" data-tooltip-disabled="Evolve your pet to unlock new abilities!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="pulse">
+                            <span>Evolve Pet</span>
+                            <small>50 TAMA (Level 10+)</small>
+                        </button>
+                        <button id="tama-history-btn-main" class="action-btn secondary" style="width: 100%; margin-top: 10px;">
+                            рџ“њ View TAMA History
+                        </button>
+                        <button id="minigame-btn" class="action-btn primary" style="width: 100%; margin-top: 10px;" data-tooltip-disabled="Play the TAMA Catch minigame to earn unlimited TAMA!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="bounce" data-tooltip-disabled-type="success">
+                            рџЋ® TAMA CATCH
+                            <small>Unlimited TAMA earning! рџљЂ</small>
+                        </button>
+                        <button id="lottery-btn" class="action-btn secondary" style="width: 100%; margin-top: 10px;" data-tooltip-disabled="Buy lottery tickets and win big TAMA prizes!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="pulse" data-tooltip-disabled-type="warning">
+                            рџЋ° TAMA LOTTERY
+                            <small>Win up to 5000 TAMA! рџ’°</small>
+                        </button>
+                        <!-- Pet revival removed - pets don't die, they go into critical state -->
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="control-panel">
+                    <h3 class="panel-title">рџЏ† Achievements</h3>
+                    <div id="achievements-list" class="achievements-list">
+                        <div class="achievement locked">
+                            <span class="achievement-icon">рџҐ‡</span>
+                            <div class="achievement-info">
+                                <p class="achievement-name">First Pet</p>
+                                <p class="achievement-desc">Create your first pet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="control-panel">
+                    <h3 class="panel-title">рџ‘‘ Leaderboard</h3>
+                    <div id="leaderboard-list" class="leaderboard-list">
+                        <p class="empty-state">Connect wallet to view leaderboard</p>
+                    </div>
+                </div>
+
+                <!-- Referral System -->
+                <div class="control-panel">
+                    <h3 class="panel-title">рџ‘Ґ Referral Program</h3>
+                    <div class="referral-info">
+                        <div class="referral-code">
+                            <input type="text" id="referral-input" class="referral-input" readonly placeholder="Connect wallet">
+                            <button id="copy-referral-btn" class="copy-btn" disabled>Copy</button>
+                        </div>
+                        <div class="referral-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Referrals:</span>
+                                <span id="referral-count" class="stat-value-text">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Earned:</span>
+                                <span id="referral-earned" class="stat-value-text">0 TAMA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Rewards -->
+                <div class="control-panel">
+                    <h3 class="panel-title">рџЋЃ Daily Rewards</h3>
+                    <button id="claim-daily-btn" class="action-btn reward" disabled data-tooltip-disabled="Claim your daily TAMA reward - available every 24 hours!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="bounce" data-tooltip-disabled-type="success">
+                        <span>Claim Daily Reward</span>
+                        <small id="daily-timer">Connect wallet</small>
+                    </button>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="game-footer">
+            <div class="footer-content">
+                <div class="social-links">
+                    <a href="https://x.com/GotchiGame" target="_blank" class="social-link" data-tooltip-disabled="Follow us on Twitter for updates!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="fadeIn">рџђ¦</a>
+                    <a href="#" class="social-link" data-tooltip-disabled="Join our Discord community!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="slideUp">рџ’¬</a>
+                    <a href="https://t.me/GotchiGameBot" target="_blank" class="social-link" data-tooltip-disabled="Play the game in Telegram!" data-tooltip-disabled-position="top" data-tooltip-disabled-animation="bounce">рџ“±</a>
+                </div>
+                <div style="margin: 15px 0; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">Home</a>
+                    <a href="/tamagotchi-game" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">Play Game</a>
+                    <a href="/mint" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">Mint NFT</a>
+                    <a href="/whitepaper" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">рџ“– Whitepaper</a>
+                    <a href="/blog/" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">рџ“љ Blog</a>
+                    <a href="/profile" style="color: rgba(241, 250, 238, 0.8); text-decoration: none;">рџ‘¤ Profile</a>
+                    <a href="/treasury-monitor" style="color: rgba(255, 183, 3, 0.9); text-decoration: none; font-weight: bold;">рџ“Љ Treasury Monitor</a>
+                </div>
+                <p class="footer-text">
+                    Made with вќ¤пёЏ on Solana |
+                    <span id="player-count">0 players</span> online
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal: Create Pet -->
+    <div id="create-pet-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>рџђѕ Create Your Pet</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pet-types">
+                    <button class="pet-type-btn" data-type="cat">
+                        <span class="pet-emoji">рџђ±</span>
+                        <span>Cat</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="dog">
+                        <span class="pet-emoji">рџђ¶</span>
+                        <span>Dog</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="dragon">
+                        <span class="pet-emoji">рџђ‰</span>
+                        <span>Dragon</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="fox">
+                        <span class="pet-emoji">рџ¦Љ</span>
+                        <span>Fox</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="bear">
+                        <span class="pet-emoji">рџђ»</span>
+                        <span>Bear</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="rabbit">
+                        <span class="pet-emoji">рџђ°</span>
+                        <span>Rabbit</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="panda">
+                        <span class="pet-emoji">рџђј</span>
+                        <span>Panda</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="lion">
+                        <span class="pet-emoji">рџ¦Ѓ</span>
+                        <span>Lion</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="unicorn">
+                        <span class="pet-emoji">рџ¦„</span>
+                        <span>Unicorn</span>
+                    </button>
+                    <button class="pet-type-btn" data-type="wolf">
+                        <span class="pet-emoji">рџђє</span>
+                        <span>Wolf</span>
+                    </button>
+                </div>
+                <div class="pet-name-input">
+                    <input type="text" id="pet-name-input" placeholder="Enter pet name" maxlength="20">
+                </div>
+                <button id="confirm-create-pet" class="action-btn primary" disabled>
+                    Create Pet (0.1 SOL)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Evolution -->
+    <div id="evolution-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>вњЁ Pet Evolution!</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body evolution-content">
+                <div class="evolution-animation">
+                    <div class="old-pet">
+                        <span id="old-pet-emoji" class="pet-emoji-large">рџђ±</span>
+                        <p>Level <span id="old-level">1</span></p>
+                    </div>
+                    <div class="evolution-arrow">в†’</div>
+                    <div class="new-pet">
+                        <span id="new-pet-emoji" class="pet-emoji-large">рџє</span>
+                        <p>Level <span id="new-level">2</span></p>
+                    </div>
+                </div>
+                <p class="evolution-text">Your pet is ready to evolve!</p>
+                <button id="confirm-evolution" class="action-btn primary">
+                    Evolve (50 TAMA)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAMA Details Modal -->
+    <div id="tama-details-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>рџ’° TAMA Token Details</h2>
+                <span class="modal-close" onclick="closeTAMADetails()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="tama-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Balance:</span>
+                        <span class="stat-value" id="tama-detail-balance">0 TAMA</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Daily Earned:</span>
+                        <span class="stat-value" id="tama-daily-earned">0 TAMA</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Daily Limit:</span>
+                        <span class="stat-value success">UNLIMITED! рџљЂ</span>
+                    </div>
+                </div>
+
+                <div class="tama-section">
+                    <h3>рџ’° How to Earn TAMA:</h3>
+                    <ul class="tama-list">
+                        <li>Feed Pet: +5 TAMA</li>
+                        <li>Play with Pet: +10 TAMA</li>
+                        <li>Train Pet: +15 TAMA</li>
+                        <li>Level Up: +50 TAMA</li>
+                        <li>Daily Login: +25 TAMA</li>
+                    </ul>
+                </div>
+
+                <div class="tama-section">
+                    <h3>рџ’ё How to Spend TAMA:</h3>
+                    <ul class="tama-list">
+                        <li>Buy Food: -20 TAMA</li>
+                        <li>Buy Toy: -30 TAMA</li>
+                        <li>Heal Pet: -10 TAMA</li>
+                        <li>Evolve Pet: -50 TAMA</li>
+                    </ul>
+                </div>
+
+                <div class="tama-section">
+                    <h3>рџЏ¦ Treasury Status:</h3>
+                    <div class="treasury-info" id="treasury-info">
+                        <div class="treasury-item">
+                            <span class="treasury-label">Treasury Balance:</span>
+                            <span class="treasury-value" id="treasury-balance">Loading...</span>
+                        </div>
+                        <div class="treasury-item">
+                            <span class="treasury-label">Total Distributed:</span>
+                            <span class="treasury-value" id="treasury-distributed">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeTAMADetails()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NFT Required Modal -->
+    <div id="nft-required-modal" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+        <div class="modal-content" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 20px; text-align: center; max-width: 500px; border: 3px solid #FFD700;">
+            <div style="font-size: 64px; margin-bottom: 1rem;">рџ”’</div>
+            <h2 style="font-size: 2rem; margin-bottom: 1rem; color: #FFD700;">NFT Required</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: white;">You need to mint an NFT to access the game!</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="https://solanatamagotchi.com/mint" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem; background: #FFD700; color: #000; text-decoration: none; border-radius: 10px; font-weight: bold;">рџљЂ Mint NFT</a>
+                <button onclick="document.getElementById('nft-required-modal').classList.add('hidden')" class="btn btn-secondary" style="padding: 1rem 2rem; font-size: 1.1rem; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 10px; cursor: pointer;">рџЏ  Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="notification hidden">
+        <span id="notification-text"></span>
+    </div>
+
+    <!-- Particles Container -->
+    <div id="particles-container" class="particles-container">    </div>
+
+    <style>
+        /* TAMA History Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: white;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #ff6b6b;
+        }
+
+        .modal-body {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .tama-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .tama-history-table th,
+        .tama-history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tama-history-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .tama-history-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .tama-amount {
+            font-weight: bold;
+        }
+
+        .tama-earn {
+            color: #2ecc71;
+        }
+
+        .tama-spend {
+            color: #e74c3c;
+        }
+
+        .tama-type-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .tama-type-earn {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .tama-type-spend {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* TAMA Hover Dropdown Styles */
+        .tama-display-compact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.4);
+        }
+
+        .tama-display-compact:hover .tama-hover-info {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tama-hover-info::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        /* Header TAMA Hover Styles - handled by JavaScript */
+
+        .tama-header-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+    </style>
+
+    <!-- TAMA History Modal -->
+    <div id="tama-history-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>рџ“њ Your TAMA History</h2>
+                <span class="close" onclick="closeTAMAHistory()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="tama-history-content">
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="spinner"></div>
+                        <p>Loading your TAMA history...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- All JS files removed - they don't exist. Basic functionality will be handled inline. -->
+
+    <script>
+        // TAMA Details Modal Functions
+        async function showTAMADetails() {
+            const modal = document.getElementById('tama-details-modal');
+            if (!modal) return;
+
+            // Get current balance
+            let currentBalance = 0;
+            if (window.WalletManager && window.WalletManager.isConnected()) {
+                const walletAddress = window.WalletManager.getAddress();
+                if (window.SimpleTAMASystem) {
+                    currentBalance = await window.SimpleTAMASystem.getBalance(walletAddress);
+                }
+            }
+
+            // Update modal content
+            document.getElementById('tama-detail-balance').textContent = `${currentBalance} TAMA`;
+
+            // Load Treasury stats
+            if (window.TreasurySystem) {
+                const treasuryStats = await window.TreasurySystem.getTreasuryStats();
+                if (treasuryStats) {
+                    document.getElementById('treasury-balance').textContent = `${treasuryStats.treasuryBalance.toLocaleString()} TAMA`;
+                    document.getElementById('treasury-distributed').textContent = `${treasuryStats.distributed.toLocaleString()} TAMA (${treasuryStats.distributionPercent}%)`;
+                }
+            }
+
+            // Show modal
+            modal.classList.remove('hidden');
+        }
+
+        function closeTAMADetails() {
+            const modal = document.getElementById('tama-details-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('tama-details-modal');
+            if (e.target === modal) {
+                closeTAMADetails();
+            }
+        });
+
+        // TAMA History Functions
+        async function showTAMAHistory() {
+            if (!WalletManager.publicKey) {
+                alert('Please connect your wallet first!');
+                return;
+            }
+
+            const modal = document.getElementById('tama-history-modal');
+            modal.style.display = 'block';
+
+            // Load history
+            await loadUserTAMAHistory();
+        }
+
+        function closeTAMAHistory() {
+            const modal = document.getElementById('tama-history-modal');
+            modal.style.display = 'none';
+        }
+
+        async function loadUserTAMAHistory() {
+            const content = document.getElementById('tama-history-content');
+            content.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="spinner"></div>
+                    <p>Loading your TAMA history...</p>
+                </div>
+            `;
+
+            try {
+                const history = await window.Database.getTAMAHistory(WalletManager.publicKey.toString(), 50);
+
+                if (!history || history.length === 0) {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">рџ“њ</div>
+                            <h3>No TAMA History Yet</h3>
+                            <p style="color: #666;">Start playing to earn TAMA and see your transaction history here!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                content.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: #333;">Your TAMA Transactions</h3>
+                        <p style="margin: 5px 0 0 0; color: #666;">Showing last ${history.length} transactions</p>
+                    </div>
+                    <table class="tama-history-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Reason</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${history.map(transaction => `
+                                <tr>
+                                    <td>${new Date(transaction.created_at).toLocaleString()}</td>
+                                    <td class="tama-amount ${transaction.amount > 0 ? 'tama-earn' : 'tama-spend'}">
+                                        ${transaction.amount > 0 ? '+' : ''}${transaction.amount}
+                                    </td>
+                                    <td>
+                                        <span class="tama-type-badge tama-type-${transaction.type}">
+                                            ${transaction.type}
+                                        </span>
+                                    </td>
+                                    <td>${transaction.reason}</td>
+                                    <td style="font-weight: bold;">${transaction.balance_after.toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                console.error('Error loading TAMA history:', error);
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #e74c3c;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">вќЊ</div>
+                        <h3>Error Loading History</h3>
+                        <p>Failed to load your TAMA history. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('tama-history-modal');
+            if (event.target === modal) {
+                closeTAMAHistory();
+            }
+        }
+
+        // Hide loading screen
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500); // Wait for fade-out animation
+            }
+        }
+
+        // ==============================================
+        // LOAD LIVE STATS
+        // ==============================================
+
+        // Chart instances storage
+        const statCharts = {
+            players: null,
+            nfts: null,
+            tama: null,
+            wallets: null
+        };
+
+        // Historical data storage (last 10 data points)
+        const statHistory = {
+            players: [],
+            nfts: [],
+            tama: [],
+            wallets: []
+        };
+
+        // Initialize charts
+        function initStatCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    x: {
+                        display: false,
+                        grid: { display: false }
+                    },
+                    y: {
+                        display: false,
+                        grid: { display: false }
+                    }
+                },
+                elements: {
+                    point: { radius: 0 },
+                    line: {
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }
+                },
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                }
+            };
+
+            // Players chart
+            const playersCtx = document.getElementById('chart-players');
+            if (playersCtx && typeof Chart !== 'undefined') {
+                // Set explicit canvas size (both attributes and styles)
+                playersCtx.width = playersCtx.parentElement.offsetWidth;
+                playersCtx.height = 60;
+                playersCtx.style.width = '100%';
+                playersCtx.style.height = '60px';
+                playersCtx.style.maxHeight = '60px';
+                statCharts.players = new Chart(playersCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: '#1982C4',
+                            backgroundColor: 'rgba(25, 130, 196, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // NFTs chart
+            const nftsCtx = document.getElementById('chart-nfts');
+            if (nftsCtx && typeof Chart !== 'undefined') {
+                nftsCtx.width = nftsCtx.parentElement.offsetWidth;
+                nftsCtx.height = 60;
+                nftsCtx.style.width = '100%';
+                nftsCtx.style.height = '60px';
+                nftsCtx.style.maxHeight = '60px';
+                statCharts.nfts = new Chart(nftsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: '#FFCA3A',
+                            backgroundColor: 'rgba(255, 202, 58, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // TAMA chart
+            const tamaCtx = document.getElementById('chart-tama');
+            if (tamaCtx && typeof Chart !== 'undefined') {
+                tamaCtx.width = tamaCtx.parentElement.offsetWidth;
+                tamaCtx.height = 60;
+                tamaCtx.style.width = '100%';
+                tamaCtx.style.height = '60px';
+                tamaCtx.style.maxHeight = '60px';
+                statCharts.tama = new Chart(tamaCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: '#8AC926',
+                            backgroundColor: 'rgba(138, 201, 38, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // Wallets chart
+            const walletsCtx = document.getElementById('chart-wallets');
+            if (walletsCtx && typeof Chart !== 'undefined') {
+                walletsCtx.width = walletsCtx.parentElement.offsetWidth;
+                walletsCtx.height = 60;
+                walletsCtx.style.width = '100%';
+                walletsCtx.style.height = '60px';
+                walletsCtx.style.maxHeight = '60px';
+                statCharts.wallets = new Chart(walletsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: '#9C27B0',
+                            backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+        }
+
+        // Handle window resize to prevent chart stretching
+        window.addEventListener('resize', () => {
+            ['chart-players', 'chart-nfts', 'chart-tama', 'chart-wallets'].forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    canvas.width = canvas.parentElement.offsetWidth;
+                    canvas.height = 60;
+                    canvas.style.height = '60px';
+                    canvas.style.maxHeight = '60px';
+                }
+            });
+
+            // Redraw all charts
+            Object.values(statCharts).forEach(chart => {
+                if (chart) chart.resize();
+            });
+        });
+
+        // Update chart with new data point
+        function updateChart(chartName, value) {
+            if (!statCharts[chartName]) return;
+
+            // Add to history (keep last 10)
+            statHistory[chartName].push(value);
+            if (statHistory[chartName].length > 10) {
+                statHistory[chartName].shift();
+            }
+
+            // Update chart
+            statCharts[chartName].data.datasets[0].data = [...statHistory[chartName]];
+            statCharts[chartName].update('none'); // 'none' = no animation for smooth updates
+        }
+
+        // Format number helper (shared)
+        function formatStatNumber(value, format = 'number') {
+            if (format === 'tama') {
+                if (value >= 1000000) {
+                    return (value / 1000000).toFixed(1) + 'M';
+                } else if (value >= 1000) {
+                    return (value / 1000).toFixed(1) + 'K';
+                } else {
+                    return value.toLocaleString();
+                }
+            } else {
+                return value.toLocaleString();
+            }
+        }
+
+        // Animate number counter (shared)
+        function animateStatNumber(element, startValue, endValue, format = 'number', duration = 1500) {
+            if (!element) return;
+
+            const startTime = performance.now();
+            const start = startValue || 0;
+            const end = endValue;
+            const range = end - start;
+
+            const animate = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Easing function (ease-out)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (range * easeOut));
+
+                element.textContent = formatStatNumber(current, format);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    element.textContent = formatStatNumber(end, format);
+                }
+            };
+
+            requestAnimationFrame(animate);
+        }
+
+        async function loadLiveStats() {
+            try {
+                // Supabase configuration - using centralized config
+                const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+                const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_KEY || '';
+
+                console.log('рџ“Љ Loading LIVE STATS...');
+
+                // 1. Total Players (from leaderboard)
+                const playersResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=telegram_id`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const players = await playersResponse.json();
+                const totalPlayers = players?.length || 0;
+
+                // 2. NFTs Minted (from user_nfts where is_active = true)
+                const nftsResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=id&is_active=eq.true`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const nfts = await nftsResponse.json();
+                const nftsMinted = nfts?.length || 0;
+
+                // 3. Total TAMA Distributed (from transactions - SUM of positive amounts)
+                const transactionsResponse = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&amount=gt.0`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const transactions = await transactionsResponse.json();
+                const totalTAMA = transactions?.reduce((sum, t) => sum + (parseInt(t.amount) || 0), 0) || 0;
+
+                // 4. Active Wallets (unique wallet_address from leaderboard where wallet_address is not null)
+                const walletsResponse = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=wallet_address&wallet_address=not.is.null`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const wallets = await walletsResponse.json();
+                const uniqueWallets = new Set(wallets?.map(w => w.wallet_address).filter(Boolean) || []).size;
+
+                // Get current displayed values (for smooth animation)
+                const getCurrentValue = (id) => {
+                    const el = document.getElementById(id);
+                    if (!el) return 0;
+                    const text = el.textContent.replace(/[^0-9.]/g, '');
+                    if (!text) return 0;
+                    if (el.textContent.includes('M')) {
+                        return parseFloat(text) * 1000000;
+                    } else if (el.textContent.includes('K')) {
+                        return parseFloat(text) * 1000;
+                    } else {
+                        return parseInt(text) || 0;
+                    }
+                };
+
+                // Animate updates
+                animateStatNumber(
+                    document.getElementById('landing-total-players'),
+                    getCurrentValue('landing-total-players'),
+                    totalPlayers,
+                    'number'
+                );
+
+                // Update subtitle with actual count
+                const subtitleEl = document.getElementById('player-count-subtitle');
+                if (subtitleEl) {
+                    if (totalPlayers > 0) {
+                        subtitleEl.textContent = `${totalPlayers}+ active players`;
+                    } else {
+                        subtitleEl.textContent = 'Growing community';
+                    }
+                }
+
+                animateStatNumber(
+                    document.getElementById('landing-nfts-minted'),
+                    getCurrentValue('landing-nfts-minted'),
+                    nftsMinted,
+                    'number'
+                );
+
+                animateStatNumber(
+                    document.getElementById('landing-tama-distributed'),
+                    getCurrentValue('landing-tama-distributed'),
+                    totalTAMA,
+                    'tama'
+                );
+
+                animateStatNumber(
+                    document.getElementById('landing-active-wallets'),
+                    getCurrentValue('landing-active-wallets'),
+                    uniqueWallets,
+                    'number'
+                );
+
+                // Update charts with new data
+                updateChart('players', totalPlayers);
+                updateChart('nfts', nftsMinted);
+                updateChart('tama', totalTAMA);
+                updateChart('wallets', uniqueWallets);
+
+                console.log('вњ… LIVE STATS loaded:', {
+                    players: totalPlayers,
+                    nfts: nftsMinted,
+                    tama: totalTAMA,
+                    wallets: uniqueWallets
+                });
+
+                // Update page title and meta description with actual player count (for dynamic content)
+                // Function removed - not needed for now
+                // updatePageStats(totalPlayers, nftsMinted);
+
+            } catch (error) {
+                console.error('вќЊ Error loading LIVE STATS:', error);
+                // Show fallback values with animation
+                const getCurrentValue = (id) => {
+                    const el = document.getElementById(id);
+                    if (!el) return 0;
+                    const text = el.textContent.replace(/[^0-9.]/g, '');
+                    if (!text) return 0;
+                    if (el.textContent.includes('M')) {
+                        return parseFloat(text) * 1000000;
+                    } else if (el.textContent.includes('K')) {
+                        return parseFloat(text) * 1000;
+                    } else {
+                        return parseInt(text) || 0;
+                    }
+                };
+
+                animateStatNumber(document.getElementById('landing-total-players'), getCurrentValue('landing-total-players'), 0, 'number', 800);
+                animateStatNumber(document.getElementById('landing-nfts-minted'), getCurrentValue('landing-nfts-minted'), 0, 'number', 800);
+                animateStatNumber(document.getElementById('landing-tama-distributed'), getCurrentValue('landing-tama-distributed'), 0, 'tama', 800);
+                animateStatNumber(document.getElementById('landing-active-wallets'), getCurrentValue('landing-active-wallets'), 0, 'number', 800);
+            }
+        }
+
+        // Add event listener for TAMA history button and hover
+        // ============================================
+        // LANDING PAGE WALLET CONNECTION
+        // ============================================
+
+        let landingWalletConnected = false;
+
+        async function updateLandingWalletUI() {
+            const connectBtn = document.getElementById('landing-connect-btn');
+            const walletInfo = document.getElementById('landing-wallet-info');
+
+            if (!connectBtn || !walletInfo) return;
+
+            if (landingWalletConnected && window.solana && window.solana.isConnected) {
+                try {
+                    const publicKey = window.solana.publicKey.toString();
+                    const shortAddress = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
+
+                    // Update UI
+                    connectBtn.style.display = 'none';
+                    walletInfo.style.display = 'block';
+                    document.getElementById('landing-wallet-address').textContent = shortAddress;
+
+                    // Get SOL balance
+                    const connection = new window.solanaWeb3.Connection(
+                        'https://api.devnet.solana.com',
+                        'confirmed'
+                    );
+                    const balance = await connection.getBalance(window.solana.publicKey);
+                    const solBalance = (balance / 1e9).toFixed(4);
+                    document.getElementById('landing-wallet-sol').textContent = `${solBalance} SOL`;
+
+                    // Get TAMA balance (if available)
+                    if (window.SimpleTAMASystem) {
+                        const tamaBalance = await window.SimpleTAMASystem.getBalance(publicKey);
+                        document.getElementById('landing-wallet-tama').textContent = `${tamaBalance} TAMA`;
+                    } else {
+                        document.getElementById('landing-wallet-tama').textContent = '0 TAMA';
+                    }
+
+                    // Add click handler to navigate to NFT page
+                    walletInfo.onclick = () => {
+                        window.location.href = 'my-nfts';
+                    };
+
+                    console.log('вњ… Landing wallet UI updated');
+                } catch (error) {
+                    console.error('вќЊ Error updating landing wallet UI:', error);
+                }
+            } else {
+                // Not connected
+                connectBtn.style.display = 'block';
+                walletInfo.style.display = 'none';
+            }
+        }
+
+        async function connectLandingWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('вќЊ Phantom Wallet not found!\n\nPlease install Phantom Wallet extension:\nhttps://phantom.app/');
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+
+                console.log('рџ”„ Connecting landing wallet...');
+                const resp = await window.solana.connect();
+                landingWalletConnected = true;
+                console.log('вњ… Landing wallet connected:', resp.publicKey.toString());
+
+                await updateLandingWalletUI();
+            } catch (error) {
+                console.error('вќЊ Landing wallet connection failed:', error);
+                alert('Failed to connect wallet: ' + error.message);
+            }
+        }
+
+        // Check if wallet is already connected on page load
+        async function checkLandingWalletConnection() {
+            if (window.solana && window.solana.isConnected) {
+                landingWalletConnected = true;
+                await updateLandingWalletUI();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('вњ… Page loaded - using stub modules');
+
+            // Initialize landing wallet connection
+            const landingConnectBtn = document.getElementById('landing-connect-btn');
+            if (landingConnectBtn) {
+                landingConnectBtn.addEventListener('click', connectLandingWallet);
+            }
+
+            // Check if wallet is already connected
+            setTimeout(() => {
+                checkLandingWalletConnection();
+            }, 500);
+
+            // Initialize charts for Live Stats
+            setTimeout(() => {
+                initStatCharts();
+            }, 500); // Wait a bit for Chart.js to load
+
+            // Load LIVE STATS
+            loadLiveStats();
+            // Refresh every 30 seconds
+            setInterval(loadLiveStats, 30000);
+
+            // Hide loading screen after a short delay
+            setTimeout(() => {
+                hideLoadingScreen();
+            }, 500);
+
+            // рџ›ЎпёЏ Initialize Anti-Cheat FIRST (stub)
+            if (window.AntiCheat) {
+                window.AntiCheat.init();
+            }
+
+            // Initialize TAMA Shop (stub)
+            if (window.TAMAShop) {
+                window.TAMAShop.init();
+            }
+
+            // Initialize Referral System (stub)
+            if (window.ReferralSystem) {
+                window.ReferralSystem.init();
+            }
+
+            const historyBtn = document.getElementById('tama-history-btn');
+            if (historyBtn) {
+                historyBtn.addEventListener('click', showTAMAHistory);
+            }
+
+            const historyBtnMain = document.getElementById('tama-history-btn-main');
+            if (historyBtnMain) {
+                historyBtnMain.addEventListener('click', showTAMAHistory);
+            }
+
+            // Mini-game button
+            const minigameBtn = document.getElementById('minigame-btn');
+            if (minigameBtn) {
+                minigameBtn.addEventListener('click', () => {
+                    if (window.TAMACatchGameV2) {
+                        const game = new window.TAMACatchGameV2();
+                        game.show();
+                    }
+                });
+            }
+
+            // Lottery button
+            const lotteryBtn = document.getElementById('lottery-btn');
+            if (lotteryBtn) {
+                lotteryBtn.addEventListener('click', () => {
+                    if (window.SimpleTAMALottery) {
+                        const lottery = new window.SimpleTAMALottery();
+                        lottery.show();
+                    }
+                });
+            }
+
+            // TAMA hover functionality
+            const tamaBalance = document.querySelector('.balance-tama');
+            if (tamaBalance) {
+                tamaBalance.addEventListener('click', function() {
+                    showTAMADetails();
+                });
+            }
+            const balanceTama = document.querySelector('.balance-tama');
+            if (balanceTama) {
+                balanceTama.addEventListener('mouseenter', function() {
+                    const dropdown = this.querySelector('.tama-header-dropdown');
+                    if (dropdown) {
+                        dropdown.style.opacity = '1';
+                        dropdown.style.visibility = 'visible';
+                        dropdown.style.transform = 'translateY(0)';
+                    }
+                });
+
+                balanceTama.addEventListener('mouseleave', function() {
+                    const dropdown = this.querySelector('.tama-header-dropdown');
+                    if (dropdown) {
+                        dropdown.style.opacity = '0';
+                        dropdown.style.visibility = 'hidden';
+                        dropdown.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Minimal Stubs for Missing JS Modules -->
+    <script>
+        // Stub functions to prevent errors
+        window.AntiCheat = window.AntiCheat || {
+            init: function() { console.log('вљ пёЏ AntiCheat module not loaded'); }
+        };
+
+        window.WalletManager = window.WalletManager || {
+            isConnected: function() { return false; },
+            getAddress: function() { return null; },
+            connect: function() { return Promise.resolve(); }
+        };
+
+        window.SimpleTAMASystem = window.SimpleTAMASystem || {
+            getBalance: async function(walletAddress) {
+                try {
+                    // TAMA Token address on Devnet
+                    const TAMA_TOKEN_MINT = 'Fuqw8Zg17XhHGXfghLYD1fqjxJa1PnmG2MmoqG5pcmLY';
+
+                    // Create connection to Devnet
+                    const connection = new window.solanaWeb3.Connection(
+                        'https://api.devnet.solana.com',
+                        'confirmed'
+                    );
+
+                    // Convert wallet address to PublicKey
+                    const walletPubkey = new window.solanaWeb3.PublicKey(walletAddress);
+                    const mintPubkey = new window.solanaWeb3.PublicKey(TAMA_TOKEN_MINT);
+
+                    // Get token accounts for this wallet
+                    const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+                        walletPubkey,
+                        { mint: mintPubkey }
+                    );
+
+                    // If no token accounts found, balance is 0
+                    if (tokenAccounts.value.length === 0) {
+                        console.log('рџ’° No TAMA token account found');
+                        return 0;
+                    }
+
+                    // Get balance from first token account
+                    const balance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount.uiAmount;
+                    console.log('рџ’° TAMA Balance:', balance);
+                    return balance || 0;
+
+                } catch (error) {
+                    console.error('вќЊ Error getting TAMA balance:', error);
+                    return 0;
+                }
+            }
+        };
+
+        window.TreasurySystem = window.TreasurySystem || {
+            getTreasuryStats: function() { return Promise.resolve({ treasuryBalance: 0, distributed: 0, distributionPercent: 0 }); }
+        };
+
+        window.TAMAShop = window.TAMAShop || {
+            init: function() { console.log('вљ пёЏ TAMAShop module not loaded'); }
+        };
+
+        window.ReferralSystem = window.ReferralSystem || {
+            init: function() { console.log('вљ пёЏ ReferralSystem module not loaded'); }
+        };
+
+        window.TAMACatchGameV2 = window.TAMACatchGameV2 || function() {
+            this.show = function() { alert('TAMA Catch game not available yet'); };
+        };
+
+        window.SimpleTAMALottery = window.SimpleTAMALottery || function() {
+            this.show = function() { alert('TAMA Lottery not available yet'); };
+        };
+
+        // Service Worker - disabled (file not found)
+        // if ('serviceWorker' in navigator) {
+        //     window.addEventListener('load', () => {
+        //         navigator.serviceWorker.register('sw.js')
+        //             .then(reg => console.log('Service Worker registered'))
+        //             .catch(err => console.log('Service Worker registration failed'));
+        //     });
+        // }
+
+        // Track Website Visit
+        (function() {
+            try {
+                // Get or create session ID
+                // рџ”ђ SECURITY: Use crypto.getRandomValues() instead of Math.random() for secure randomness
+                let sessionId = sessionStorage.getItem('visit_session_id');
+                if (!sessionId) {
+                    const randomBytes = new Uint8Array(9);
+                    crypto.getRandomValues(randomBytes);
+                    const randomString = Array.from(randomBytes, byte => byte.toString(36)).join('').substring(0, 9);
+                    sessionId = 'session_' + Date.now() + '_' + randomString;
+                    sessionStorage.setItem('visit_session_id', sessionId);
+                }
+
+                // Detect device type
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const isTablet = /iPad|Android/i.test(navigator.userAgent) && !isMobile;
+                const deviceType = isMobile ? 'mobile' : (isTablet ? 'tablet' : 'desktop');
+
+                // Detect browser
+                const ua = navigator.userAgent;
+                let browser = 'unknown';
+                if (ua.includes('Chrome')) browser = 'Chrome';
+                else if (ua.includes('Firefox')) browser = 'Firefox';
+                else if (ua.includes('Safari')) browser = 'Safari';
+                else if (ua.includes('Edge')) browser = 'Edge';
+                else if (ua.includes('Opera')) browser = 'Opera';
+
+                // Detect OS
+                let os = 'unknown';
+                if (ua.includes('Windows')) os = 'Windows';
+                else if (ua.includes('Mac')) os = 'macOS';
+                else if (ua.includes('Linux')) os = 'Linux';
+                else if (ua.includes('Android')) os = 'Android';
+                else if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+                // Prepare visit data
+                const visitData = {
+                    page_url: window.location.href,
+                    referrer: document.referrer || '',
+                    user_agent: navigator.userAgent,
+                    session_id: sessionId,
+                    device_type: deviceType,
+                    browser: browser,
+                    os: os
+                };
+
+                // Send to API (async, don't block page load)
+                fetch('https://api.solanatamagotchi.com/api/track-visit.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(visitData)
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          console.log('вњ… Visit tracked');
+                      }
+                  })
+                  .catch(error => {
+                      console.log('Visit tracking failed (non-critical):', error);
+                  });
+            } catch (error) {
+                console.log('Visit tracking error (non-critical):', error);
+            }
+        })();
+    </script>
+</body>
+</html>
+
+

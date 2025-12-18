@@ -91,6 +91,9 @@
     <!-- 🌍 Internationalization (13 languages) -->
     <script src="js/i18n.js" defer></script>
 
+    <!-- Local dev auth helper (localhost only, enable with ?dev=1) -->
+    <script src="js/dev-auth.js?v=1" defer></script>
+
     <!-- Unified Auth System (Telegram + Wallet) - defer to not block rendering -->
     <script src="js/auth.js" defer></script>
     <script src="js/profile-widget.js?v=2" defer></script>
@@ -1239,11 +1242,11 @@
             transform: scale(1);
         }
 
-        /* Shop button */
+        /* Shop button (inside pet window) */
         .shop-btn {
-            position: fixed;
-            top: 80px;
-            left: 20px;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
             background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
             border: 2px solid #78350f;
             border-radius: 50%;
@@ -1255,17 +1258,13 @@
             font-size: 20px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
-            z-index: 10000 !important; /* CRITICAL FIX: Very high z-index + !important */
-            pointer-events: auto !important; /* Ensure clickable */
+            transition: opacity 0.15s ease;
+            z-index: 30;
+            pointer-events: auto;
         }
 
         .shop-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .shop-btn:active {
-            transform: scale(0.95);
+            opacity: 0.95;
         }
 
         /* Shop modal */
@@ -1748,7 +1747,7 @@
         .pet-mood {
             position: absolute;
             bottom: 10px;
-            right: 10px;
+            left: 10px;
             font-size: 24px;
             opacity: 0.8;
         }
@@ -2234,6 +2233,11 @@
             border: 2px solid rgba(255,255,255,0.2);
         }
 
+        .nav-btn.care-btn {
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
         .nav-btn.leaderboard-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: 2px solid rgba(255,255,255,0.2);
@@ -2245,6 +2249,182 @@
         .nav-btn.nft-btn {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .nav-btn.active {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25), 0 10px 25px rgba(0,0,0,0.35);
+            transform: translateY(-1px);
+        }
+
+        /* Care Ritual Modal */
+        .care-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 3100;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 18px;
+        }
+
+        .care-modal.show {
+            display: flex;
+        }
+
+        .care-panel {
+            width: min(720px, 100%);
+            background: rgba(0, 0, 0, 0.35);
+            border: 2px solid rgba(236, 72, 153, 0.45);
+            border-radius: 18px;
+            padding: 14px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+        }
+
+        @media (min-width: 520px) {
+            .care-modal {
+                align-items: center;
+            }
+        }
+
+        .care-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .care-close {
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.18);
+            color: #fff;
+            border-radius: 12px;
+            width: 42px;
+            height: 38px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease, background 0.15s ease;
+            flex: 0 0 auto;
+        }
+
+        .care-close:hover {
+            transform: scale(1.04);
+            background: rgba(255,255,255,0.14);
+        }
+
+        .care-mood {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .care-mood-title {
+            font-size: 12px;
+            opacity: 0.9;
+            white-space: nowrap;
+        }
+
+        .care-mood-faces {
+            display: flex;
+            gap: 6px;
+            opacity: 0.75;
+        }
+
+        .care-mood-faces span {
+            filter: grayscale(30%);
+            transform: translateY(0);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            opacity: 0.55;
+        }
+
+        .care-mood-faces span.active {
+            opacity: 1;
+            transform: translateY(-1px) scale(1.05);
+            filter: none;
+        }
+
+        .care-actions-counter {
+            font-size: 12px;
+            opacity: 0.9;
+            white-space: nowrap;
+        }
+
+        .care-hint {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .care-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 520px) {
+            .care-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .care-action-btn {
+            padding: 12px 10px;
+            border-radius: 14px;
+            border: 2px solid rgba(255,255,255,0.18);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            cursor: pointer;
+            font-family: inherit;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+            text-align: center;
+        }
+
+        .care-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        }
+
+        .care-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .care-action-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .care-action-btn .care-label {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            opacity: 0.95;
+        }
+
+        .care-action-btn.feed { background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(251, 191, 36, 0.18)); }
+        .care-action-btn.pet { background: linear-gradient(135deg, rgba(236, 72, 153, 0.35), rgba(168, 85, 247, 0.18)); }
+        .care-action-btn.heal { background: linear-gradient(135deg, rgba(34, 197, 94, 0.35), rgba(16, 185, 129, 0.18)); }
+        .care-action-btn.sleep { background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(99, 102, 241, 0.18)); }
+
+        .care-scene {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 12px;
+            min-height: 18px;
+            opacity: 0.9;
+        }
+
+        .care-scene strong {
+            color: #FFCA3A;
         }
 
         /* Mobile responsiveness for nav buttons */
@@ -3841,9 +4021,6 @@
         <img src="logo.png" alt="Solana Tamagotchi">
     </a>
 
-    <!-- Shop button - round floating button (outside container for proper positioning) -->
-    <button class="shop-btn" id="shop-btn" title="Shop">🛒</button>
-
     <div class="game-container">
         <!-- Pet Selector 🐾 - Top Row -->
         <div class="pet-selector-top">
@@ -3890,6 +4067,7 @@
         <!-- Navigation Buttons -->
         <div class="nav-buttons">
             <button class="nav-btn minigames-btn" id="minigames-btn">🎮 <span data-i18n="games">Games</span></button>
+            <button class="nav-btn care-btn" id="care-btn">💗 <span>Care</span></button>
             <button class="nav-btn leaderboard-btn" id="leaderboard-btn">🏆 <span data-i18n="top">Top</span></button>
             <button class="nav-btn nft-btn" id="nft-btn">🖼️ <span data-i18n="nfts">NFT</span></button>
             <button class="nav-btn withdraw-btn" id="withdraw-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold;">💸 <span data-i18n="cash">Cash</span></button>
@@ -3907,6 +4085,8 @@
 
         <!-- Pet Area -->
         <div class="pet-area" id="pet-area">
+            <!-- Shop button (kept inside the pet window) -->
+            <button class="shop-btn" id="shop-btn" title="Shop" type="button">🛒</button>
             <!-- Magical Space Background 🌌 -->
             <!-- Floating planets -->
             <div class="cloud cloud1"></div>
@@ -4758,6 +4938,49 @@
             <button class="action-btn heal" id="heal-btn">
                 💊<br><span data-i18n="heal">Heal</span><br><small>-100 TAMA</small>
             </button>
+        </div>
+
+        <!-- Care Ritual Modal (not about min-maxing; small moments) -->
+        <div class="care-modal" id="care-modal" aria-hidden="true">
+            <div class="care-panel" id="care-panel" role="dialog" aria-modal="true" aria-label="Care">
+                <div class="care-panel-header">
+                    <div class="care-mood">
+                        <div class="care-mood-title">Mood: <span id="care-mood-emoji">😊</span></div>
+                        <div class="care-mood-faces" aria-hidden="true">
+                            <span id="care-face-1">😢</span>
+                            <span id="care-face-2">😐</span>
+                            <span id="care-face-3" class="active">😊</span>
+                            <span id="care-face-4">😲</span>
+                            <span id="care-face-5">🥰</span>
+                        </div>
+                    </div>
+                    <div class="care-actions-counter">💗 Daily actions: <span id="care-actions-used">0</span>/<span id="care-actions-max">3</span></div>
+                    <button class="care-close" id="care-close-btn" type="button" aria-label="Close">✕</button>
+                </div>
+
+                <div class="care-hint">A tiny ritual. No rush. He’s waiting.</div>
+
+                <div class="care-actions">
+                    <button class="care-action-btn feed" id="care-feed-btn" type="button">
+                        🍜
+                        <span class="care-label">Feed</span>
+                    </button>
+                    <button class="care-action-btn pet" id="care-pet-btn" type="button">
+                        🤲
+                        <span class="care-label">Pet</span>
+                    </button>
+                    <button class="care-action-btn heal" id="care-heal-btn" type="button">
+                        🩹
+                        <span class="care-label">Heal</span>
+                    </button>
+                    <button class="care-action-btn sleep" id="care-sleep-btn" type="button">
+                        💤
+                        <span class="care-label">Sleep</span>
+                    </button>
+                </div>
+
+                <div class="care-scene" id="care-scene"></div>
+            </div>
         </div>
 
         <!-- Message Area -->
@@ -7569,6 +7792,15 @@
 
         // Shop system
         console.log('🛒 Setting up shop system...');
+
+        // Ensure only one shop button exists (avoid accidental duplicates in dev/refresh scenarios)
+        try {
+            const shopBtns = document.querySelectorAll('#shop-btn');
+            shopBtns.forEach((el, idx) => { if (idx > 0) el.remove(); });
+        } catch (e) {
+            // ignore
+        }
+
         const shopBtn = document.getElementById('shop-btn');
         const closeShop = document.getElementById('close-shop');
         const shopModal = document.getElementById('shop-modal');
@@ -8439,6 +8671,19 @@
                     }
                 } else {
                     // Telegram WebApp недоступен - предлагаем wallet
+                    // Dev-mode (localhost + ?dev=1): allow forcing Telegram user id to load cloud saves
+                    try {
+                        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                        const devEnabled = isLocalhost && (new URLSearchParams(window.location.search).get('dev') === '1');
+                        const forcedUserId = devEnabled && window.TELEGRAM_USER_ID ? String(window.TELEGRAM_USER_ID) : '';
+                        if (!cloudLoaded && forcedUserId) {
+                            console.log('🧪 Dev auth: forcing Supabase load for user:', forcedUserId);
+                            cloudLoaded = await loadFromSupabase(forcedUserId);
+                        }
+                    } catch (e) {
+                        console.warn('Dev auth load skipped:', e);
+                    }
+
                     if (!window.WALLET_ADDRESS && window.WalletAuth) {
                         console.warn('⚠️ Telegram WebApp not available - offering wallet connection');
                         const modal = document.getElementById('wallet-connect-modal');
@@ -9214,6 +9459,297 @@
         function backToGames() {
             showGameSelection();
         }
+
+        // ==================== CARE RITUAL ====================
+        function getCareUserKey() {
+            const userId = window.TELEGRAM_USER_ID || window.WALLET_USER_ID || window.WALLET_ADDRESS;
+            return userId ? String(userId) : 'guest';
+        }
+
+        function getLocalDayKey(date = new Date()) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function getYesterdayKey() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            return getLocalDayKey(d);
+        }
+
+        function loadCareState() {
+            const key = `tama_care_v1:${getCareUserKey()}`;
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return { key, state: null };
+                return { key, state: JSON.parse(raw) };
+            } catch {
+                return { key, state: null };
+            }
+        }
+
+        function saveCareState(key, state) {
+            try {
+                localStorage.setItem(key, JSON.stringify(state));
+            } catch {
+                // ignore
+            }
+        }
+
+        function computeCareMood() {
+            // Use current game stats, plus a small daily "temper".
+            // Mood is not a stat bar; it's a state.
+            const hpPct = gameState.maxHp ? (gameState.hp / gameState.maxHp) : 1;
+            const foodPct = gameState.maxFood ? (gameState.food / gameState.maxFood) : 1;
+            const happyPct = gameState.maxHappy ? (gameState.happy / gameState.maxHappy) : 1;
+
+            if (hpPct < 0.2 || foodPct < 0.15) return '😢';
+            if (happyPct < 0.25) return '😔';
+            if (gameState.combo > 10) return '😡';
+            if (happyPct > 0.85 && hpPct > 0.75 && foodPct > 0.7) return '🥰';
+            if (gameState.totalClicks > 120) return '😲';
+            return '😊';
+        }
+
+        function setCareScene(text, moodEmoji, ttlMs = 2200) {
+            const el = document.getElementById('care-scene');
+            if (!el) return;
+            el.innerHTML = text;
+            if (moodEmoji) {
+                const careMood = document.getElementById('care-mood-emoji');
+                if (careMood) careMood.textContent = moodEmoji;
+                updateVectorPetEmotion(moodEmoji);
+            }
+            if (ttlMs > 0) {
+                window.clearTimeout(el.__t);
+                el.__t = window.setTimeout(() => {
+                    el.textContent = '';
+                }, ttlMs);
+            }
+        }
+
+        function updateCareFaces(activeEmoji) {
+            const map = {
+                '😢': 1,
+                '😔': 1,
+                '😐': 2,
+                '😊': 3,
+                '😲': 4,
+                '🥰': 5,
+                '😍': 5
+            };
+            const idx = map[activeEmoji] || 3;
+            for (let i = 1; i <= 5; i++) {
+                const el = document.getElementById(`care-face-${i}`);
+                if (el) el.classList.toggle('active', i === idx);
+            }
+        }
+
+        function initCareRitual() {
+            const careBtn = document.getElementById('care-btn');
+            const careModal = document.getElementById('care-modal');
+            const carePanel = document.getElementById('care-panel');
+            const closeBtn = document.getElementById('care-close-btn');
+            const feed = document.getElementById('care-feed-btn');
+            const pet = document.getElementById('care-pet-btn');
+            const heal = document.getElementById('care-heal-btn');
+            const sleep = document.getElementById('care-sleep-btn');
+
+            if (!careBtn || !careModal || !carePanel) return;
+
+            const { key, state: loaded } = loadCareState();
+            const today = getLocalDayKey();
+            const yesterday = getYesterdayKey();
+            const state = loaded || {
+                dayKey: today,
+                dailyMax: 3,
+                usedToday: 0,
+                lastDayWithAction: null,
+                streak: 0,
+                bond: 0,
+                lastActionTs: 0,
+                lastVisitTs: 0,
+                unlocks: {}
+            };
+
+            // Day rollover
+            if (state.dayKey !== today) {
+                // Streak logic: if last action was yesterday, keep streak; otherwise reset.
+                if (state.lastDayWithAction === yesterday) {
+                    state.streak = Math.min(999, (state.streak || 0) + 1);
+                } else {
+                    state.streak = 0;
+                }
+                state.dayKey = today;
+                state.usedToday = 0;
+            }
+
+            // Soft "miss you" if absent
+            const now = Date.now();
+            if (state.lastVisitTs && now - state.lastVisitTs > 1000 * 60 * 60 * 24) {
+                setCareScene('He looks at you like: <strong>"Where were you?"</strong>', '😔', 2600);
+            }
+            state.lastVisitTs = now;
+
+            function persist() {
+                saveCareState(key, state);
+            }
+
+            function refreshCareUI() {
+                const usedEl = document.getElementById('care-actions-used');
+                const maxEl = document.getElementById('care-actions-max');
+                const moodEl = document.getElementById('care-mood-emoji');
+
+                if (usedEl) usedEl.textContent = String(state.usedToday || 0);
+                if (maxEl) maxEl.textContent = String(state.dailyMax || 3);
+
+                const mood = computeCareMood();
+                if (moodEl) moodEl.textContent = mood;
+                updateCareFaces(mood);
+
+                const exhausted = (state.usedToday || 0) >= (state.dailyMax || 3);
+                if (feed) feed.disabled = exhausted;
+                if (pet) pet.disabled = exhausted;
+                if (heal) heal.disabled = exhausted;
+                if (sleep) sleep.disabled = exhausted;
+            }
+
+            function consumeAction() {
+                state.usedToday = Math.min(state.dailyMax || 3, (state.usedToday || 0) + 1);
+                state.lastDayWithAction = today;
+                state.bond = Math.min(1000000, (state.bond || 0) + 1);
+
+                // Unlocks (purely cosmetic/ritual)
+                if (state.streak >= 2 && !state.unlocks.halo) {
+                    state.unlocks.halo = true;
+                    setCareScene('Unlocked: <strong>Halo</strong> ✨ (you’ve been gentle for days)', '🥰', 3200);
+                }
+                if (state.streak >= 6 && !state.unlocks.sparkle) {
+                    state.unlocks.sparkle = true;
+                    setCareScene('Unlocked: <strong>Sparkle</strong> 💫 (habit becomes memory)', '🥰', 3200);
+                }
+            }
+
+            function canAct() {
+                const now = Date.now();
+                if (now - (state.lastActionTs || 0) < 12000) {
+                    setCareScene('He needs a breath. <strong>Wait a little.</strong>', '😐', 1800);
+                    return false;
+                }
+                if ((state.usedToday || 0) >= (state.dailyMax || 3)) {
+                    setCareScene('That’s enough for today. <strong>Come back tomorrow.</strong>', '🥰', 2400);
+                    return false;
+                }
+                state.lastActionTs = now;
+                return true;
+            }
+
+            function doCare(action) {
+                if (!canAct()) return;
+                consumeAction();
+                persist();
+                refreshCareUI();
+
+                const mood = computeCareMood();
+
+                if (action === 'pet') {
+                    // tiny, safe stat nudge (no economy impact)
+                    gameState.happy = Math.min(gameState.maxHappy, gameState.happy + 3);
+                    updateUI();
+                    setCareScene('You pet him. He leans in. <strong>...</strong>', '😘', 2200);
+                    triggerAutoSave();
+                    return;
+                }
+
+                if (action === 'sleep') {
+                    const hour = new Date().getHours();
+                    const atNight = hour >= 22 || hour <= 6;
+                    const bonus = atNight ? 8 : 4;
+                    gameState.happy = Math.min(gameState.maxHappy, gameState.happy + bonus);
+                    updateUI();
+                    setCareScene(atNight ? 'You tuck him in. <strong>Soft breathing…</strong>' : 'A short nap. <strong>He calms down.</strong>', '😵', 2400);
+                    triggerAutoSave();
+                    return;
+                }
+
+                if (action === 'feed') {
+                    const variants = [
+                        { food: '🍓', line: 'A sweet bite. He smiles.', mood: '😊' },
+                        { food: '🥦', line: 'He makes a face… then eats anyway.', mood: '😐' },
+                        { food: '🍪', line: 'Too tasty. He gets excited!', mood: '😋' }
+                    ];
+                    const v = variants[Math.floor(Math.random() * variants.length)];
+                    setCareScene(`You offer ${v.food}. <strong>${v.line}</strong>`, v.mood, 2400);
+
+                    // Reuse existing economy-safe action
+                    const btn = document.getElementById('feed-btn');
+                    if (btn) btn.click();
+                    return;
+                }
+
+                if (action === 'heal') {
+                    // A tiny scene: sad -> okay -> love
+                    setCareScene('He looks weak… <strong>you stay.</strong>', '😢', 1400);
+                    setTimeout(() => setCareScene('Breathing gets steady.', '😊', 1400), 900);
+                    setTimeout(() => setCareScene('He’s back. <strong>Thank you.</strong>', '🥰', 2200), 1700);
+
+                    const btn = document.getElementById('heal-btn');
+                    if (btn) btn.click();
+                    return;
+                }
+
+                // fallback
+                setCareScene(`Care done.`, mood, 1600);
+            }
+
+            function openCare() {
+                careModal.classList.add('show');
+                careModal.setAttribute('aria-hidden', 'false');
+                careBtn.classList.add('active');
+                refreshCareUI();
+            }
+
+            function closeCare() {
+                careModal.classList.remove('show');
+                careModal.setAttribute('aria-hidden', 'true');
+                careBtn.classList.remove('active');
+            }
+
+            careBtn.addEventListener('click', () => {
+                const isOpen = careModal.classList.contains('show');
+                if (isOpen) closeCare();
+                else openCare();
+            });
+
+            if (closeBtn) closeBtn.addEventListener('click', closeCare);
+
+            // Close on background click
+            careModal.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'care-modal') {
+                    closeCare();
+                }
+            });
+
+            // Close on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && careModal.classList.contains('show')) {
+                    closeCare();
+                }
+            });
+
+            if (feed) feed.addEventListener('click', () => doCare('feed'));
+            if (pet) pet.addEventListener('click', () => doCare('pet'));
+            if (heal) heal.addEventListener('click', () => doCare('heal'));
+            if (sleep) sleep.addEventListener('click', () => doCare('sleep'));
+
+            refreshCareUI();
+            persist();
+        }
+
+        // Init after core DOM is ready (file is loaded late, but safe to call)
+        try { initCareRitual(); } catch (e) { console.warn('Care ritual init failed', e); }
 
         // 🎯 MEMORY MATCH GAME
         let memoryCards = [];
