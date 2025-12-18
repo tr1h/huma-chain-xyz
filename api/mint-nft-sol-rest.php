@@ -466,17 +466,17 @@ try {
         error_log("⚠️ Failed to log NFT mint transaction: code={$mintTransaction['code']}");
     }
 
-    // 10.2. Log SOL distribution transactions (50% Main, 30% Liquidity, 20% Team)
+    // 10.2. Log SOL distribution transactions (40% Main, 30% Liquidity, 30% Team)
     // These show where the SOL payment went
 
-    // Treasury Main (50%)
-    $mainAmount = $price_sol * 0.50;
+    // Treasury Main (40%)
+    $mainAmount = $price_sol * 0.40;
     $mainMetadata = [
         'source' => 'nft_mint_sol',
         'tier' => $tier_name,
         'rarity' => $rarity,
         'buyer' => $telegram_id,
-        'percentage' => 50,
+        'percentage' => 40,
         'total_price_sol' => $price_sol,
         'amount_sol' => $mainAmount
     ];
@@ -510,7 +510,7 @@ try {
         $liquidityMetadata['transaction_signature'] = $transaction_signature;
     }
     $liquidityTx = supabaseQuery('transactions', 'POST', [
-        'user_id' => 'FFM3AaQEYQVPVcWqHwm7AXGXS6BjzvZ8S4EhxLKQfCuA', // Treasury Liquidity
+        'user_id' => '5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z', // Treasury Liquidity (Standard)
         'username' => '💧 Treasury Liquidity',
         'type' => 'nft_revenue_liquidity',
         'amount' => $liquidityAmount,
@@ -519,14 +519,14 @@ try {
         'metadata' => json_encode($liquidityMetadata)
     ]);
 
-    // Treasury Team (20%)
-    $teamAmount = $price_sol * 0.20;
+    // Treasury Team (30%)
+    $teamAmount = $price_sol * 0.30;
     $teamMetadata = [
         'source' => 'nft_mint_sol',
         'tier' => $tier_name,
         'rarity' => $rarity,
         'buyer' => $telegram_id,
-        'percentage' => 20,
+        'percentage' => 30,
         'total_price_sol' => $price_sol,
         'amount_sol' => $teamAmount
     ];
@@ -535,7 +535,7 @@ try {
         $teamMetadata['transaction_signature'] = $transaction_signature;
     }
     $teamTx = supabaseQuery('transactions', 'POST', [
-        'user_id' => 'BmP4EJjWETjxE9ALZ7sTNMkAYkh5vTbbUBHuq5FVQUWk', // Treasury Team
+        'user_id' => 'AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR', // Treasury Team (Standard)
         'username' => '👥 Treasury Team',
         'type' => 'nft_revenue_team',
         'amount' => $teamAmount,

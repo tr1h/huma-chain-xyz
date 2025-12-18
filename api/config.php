@@ -46,10 +46,10 @@ if (!TAMA_MINT_ADDRESS) {
 // Solana RPC Settings
 define('SOLANA_RPC_URL', getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com');
 
-// Treasury Wallet Addresses (loaded from environment)
-define('TREASURY_MAIN', getenv('TREASURY_MAIN'));
-define('TREASURY_LIQUIDITY', getenv('TREASURY_LIQUIDITY'));
-define('TREASURY_TEAM', getenv('TREASURY_TEAM'));
+// Treasury Wallet Addresses (Standard from ADDRESSES_AND_ALLOCATIONS.md)
+define('TREASURY_MAIN', getenv('TREASURY_MAIN') ?: '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM');
+define('TREASURY_LIQUIDITY', getenv('TREASURY_LIQUIDITY') ?: '5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z');
+define('TREASURY_TEAM', getenv('TREASURY_TEAM') ?: 'AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR');
 
 // ============================================
 // PDO DATABASE CONNECTION (OPTIONAL - only if needed)
@@ -58,7 +58,7 @@ define('TREASURY_TEAM', getenv('TREASURY_TEAM'));
 // Only initialize PDO if explicitly needed (lazy initialization)
 function getPDOConnection() {
     static $pdo = null;
-    
+
     if ($pdo === null) {
         try {
             $dsn = sprintf(
@@ -67,21 +67,21 @@ function getPDOConnection() {
                 SUPABASE_DB_PORT,
                 SUPABASE_DB_NAME
             );
-            
+
             $pdo = new PDO($dsn, SUPABASE_DB_USER, SUPABASE_DB_PASSWORD, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false
             ]);
-            
+
             error_log("✅ Database connected successfully");
-            
+
         } catch (PDOException $e) {
             error_log("❌ Database connection failed: " . $e->getMessage());
             throw $e;
         }
     }
-    
+
     return $pdo;
 }
 

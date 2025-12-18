@@ -192,11 +192,11 @@ try {
 
     if ($transaction_signature) {
         try {
-            // Distribution percentages
+            // Distribution percentages (40/30/30 Standard)
             $distribution = [
-                'main' => 0.50,      // 50%
-                'liquidity' => 0.30, // 30%
-                'team' => 0.20       // 20%
+                'main' => 0.40,      // 40% Treasury Main
+                'liquidity' => 0.30, // 30% Liquidity Pool
+                'team' => 0.30       // 30% Team & Development
             ];
 
             // Calculate amounts
@@ -206,15 +206,15 @@ try {
                 'team' => $sent_price * $distribution['team']
             ];
 
-            // Treasury wallet addresses
+            // Treasury wallet addresses (Standard from ADDRESSES_AND_ALLOCATIONS.md)
             $treasury_main = getenv('TREASURY_MAIN') ?: '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
-            $treasury_liquidity = getenv('TREASURY_LIQUIDITY') ?: 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
-            $treasury_team = getenv('TREASURY_TEAM') ?: 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
+            $treasury_liquidity = getenv('TREASURY_LIQUIDITY') ?: '5kHACukYuErqSzURPTtexS7CXdqv9eJ9eNvydDz3o36z';
+            $treasury_team = getenv('TREASURY_TEAM') ?: 'AQr5BM4FUKumKwdcNMWM1FPVx6qLWssp55HqH4SkWXVR';
 
-            error_log("💰 SOL Distribution for Bronze NFT:");
-            error_log("  🏦 Treasury Main: {$amounts['main']} SOL (50%)");
+            error_log("💰 SOL Distribution for Bronze NFT (40/30/30):");
+            error_log("  🏦 Treasury Main: {$amounts['main']} SOL (40%)");
             error_log("  💧 Treasury Liquidity: {$amounts['liquidity']} SOL (30%)");
-            error_log("  👥 Treasury Team: {$amounts['team']} SOL (20%)");
+            error_log("  👥 Treasury Team: {$amounts['team']} SOL (30%)");
 
             // Try to log to sol_distributions table (may not exist)
             try {
@@ -224,7 +224,7 @@ try {
                     'from_wallet' => $wallet_address,
                     'to_wallet' => $treasury_main,
                     'amount_sol' => $amounts['main'],
-                    'percentage' => 50,
+                    'percentage' => 40,
                     'distribution_type' => 'main',
                     'nft_tier' => 'Bronze',
                     'telegram_id' => $telegram_id,
@@ -250,7 +250,7 @@ try {
                     'from_wallet' => $wallet_address,
                     'to_wallet' => $treasury_team,
                     'amount_sol' => $amounts['team'],
-                    'percentage' => 20,
+                    'percentage' => 30,
                     'distribution_type' => 'team',
                     'nft_tier' => 'Bronze',
                     'telegram_id' => $telegram_id,
@@ -322,19 +322,19 @@ try {
             $treasury_liquidity = getenv('TREASURY_LIQUIDITY') ?: 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
             $treasury_team = getenv('TREASURY_TEAM') ?: 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
 
-            // Treasury Main (50%)
+            // Treasury Main (40%)
             supabaseQuery('transactions', 'POST', [
                 'user_id' => $treasury_main,
                 'username' => '💰 Treasury Main',
                 'type' => 'treasury_income_from_nft_sol',
-                'amount' => $sent_price * 0.50 * 32800,
+                'amount' => $sent_price * 0.40 * 32800,
                 'balance_before' => 0,
                 'balance_after' => 0,
                 'metadata' => json_encode([
                     'source' => 'bronze_nft_mint_sol',
                     'user' => $telegram_id,
-                    'percentage' => 50,
-                    'amount_sol' => $sent_price * 0.50,
+                    'percentage' => 40,
+                    'amount_sol' => $sent_price * 0.40,
                     'transaction_signature' => $transaction_signature
                 ])
             ]);
@@ -356,19 +356,19 @@ try {
                 ])
             ]);
 
-            // Treasury Team (20%)
+            // Treasury Team (30%)
             supabaseQuery('transactions', 'POST', [
                 'user_id' => $treasury_team,
                 'username' => '👥 Treasury Team',
                 'type' => 'treasury_team_income_from_nft_sol',
-                'amount' => $sent_price * 0.20 * 32800,
+                'amount' => $sent_price * 0.30 * 32800,
                 'balance_before' => 0,
                 'balance_after' => 0,
                 'metadata' => json_encode([
                     'source' => 'bronze_nft_mint_sol',
                     'user' => $telegram_id,
-                    'percentage' => 20,
-                    'amount_sol' => $sent_price * 0.20,
+                    'percentage' => 30,
+                    'amount_sol' => $sent_price * 0.30,
                     'transaction_signature' => $transaction_signature
                 ])
             ]);
