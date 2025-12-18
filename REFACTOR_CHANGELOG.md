@@ -50,6 +50,13 @@
 - ✅ Touch-optimized interactions
 - ✅ Better spacing on small screens
 
+### 🛡️ 7. Security Audit & Hardening (v2.1.0)
+- ✅ **Anti-Replay Protection**: Added database-level signature verification to `verify-payment.php`, `distribute-sol-payment.php`, and all NFT minting scripts.
+- ✅ **Telegram Authentication**: Enforced `initData` validation in `claim-daily-rewards.php` and NFT minting endpoints.
+- ✅ **Eliminated RCE Risks**: Removed `shell_exec` and temporary keypair storage from `api/tama-transfer.php`, replaced with secure Node.js proxy.
+- ✅ **Financial Integrity**: Corrected SOL distribution split to 40/30/30 (Treasury/Liquidity/Team) in `distribute-sol-payment.php`.
+- ✅ **Stress Testing**: Created `test/api/stress-test-replay.js` for automated anti-replay verification.
+
 ---
 
 ## 📊 BEFORE vs AFTER
@@ -59,10 +66,9 @@
 | HTML Size | 752 KB | 652 KB | -100 KB (13%) |
 | HTML Lines | 16,534 | 12,856 | -3,678 lines (22%) |
 | Console.log | 297+ | 0 | -297 (100%) |
-| CSS Structure | Inline | External | Better caching |
-| Load Time | Slower | Faster | ~20-30% faster |
-| Mobile UX | Good | Excellent | 48px buttons |
-| Accessibility | Basic | Enhanced | WCAG compliant |
+| Security Risk | High (RCE, Replay) | Low (Hardened) | 🛡️ Production Grade |
+| Auth Coverage | Partial | Full (TG Verified) | 🔐 Secure Access |
+| SOL Distribution| 50/30/20 | 40/30/30 | 📈 Eco Alignment |
 
 ---
 
