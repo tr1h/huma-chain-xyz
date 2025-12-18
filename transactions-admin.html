@@ -360,6 +360,28 @@
             color: #fff;
         }
 
+        /* 🆕 FIX #5: CSS styles for new transaction types */
+        .type-withdrawal {
+            background: #ef4444;
+            color: white;
+            font-weight: 600;
+        }
+
+        .type-sol-main {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .type-sol-liq {
+            background: #06b6d4;
+            color: #fff;
+        }
+
+        .type-sol-team {
+            background: #8b5cf6;
+            color: #fff;
+        }
+
         .amount-positive {
             color: #10b981;
             font-weight: bold;
@@ -581,6 +603,15 @@
                 <div class="stat-label">Active Users</div>
                 <div class="stat-value" id="active-users">0</div>
             </div>
+            <!-- 🆕 FIX #7: New stat cards for withdrawals and SOL revenue -->
+            <div class="stat-card">
+                <div class="stat-label">Total Withdrawn</div>
+                <div class="stat-value" id="total-withdrawn">0 TAMA</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">SOL Revenue</div>
+                <div class="stat-value" id="total-sol-revenue">0 SOL</div>
+            </div>
         </div>
 
         <div class="filters">
@@ -595,6 +626,8 @@
                     <option value="earn">Earn</option>
                     <option value="spend">Spend</option>
                     <option value="nft">NFT Mint</option>
+                    <option value="withdrawal">Withdrawal</option>
+                    <option value="sol">SOL Distribution</option>
                     <option value="level_up">Level Up</option>
                     <option value="quest">Quest</option>
                     <option value="referral">Referral</option>
@@ -753,15 +786,32 @@
                 }
                 console.log(`✅ Loaded page ${currentPage}: ${allTransactions.length} TAMA transactions (Total: ~${totalCount})`);
                 
-                // Load users data (only on full load, not on updates)
+                // 🆕 FIX #3: Load users data and merge ALL transaction sources
                 if (!updateOnly) {
                     await loadUsersData();
                     
-                    // Load and merge NFT mints
-                    const nftMints = await loadNFTMints();
-                    if (nftMints && nftMints.length > 0) {
-                        console.log(`✅ Merging ${nftMints.length} NFT mints with TAMA transactions`);
-                        allTransactions = [...allTransactions, ...nftMints];
+                    // Load all additional transaction sources in parallel
+                    const [nftMints, withdrawals, solDistributions] = await Promise.all([
+                        loadNFTMints(),
+                        loadWithdrawals(),
+                        loadSOLDistributions()
+                    ]);
+                    
+                    // Merge all data sources
+                    const additionalTransactions = [
+                        ...(nftMints || []),
+                        ...(withdrawals || []),
+                        ...(solDistributions || [])
+                    ];
+                    
+                    if (additionalTransactions.length > 0) {
+                        console.log(`✅ Merging additional transactions:`, {
+                            nftMints: nftMints?.length || 0,
+                            withdrawals: withdrawals?.length || 0,
+                            solDistributions: solDistributions?.length || 0,
+                            total: additionalTransactions.length
+                        });
+                        allTransactions = [...allTransactions, ...additionalTransactions];
                         // Sort by date descending
                         allTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                     }
@@ -846,6 +896,89 @@
             return [];
         }
 
+        // 🆕 FIX #1: Load withdrawals from withdrawals table
+        async function loadWithdrawals() {
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/withdrawals?select=*&order=created_at.desc&limit=1000`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const withdrawals = await response.json();
+                    console.log('✅ Loaded withdrawals:', withdrawals.length);
+                    
+                    return withdrawals.map(w => ({
+                        created_at: w.created_at,
+                        user_id: String(w.telegram_id),
+                        username: allUsers[w.telegram_id]?.telegram_username || '',
+                        type: 'withdrawal',
+                        amount: -(w.amount), // NEGATIVE: outflow from system
+                        balance_after: 0,
+                        balance_before: 0,
+                        metadata: {
+                            wallet_address: w.wallet_address,
+                            tx_signature: w.tx_signature,
+                            status: w.status,
+                            completed_at: w.completed_at
+                        }
+                    }));
+                }
+            } catch (error) {
+                console.error('⚠️ Error loading withdrawals:', error);
+            }
+            return [];
+        }
+
+        // 🆕 FIX #2: Load SOL distributions from sol_distributions table
+        async function loadSOLDistributions() {
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/sol_distributions?select=*&order=created_at.desc&limit=5000`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const distributions = await response.json();
+                    console.log('✅ Loaded SOL distributions:', distributions.length);
+                    
+                    return distributions.map(d => ({
+                        created_at: d.created_at,
+                        user_id: String(d.telegram_id || 'TREASURY'),
+                        username: `${d.distribution_type.toUpperCase()} (${d.percentage}%)`,
+                        type: `sol_distribution_${d.distribution_type}`,
+                        amount: d.amount_sol, // SOL amount
+                        balance_after: 0,
+                        balance_before: 0,
+                        metadata: {
+                            transaction_signature: d.transaction_signature,
+                            from_wallet: d.from_wallet,
+                            to_wallet: d.to_wallet,
+                            percentage: d.percentage,
+                            nft_tier: d.nft_tier,
+                            status: d.status,
+                            execution_signature: d.execution_signature,
+                            note: d.status === 'pending' ? 'Planned distribution (pending execution)' : 'Completed distribution'
+                        }
+                    }));
+                }
+            } catch (error) {
+                console.error('⚠️ Error loading SOL distributions:', error);
+            }
+            return [];
+        }
+
+        // 🆕 FIX #6: Update stats calculation to include withdrawals and SOL revenue
         function updateStats() {
             // Ensure allTransactions is always an array
             if (!Array.isArray(allTransactions)) {
@@ -856,19 +989,31 @@
             // ✅ CORRECTED LOGIC: Calculate by sign of amount, not by type
             let totalEarned = 0;
             let totalSpent = 0;
+            let totalWithdrawn = 0;  // 🆕 NEW: Track withdrawals separately
+            let totalSOLRevenue = 0;  // 🆕 NEW: Track SOL revenue
             let nftMintCount = 0;
             let burnCount = 0;
             
             allTransactions.forEach(t => {
                 const amount = t.amount || 0;
                 
+                // 🆕 Track withdrawals separately
+                if (t.type === 'withdrawal') {
+                    totalWithdrawn += Math.abs(amount);
+                }
+                
+                // 🆕 Track SOL distributions
+                if (t.type && t.type.startsWith('sol_distribution_')) {
+                    totalSOLRevenue += amount; // In SOL
+                }
+                
                 // Count NFT mints
-                if (t.type.includes('nft_mint')) {
+                if (t.type && t.type.includes('nft_mint')) {
                     nftMintCount++;
                 }
                 
                 // Count burns separately
-                if (t.type.includes('burn')) {
+                if (t.type && t.type.includes('burn')) {
                     burnCount++;
                 }
                 
@@ -893,11 +1038,24 @@
             document.getElementById('net-flow').textContent = Math.round(netFlow).toLocaleString() + ' TAMA';
             document.getElementById('active-users').textContent = uniqueUsers;
             
+            // 🆕 Update new stat cards if they exist
+            const withdrawnEl = document.getElementById('total-withdrawn');
+            if (withdrawnEl) {
+                withdrawnEl.textContent = Math.round(totalWithdrawn).toLocaleString() + ' TAMA';
+            }
+            
+            const solRevenueEl = document.getElementById('total-sol-revenue');
+            if (solRevenueEl) {
+                solRevenueEl.textContent = totalSOLRevenue.toFixed(2) + ' SOL';
+            }
+            
             // 📊 Console stats for debugging
             console.log('📊 STATS UPDATE:', {
                 totalTransactions: totalCount,
                 totalEarned: Math.round(totalEarned),
                 totalSpent: Math.round(totalSpent),
+                totalWithdrawn: Math.round(totalWithdrawn),  // 🆕 NEW
+                totalSOLRevenue: totalSOLRevenue.toFixed(2),  // 🆕 NEW
                 nftMints: nftMintCount,
                 burns: burnCount,
                 netFlow: Math.round(netFlow),
@@ -924,8 +1082,12 @@
                 const isBurn = t.type.includes('burn');
                 const isSOL = t.type.includes('_sol') || (t.metadata && typeof t.metadata === 'string' && t.metadata.includes('"payment_method":"SOL"'));
                 
-                // Type badge color
-                const typeClass = t.type.startsWith('earn') ? 'type-earn' : 
+                // 🆕 FIX #4: Type badge color with new transaction types
+                const typeClass = t.type === 'withdrawal' ? 'type-withdrawal' :  // 🆕 Withdrawals
+                                 t.type === 'sol_distribution_main' ? 'type-sol-main' :  // 🆕 SOL Main
+                                 t.type === 'sol_distribution_liquidity' ? 'type-sol-liq' :  // 🆕 SOL Liquidity
+                                 t.type === 'sol_distribution_team' ? 'type-sol-team' :  // 🆕 SOL Team
+                                 t.type.startsWith('earn') ? 'type-earn' : 
                                  t.type === 'nft_mint_tama' ? 'type-nft-tama' :
                                  t.type === 'nft_mint_sol' ? 'type-nft-sol' :
                                  t.type === 'nft_mint' ? 'type-spend' :
@@ -1128,9 +1290,14 @@
                     return false;
                 }
                 // Handle NFT filter separately
+                // 🆕 Enhanced filter logic for new types
                 if (typeFilter === 'nft' && !t.type.includes('nft_mint')) {
                     return false;
-                } else if (typeFilter && typeFilter !== 'nft' && !t.type.includes(typeFilter)) {
+                } else if (typeFilter === 'withdrawal' && t.type !== 'withdrawal') {
+                    return false;
+                } else if (typeFilter === 'sol' && !t.type.startsWith('sol_distribution_')) {
+                    return false;
+                } else if (typeFilter && typeFilter !== 'nft' && typeFilter !== 'withdrawal' && typeFilter !== 'sol' && !t.type.includes(typeFilter)) {
                     return false;
                 }
                 if (dateFrom && new Date(t.created_at) < new Date(dateFrom)) {
