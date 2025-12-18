@@ -24,7 +24,7 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 const focused = document.activeElement;
-                
+
                 // Клик на focused элементе
                 if (focused && (
                     focused.classList.contains('action-btn') ||
@@ -102,12 +102,12 @@
             messageContainer.setAttribute('aria-atomic', 'true');
         }
 
-        // Pet sprite
+        // Pet sprite - REMOVED tabindex to prevent annoying yellow square on click
         const petSprite = document.getElementById('pet-sprite');
         if (petSprite) {
             petSprite.setAttribute('role', 'button');
             petSprite.setAttribute('aria-label', 'Click your pet to earn TAMA and XP');
-            petSprite.setAttribute('tabindex', '0');
+            // petSprite.setAttribute('tabindex', '0'); // Removed to fix visual bug
         }
 
         // Game cards
@@ -156,10 +156,21 @@
             }
 
             /* Focus для pet - только для клавиатуры */
-            #pet-sprite:focus-visible {
+            #pet-sprite:focus-visible,
+            .pet-area:focus-visible,
+            .vector-pet:focus-visible {
                 outline: 3px solid #fbbf24 !important;
                 outline-offset: 8px !important;
                 filter: brightness(1.1);
+            }
+
+            #pet-sprite:focus,
+            .pet-area:focus,
+            .vector-pet:focus,
+            #pet-sprite:active,
+            .pet-area:active {
+                outline: none !important;
+                box-shadow: none !important;
             }
 
             #pet-sprite:focus:not(:focus-visible) {
