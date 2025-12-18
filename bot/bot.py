@@ -48,6 +48,20 @@ except Exception as e:
     faq_handler = None
     print(f"⚠️ FAQ Handler disabled: {e}")
 
+# 🆕 FIX #3: Import Admin Whitelist
+try:
+    from admin_whitelist import is_admin_whitelisted, contains_whitelisted_link, should_allow_link
+    print("✅ Admin Whitelist loaded successfully")
+except Exception as e:
+    print(f"⚠️ Admin Whitelist disabled: {e}")
+    # Fallback functions if module not available
+    def is_admin_whitelisted(text, user_id, admin_ids):
+        return user_id in admin_ids
+    def contains_whitelisted_link(text):
+        return False
+    def should_allow_link(text, user_id, admin_ids):
+        return user_id in admin_ids
+
 # Import localization system (11 languages support)
 try:
     from localization import t, detect_language
@@ -99,6 +113,15 @@ except Exception:
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 BOT_USERNAME = os.getenv('BOT_USERNAME', 'GotchiGameBot')
 bot = telebot.TeleBot(TOKEN)
+
+# 🆕 FIX #2: Get bot's own ID for self-message detection
+BOT_ID = None
+try:
+    bot_info = bot.get_me()
+    BOT_ID = bot_info.id
+    print(f"✅ Bot ID: {BOT_ID} (@{bot_info.username})")
+except Exception as e:
+    print(f"⚠️ Could not get bot ID: {e}")
 
 # URLs
 GAME_URL = os.getenv('GAME_URL', 'https://solanatamagotchi.com/tamagotchi-game.html?v=20251113')  # Telegram Mini App URL
@@ -221,8 +244,8 @@ user_messages = defaultdict(list)
 SPAM_LIMIT = 5  # messages
 SPAM_WINDOW = 10  # seconds
 
-# Banned words
-BANNED_WORDS = ['spam', 'scam', 'http://', 'https://']  # Add more
+# 🗑️ REMOVED: BANNED_WORDS (was dead code, never used)
+# Use admin_whitelist.py for link filtering instead
 
 # Muted users
 muted_users = {}
@@ -646,13 +669,17 @@ def check_suspicious_activity(user_id, action):
     """Check for suspicious activity patterns"""
     current_time = time.time()
 
+    # 🆕 FIX #7: Skip monitoring for admins - they can send unlimited messages
+    if is_admin(user_id):
+        return False
+
     # Check for high request rate
     current_minute = int(current_time // 60)
     requests_this_minute = monitoring_stats['requests_per_minute'][current_minute]
 
     if requests_this_minute > 50:  # More than 50 requests per minute
         monitoring_stats['suspicious_activities'] += 1
-        send_admin_alert(f"⚠️ **HIGH REQUEST RATE DETECTED**\n\nUser: {user_id}\nRequests this minute: {requests_this_minute}\nAction: {action}")
+        send_admin_alert(f"⚠️ **HIGH REQUEST RATE DETECTED**\n\nUser: {user_id} (NOT an admin)\nRequests this minute: {requests_this_minute}\nAction: {action}")
         return True
 
     # Check for rapid referral attempts
@@ -705,13 +732,8 @@ def check_spam(user_id):
     user_messages[user_id].append(now)
     return len(user_messages[user_id]) > SPAM_LIMIT
 
-# Filter banned words
-def has_banned_words(text):
-    text_lower = text.lower()
-    for word in BANNED_WORDS:
-        if word in text_lower:
-            return True
-    return False
+# 🗑️ REMOVED: has_banned_words() function (was dead code, never called)
+# Use admin_whitelist.should_allow_link() for link filtering instead
 
 # Middleware for group messages (NON-COMMAND messages only)
 @bot.message_handler(func=lambda message: message.chat.type in ['group', 'supergroup'] and message.text and not message.text.startswith('/'))
@@ -730,6 +752,11 @@ def handle_group_message(message):
         print(f"✅ Bot message ignored (is_bot=True): {message.from_user.username or message.from_user.id}")
         return
 
+    # 🆕 FIX #2: Additional check - ignore messages from our bot's ID
+    if BOT_ID and message.from_user.id == BOT_ID:
+        print(f"✅ Message from our bot ignored (BOT_ID check): {BOT_ID}")
+        return
+
     # 🛡️ IGNORE ADMINS - they can spam for testing/management
     if user_id in ADMIN_IDS:
         print(f"✅ Admin message ignored: {user_id}")
@@ -740,7 +767,8 @@ def handle_group_message(message):
         print(f"✅ @gotchigamebot message ignored")
         return
 
-    # FAQ AUTO-RESPONSE (process BEFORE anti-spam for admins too)
+    # FAQ AUTO-RESPONSE (admins are already filtered out above at line 734)
+    # This code runs ONLY for non-admin users
     if FAQ_ENABLED and faq_handler and message.text:
         try:
             response_type, response_text = faq_handler.process_message(message.text)
