@@ -8,11 +8,11 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      
+
       // Get language from URL parameter
       const urlParams = new URLSearchParams(window.location.search);
       const lang = urlParams.get('lang') || 'en';
-      
+
       // Configure Google Analytics with language
       gtag('config', 'G-L7LVQM50LV', {
         'language': lang,
@@ -22,14 +22,14 @@
           'dimension2': 'auth_method'
         }
       });
-      
+
       // Track page view with language
       gtag('event', 'page_view', {
         'language': lang,
         'page_location': window.location.href,
         'page_title': document.title
       });
-      
+
       // Track language parameter
       if (lang && lang !== 'en') {
         gtag('event', 'language_detected', {

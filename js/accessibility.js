@@ -128,27 +128,42 @@
         const style = document.createElement('style');
         style.id = 'accessibility-focus-styles';
         style.textContent = `
-            /* ♿ Focus Indicators */
-            *:focus {
+            /* ♿ Focus Indicators - только для клавиатуры */
+            *:focus-visible {
                 outline: 3px solid #fbbf24 !important;
                 outline-offset: 2px !important;
             }
 
+            *:focus:not(:focus-visible) {
+                outline: none !important;
+            }
+
             /* Улучшенный focus для кнопок */
-            .action-btn:focus,
-            .game-card:focus,
-            .skin-card-shop:focus,
-            .nav-button:focus {
+            .action-btn:focus-visible,
+            .game-card:focus-visible,
+            .skin-card-shop:focus-visible,
+            .nav-button:focus-visible {
                 outline: 3px solid #fbbf24 !important;
                 outline-offset: 4px !important;
                 box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.2);
             }
 
-            /* Focus для pet */
-            #pet-sprite:focus {
+            .action-btn:focus:not(:focus-visible),
+            .game-card:focus:not(:focus-visible),
+            .skin-card-shop:focus:not(:focus-visible),
+            .nav-button:focus:not(:focus-visible) {
+                outline: none !important;
+            }
+
+            /* Focus для pet - только для клавиатуры */
+            #pet-sprite:focus-visible {
                 outline: 3px solid #fbbf24 !important;
                 outline-offset: 8px !important;
                 filter: brightness(1.1);
+            }
+
+            #pet-sprite:focus:not(:focus-visible) {
+                outline: none !important;
             }
 
             /* Убрать outline для mouse users */

@@ -59,6 +59,22 @@
     animation: emojiFloat 1s ease-out forwards;
 }
 
+/* 🧼 Remove annoying tap squares/outlines on pet */
+.pet-area, 
+.pet-sprite, 
+.vector-pet, 
+.pet-emoji,
+.pet-area *,
+#pet-area,
+#pet-sprite {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
 @keyframes emojiFloat {
     0% {
         transform: translate(0, 0) scale(0.5) rotate(0deg);
@@ -226,11 +242,11 @@
         font-size: 15px !important;
         padding: 12px 16px !important;
     }
-    
+
     .header-stat-value {
         font-size: 16px !important;
     }
-    
+
     .header-stat-label {
         font-size: 10px !important;
     }

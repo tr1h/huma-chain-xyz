@@ -21,7 +21,7 @@ const UIJuice = {
             const el = document.createElement('div');
             el.className = 'emoji-particle';
             el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            
+
             // Random direction and distance
             const angle = Math.random() * Math.PI * 2;
             const distance = 50 + Math.random() * 100;
@@ -78,7 +78,7 @@ const UIJuice = {
      */
     setupStatObservers: function() {
         const bars = ['hp-bar', 'food-bar', 'happy-bar'];
-        
+
         const checkStats = () => {
             bars.forEach(id => {
                 const bar = document.getElementById(id);
