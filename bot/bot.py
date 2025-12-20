@@ -3073,6 +3073,90 @@ def broadcast_message(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
 
+@bot.message_handler(commands=['notify_all'])
+def notify_all_users(message):
+    """Send message to ALL users (personal DM) - Admin only"""
+    if not is_admin(message.from_user.id):
+        bot.reply_to(message, "❌ Admin only")
+        return
+
+    try:
+        # Get message text (everything after /notify_all)
+        text = message.text.replace('/notify_all ', '', 1).strip()
+        
+        if not text or text == '/notify_all':
+            bot.reply_to(message, "❌ Usage: /notify_all <message>\n\nExample:\n/notify_all ⚠️ Important update!\nNew bot: @gotchigame_bot")
+            return
+
+        # Get all users from Supabase
+        bot.reply_to(message, "📊 Fetching users from database...")
+        
+        response = supabase.table('users').select('telegram_id').execute()
+        users = response.data
+        
+        if not users:
+            bot.reply_to(message, "❌ No users found in database")
+            return
+        
+        total_users = len(users)
+        sent_count = 0
+        failed_count = 0
+        blocked_count = 0
+        
+        # Send progress message
+        progress_msg = bot.reply_to(message, f"📤 Sending to {total_users} users...\n\n✅ Sent: 0\n❌ Failed: 0\n🚫 Blocked: 0")
+        
+        # Send to each user
+        for idx, user in enumerate(users, 1):
+            telegram_id = user['telegram_id']
+            
+            try:
+                bot.send_message(telegram_id, text, parse_mode='Markdown')
+                sent_count += 1
+                time.sleep(0.05)  # Rate limiting: 20 messages per second max
+                
+            except telebot.apihelper.ApiTelegramException as e:
+                if "bot was blocked by the user" in str(e).lower() or "user is deactivated" in str(e).lower():
+                    blocked_count += 1
+                else:
+                    failed_count += 1
+                    print(f"❌ Failed to send to {telegram_id}: {e}")
+            except Exception as e:
+                failed_count += 1
+                print(f"❌ Error sending to {telegram_id}: {e}")
+            
+            # Update progress every 10 users
+            if idx % 10 == 0 or idx == total_users:
+                try:
+                    bot.edit_message_text(
+                        f"📤 Sending to {total_users} users...\n\n"
+                        f"✅ Sent: {sent_count}\n"
+                        f"❌ Failed: {failed_count}\n"
+                        f"🚫 Blocked: {blocked_count}\n\n"
+                        f"Progress: {idx}/{total_users} ({int(idx/total_users*100)}%)",
+                        progress_msg.chat.id,
+                        progress_msg.message_id
+                    )
+                except:
+                    pass
+        
+        # Final report
+        final_message = (
+            f"✅ РАССЫЛКА ЗАВЕРШЕНА!\n\n"
+            f"📊 Статистика:\n"
+            f"• Всего пользователей: {total_users}\n"
+            f"• ✅ Успешно: {sent_count}\n"
+            f"• ❌ Ошибки: {failed_count}\n"
+            f"• 🚫 Заблокировали бота: {blocked_count}\n\n"
+            f"Охват: {int(sent_count/total_users*100)}%"
+        )
+        
+        bot.edit_message_text(final_message, progress_msg.chat.id, progress_msg.message_id)
+        
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error during broadcast: {str(e)}")
+        print(f"❌ notify_all error: {e}")
+
 @bot.message_handler(commands=['testpost'])
 def test_post(message):
     """Test auto-posting system - Admin only"""
