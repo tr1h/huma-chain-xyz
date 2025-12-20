@@ -53,7 +53,7 @@ class LegalConsent {
                             <p><strong>By continuing, you agree to:</strong></p>
                             <ul>
                                 <li>
-                                    <a href="/terms" target="_blank">вљ–пёЏ Terms of Service</a>
+                                    <a href="/terms" target="_blank">⚖️ Terms of Service</a>
                                     <span class="legal-doc-desc">Rules and conditions for using the game</span>
                                 </li>
                                 <li>
