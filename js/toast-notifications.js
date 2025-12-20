@@ -209,6 +209,8 @@
     // ==========================================
 
     let toastContainer;
+    const MAX_TOASTS = 3; // Максимум 3 уведомления одновременно
+    const toastCache = new Map(); // Кеш для предотвращения дубликатов
 
     function getToastContainer() {
         if (!toastContainer) {
@@ -228,12 +230,31 @@
             type = 'info',
             title,
             message,
-            duration = 4000,
+            duration = 2500, // Сокращено с 4000 до 2500мс
             icon,
             closable = true
         } = options;
 
         const container = getToastContainer();
+
+        // 🚫 Проверка дубликатов: если такое сообщение уже показывается, игнорируем
+        const cacheKey = `${type}-${title}-${message}`;
+        const now = Date.now();
+        if (toastCache.has(cacheKey)) {
+            const lastShown = toastCache.get(cacheKey);
+            if (now - lastShown < 3000) { // Не показываем дубликаты в течение 3 секунд
+                console.log('🚫 Duplicate toast prevented:', message);
+                return null;
+            }
+        }
+        toastCache.set(cacheKey, now);
+
+        // 🔢 Ограничение количества: удаляем старые уведомления
+        const existingToasts = container.querySelectorAll('.toast:not(.hide)');
+        if (existingToasts.length >= MAX_TOASTS) {
+            // Удаляем самое старое уведомление
+            removeToast(existingToasts[0]);
+        }
 
         // Toast element
         const toast = document.createElement('div');
@@ -353,33 +374,33 @@
         // Generic
         show: (options) => createToast(options),
 
-        // Shortcuts
+        // Shortcuts (укороченные длительности)
         success: (message, title = 'Success!') => createToast({
             type: 'success',
             title,
             message,
-            duration: 3000
+            duration: 2000 // Было 3000
         }),
 
         error: (message, title = 'Error!') => createToast({
             type: 'error',
             title,
             message,
-            duration: 5000
+            duration: 3000 // Было 5000
         }),
 
         warning: (message, title = 'Warning!') => createToast({
             type: 'warning',
             title,
             message,
-            duration: 4000
+            duration: 2500 // Было 4000
         }),
 
         info: (message, title) => createToast({
             type: 'info',
             title,
             message,
-            duration: 3000
+            duration: 2000 // Было 3000
         }),
 
         // Clear all toasts

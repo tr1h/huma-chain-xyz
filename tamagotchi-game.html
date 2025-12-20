@@ -7648,12 +7648,24 @@
 
         // Old sendDataToBot function removed - using enhanced version below
 
+        // Дебаунсинг для предупреждений (не показываем одно и то же предупреждение слишком часто)
+        const warningDebounce = {};
+        
         function showMessage(msg) {
             if (messageDiv) {
             messageDiv.textContent = msg;
             messageDiv.classList.remove('message');
             void messageDiv.offsetWidth; // Trigger reflow
             messageDiv.classList.add('message');
+            }
+        }
+
+        function showWarning(key, msg) {
+            const now = Date.now();
+            // Показываем предупреждение только раз в 30 секунд
+            if (!warningDebounce[key] || now - warningDebounce[key] > 30000) {
+                warningDebounce[key] = now;
+                showMessage(msg);
             }
         }
 
@@ -7689,25 +7701,25 @@
 
                 updateUI();
 
-                // NEW: Progressive warning system
+                // NEW: Progressive warning system (с дебаунсингом)
                 if (gameState.hp <= 0) {
-                    showMessage('💀 Your pet has fainted! Emergency healing needed!');
+                    showWarning('hp-0', '💀 Your pet has fainted! Emergency healing needed!');
                 } else if (gameState.hp < 10) {
-                    showMessage('🚨 CRITICAL! Your pet is dying! Heal immediately!');
+                    showWarning('hp-10', '🚨 CRITICAL! Your pet is dying! Heal immediately!');
                 } else if (gameState.hp < 20) {
-                    showMessage('⚠️ DANGER! Your pet needs healing!');
+                    showWarning('hp-20', '⚠️ DANGER! Your pet needs healing!');
                 } else if (gameState.food <= 0) {
-                    showMessage('🍽️ Your pet is starving! Feed it now!');
+                    showWarning('food-0', '🍽️ Your pet is starving! Feed it now!');
                 } else if (gameState.food < 10) {
-                    showMessage('⚠️ Your pet is very hungry! Feed it!');
+                    showWarning('food-10', '⚠️ Your pet is very hungry! Feed it!');
                 } else if (gameState.food < 20) {
-                    showMessage('🍽️ Your pet is hungry! Feed it!');
+                    showWarning('food-20', '🍽️ Your pet is hungry! Feed it!');
                 } else if (gameState.happy <= 0) {
-                    showMessage('😢 Your pet is severely depressed! Play with it!');
+                    showWarning('happy-0', '😢 Your pet is severely depressed! Play with it!');
                 } else if (gameState.happy < 20) {
-                    showMessage('😢 Your pet is very sad. Play with it!');
+                    showWarning('happy-20', '😢 Your pet is very sad. Play with it!');
                 } else if (gameState.happy < 30) {
-                    showMessage('😢 Your pet is sad. Play with it!');
+                    showWarning('happy-30', '😢 Your pet is sad. Play with it!');
                 }
             }
         }, 5000); // Check every 5 seconds
