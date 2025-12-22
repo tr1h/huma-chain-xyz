@@ -14397,6 +14397,21 @@ ${link}`;
                             }
                         });
                         console.log('✅ Pet click handler re-initialized');
+                        
+                        // 🛒 Re-initialize shop button after petArea clone
+                        const shopBtnNew = document.getElementById('shop-btn');
+                        const shopModalNew = document.getElementById('shop-modal');
+                        if (shopBtnNew && shopModalNew) {
+                            shopBtnNew.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('🛒 Shop button clicked!');
+                                shopModalNew.classList.add('active');
+                                document.getElementById('shop-items').style.display = 'block';
+                                document.getElementById('shop-skins').style.display = 'none';
+                            });
+                            console.log('✅ Shop button re-initialized after petArea clone');
+                        }
                     }
                 }
 

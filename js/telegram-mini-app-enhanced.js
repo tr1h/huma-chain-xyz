@@ -237,18 +237,12 @@
     // ==========================================
 
     function lockViewport() {
-        // Запретить zoom на iOS
-        document.addEventListener('touchmove', (e) => {
-            if (e.scale !== 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
+        // Only prevent pinch zoom, allow normal scrolling
         document.addEventListener('gesturestart', (e) => {
             e.preventDefault();
         });
 
-        console.log('✅ Viewport locked');
+        console.log('✅ Viewport locked (zoom only)');
     }
 
     // ==========================================
