@@ -26,9 +26,9 @@
         // Expand to full height
         tg.expand();
 
-        // Disable vertical swipes (чтобы не закрывался случайно)
-        if (tg.disableVerticalSwipes) {
-            tg.disableVerticalSwipes();
+        // Enable vertical swipes for scrolling
+        if (tg.enableVerticalSwipes) {
+            tg.enableVerticalSwipes();
         }
 
         // Enable closing confirmation
@@ -121,9 +121,10 @@
                 display: none !important;
             }
 
-            /* Убрать scrollbar */
+            /* Enable scrolling */
             body.telegram-webapp {
-                overflow: hidden;
+                overflow-y: auto !important;
+                overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;
             }
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Legal Consent Modal
  * Shows terms acceptance modal for first-time users
  */
@@ -39,13 +39,13 @@ class LegalConsent {
             <div id="legal-consent-modal" class="legal-consent-overlay">
                 <div class="legal-consent-modal">
                     <div class="legal-consent-header">
-                        <h2>вљ пёЏ Important: Please Read</h2>
+                        <h2>&#9888;&#65039; Important: Please Read</h2>
                         <p class="legal-consent-subtitle">Before you continue, please review our legal documents</p>
                     </div>
                     
                     <div class="legal-consent-content">
                         <div class="legal-warning-box">
-                            <p><strong>рџљЁ THIS IS A GAMEвЂ”NOT AN INVESTMENT OPPORTUNITY.</strong></p>
+                            <p><strong>&#128680; THIS IS A GAME - NOT AN INVESTMENT OPPORTUNITY.</strong></p>
                             <p>TAMA tokens are for in-game use only. You may lose all value. Only participate with funds you can afford to lose.</p>
                         </div>
 
@@ -53,15 +53,15 @@ class LegalConsent {
                             <p><strong>By continuing, you agree to:</strong></p>
                             <ul>
                                 <li>
-                                    <a href="/terms" target="_blank">⚖️ Terms of Service</a>
+                                    <a href="/terms" target="_blank">&#9878;&#65039; Terms of Service</a>
                                     <span class="legal-doc-desc">Rules and conditions for using the game</span>
                                 </li>
                                 <li>
-                                    <a href="/privacy" target="_blank">рџ”’ Privacy Policy</a>
+                                    <a href="/privacy" target="_blank">&#128274; Privacy Policy</a>
                                     <span class="legal-doc-desc">How we collect and use your data</span>
                                 </li>
                                 <li>
-                                    <a href="/disclaimer" target="_blank">вљ пёЏ Risk Warning</a>
+                                    <a href="/disclaimer" target="_blank">&#9888;&#65039; Risk Warning</a>
                                     <span class="legal-doc-desc">Important information about risks</span>
                                 </li>
                             </ul>
@@ -383,19 +383,13 @@ class LegalConsent {
 
         // Hide legal documents sidebar/panel if exists
         this.hideLegalSidebar();
-
-        // Log acceptance (for analytics if needed)
-        // [cleaned]
     }
 
     hideLegalSidebar() {
         // Hide legal footer by ID (most reliable)
         const legalFooter = document.getElementById('legal-footer');
         if (legalFooter) {
-            // Add class for CSS rule
             legalFooter.classList.add('hidden-consent');
-            
-            // Force hide with inline styles
             legalFooter.style.display = 'none';
             legalFooter.style.visibility = 'hidden';
             legalFooter.style.opacity = '0';
@@ -406,81 +400,38 @@ class LegalConsent {
             legalFooter.style.position = 'absolute';
             legalFooter.style.left = '-9999px';
             legalFooter.style.width = '0';
-            legalFooter.style.transition = 'opacity 0.3s ease, display 0.3s ease';
-            // [cleaned]
         }
 
-        // Try to find and hide legal sidebar/panel on the right side
+        // Try to find and hide legal sidebar/panel
         const selectors = [
             '.legal-sidebar',
             '.legal-panel',
             '.documents-sidebar',
             '.documents-panel',
             '[class*="legal"][class*="sidebar"]',
-            '[class*="legal"][class*="panel"]',
-            '[id*="legal"][id*="sidebar"]',
-            '[id*="legal"][id*="panel"]',
-            'div[style*="position: fixed"][style*="right"]',
-            'div[style*="position:fixed"][style*="right"]'
+            '[class*="legal"][class*="panel"]'
         ];
 
         selectors.forEach(selector => {
             try {
                 const elements = document.querySelectorAll(selector);
                 elements.forEach(el => {
-                    // Check if element contains legal text
                     const text = el.textContent || '';
                     if (text.includes('Privacy Policy') || text.includes('Terms of Service') || text.includes('Risk Warning')) {
                         el.style.display = 'none';
                         el.style.opacity = '0';
-                        el.style.transition = 'opacity 0.3s ease';
-                        // [cleaned]
                     }
                 });
             } catch (e) {
                 // Ignore invalid selectors
             }
         });
-
-        // Also check for any fixed right-side elements that might be legal docs
-        const allFixedElements = document.querySelectorAll('[style*="position: fixed"], [style*="position:fixed"]');
-        allFixedElements.forEach(el => {
-            const style = el.getAttribute('style') || '';
-            const text = el.textContent || '';
-            if (style.includes('right') && (text.includes('Privacy Policy') || text.includes('Terms of Service') || text.includes('Risk Warning'))) {
-                el.style.display = 'none';
-                el.style.opacity = '0';
-                el.style.transition = 'opacity 0.3s ease';
-                // [cleaned]
-            }
-        });
-
-        // Also check for any element containing legal text that might be positioned incorrectly
-        const allElements = document.querySelectorAll('div, section, aside');
-        allElements.forEach(el => {
-            const text = el.textContent || '';
-            const style = window.getComputedStyle(el);
-            if ((text.includes('Privacy Policy') || text.includes('Terms of Service') || text.includes('Risk Warning')) && 
-                (style.position === 'fixed' || style.position === 'absolute')) {
-                // Check if it's on the right side
-                const rect = el.getBoundingClientRect();
-                if (rect.right > window.innerWidth || rect.left > window.innerWidth * 0.7) {
-                    el.style.display = 'none';
-                    el.style.opacity = '0';
-                    el.style.transition = 'opacity 0.3s ease';
-                    // [cleaned]
-                }
-            }
-        });
     }
 
     declineConsent() {
-        // Redirect to home or show message
         if (confirm('You must accept the terms to use Solana Tamagotchi. Would you like to review the documents?')) {
-            // Keep modal open
             return;
         } else {
-            // Redirect to main site or close game
             window.location.href = '/';
         }
     }
@@ -504,5 +455,3 @@ fadeOutStyle.textContent = `
     }
 `;
 document.head.appendChild(fadeOutStyle);
-
-
