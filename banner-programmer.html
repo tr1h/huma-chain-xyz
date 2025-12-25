@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Stack Разработчик - Баннер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .banner {
+            width: 1920px;
+            height: 400px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #4C1D95 50%, #1E40AF 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+        }
+
+        /* Фоновые элементы */
+        .banner::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Частицы света */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 30%; top: 60%; animation-delay: 1s; }
+        .particle:nth-child(3) { left: 50%; top: 30%; animation-delay: 2s; }
+        .particle:nth-child(4) { left: 70%; top: 50%; animation-delay: 1.5s; }
+        .particle:nth-child(5) { left: 90%; top: 25%; animation-delay: 0.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+        }
+
+        /* Левая часть - Текст */
+        .left-section {
+            flex: 1;
+            z-index: 2;
+            max-width: 700px;
+        }
+
+        .main-title {
+            font-size: 72px;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 4px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 30px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+        }
+
+        /* Правая часть - Иконки */
+        .right-section {
+            flex: 1;
+            z-index: 2;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .tech-icons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .icon-box {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .icon-box:nth-child(1) { animation-delay: 0s; }
+        .icon-box:nth-child(2) { animation-delay: 0.5s; }
+        .icon-box:nth-child(3) { animation-delay: 1s; }
+        .icon-box:nth-child(4) { animation-delay: 0.3s; }
+        .icon-box:nth-child(5) { animation-delay: 0.8s; }
+        .icon-box:nth-child(6) { animation-delay: 0.2s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(139, 92, 246, 0.5); }
+        }
+
+        /* Центральная часть - Код элементы */
+        .center-elements {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            opacity: 0.15;
+        }
+
+        .code-element {
+            font-family: 'Courier New', monospace;
+            font-size: 120px;
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        /* CTA внизу */
+        .cta {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            background: rgba(16, 185, 129, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 40px;
+            border-radius: 50px;
+            color: #FFFFFF;
+            font-size: 24px;
+            font-weight: 700;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Адаптивность для предпросмотра */
+        @media (max-width: 1920px) {
+            .banner {
+                transform: scale(0.5);
+                transform-origin: top left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <!-- Частицы -->
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+
+        <!-- Центральные элементы кода -->
+        <div class="center-elements">
+            <div class="code-element">{ } &lt; / &gt; [ ]</div>
+        </div>
+
+        <!-- Левая часть -->
+        <div class="left-section">
+            <h1 class="main-title">Full-Stack<br>Разработчик</h1>
+            <p class="subtitle">Веб-сайты • Web3 • Боты • API</p>
+            <div class="tech-stack">
+                <span class="tech-item">Next.js</span>
+                <span class="tech-item">React</span>
+                <span class="tech-item">Solana</span>
+                <span class="tech-item">Telegram Bots</span>
+            </div>
+        </div>
+
+        <!-- Правая часть -->
+        <div class="right-section">
+            <div class="tech-icons">
+                <div class="icon-box">⚛️</div>
+                <div class="icon-box">🟢</div>
+                <div class="icon-box">⛓️</div>
+                <div class="icon-box">📱</div>
+                <div class="icon-box">⚡</div>
+                <div class="icon-box">💾</div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta">Готов к новым проектам!</div>
+    </div>
+</body>
+</html>
+
