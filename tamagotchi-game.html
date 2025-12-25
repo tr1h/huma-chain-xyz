@@ -4907,6 +4907,27 @@
             </div>
         </div>
 
+        <!-- Daily Quests -->
+        <div class="quest-area">
+            <h3 style="margin-bottom: 10px;">🎯 <span data-i18n="daily_quests">Daily Quests</span></h3>
+            <div class="quest-item" id="quest-clicks">
+                <div style="font-weight: bold;" data-i18n="click_master">Click Master</div>
+                <div style="font-size: 11px; opacity: 0.8;" data-i18n="click_50_times">Click your pet 50 times</div>
+                <div class="quest-progress">
+                    <span id="quest-clicks-progress">0/50</span>
+                    <span class="quest-reward">+500 TAMA</span>
+                </div>
+            </div>
+            <div class="quest-item" id="quest-level">
+                <div style="font-weight: bold;" data-i18n="level_up">Level Up!</div>
+                <div style="font-size: 11px; opacity: 0.8;" data-i18n="reach_level_5">Reach level 5</div>
+                <div class="quest-progress">
+                    <span id="quest-level-progress">1/5</span>
+                    <span class="quest-reward">+1,000 TAMA</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Stats -->
         <div class="stats-area">
             <div class="stat-bar">
@@ -5018,28 +5039,6 @@
         <div class="message-area">
             <div class="message" id="message" data-i18n="click_to_earn">Click on your pet to earn TAMA! 🐾</div>
         </div>
-
-        <!-- Daily Quests -->
-        <div class="quest-area">
-            <h3 style="margin-bottom: 10px;">🎯 <span data-i18n="daily_quests">Daily Quests</span></h3>
-            <div class="quest-item" id="quest-clicks">
-                <div style="font-weight: bold;" data-i18n="click_master">Click Master</div>
-                <div style="font-size: 11px; opacity: 0.8;" data-i18n="click_50_times">Click your pet 50 times</div>
-                <div class="quest-progress">
-                    <span id="quest-clicks-progress">0/50</span>
-                    <span class="quest-reward">+500 TAMA</span>
-                </div>
-            </div>
-            <div class="quest-item" id="quest-level">
-                <div style="font-weight: bold;" data-i18n="level_up">Level Up!</div>
-                <div style="font-size: 11px; opacity: 0.8;" data-i18n="reach_level_5">Reach level 5</div>
-                <div class="quest-progress">
-                    <span id="quest-level-progress">1/5</span>
-                    <span class="quest-reward">+1,000 TAMA</span>
-                </div>
-            </div>
-        </div>
-
 
         <!-- Auto-save indicator removed - using silent save -->
     </div>
@@ -7650,7 +7649,7 @@
 
         // Дебаунсинг для предупреждений (не показываем одно и то же предупреждение слишком часто)
         const warningDebounce = {};
-        
+
         function showMessage(msg) {
             if (messageDiv) {
             messageDiv.textContent = msg;
@@ -14389,7 +14388,7 @@ ${link}`;
                             if (e.target.closest('.shop-btn') || e.target.closest('#shop-btn')) {
                                 return; // Пропускаем клик, пусть обработается кнопкой
                             }
-                            
+
                             if (e.target.closest('.pet-emoji') || e.target.closest('#pet-sprite') || e.target.closest('#vector-pet')) {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -14397,7 +14396,7 @@ ${link}`;
                             }
                         });
                         console.log('✅ Pet click handler re-initialized');
-                        
+
                         // 🛒 Re-initialize shop button after petArea clone
                         const shopBtnNew = document.getElementById('shop-btn');
                         const shopModalNew = document.getElementById('shop-modal');

@@ -95,3 +95,7 @@ temp/
 *.tmp
 *.old
 *.backup
+*.backup-*
+*ANNOUNCEMENT*.md
+*RECOVERY*.md
+agent
