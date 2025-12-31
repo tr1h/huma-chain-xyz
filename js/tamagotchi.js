@@ -7,8 +7,8 @@
         const SKINS_CONFIG = {
             'kawai': {
                 id: 'kawai',
-                name: 'рџЊё Kawai Blob',
-                nameRu: 'рџЊё РљР°РІР°Р№РЅС‹Р№',
+                name: '🌸 Kawai Blob',
+                nameRu: '🌸 РљР°РІР°Р№РЅС‹Р№',
                 price: 0,
                 rarity: 'default',
                 enabled: true,
@@ -19,8 +19,8 @@
             },
             'retro': {
                 id: 'retro',
-                name: 'рџ•№пёЏ Retro Robot',
-                nameRu: 'рџ•№пёЏ Р РµС‚СЂРѕ Р РѕР±РѕС‚',
+                name: '🤖 Retro Robot',
+                nameRu: '🤖 Р РµС‚СЂРѕ Р РѕР±РѕС‚',
                 price: 1000,
                 rarity: 'common',
                 enabled: true,
@@ -31,8 +31,8 @@
             },
             'neko': {
                 id: 'neko',
-                name: 'рџђ± Neko Cat',
-                nameRu: 'рџђ± РќРµРєРѕ РљРѕС‚',
+                name: '🐱 Neko Cat',
+                nameRu: '🐱 РќРµРєРѕ РљРѕС‚',
                 price: 5000,
                 rarity: 'rare',
                 enabled: true,
@@ -43,8 +43,8 @@
             },
             'cyber': {
                 id: 'cyber',
-                name: 'рџ¤– Cyber Pet',
-                nameRu: 'рџ¤– РљРёР±РµСЂ РџРёС‚РѕРјРµС†',
+                name: '🦖 Cyber Pet',
+                nameRu: '🦖 РљРёР±РµСЂ РџРёС‚РѕРјРµС†',
                 price: 15000,
                 rarity: 'epic',
                 enabled: true,
@@ -79,8 +79,8 @@
             },
             'kitsune': {
                 id: 'kitsune',
-                name: 'рџ¦Љ Kitsune Fox',
-                nameRu: 'рџ¦Љ Р›РёСЃР° РљРёС‚СЃСѓРЅРµ',
+                name: '🦊 Kitsune Fox',
+                nameRu: '🦊 Р›РёСЃР° РљРёС‚СЃСѓРЅРµ',
                 price: 100000,
                 rarity: 'mythic',
                 enabled: true,
@@ -117,8 +117,8 @@
             },
             'reindeer': {
                 id: 'reindeer',
-                name: 'рџ¦Њ Reindeer Pet',
-                nameRu: 'рџ¦Њ РћР»РµРЅСЊ Р СѓРґРѕР»СЊС„',
+                name: '🦌 Reindeer Pet',
+                nameRu: '🦌 РћР»РµРЅСЊ Р СѓРґРѕР»СЊС„',
                 price: 12000,
                 rarity: 'xmas',
                 enabled: true,
@@ -214,7 +214,7 @@
         const PET_TYPES = {
             cat: {
                 name: 'Cat',
-                emoji: 'рџђ±',
+                emoji: '🐱',
                 color: '#FFB3D9',
                 clickPower: 1.2,
                 description: '+20% click power',
@@ -238,7 +238,7 @@
             },
             fox: {
                 name: 'Fox',
-                emoji: 'рџ¦Љ',
+                emoji: '🦊',
                 color: '#FF8C42',
                 xpBonus: 1.5,
                 description: '+50% XP gain',
@@ -479,7 +479,7 @@
                 console.error('Error in updateUI:', error);
             }
 
-            // вњ… Update player name display (in case customUsername changed)
+            // ✅ Update player name display (in case customUsername changed)
             if (typeof updatePlayerNameDisplay === 'function') {
                 updatePlayerNameDisplay();
             }
@@ -500,7 +500,7 @@
                 statusClass = 'critical';
                 mood = 'рџ’Ђ';
             } else if (gameState.hp < 10) {
-                status = 'рџљЁ DYING';
+                status = '🚨 DYING';
                 statusClass = 'critical';
                 mood = 'рџµ';
             } else if (gameState.hp < 20) {
@@ -687,7 +687,7 @@
                 }
 
                 if (gameState.hp < 20) {
-                    showMessage('рџљЁ Your pet is critically ill!');
+                    showMessage('🚨 Your pet is critically ill!');
                     // Low HP reduces click efficiency
                     clickEfficiency = Math.min(clickEfficiency, 0.5);
                 }
@@ -804,7 +804,7 @@
             }
             lastParticleTime = now;
             const particleTypes = [
-                { class: 'blob-purple', emoji: 'рџџЈ', size: 20 },
+                { class: 'blob-purple', emoji: '🟣', size: 20 },
                 { class: 'blob-glow', emoji: '', size: 12 },
                 { class: 'blob-star', emoji: 'вњЁ', size: 18 },
                 { class: 'blob-purple', emoji: 'рџ’њ', size: 22 },
@@ -937,7 +937,7 @@
                 e.stopPropagation();
             }
 
-            // вњ… CHECK AUTHENTICATION: Require Telegram or Wallet to play
+            // ✅ CHECK AUTHENTICATION: Require Telegram or Wallet to play
             if (!window.TELEGRAM_USER_ID && !window.WALLET_ADDRESS) {
                 console.warn('вљ пёЏ Authentication required to play');
                 isProcessingClick = false; // Reset flag
@@ -1135,7 +1135,7 @@
                       `Daily limit: ${formatNumber(gameState.personalDailyLimit)} TAMA\n\n` +
                       `Current period: ${poolInfo.periodName}\n` +
                       `Days left in period: ${poolInfo.daysLeftInPeriod}\n\n` +
-                      `Come back tomorrow to earn more! рџЋ®`);
+                      `Come back tomorrow to earn more! 🎮`);
                 return;
             }
 
@@ -1281,7 +1281,7 @@
 
                 showMessage(`рџЋЉ LEVEL UP! You are now Level ${gameState.level}! Earned ${levelBonus} TAMA!`);
 
-                // вњ… FIX: Log level up transaction with correct function
+                // ✅ FIX: Log level up transaction with correct function
                 if (window.TELEGRAM_USER_ID) {
                     logTransaction('level_up', levelBonus, balanceBefore, balanceAfter, {
                         new_level: gameState.level,
@@ -1298,10 +1298,10 @@
                 // Send level up to bot
                 sendDataToBot('level_up', { level: gameState.level });
 
-                // вњ… Check quests after level up (for "Level Up!" quest)
+                // ✅ Check quests after level up (for "Level Up!" quest)
                 checkQuests();
 
-                // вњ… Update action prices after level up (prices scale with level)
+                // ✅ Update action prices after level up (prices scale with level)
                 updateActionPrices();
             }
         }
@@ -1319,7 +1319,7 @@
             const healCost = getProgressivePrice(100);
 
             feedBtn.innerHTML = `рџЌ”<br>Feed<br><small>-${feedCost} TAMA</small>`;
-            playBtn.innerHTML = `рџЋ®<br>Play<br><small>-${playCost} TAMA</small>`;
+            playBtn.innerHTML = `🎮<br>Play<br><small>-${playCost} TAMA</small>`;
             healBtn.innerHTML = `рџ’Љ<br>Heal<br><small>-${healCost} TAMA</small>`;
         }
 
@@ -1348,7 +1348,7 @@
 
                 triggerAutoSave(); // Auto-save after feeding
             } else {
-                showMessage('вќЊ Not enough TAMA!');
+                showMessage('❌ Not enough TAMA!');
             }
         });
         }
@@ -1363,7 +1363,7 @@
                 gameState.happy = Math.min(gameState.maxHappy, gameState.happy + 40);
                 gameState.food = Math.max(0, gameState.food - 10);
                 gameState.xp += 15;
-                showMessage('рџЋ® So fun! Happy +40, Food -10');
+                showMessage('🎮 So fun! Happy +40, Food -10');
                 checkLevelUp();
                 updateUI();
 
@@ -1379,7 +1379,7 @@
 
                 triggerAutoSave(); // Auto-save after playing
             } else {
-                showMessage('вќЊ Not enough TAMA!');
+                showMessage('❌ Not enough TAMA!');
             }
         });
         }
@@ -1410,7 +1410,7 @@
 
                 triggerAutoSave(); // Auto-save after healing
             } else {
-                showMessage('вќЊ Not enough TAMA!');
+                showMessage('❌ Not enough TAMA!');
             }
         });
         }
@@ -1464,7 +1464,7 @@
                 if (gameState.hp <= 0) {
                     showMessage('рџ’Ђ Your pet has fainted! Emergency healing needed!');
                 } else if (gameState.hp < 10) {
-                    showMessage('рџљЁ CRITICAL! Your pet is dying! Heal immediately!');
+                    showMessage('🚨 CRITICAL! Your pet is dying! Heal immediately!');
                 } else if (gameState.hp < 20) {
                     showMessage('вљ пёЏ DANGER! Your pet needs healing!');
                 } else if (gameState.food <= 0) {
@@ -1611,7 +1611,7 @@
             });
             // [cleaned]
         } else {
-            console.error('вќЊ Shop button or modal not found!', { shopBtn, shopModal });
+            console.error('❌ Shop button or modal not found!', { shopBtn, shopModal });
         }
 
         if (closeShop && shopModal) {
@@ -1634,19 +1634,19 @@
         function buyItem(itemType, price) {
             // Check if player has enough TAMA
             if (gameState.tama < price) {
-                showMessage('вќЊ Not enough TAMA!');
+                showMessage('❌ Not enough TAMA!');
                 return;
             }
 
             // Check if item is already owned (for permanent items)
             if (itemType === 'auto_feed' && gameState.hasAutoFeeder) {
-                showMessage('вќЊ You already own Auto-Feeder!');
+                showMessage('❌ You already own Auto-Feeder!');
                 return;
             }
 
             // Check if booster is already active
             if (itemType === 'booster' && gameState.boosterActive && Date.now() < gameState.boosterEndTime) {
-                showMessage('вќЊ Booster is already active!');
+                showMessage('❌ Booster is already active!');
                 return;
             }
 
@@ -1655,7 +1655,7 @@
             gameState.tama -= price;
             const balanceAfter = gameState.tama;
 
-            // вњ… FIX: Log shop purchase transaction with NEGATIVE amount
+            // ✅ FIX: Log shop purchase transaction with NEGATIVE amount
             if (window.TELEGRAM_USER_ID) {
                 logTransaction('spend_shop', -price, balanceBefore, balanceAfter, {
                     item_type: itemType,
@@ -1695,7 +1695,7 @@
                     break;
 
                 case 'skin':
-                    const skins = ['рџђ¶', 'рџђ±', 'рџђ­', 'рџђ№', 'рџђ°', 'рџ¦Љ', 'рџђ»', 'рџђј', 'рџђЁ', 'рџђЇ', 'рџ¦Ѓ', 'рџђ®', 'рџђ·', 'рџђё', 'рџђµ', 'рџ¦„', 'рџђІ', 'рџ¦–'];
+                    const skins = ['рџђ¶', '🐱', 'рџђ­', 'рџђ№', 'рџђ°', '🦊', 'рџђ»', 'рџђј', 'рџђЁ', 'рџђЇ', 'рџ¦Ѓ', 'рџђ®', 'рџђ·', 'рџђё', 'рџђµ', 'рџ¦„', 'рџђІ', 'рџ¦–'];
                     const randomSkin = skins[Math.floor(Math.random() * skins.length)];
                     const petSprite = document.getElementById('pet-sprite');
                     if (petSprite) {
@@ -1707,7 +1707,7 @@
                     break;
 
                 default:
-                    showMessage('вќЊ Unknown item!');
+                    showMessage('❌ Unknown item!');
                     gameState.tama = balanceBefore; // Refund if unknown item
                     return;
             }
@@ -1732,7 +1732,7 @@
             updateUI();
             document.getElementById('shop-modal').classList.remove('active');
 
-            // вњ… CRITICAL: Force immediate save to prevent balance rollback
+            // ✅ CRITICAL: Force immediate save to prevent balance rollback
             triggerAutoSave(true); // Force critical save
 
             // Also save directly via API to ensure balance is persisted
@@ -1838,16 +1838,16 @@
 
                 // Emoji for preview (temporary until we add SVGs)
                 const emojiMap = {
-                    'kawai': 'рџЊё',
-                    'retro': 'рџ•№пёЏ',
-                    'neko': 'рџђ±',
-                    'cyber': 'рџ¤–',
+                    'kawai': '🌸',
+                    'retro': '🤖',
+                    'neko': '🐱',
+                    'cyber': '🦖',
                     'premium': 'в­ђ',
                     'alien': 'рџ‘Ѕ',
-                    'kitsune': 'рџ¦Љ',
+                    'kitsune': '🦊',
                     'santa': 'рџЋ…',
                     'snowman': 'в›„',
-                    'reindeer': 'рџ¦Њ',
+                    'reindeer': '🦌',
                     'tree': 'рџЋ„',
                     'panda': 'рџђј',
                     'ghost': 'рџ‘»',
@@ -1867,7 +1867,7 @@
                     'divine-angel': 'рџ‘ј',
                     'santa': 'рџЋ…',
                     'snowman': 'в›„',
-                    'reindeer': 'рџ¦Њ',
+                    'reindeer': '🦌',
                     'tree': 'рџЋ„'
                 };
 
@@ -1927,13 +1927,13 @@
 
             // Check if can afford
             if (gameState.tama < skin.price) {
-                showMessage('вќЊ Not enough TAMA!');
+                showMessage('❌ Not enough TAMA!');
                 return;
             }
 
             // Check if available
             if (!isSkinAvailable(skinId)) {
-                showMessage('вќЊ This skin is not available right now!');
+                showMessage('❌ This skin is not available right now!');
                 return;
             }
 
@@ -1950,7 +1950,7 @@
             // Auto-equip
             equipSkin(skinId);
 
-            // вњ… FIX: Log transaction with correct parameter order and NEGATIVE amount
+            // ✅ FIX: Log transaction with correct parameter order and NEGATIVE amount
             if (typeof logTransaction === 'function' && window.TELEGRAM_USER_ID) {
                 logTransaction(
                     'spend_skin',      // type
@@ -1965,11 +1965,11 @@
                 );
             }
 
-            showMessage(`вњ… Purchased ${skin.name}!`);
+            showMessage(`✅ Purchased ${skin.name}!`);
             updateUI();
             loadSkinsShop();
 
-            // вњ… CRITICAL: Force immediate save to prevent balance rollback
+            // ✅ CRITICAL: Force immediate save to prevent balance rollback
             triggerAutoSave(true); // Force critical save
 
             // Also save directly via API to ensure balance is persisted
@@ -1997,7 +1997,7 @@
         // Equip skin
         function equipSkin(skinId) {
             if (!gameState.ownedSkins.includes(skinId)) {
-                showMessage('вќЊ You don\'t own this skin!');
+                showMessage('❌ You don\'t own this skin!');
                 return;
             }
 
@@ -2006,7 +2006,7 @@
             // Apply skin (switch pet visual)
             switchPet(skinId);
 
-            showMessage(`вњ… Equipped ${getSkin(skinId).name}!`);
+            showMessage(`✅ Equipped ${getSkin(skinId).name}!`);
             loadSkinsShop();
             loadOwnedSkinsShop(); // Update owned skins tab
             triggerAutoSave();
@@ -2043,9 +2043,9 @@
                 const isEquipped = gameState.equippedSkin === skinId;
 
                 const emojiMap = {
-                    'kawai': 'рџЊё', 'retro': 'рџ•№пёЏ', 'neko': 'рџђ±', 'cyber': 'рџ¤–',
-                    'premium': 'в­ђ', 'alien': 'рџ‘Ѕ', 'kitsune': 'рџ¦Љ',
-                    'santa': 'рџЋ…', 'snowman': 'в›„', 'reindeer': 'рџ¦Њ', 'tree': 'рџЋ„'
+                    'kawai': '🌸', 'retro': '🤖', 'neko': '🐱', 'cyber': '🦖',
+                    'premium': 'в­ђ', 'alien': 'рџ‘Ѕ', 'kitsune': '🦊',
+                    'santa': 'рџЋ…', 'snowman': 'в›„', 'reindeer': '🦌', 'tree': 'рџЋ„'
                 };
 
                 const skinCard = document.createElement('div');
@@ -2116,7 +2116,7 @@
             if (!isOwned) {
                 // Buy pet
                 if (gameState.tama < pet.price) {
-                    showMessage(`вќЊ Not enough TAMA! Need ${pet.price} TAMA`);
+                    showMessage(`❌ Not enough TAMA! Need ${pet.price} TAMA`);
                     return;
                 }
 
@@ -2135,7 +2135,7 @@
             updateUI();
             triggerAutoSave();
             openPetSelector(); // Refresh selector
-            showMessage(`вњ… ${pet.name} selected! ${pet.description}`);
+            showMessage(`✅ ${pet.name} selected! ${pet.description}`);
 
             playSound('select');
         }
@@ -2291,7 +2291,7 @@
                     }
                 }
             } catch (error) {
-                console.error('вќЊ Error processing referral code:', error);
+                console.error('❌ Error processing referral code:', error);
             }
         }
 
@@ -2302,11 +2302,11 @@
             let userId = null;
 
             try {
-                // вњ… РЈРњРќРћР• РћРџР Р•Р”Р•Р›Р•РќРР•: РџСЂРѕРІРµСЂСЏРµРј РїР°СЂР°РјРµС‚СЂ URL РґР»СЏ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕРіРѕ РІС‹Р±РѕСЂР° РјРµС‚РѕРґР°
+                // ✅ РЈРњРќРћР• РћРџР Р•Р”Р•Р›Р•РќРР•: РџСЂРѕРІРµСЂСЏРµРј РїР°СЂР°РјРµС‚СЂ URL РґР»СЏ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕРіРѕ РІС‹Р±РѕСЂР° РјРµС‚РѕРґР°
                 const urlParams = new URLSearchParams(window.location.search);
                 const forceAuth = urlParams.get('auth'); // 'telegram', 'wallet', РёР»Рё null
 
-                // вњ… РџР РРћР РРўР•Рў 1: Wallet Р°РІС‚РѕСЂРёР·Р°С†РёСЏ (РµСЃР»Рё РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РёР»Рё Telegram РЅРµРґРѕСЃС‚СѓРїРµРЅ/РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ)
+                // ✅ РџР РРћР РРўР•Рў 1: Wallet Р°РІС‚РѕСЂРёР·Р°С†РёСЏ (РµСЃР»Рё РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РёР»Рё Telegram РЅРµРґРѕСЃС‚СѓРїРµРЅ/РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ)
                 // РџСЂРѕРІРµСЂСЏРµРј РЅРµ С‚РѕР»СЊРєРѕ РЅР°Р»РёС‡РёРµ Telegram WebApp, РЅРѕ Рё РЅР°Р»РёС‡РёРµ user ID
                 const hasTelegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ||
                                        (window.Telegram?.WebApp?.initData && window.Telegram.WebApp.initData.includes('user='));
@@ -2337,7 +2337,7 @@
                             gameState.totalClicks = data.clicks || gameState.totalClicks;
                             if (data.pet_name) gameState.petName = data.pet_name;
                             if (data.pet_type) gameState.petType = data.pet_type;
-                            // вњ… Load quest completion status
+                            // ✅ Load quest completion status
                             if (data.questClicksCompleted !== undefined) gameState.questClicksCompleted = data.questClicksCompleted;
                             if (data.questLevelCompleted !== undefined) gameState.questLevelCompleted = data.questLevelCompleted;
                             cloudLoaded = true;
@@ -2362,7 +2362,7 @@
                     }
                 }
 
-                // вњ… РџР РРћР РРўР•Рў 2: Telegram Р°РІС‚РѕСЂРёР·Р°С†РёСЏ (РµСЃР»Рё РґРѕСЃС‚СѓРїРЅР° Рё РЅРµ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ wallet)
+                // ✅ РџР РРћР РРўР•Рў 2: Telegram Р°РІС‚РѕСЂРёР·Р°С†РёСЏ (РµСЃР»Рё РґРѕСЃС‚СѓРїРЅР° Рё РЅРµ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ wallet)
                 if (!cloudLoaded && (forceAuth === 'telegram' || (!forceAuth && hasTelegramUser))) {
                     // Debug: Log Telegram WebApp state
                     // [cleaned] + '...',
@@ -2392,7 +2392,7 @@
                                     // [cleaned]
                                 }
                             } catch (e) {
-                                console.error('вќЊ Failed to parse initData:', e);
+                                console.error('❌ Failed to parse initData:', e);
                             }
                         }
                     }
@@ -2449,7 +2449,7 @@
                     const localLoaded = loadFromLocalStorage();
                     if (localLoaded) {
                         // [cleaned]
-                        // вњ… Update player name display after loading from localStorage
+                        // ✅ Update player name display after loading from localStorage
                         if (typeof updatePlayerNameDisplay === 'function') {
                             setTimeout(() => updatePlayerNameDisplay(), 100);
                         }
@@ -2471,7 +2471,7 @@
                 updateUI();
                     // [cleaned]
                 } else {
-                    console.error('вќЊ updateUI function not found!');
+                    console.error('❌ updateUI function not found!');
                 }
 
                 // вљЎ PARALLEL: Update UI elements and load leaderboard simultaneously
@@ -2530,7 +2530,7 @@
                 });
 
                 if (!response.ok) {
-                    console.error('вќЊ Supabase response not OK:', response.status, response.statusText);
+                    console.error('❌ Supabase response not OK:', response.status, response.statusText);
                     throw new Error(`Failed to fetch from Supabase: ${response.status} ${response.statusText}`);
                 }
 
@@ -2549,7 +2549,7 @@
                     // вљ пёЏ CRITICAL: Verify telegram_id matches (in case of type mismatch)
                     const dbTelegramId = String(userData.telegram_id || '');
                     if (dbTelegramId !== userIdStr) {
-                        console.error('вќЊ TELEGRAM ID MISMATCH!', {
+                        console.error('❌ TELEGRAM ID MISMATCH!', {
                             requested: userIdStr,
                             found: dbTelegramId,
                             error: 'This should never happen!'
@@ -2561,7 +2561,7 @@
                     gameState.level = Number(userData.level) || 1; // Use actual level from DB, not calculated!
                     gameState.xpToLevel = gameState.level * 100;
 
-                    // вњ… Load custom username from Supabase (if user changed it)
+                    // ✅ Load custom username from Supabase (if user changed it)
                     if (userData.telegram_username) {
                         gameState.customUsername = userData.telegram_username;
                         // [cleaned]
@@ -2585,7 +2585,7 @@
                             gameState.totalClicks = petData.totalClicks || 0;
                             gameState.achievements = petData.achievements || [];
 
-                            // вњ… FIX: Load quest flags to prevent duplicate rewards
+                            // ✅ FIX: Load quest flags to prevent duplicate rewards
                             gameState.questClicks = petData.questClicks || 0;
                             gameState.questClicksCompleted = petData.questClicksCompleted || false;
                             gameState.questLevelCompleted = petData.questLevelCompleted || false;
@@ -2606,7 +2606,7 @@
                     // This ensures localStorage is synced with Supabase, not the other way around
                     saveToLocalStorage();
 
-                    // вњ… Update player name display after loading from Supabase
+                    // ✅ Update player name display after loading from Supabase
                     // Use setTimeout to ensure function is defined and DOM is ready
                     setTimeout(() => {
                         if (typeof updatePlayerNameDisplay === 'function') {
@@ -2699,7 +2699,7 @@
                 const statusElement = indicator.querySelector('.save-status');
 
                 indicator.className = `auto-save-indicator show error`;
-                statusElement.textContent = 'вќЊ Save failed';
+                statusElement.textContent = '❌ Save failed';
 
                 setTimeout(() => {
                     indicator.classList.remove('show');
@@ -2767,7 +2767,7 @@
                     ownedPets: gameState.ownedPets,
                     petType: gameState.petType,
                     hasAutoFeeder: gameState.hasAutoFeeder,
-                    // вњ… FIX: Save quest flags to prevent duplicate rewards
+                    // ✅ FIX: Save quest flags to prevent duplicate rewards
                     questClicks: gameState.questClicks,
                     questClicksCompleted: gameState.questClicksCompleted,
                     questLevelCompleted: gameState.questLevelCompleted
@@ -2789,7 +2789,7 @@
                 const requestBody = {
                     user_id: userIdStr,  // вљ пёЏ Always use string
                         user_type: 'telegram',
-                        telegram_username: username,  // вњ… Use custom or default username
+                        telegram_username: username,  // ✅ Use custom or default username
                         tama: gameState.tama,
                         level: gameState.level,
                         xp: gameState.xp,
@@ -2813,11 +2813,11 @@
                     return true;
                 } else {
                     const error = await response.text();
-                    console.error('вќЊ API save failed:', response.status, error);
+                    console.error('❌ API save failed:', response.status, error);
                     return false;
                 }
             } catch (error) {
-                console.error('вќЊ Error saving via API:', error);
+                console.error('❌ Error saving via API:', error);
                 return false;
             }
         }
@@ -2898,7 +2898,7 @@
             // Clear pending flag
             pendingCriticalSave = false;
 
-            // вњ… РџР РРћР РРўР•Рў 1: Wallet (РґР»СЏ СЃС‚СЂР°РЅ Р±РµР· Telegram)
+            // ✅ РџР РРћР РРўР•Рў 1: Wallet (РґР»СЏ СЃС‚СЂР°РЅ Р±РµР· Telegram)
             if (window.WALLET_ADDRESS && window.WalletSave) {
                 // [cleaned]
 
@@ -2929,11 +2929,11 @@
                         saveToLocalStorage();
                     }
                 }).catch(error => {
-                    console.error('вќЊ Wallet save error:', error);
+                    console.error('❌ Wallet save error:', error);
                     saveToLocalStorage();
                 });
             }
-            // вњ… РџР РРћР РРўР•Рў 2: Telegram (РґР»СЏ РѕСЃС‚Р°Р»СЊРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№)
+            // ✅ РџР РРћР РРўР•Рў 2: Telegram (РґР»СЏ РѕСЃС‚Р°Р»СЊРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№)
             else if (window.TELEGRAM_USER_ID) {
                 // вљ пёЏ IMPORTANT: Supabase is PRIMARY, localStorage is backup
                 // Save to Supabase FIRST (primary source of truth)
@@ -2959,12 +2959,12 @@
                         saveToLocalStorage();
                     }
                 }).catch(error => {
-                    console.error('вќЊ Auto-save error:', error);
+                    console.error('❌ Auto-save error:', error);
                     // Fallback to localStorage if Supabase fails
                     saveToLocalStorage();
                 });
             }
-            // вњ… РџР РРћР РРўР•Рў 3: LocalStorage (fallback)
+            // ✅ РџР РРћР РРўР•Рў 3: LocalStorage (fallback)
             else {
                 console.warn('вљ пёЏ No user ID or wallet, saving only to localStorage', {
                     hasWalletAddress: !!window.WALLET_ADDRESS,
@@ -3004,7 +3004,7 @@
                     hasAutoFeeder: gameState.hasAutoFeeder,
                     boosterActive: gameState.boosterActive,
                     boosterEndTime: gameState.boosterEndTime,
-                    customUsername: gameState.customUsername,  // вњ… Save custom username
+                    customUsername: gameState.customUsername,  // ✅ Save custom username
                     lastSave: Date.now()
                 };
                 // рџ”‘ Use user-specific key to prevent data conflicts between accounts
@@ -3057,7 +3057,7 @@
                         gameState.boosterActive = data.boosterActive || false;
                         gameState.boosterEndTime = data.boosterEndTime || 0;
 
-                        // вњ… Load custom username if saved
+                        // ✅ Load custom username if saved
                         if (data.customUsername) {
                             gameState.customUsername = data.customUsername;
                             // [cleaned]
@@ -3175,14 +3175,14 @@
 
         function startMemoryGame() {
             if (gameState.tama < 50) {
-                showMessage('вќЊ Not enough TAMA! Need 50 TAMA');
+                showMessage('❌ Not enough TAMA! Need 50 TAMA');
                 return;
             }
 
             gameState.tama -= 50;
             updateUI();
 
-            const emojis = ['рџђ±', 'рџђ¶', 'рџђ°', 'рџ¦Љ', 'рџђј', 'рџђё', 'рџ¦Ѓ', 'рџђЇ'];
+            const emojis = ['🐱', 'рџђ¶', 'рџђ°', '🦊', 'рџђј', 'рџђё', 'рџ¦Ѓ', 'рџђЇ'];
             const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
 
             const board = document.getElementById('memory-board');
@@ -3243,7 +3243,7 @@
         // рџЋІ DICE GAME
         function rollDice() {
             if (gameState.tama < 30) {
-                showMessage('вќЊ Not enough TAMA! Need 30 TAMA');
+                showMessage('❌ Not enough TAMA! Need 30 TAMA');
                 return;
             }
 
@@ -3430,7 +3430,7 @@
         // рџЋ° SLOT MACHINE
         function spinSlots() {
             if (gameState.tama < 100) {
-                showMessage('вќЊ Not enough TAMA! Need 100 TAMA');
+                showMessage('❌ Not enough TAMA! Need 100 TAMA');
                 return;
             }
 
@@ -3564,7 +3564,7 @@
             initAudio(); // Initialize audio on first click
 
             if (slotsState.spinning || gameState.tama < slotsState.betAmount) {
-                showMessage(`вќЊ Not enough TAMA! Need ${slotsState.betAmount} TAMA`);
+                showMessage(`❌ Not enough TAMA! Need ${slotsState.betAmount} TAMA`);
                 return;
             }
 
@@ -3761,7 +3761,7 @@
             initAudio(); // Initialize audio on first click
 
             if (wheelState.spinning || gameState.tama < wheelState.betAmount) {
-                showMessage(`вќЊ Not enough TAMA! Need ${wheelState.betAmount} TAMA`);
+                showMessage(`❌ Not enough TAMA! Need ${wheelState.betAmount} TAMA`);
                 return;
             }
             wheelState.spinning = true;
@@ -3795,7 +3795,7 @@
                 } else {
                     clearInterval(wheelSpinInterval); // Stop spinning sound
                     sounds.reelStop(); // Stop sound
-                    // вњ… FIX: РџСЂР°РІРёР»СЊРЅС‹Р№ СЂР°СЃС‡РµС‚ СЃРµРіРјРµРЅС‚Р° РїРѕРґ СѓРєР°Р·Р°С‚РµР»РµРј
+                    // ✅ FIX: РџСЂР°РІРёР»СЊРЅС‹Р№ СЂР°СЃС‡РµС‚ СЃРµРіРјРµРЅС‚Р° РїРѕРґ СѓРєР°Р·Р°С‚РµР»РµРј
                     // РЈРєР°Р·Р°С‚РµР»СЊ РЅР°РІРµСЂС…Сѓ (0В°), СЃРµРіРјРµРЅС‚С‹ РёРґСѓС‚ РїРѕ С‡Р°СЃРѕРІРѕР№ СЃС‚СЂРµР»РєРµ
                     // РќРѕСЂРјР°Р»РёР·СѓРµРј rotation Рє [0, 2ПЂ]
                     const normalizedRotation = ((wheelState.rotation % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2);
@@ -3896,7 +3896,7 @@
             const pet = document.getElementById('catchpet-pet');
             const status = document.getElementById('catchpet-status');
 
-            status.textContent = 'рџЋ® Game Started! Catch the pet!';
+            status.textContent = '🎮 Game Started! Catch the pet!';
             status.style.color = '#10b981';
 
             // Start timer
@@ -4009,7 +4009,7 @@
             }
 
             const status = document.getElementById('catchpet-status');
-            status.textContent = `рџЋ® Game Over! Caught: ${catchPetState.caught} | Score: ${catchPetState.score} | Reward: +${totalReward} TAMA!`;
+            status.textContent = `🎮 Game Over! Caught: ${catchPetState.caught} | Score: ${catchPetState.score} | Reward: +${totalReward} TAMA!`;
             status.style.color = '#fbbf24';
 
             updateUI();
@@ -4066,14 +4066,14 @@
 
         document.getElementById('battle-start-btn')?.addEventListener('click', async () => {
             if (petBattleState.active || gameState.tama < petBattleState.betAmount) {
-                showMessage(`вќЊ Not enough TAMA! Need ${petBattleState.betAmount} TAMA`);
+                showMessage(`❌ Not enough TAMA! Need ${petBattleState.betAmount} TAMA`);
                 return;
             }
 
             // Load NFTs
             const nfts = await loadBattleNFTs();
             if (nfts.length === 0) {
-                showMessage('вќЊ You need at least one active NFT to battle!');
+                showMessage('❌ You need at least one active NFT to battle!');
                 return;
             }
 
@@ -4194,7 +4194,7 @@
 
         document.getElementById('tower-start-btn')?.addEventListener('click', () => {
             if (towerState.active || gameState.tama < towerState.betAmount) {
-                showMessage(`вќЊ Not enough TAMA! Need ${towerState.betAmount} TAMA`);
+                showMessage(`❌ Not enough TAMA! Need ${towerState.betAmount} TAMA`);
                 return;
             }
 
@@ -4333,7 +4333,7 @@
 
         document.getElementById('precision-start-btn')?.addEventListener('click', () => {
             if (precisionState.active || gameState.tama < precisionState.betAmount) {
-                showMessage(`вќЊ Not enough TAMA! Need ${precisionState.betAmount} TAMA`);
+                showMessage(`❌ Not enough TAMA! Need ${precisionState.betAmount} TAMA`);
                 return;
             }
 
@@ -4503,8 +4503,8 @@
 
         document.getElementById('roulette-spin-btn')?.addEventListener('click', () => {
             if (rouletteState.spinning || !rouletteState.betType || gameState.tama < rouletteState.betAmount) {
-                if (!rouletteState.betType) showMessage('вќЊ Please select a bet type!');
-                else showMessage(`вќЊ Not enough TAMA! Need ${rouletteState.betAmount} TAMA`);
+                if (!rouletteState.betType) showMessage('❌ Please select a bet type!');
+                else showMessage(`❌ Not enough TAMA! Need ${rouletteState.betAmount} TAMA`);
                 return;
             }
 
@@ -4596,7 +4596,7 @@
             totalWon: 0
         };
 
-        const cardSuits = ['в™ ', 'в™Ґ', 'в™¦', 'в™Ј'];
+        const cardSuits = ['♠', '♥', '♦', '♣'];
         const cardValues = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 
         function createDeck() {
@@ -4644,7 +4644,7 @@
 
         document.getElementById('cards-start-btn')?.addEventListener('click', () => {
             if (cardsState.active || gameState.tama < cardsState.betAmount) {
-                showMessage(`вќЊ Not enough TAMA! Need ${cardsState.betAmount} TAMA`);
+                showMessage(`❌ Not enough TAMA! Need ${cardsState.betAmount} TAMA`);
                 return;
             }
 
@@ -4724,7 +4724,7 @@
 
             cardsState.playerCards.forEach(card => {
                 const cardDiv = document.createElement('div');
-                const isRed = card.suit === 'в™Ґ' || card.suit === 'в™¦';
+                const isRed = card.suit === '♥' || card.suit === '♦';
                 cardDiv.style.cssText = `width: 60px; height: 90px; background: #fff; border-radius: 8px; padding: 5px; display: flex; flex-direction: column; justify-content: space-between; font-weight: bold; color: ${isRed ? '#ef4444' : '#000'}; border: 2px solid #000;`;
                 cardDiv.innerHTML = `<div style="font-size: 18px;">${card.value}</div><div style="font-size: 24px; text-align: center;">${card.suit}</div><div style="font-size: 18px; transform: rotate(180deg);">${card.value}</div>`;
                 playerCardsDiv.appendChild(cardDiv);
@@ -4733,7 +4733,7 @@
             cardsState.dealerCards.forEach((card, index) => {
                 const cardDiv = document.createElement('div');
                 if (index === 0 || !cardsState.active) {
-                    const isRed = card.suit === 'в™Ґ' || card.suit === 'в™¦';
+                    const isRed = card.suit === '♥' || card.suit === '♦';
                     cardDiv.style.cssText = `width: 60px; height: 90px; background: #fff; border-radius: 8px; padding: 5px; display: flex; flex-direction: column; justify-content: space-between; font-weight: bold; color: ${isRed ? '#ef4444' : '#000'}; border: 2px solid #000;`;
                     cardDiv.innerHTML = `<div style="font-size: 18px;">${card.value}</div><div style="font-size: 24px; text-align: center;">${card.suit}</div><div style="font-size: 18px; transform: rotate(180deg);">${card.value}</div>`;
                 } else {
@@ -5686,7 +5686,7 @@
                     if (newStartBtn) {
                         newStartBtn.addEventListener('click', () => {
                         if (gameState.tama < 100) {
-                            showMessage('вќЊ Not enough TAMA! Need 100 TAMA');
+                            showMessage('❌ Not enough TAMA! Need 100 TAMA');
                             return;
                         }
 
@@ -5784,7 +5784,7 @@
         // рџЏѓ PET RACE
         function startRace() {
             if (gameState.tama < 75) {
-                showMessage('вќЊ Not enough TAMA! Need 75 TAMA');
+                showMessage('❌ Not enough TAMA! Need 75 TAMA');
                 return;
             }
 
@@ -5876,7 +5876,7 @@
 
         function startMatchmaking(betAmount) {
             if (gameState.tama < betAmount) {
-                showMessage(`вќЊ Not enough TAMA! Need ${betAmount} TAMA`);
+                showMessage(`❌ Not enough TAMA! Need ${betAmount} TAMA`);
                 return;
             }
 
@@ -6041,10 +6041,10 @@
                 (p1 === 'block' && p2 === 'fast')
             ) {
                 battleState.player1Score++;
-                result = 'вњ… YOU WIN THIS ROUND!';
+                result = '✅ YOU WIN THIS ROUND!';
             } else {
                 battleState.player2Score++;
-                result = 'вќЊ OPPONENT WINS THIS ROUND!';
+                result = '❌ OPPONENT WINS THIS ROUND!';
             }
 
             // Show result with moves
@@ -6141,7 +6141,7 @@
 
         function startRacingGame(betAmount) {
             if (gameState.tama < betAmount) {
-                showMessage(`вќЊ Not enough TAMA! Need ${betAmount} TAMA`);
+                showMessage(`❌ Not enough TAMA! Need ${betAmount} TAMA`);
                 return;
             }
 
@@ -6377,7 +6377,7 @@
         // рџЋЇ DARTS GAME
         function throwDart() {
             if (gameState.tama < 60) {
-                showMessage('вќЊ Not enough TAMA! Need 60 TAMA');
+                showMessage('❌ Not enough TAMA! Need 60 TAMA');
                 return;
             }
 
@@ -6591,20 +6591,20 @@
                 const newName = newNameInput.value.trim();
 
                 if (!newName || newName.length < 2) {
-                    nameChangeStatus.textContent = 'вќЊ Name must be at least 2 characters';
+                    nameChangeStatus.textContent = '❌ Name must be at least 2 characters';
                     nameChangeStatus.style.color = '#ff4444';
                     return;
                 }
 
                 if (newName.length > 20) {
-                    nameChangeStatus.textContent = 'вќЊ Name is too long (max 20 characters)';
+                    nameChangeStatus.textContent = '❌ Name is too long (max 20 characters)';
                     nameChangeStatus.style.color = '#ff4444';
                     return;
                 }
 
                 const userId = window.TELEGRAM_USER_ID;
                 if (!userId) {
-                    nameChangeStatus.textContent = 'вќЊ User ID not found';
+                    nameChangeStatus.textContent = '❌ User ID not found';
                     nameChangeStatus.style.color = '#ff4444';
                     return;
                 }
@@ -6646,11 +6646,11 @@
                     });
 
                     if (response.ok) {
-                        // вњ… Update custom username in game state
+                        // ✅ Update custom username in game state
                         gameState.customUsername = newName;
                         // [cleaned]
 
-                        nameChangeStatus.textContent = 'вњ… Name changed successfully!';
+                        nameChangeStatus.textContent = '✅ Name changed successfully!';
                         nameChangeStatus.style.color = '#00ff88';
 
                         // Update display
@@ -6665,14 +6665,14 @@
                         }, 1500);
                     } else {
                         const error = await response.text();
-                        console.error('вќЊ Name change failed:', error);
-                        nameChangeStatus.textContent = 'вќЊ Failed to save name';
+                        console.error('❌ Name change failed:', error);
+                        nameChangeStatus.textContent = '❌ Failed to save name';
                         nameChangeStatus.style.color = '#ff4444';
                         saveNameBtn.disabled = false;
                     }
                 } catch (error) {
-                    console.error('вќЊ Name change error:', error);
-                    nameChangeStatus.textContent = 'вќЊ Network error';
+                    console.error('❌ Name change error:', error);
+                    nameChangeStatus.textContent = '❌ Network error';
                     nameChangeStatus.style.color = '#ff4444';
                     saveNameBtn.disabled = false;
                 }
@@ -6689,7 +6689,7 @@
         // Update player name display on init
         function updatePlayerNameDisplay() {
             if (playerNameDisplay) {
-                // вњ… Use custom username if set, otherwise use Telegram username
+                // ✅ Use custom username if set, otherwise use Telegram username
                 const displayName = gameState.customUsername ||
                     window.Telegram?.WebApp?.initDataUnsafe?.user?.username ||
                     window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name ||
@@ -6757,7 +6757,7 @@
         async function generateReferralCode() {
             // [cleaned] called');
 
-            // вњ… Try multiple sources for Telegram ID
+            // ✅ Try multiple sources for Telegram ID
             const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
 
             // [cleaned]
@@ -6772,7 +6772,7 @@
                 telegramId = String(window.TELEGRAM_USER_ID);
                 // [cleaned]
             } else {
-                console.error('вќЊ NO TELEGRAM ID FOUND! Both sources are null/undefined');
+                console.error('❌ NO TELEGRAM ID FOUND! Both sources are null/undefined');
             }
 
             if (telegramId) {
@@ -6958,7 +6958,7 @@
                     // Fallback for Telegram users
                     try {
                         await navigator.clipboard.writeText(referralLinkDisplay.value);
-                        copyReferralLinkBtn.textContent = 'вњ… Copied!';
+                        copyReferralLinkBtn.textContent = '✅ Copied!';
                     setTimeout(() => {
                             copyReferralLinkBtn.textContent = 'рџ“‹ Copy Link';
                     }, 2000);
@@ -6966,7 +6966,7 @@
                     console.error('Failed to copy: ', err);
                         referralLinkDisplay.select();
                     document.execCommand('copy');
-                        copyReferralLinkBtn.textContent = 'вњ… Copied!';
+                        copyReferralLinkBtn.textContent = '✅ Copied!';
                     setTimeout(() => {
                             copyReferralLinkBtn.textContent = 'рџ“‹ Copy Link';
                     }, 2000);
@@ -6987,7 +6987,7 @@
                 const link = referralLinkDisplay?.value || '';
 
                 // Share text with link for Telegram preview (text BEFORE link for better preview!)
-                const shareText = `рџЋ® Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
+                const shareText = `🎮 Join Solana Tamagotchi - Get 1,000 TAMA Bonus!
 
 рџђѕ Play-to-earn game on Solana blockchain
 рџ’° No wallet needed to start earning!
@@ -7047,7 +7047,7 @@ ${link}`;
                 // Open Telegram share URL (works in Telegram WebApp)
                 try {
                     window.open(telegramShareUrl, '_blank');
-                        shareReferralBtn.textContent = 'вњ… Shared!';
+                        shareReferralBtn.textContent = '✅ Shared!';
                         setTimeout(() => {
                             shareReferralBtn.textContent = 'рџ“¤ Share Link';
                         }, 2000);
@@ -7056,7 +7056,7 @@ ${link}`;
                     // Fallback: copy to clipboard (text with link included)
                     try {
                         await navigator.clipboard.writeText(shareText);
-                        shareReferralBtn.textContent = 'вњ… Copied!';
+                        shareReferralBtn.textContent = '✅ Copied!';
                         setTimeout(() => {
                             shareReferralBtn.textContent = 'рџ“¤ Share Link';
                         }, 2000);
@@ -7120,7 +7120,7 @@ ${link}`;
                     return null;
                 }
             } catch (error) {
-                console.error('вќЊ Error fetching unified rank:', error);
+                console.error('❌ Error fetching unified rank:', error);
                 return null;
             }
         }
@@ -7192,7 +7192,7 @@ ${link}`;
                 // [cleaned]
                 return rank;
             } catch (error) {
-                console.error('вќЊ Error fetching user rank:', error);
+                console.error('❌ Error fetching user rank:', error);
                 return null;
             }
         }
@@ -7372,11 +7372,11 @@ ${link}`;
                         return;
                     }
                 } catch (fallbackError) {
-                    console.error('вќЊ Fallback also failed:', fallbackError);
+                    console.error('❌ Fallback also failed:', fallbackError);
                 }
 
                 // Last resort: show error message
-                leaderboardList.innerHTML = `<div class="loading">вќЊ Error loading leaderboard<br><small>${error.message}</small><br><br>Please run SQL: sql/create-unified-leaderboard.sql in Supabase</div>`;
+                leaderboardList.innerHTML = `<div class="loading">❌ Error loading leaderboard<br><small>${error.message}</small><br><br>Please run SQL: sql/create-unified-leaderboard.sql in Supabase</div>`;
             }
         }
 
@@ -7503,7 +7503,7 @@ ${link}`;
                 const data = await response.json();
 
                 if (data && data.length > 0) {
-                    // вњ… Р’РђР РРђРќРў 1: РЎРЈРњРњРђ Р’РЎР•РҐ РђРљРўРР’РќР«РҐ Р‘РЈРЎРўРћР’
+                    // ✅ Р’РђР РРђРќРў 1: РЎРЈРњРњРђ Р’РЎР•РҐ РђРљРўРР’РќР«РҐ Р‘РЈРЎРўРћР’
                     // Sum all multipliers from active NFTs (not just max)
                     let totalMultiplier = 0;
                     let activeCount = 0;
@@ -7549,7 +7549,7 @@ ${link}`;
                     // [cleaned]
                 }
             } catch (e) {
-                console.error('вќЊ Error loading user NFT boost:', e);
+                console.error('❌ Error loading user NFT boost:', e);
                 window.userNFTBoost = 0;
             }
         }
@@ -7574,7 +7574,7 @@ ${link}`;
                                 // Don't close modal immediately - let user see connected state
                             } else {
                                 // Error already shown by wallet-auth-cn.js
-                                console.error('вќЊ Wallet connection failed:', result.error);
+                                console.error('❌ Wallet connection failed:', result.error);
                             }
                         } else {
                             alert('Wallet authentication not available. Please install Phantom or Solflare wallet.');
@@ -7599,7 +7599,7 @@ ${link}`;
                                 }
                                 location.reload();
                             } else {
-                                console.error('вќЊ Wallet disconnection failed:', result.error);
+                                console.error('❌ Wallet disconnection failed:', result.error);
                             }
                         }
                     });
@@ -7715,7 +7715,7 @@ ${link}`;
 
                                 triggerAutoSave();
                             } else {
-                                showMessage('вќЊ Not enough TAMA!');
+                                showMessage('❌ Not enough TAMA!');
                             }
                         });
                     }
@@ -7734,7 +7734,7 @@ ${link}`;
                                 gameState.happy = Math.min(gameState.maxHappy, gameState.happy + 40);
                                 gameState.food = Math.max(0, gameState.food - 10);
                                 gameState.xp += 15;
-                                showMessage('рџЋ® So fun! Happy +40, Food -10');
+                                showMessage('🎮 So fun! Happy +40, Food -10');
                                 checkLevelUp();
                                 updateUI();
 
@@ -7748,7 +7748,7 @@ ${link}`;
 
                                 triggerAutoSave();
                             } else {
-                                showMessage('вќЊ Not enough TAMA!');
+                                showMessage('❌ Not enough TAMA!');
                             }
                         });
                     }
@@ -7781,7 +7781,7 @@ ${link}`;
 
                                 triggerAutoSave();
                             } else {
-                                showMessage('вќЊ Not enough TAMA!');
+                                showMessage('❌ Not enough TAMA!');
                             }
                         });
                     }
@@ -7859,7 +7859,7 @@ ${link}`;
                 // [cleaned]
 
             } catch (error) {
-                console.error('вќЊ CRITICAL ERROR during initialization:', error);
+                console.error('❌ CRITICAL ERROR during initialization:', error);
                 console.error('Error stack:', error.stack);
 
                 // Show error message to user
@@ -8413,8 +8413,8 @@ ${link}`;
                             }
                         }
                     } catch (err) {
-                        console.error('вќЊ Error opening NFT modal:', err);
-                        showMessage('вќЊ Failed to load NFTs');
+                        console.error('❌ Error opening NFT modal:', err);
+                        showMessage('❌ Failed to load NFTs');
                     }
                 });
             } else {
@@ -8499,7 +8499,7 @@ ${link}`;
                     }
 
                     if (!walletConnected || !walletAddress) {
-                        showMessage('вќЊ Please connect wallet first!', 'error');
+                        showMessage('❌ Please connect wallet first!', 'error');
                         await connectPhantomWallet();
                         return;
                     }
@@ -8613,7 +8613,7 @@ ${link}`;
 
                 // Check if Phantom is installed
                 if (!window.solana || !window.solana.isPhantom) {
-                    alert('вќЊ Phantom wallet not found!\n\nPlease install Phantom wallet:\nhttps://phantom.app/\n\nAfter installing, refresh the page.');
+                    alert('❌ Phantom wallet not found!\n\nPlease install Phantom wallet:\nhttps://phantom.app/\n\nAfter installing, refresh the page.');
                     window.open('https://phantom.app/', '_blank');
                     return;
                 }
@@ -8642,16 +8642,16 @@ ${link}`;
                 await loadWalletBalance();
                 await loadNFTCollection();
             } catch (err) {
-                console.error('вќЊ Wallet connection error:', err);
+                console.error('❌ Wallet connection error:', err);
 
                 // Better error messages
                 let errorMsg = 'Failed to connect wallet';
                 if (err.message.includes('User rejected')) {
-                    errorMsg = 'вќЊ Connection cancelled by user';
+                    errorMsg = '❌ Connection cancelled by user';
                 } else if (err.message.includes('not found') || err.message.includes('Phantom')) {
-                    errorMsg = 'вќЊ Phantom wallet not found! Please install from phantom.app';
+                    errorMsg = '❌ Phantom wallet not found! Please install from phantom.app';
                 } else {
-                    errorMsg = 'вќЊ ' + err.message;
+                    errorMsg = '❌ ' + err.message;
                 }
 
                 alert(errorMsg);
@@ -8788,7 +8788,7 @@ ${link}`;
                 }
 
             } catch (err) {
-                console.error('вќЊ Error linking wallet to Telegram account:', err);
+                console.error('❌ Error linking wallet to Telegram account:', err);
                 // Don't show error to user - non-critical feature
             }
         }
@@ -8848,7 +8848,7 @@ ${link}`;
                 // [cleaned]
 
             } catch (err) {
-                console.error('вќЊ Error syncing account data:', err);
+                console.error('❌ Error syncing account data:', err);
             }
         }
 
@@ -8914,7 +8914,7 @@ ${link}`;
                 return signature;
 
             } catch (err) {
-                console.error('вќЊ Distribution transaction failed:', err);
+                console.error('❌ Distribution transaction failed:', err);
                 throw new Error('Failed to create distribution transaction: ' + err.message);
             }
         }
@@ -8927,7 +8927,7 @@ ${link}`;
                 // [cleaned]
 
                 if (!walletConnected || !walletAddress) {
-                    showMessage('вќЊ Please connect wallet first!', 'error');
+                    showMessage('❌ Please connect wallet first!', 'error');
                     await connectPhantomWallet();
                     return;
                 }
@@ -8941,13 +8941,13 @@ ${link}`;
                 });
 
                 if (!priceResponse.ok) {
-                    showMessage('вќЊ Failed to get NFT price. Please try again.', 'error');
+                    showMessage('❌ Failed to get NFT price. Please try again.', 'error');
                     return;
                 }
 
                 const priceData = await priceResponse.json();
                 if (!priceData || priceData.length === 0) {
-                    showMessage('вќЊ NFT tier not found. Please try again.', 'error');
+                    showMessage('❌ NFT tier not found. Please try again.', 'error');
                     return;
                 }
 
@@ -8982,7 +8982,7 @@ ${link}`;
                     // [cleaned]
                 } catch (distError) {
                     console.error('вљ пёЏ Distribution transaction failed:', distError);
-                    showMessage('вќЊ Transaction failed: ' + distError.message, 'error');
+                    showMessage('❌ Transaction failed: ' + distError.message, 'error');
                     return;
                 }
 
@@ -9025,17 +9025,17 @@ ${link}`;
                 const result = await response.json();
 
                 if (result.success) {
-                    showMessage(`вњ… ${tierName} NFT #${result.design_number || result.nft_id || 'N/A'} minted!`, 'success');
+                    showMessage(`✅ ${tierName} NFT #${result.design_number || result.nft_id || 'N/A'} minted!`, 'success');
                     await loadNFTCollection(); // Reload collection
                     // Sync account data
                     await syncAccountData();
                 } else {
-                    showMessage('вќЊ Mint failed: ' + (result.error || 'Unknown error'), 'error');
+                    showMessage('❌ Mint failed: ' + (result.error || 'Unknown error'), 'error');
                 }
 
             } catch (err) {
-                console.error(`вќЊ Mint ${tierName} failed:`, err);
-                showMessage('вќЊ Mint error: ' + err.message, 'error');
+                console.error(`❌ Mint ${tierName} failed:`, err);
+                showMessage('❌ Mint error: ' + err.message, 'error');
             }
         };
 
@@ -9047,7 +9047,7 @@ ${link}`;
                 const solBalance = (balance / 1000000000).toFixed(4);
                 document.getElementById('wallet-balance-display').textContent = solBalance + ' SOL';
             } catch (err) {
-                console.error('вќЊ Balance load error:', err);
+                console.error('❌ Balance load error:', err);
             }
         }
 
@@ -9126,7 +9126,7 @@ ${link}`;
 
                     if (!simpleResponse.ok) {
                         const errorText = await simpleResponse.text();
-                        console.error('вќЊ Supabase error response:', errorText);
+                        console.error('❌ Supabase error response:', errorText);
                         throw new Error('Failed to load NFTs: ' + simpleResponse.statusText + ' - ' + errorText);
                     }
 
@@ -9175,7 +9175,7 @@ ${link}`;
                 }
 
                 if (!nftGrid || !nftStats) {
-                    console.error('вќЊ NFT elements not found in DOM');
+                    console.error('❌ NFT elements not found in DOM');
                     return;
                 }
 
@@ -9194,7 +9194,7 @@ ${link}`;
                         return isOnChain ? true : (n.is_active !== false);
                     });
                     const activeNFTs = activeNFTsList.length;
-                    // вњ… FIX: Sum only ACTIVE NFTs, not all NFTs
+                    // ✅ FIX: Sum only ACTIVE NFTs, not all NFTs
                     const totalBoost = activeNFTsList.reduce((sum, n) => sum + (parseFloat(n.earning_multiplier) || 0), 0);
 
                     nftStats.innerHTML = `
@@ -9244,7 +9244,7 @@ ${link}`;
                             'Diamond': 'рџ’ '
                         };
                         // Properly encode SVG to avoid HTML injection issues
-                        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || 'рџЋ®'}</text></svg>`;
+                        const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || '🎮'}</text></svg>`;
                         const emojiUrl = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
                         if (!imageUrl) {
                             imageUrl = emojiUrl;
@@ -9289,7 +9289,7 @@ ${link}`;
                                 <div style="font-size: 18px; font-weight: bold; color: ${tierColor}; margin-bottom: 8px;">${tierSafe}${onChainBadge}</div>
                                 <div style="font-size: 14px; color: #fff; margin-bottom: 8px; opacity: 0.9;">${raritySafe}</div>
                                 <div style="font-size: 16px; color: #8AC926; margin-bottom: 8px; font-weight: bold;">вљЎ ${multiplier}x Boost</div>
-                                ${isActive ? '<div style="font-size: 12px; color: #10b981; font-weight: bold;">вњ… Active</div>' : '<div style="font-size: 12px; color: #ef4444;">вќЊ Inactive</div>'}
+                                ${isActive ? '<div style="font-size: 12px; color: #10b981; font-weight: bold;">✅ Active</div>' : '<div style="font-size: 12px; color: #ef4444;">❌ Inactive</div>'}
                             </div>
                         `;
                     }).join('');
@@ -9312,7 +9312,7 @@ ${link}`;
                     `;
                 }
             } catch (err) {
-                console.error('вќЊ NFT load error:', err);
+                console.error('❌ NFT load error:', err);
                 const nftStats = document.getElementById('nft-stats');
                 const nftGrid = document.getElementById('nft-grid');
                 if (nftStats) nftStats.textContent = 'Error loading NFTs: ' + err.message;
@@ -9366,7 +9366,7 @@ ${link}`;
                     'Diamond': 'рџ’ '
                 };
                 // Properly encode SVG to avoid HTML injection issues
-                const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || 'рџЋ®'}</text></svg>`;
+                const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" font-size="100" text-anchor="middle" dy=".3em">${tierEmoji[tier] || '🎮'}</text></svg>`;
                 const emojiUrl = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
                 if (!imageUrl) {
                     imageUrl = emojiUrl;
@@ -9458,7 +9458,7 @@ ${link}`;
                                     ${raritySafe}
                                 </span>
                                 <span class="nft-detail-badge" style="background: ${isActive ? '#10b981' : '#ef4444'}; color: #fff;">
-                                    ${isActive ? 'вњ… Active' : 'вќЊ Inactive'}
+                                    ${isActive ? '✅ Active' : '❌ Inactive'}
                                 </span>
                                 ${isOnChain ? '<span class="nft-detail-badge" style="background: #8b5cf6; color: #fff;">рџ”— On-Chain</span>' : ''}
                             </div>
@@ -9513,7 +9513,7 @@ ${link}`;
                     detailModal.classList.add('show');
                 }
             } catch (err) {
-                console.error('вќЊ Error showing NFT detail:', err);
+                console.error('❌ Error showing NFT detail:', err);
                 alert('Failed to load NFT details: ' + err.message);
             }
         }
@@ -9672,12 +9672,12 @@ ${link}`;
                     if (address && address.length >= 32) {
                         const name = prompt('Enter wallet name (optional):', `Wallet ${savedWallets.length + 1}`);
                         if (addSavedWallet(address, name)) {
-                            alert('вњ… Wallet saved!');
+                            alert('✅ Wallet saved!');
                         } else {
                             alert('вљ пёЏ Wallet already saved');
                         }
                     } else {
-                        alert('вќЊ Invalid wallet address');
+                        alert('❌ Invalid wallet address');
                     }
                 });
             }
@@ -9687,7 +9687,7 @@ ${link}`;
                     if (withdrawWalletAddress && withdrawPhantomConnected) {
                         const name = prompt('Enter wallet name (optional):', 'Phantom Wallet');
                         if (addSavedWallet(withdrawWalletAddress, name)) {
-                            alert('вњ… Phantom wallet saved!');
+                            alert('✅ Phantom wallet saved!');
                         } else {
                             alert('вљ пёЏ Wallet already saved');
                         }
@@ -9729,9 +9729,9 @@ ${link}`;
                     } catch (err) {
                         console.error('Phantom connection error:', err);
                         if (err.code === 4001) {
-                            alert('вќЊ Connection cancelled by user');
+                            alert('❌ Connection cancelled by user');
                         } else {
-                            alert('вќЊ Failed to connect Phantom: ' + err.message);
+                            alert('❌ Failed to connect Phantom: ' + err.message);
                         }
                     }
                 });
@@ -9969,7 +9969,7 @@ ${link}`;
                     const wallet = w.wallet_address || w.destination_wallet || 'N/A';
 
                     const statusColor = status === 'completed' ? '#10b981' : status === 'pending' ? '#fbbf24' : '#ef4444';
-                    const statusEmoji = status === 'completed' ? 'вњ…' : status === 'pending' ? 'вЏі' : 'вќЊ';
+                    const statusEmoji = status === 'completed' ? '✅' : status === 'pending' ? 'вЏі' : '❌';
 
                     return `
                         <div style="padding: 20px; margin-bottom: 15px; background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%); border-radius: 15px; border: 2px solid rgba(138, 201, 38, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s;">
@@ -10036,7 +10036,7 @@ ${link}`;
                 summaryDiv.style.background = 'rgba(239, 68, 68, 0.1)';
                 summaryDiv.style.border = '2px solid #ef4444';
                 summaryDiv.innerHTML = `
-                    <div style="color: #ef4444; font-weight: bold;">вќЊ Insufficient Balance!</div>
+                    <div style="color: #ef4444; font-weight: bold;">❌ Insufficient Balance!</div>
                     <div style="margin-top: 5px; font-size: 14px;">You have: ${formatNumber(balance)} TAMA</div>
                     <div style="font-size: 14px;">Requested: ${formatNumber(amount)} TAMA</div>
                 `;
@@ -10089,17 +10089,17 @@ ${link}`;
 
             // Validation
             if (amount < 1000) {
-                alert('вќЊ Minimum withdrawal is 1,000 TAMA');
+                alert('❌ Minimum withdrawal is 1,000 TAMA');
                 return;
             }
 
             if (!wallet || wallet.length < 32) {
-                alert('вќЊ Invalid wallet address');
+                alert('❌ Invalid wallet address');
                 return;
             }
 
             if (amount > balance) {
-                alert(`вќЊ Insufficient balance! You have ${formatNumber(balance)} TAMA`);
+                alert(`❌ Insufficient balance! You have ${formatNumber(balance)} TAMA`);
                 return;
             }
 
@@ -10127,22 +10127,22 @@ ${link}`;
                 const userId = window.TELEGRAM_USER_ID;
 
                 if (!userId) {
-                    alert('вќЊ User ID not found. Please login first.');
+                    alert('❌ User ID not found. Please login first.');
                     return;
                 }
 
                 if (amount < 1000) {
-                    alert('вќЊ Minimum withdrawal is 1,000 TAMA');
+                    alert('❌ Minimum withdrawal is 1,000 TAMA');
                     return;
                 }
 
                 if (!wallet || wallet.length < 32) {
-                    alert('вќЊ Invalid wallet address');
+                    alert('❌ Invalid wallet address');
                     return;
                 }
 
                 if (amount > gameState.tama) {
-                    alert(`вќЊ Insufficient balance! You have ${formatNumber(gameState.tama)} TAMA`);
+                    alert(`❌ Insufficient balance! You have ${formatNumber(gameState.tama)} TAMA`);
                     return;
                 }
 
@@ -10215,7 +10215,7 @@ ${link}`;
                     statusDiv.style.border = '2px solid #10b981';
                     statusDiv.style.color = '#10b981';
                     statusDiv.innerHTML = `
-                        <div style="font-weight: bold; margin-bottom: 10px; font-size: 18px;">вњ… Withdrawal Successful!</div>
+                        <div style="font-weight: bold; margin-bottom: 10px; font-size: 18px;">✅ Withdrawal Successful!</div>
                         <div style="font-size: 16px; margin-bottom: 10px;">рџ’° Sent: <strong>${formatNumber(netAmount)} TAMA</strong></div>
                         <div style="font-size: 14px; margin-bottom: 10px; color: rgba(255,255,255,0.8);">
                             Fee: ${formatNumber(Math.floor(amount * 0.05))} TAMA (5%)
@@ -10231,7 +10231,7 @@ ${link}`;
                     `;
 
                     // Show success message in game
-                    showMessage(`вњ… Withdrawal successful! ${formatNumber(netAmount)} TAMA sent to wallet!`);
+                    showMessage(`✅ Withdrawal successful! ${formatNumber(netAmount)} TAMA sent to wallet!`);
 
                     // рџЋµ Play success sound
                     playWithdrawalSuccessSound();
@@ -10288,7 +10288,7 @@ ${link}`;
                     statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
                     statusDiv.style.border = '2px solid #ef4444';
                     statusDiv.style.color = '#ef4444';
-                    statusDiv.innerHTML = `вќЊ Error: ${result.error || 'Unknown error'}`;
+                    statusDiv.innerHTML = `❌ Error: ${result.error || 'Unknown error'}`;
                     confirmBtn.disabled = false;
                     confirmBtn.textContent = 'рџ’ё Confirm Withdrawal';
                 }
@@ -10301,7 +10301,7 @@ ${link}`;
                 statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
                 statusDiv.style.border = '2px solid #ef4444';
                 statusDiv.style.color = '#ef4444';
-                statusDiv.innerHTML = `вќЊ Error: ${err.message}`;
+                statusDiv.innerHTML = `❌ Error: ${err.message}`;
 
                 const confirmBtn = document.getElementById('confirm-withdraw-btn');
                 confirmBtn.disabled = false;
@@ -10311,10 +10311,10 @@ ${link}`;
 
         function getNFTEmoji(petType) {
             const emojiMap = {
-                'cat': 'рџђ±',
+                'cat': '🐱',
                 'dog': 'рџђ¶',
                 'dragon': 'рџђ‰',
-                'fox': 'рџ¦Љ',
+                'fox': '🦊',
                 'bear': 'рџђ»',
                 'rabbit': 'рџђ°',
                 'panda': 'рџђј',
@@ -10329,17 +10329,17 @@ ${link}`;
             try {
                 const userId = window.TELEGRAM_USER_ID;
                 if (!userId) {
-                    alert('вќЊ User ID not found');
+                    alert('❌ User ID not found');
                     return;
                 }
 
                 if (!walletConnected) {
-                    alert('вќЊ Connect wallet first!');
+                    alert('❌ Connect wallet first!');
                     return;
                 }
 
                 if (gameState.tama < 1000) {
-                    alert('вќЊ Need 1000 TAMA to mint! You have: ' + gameState.tama);
+                    alert('❌ Need 1000 TAMA to mint! You have: ' + gameState.tama);
                     return;
                 }
 
@@ -10378,13 +10378,13 @@ ${link}`;
                     alert(`рџЋ‰ NFT Minted! ${getNFTEmoji(randomPet)} ${randomPet.toUpperCase()} - ${randomRarity}`);
                     await loadNFTCollection();
                 } else {
-                    alert('вќЊ Mint failed. Try again.');
+                    alert('❌ Mint failed. Try again.');
                     gameState.tama += 1000; // Refund
                     updateTamaDisplay();
                 }
             } catch (err) {
-                console.error('вќЊ Mint error:', err);
-                alert('вќЊ Mint error: ' + err.message);
+                console.error('❌ Mint error:', err);
+                alert('❌ Mint error: ' + err.message);
                 gameState.tama += 1000; // Refund
                 updateTamaDisplay();
             }
