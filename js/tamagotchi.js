@@ -8,48 +8,48 @@
             'kawai': {
                 id: 'kawai',
                 name: '🌸 Kawai Blob',
-                nameRu: '🌸 РљР°РІР°Р№РЅС‹Р№',
+                nameRu: '🌸 Кавайный',
                 price: 0,
                 rarity: 'default',
                 enabled: true,
                 bonusEn: 'Your first pet!',
-                bonusRu: 'РўРІРѕР№ РїРµСЂРІС‹Р№ РїРёС‚РѕРјРµС†!',
+                bonusRu: 'Твой первый питомец!',
                 rarityLabel: 'FREE',
-                rarityLabelRu: 'Р‘Р•РЎРџР›РђРўРќРћ'
+                rarityLabelRu: 'БЕСПЛАТНО'
             },
             'retro': {
                 id: 'retro',
                 name: '🤖 Retro Robot',
-                nameRu: '🤖 Р РµС‚СЂРѕ Р РѕР±РѕС‚',
+                nameRu: '🤖 Ретро Робот',
                 price: 1000,
                 rarity: 'common',
                 enabled: true,
                 bonusEn: 'Retro 8-bit style',
-                bonusRu: '8-bit СЃС‚РёР»СЊ!',
+                bonusRu: '8-bit стиль!',
                 rarityLabel: 'COMMON',
-                rarityLabelRu: 'РћР‘Р«Р§РќР«Р™'
+                rarityLabelRu: 'ОБЫЧНЫЙ'
             },
             'neko': {
                 id: 'neko',
                 name: '🐱 Neko Cat',
-                nameRu: '🐱 РќРµРєРѕ РљРѕС‚',
+                nameRu: '🐱 Неко Кот',
                 price: 5000,
                 rarity: 'rare',
                 enabled: true,
                 bonusEn: '+10% TAMA from games',
-                bonusRu: '+10% TAMA РѕС‚ РёРіСЂ',
+                bonusRu: '+10% TAMA от игр',
                 rarityLabel: 'RARE',
                 rarityLabelRu: 'Р Р•Р”РљРР™'
             },
             'cyber': {
                 id: 'cyber',
                 name: '🦖 Cyber Pet',
-                nameRu: '🦖 РљРёР±РµСЂ РџРёС‚РѕРјРµС†',
+                nameRu: '🦖 Кибер Питомец',
                 price: 15000,
                 rarity: 'epic',
                 enabled: true,
                 bonusEn: '+20% TAMA from games',
-                bonusRu: '+20% TAMA РѕС‚ РёРіСЂ',
+                bonusRu: '+20% TAMA от игр',
                 rarityLabel: 'EPIC',
                 rarityLabelRu: 'Р­РџРР§Р•РЎРљРР™'
             },
@@ -61,7 +61,7 @@
                 rarity: 'legendary',
                 enabled: true,
                 bonusEn: '+30% TAMA from games',
-                bonusRu: '+30% TAMA РѕС‚ РёРіСЂ',
+                bonusRu: '+30% TAMA от игр',
                 rarityLabel: 'LEGENDARY',
                 rarityLabelRu: 'Р›Р•Р“Р•РќР”РђР РќР«Р™'
             },
@@ -73,7 +73,7 @@
                 rarity: 'legendary',
                 enabled: true,
                 bonusEn: '+50% TAMA from games',
-                bonusRu: '+50% TAMA РѕС‚ РёРіСЂ',
+                bonusRu: '+50% TAMA от игр',
                 rarityLabel: 'LEGENDARY',
                 rarityLabelRu: 'Р›Р•Р“Р•РќР”РђР РќР«Р™'
             },
@@ -85,14 +85,14 @@
                 rarity: 'mythic',
                 enabled: true,
                 bonusEn: '+100% TAMA from games',
-                bonusRu: '+100% TAMA РѕС‚ РёРіСЂ',
+                bonusRu: '+100% TAMA от игр',
                 rarityLabel: 'MYTHIC',
                 rarityLabelRu: 'РњРР¤РР§Р•РЎРљРР™'
             },
             'santa': {
                 id: 'santa',
                 name: 'рџЋ… Santa Pet',
-                nameRu: 'рџЋ… РЎР°РЅС‚Р°',
+                nameRu: 'рџЋ… Санта',
                 price: 10000,
                 rarity: 'xmas',
                 enabled: true,
@@ -131,7 +131,7 @@
             'tree': {
                 id: 'tree',
                 name: 'рџЋ„ Christmas Tree',
-                nameRu: 'рџЋ„ РЃР»РєР°',
+                nameRu: 'рџЋ„ Ёлка',
                 price: 15000,
                 rarity: 'xmas',
                 enabled: true,
