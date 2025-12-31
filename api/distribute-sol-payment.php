@@ -116,118 +116,118 @@ try {
         )
     ");
 
-        $stmt->execute([
-            ':tx_sig' => $transaction_signature,
-            ':from_wallet' => $from_wallet,
-            ':to_wallet' => $TREASURY_MAIN,
-            ':amount' => $amounts['main'],
+    $stmt->execute([
+        ':tx_sig' => $transaction_signature,
+        ':from_wallet' => $from_wallet,
+        ':to_wallet' => $TREASURY_MAIN,
+        ':amount' => $amounts['main'],
             ':percentage' => 40,
-            ':tier' => $nft_tier,
-            ':telegram_id' => $telegram_id
-        ]);
+        ':tier' => $nft_tier,
+        ':telegram_id' => $telegram_id
+    ]);
 
-        // Log liquidity treasury
-        $stmt = $pdo->prepare("
-            INSERT INTO sol_distributions (
-                transaction_signature,
-                from_wallet,
-                to_wallet,
-                amount_sol,
-                percentage,
-                distribution_type,
-                nft_tier,
-                telegram_id,
-                status,
-                created_at
-            ) VALUES (
-                :tx_sig,
-                :from_wallet,
-                :to_wallet,
-                :amount,
-                :percentage,
-                'liquidity',
-                :tier,
-                :telegram_id,
-                'pending',
-                NOW()
-            )
-        ");
+    // Log liquidity treasury
+    $stmt = $pdo->prepare("
+        INSERT INTO sol_distributions (
+            transaction_signature,
+            from_wallet,
+            to_wallet,
+            amount_sol,
+            percentage,
+            distribution_type,
+            nft_tier,
+            telegram_id,
+            status,
+            created_at
+        ) VALUES (
+            :tx_sig,
+            :from_wallet,
+            :to_wallet,
+            :amount,
+            :percentage,
+            'liquidity',
+            :tier,
+            :telegram_id,
+            'pending',
+            NOW()
+        )
+    ");
 
-        $stmt->execute([
-            ':tx_sig' => $transaction_signature,
-            ':from_wallet' => $from_wallet,
-            ':to_wallet' => $TREASURY_LIQUIDITY,
-            ':amount' => $amounts['liquidity'],
+    $stmt->execute([
+        ':tx_sig' => $transaction_signature,
+        ':from_wallet' => $from_wallet,
+        ':to_wallet' => $TREASURY_LIQUIDITY,
+        ':amount' => $amounts['liquidity'],
+        ':percentage' => 30,
+        ':tier' => $nft_tier,
+        ':telegram_id' => $telegram_id
+    ]);
+
+    // Log team treasury
+    $stmt = $pdo->prepare("
+        INSERT INTO sol_distributions (
+            transaction_signature,
+            from_wallet,
+            to_wallet,
+            amount_sol,
+            percentage,
+            distribution_type,
+            nft_tier,
+            telegram_id,
+            status,
+            created_at
+        ) VALUES (
+            :tx_sig,
+            :from_wallet,
+            :to_wallet,
+            :amount,
+            :percentage,
+            'team',
+            :tier,
+            :telegram_id,
+            'pending',
+            NOW()
+        )
+    ");
+
+    $stmt->execute([
+        ':tx_sig' => $transaction_signature,
+        ':from_wallet' => $from_wallet,
+        ':to_wallet' => $TREASURY_TEAM,
+        ':amount' => $amounts['team'],
             ':percentage' => 30,
-            ':tier' => $nft_tier,
-            ':telegram_id' => $telegram_id
-        ]);
+        ':tier' => $nft_tier,
+        ':telegram_id' => $telegram_id
+    ]);
 
-        // Log team treasury
-        $stmt = $pdo->prepare("
-            INSERT INTO sol_distributions (
-                transaction_signature,
-                from_wallet,
-                to_wallet,
-                amount_sol,
-                percentage,
-                distribution_type,
-                nft_tier,
-                telegram_id,
-                status,
-                created_at
-            ) VALUES (
-                :tx_sig,
-                :from_wallet,
-                :to_wallet,
-                :amount,
-                :percentage,
-                'team',
-                :tier,
-                :telegram_id,
-                'pending',
-                NOW()
-            )
-        ");
+    $pdo->commit();
 
-        $stmt->execute([
-            ':tx_sig' => $transaction_signature,
-            ':from_wallet' => $from_wallet,
-            ':to_wallet' => $TREASURY_TEAM,
-            ':amount' => $amounts['team'],
-            ':percentage' => 30,
-            ':tier' => $nft_tier,
-            ':telegram_id' => $telegram_id
-        ]);
+    error_log("✅ SOL distribution logged successfully");
 
-        $pdo->commit();
-
-        error_log("✅ SOL distribution logged successfully");
-
-        echo json_encode([
-            'success' => true,
-            'transaction_signature' => $transaction_signature,
-            'total_sol' => $amount_sol,
-            'distribution' => [
-                'main' => [
-                    'wallet' => $TREASURY_MAIN,
-                    'amount' => round($amounts['main'], 6),
+    echo json_encode([
+        'success' => true,
+        'transaction_signature' => $transaction_signature,
+        'total_sol' => $amount_sol,
+        'distribution' => [
+            'main' => [
+                'wallet' => $TREASURY_MAIN,
+                'amount' => round($amounts['main'], 6),
                     'percentage' => '40%',
-                    'status' => 'pending'
-                ],
-                'liquidity' => [
-                    'wallet' => $TREASURY_LIQUIDITY,
-                    'amount' => round($amounts['liquidity'], 6),
-                    'percentage' => '30%',
-                    'status' => 'pending'
-                ],
-                'team' => [
-                    'wallet' => $TREASURY_TEAM,
-                    'amount' => round($amounts['team'], 6),
-                    'percentage' => '30%',
-                    'status' => 'pending'
-                ]
+                'status' => 'pending'
             ],
+            'liquidity' => [
+                'wallet' => $TREASURY_LIQUIDITY,
+                'amount' => round($amounts['liquidity'], 6),
+                'percentage' => '30%',
+                'status' => 'pending'
+            ],
+            'team' => [
+                'wallet' => $TREASURY_TEAM,
+                'amount' => round($amounts['team'], 6),
+                    'percentage' => '30%',
+                'status' => 'pending'
+            ]
+        ],
         'message' => 'SOL distribution logged. Manual transfer required.',
         'note' => 'For MVP: distributions are logged but not executed automatically. In production, implement real Solana transfers.'
     ]);
