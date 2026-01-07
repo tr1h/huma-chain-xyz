@@ -397,11 +397,6 @@
             font-weight: bold;
         }
 
-        .amountOLD-negative {
-            color: #ef4444;
-            font-weight: bold;
-        }
-
         .loading {
             text-align: center;
             padding: 40px;
@@ -852,8 +847,7 @@
 
         async function loadNFTMints() {
             try {
-                // Load NFT mints directly from user_nfts table
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*&order=minted_at.desc&limit=1000`, {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*&order=minted_at.desc&limit=5000`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -868,14 +862,14 @@
                     return nftMints.map(nft => {
                         const paymentType = nft.payment_type || (nft.purchase_price_tama > 0 ? 'TAMA' : 'SOL');
                         const amount = paymentType === 'TAMA' ? nft.purchase_price_tama : nft.price_paid_sol;
-                        
+
                         return {
                             created_at: nft.minted_at,
                             user_id: String(nft.telegram_id),
-                            username: allUsers[nft.telegram_id]?.telegram_username || '',
+                            username: allUsers[nft.telegram_id]?.telegram_username || `User ${nft.telegram_id}`,
                             type: `nft_mint_${paymentType.toLowerCase()}`,
-                            amount: -(amount || 0), // ✅ NEGATIVE: NFT mint is a SPEND (user pays TAMA/SOL)
-                            balance_after: 0, // Not applicable for NFT mints
+                            amount: -(amount || 0),
+                            balance_after: 0,
                             balance_before: 0,
                             metadata: {
                                 tier_name: nft.tier_name,
@@ -900,7 +894,7 @@
         async function loadWithdrawals() {
             try {
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/withdrawals?select=*&order=created_at.desc&limit=1000`,
+                    `${SUPABASE_URL}/rest/v1/withdrawals?select=*&order=created_at.desc&limit=5000`,
                     {
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
@@ -908,7 +902,7 @@
                         }
                     }
                 );
-                
+
                 if (response.ok) {
                     const withdrawals = await response.json();
                     console.log('✅ Loaded withdrawals:', withdrawals.length);
@@ -916,9 +910,9 @@
                     return withdrawals.map(w => ({
                         created_at: w.created_at,
                         user_id: String(w.telegram_id),
-                        username: allUsers[w.telegram_id]?.telegram_username || '',
+                        username: allUsers[w.telegram_id]?.telegram_username || `User ${w.telegram_id}`,
                         type: 'withdrawal',
-                        amount: -(w.amount), // NEGATIVE: outflow from system
+                        amount: -(w.amount),
                         balance_after: 0,
                         balance_before: 0,
                         metadata: {
@@ -939,7 +933,7 @@
         async function loadSOLDistributions() {
             try {
                 const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/sol_distributions?select=*&order=created_at.desc&limit=5000`,
+                    `${SUPABASE_URL}/rest/v1/sol_distributions?select=*&order=created_at.desc&limit=10000`,
                     {
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
@@ -947,7 +941,7 @@
                         }
                     }
                 );
-                
+
                 if (response.ok) {
                     const distributions = await response.json();
                     console.log('✅ Loaded SOL distributions:', distributions.length);
@@ -955,9 +949,9 @@
                     return distributions.map(d => ({
                         created_at: d.created_at,
                         user_id: String(d.telegram_id || 'TREASURY'),
-                        username: `${d.distribution_type.toUpperCase()} (${d.percentage}%)`,
+                        username: allUsers[d.telegram_id]?.telegram_username || `${d.distribution_type.toUpperCase()} (${d.percentage}%)`,
                         type: `sol_distribution_${d.distribution_type}`,
-                        amount: d.amount_sol, // SOL amount
+                        amount: d.amount_sol,
                         balance_after: 0,
                         balance_before: 0,
                         metadata: {

@@ -823,6 +823,7 @@
             opacity: 0.3;
             animation: floatPlanet 25s infinite ease-in-out;
             filter: blur(1px);
+            pointer-events: none;
         }
 
         .cloud1 {
@@ -930,6 +931,8 @@
             height: 140px;
             transition: transform 0.2s ease, filter 0.2s ease;
             filter: drop-shadow(4px 6px 12px rgba(0,0,0,0.3));
+            position: relative;
+            z-index: 10;
         }
 
         .pet-sprite:hover {
@@ -1708,11 +1711,9 @@
             font-weight: bold;
         }
 
-        /* Emoji as pixel art alternative */
         .pet-emoji {
             font-size: 100px;
             cursor: pointer;
-            user-select: none;
             transition: transform 0.1s ease;
             filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.3));
         }

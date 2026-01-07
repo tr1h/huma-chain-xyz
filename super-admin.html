@@ -800,32 +800,32 @@
                         <div class="action-item-label">Treasury Monitor</div>
                         <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Project wallets & on-chain</div>
                     </div>
-                    <div class="action-item" onclick="window.open('admin-dashboard.html', '_blank')">
+                    <div class="action-item" onclick="window.open('admin/admin-dashboard.html', '_blank')">
                         <div class="action-item-icon">📈</div>
                         <div class="action-item-label">Dashboard</div>
                         <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Statistics & tables</div>
                     </div>
-                    <div class="action-item" onclick="window.open('admin-tokenomics.html', '_blank')">
+                    <div class="action-item" onclick="window.open('admin/admin-tokenomics.html', '_blank')">
                         <div class="action-item-icon">💎</div>
                         <div class="action-item-label">Tokenomics</div>
                         <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Supply & emissions</div>
                     </div>
-                    <div class="action-item" onclick="window.open('blog-admin.html', '_blank')">
+                    <div class="action-item" onclick="window.open('admin/blog-admin.html', '_blank')">
                         <div class="action-item-icon">📚</div>
                         <div class="action-item-label">Blog Admin</div>
                         <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Manage articles</div>
                     </div>
-                    <div class="action-item" onclick="window.open('admin-nft-tiers.html', '_blank')">
+                    <div class="action-item" onclick="window.open('admin/admin-nft-tiers.html', '_blank')">
                         <div class="action-item-icon">🎨</div>
                         <div class="action-item-label">NFT Tiers</div>
                         <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Multi-tier NFT system</div>
                     </div>
-                    <div class="action-item" onclick="window.open('admin-table.html', '_blank')">
+                    <div class="action-item" onclick="window.open('admin/admin-table.html', '_blank')">
                         <div class="action-item-icon">📋</div>
                         <div class="action-item-label">Referrals & Balances</div>
                         <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">User referrals table</div>
                     </div>
-                    <div class="action-item" onclick="window.open('admin-auth.html', '_blank')" style="background: linear-gradient(135deg, #1D3557, #2D4564);">
+                    <div class="action-item" onclick="window.open('admin/admin-auth.html', '_blank')" style="background: linear-gradient(135deg, #1D3557, #2D4564);">
                         <div class="action-item-icon">🔐</div>
                         <div class="action-item-label">Auth Management</div>
                         <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Users, wallets, sessions, analytics</div>
@@ -1308,10 +1308,8 @@
             });
         });
 
-        // Load Data
         async function loadData() {
             try {
-                // Fetch leaderboard data
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=tama.desc`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -1320,53 +1318,59 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch data');
+                    throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
                 }
 
                 const players = await response.json();
-                
-                // Store data globally for editPlayer function
+
                 leaderboardData = players;
-                
-                // Update stats
+
                 updateStats(players);
-                
-                // Update tables
+
                 updateTopPlayersTable(players.slice(0, 10));
                 updateAllPlayersTable(players);
-                
-                // Update counts
+
                 document.getElementById('leaderboard-count').textContent = players.length;
                 document.getElementById('telegram-users').textContent = players.length;
 
-                // Load referrals
                 loadReferrals();
-                
-                // Load NFT SOL revenue
+
                 loadNFTSOLRevenue();
-                
-                // Load NFT 5-Tier Stats
+
                 loadNFTTierStats();
-                
-                // Load NFT Holders
+
                 loadNFTHolders();
-                
-                // Load Site Visits
+
                 loadSiteVisits();
-                
+
             } catch (error) {
                 console.error('Error loading data:', error);
-                alert('Failed to load data from database. Check console for details.');
+                document.getElementById('total-players').textContent = 'Error';
+                document.getElementById('total-tama').textContent = 'Error';
+                document.getElementById('top-players-tbody').innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #f44336;">
+                            ❌ Failed to load data from database.<br>
+                            <small>Check console for details.</small>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('all-players-tbody').innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #f44336;">
+                            ❌ Failed to load data from database.<br>
+                            <small>Check console for details.</small>
+                        </td>
+                    </tr>
+                `;
             }
         }
         
-        // Load Site Visits Statistics
         async function loadSiteVisits() {
             try {
                 const today = new Date().toISOString().split('T')[0];
                 const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                
-                // Get total visits
+
                 const totalResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?select=id`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -1375,8 +1379,7 @@
                 });
                 const totalData = await totalResponse.json();
                 const totalVisits = totalData?.length || 0;
-                
-                // Get today's visits
+
                 const todayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${today}&select=id`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -1385,8 +1388,7 @@
                 });
                 const todayData = await todayResponse.json();
                 const todayVisits = todayData?.length || 0;
-                
-                // Get yesterday's visits
+
                 const yesterdayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${yesterday}&select=id`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -1395,8 +1397,7 @@
                 });
                 const yesterdayData = await yesterdayResponse.json();
                 const yesterdayVisits = yesterdayData?.length || 0;
-                
-                // Get unique visitors (by session_id)
+
                 const uniqueResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?select=session_id`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -1405,8 +1406,7 @@
                 });
                 const uniqueData = await uniqueResponse.json();
                 const uniqueSessions = new Set(uniqueData?.map(v => v.session_id) || []).size;
-                
-                // Get unique visitors today
+
                 const uniqueTodayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${today}&select=session_id`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -1415,26 +1415,27 @@
                 });
                 const uniqueTodayData = await uniqueTodayResponse.json();
                 const uniqueTodaySessions = new Set(uniqueTodayData?.map(v => v.session_id) || []).size;
-                
-                // Update UI
+
                 document.getElementById('total-visits').textContent = totalVisits.toLocaleString();
                 document.getElementById('visits-change').textContent = `+${todayVisits} today`;
                 document.getElementById('visits-change').className = 'stat-change ' + (todayVisits > yesterdayVisits ? 'positive' : (todayVisits < yesterdayVisits ? 'negative' : ''));
-                
+
                 document.getElementById('unique-visitors').textContent = uniqueSessions.toLocaleString();
                 document.getElementById('visitors-change').textContent = `Today: ${uniqueTodaySessions}`;
-                
+
                 console.log('✅ Site visits loaded:', {
                     total: totalVisits,
                     today: todayVisits,
                     unique: uniqueSessions,
                     uniqueToday: uniqueTodaySessions
                 });
-                
+
             } catch (error) {
                 console.error('Error loading site visits:', error);
-                document.getElementById('total-visits').textContent = 'Error';
-                document.getElementById('unique-visitors').textContent = 'Error';
+                document.getElementById('total-visits').textContent = 'N/A';
+                document.getElementById('unique-visitors').textContent = 'N/A';
+                document.getElementById('visits-change').textContent = 'Not available';
+                document.getElementById('visitors-change').textContent = 'Not available';
             }
         }
 
@@ -1531,20 +1532,24 @@
                     const referrals = await response.json();
                     document.getElementById('referral-count').textContent = referrals.length;
                     document.getElementById('referrals-count').textContent = referrals.length;
+                } else {
+                    console.warn('Referrals table not available or error:', response.status);
+                    document.getElementById('referral-count').textContent = 'N/A';
+                    document.getElementById('referrals-count').textContent = 'N/A';
                 }
             } catch (error) {
                 console.error('Error loading referrals:', error);
+                document.getElementById('referral-count').textContent = 'N/A';
+                document.getElementById('referrals-count').textContent = 'N/A';
             }
         }
 
         async function loadNFTSOLRevenue() {
             try {
-                // Treasury wallet IDs
                 const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
                 const TREASURY_LIQUIDITY_ID = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
                 const TREASURY_TEAM_ID = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
 
-                // Fetch all treasury income transactions
                 const [mainResponse, liquidityResponse, teamResponse] = await Promise.all([
                     fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_income_from_nft_sol&user_id=eq.${TREASURY_MAIN_ID}`, {
                         headers: {
@@ -1571,20 +1576,28 @@
                     const liquidityData = await liquidityResponse.json();
                     const teamData = await teamResponse.json();
 
-                    // Calculate totals
                     const mainTotal = mainData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
                     const liquidityTotal = liquidityData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
                     const teamTotal = teamData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
                     const totalRevenue = mainTotal + liquidityTotal + teamTotal;
 
-                    // Update UI
                     document.getElementById('nft-sol-revenue').textContent = totalRevenue.toFixed(4) + ' SOL';
                     document.getElementById('nft-sol-main').textContent = mainTotal.toFixed(4) + ' SOL';
                     document.getElementById('nft-sol-liquidity').textContent = liquidityTotal.toFixed(4) + ' SOL';
                     document.getElementById('nft-sol-team').textContent = teamTotal.toFixed(4) + ' SOL';
+                } else {
+                    console.warn('NFT SOL revenue data not available');
+                    document.getElementById('nft-sol-revenue').textContent = 'N/A';
+                    document.getElementById('nft-sol-main').textContent = 'N/A';
+                    document.getElementById('nft-sol-liquidity').textContent = 'N/A';
+                    document.getElementById('nft-sol-team').textContent = 'N/A';
                 }
             } catch (error) {
                 console.error('Error loading NFT SOL revenue:', error);
+                document.getElementById('nft-sol-revenue').textContent = 'Error';
+                document.getElementById('nft-sol-main').textContent = 'Error';
+                document.getElementById('nft-sol-liquidity').textContent = 'Error';
+                document.getElementById('nft-sol-team').textContent = 'Error';
             }
         }
 
@@ -1810,13 +1823,13 @@
 
                     row.innerHTML = `
                         <td style="font-weight: bold;">${index + 1}</td>
-                        <td><a href="https://t.me/${nft.telegram_id}" target="_blank" style="color: #2196F3; text-decoration: none;">${nft.telegram_id}</a></td>
+                        <td>${nft.telegram_id}</td>
                         <td><span style="background: ${tierColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${nft.tier_name}</span></td>
                         <td><span style="background: ${rarityColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${nft.rarity}</span></td>
                         <td style="font-weight: bold; color: ${tierColor};">×${nft.earning_multiplier || 2.0}</td>
                         <td>
                             ${nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_') ? `
-                                <a href="https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet" target="_blank" 
+                                <a href="${window.CONFIG?.SOLANA?.EXPLORER_URL}/address/${nft.nft_mint_address}${window.CONFIG?.SOLANA?.IS_DEVNET ? '?cluster=devnet' : ''}" target="_blank"
                                    style="color: #9C27B0; text-decoration: none; font-family: monospace; font-size: 12px;"
                                    title="${nft.nft_mint_address}">
                                     ${shortMint} 🔗
@@ -1833,7 +1846,7 @@
                         <td>${statusBadge}</td>
                         <td>
                             <button class="action-btn view" onclick="viewNFT('${nft.nft_mint_address}')">🔍 View</button>
-                            <button class="action-btn" onclick="window.open('https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet', '_blank')" style="background: linear-gradient(135deg, #9C27B0, #E91E63);">⛓️ On-Chain</button>
+                            <button class="action-btn" onclick="window.open('${window.CONFIG?.SOLANA?.EXPLORER_URL}/address/${nft.nft_mint_address}${window.CONFIG?.SOLANA?.IS_DEVNET ? '?cluster=devnet' : ''}', '_blank')" style="background: linear-gradient(135deg, #9C27B0, #E91E63);">⛓️ On-Chain</button>
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -1887,6 +1900,11 @@
                 setTimeout(() => {
                     refreshIcon.textContent = '🔄';
                 }, 2000);
+            }).catch(() => {
+                refreshIcon.textContent = '❌';
+                setTimeout(() => {
+                    refreshIcon.textContent = '🔄';
+                }, 2000);
             });
         }
 
@@ -1916,7 +1934,26 @@
 
         // Admin Actions (placeholders)
         function viewPlayer(telegramId) {
-            alert(`Viewing player: ${telegramId}`);
+            const player = leaderboardData.find(p => p.telegram_id === telegramId);
+            if (!player) {
+                alert('❌ Player not found!');
+                return;
+            }
+
+            const petData = player.pet_data ? JSON.stringify(JSON.parse(player.pet_data), null, 2) : 'N/A';
+            const lastActive = player.last_activity ? new Date(player.last_activity).toLocaleString() : 'Never';
+            const created = player.created_at ? new Date(player.created_at).toLocaleString() : 'N/A';
+
+            alert(`👤 Player Details:\n\n` +
+                  `Telegram ID: ${player.telegram_id}\n` +
+                  `Username: ${player.telegram_username || 'N/A'}\n` +
+                  `Level: ${player.level || 1}\n` +
+                  `XP: ${player.xp || 0}\n` +
+                  `TAMA Balance: ${(player.tama || 0).toLocaleString()}\n` +
+                  `Pet Name: ${player.pet_name || 'Gotchi'}\n` +
+                  `Pet Type: ${player.pet_type || 'N/A'}\n` +
+                  `Last Active: ${lastActive}\n` +
+                  `Created: ${created}`);
         }
 
         async function editPlayer(telegramId) {
@@ -1926,27 +1963,27 @@
                 alert('❌ Player not found!');
                 return;
             }
-            
+
             const currentTama = player.tama || 0;
             const newTama = prompt(
                 `Enter new TAMA amount for ${player.telegram_username || telegramId}:\n\n` +
                 `Current balance: ${currentTama.toLocaleString()} TAMA`
             );
-            
+
             if (newTama === null || newTama.trim() === '') return;
-            
+
             const tamaAmount = parseInt(newTama);
             if (isNaN(tamaAmount) || tamaAmount < 0) {
                 alert('❌ Invalid amount! Please enter a positive number.');
                 return;
             }
-            
+
             if (!confirm(`⚠️ Set TAMA balance for ${player.telegram_username || telegramId}?\n\n` +
                         `${currentTama.toLocaleString()} → ${tamaAmount.toLocaleString()} TAMA\n\n` +
                         `This will update the database and log the transaction.`)) {
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
                     method: 'POST',
@@ -1960,18 +1997,17 @@
                         pet_name: player.pet_name || 'Gotchi',
                         pet_type: player.pet_type || 'kawai',
                         pet_data: player.pet_data,
-                        skip_transaction_log: true // Admin operation
+                        skip_transaction_log: true
                     })
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (response.ok && result.success) {
                     alert(`✅ Balance updated successfully!\n\n` +
                           `${player.telegram_username || telegramId}\n` +
                           `${currentTama.toLocaleString()} → ${tamaAmount.toLocaleString()} TAMA`);
-                    
-                    // Log admin transaction
+
                     await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
                         method: 'POST',
                         headers: {
@@ -1994,8 +2030,7 @@
                             })
                         })
                     });
-                    
-                    // Refresh data
+
                     loadData();
                 } else {
                     alert(`❌ Error updating balance: ${result.error || 'Unknown error'}`);
@@ -2006,10 +2041,41 @@
             }
         }
 
-        function deletePlayer(telegramId) {
-            if (confirm(`Are you sure you want to delete player ${telegramId}?`)) {
-                alert(`Would delete player ${telegramId}`);
-                // TODO: Implement actual deletion
+        async function deletePlayer(telegramId) {
+            const player = leaderboardData.find(p => p.telegram_id === telegramId);
+            if (!player) {
+                alert('❌ Player not found!');
+                return;
+            }
+
+            if (!confirm(`⚠️ DANGER: Are you sure you want to DELETE player ${player.telegram_username || telegramId}?\n\n` +
+                        `This action CANNOT be undone!\n\n` +
+                        `Player data:\n` +
+                        `- Level: ${player.level || 1}\n` +
+                        `- TAMA: ${(player.tama || 0).toLocaleString()}\n` +
+                        `- Pet: ${player.pet_name || 'Gotchi'}`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    alert(`✅ Player ${player.telegram_username || telegramId} deleted successfully!`);
+                    loadData();
+                } else {
+                    const error = await response.json();
+                    alert(`❌ Error deleting player: ${error.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting player:', error);
+                alert(`❌ Error deleting player: ${error.message}`);
             }
         }
 
@@ -2025,48 +2091,286 @@
             window.open('https://supabase.com/dashboard/project/zfrazyupameidxpjihrh/sql', '_blank');
         }
 
-        function addTAMA() {
+        async function addTAMA() {
             const telegramId = prompt('Enter Telegram ID:');
-            if (telegramId) {
-                const amount = prompt('Enter TAMA amount to add:');
-                if (amount) {
-                    alert(`Would add ${amount} TAMA to user ${telegramId}`);
+            if (!telegramId) return;
+
+            const player = leaderboardData.find(p => p.telegram_id === telegramId);
+            if (!player) {
+                alert('❌ Player not found!');
+                return;
+            }
+
+            const amountStr = prompt(`Enter TAMA amount to add to ${player.telegram_username || telegramId}:`);
+            if (amountStr === null || amountStr.trim() === '') return;
+
+            const amount = parseInt(amountStr);
+            if (isNaN(amount) || amount === 0) {
+                alert('❌ Invalid amount! Please enter a number.');
+                return;
+            }
+
+            const currentTama = player.tama || 0;
+            const newTama = currentTama + amount;
+
+            if (!confirm(`⚠️ Add ${amount.toLocaleString()} TAMA to ${player.telegram_username || telegramId}?\n\n` +
+                        `Current: ${currentTama.toLocaleString()}\n` +
+                        `New: ${newTama.toLocaleString()} TAMA`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: String(telegramId),
+                        telegram_username: player.telegram_username,
+                        tama: newTama,
+                        level: player.level || 1,
+                        xp: player.xp || 0,
+                        pet_name: player.pet_name || 'Gotchi',
+                        pet_type: player.pet_type || 'kawai',
+                        pet_data: player.pet_data
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert(`✅ ${amount.toLocaleString()} TAMA added successfully!\n\n` +
+                          `${player.telegram_username || telegramId}\n` +
+                          `${currentTama.toLocaleString()} → ${newTama.toLocaleString()} TAMA`);
+                    loadData();
+                } else {
+                    alert(`❌ Error adding TAMA: ${result.error || 'Unknown error'}`);
                 }
+            } catch (error) {
+                console.error('Error adding TAMA:', error);
+                alert(`❌ Error adding TAMA: ${error.message}`);
             }
         }
 
-        function banUser() {
+        async function banUser() {
             const telegramId = prompt('Enter Telegram ID to ban:');
-            if (telegramId) {
-                if (confirm(`Ban user ${telegramId}?`)) {
-                    alert(`Would ban user ${telegramId}`);
+            if (!telegramId) return;
+
+            const player = leaderboardData.find(p => p.telegram_id === telegramId);
+            if (!player) {
+                alert('❌ Player not found!');
+                return;
+            }
+
+            if (!confirm(`⚠️ BAN player ${player.telegram_username || telegramId}?\n\n` +
+                        `This will restrict access to the game.\n\n` +
+                        `Player data:\n` +
+                        `- Level: ${player.level || 1}\n` +
+                        `- TAMA: ${(player.tama || 0).toLocaleString()}\n` +
+                        `- Pet: ${player.pet_name || 'Gotchi'}`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ is_banned: true })
+                });
+
+                if (response.ok) {
+                    alert(`✅ Player ${player.telegram_username || telegramId} banned successfully!`);
+                    loadData();
+                } else {
+                    const error = await response.json();
+                    alert(`❌ Error banning player: ${error.message || 'Unknown error'}`);
                 }
+            } catch (error) {
+                console.error('Error banning player:', error);
+                alert(`❌ Error banning player: ${error.message}`);
             }
         }
 
-        function sendMessage() {
-            alert('Broadcast message feature coming soon!');
+        async function sendMessage() {
+            const message = prompt('Enter broadcast message to send to all players:');
+            if (!message || message.trim() === '') return;
+
+            if (!confirm(`⚠️ Send broadcast message to all players?\n\n` +
+                        `Message: "${message}"\n\n` +
+                        `This will be sent to all active players.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${TAMA_API_BASE}/broadcast`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message.trim(),
+                        type: 'admin_broadcast'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert(`✅ Broadcast sent successfully!\n\n` +
+                          `Message: "${message}"`);
+                } else {
+                    alert(`❌ Error sending broadcast: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error sending broadcast:', error);
+                alert(`❌ Error sending broadcast: ${error.message}`);
+            }
         }
 
-        function resetProgress() {
+        async function resetProgress() {
             const telegramId = prompt('Enter Telegram ID to reset:');
-            if (telegramId) {
-                if (confirm(`Reset all progress for user ${telegramId}? This cannot be undone!`)) {
-                    alert(`Would reset progress for ${telegramId}`);
+            if (!telegramId) return;
+
+            const player = leaderboardData.find(p => p.telegram_id === telegramId);
+            if (!player) {
+                alert('❌ Player not found!');
+                return;
+            }
+
+            if (!confirm(`⚠️ DANGER: Reset ALL progress for ${player.telegram_username || telegramId}?\n\n` +
+                        `This CANNOT be undone!\n\n` +
+                        `Will reset:\n` +
+                        `- Level: ${player.level || 1} → 1\n` +
+                        `- XP: ${player.xp || 0} → 0\n` +
+                        `- TAMA: ${(player.tama || 0).toLocaleString()} → 0\n` +
+                        `- Pet: ${player.pet_name || 'Gotchi'} → Gotchi`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: String(telegramId),
+                        telegram_username: player.telegram_username,
+                        tama: 0,
+                        level: 1,
+                        xp: 0,
+                        pet_name: 'Gotchi',
+                        pet_type: 'kawai',
+                        pet_data: null
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert(`✅ Progress reset successfully!\n\n` +
+                          `${player.telegram_username || telegramId}\n` +
+                          `Reset to: Level 1, 0 XP, 0 TAMA`);
+                    loadData();
+                } else {
+                    alert(`❌ Error resetting progress: ${result.error || 'Unknown error'}`);
                 }
+            } catch (error) {
+                console.error('Error resetting progress:', error);
+                alert(`❌ Error resetting progress: ${error.message}`);
             }
         }
 
-        function giveNFT() {
-            alert('NFT distribution feature coming soon!');
+        async function giveNFT() {
+            const telegramId = prompt('Enter Telegram ID:');
+            if (!telegramId) return;
+
+            const player = leaderboardData.find(p => p.telegram_id === telegramId);
+            if (!player) {
+                alert('❌ Player not found!');
+                return;
+            }
+
+            const tier = prompt('Enter NFT tier (Bronze, Silver, Gold, Platinum, Diamond):');
+            if (!tier) return;
+
+            const validTiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+            if (!validTiers.includes(tier)) {
+                alert(`❌ Invalid tier! Valid options: ${validTiers.join(', ')}`);
+                return;
+            }
+
+            if (!confirm(`⚠️ Give ${tier} NFT to ${player.telegram_username || telegramId}?\n\n` +
+                        `Player: ${player.telegram_username || telegramId}\n` +
+                        `Tier: ${tier}`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${TAMA_API_BASE}/nft/gift`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: telegramId,
+                        tier: tier,
+                        source: 'admin_gift'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert(`✅ ${tier} NFT gifted successfully!\n\n` +
+                          `Player: ${player.telegram_username || telegramId}`);
+                    loadData();
+                } else {
+                    alert(`❌ Error gifting NFT: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error gifting NFT:', error);
+                alert(`❌ Error gifting NFT: ${error.message}`);
+            }
         }
 
         function viewLogs() {
             window.open('https://supabase.com/dashboard/project/zfrazyupameidxpjihrh/logs/explorer', '_blank');
         }
 
-        function linkNFTHolder() {
-            alert('NFT linking feature coming soon!');
+        async function linkNFTHolder() {
+            const telegramId = prompt('Enter Telegram ID:');
+            if (!telegramId) return;
+
+            const walletAddress = prompt('Enter Solana wallet address:');
+            if (!walletAddress || walletAddress.trim() === '') return;
+
+            if (!confirm(`⚠️ Link wallet ${walletAddress} to Telegram ID ${telegramId}?\n\n` +
+                        `This will associate the wallet with the player account.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?telegram_id=eq.${telegramId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ wallet_address: walletAddress.trim() })
+                });
+
+                if (response.ok) {
+                    alert(`✅ Wallet linked successfully!\n\n` +
+                          `Telegram ID: ${telegramId}\n` +
+                          `Wallet: ${walletAddress}`);
+                    loadData();
+                } else {
+                    const error = await response.json();
+                    alert(`❌ Error linking wallet: ${error.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error linking wallet:', error);
+                alert(`❌ Error linking wallet: ${error.message}`);
+            }
         }
 
         function syncData() {
@@ -2074,16 +2378,77 @@
             refreshAllData();
         }
 
-        function verifyNFT() {
-            alert('NFT verification feature coming soon!');
+        async function verifyNFT() {
+            const mintAddress = prompt('Enter NFT mint address to verify:');
+            if (!mintAddress || mintAddress.trim() === '') return;
+
+            try {
+                const response = await fetch(`${TAMA_API_BASE}/nft/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mint_address: mintAddress.trim()
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert(`✅ NFT Verification Result:\n\n` +
+                          `Mint Address: ${result.data.mint_address}\n` +
+                          `Owner: ${result.data.owner}\n` +
+                          `Tier: ${result.data.tier}\n` +
+                          `Rarity: ${result.data.rarity}\n` +
+                          `Verified: ${result.data.verified ? 'Yes' : 'No'}`);
+                } else {
+                    alert(`❌ Error verifying NFT: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error verifying NFT:', error);
+                alert(`❌ Error verifying NFT: ${error.message}`);
+            }
         }
 
-        function setupWebhook() {
-            alert('Webhook setup feature coming soon!');
+        async function setupWebhook() {
+            const webhookUrl = prompt('Enter webhook URL:');
+            if (!webhookUrl || webhookUrl.trim() === '') return;
+
+            const eventType = prompt('Enter event type (nft_mint, transaction, user_join):');
+            if (!eventType) return;
+
+            if (!confirm(`⚠️ Setup webhook for ${eventType} events?\n\n` +
+                        `URL: ${webhookUrl}\n` +
+                        `Event Type: ${eventType}`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${TAMA_API_BASE}/webhook/setup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: webhookUrl.trim(),
+                        event_type: eventType
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert(`✅ Webhook setup successfully!\n\n` +
+                          `URL: ${webhookUrl}\n` +
+                          `Event Type: ${eventType}\n` +
+                          `Webhook ID: ${result.webhook_id}`);
+                } else {
+                    alert(`❌ Error setting up webhook: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error setting up webhook:', error);
+                alert(`❌ Error setting up webhook: ${error.message}`);
+            }
         }
 
-        // Auto-refresh every 30 seconds
-        setInterval(loadData, 30000);
+        setInterval(loadData, 5 * 60 * 1000);
 
         // Initial load
         window.addEventListener('DOMContentLoaded', loadData);
