@@ -19,7 +19,7 @@ class LegalConsent {
                 this.hideLegalSidebar();
             }, 100);
         }
-        
+
         // Also hide on page load if consented (double check)
         if (this.hasConsented()) {
             window.addEventListener('load', () => {
@@ -39,13 +39,13 @@ class LegalConsent {
             <div id="legal-consent-modal" class="legal-consent-overlay">
                 <div class="legal-consent-modal">
                     <div class="legal-consent-header">
-                        <h2>&#9888;&#65039; Important: Please Read</h2>
+                        <h2>\u26A0\uFE0F Important: Please Read</h2>
                         <p class="legal-consent-subtitle">Before you continue, please review our legal documents</p>
                     </div>
-                    
+
                     <div class="legal-consent-content">
                         <div class="legal-warning-box">
-                            <p><strong>&#128680; THIS IS A GAME - NOT AN INVESTMENT OPPORTUNITY.</strong></p>
+                            <p><strong>\u{1F6A8} THIS IS A GAME - NOT AN INVESTMENT OPPORTUNITY.</strong></p>
                             <p>TAMA tokens are for in-game use only. You may lose all value. Only participate with funds you can afford to lose.</p>
                         </div>
 
@@ -53,15 +53,15 @@ class LegalConsent {
                             <p><strong>By continuing, you agree to:</strong></p>
                             <ul>
                                 <li>
-                                    <a href="/terms" target="_blank">&#9878;&#65039; Terms of Service</a>
+                                    <a href="/terms" target="_blank">\u2696\uFE0F Terms of Service</a>
                                     <span class="legal-doc-desc">Rules and conditions for using the game</span>
                                 </li>
                                 <li>
-                                    <a href="/privacy" target="_blank">&#128274; Privacy Policy</a>
+                                    <a href="/privacy" target="_blank">\u{1F512} Privacy Policy</a>
                                     <span class="legal-doc-desc">How we collect and use your data</span>
                                 </li>
                                 <li>
-                                    <a href="/disclaimer" target="_blank">&#9888;&#65039; Risk Warning</a>
+                                    <a href="/disclaimer" target="_blank">\u26A0\uFE0F Risk Warning</a>
                                     <span class="legal-doc-desc">Important information about risks</span>
                                 </li>
                             </ul>
@@ -93,7 +93,7 @@ class LegalConsent {
 
         // Inject modal into page
         document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
+
         // Inject styles
         this.injectStyles();
 

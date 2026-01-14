@@ -1,66 +1,65 @@
 ﻿/**
- * рџ”ђ ADMIN AUTHENTICATION MODULE
- * 
- * Р•РґРёРЅР°СЏ СЃРёСЃС‚РµРјР° Р°РІС‚РѕСЂРёР·Р°С†РёРё РґР»СЏ РІСЃРµС… Р°РґРјРёРЅСЃРєРёС… СЃС‚СЂР°РЅРёС†
- * 
- * РРЎРџРћР›Р¬Р—РћР’РђРќРР•:
- * 1. РџРѕРґРєР»СЋС‡Рё РІ HTML: <script src="js/admin-auth.js"></script>
- * 2. РџРѕРґРєР»СЋС‡Рё С„Р°Р№Р» СЃ РїР°СЂРѕР»РµРј: <script src="admin-password.js"></script>
- * 3. Р”РѕР±Р°РІСЊ HTML СЂР°Р·РјРµС‚РєСѓ РґР»СЏ СЌРєСЂР°РЅР° РІС…РѕРґР° (СЃРј. РЅРёР¶Рµ)
- * 
- * HTML СЂР°Р·РјРµС‚РєР° РґР»СЏ СЌРєСЂР°РЅР° РІС…РѕРґР°:
- * 
+ * 🔐 ADMIN AUTHENTICATION MODULE
+ *
+ * Unified authentication system for all admin pages
+ *
+ * USAGE:
+ * 1. Include in HTML: <script src="js/admin-auth.js"></script>
+ * 2. Include password config: <script src="admin-password.js"></script>
+ * 3. Add HTML markup for login screen (see below)
+ *
+ * HTML Markup for Login Screen:
+ *
  * <div id="adminLoginScreen" style="...">
  *   <div class="login-container">
- *     <h2>рџ”ђ Admin Access</h2>
+ *     <h2>🔐 Admin Access</h2>
  *     <input type="password" id="adminPasswordInput" placeholder="Enter password">
  *     <button onclick="adminAuth.checkPassword()">Login</button>
  *     <div id="adminLoginError" style="color: red; margin-top: 10px;"></div>
  *   </div>
  * </div>
- * 
+ *
  * <div id="adminContent" style="display: none;">
- *   <!-- РўРІРѕР№ РєРѕРЅС‚РµРЅС‚ Р°РґРјРёРЅРєРё Р·РґРµСЃСЊ -->
+ *   <!-- Your admin content here -->
  * </div>
  */
 
 (function() {
     'use strict';
 
-    // РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ
-    const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 РјРёРЅСѓС‚
+    // Configuration
+    const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
     const MAX_FAILED_ATTEMPTS = 5;
-    const LOCKOUT_TIME = 30 * 1000; // 30 СЃРµРєСѓРЅРґ Р±Р»РѕРєРёСЂРѕРІРєРё
+    const LOCKOUT_TIME = 30 * 1000; // 30 seconds lockout
 
-    // SHA-256 С„СѓРЅРєС†РёСЏ (РµСЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С…РµС€ РїР°СЂРѕР»СЏ)
+    // SHA-256 Function (Web Crypto API)
     async function sha256(str) {
         if (typeof crypto !== 'undefined' && crypto.subtle) {
-            // РСЃРїРѕР»СЊР·СѓРµРј Web Crypto API
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
-        // Fallback: РµСЃР»Рё Web Crypto API РЅРµРґРѕСЃС‚СѓРїРµРЅ
-        console.warn('вљ пёЏ Web Crypto API not available, hash comparison may not work');
+        // Fallback
+        console.warn('⚠️ Web Crypto API not available, hash comparison may not work');
         return Promise.resolve(null);
     }
 
-    // РџСЂРѕРІРµСЂРєР° СЃРµСЃСЃРёРё
+    // Session Check
     function checkSession() {
         const auth = sessionStorage.getItem('admin_authenticated');
         const timestamp = sessionStorage.getItem('auth_timestamp');
-        
+
         if (auth === 'true' && timestamp) {
             const elapsed = Date.now() - parseInt(timestamp);
             if (elapsed < SESSION_TIMEOUT) {
-                // РЎРµСЃСЃРёСЏ РІР°Р»РёРґРЅР°
+                // Session valid
                 showContent();
                 logAccess('session_resumed', { elapsed: Math.round(elapsed / 1000) + 's' });
                 return true;
             } else {
-                // РЎРµСЃСЃРёСЏ РёСЃС‚РµРєР»Р°
+                // Session expired
                 sessionStorage.removeItem('admin_authenticated');
                 sessionStorage.removeItem('auth_timestamp');
                 logAccess('session_expired', {});
@@ -69,25 +68,25 @@
         return false;
     }
 
-    // РџРѕРєР°Р·Р°С‚СЊ РєРѕРЅС‚РµРЅС‚, СЃРєСЂС‹С‚СЊ СЌРєСЂР°РЅ РІС…РѕРґР°
+    // Show content, hide login
     function showContent() {
         const loginScreen = document.getElementById('adminLoginScreen');
         const content = document.getElementById('adminContent');
-        
+
         if (loginScreen) loginScreen.style.display = 'none';
         if (content) content.style.display = 'block';
     }
 
-    // РџРѕРєР°Р·Р°С‚СЊ СЌРєСЂР°РЅ РІС…РѕРґР°, СЃРєСЂС‹С‚СЊ РєРѕРЅС‚РµРЅС‚
+    // Show login, hide content
     function showLogin() {
         const loginScreen = document.getElementById('adminLoginScreen');
         const content = document.getElementById('adminContent');
-        
+
         if (loginScreen) loginScreen.style.display = 'block';
         if (content) content.style.display = 'none';
     }
 
-    // Р›РѕРіРёСЂРѕРІР°РЅРёРµ РґРѕСЃС‚СѓРїР°
+    // Access Logging
     function logAccess(action, details) {
         const log = {
             timestamp: new Date().toISOString(),
@@ -96,39 +95,36 @@
             page: window.location.pathname,
             userAgent: navigator.userAgent.substring(0, 100)
         };
-        
-        // РЎРѕС…СЂР°РЅРёС‚СЊ РІ localStorage РґР»СЏ РїСЂРѕСЃРјРѕС‚СЂР°
+
+        // Save to localStorage
         const logs = JSON.parse(localStorage.getItem('admin_access_logs') || '[]');
         logs.push(log);
-        if (logs.length > 100) logs.shift(); // РҐСЂР°РЅРёС‚СЊ С‚РѕР»СЊРєРѕ РїРѕСЃР»РµРґРЅРёРµ 100 Р·Р°РїРёСЃРµР№
+        if (logs.length > 100) logs.shift(); // Keep last 100
         localStorage.setItem('admin_access_logs', JSON.stringify(logs));
-        
-        // [cleaned]
     }
 
-    // РџСЂРѕРІРµСЂРєР° РїР°СЂРѕР»СЏ
+    // Password Check
     async function checkPassword() {
         const input = document.getElementById('adminPasswordInput');
         const errorDiv = document.getElementById('adminLoginError');
-        
+
         if (!input) {
-            console.error('вќЊ adminPasswordInput not found!');
+            console.error('❌ adminPasswordInput not found!');
             return;
         }
-        
+
         const password = input.value;
-        
+
         if (!password) {
             if (errorDiv) errorDiv.textContent = 'Please enter password';
             return;
         }
-        
-        // вљ пёЏ SECURITY: Use ONLY password hash, NEVER plaintext!
-        // Get password hash from configuration (multiple sources)
-        const adminPasswordHash = window.ADMIN_PASSWORD_HASH || 
+
+        // ⚠️ SECURITY: Use ONLY password hash, NEVER plaintext!
+        const adminPasswordHash = window.ADMIN_PASSWORD_HASH ||
                                   (document.querySelector('meta[name="admin-password-hash"]')?.content) ||
                                   null;
-        
+
         if (!adminPasswordHash) {
             if (errorDiv) {
                 errorDiv.textContent = 'Error: Password not configured!';
@@ -137,10 +133,10 @@
             logAccess('config_error', { error: 'No password hash configured' });
             return;
         }
-        
+
         let isValid = false;
-        
-        // Use secure verification function if available
+
+        // Use secure verification if available
         if (typeof window.verifyAdminPassword === 'function') {
             try {
                 isValid = await window.verifyAdminPassword(password);
@@ -158,37 +154,37 @@
                 isValid = false;
             }
         }
-        
+
         if (isValid) {
-            // РЈСЃРїРµС€РЅС‹Р№ РІС…РѕРґ
+            // Success
             sessionStorage.setItem('admin_authenticated', 'true');
             sessionStorage.setItem('auth_timestamp', Date.now().toString());
-            sessionStorage.removeItem('failed_attempts'); // РЎР±СЂРѕСЃ СЃС‡РµС‚С‡РёРєР°
-            
+            sessionStorage.removeItem('failed_attempts');
+
             showContent();
             input.value = '';
             if (errorDiv) errorDiv.textContent = '';
-            
+
             logAccess('login_success', { page: window.location.pathname });
         } else {
-            // РќРµСѓРґР°С‡РЅР°СЏ РїРѕРїС‹С‚РєР°
-            if (errorDiv) errorDiv.textContent = 'вќЊ Invalid password!';
+            // Failed
+            if (errorDiv) errorDiv.textContent = '❌ Invalid password!';
             input.value = '';
             input.focus();
-            
-            // РЈРІРµР»РёС‡РёС‚СЊ СЃС‡РµС‚С‡РёРє РЅРµСѓРґР°С‡РЅС‹С… РїРѕРїС‹С‚РѕРє
+
+            // Increment failed attempts
             const failedAttempts = parseInt(sessionStorage.getItem('failed_attempts') || '0') + 1;
             sessionStorage.setItem('failed_attempts', failedAttempts.toString());
-            
+
             logAccess('login_failed', { attempts: failedAttempts });
-            
-            // Р‘Р»РѕРєРёСЂРѕРІРєР° РїРѕСЃР»Рµ MAX_FAILED_ATTEMPTS РїРѕРїС‹С‚РѕРє
+
+            // Lockout
             if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
                 if (errorDiv) {
-                    errorDiv.textContent = `вќЊ Too many failed attempts! Page will reload in ${LOCKOUT_TIME / 1000} seconds.`;
+                    errorDiv.textContent = `❌ Too many failed attempts! Page will reload in ${LOCKOUT_TIME / 1000} seconds.`;
                 }
                 input.disabled = true;
-                
+
                 setTimeout(() => {
                     sessionStorage.removeItem('failed_attempts');
                     window.location.reload();
@@ -197,18 +193,17 @@
         }
     }
 
-    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїСЂРё Р·Р°РіСЂСѓР·РєРµ СЃС‚СЂР°РЅРёС†С‹
+    // Initialization
     function init() {
-        // РџСЂРѕРІРµСЂРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ СЃРµСЃСЃРёСЋ
+        // Check session
         if (!checkSession()) {
             showLogin();
-            
-            // Р¤РѕРєСѓСЃ РЅР° РїРѕР»Рµ РІРІРѕРґР°
+
             const input = document.getElementById('adminPasswordInput');
             if (input) {
                 input.focus();
-                
-                // Enter РґР»СЏ РІС…РѕРґР°
+
+                // Enter to login
                 input.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         checkPassword();
@@ -216,8 +211,8 @@
                 });
             }
         }
-        
-        // РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ РїСЂРѕРІРµСЂРєР° СЃРµСЃСЃРёРё РєР°Р¶РґС‹Рµ 5 РјРёРЅСѓС‚
+
+        // Auto check every 5 mins
         setInterval(() => {
             if (!checkSession()) {
                 showLogin();
@@ -225,7 +220,7 @@
         }, 5 * 60 * 1000);
     }
 
-    // Р­РєСЃРїРѕСЂС‚ API
+    // Export API
     window.adminAuth = {
         checkPassword: checkPassword,
         checkSession: checkSession,
@@ -234,12 +229,10 @@
         showLogin: showLogin
     };
 
-    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїСЂРё Р·Р°РіСЂСѓР·РєРµ DOM
+    // DOM Ready Init
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
 })();
-
-

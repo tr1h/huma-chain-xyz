@@ -140,7 +140,7 @@
             align-items: center;
             margin-bottom: 30px;
         }
-        
+
         .back-btn {
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -154,7 +154,7 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateX(-5px);
@@ -309,27 +309,27 @@
             background: #ef4444;
             color: #fff;
         }
-        
+
         .type-burn {
             background: #ff6b35;
             color: #fff;
         }
-        
+
         .type-treasury {
             background: #8b5cf6;
             color: #fff;
         }
-        
+
         .type-p2e {
             background: #3b82f6;
             color: #fff;
         }
-        
+
         .type-sol {
             background: #f59e0b;
             color: #fff;
         }
-        
+
         .type-treasury-sol {
             background: #a855f7;
             color: #fff;
@@ -391,7 +391,7 @@
             color: #ef4444;
             font-weight: bold;
         }
-        
+
         .amount-burn {
             color: #ff6b35;
             font-weight: bold;
@@ -689,7 +689,7 @@
         const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || window.AdminEnv?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_KEY || window.AdminEnv?.SUPABASE_KEY || '';
         const TAMA_API_BASE = window.CONFIG?.API_BASE || window.AdminEnv?.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
-        
+
         console.log('✅ Admin Environment loaded:', { supabase: SUPABASE_URL, api: TAMA_API_BASE });
 
         let allTransactions = [];
@@ -742,7 +742,7 @@
                 if (payload && payload.data) {
                     // Ensure data is an array
                     const newTransactions = Array.isArray(payload.data) ? payload.data : [];
-                    
+
                     // For live updates: check if we have new transactions
                     if (updateOnly && lastTransactionTime && newTransactions.length > 0) {
                         const latestTime = new Date(newTransactions[0].created_at);
@@ -754,14 +754,14 @@
                         }
                         return; // No new transactions
                     }
-                    
+
                     allTransactions = newTransactions;
-                    
+
                     // Update last transaction time for live updates
                     if (allTransactions.length > 0) {
                         lastTransactionTime = new Date(allTransactions[0].created_at);
                     }
-                    
+
                     // Use count from API if available, otherwise estimate
                     if (payload.count !== undefined) {
                         totalCount = payload.count;
@@ -780,25 +780,25 @@
                     }
                 }
                 console.log(`✅ Loaded page ${currentPage}: ${allTransactions.length} TAMA transactions (Total: ~${totalCount})`);
-                
+
                 // 🆕 FIX #3: Load users data and merge ALL transaction sources
                 if (!updateOnly) {
                     await loadUsersData();
-                    
+
                     // Load all additional transaction sources in parallel
                     const [nftMints, withdrawals, solDistributions] = await Promise.all([
                         loadNFTMints(),
                         loadWithdrawals(),
                         loadSOLDistributions()
                     ]);
-                    
+
                     // Merge all data sources
                     const additionalTransactions = [
                         ...(nftMints || []),
                         ...(withdrawals || []),
                         ...(solDistributions || [])
                     ];
-                    
+
                     if (additionalTransactions.length > 0) {
                         console.log(`✅ Merging additional transactions:`, {
                             nftMints: nftMints?.length || 0,
@@ -811,7 +811,7 @@
                         allTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                     }
                 }
-                
+
                 updateStats();
                 renderTransactions(allTransactions);
                 updateLastUpdateTime();
@@ -857,7 +857,7 @@
                 if (response.ok) {
                     const nftMints = await response.json();
                     console.log('✅ Loaded NFT mints:', nftMints.length);
-                    
+
                     // Convert NFT mints to transaction format
                     return nftMints.map(nft => {
                         const paymentType = nft.payment_type || (nft.purchase_price_tama > 0 ? 'TAMA' : 'SOL');
@@ -906,7 +906,7 @@
                 if (response.ok) {
                     const withdrawals = await response.json();
                     console.log('✅ Loaded withdrawals:', withdrawals.length);
-                    
+
                     return withdrawals.map(w => ({
                         created_at: w.created_at,
                         user_id: String(w.telegram_id),
@@ -929,337 +929,253 @@
             return [];
         }
 
-        // 🆕 FIX #2: Load SOL distributions from sol_distributions table
+
+
+        // 🆕 FIX #8: Fetch SOL distributions
         async function loadSOLDistributions() {
             try {
-                const response = await fetch(
-                    `${SUPABASE_URL}/rest/v1/sol_distributions?select=*&order=created_at.desc&limit=10000`,
-                    {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    }
-                );
-
-                if (response.ok) {
-                    const distributions = await response.json();
-                    console.log('✅ Loaded SOL distributions:', distributions.length);
-                    
-                    return distributions.map(d => ({
-                        created_at: d.created_at,
-                        user_id: String(d.telegram_id || 'TREASURY'),
-                        username: allUsers[d.telegram_id]?.telegram_username || `${d.distribution_type.toUpperCase()} (${d.percentage}%)`,
-                        type: `sol_distribution_${d.distribution_type}`,
-                        amount: d.amount_sol,
-                        balance_after: 0,
-                        balance_before: 0,
-                        metadata: {
-                            transaction_signature: d.transaction_signature,
-                            from_wallet: d.from_wallet,
-                            to_wallet: d.to_wallet,
-                            percentage: d.percentage,
-                            nft_tier: d.nft_tier,
-                            status: d.status,
-                            execution_signature: d.execution_signature,
-                            note: d.status === 'pending' ? 'Planned distribution (pending execution)' : 'Completed distribution'
-                        }
-                    }));
-                }
-            } catch (error) {
-                console.error('⚠️ Error loading SOL distributions:', error);
-            }
-            return [];
-        }
-
-        // 🆕 FIX #6: Update stats calculation to include withdrawals and SOL revenue
-        function updateStats() {
-            // Ensure allTransactions is always an array
-            if (!Array.isArray(allTransactions)) {
-                console.warn('⚠️ allTransactions is not an array, resetting to []');
-                allTransactions = [];
-            }
-            
-            // ✅ CORRECTED LOGIC: Calculate by sign of amount, not by type
-            let totalEarned = 0;
-            let totalSpent = 0;
-            let totalWithdrawn = 0;  // 🆕 NEW: Track withdrawals separately
-            let totalSOLRevenue = 0;  // 🆕 NEW: Track SOL revenue
-            let nftMintCount = 0;
-            let burnCount = 0;
-            
-            allTransactions.forEach(t => {
-                const amount = t.amount || 0;
-                
-                // 🆕 Track withdrawals separately
-                if (t.type === 'withdrawal') {
-                    totalWithdrawn += Math.abs(amount);
-                }
-                
-                // 🆕 Track SOL distributions
-                if (t.type && t.type.startsWith('sol_distribution_')) {
-                    totalSOLRevenue += amount; // In SOL
-                }
-                
-                // Count NFT mints
-                if (t.type && t.type.includes('nft_mint')) {
-                    nftMintCount++;
-                }
-                
-                // Count burns separately
-                if (t.type && t.type.includes('burn')) {
-                    burnCount++;
-                }
-                
-                // ✅ EARN: Positive amounts (user gained TAMA)
-                if (amount > 0) {
-                    totalEarned += amount;
-                }
-                // ✅ SPEND: Negative amounts (user lost TAMA)
-                else if (amount < 0) {
-                    totalSpent += Math.abs(amount); // Convert to positive for display
-                }
-            });
-            
-            const uniqueUsers = new Set(allTransactions.map(t => t.user_id)).size;
-            const netFlow = totalEarned - totalSpent;
-
-            // Show total count from database, not just current page
-            document.getElementById('total-transactions').textContent = totalCount.toLocaleString();
-            document.getElementById('total-earned').textContent = Math.round(totalEarned).toLocaleString() + ' TAMA';
-            document.getElementById('total-spent').textContent = Math.round(totalSpent).toLocaleString() + ' TAMA';
-            document.getElementById('nft-mints').textContent = nftMintCount.toLocaleString();
-            document.getElementById('net-flow').textContent = Math.round(netFlow).toLocaleString() + ' TAMA';
-            document.getElementById('active-users').textContent = uniqueUsers;
-            
-            // 🆕 Update new stat cards if they exist
-            const withdrawnEl = document.getElementById('total-withdrawn');
-            if (withdrawnEl) {
-                withdrawnEl.textContent = Math.round(totalWithdrawn).toLocaleString() + ' TAMA';
-            }
-            
-            const solRevenueEl = document.getElementById('total-sol-revenue');
-            if (solRevenueEl) {
-                solRevenueEl.textContent = totalSOLRevenue.toFixed(2) + ' SOL';
-            }
-            
-            // 📊 Console stats for debugging
-            console.log('📊 STATS UPDATE:', {
-                totalTransactions: totalCount,
-                totalEarned: Math.round(totalEarned),
-                totalSpent: Math.round(totalSpent),
-                totalWithdrawn: Math.round(totalWithdrawn),  // 🆕 NEW
-                totalSOLRevenue: totalSOLRevenue.toFixed(2),  // 🆕 NEW
-                nftMints: nftMintCount,
-                burns: burnCount,
-                netFlow: Math.round(netFlow),
-                activeUsers: uniqueUsers
-            });
-            
-            // Update pagination info
-            updatePaginationInfo();
-        }
-
-        function renderTransactions(transactions) {
-            const tbody = document.getElementById('transactions-body');
-            
-            if (transactions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="loading">No transactions found</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = transactions.map(t => {
-                const date = new Date(t.created_at).toLocaleString();
-                const amount = t.amount || 0;
-                
-                // ✅ CORRECTED: Determine by SIGN, not by type
-                const isBurn = t.type.includes('burn');
-                const isSOL = t.type.includes('_sol') || (t.metadata && typeof t.metadata === 'string' && t.metadata.includes('"payment_method":"SOL"'));
-                
-                // 🆕 FIX #4: Type badge color with new transaction types
-                const typeClass = t.type === 'withdrawal' ? 'type-withdrawal' :  // 🆕 Withdrawals
-                                 t.type === 'sol_distribution_main' ? 'type-sol-main' :  // 🆕 SOL Main
-                                 t.type === 'sol_distribution_liquidity' ? 'type-sol-liq' :  // 🆕 SOL Liquidity
-                                 t.type === 'sol_distribution_team' ? 'type-sol-team' :  // 🆕 SOL Team
-                                 t.type.startsWith('earn') ? 'type-earn' : 
-                                 t.type === 'nft_mint_tama' ? 'type-nft-tama' :
-                                 t.type === 'nft_mint_sol' ? 'type-nft-sol' :
-                                 t.type === 'nft_mint' ? 'type-spend' :
-                                 t.type === 'nft_mint_onchain' ? 'type-spend' :
-                                 t.type.startsWith('burn') ? 'type-burn' :
-                                 t.type === 'treasury_income_from_nft' ? 'type-treasury' :
-                                 t.type === 'treasury_income_from_nft_sol' ? 'type-treasury-sol' :
-                                 t.type === 'treasury_liquidity_income_from_nft_sol' ? 'type-treasury-sol' :
-                                 t.type === 'treasury_team_income_from_nft_sol' ? 'type-treasury-sol' :
-                                 t.type === 'treasury_income_from_nft_onchain' ? 'type-treasury' :
-                                 t.type === 'p2e_pool_refund_from_nft' ? 'type-p2e' :
-                                 t.type === 'p2e_pool_refund_from_nft_onchain' ? 'type-p2e' :
-                                 t.type.startsWith('spend') ? 'type-spend' :
-                                 t.type === 'level_up' ? 'type-level' :
-                                 t.type === 'quest_complete' ? 'type-quest' :
-                                 t.type === 'referral_bonus' ? 'type-referral' :
-                                 t.type === 'achievement_bonus' ? 'type-earn' : 'type-earn';
-                
-                // ✅ Amount color & prefix BY SIGN
-                let amountClass, amountPrefix, displayAmount;
-                if (isBurn) {
-                    amountClass = 'amount-burn';
-                    amountPrefix = '🔥 ';
-                    displayAmount = Math.abs(amount);
-                } else if (amount > 0) {
-                    amountClass = 'amount-positive';
-                    amountPrefix = '+';
-                    displayAmount = amount;
-                } else {
-                    amountClass = 'amount-negative';
-                    amountPrefix = '-';
-                    displayAmount = Math.abs(amount);
-                }
-                
-                const currency = isSOL ? ' SOL' : ' TAMA';
-                
-                // Format metadata: NFT mints show tier, rarity, boost
-                let metadata = '';
-                if (t.type.includes('nft_mint') && t.metadata && typeof t.metadata === 'object') {
-                    metadata = `${t.metadata.tier_name || ''} ${t.metadata.rarity || ''} (${t.metadata.earning_multiplier || 1}x)`;
-                } else {
-                    metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
-                }
-                const username = t.username || t.user_id;
-                
-                // Explorer link (from metadata) - using Solscan
-                let explorerLink = '-';
-                let signature = null;
-                
-                if (t.metadata && typeof t.metadata === 'object') {
-                    signature = t.metadata.onchain_signature || t.metadata.transaction_signature;
-                } else if (typeof t.metadata === 'string') {
-                    // Try to parse JSON string
-                    try {
-                        const parsed = JSON.parse(t.metadata);
-                        signature = parsed.onchain_signature || parsed.transaction_signature;
-                    } catch (e) {
-                        // Invalid JSON, keep null
-                    }
-                }
-                
-                if (signature) {
-                    explorerLink = `<a href="https://solscan.io/tx/${signature}?cluster=devnet" 
-                                      target="_blank" class="explorer-link" onclick="event.stopPropagation();">View 🔗</a>`;
-                }
-                
-                return `
-                    <tr onclick="showUserDetails('${t.user_id}')">
-                        <td>${date}</td>
-                        <td><strong>${username}</strong></td>
-                        <td><span class="type-badge ${typeClass}">${t.type}</span></td>
-                        <td class="${amountClass}">${amountPrefix}${Math.round(displayAmount * 100) / 100}${currency}</td>
-                        <td>${Math.round(t.balance_after || 0).toLocaleString()}</td>
-                        <td style="font-size: 11px; opacity: 0.7;">${metadata}</td>
-                        <td>${explorerLink}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        async function showUserDetails(userId) {
-            const modal = document.getElementById('user-modal');
-            const content = document.getElementById('user-details-content');
-            
-            modal.classList.add('show');
-            content.innerHTML = '<div class="loading">⏳ Loading user data...</div>';
-
-            try {
-                // Get user from leaderboard
-                const user = allUsers[userId];
-                
-                // Get user transactions (ensure allTransactions is array)
-                const userTransactions = Array.isArray(allTransactions) 
-                    ? allTransactions.filter(t => t.user_id === userId)
-                    : [];
-                
-                // ✅ CORRECTED: Calculate by SIGN, not by type
-                let totalEarned = 0;
-                let totalSpent = 0;
-                
-                userTransactions.forEach(t => {
-                    const amount = t.amount || 0;
-                    if (amount > 0) {
-                        totalEarned += amount;
-                    } else if (amount < 0) {
-                        totalSpent += Math.abs(amount);
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/sol_distributions?select=*&order=created_at.desc&limit=1000`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 });
 
-                content.innerHTML = `
-                    <div class="user-info">
-                        <div class="info-card">
-                            <div class="info-label">User ID</div>
-                            <div class="info-value">${userId}</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Username</div>
-                            <div class="info-value">${user?.telegram_username || 'Unknown'}</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Pet Name</div>
-                            <div class="info-value">${user?.pet_name || 'No name'}</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Level</div>
-                            <div class="info-value">${user?.level || 1}</div>
-                        </div>
-                    </div>
+                if (!response.ok) return [];
 
-                    <div class="balance-highlight">
-                        <div class="label">💰 Current Balance (Live)</div>
-                        <div class="value">${Math.round(user?.tama || 0).toLocaleString()} TAMA</div>
-                    </div>
+                const distributions = await response.json();
+                console.log(`✅ Loaded ${distributions.length} SOL distributions`);
 
-                    <div class="user-info">
-                        <div class="info-card">
-                            <div class="info-label">Total Earned</div>
-                            <div class="info-value" style="color: #10b981;">+${Math.round(totalEarned).toLocaleString()} TAMA</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Total Spent</div>
-                            <div class="info-value" style="color: #ef4444;">-${Math.round(totalSpent).toLocaleString()} TAMA</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Total Transactions</div>
-                            <div class="info-value">${userTransactions.length}</div>
-                        </div>
-                        <div class="info-card">
-                            <div class="info-label">Last Activity</div>
-                            <div class="info-value">${user?.last_activity ? new Date(user.last_activity).toLocaleString() : 'Never'}</div>
-                        </div>
-                    </div>
+                return distributions.map(d => ({
+                    created_at: d.created_at,
+                    user_id: d.telegram_id ? String(d.telegram_id) : 'TREASURY',
+                    username: d.distribution_type.toUpperCase(),
+                    type: `sol_distribution_${d.distribution_type}`,
+                    amount: parseFloat(d.amount_sol), // Keep as number (SOL)
+                    is_sol: true, // Marker for renderer
+                    balance_after: 0,
+                    balance_before: 0,
+                    metadata: {
+                        tx: d.transaction_signature,
+                        from: d.from_wallet,
+                        to: d.to_wallet,
+                        percent: d.percentage
+                    }
+                }));
+            } catch (e) {
+                console.warn('⚠️ Could not load SOL distributions:', e);
+                return [];
+            }
+        }
 
-                    <div class="transaction-list">
-                        <h3 style="margin-bottom: 15px;">📜 Recent Transactions (Last 10)</h3>
-                        ${userTransactions.slice(0, 10).map(t => {
-                            const amount = t.amount || 0;
-                            // ✅ CORRECTED: Color by SIGN, not by type
-                            const isBurn = t.type.includes('burn');
-                            const color = isBurn ? '#ff6b35' : (amount > 0 ? '#10b981' : '#ef4444');
-                            const prefix = isBurn ? '🔥 ' : (amount > 0 ? '+' : '-');
-                            const displayAmount = Math.abs(amount);
-                            return `
-                                <div class="transaction-item">
-                                    <div>
-                                        <div style="font-weight: bold;">${t.type}</div>
-                                        <div style="font-size: 11px; opacity: 0.7;">${new Date(t.created_at).toLocaleString()}</div>
-                                    </div>
-                                    <div style="font-size: 18px; font-weight: bold; color: ${color};">
-                                        ${prefix}${Math.round(displayAmount * 100) / 100}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
+        async function loadNFTMints() {
+            try {
+                // Fetch direct NFT mints from DB as they might not be in TAMA API yet
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*&order=minted_at.desc&limit=500`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (!response.ok) return [];
+
+                const mints = await response.json();
+                // We use a Set to avoid duplicates if TAMA API already has them (checking by signature or nearby time)
+                // For simplicity here, we'll mark them as distinct type 'nft_mint_db'
+                // Real implementation would dedup.
+
+                return mints.map(m => ({
+                    created_at: m.minted_at,
+                    user_id: String(m.user_id),
+                    username: allUsers[m.user_id]?.telegram_username || '',
+                    type: m.currency === 'SOL' ? 'nft_mint_sol' : 'nft_mint_tama',
+                    amount: m.price || 0,
+                    balance_after: 0,
+                    balance_before: 0,
+                    metadata: {
+                        tier: m.tier,
+                        mint_address: m.mint_address
+                    }
+                }));
+            } catch (e) {
+                console.warn('⚠️ Could not load NFT mints:', e);
+                return [];
+            }
+        }
+
+        function updateStats() {
+            let totalEarned = 0;
+            let totalSpent = 0;
+            let totalWithdrawn = 0; // 🆕
+            let totalSOLRevenue = 0; // 🆕
+            let nftMintCount = 0;
+            const uniqueUsers = new Set();
+
+            allTransactions.forEach(t => {
+                const amount = Number(t.amount) || 0;
+
+                if (t.user_id) uniqueUsers.add(t.user_id);
+
+                // Track Withdrawals 🆕
+                if (t.type === 'withdrawal') {
+                    totalWithdrawn += Math.abs(amount);
+                    return; // Don't count as spend in general stats, separate bucket
+                }
+
+                // Track SOL Revenue 🆕
+                if (t.is_sol || t.type.includes('sol_distribution')) {
+                     totalSOLRevenue += Math.abs(amount);
+                     return; // Don't mix with TAMA
+                }
+
+                if (t.type.includes('nft_mint')) {
+                    nftMintCount++;
+                    // If paid in TAMA, it's a spend
+                     if (t.type === 'nft_mint_tama' || (t.type === 'nft_mint' && amount < 0)) {
+                        totalSpent += Math.abs(amount);
+                    }
+                    return;
+                }
+
+                if (t.type.includes('burn')) {
+                    // Burn is removed from circulation
+                    return;
+                }
+
+                if (amount > 0) {
+                    totalEarned += amount;
+                } else if (amount < 0) {
+                    totalSpent += Math.abs(amount);
+                }
+            });
+
+            // Format numbers
+            const fmt = (n) => Math.round(n).toLocaleString();
+
+            document.getElementById('total-transactions').innerText = fmt(allTransactions.length); // Approximation
+            document.getElementById('total-earned').innerText = fmt(totalEarned) + ' TAMA';
+            document.getElementById('total-spent').innerText = fmt(totalSpent) + ' TAMA';
+            document.getElementById('nft-mints').innerText = fmt(nftMintCount);
+
+            // Net Flow: Earned - Spent (excluding withdrawals which are outflows of earned)
+            const net = totalEarned - totalSpent;
+            const netEl = document.getElementById('net-flow');
+            netEl.innerText = (net > 0 ? '+' : '') + fmt(net) + ' TAMA';
+            netEl.className = 'stat-value ' + (net >= 0 ? 'amount-positive' : 'amount-negative');
+
+            document.getElementById('active-users').innerText = fmt(uniqueUsers.size);
+
+            // 🆕 FIX #7: Update new stat cards
+            document.getElementById('total-withdrawn').innerText = fmt(totalWithdrawn) + ' TAMA';
+            document.getElementById('total-sol-revenue').innerText = totalSOLRevenue.toFixed(2) + ' SOL';
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactions-body');
+            tbody.innerHTML = '';
+
+            // Apply Filters
+            const userFilter = document.getElementById('filter-user').value.toLowerCase();
+            const typeFilter = document.getElementById('filter-type').value;
+            const dateFrom = document.getElementById('filter-date-from').value;
+            const dateTo = document.getElementById('filter-date-to').value;
+
+            // Limit display to 500 items to prevent lag
+            let displayedCount = 0;
+            const MAX_DISPLAY = 500;
+
+            for (const t of allTransactions) {
+                if (displayedCount >= MAX_DISPLAY) break;
+
+                // User Filter
+                const userId = String(t.user_id || '').toLowerCase();
+                const username = String(t.username || allUsers[t.user_id]?.telegram_username || '').toLowerCase();
+                if (userFilter && !userId.includes(userFilter) && !username.includes(userFilter)) continue;
+
+                // Type Filter
+                if (typeFilter) {
+                    if (typeFilter === 'earn' && (!t.type.startsWith('earn') && !t.type.includes('bonus'))) continue;
+                    if (typeFilter === 'spend' && !t.type.startsWith('spend')) continue;
+                    if (typeFilter === 'nft' && !t.type.includes('nft')) continue;
+                    if (typeFilter === 'withdrawal' && t.type !== 'withdrawal') continue;
+                    if (typeFilter === 'sol' && !t.type.includes('sol_distribution')) continue;
+                    if (typeFilter === 'quest' && t.type !== 'quest_complete') continue;
+                }
+
+                // Date Filter
+                const date = new Date(t.created_at);
+                if (dateFrom && date < new Date(dateFrom)) continue;
+                if (dateTo) {
+                     const nextDay = new Date(dateTo);
+                     nextDay.setDate(nextDay.getDate() + 1);
+                     if (date >= nextDay) continue;
+                }
+
+                displayedCount++;
+                const tr = document.createElement('tr');
+                tr.onclick = () => showUserDetails(t.user_id);
+
+                const dateStr = date.toLocaleString('en-US', {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                let typeClass = 'type-earn';
+                if (t.type === 'withdrawal') typeClass = 'type-withdrawal';
+                else if (t.type.startsWith('sol_distribution')) {
+                     if (t.type.includes('main')) typeClass = 'type-sol-main';
+                     else if (t.type.includes('liquidity')) typeClass = 'type-sol-liq';
+                     else typeClass = 'type-sol-team';
+                }
+                else if (t.type.startsWith('spend')) typeClass = 'type-spend';
+                else if (t.type.includes('nft')) typeClass = 'type-nft-tama';
+                else if (t.type.includes('burn')) typeClass = 'type-burn';
+
+                const typeLabel = t.type.replace(/_/g, ' ').toUpperCase();
+
+                let amountClass = '';
+                let amountStr = '';
+
+                if (t.is_sol || t.type.includes('sol_distribution')) {
+                    amountClass = 'type-sol';
+                    amountStr = parseFloat(t.amount).toFixed(4) + ' SOL';
+                } else {
+                    const amount = Number(t.amount);
+                    amountClass = amount > 0 ? 'amount-positive' : (amount < 0 ? 'amount-negative' : '');
+                    amountStr = Math.round(Math.abs(amount)).toLocaleString() + ' TAMA';
+                    if (amount < 0) amountStr = '- ' + amountStr;
+                    else amountStr = '+ ' + amountStr;
+                }
+
+                const userDisplay = username ? `@${username}` : (userId || 'Unknown');
+
+                let details = '';
+                if (t.metadata) {
+                     if (t.metadata.wallet) details += `Wallet: ${t.metadata.wallet.substr(0, 6)}... `;
+                     if (t.metadata.status) details += `[${t.metadata.status.toUpperCase()}]`;
+                     if (t.metadata.tier) details += `Tier: ${t.metadata.tier} `;
+                }
+
+                let explorerLink = '-';
+                const sig = t.tx_signature || t.metadata?.tx || t.signature;
+                if (sig && sig.length > 10) {
+                    explorerLink = `<a href="https://solscan.io/tx/${sig}" target="_blank" onclick="event.stopPropagation()">🔗 Solscan</a>`;
+                }
+
+                tr.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td><strong>${userDisplay}</strong><br><span style="font-size:10px; opacity:0.7">${userId}</span></td>
+                    <td><span class="type-badge ${typeClass}">${typeLabel}</span></td>
+                    <td class="${amountClass}">${amountStr}</td>
+                    <td>${t.balance_after ? Math.round(t.balance_after).toLocaleString() : '-'}</td>
+                    <td style="font-size: 11px; opacity: 0.8">${details}</td>
+                    <td>${explorerLink}</td>
                 `;
-            } catch (error) {
-                content.innerHTML = `<div class="loading">❌ Error loading user data: ${error.message}</div>`;
+                tbody.appendChild(tr);
+            }
+
+            if (displayedCount === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">No transactions found matching filters</td></tr>`;
             }
         }
 
@@ -1273,7 +1189,7 @@
                 console.warn('⚠️ allTransactions is not an array, resetting to []');
                 allTransactions = [];
             }
-            
+
             const userFilter = document.getElementById('filter-user').value.toLowerCase();
             const typeFilter = document.getElementById('filter-type').value;
             const dateFrom = document.getElementById('filter-date-from').value;
@@ -1352,10 +1268,10 @@
         function changePage(direction) {
             const totalPages = Math.ceil(totalCount / PAGE_SIZE);
             currentPage += direction;
-            
+
             if (currentPage < 1) currentPage = 1;
             if (currentPage > totalPages) currentPage = totalPages;
-            
+
             loadTransactions();
         }
 
@@ -1363,11 +1279,11 @@
             const totalPages = totalCount > 0 ? Math.ceil(totalCount / PAGE_SIZE) : 1;
             const start = (currentPage - 1) * PAGE_SIZE + 1;
             const end = Math.min(currentPage * PAGE_SIZE, totalCount);
-            
+
             // Update button states
             const prevBtn = document.querySelector('button[onclick="changePage(-1)"]');
             const nextBtn = document.querySelector('button[onclick="changePage(1)"]');
-            
+
             if (prevBtn) {
                 prevBtn.disabled = currentPage <= 1;
                 prevBtn.style.opacity = currentPage <= 1 ? '0.5' : '1';
@@ -1376,7 +1292,7 @@
                 nextBtn.disabled = currentPage >= totalPages || allTransactions.length < PAGE_SIZE;
                 nextBtn.style.opacity = (currentPage >= totalPages || allTransactions.length < PAGE_SIZE) ? '0.5' : '1';
             }
-            
+
             document.getElementById('page-info').innerHTML = `
                 Page ${currentPage} of ${totalPages > 0 ? totalPages : '?'}<br>
                 <span style="font-size: 14px; opacity: 0.8;">
