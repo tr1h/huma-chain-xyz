@@ -138,7 +138,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             position: relative;
         }
-        
+
         .back-btn {
             position: absolute;
             right: 20px;
@@ -154,7 +154,7 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .back-btn:hover {
             background: #5568d3;
             transform: translateX(5px);
@@ -364,7 +364,7 @@
             color: #7c2d12;
             display: block;
         }
-        
+
         /* Logo Styles 🎨 */
         .game-logo {
             position: fixed;
@@ -373,12 +373,12 @@
             z-index: 10000;
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
-        
+
         .game-logo:hover {
             transform: scale(1.05);
             opacity: 0.9;
         }
-        
+
         .game-logo img {
             height: 70px;
             width: auto;
@@ -389,13 +389,13 @@
             backdrop-filter: blur(10px);
             padding: 5px;
         }
-        
+
         @media (max-width: 768px) {
             .game-logo {
                 top: 10px;
                 left: 10px;
             }
-            
+
             .game-logo img {
                 height: 50px;
             }
@@ -408,7 +408,7 @@
     <a href="index.html" class="game-logo" title="Back to Home">
         <img src="logo.png" alt="Solana Tamagotchi">
     </a>
-    
+
     <!-- Admin Login Screen -->
     <div id="adminLoginScreen">
         <div class="login-container">
@@ -444,7 +444,7 @@
             <!-- Rewards Settings -->
             <div class="card">
                 <h2>🎁 Reward Settings</h2>
-                
+
                 <div class="setting">
                     <label>
                         Base Click Reward
@@ -473,7 +473,7 @@
             <!-- Combo Settings -->
             <div class="card">
                 <h2>🔥 Combo Settings</h2>
-                
+
                 <div class="setting">
                     <label>
                         Combo Window (seconds)
@@ -502,7 +502,7 @@
             <!-- Penalty Settings -->
             <div class="card">
                 <h2>⚠️ Spam Penalty</h2>
-                
+
                 <div class="setting">
                     <label>
                         Spam Penalty (%)
@@ -516,7 +516,7 @@
             <!-- Stat Degradation Settings -->
             <div class="card">
                 <h2>📉 Stat Degradation per Click</h2>
-                
+
                 <div class="setting">
                     <label>
                         HP Loss per Click
@@ -652,11 +652,11 @@
             document.getElementById('hp-loss').value = config.hpLoss;
             document.getElementById('food-loss').value = config.foodLoss;
             document.getElementById('happy-loss').value = config.happyLoss;
-            
+
             // Update active button
             document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            
+
             updateDisplay();
         }
 
@@ -689,7 +689,7 @@
             const spamClick = Math.max(minReward, baseReward * (1 - spamPenalty / 100));
             const combo10 = baseReward + Math.min(Math.floor(10 / comboDivider), maxCombo);
             const combo50 = baseReward + Math.min(Math.floor(50 / comboDivider), maxCombo);
-            
+
             // Calculate TAMA per hour (assuming 1.2 clicks/sec with average combo)
             const clicksPerSecond = 1.2;
             const avgComboBonus = Math.min(Math.floor(20 / comboDivider), maxCombo) / 2;
@@ -706,7 +706,7 @@
 
         async function applySettings() {
             console.log('💾 Applying economy settings...');
-            
+
             const baseReward = parseFloat(document.getElementById('base-reward').value);
             const minReward = parseFloat(document.getElementById('min-reward').value);
             const maxCombo = parseInt(document.getElementById('max-combo').value);
@@ -741,25 +741,25 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ config_name: 'custom', settings: config })
                 });
-                
+
                 console.log('📡 API Response status:', upsertResp.status, upsertResp.statusText);
-                
+
                 if (!upsertResp.ok) {
                     const errorText = await upsertResp.text();
                     console.error('❌ API Error:', upsertResp.status, errorText);
                     throw new Error(`API error (${upsertResp.status}): ${errorText.substring(0, 200)}`);
                 }
-                
+
                 const upsertResult = await upsertResp.json();
                 console.log('✅ API Response:', upsertResult);
-                
+
                 if (upsertResult.error) {
                     throw new Error(upsertResult.error);
                 }
 
                 // Save to localStorage as backup
                 localStorage.setItem('economyConfig', JSON.stringify(config));
-                
+
                 // Broadcast to game tabs (auto-apply!)
                 try {
                     const channel = new BroadcastChannel('economy-updates');
@@ -794,7 +794,7 @@
             a.href = url;
             a.download = 'economy-config.json';
             a.click();
-            
+
             showStatus('📥 Config exported!', 'success');
         }
 
@@ -815,27 +815,27 @@
         // Load config from database
         async function loadFromDatabase() {
             console.log('🔄 Loading economy config from API:', TAMA_API_BASE);
-            
+
             try {
                 const resp = await fetch(`${TAMA_API_BASE}/economy/active`);
-                
+
                 console.log('📡 API Response status:', resp.status, resp.statusText);
-                
+
                 if (!resp.ok) {
                     const errorText = await resp.text();
                     console.error('❌ Failed to load economy config:', resp.status, errorText);
                     showStatus(`⚠️ API Error (${resp.status}): ${errorText.substring(0, 100)}`, 'error');
                     return;
                 }
-                
+
                 const json = await resp.json();
                 console.log('📦 API Response data:', json);
-                
+
                 const data = (json?.data && json.data[0]) || null;
 
                 if (data) {
                     console.log('✅ Found active config:', data.config_name, data);
-                    
+
                     // Load values into form
                     document.getElementById('base-reward').value = data.base_click_reward;
                     document.getElementById('min-reward').value = data.min_reward;
@@ -863,15 +863,14 @@
         // Initialize
         console.log('🚀 Economy Admin Panel initialized');
         console.log('🔗 API Base URL:', TAMA_API_BASE);
-        
+
         updateDisplay();
         loadFromDatabase();
     </script>
     </div> <!-- End of adminContent -->
 
     <!-- Admin Authentication -->
-    <script src="admin-password.js"></script>
-    <script src="js/admin-auth.js"></script>
+    <script src="../admin-password.js"></script>
+    <script src="../js/admin-auth.js"></script>
 </body>
 </html>
-

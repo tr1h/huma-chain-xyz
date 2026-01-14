@@ -267,7 +267,7 @@
         <!-- Admin Controls -->
         <div class="admin-controls">
             <h2>⚙️ Game Controls</h2>
-            
+
             <div class="control-row">
                 <label style="min-width: 150px; font-weight: bold;">Jackpot Pool:</label>
                 <input type="number" id="jackpot-pool" placeholder="Current: Loading...">
@@ -352,7 +352,10 @@
         </div>
     </div>
 
-    <script src="js/config.js"></script>
+    <script src="../js/config.js"></script>
+    <!-- Admin Authentication -->
+    <script src="../admin-password.js"></script>
+    <script src="../js/admin-auth.js"></script>
     <script>
         const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_KEY = window.CONFIG?.SUPABASE_KEY || '';
@@ -373,11 +376,11 @@
                 }
 
                 allTransactions = await response.json();
-                
+
                 // Filter only wheel transactions
-                allTransactions = allTransactions.filter(t => 
-                    t.type === 'wheel_bet' || 
-                    t.type === 'wheel_win' || 
+                allTransactions = allTransactions.filter(t =>
+                    t.type === 'wheel_bet' ||
+                    t.type === 'wheel_win' ||
                     (t.type === 'wheel_win' && t.description && t.description.includes('JACKPOT'))
                 );
 
@@ -385,12 +388,12 @@
                 renderTransactions();
             } catch (error) {
                 console.error('Error loading transactions:', error);
-                document.getElementById('transactions-container').innerHTML = 
+                document.getElementById('transactions-container').innerHTML =
                     `<div class="error">❌ Error loading transactions: ${error.message}</div>`;
             }
         }
 
-        function updateStats() {
+        async function updateStats() {
             let totalSpins = 0;
             let totalWagered = 0;
             let totalWon = 0;
@@ -420,7 +423,7 @@
             try {
                 const jackpotResponse = await fetch(`${SUPABASE_URL}/../api/jackpot.php`);
                 const jackpotData = await jackpotResponse.json();
-                
+
                 if (jackpotData.success) {
                     const jackpotPool = jackpotData.jackpot;
                     document.getElementById('jackpot-display').textContent = jackpotPool.toLocaleString() + ' TAMA';
@@ -465,7 +468,7 @@
                 const rowClass = isJackpot ? 'jackpot-highlight' : '';
                 const typeClass = isJackpot ? 'type-jackpot' : `type-${t.type}`;
                 const typeDisplay = isJackpot ? '🎰 JACKPOT' : t.type.replace('_', ' ').toUpperCase();
-                
+
                 html += `
                     <tr class="${rowClass}">
                         <td>${t.id}</td>
@@ -505,9 +508,9 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'set', amount: newAmount })
                     });
-                    
+
                     const data = await response.json();
-                    
+
                     if (data.success) {
                         alert(`✅ Global jackpot updated to ${data.jackpot.toLocaleString()} TAMA!`);
                         updateStats();

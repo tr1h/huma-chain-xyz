@@ -543,7 +543,7 @@
             margin-top: 10px;
         }
     </style>
-    <script src="js/admin-env.js"></script>
+    <script src="../js/admin-env.js"></script>
 </head>
 <body>
     <!-- Admin Login Screen -->
@@ -559,13 +559,13 @@
     <!-- Main Content (hidden until authenticated) -->
     <div id="adminContent" style="display: none;">
     <!-- Logo 🎨 -->
-    <a href="index.html" class="game-logo" title="Back to Home">
-        <img src="logo.png" alt="Solana Tamagotchi">
+    <a href="../index.html" class="game-logo" title="Back to Home">
+        <img src="../logo.png" alt="Solana Tamagotchi">
     </a>
 
     <div class="container">
         <div class="header">
-            <a href="super-admin.html" class="back-btn">⬅️ Back</a>
+            <a href="super.html" class="back-btn">⬅️ Back</a>
             <h1>📊 TAMA Transactions - Live Monitor</h1>
             <div class="live-indicator">
                 <div class="live-dot"></div>
@@ -684,7 +684,7 @@
         </div>
     </div>
 
-    <script src="js/config.js"></script>
+    <script src="../js/config.js"></script>
     <script>
         const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || window.AdminEnv?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_KEY || window.AdminEnv?.SUPABASE_KEY || '';
@@ -1332,7 +1332,7 @@
     </div> <!-- End of adminContent -->
 
     <!-- Admin Authentication -->
-    <script src="admin-password.js"></script>
-    <script src="js/admin-auth.js"></script>
+    <script src="../admin-password.js"></script>
+    <script src="../js/admin-auth.js"></script>
 </body>
 </html>

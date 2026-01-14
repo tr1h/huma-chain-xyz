@@ -216,7 +216,10 @@
         <div class="pagination" id="pagination"></div>
     </div>
 
-    <script src="js/config.js"></script>
+    <script src="../js/config.js"></script>
+    <!-- Admin Authentication -->
+    <script src="../admin-password.js"></script>
+    <script src="../js/admin-auth.js"></script>
     <script>
         const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_KEY = window.CONFIG?.SUPABASE_KEY || '';
@@ -240,7 +243,7 @@
                 // Calculate stats
                 const bets = transactions.filter(t => t.type === 'slots_bet' || (t.amount < 0 && t.type === 'slots_spin'));
                 const wins = transactions.filter(t => t.type === 'slots_win' || (t.amount > 0 && t.type === 'slots_spin'));
-                
+
                 const totalWagered = bets.reduce((sum, t) => sum + Math.abs(t.amount), 0);
                 const totalWon = wins.reduce((sum, t) => sum + Math.abs(t.amount), 0);
                 const houseEdge = totalWagered > 0 ? ((totalWagered - totalWon) / totalWagered * 100).toFixed(2) : 0;
@@ -303,7 +306,7 @@
                     if (processed.has(tx.id)) continue;
 
                     const metadata = typeof tx.metadata === 'string' ? JSON.parse(tx.metadata) : (tx.metadata || {});
-                    
+
                     spins.push({
                         time: new Date(tx.created_at).toLocaleString(),
                         user: tx.telegram_id,
@@ -360,7 +363,7 @@
                 row.insertCell(1).textContent = spin.user;
                 row.insertCell(2).textContent = spin.symbols.join(' ');
                 row.insertCell(3).textContent = spin.bet.toLocaleString();
-                
+
                 const winCell = row.insertCell(4);
                 winCell.textContent = spin.win.toLocaleString();
                 winCell.className = spin.win > 0 ? 'win' : 'loss';
