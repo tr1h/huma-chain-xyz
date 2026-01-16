@@ -1,0 +1,49 @@
+/* Admin Dashboard Styles */
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+.glass {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.sidebar-link.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-left: 4px solid #3b82f6;
+  color: #60a5fa;
+}
+.sidebar-link:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+}
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+.loading-spinner {
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 3px solid #3b82f6;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

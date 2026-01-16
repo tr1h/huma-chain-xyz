@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TAMA Token API - Supabase REST API Integration
  * Использует Supabase REST API вместо прямого подключения к PostgreSQL
@@ -424,7 +425,8 @@ switch ($path) {
 /**
  * Вспомогательная функция для запросов к Supabase REST API
  */
-function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [], $body = null) {
+function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [], $body = null)
+{
     $apiUrl = rtrim($url, '/') . '/rest/v1/' . $table;
 
     if (!empty($params)) {
@@ -443,7 +445,7 @@ function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [],
             'Prefer: return=representation,count=exact'
         ],
         CURLOPT_CUSTOMREQUEST => $method,
-        CURLOPT_HEADERFUNCTION => function($curl, $header) use (&$headers) {
+        CURLOPT_HEADERFUNCTION => function ($curl, $header) use (&$headers) {
             $len = strlen($header);
             $header = explode(':', $header, 2);
             if (count($header) < 2) return $len;
@@ -489,7 +491,8 @@ function supabaseRequest($url, $key, $method = 'GET', $table = '', $params = [],
 /**
  * Тест подключения к Supabase
  */
-function handleTest($url, $key) {
+function handleTest($url, $key)
+{
     try {
         // Проверить подключение через запрос к leaderboard
         $result = supabaseRequest($url, $key, 'GET', 'leaderboard', ['select' => 'count', 'limit' => '1']);
@@ -504,7 +507,6 @@ function handleTest($url, $key) {
             'tables' => ['leaderboard', 'referrals', 'user_nfts'],
             'leaderboard_records' => count($countResult['data'])
         ]);
-
     } catch (Exception $e) {
         echo json_encode([
             'success' => false,
@@ -516,7 +518,8 @@ function handleTest($url, $key) {
 /**
  * Получить баланс пользователя
  */
-function handleGetBalance($url, $key) {
+function handleGetBalance($url, $key)
+{
     $telegram_id = $_GET['telegram_id'] ?? null;
 
     // Clean telegram_id (remove any URL parts if accidentally included)
@@ -571,7 +574,6 @@ function handleGetBalance($url, $key) {
             'level' => (int)($player['level'] ?? 1),
             'xp' => (int)($player['xp'] ?? 0)
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -582,7 +584,8 @@ function handleGetBalance($url, $key) {
  * Handle wallet address update
  * POST /api/tama/update-wallet
  */
-function handleUpdateWallet($url, $key) {
+function handleUpdateWallet($url, $key)
+{
     try {
         $input = json_decode(file_get_contents('php://input'), true);
         $telegram_id = $input['telegram_id'] ?? null;
@@ -647,7 +650,6 @@ function handleUpdateWallet($url, $key) {
             'telegram_id' => $telegram_id,
             'wallet_address' => $wallet_address
         ]);
-
     } catch (Exception $e) {
         error_log("❌ Error updating wallet: " . $e->getMessage());
         http_response_code(500);
@@ -658,7 +660,8 @@ function handleUpdateWallet($url, $key) {
 /**
  * Добавить TAMA пользователю
  */
-function handleAddTama($url, $key) {
+function handleAddTama($url, $key)
+{
     $input = json_decode(file_get_contents('php://input'), true);
 
     $telegram_id = $input['telegram_id'] ?? null;
@@ -704,7 +707,6 @@ function handleAddTama($url, $key) {
             'message' => 'TAMA added successfully',
             'new_balance' => $newBalance
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -714,7 +716,8 @@ function handleAddTama($url, $key) {
 /**
  * Потратить TAMA
  */
-function handleSpendTama($url, $key) {
+function handleSpendTama($url, $key)
+{
     $input = json_decode(file_get_contents('php://input'), true);
 
     $telegram_id = $input['telegram_id'] ?? null;
@@ -769,7 +772,6 @@ function handleSpendTama($url, $key) {
             'message' => 'TAMA spent successfully',
             'new_balance' => $newBalance
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -779,7 +781,8 @@ function handleSpendTama($url, $key) {
 /**
  * Минт NFT
  */
-function handleMintNFT($url, $key) {
+function handleMintNFT($url, $key)
+{
     $input = json_decode(file_get_contents('php://input'), true);
 
     $telegram_id = $input['telegram_id'] ?? null;
@@ -852,7 +855,6 @@ function handleMintNFT($url, $key) {
             'cost_tama' => $cost_tama,
             'new_balance' => $newBalance
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -862,7 +864,8 @@ function handleMintNFT($url, $key) {
 /**
  * Получить статистику
  */
-function handleGetStats($url, $key) {
+function handleGetStats($url, $key)
+{
     try {
         // Получить всех пользователей
         $usersResult = supabaseRequest($url, $key, 'GET', 'leaderboard', [
@@ -893,7 +896,6 @@ function handleGetStats($url, $key) {
                 'active_users_today' => $totalUsers // Simplified
             ]
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -903,7 +905,8 @@ function handleGetStats($url, $key) {
 /**
  * Получить лидерборд
  */
-function handleGetLeaderboard($url, $key) {
+function handleGetLeaderboard($url, $key)
+{
     try {
         $result = supabaseRequest($url, $key, 'GET', 'leaderboard', [
             'select' => 'telegram_id,telegram_username,pet_name,pet_type,pet_rarity,level,xp,tama,created_at',
@@ -930,7 +933,6 @@ function handleGetLeaderboard($url, $key) {
             'success' => true,
             'leaderboard' => $leaderboard
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -940,7 +942,8 @@ function handleGetLeaderboard($url, $key) {
 /**
  * Сохранить/обновить данные игры (UPSERT)
  */
-function handleLeaderboardUpsert($url, $key) {
+function handleLeaderboardUpsert($url, $key)
+{
     $input = json_decode(file_get_contents('php://input'), true);
 
     // ⚠️ CRITICAL: Always convert user_id to string for consistency
@@ -1248,7 +1251,6 @@ function handleLeaderboardUpsert($url, $key) {
                 ]
             ]);
         }
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -1258,7 +1260,8 @@ function handleLeaderboardUpsert($url, $key) {
 /**
  * Получить список пользователей (для админ-панели)
  */
-function handleLeaderboardList($url, $key) {
+function handleLeaderboardList($url, $key)
+{
     try {
         // Get limit and offset from query parameters
         $limit = $_GET['limit'] ?? '100';
@@ -1276,7 +1279,6 @@ function handleLeaderboardList($url, $key) {
             'success' => true,
             'data' => $result['data'] ?? []
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -1286,7 +1288,8 @@ function handleLeaderboardList($url, $key) {
 /**
  * Получить список транзакций (для админ-панели)
  */
-function handleTransactionsList($url, $key) {
+function handleTransactionsList($url, $key)
+{
     try {
         // Get parameters from query string
         $limit = $_GET['limit'] ?? '100';
@@ -1328,7 +1331,6 @@ function handleTransactionsList($url, $key) {
             'limit' => (int)$limit,
             'offset' => (int)$offset
         ]);
-
     } catch (Exception $e) {
         // If transactions table doesn't exist, return empty array
         http_response_code(200);
@@ -1345,7 +1347,8 @@ function handleTransactionsList($url, $key) {
  * Обработка запроса на вывод (withdrawal request)
  * 🔒 SECURITY: Enhanced with validation, rate limiting, and cooldown
  */
-function handleWithdrawalRequest($url, $key) {
+function handleWithdrawalRequest($url, $key)
+{
     $input = json_decode(file_get_contents('php://input'), true);
 
     $telegram_id = $input['telegram_id'] ?? null;
@@ -1674,7 +1677,6 @@ function handleWithdrawalRequest($url, $key) {
                 'new_balance' => $newBalance
             ]
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -1684,7 +1686,8 @@ function handleWithdrawalRequest($url, $key) {
 /**
  * Получить историю выводов (withdrawal history)
  */
-function handleWithdrawalHistory($url, $key) {
+function handleWithdrawalHistory($url, $key)
+{
     $telegram_id = $_GET['telegram_id'] ?? null;
 
     if (!$telegram_id) {
@@ -1768,7 +1771,7 @@ function handleWithdrawalHistory($url, $key) {
         }
 
         // Сортировать по дате (новые первые)
-        usort($withdrawals, function($a, $b) {
+        usort($withdrawals, function ($a, $b) {
             $dateA = strtotime($a['created_at'] ?? '1970-01-01');
             $dateB = strtotime($b['created_at'] ?? '1970-01-01');
             return $dateB - $dateA;
@@ -1778,7 +1781,6 @@ function handleWithdrawalHistory($url, $key) {
             'success' => true,
             'withdrawals' => array_slice($withdrawals, 0, 50) // Ограничить до 50
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -1790,7 +1792,8 @@ function handleWithdrawalHistory($url, $key) {
  * POST /api/tama/distribute
  * Body: { from_wallet: 'address', to_wallet: 'address', amount: 1000000 }
  */
-function handleDistribute($url, $key) {
+function handleDistribute($url, $key)
+{
     $input = json_decode(file_get_contents('php://input'), true);
 
     $fromWallet = $input['from_wallet'] ?? null;
@@ -1848,10 +1851,14 @@ function handleDistribute($url, $key) {
             $toWallet,
             '--fund-recipient',  // Create ATA if needed
             '--allow-unfunded-recipient',  // Allow sending to unfunded addresses (no SOL needed)
-            '--fee-payer', $payerKeypair,
-            '--owner', $payerKeypair,  // Owner должен иметь token account с балансом
-            '--url', $rpcUrl,
-            '--output', 'json'
+            '--fee-payer',
+            $payerKeypair,
+            '--owner',
+            $payerKeypair,  // Owner должен иметь token account с балансом
+            '--url',
+            $rpcUrl,
+            '--output',
+            'json'
         ];
 
         $descriptorspec = [
@@ -1982,7 +1989,6 @@ function handleDistribute($url, $key) {
             'signature' => $signature,
             'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -1999,7 +2005,8 @@ function handleDistribute($url, $key) {
  * - 30% (750 TAMA) → Treasury Main
  * - 30% (750 TAMA) → P2E Pool (обратно)
  */
-function handleBronzeNFTOnChain($url, $key) {
+function handleBronzeNFTOnChain($url, $key)
+{
     // Suppress warnings to prevent HTML output
     error_reporting(E_ALL);
     ini_set('display_errors', 0);
@@ -2214,7 +2221,6 @@ function handleBronzeNFTOnChain($url, $key) {
             ]);
 
             error_log("✅ All transactions logged in database");
-
         } catch (Exception $e) {
             error_log('Failed to log transactions: ' . $e->getMessage());
         }
@@ -2260,7 +2266,6 @@ function handleBronzeNFTOnChain($url, $key) {
             ]
         ]);
         return;
-
     } catch (Exception $e) {
         // Ensure JSON error response
         // Clear any accidental output
@@ -2306,7 +2311,8 @@ function handleBronzeNFTOnChain($url, $key) {
  * Execute SPL Token Transfer
  * Helper function for spl-token CLI execution
  */
-function executeSPLTransfer($ownerKeypair, $feePayerKeypair, $toAddress, $amount, $tamaMint, $rpcUrl) {
+function executeSPLTransfer($ownerKeypair, $feePayerKeypair, $toAddress, $amount, $tamaMint, $rpcUrl)
+{
     $cmd = [
         'spl-token',
         'transfer',
@@ -2315,10 +2321,14 @@ function executeSPLTransfer($ownerKeypair, $feePayerKeypair, $toAddress, $amount
         $toAddress,
         '--fund-recipient',
         '--allow-unfunded-recipient',
-        '--fee-payer', $feePayerKeypair,
-        '--owner', $ownerKeypair,
-        '--url', $rpcUrl,
-        '--output', 'json'
+        '--fee-payer',
+        $feePayerKeypair,
+        '--owner',
+        $ownerKeypair,
+        '--url',
+        $rpcUrl,
+        '--output',
+        'json'
     ];
 
     // Format command
@@ -2416,7 +2426,8 @@ function executeSPLTransfer($ownerKeypair, $feePayerKeypair, $toAddress, $amount
  * POST /api/tama/mint
  * Body: { to_wallet: 'address', amount: 1000000 }
  */
-function handleMint($url, $key) {
+function handleMint($url, $key)
+{
     $input = json_decode(file_get_contents('php://input'), true);
 
     $toWallet = $input['to_wallet'] ?? null;
@@ -2473,10 +2484,14 @@ function handleMint($url, $key) {
             $tamaMint,
             (string)$amount,  // Amount - spl-token сам конвертирует с учетом decimals (9)
             $toWallet,
-            '--owner', $mintKeypair,  // Mint authority (может создавать токены)
-            '--fee-payer', $payerKeypair,  // Кто платит за транзакцию
-            '--url', $rpcUrl,
-            '--output', 'json'
+            '--owner',
+            $mintKeypair,  // Mint authority (может создавать токены)
+            '--fee-payer',
+            $payerKeypair,  // Кто платит за транзакцию
+            '--url',
+            $rpcUrl,
+            '--output',
+            'json'
         ];
 
         $descriptorspec = [
@@ -2606,7 +2621,6 @@ function handleMint($url, $key) {
             'signature' => $signature,
             'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -2618,7 +2632,8 @@ function handleMint($url, $key) {
  * POST /api/tama/send
  * Body: { from_wallet: 'address', from_keypair_file: 'p2e-pool-keypair.json', to_wallet: 'address', amount: 1000000 }
  */
-function handleSend($url, $key) {
+function handleSend($url, $key)
+{
     $input = json_decode(file_get_contents('php://input'), true);
 
     $fromWallet = $input['from_wallet'] ?? null;
@@ -2691,10 +2706,14 @@ function handleSend($url, $key) {
             $toWallet,
             '--fund-recipient',  // Create ATA if needed
             '--allow-unfunded-recipient',  // Allow sending to unfunded addresses (no SOL needed)
-            '--fee-payer', $payerKeypair,  // Кто платит за транзакцию
-            '--owner', $fromKeypairPath,  // Owner - кошелек отправителя (у него должны быть токены)
-            '--url', $rpcUrl,
-            '--output', 'json'
+            '--fee-payer',
+            $payerKeypair,  // Кто платит за транзакцию
+            '--owner',
+            $fromKeypairPath,  // Owner - кошелек отправителя (у него должны быть токены)
+            '--url',
+            $rpcUrl,
+            '--output',
+            'json'
         ];
 
         $descriptorspec = [
@@ -2839,7 +2858,6 @@ function handleSend($url, $key) {
             'signature' => $signature,
             'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -2850,7 +2868,8 @@ function handleSend($url, $key) {
  * Отправить SOL с кошелька на другой адрес
  * Использует solana transfer CLI
  */
-function handleSendSol($url, $key) {
+function handleSendSol($url, $key)
+{
     error_log("🚀 handleSendSol() called");
     $input = json_decode(file_get_contents('php://input'), true);
     error_log("📦 handleSendSol() input: " . json_encode($input));
@@ -3008,10 +3027,14 @@ function handleSendSol($url, $key) {
             'transfer',
             $toWallet,
             (string)$amount,  // Amount in SOL
-            '--from', $fromKeypairPath,
-            '--url', $rpcUrl,
-            '--output', 'json',
-            '--fee-payer', $fromKeypairPath  // Fee payer is the same as sender
+            '--from',
+            $fromKeypairPath,
+            '--url',
+            $rpcUrl,
+            '--output',
+            'json',
+            '--fee-payer',
+            $fromKeypairPath  // Fee payer is the same as sender
         ];
 
         $descriptorspec = [
@@ -3158,7 +3181,6 @@ function handleSendSol($url, $key) {
             'signature' => $signature,
             'explorer_url' => 'https://explorer.solana.com/tx/' . $signature . '?cluster=devnet'
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -3169,7 +3191,8 @@ function handleSendSol($url, $key) {
  * Получить список всех держателей TAMA токенов
  * Использует Solana RPC getProgramAccounts для получения всех token accounts
  */
-function handleGetHolders($url, $key) {
+function handleGetHolders($url, $key)
+{
     $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
     $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
 
@@ -3245,7 +3268,7 @@ function handleGetHolders($url, $key) {
         }
 
         // Сортируем по балансу (от большего к меньшему)
-        usort($holders, function($a, $b) {
+        usort($holders, function ($a, $b) {
             return $b['balance'] <=> $a['balance'];
         });
 
@@ -3260,7 +3283,6 @@ function handleGetHolders($url, $key) {
             'total_balance' => $totalBalance,
             'mint_address' => $tamaMint
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
@@ -3273,7 +3295,8 @@ function handleGetHolders($url, $key) {
 /**
  * Получить mint address token account через RPC
  */
-function getTokenAccountMint($tokenAccount, $rpcUrl) {
+function getTokenAccountMint($tokenAccount, $rpcUrl)
+{
     try {
         $rpcRequest = [
             'jsonrpc' => '2.0',
@@ -3310,7 +3333,8 @@ function getTokenAccountMint($tokenAccount, $rpcUrl) {
 /**
  * Получить owner address token account через RPC
  */
-function getTokenAccountOwner($tokenAccount, $rpcUrl) {
+function getTokenAccountOwner($tokenAccount, $rpcUrl)
+{
     try {
         // Используем jsonParsed encoding для более простого парсинга
         $rpcRequest = [
@@ -3384,7 +3408,8 @@ function getTokenAccountOwner($tokenAccount, $rpcUrl) {
  * Получить mint address bytes через RPC getAccountInfo
  * Используем RPC для получения account info и извлечения pubkey bytes
  */
-function getMintAddressBytes($mintAddress, $rpcUrl) {
+function getMintAddressBytes($mintAddress, $rpcUrl)
+{
     try {
         // Получаем account info для mint address
         $rpcRequest = [
@@ -3449,7 +3474,8 @@ function getMintAddressBytes($mintAddress, $rpcUrl) {
  * Конвертировать bytes в base58 адрес
  * Упрощенная версия base58 encoding
  */
-function bytesToBase58($data) {
+function bytesToBase58($data)
+{
     $alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
     $base = strlen($alphabet);
 
@@ -3479,7 +3505,8 @@ function bytesToBase58($data) {
 /**
  * Получить фактическое распределение токенов по пулам проекта
  */
-function handleGetPools($url, $key) {
+function handleGetPools($url, $key)
+{
     $tamaMint = getenv('TAMA_MINT_ADDRESS') ?: TAMA_MINT_ADDRESS;
     $rpcUrl = getenv('SOLANA_RPC_URL') ?: 'https://api.devnet.solana.com';
 
@@ -3573,7 +3600,7 @@ function handleGetPools($url, $key) {
         }
 
         // Сортируем по фактическому балансу (от большего к меньшему)
-        usort($poolsData, function($a, $b) {
+        usort($poolsData, function ($a, $b) {
             return $b['actual'] <=> $a['actual'];
         });
 
@@ -3585,7 +3612,6 @@ function handleGetPools($url, $key) {
             'total_supply' => $totalSupply,
             'mint_address' => $tamaMint
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
@@ -3598,7 +3624,8 @@ function handleGetPools($url, $key) {
 /**
  * Получить баланс TAMA токенов для адреса
  */
-function getTokenBalance($walletAddress, $mintAddress, $rpcUrl) {
+function getTokenBalance($walletAddress, $mintAddress, $rpcUrl)
+{
     try {
         // Используем getTokenAccountsByOwner для получения token accounts
         $rpcRequest = [
@@ -3646,7 +3673,8 @@ function getTokenBalance($walletAddress, $mintAddress, $rpcUrl) {
  * Check Environment Variables
  * Debug endpoint to see what env vars are available
  */
-function handleEnvCheck() {
+function handleEnvCheck()
+{
     $envVars = [
         'SOLANA_PAYER_KEYPAIR',
         'SOLANA_P2E_POOL_KEYPAIR',
@@ -3694,7 +3722,8 @@ function handleEnvCheck() {
  * POST /api/tama/economy/apply
  * Body: { "config_name": "custom", "settings": { ... } }
  */
-function handleEconomyApply($url, $key) {
+function handleEconomyApply($url, $key)
+{
     try {
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
@@ -3710,8 +3739,13 @@ function handleEconomyApply($url, $key) {
 
         // Validate settings
         $requiredFields = [
-            'BASE_CLICK_REWARD', 'MIN_REWARD', 'MAX_COMBO_BONUS',
-            'COMBO_WINDOW', 'COMBO_COOLDOWN', 'COMBO_BONUS_DIVIDER', 'SPAM_PENALTY'
+            'BASE_CLICK_REWARD',
+            'MIN_REWARD',
+            'MAX_COMBO_BONUS',
+            'COMBO_WINDOW',
+            'COMBO_COOLDOWN',
+            'COMBO_BONUS_DIVIDER',
+            'SPAM_PENALTY'
         ];
 
         foreach ($requiredFields as $field) {
@@ -3800,7 +3834,8 @@ function handleEconomyApply($url, $key) {
  * Get Active Economy Config
  * GET /api/tama/economy/active
  */
-function handleEconomyActive($url, $key) {
+function handleEconomyActive($url, $key)
+{
     try {
         $params = [
             'is_active' => 'eq.true',
@@ -3837,7 +3872,8 @@ function handleEconomyActive($url, $key) {
  * Get Marketplace Statistics
  * GET /api/tama/marketplace/stats
  */
-function handleMarketplaceStats($url, $key) {
+function handleMarketplaceStats($url, $key)
+{
     try {
         // Get active listings count
         $listingsResult = supabaseRequest($url, $key, 'GET', 'marketplace_listings', [
@@ -3889,7 +3925,8 @@ function handleMarketplaceStats($url, $key) {
  * Get Marketplace Listings
  * GET /api/tama/marketplace/listings?tier=Bronze&rarity=Common&seller_id=123
  */
-function handleMarketplaceListings($url, $key) {
+function handleMarketplaceListings($url, $key)
+{
     try {
         $params = [
             'status' => 'eq.active',
@@ -3919,19 +3956,19 @@ function handleMarketplaceListings($url, $key) {
 
         // Apply filters
         if ($tier) {
-            $listings = array_filter($listings, function($l) use ($tier) {
+            $listings = array_filter($listings, function ($l) use ($tier) {
                 return isset($l['user_nfts']) && $l['user_nfts']['tier_name'] === $tier;
             });
         }
 
         if ($rarity) {
-            $listings = array_filter($listings, function($l) use ($rarity) {
+            $listings = array_filter($listings, function ($l) use ($rarity) {
                 return isset($l['user_nfts']) && $l['user_nfts']['rarity'] === $rarity;
             });
         }
 
         // Flatten structure for frontend
-        $formatted = array_map(function($listing) {
+        $formatted = array_map(function ($listing) {
             $nft = $listing['user_nfts'] ?? [];
             return [
                 'listing_id' => $listing['id'],
@@ -3970,7 +4007,8 @@ function handleMarketplaceListings($url, $key) {
  * POST /api/tama/marketplace/list
  * Body: { telegram_id, nft_id, price }
  */
-function handleMarketplaceList($url, $key) {
+function handleMarketplaceList($url, $key)
+{
     try {
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
@@ -4160,7 +4198,8 @@ function handleMarketplaceList($url, $key) {
  * POST /api/tama/marketplace/buy
  * Body: { telegram_id, listing_id }
  */
-function handleMarketplaceBuy($url, $key) {
+function handleMarketplaceBuy($url, $key)
+{
     try {
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
@@ -4405,7 +4444,8 @@ function handleMarketplaceBuy($url, $key) {
  * POST /api/tama/marketplace/cancel
  * Body: { telegram_id, listing_id }
  */
-function handleMarketplaceCancel($url, $key) {
+function handleMarketplaceCancel($url, $key)
+{
     try {
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
@@ -4458,7 +4498,8 @@ function handleMarketplaceCancel($url, $key) {
 /**
  * Send jackpot alert to bot (async webhook)
  */
-function sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, $totalWin, $bet, $poolBefore) {
+function sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, $totalWin, $bet, $poolBefore)
+{
     try {
         // Bot webhook URL (update with your bot's webhook endpoint)
         $botWebhook = getenv('BOT_WEBHOOK_URL') ?: 'https://your-bot-webhook.com/jackpot-alert';
@@ -4499,7 +4540,8 @@ function sendJackpotAlertToBot($telegramId, $username, $firstName, $jackpotWin, 
 /**
  * Send big win alert to bot (x20+ multiplier)
  */
-function sendBigWinAlertToBot($telegramId, $username, $firstName, $winAmount, $multiplier, $symbols) {
+function sendBigWinAlertToBot($telegramId, $username, $firstName, $winAmount, $multiplier, $symbols)
+{
     try {
         $botWebhook = getenv('BOT_WEBHOOK_URL') ?: 'https://your-bot-webhook.com/big-win-alert';
 
@@ -4534,11 +4576,61 @@ function sendBigWinAlertToBot($telegramId, $username, $firstName, $winAmount, $m
 }
 
 /**
+ * 🛡️ SECURITY: Server-side weighted random selection for slots
+ * This function MUST be on server to prevent client manipulation
+ */
+function getServerSlotSymbol()
+{
+    $weights = [
+        '🍒' => 28,  // 28% - most common
+        '🍋' => 24,  // 24%
+        '🍊' => 19,  // 19%
+        '💎' => 12,  // 12%
+        '⭐' => 9,   // 9%
+        '👑' => 5,   // 5%
+        '🎰' => 3    // 3% - jackpot (rare!)
+    ];
+
+    $total = array_sum($weights);
+    $random = mt_rand(1, $total);
+
+    foreach ($weights as $symbol => $weight) {
+        $random -= $weight;
+        if ($random <= 0) {
+            return $symbol;
+        }
+    }
+
+    return '🍒'; // Fallback
+}
+
+/**
+ * 🛡️ SECURITY: Get multiplier for symbol (server-side only)
+ */
+function getSlotMultiplier($symbol)
+{
+    $multipliers = [
+        '🍒' => 2,
+        '🍋' => 3,
+        '🍊' => 5,
+        '💎' => 10,
+        '⭐' => 15,
+        '👑' => 25,
+        '🎰' => 100  // Jackpot!
+    ];
+    return $multipliers[$symbol] ?? 0;
+}
+
+/**
  * Handle Slots Spin
  * POST /api/tama/slots/spin
- * Body: { telegram_id, amount, bet, win, symbols }
+ * Body: { telegram_id, bet, symbols (optional - for other games) }
+ *
+ * 🛡️ SECURITY FIX: Server now generates slots result and calculates win!
+ * Client cannot manipulate the outcome anymore.
  */
-function handleSlotsSpin($url, $key) {
+function handleSlotsSpin($url, $key)
+{
     try {
         // 🔐 SECURITY: Load Telegram auth validation
         require_once __DIR__ . '/telegram_auth.php';
@@ -4561,10 +4653,67 @@ function handleSlotsSpin($url, $key) {
             error_log("⚠️ BOT_TOKEN not set - using unvalidated telegram_id (DEV MODE ONLY!)");
         }
 
-        $amount = (int)($data['amount'] ?? 0);
         $bet = (int)($data['bet'] ?? 0);
-        $win = (int)($data['win'] ?? 0);
-        $symbols = $data['symbols'] ?? []; // Array of 3 symbols
+        $clientSymbols = $data['symbols'] ?? []; // Client symbols (for non-slots games)
+
+        // 🛡️ SECURITY: Determine game type from symbols
+        // Slots uses standard symbols, other games use emoji markers (🎡, 🍄, 🎨, 🚀)
+        $isSlotsMachine = true;
+        $isWheelGame = false;
+        $isOtherGame = false;
+
+        if (!empty($clientSymbols)) {
+            $firstSymbol = $clientSymbols[0] ?? '';
+            $isWheelGame = ($firstSymbol === '🎡');
+            $isOtherGame = in_array($firstSymbol, ['🍄', '🎨', '🚀']); // platformer, color-match, shooter
+            $isSlotsMachine = !$isWheelGame && !$isOtherGame;
+        }
+
+        // 🛡️ SECURITY: For SLOTS - generate result on SERVER!
+        if ($isSlotsMachine && $bet > 0) {
+            // Generate symbols on server
+            $symbols = [
+                getServerSlotSymbol(),
+                getServerSlotSymbol(),
+                getServerSlotSymbol()
+            ];
+            error_log("🎰 Server-generated symbols: " . implode(' ', $symbols));
+
+            // Calculate win on server
+            $isWin = ($symbols[0] === $symbols[1] && $symbols[1] === $symbols[2]);
+            if ($isWin) {
+                $multiplier = getSlotMultiplier($symbols[0]);
+                $win = $bet * $multiplier;
+                $amount = $win - $bet; // Net profit (deduct bet, add win)
+            } else {
+                $win = 0;
+                $amount = -$bet; // Lost the bet
+            }
+
+            error_log("🎰 Server calculated: isWin=$isWin, multiplier=" . ($isWin ? getSlotMultiplier($symbols[0]) : 0) . ", win=$win, amount=$amount");
+        } else {
+            // For other games (wheel, platformer, etc.) - use client values but with limits
+            $amount = (int)($data['amount'] ?? 0);
+            $win = (int)($data['win'] ?? 0);
+            $symbols = $clientSymbols;
+
+            // 🛡️ SECURITY: Validate win amount for other games
+            // Maximum win = 10x bet for mini-games (prevents exploitation)
+            $maxWinMultiplier = 10;
+            if ($isWheelGame) {
+                $maxWinMultiplier = 10; // Wheel max is 10x
+            } else if ($isOtherGame) {
+                $maxWinMultiplier = 20; // Platformer/shooter can earn more from gameplay
+            }
+
+            if ($win > 0 && $bet > 0 && $win > $bet * $maxWinMultiplier) {
+                error_log("🚨 SECURITY: Suspicious win rejected! win=$win, bet=$bet, max=" . ($bet * $maxWinMultiplier));
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid win amount', 'max_multiplier' => $maxWinMultiplier]);
+                return;
+            }
+        }
+
         $isJackpot = false;
 
         // Check if jackpot (🎰🎰🎰)
@@ -4823,6 +4972,11 @@ function handleSlotsSpin($url, $key) {
             'amount' => $amount,
             'balance_before' => $currentBalance,
             'balance_after' => $newBalance,
+            // 🛡️ SECURITY: Return server-generated symbols to client for display
+            'symbols' => $symbols,
+            'win' => $win,
+            'bet' => $bet,
+            'is_win' => ($win > 0),
             'jackpot' => [
                 'is_jackpot' => $isJackpot,
                 'jackpot_win' => $jackpotWin,
@@ -4832,7 +4986,6 @@ function handleSlotsSpin($url, $key) {
                 'current_pool' => $jackpotPoolAfter
             ]
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         error_log('❌ Slots spin error: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
@@ -4844,7 +4997,8 @@ function handleSlotsSpin($url, $key) {
  * Handle Get Jackpot Pool
  * GET /api/tama/slots/jackpot
  */
-function handleGetJackpotPool($url, $key) {
+function handleGetJackpotPool($url, $key)
+{
     try {
         $poolResult = supabaseRequest($url, $key, 'GET', 'slots_jackpot_pool', [
             'id' => 'eq.1'
@@ -4880,7 +5034,6 @@ function handleGetJackpotPool($url, $key) {
                 'won_at' => $pool['last_win_at'] ?? null
             ]
         ]);
-
     } catch (Exception $e) {
         http_response_code(500);
         error_log('❌ Get jackpot pool error: ' . $e->getMessage());
@@ -4893,14 +5046,15 @@ function handleGetJackpotPool($url, $key) {
  * GET /api/tama/wheel/jackpot - Get current jackpot
  * POST /api/tama/wheel/jackpot - Update jackpot (add/reset/set)
  */
-function handleWheelJackpot($url, $key, $method) {
+function handleWheelJackpot($url, $key, $method)
+{
     try {
         if ($method === 'GET') {
             // Get current jackpot
             $result = supabaseRequest($url, $key, 'GET', 'wheel_jackpot', [
                 'id' => 'eq.1'
             ]);
-            
+
             if (!empty($result['data'])) {
                 $jackpot = $result['data'][0];
                 echo json_encode([
@@ -4915,7 +5069,7 @@ function handleWheelJackpot($url, $key, $method) {
                     'amount' => 5000,
                     'updated_at' => date('Y-m-d H:i:s')
                 ]);
-                
+
                 echo json_encode([
                     'success' => true,
                     'jackpot' => 5000,
@@ -4925,20 +5079,20 @@ function handleWheelJackpot($url, $key, $method) {
         } elseif ($method === 'POST') {
             // Update jackpot
             $input = json_decode(file_get_contents('php://input'), true);
-            
+
             $action = $input['action'] ?? 'add'; // 'add' or 'reset' or 'set'
             $amount = floatval($input['amount'] ?? 0);
-            
+
             // Get current jackpot
             $result = supabaseRequest($url, $key, 'GET', 'wheel_jackpot', [
                 'id' => 'eq.1'
             ]);
-            
+
             $currentJackpot = 5000;
             if (!empty($result['data'])) {
                 $currentJackpot = floatval($result['data'][0]['amount']);
             }
-            
+
             if ($action === 'add') {
                 // Add to jackpot (5% of bet)
                 $newJackpot = $currentJackpot + $amount;
@@ -4951,7 +5105,7 @@ function handleWheelJackpot($url, $key, $method) {
             } else {
                 throw new Exception('Invalid action');
             }
-            
+
             // Update jackpot
             $updateResult = supabaseRequest($url, $key, 'PATCH', 'wheel_jackpot', [
                 'id' => 'eq.1'
@@ -4959,7 +5113,7 @@ function handleWheelJackpot($url, $key, $method) {
                 'amount' => $newJackpot,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
-            
+
             echo json_encode([
                 'success' => true,
                 'jackpot' => $newJackpot,
@@ -4967,7 +5121,6 @@ function handleWheelJackpot($url, $key, $method) {
                 'change' => $newJackpot - $currentJackpot
             ]);
         }
-        
     } catch (Exception $e) {
         http_response_code(500);
         error_log('❌ Wheel jackpot error: ' . $e->getMessage());
@@ -4977,4 +5130,3 @@ function handleWheelJackpot($url, $key, $method) {
         ]);
     }
 }
-?>

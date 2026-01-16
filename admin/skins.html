@@ -1,307 +1,319 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🎨 Админ - Управление Скинами</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            padding: 30px;
-            color: white;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        padding: 30px;
+        color: white;
+      }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
 
-        h1 {
-            font-size: 42px;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
-        }
+      h1 {
+        font-size: 42px;
+        margin-bottom: 10px;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      }
 
-        .stats {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
+      .stats {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+      }
 
-        .stat-card {
-            background: rgba(255,255,255,0.1);
-            padding: 20px 30px;
-            border-radius: 15px;
-            border: 2px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-        }
+      .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px 30px;
+        border-radius: 15px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+      }
 
-        .stat-card h3 {
-            font-size: 14px;
-            color: #a78bfa;
-            margin-bottom: 8px;
-        }
+      .stat-card h3 {
+        font-size: 14px;
+        color: #a78bfa;
+        margin-bottom: 8px;
+      }
 
-        .stat-card .value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #fbbf24;
-        }
+      .stat-card .value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #fbbf24;
+      }
 
-        .controls {
-            text-align: center;
-            margin-bottom: 30px;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+      .controls {
+        text-align: center;
+        margin-bottom: 30px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
 
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-        }
+      .btn-primary {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+      }
 
-        .btn-primary:hover {
-            transform: scale(1.05);
-        }
+      .btn-primary:hover {
+        transform: scale(1.05);
+      }
 
-        .btn-success {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-        }
+      .btn-success {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+      }
 
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-        }
+      .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+      }
 
-        .skins-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
+      .skins-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+      }
 
-        .skin-card {
-            background: rgba(255,255,255,0.08);
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 25px;
-            transition: all 0.3s;
-        }
+      .skin-card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 25px;
+        transition: all 0.3s;
+      }
 
-        .skin-card.disabled {
-            opacity: 0.5;
-            border-color: rgba(255,0,0,0.3);
-        }
+      .skin-card.disabled {
+        opacity: 0.5;
+        border-color: rgba(255, 0, 0, 0.3);
+      }
 
-        .skin-card.enabled {
-            border-color: rgba(34,197,94,0.5);
-        }
+      .skin-card.enabled {
+        border-color: rgba(34, 197, 94, 0.5);
+      }
 
-        .skin-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(139,92,246,0.3);
-        }
+      .skin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+      }
 
-        .skin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+      .skin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
 
-        .skin-name {
-            font-size: 22px;
-            font-weight: bold;
-        }
+      .skin-name {
+        font-size: 22px;
+        font-weight: bold;
+      }
 
-        .toggle-switch {
-            position: relative;
-            width: 60px;
-            height: 30px;
-        }
+      .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+      }
 
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
 
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 30px;
-        }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 30px;
+      }
 
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
+      .slider:before {
+        position: absolute;
+        content: '';
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
 
-        input:checked + .slider {
-            background-color: #22c55e;
-        }
+      input:checked + .slider {
+        background-color: #22c55e;
+      }
 
-        input:checked + .slider:before {
-            transform: translateX(30px);
-        }
+      input:checked + .slider:before {
+        transform: translateX(30px);
+      }
 
-        .skin-rarity {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
+      .skin-rarity {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 12px;
+      }
 
-        .rarity-default { background: #6b7280; }
-        .rarity-common { background: #22c55e; }
-        .rarity-rare { background: #3b82f6; }
-        .rarity-epic { background: #a855f7; }
-        .rarity-legendary { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
-        .rarity-xmas { background: linear-gradient(135deg, #dc2626, #16a34a); }
+      .rarity-default {
+        background: #6b7280;
+      }
+      .rarity-common {
+        background: #22c55e;
+      }
+      .rarity-rare {
+        background: #3b82f6;
+      }
+      .rarity-epic {
+        background: #a855f7;
+      }
+      .rarity-legendary {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      }
+      .rarity-xmas {
+        background: linear-gradient(135deg, #dc2626, #16a34a);
+      }
 
-        .skin-price {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
+      .skin-price {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
 
-        .skin-price input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            background: rgba(0,0,0,0.3);
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-        }
+      .skin-price input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+      }
 
-        .skin-bonus {
-            background: rgba(139,92,246,0.3);
-            border: 1px solid #a78bfa;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 13px;
-            color: #c4b5fd;
-            margin-top: 10px;
-        }
+      .skin-bonus {
+        background: rgba(139, 92, 246, 0.3);
+        border: 1px solid #a78bfa;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 13px;
+        color: #c4b5fd;
+        margin-top: 10px;
+      }
 
-        .save-btn {
-            width: 100%;
-            margin-top: 12px;
-            padding: 10px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+      .save-btn {
+        width: 100%;
+        margin-top: 12px;
+        padding: 10px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
 
-        .save-btn:hover {
-            transform: scale(1.02);
-        }
+      .save-btn:hover {
+        transform: scale(1.02);
+      }
 
-        .limited-badge {
-            display: inline-block;
-            background: #ef4444;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-left: 8px;
-        }
+      .limited-badge {
+        display: inline-block;
+        background: #ef4444;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-left: 8px;
+      }
 
-        .export-section {
-            text-align: center;
-            padding: 30px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            border: 2px solid rgba(255,255,255,0.2);
-        }
+      .export-section {
+        text-align: center;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+      }
 
-        .export-section h2 {
-            margin-bottom: 15px;
-        }
+      .export-section h2 {
+        margin-bottom: 15px;
+      }
 
-        .export-section p {
-            color: #a78bfa;
-            margin-bottom: 20px;
-        }
+      .export-section p {
+        color: #a78bfa;
+        margin-bottom: 20px;
+      }
 
-        #filter-bar {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
+      #filter-bar {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
 
-        .filter-btn {
-            padding: 10px 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
+      .filter-btn {
+        padding: 10px 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: bold;
+      }
 
-        .filter-btn.active {
-            background: #8b5cf6;
-            border-color: #8b5cf6;
-        }
+      .filter-btn.active {
+        background: #8b5cf6;
+        border-color: #8b5cf6;
+      }
 
-        .filter-btn:hover {
-            transform: scale(1.05);
-        }
+      .filter-btn:hover {
+        transform: scale(1.05);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="header">
-        <h1>🎨 Управление Скинами</h1>
-        <p style="color: #a78bfa; margin-top: 10px;">Включай/выключай скины и меняй цены</p>
+      <h1>🎨 Управление Скинами</h1>
+      <p style="color: #a78bfa; margin-top: 10px">Включай/выключай скины и меняй цены</p>
     </div>
 
     <!-- Статистика -->
@@ -309,22 +321,22 @@
 
     <!-- Управление -->
     <div class="controls">
-        <button class="btn btn-success" onclick="enableAllSkins()">✅ Включить Все</button>
-        <button class="btn btn-danger" onclick="disableAllSkins()">❌ Выключить Все</button>
-        <button class="btn btn-primary" onclick="saveConfig()">💾 Сохранить Конфиг</button>
-        <button class="btn btn-primary" onclick="exportConfig()">📥 Экспорт JSON</button>
-        <button class="btn btn-primary" onclick="resetPrices()">🔄 Сбросить Цены</button>
+      <button class="btn btn-success" onclick="enableAllSkins()">✅ Включить Все</button>
+      <button class="btn btn-danger" onclick="disableAllSkins()">❌ Выключить Все</button>
+      <button class="btn btn-primary" onclick="saveConfig()">💾 Сохранить Конфиг</button>
+      <button class="btn btn-primary" onclick="exportConfig()">📥 Экспорт JSON</button>
+      <button class="btn btn-primary" onclick="resetPrices()">🔄 Сбросить Цены</button>
     </div>
 
     <!-- Фильтры -->
     <div id="filter-bar">
-        <button class="filter-btn active" onclick="filterSkins('all')">Все</button>
-        <button class="filter-btn" onclick="filterSkins('default')">FREE</button>
-        <button class="filter-btn" onclick="filterSkins('common')">COMMON</button>
-        <button class="filter-btn" onclick="filterSkins('rare')">RARE</button>
-        <button class="filter-btn" onclick="filterSkins('epic')">EPIC</button>
-        <button class="filter-btn" onclick="filterSkins('legendary')">LEGENDARY</button>
-        <button class="filter-btn" onclick="filterSkins('xmas')">XMAS</button>
+      <button class="filter-btn active" onclick="filterSkins('all')">Все</button>
+      <button class="filter-btn" onclick="filterSkins('default')">FREE</button>
+      <button class="filter-btn" onclick="filterSkins('common')">COMMON</button>
+      <button class="filter-btn" onclick="filterSkins('rare')">RARE</button>
+      <button class="filter-btn" onclick="filterSkins('epic')">EPIC</button>
+      <button class="filter-btn" onclick="filterSkins('legendary')">LEGENDARY</button>
+      <button class="filter-btn" onclick="filterSkins('xmas')">XMAS</button>
     </div>
 
     <!-- Скины -->
@@ -332,9 +344,9 @@
 
     <!-- Экспорт -->
     <div class="export-section">
-        <h2>📤 Экспорт Конфигурации</h2>
-        <p>После изменений скопируй код и замени содержимое skins-config.js</p>
-        <button class="btn btn-primary" onclick="copyConfig()">📋 Копировать Конфиг</button>
+      <h2>📤 Экспорт Конфигурации</h2>
+      <p>После изменений скопируй код и замени содержимое skins-config.js</p>
+      <button class="btn btn-primary" onclick="copyConfig()">📋 Копировать Конфиг</button>
     </div>
 
     <script src="../skins-config.js"></script>
@@ -342,23 +354,23 @@
     <script src="../admin-password.js"></script>
     <script src="../js/admin-auth.js"></script>
     <script>
-        let currentFilter = 'all';
+      let currentFilter = 'all';
 
-        // Загрузка скинов
-        function loadSkins() {
-            const grid = document.getElementById('skins-grid');
-            grid.innerHTML = '';
+      // Загрузка скинов
+      function loadSkins() {
+        const grid = document.getElementById('skins-grid');
+        grid.innerHTML = '';
 
-            Object.values(SKINS_CONFIG).forEach(skin => {
-                if (currentFilter !== 'all' && skin.rarity !== currentFilter) {
-                    return;
-                }
+        Object.values(SKINS_CONFIG).forEach((skin) => {
+          if (currentFilter !== 'all' && skin.rarity !== currentFilter) {
+            return;
+          }
 
-                const card = document.createElement('div');
-                card.className = `skin-card ${skin.enabled ? 'enabled' : 'disabled'}`;
-                card.dataset.skinId = skin.id;
+          const card = document.createElement('div');
+          card.className = `skin-card ${skin.enabled ? 'enabled' : 'disabled'}`;
+          card.dataset.skinId = skin.id;
 
-                card.innerHTML = `
+          card.innerHTML = `
                     <div class="skin-header">
                         <span class="skin-name">${skin.nameRu}</span>
                         <label class="toggle-switch">
@@ -383,26 +395,30 @@
                     <div class="skin-bonus">
                         ${skin.bonusRu}
                     </div>
-                    ${skin.limitedTime ? `
+                    ${
+                      skin.limitedTime
+                        ? `
                         <div style="margin-top: 10px; font-size: 12px; color: #fbbf24;">
                             ⏰ ${skin.limitedTime.startMonth}/${skin.limitedTime.startDay} -
                             ${skin.limitedTime.endMonth}/${skin.limitedTime.endDay}
                         </div>
-                    ` : ''}
+                    `
+                        : ''
+                    }
                 `;
 
-                grid.appendChild(card);
-            });
+          grid.appendChild(card);
+        });
 
-            updateStats();
-        }
+        updateStats();
+      }
 
-        // Обновить статистику
-        function updateStats() {
-            const stats = getSkinsStats();
-            const statsDiv = document.getElementById('stats');
+      // Обновить статистику
+      function updateStats() {
+        const stats = getSkinsStats();
+        const statsDiv = document.getElementById('stats');
 
-            statsDiv.innerHTML = `
+        statsDiv.innerHTML = `
                 <div class="stat-card">
                     <h3>Всего скинов</h3>
                     <div class="value">${stats.total}</div>
@@ -436,131 +452,129 @@
                     <div class="value">${stats.byRarity.xmas}</div>
                 </div>
             `;
-        }
+      }
 
-        // Переключить скин
-        function toggleSkinEnabled(skinId, enabled) {
-            toggleSkin(skinId, enabled);
-            const card = document.querySelector(`[data-skin-id="${skinId}"]`);
-            card.className = `skin-card ${enabled ? 'enabled' : 'disabled'}`;
-            updateStats();
-        }
+      // Переключить скин
+      function toggleSkinEnabled(skinId, enabled) {
+        toggleSkin(skinId, enabled);
+        const card = document.querySelector(`[data-skin-id="${skinId}"]`);
+        card.className = `skin-card ${enabled ? 'enabled' : 'disabled'}`;
+        updateStats();
+      }
 
-        // Обновить цену
-        function updateSkinPrice(skinId, newPrice) {
-            setSkinPrice(skinId, parseInt(newPrice));
-        }
+      // Обновить цену
+      function updateSkinPrice(skinId, newPrice) {
+        setSkinPrice(skinId, parseInt(newPrice));
+      }
 
-        // Включить все
-        function enableAllSkins() {
-            Object.keys(SKINS_CONFIG).forEach(skinId => {
-                toggleSkin(skinId, true);
-            });
-            loadSkins();
-        }
+      // Включить все
+      function enableAllSkins() {
+        Object.keys(SKINS_CONFIG).forEach((skinId) => {
+          toggleSkin(skinId, true);
+        });
+        loadSkins();
+      }
 
-        // Выключить все
-        function disableAllSkins() {
-            Object.keys(SKINS_CONFIG).forEach(skinId => {
-                if (skinId !== 'kawai') { // Оставить дефолтный
-                    toggleSkin(skinId, false);
-                }
-            });
-            loadSkins();
-        }
+      // Выключить все
+      function disableAllSkins() {
+        Object.keys(SKINS_CONFIG).forEach((skinId) => {
+          if (skinId !== 'kawai') {
+            // Оставить дефолтный
+            toggleSkin(skinId, false);
+          }
+        });
+        loadSkins();
+      }
 
-        // Фильтрация
-        function filterSkins(rarity) {
-            currentFilter = rarity;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            loadSkins();
-        }
+      // Фильтрация
+      function filterSkins(rarity) {
+        currentFilter = rarity;
+        document.querySelectorAll('.filter-btn').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        loadSkins();
+      }
 
-        // Сохранить конфиг
-        function saveConfig() {
-            const config = JSON.stringify(SKINS_CONFIG, null, 2);
-            localStorage.setItem('skins_config', config);
-            alert('✅ Конфигурация сохранена в localStorage!');
-        }
+      // Сохранить конфиг
+      function saveConfig() {
+        const config = JSON.stringify(SKINS_CONFIG, null, 2);
+        localStorage.setItem('skins_config', config);
+        alert('✅ Конфигурация сохранена в localStorage!');
+      }
 
-        // Экспорт в JSON
-        function exportConfig() {
-            const config = JSON.stringify(SKINS_CONFIG, null, 2);
-            const blob = new Blob([config], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'skins-config.json';
-            a.click();
-        }
+      // Экспорт в JSON
+      function exportConfig() {
+        const config = JSON.stringify(SKINS_CONFIG, null, 2);
+        const blob = new Blob([config], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'skins-config.json';
+        a.click();
+      }
 
-        // Копировать конфиг
-        function copyConfig() {
-            const configText = `const SKINS_CONFIG = ${JSON.stringify(SKINS_CONFIG, null, 4)};`;
-            navigator.clipboard.writeText(configText).then(() => {
-                alert('✅ Конфиг скопирован! Вставь в skins-config.js');
-            });
-        }
+      // Копировать конфиг
+      function copyConfig() {
+        const configText = `const SKINS_CONFIG = ${JSON.stringify(SKINS_CONFIG, null, 4)};`;
+        navigator.clipboard.writeText(configText).then(() => {
+          alert('✅ Конфиг скопирован! Вставь в skins-config.js');
+        });
+      }
 
-        // Сбросить цены
-        function resetPrices() {
-            if (!confirm('Сбросить все цены к исходным?')) return;
+      // Сбросить цены
+      function resetPrices() {
+        if (!confirm('Сбросить все цены к исходным?')) return;
 
-            // Тут можно задать дефолтные цены
-            const defaultPrices = {
-                'kawai': 0,
-                'retro': 1000,
-                'cyber': 1000,
-                'panda': 1000,
-                'ghost': 5000,
-                'alien': 5000,
-                'ice-fox': 5000,
-                'love': 5000,
-                'gingerbread': 6000,
-                'fire-cat': 15000,
-                'gold-dragon': 15000,
-                'rainbow-unicorn': 15000,
-                'ninja-cat': 15000,
-                'lightning': 15000,
-                'elf': 12000,
-                'angel': 50000,
-                'demon': 50000,
-                'cosmic': 50000,
-                'platinum-dragon': 60000,
-                'divine-angel': 80000,
-                'santa': 10000,
-                'snowman': 8000,
-                'reindeer': 12000,
-                'tree': 15000
-            };
-
-            Object.keys(defaultPrices).forEach(skinId => {
-                setSkinPrice(skinId, defaultPrices[skinId]);
-            });
-
-            loadSkins();
-            alert('✅ Цены сброшены!');
-        }
-
-        // Загрузить из localStorage при старте
-        window.onload = () => {
-            const saved = localStorage.getItem('skins_config');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    Object.assign(SKINS_CONFIG, parsed);
-                } catch (e) {
-                    console.error('Ошибка загрузки конфига:', e);
-                }
-            }
-            loadSkins();
+        // Тут можно задать дефолтные цены
+        const defaultPrices = {
+          kawai: 0,
+          retro: 1000,
+          cyber: 1000,
+          panda: 1000,
+          ghost: 5000,
+          alien: 5000,
+          'ice-fox': 5000,
+          love: 5000,
+          gingerbread: 6000,
+          'fire-cat': 15000,
+          'gold-dragon': 15000,
+          'rainbow-unicorn': 15000,
+          'ninja-cat': 15000,
+          lightning: 15000,
+          elf: 12000,
+          angel: 50000,
+          demon: 50000,
+          cosmic: 50000,
+          'platinum-dragon': 60000,
+          'divine-angel': 80000,
+          santa: 10000,
+          snowman: 8000,
+          reindeer: 12000,
+          tree: 15000,
         };
+
+        Object.keys(defaultPrices).forEach((skinId) => {
+          setSkinPrice(skinId, defaultPrices[skinId]);
+        });
+
+        loadSkins();
+        alert('✅ Цены сброшены!');
+      }
+
+      // Загрузить из localStorage при старте
+      window.onload = () => {
+        const saved = localStorage.getItem('skins_config');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            Object.assign(SKINS_CONFIG, parsed);
+          } catch (e) {
+            console.error('Ошибка загрузки конфига:', e);
+          }
+        }
+        loadSkins();
+      };
     </script>
-</body>
+  </body>
 </html>
-
-
-

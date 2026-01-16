@@ -1,1477 +1,1787 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🎮 Solana Tamagotchi - Super Admin Dashboard</title>
     <!-- Admin Password (SHA256 hash for security) -->
-    <meta name="admin-password-hash" content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3">
+    <meta
+      name="admin-password-hash"
+      content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3"
+    />
     <!-- For local development, use admin-password.js file with plain password -->
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="logo.png">
-    <meta name="theme-color" content="#1D3557">
-    
-    <style>
-        /* Logo Styles 🎨 */
-        .game-logo {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 10000;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
 
-        .game-logo:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../logo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../logo.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="../logo.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="../logo.png" />
+    <meta name="theme-color" content="#1D3557" />
+
+    <style>
+      /* Logo Styles 🎨 */
+      .game-logo {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 10000;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      .game-logo:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+
+      .game-logo img {
+        height: 70px;
+        width: auto;
+        display: block;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 5px;
+      }
+
+      @media (max-width: 768px) {
+        .game-logo {
+          top: 10px;
+          left: 10px;
         }
 
         .game-logo img {
-            height: 70px;
-            width: auto;
-            display: block;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 5px;
+          height: 50px;
         }
+      }
 
-        @media (max-width: 768px) {
-            .game-logo {
-                top: 10px;
-                left: 10px;
-            }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-            .game-logo img {
-                height: 50px;
-            }
+      :root {
+        --primary: #667eea;
+        --primary-dark: #5568d3;
+        --secondary: #764ba2;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1f2937;
+        --light: #f9fafb;
+        --border: #e5e7eb;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%);
+        color: #333;
+        min-height: 100vh;
+      }
+
+      /* Admin Login Screen */
+      #adminLoginScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      }
+
+      .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+      }
+
+      .login-container h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 28px;
+      }
+
+      #adminPasswordInput {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+      }
+
+      #adminPasswordInput:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+      }
+
+      .login-btn:hover {
+        background: #5568d3;
+      }
+
+      #adminLoginError {
+        color: red;
+        margin-top: 15px;
+        min-height: 20px;
+        font-size: 14px;
+      }
+
+      /* Header */
+      .header {
+        background: #ffffff;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .refresh-btn {
+        background: var(--success);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .refresh-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 20px;
+        font-size: 14px;
+        color: var(--success);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        50% {
+          opacity: 0.5;
         }
+      }
 
-        :root {
-            --primary: #667eea;
-            --primary-dark: #5568d3;
-            --secondary: #764ba2;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --dark: #1f2937;
-            --light: #f9fafb;
-            --border: #e5e7eb;
+      /* Container */
+      .container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 30px;
+      }
+
+      /* Tabs Navigation */
+      .tabs-nav {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        background: #ffffff;
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        overflow-x: auto;
+      }
+
+      .tab-btn {
+        padding: 12px 24px;
+        border: none;
+        background: transparent;
+        color: #666;
+        cursor: pointer;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tab-btn:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: var(--primary);
+      }
+
+      .tab-btn.active {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      /* Tab Content */
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%);
-            color: #333;
-            min-height: 100vh;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
+      }
 
-        /* Admin Login Screen */
-        #adminLoginScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
+      /* Stats Grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: #ffffff;
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: var(--dark);
+      }
+
+      .stat-change {
+        font-size: 12px;
+        margin-top: 5px;
+      }
+
+      .stat-change.positive {
+        color: var(--success);
+      }
+
+      .stat-change.negative {
+        color: var(--danger);
+      }
+
+      /* Table */
+      .data-table {
+        background: #ffffff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .table-header {
+        padding: 20px;
+        border-bottom: 2px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .table-header h3 {
+        font-size: 18px;
+        color: var(--dark);
+      }
+
+      .table-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .search-box {
+        padding: 8px 16px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        width: 250px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        background: var(--light);
+      }
+
+      th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 14px;
+      }
+
+      td {
+        padding: 15px;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
+      }
+
+      tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+      }
+
+      /* Action Buttons */
+      .action-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+        margin-right: 5px;
+      }
+
+      .action-btn.view {
+        background: var(--primary);
+        color: white;
+      }
+
+      .action-btn.edit {
+        background: var(--warning);
+        color: white;
+      }
+
+      .action-btn.delete {
+        background: var(--danger);
+        color: white;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Charts Container */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .chart-card {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .chart-card h3 {
+        margin-bottom: 20px;
+        color: var(--dark);
+      }
+
+      /* Project Switcher */
+      .project-switcher {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .project-card {
+        flex: 1;
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .project-card.active {
+        border-color: var(--primary);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .project-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+      }
+
+      .project-name {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: var(--dark);
+      }
+
+      .project-status {
+        font-size: 14px;
+        color: #666;
+      }
+
+      /* Loading Spinner */
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
         }
+      }
 
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
+      /* Badge */
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
 
-        .login-container h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
+      .badge.success {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--success);
+      }
+      .badge.warning {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+      }
+      .badge.danger {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+      }
+      .badge.info {
+        background: rgba(102, 126, 234, 0.2);
+        color: var(--primary);
+      }
 
-        #adminPasswordInput {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
+      /* Progress Bar Styles (Unified with mint.html) */
+      .progress-bar {
+        width: 100%;
+        height: 12px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        margin: 10px 0;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        transition: width 0.5s ease;
+      }
+      /* Tier-specific progress bar gradients */
+      .progress-fill.bronze {
+        background: linear-gradient(90deg, #cd7f32, #ffb703);
+      }
+      .progress-fill.silver {
+        background: linear-gradient(90deg, #c0c0c0, #e5e5e5);
+      }
+      .progress-fill.gold {
+        background: linear-gradient(90deg, #ffd700, #ffed4e);
+      }
+      .progress-fill.platinum {
+        background: linear-gradient(90deg, #e5e4e2, #ffffff);
+      }
+      .progress-fill.diamond {
+        background: linear-gradient(90deg, #b9f2ff, #00d9ff);
+      }
 
-        #adminPasswordInput:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+      /* Admin Actions Panel */
+      .admin-actions {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        margin-bottom: 30px;
+      }
 
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
+      .admin-actions h3 {
+        margin-bottom: 20px;
+        color: var(--dark);
+      }
 
-        .login-btn:hover {
-            background: #5568d3;
-        }
+      .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
 
-        #adminLoginError {
-            color: red;
-            margin-top: 15px;
-            min-height: 20px;
-            font-size: 14px;
-        }
+      .action-item {
+        padding: 15px;
+        border: 2px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+      }
 
-        /* Header */
-        .header {
-            background: #ffffff;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+      .action-item:hover {
+        border-color: var(--primary);
+        background: rgba(102, 126, 234, 0.05);
+        transform: translateY(-2px);
+      }
 
-        .header h1 {
-            font-size: 24px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+      .action-item-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
 
-        .header-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
+      .action-item-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--dark);
+      }
 
-        .refresh-btn {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(16, 185, 129, 0.1);
-            border-radius: 20px;
-            font-size: 14px;
-            color: var(--success);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Container */
+      /* Responsive */
+      @media (max-width: 768px) {
         .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 30px;
+          padding: 15px;
         }
 
-        /* Tabs Navigation */
-        .tabs-nav {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid rgba(102, 126, 234, 0.1);
-            overflow-x: auto;
-        }
-
-        .tab-btn {
-            padding: 12px 24px;
-            border: none;
-            background: transparent;
-            color: #666;
-            cursor: pointer;
-            font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.3s;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .tab-btn:hover {
-            background: rgba(102, 126, 234, 0.1);
-            color: var(--primary);
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Stats Grid */
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+          grid-template-columns: 1fr;
         }
 
-        .stat-card {
-            background: #ffffff;
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(102, 126, 234, 0.1);
+        .charts-grid {
+          grid-template-columns: 1fr;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        .header {
+          flex-direction: column;
+          gap: 15px;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .stat-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--dark);
-        }
-
-        .stat-change {
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .stat-change.positive {
-            color: var(--success);
-        }
-
-        .stat-change.negative {
-            color: var(--danger);
-        }
-
-        /* Table */
-        .data-table {
-            background: #ffffff;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
-            border: 1px solid rgba(102, 126, 234, 0.1);
-        }
-
-        .table-header {
-            padding: 20px;
-            border-bottom: 2px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-header h3 {
-            font-size: 18px;
-            color: var(--dark);
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 10px;
+        .tabs-nav {
+          flex-wrap: nowrap;
+          overflow-x: auto;
         }
 
         .search-box {
-            padding: 8px 16px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            width: 250px;
+          width: 100%;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: var(--light);
-        }
-
-        th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 14px;
-        }
-
-        td {
-            padding: 15px;
-            border-top: 1px solid var(--border);
-            font-size: 14px;
-        }
-
-        tbody tr:hover {
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        /* Action Buttons */
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-right: 5px;
-        }
-
-        .action-btn.view {
-            background: var(--primary);
-            color: white;
-        }
-
-        .action-btn.edit {
-            background: var(--warning);
-            color: white;
-        }
-
-        .action-btn.delete {
-            background: var(--danger);
-            color: white;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        /* Charts Container */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .chart-card {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid rgba(102, 126, 234, 0.1);
-        }
-
-        .chart-card h3 {
-            margin-bottom: 20px;
-            color: var(--dark);
-        }
-
-        /* Project Switcher */
-        .project-switcher {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .project-card {
-            flex: 1;
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid rgba(102, 126, 234, 0.1);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .project-card.active {
-            border-color: var(--primary);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .project-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .project-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--dark);
-        }
-
-        .project-status {
-            font-size: 14px;
-            color: #666;
-        }
-
-        /* Loading Spinner */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Badge */
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge.success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .badge.warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .badge.danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .badge.info { background: rgba(102, 126, 234, 0.2); color: var(--primary); }
-
-        /* Progress Bar Styles (Unified with mint.html) */
-        .progress-bar {
-            width: 100%;
-            height: 12px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 6px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            transition: width 0.5s ease;
-        }
-        /* Tier-specific progress bar gradients */
-        .progress-fill.bronze {
-            background: linear-gradient(90deg, #CD7F32, #FFB703);
-        }
-        .progress-fill.silver {
-            background: linear-gradient(90deg, #C0C0C0, #E5E5E5);
-        }
-        .progress-fill.gold {
-            background: linear-gradient(90deg, #FFD700, #FFED4E);
-        }
-        .progress-fill.platinum {
-            background: linear-gradient(90deg, #E5E4E2, #FFFFFF);
-        }
-        .progress-fill.diamond {
-            background: linear-gradient(90deg, #B9F2FF, #00D9FF);
-        }
-
-        /* Admin Actions Panel */
-        .admin-actions {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid rgba(102, 126, 234, 0.1);
-            margin-bottom: 30px;
-        }
-
-        .admin-actions h3 {
-            margin-bottom: 20px;
-            color: var(--dark);
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .action-item {
-            padding: 15px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .action-item:hover {
-            border-color: var(--primary);
-            background: rgba(102, 126, 234, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .action-item-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .action-item-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .tabs-nav {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Admin Login Screen -->
     <div id="adminLoginScreen">
-        <div class="login-container">
-            <h2>🔐 Admin Access</h2>
-            <input 
-                type="password" 
-                id="adminPasswordInput" 
-                placeholder="Enter password"
-            >
-            <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
-            <div id="adminLoginError"></div>
-        </div>
+      <div class="login-container">
+        <h2>🔐 Admin Access</h2>
+        <input type="password" id="adminPasswordInput" placeholder="Enter password" />
+        <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
+        <div id="adminLoginError"></div>
+      </div>
     </div>
 
     <!-- Main Content (hidden until authenticated) -->
-    <div id="adminContent" style="display: none;">
-    <!-- Logo 🎨 -->
-    <a href="index.html" class="game-logo" title="Back to Home">
-        <img src="logo.png" alt="Solana Tamagotchi">
-    </a>
+    <div id="adminContent" style="display: none">
+      <!-- Logo 🎨 -->
+      <a href="../index.html" class="game-logo" title="Back to Home">
+        <img src="../logo.png" alt="Solana Tamagotchi" />
+      </a>
 
-    <!-- Header -->
-    <div class="header">
+      <!-- Header -->
+      <div class="header">
         <h1>
-            <span>🎮</span>
-            Solana Tamagotchi - Super Admin Dashboard
+          <span>🎮</span>
+          Solana Tamagotchi - Super Admin Dashboard
         </h1>
         <div class="header-actions">
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span>Connected</span>
-            </div>
-            <button class="refresh-btn" onclick="refreshAllData()">
-                <span id="refresh-icon">🔄</span> Refresh
-            </button>
+          <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Connected</span>
+          </div>
+          <button class="refresh-btn" onclick="refreshAllData()">
+            <span id="refresh-icon">🔄</span> Refresh
+          </button>
         </div>
-    </div>
+      </div>
 
-    <div class="container">
+      <div class="container">
         <!-- Project Switcher -->
         <div class="project-switcher">
-            <div class="project-card active" data-project="telegram">
-                <div class="project-icon">📱</div>
-                <div class="project-name">Telegram Game</div>
-                <div class="project-status">Active • <span id="telegram-users">0</span> users</div>
-            </div>
-            <div class="project-card" data-project="nft">
-                <div class="project-icon">🎨</div>
-                <div class="project-name">NFT Project</div>
-                <div class="project-status">Active • <span id="nft-holders">0</span> holders</div>
-            </div>
-            <div class="project-card" data-project="combined">
-                <div class="project-icon">🔗</div>
-                <div class="project-name">Combined View</div>
-                <div class="project-status">All Projects</div>
-            </div>
+          <div class="project-card active" data-project="telegram">
+            <div class="project-icon">📱</div>
+            <div class="project-name">Telegram Game</div>
+            <div class="project-status">Active • <span id="telegram-users">0</span> users</div>
+          </div>
+          <div class="project-card" data-project="nft">
+            <div class="project-icon">🎨</div>
+            <div class="project-name">NFT Project</div>
+            <div class="project-status">Active • <span id="nft-holders">0</span> holders</div>
+          </div>
+          <div class="project-card" data-project="combined">
+            <div class="project-icon">🔗</div>
+            <div class="project-name">Combined View</div>
+            <div class="project-status">All Projects</div>
+          </div>
         </div>
 
         <!-- Tabs Navigation -->
         <div class="tabs-nav">
-            <button class="tab-btn active" data-tab="overview">📊 Overview</button>
-            <button class="tab-btn" data-tab="players">👥 Players</button>
-            <button class="tab-btn" data-tab="analytics">📈 Analytics</button>
-            <button class="tab-btn" data-tab="database">🗄️ Database</button>
-            <button class="tab-btn" data-tab="admin">⚙️ Admin Actions</button>
-            <button class="tab-btn" data-tab="integration">🔗 Integration</button>
+          <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+          <button class="tab-btn" data-tab="players">👥 Players</button>
+          <button class="tab-btn" data-tab="analytics">📈 Analytics</button>
+          <button class="tab-btn" data-tab="database">🗄️ Database</button>
+          <button class="tab-btn" data-tab="admin">⚙️ Admin Actions</button>
+          <button class="tab-btn" data-tab="integration">🔗 Integration</button>
         </div>
 
         <!-- Tab: Overview -->
         <div class="tab-content active" id="tab-overview">
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-label">Total Players</div>
-                    <div class="stat-value" id="total-players">0</div>
-                    <div class="stat-change positive" id="players-change">+0 today</div>
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-label">Total Players</div>
+              <div class="stat-value" id="total-players">0</div>
+              <div class="stat-change positive" id="players-change">+0 today</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-label">Total TAMA</div>
+              <div class="stat-value" id="total-tama">0</div>
+              <div class="stat-change positive" id="tama-change">+0 today</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🏆</div>
+              <div class="stat-label">Avg Level</div>
+              <div class="stat-value" id="avg-level">0</div>
+              <div class="stat-change" id="level-change">Max: 0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🌐</div>
+              <div class="stat-label">Site Visits</div>
+              <div class="stat-value" id="total-visits">0</div>
+              <div class="stat-change positive" id="visits-change">+0 today</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-label">Unique Visitors</div>
+              <div class="stat-value" id="unique-visitors">0</div>
+              <div class="stat-change" id="visitors-change">Today: 0</div>
+            </div>
+            <div
+              class="stat-card"
+              onclick="scrollToNFTHolders()"
+              style="cursor: pointer; transition: all 0.3s"
+              onmouseover="this.style.transform='scale(1.05)'"
+              onmouseout="this.style.transform='scale(1)'"
+            >
+              <div class="stat-icon">🎨</div>
+              <div class="stat-label">NFT Holders</div>
+              <div class="stat-value" id="nft-count">0</div>
+              <div
+                class="stat-change info"
+                id="nft-change"
+                style="color: #9c27b0; font-weight: bold"
+              >
+                👇 View Table
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🔗</div>
+              <div class="stat-label">Referrals</div>
+              <div class="stat-value" id="referral-count">0</div>
+              <div class="stat-change positive" id="referral-change">+0 today</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📊</div>
+              <div class="stat-label">Active Today</div>
+              <div class="stat-value" id="active-today">0</div>
+              <div class="stat-change" id="active-change">Last hour: 0</div>
+            </div>
+            <div
+              class="stat-card"
+              style="
+                background: linear-gradient(135deg, rgba(255, 183, 3, 0.1), rgba(251, 133, 0, 0.1));
+                border: 2px solid rgba(255, 183, 3, 0.3);
+              "
+            >
+              <div class="stat-icon">💎</div>
+              <div class="stat-label">NFT SOL Revenue</div>
+              <div class="stat-value" id="nft-sol-revenue" style="color: #ffb703; font-size: 1.8em">
+                0 SOL
+              </div>
+              <div
+                class="stat-change"
+                id="nft-sol-breakdown"
+                style="font-size: 0.85em; margin-top: 8px"
+              >
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px">
+                  <span>Main (50%):</span>
+                  <span id="nft-sol-main" style="font-weight: bold">0 SOL</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💰</div>
-                    <div class="stat-label">Total TAMA</div>
-                    <div class="stat-value" id="total-tama">0</div>
-                    <div class="stat-change positive" id="tama-change">+0 today</div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px">
+                  <span>Liquidity (30%):</span>
+                  <span id="nft-sol-liquidity" style="font-weight: bold">0 SOL</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🏆</div>
-                    <div class="stat-label">Avg Level</div>
-                    <div class="stat-value" id="avg-level">0</div>
-                    <div class="stat-change" id="level-change">Max: 0</div>
+                <div style="display: flex; justify-content: space-between">
+                  <span>Team (20%):</span>
+                  <span id="nft-sol-team" style="font-weight: bold">0 SOL</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🌐</div>
-                    <div class="stat-label">Site Visits</div>
-                    <div class="stat-value" id="total-visits">0</div>
-                    <div class="stat-change positive" id="visits-change">+0 today</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Access to Admin Panels -->
+          <div class="admin-actions" style="margin-top: 30px">
+            <h3>🚀 Quick Access - Admin Panels</h3>
+            <div class="action-grid">
+              <div class="action-item" onclick="window.open('economy-admin.html', '_blank')">
+                <div class="action-item-icon">💰</div>
+                <div class="action-item-label">Economy Admin</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">
+                  Game economy settings
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-label">Unique Visitors</div>
-                    <div class="stat-value" id="unique-visitors">0</div>
-                    <div class="stat-change" id="visitors-change">Today: 0</div>
+              </div>
+              <div class="action-item" onclick="window.open('transactions-admin.html', '_blank')">
+                <div class="action-item-icon">📊</div>
+                <div class="action-item-label">Transactions</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">Live TAMA monitor</div>
+              </div>
+              <div
+                class="action-item"
+                onclick="window.open('treasury-monitor.html', '_blank')"
+                style="background: linear-gradient(135deg, #8b5cf6, #7c3aed)"
+              >
+                <div class="action-item-icon">💰</div>
+                <div class="action-item-label">Treasury Monitor</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">
+                  Project wallets & on-chain
                 </div>
-                <div class="stat-card" onclick="scrollToNFTHolders()" style="cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    <div class="stat-icon">🎨</div>
-                    <div class="stat-label">NFT Holders</div>
-                    <div class="stat-value" id="nft-count">0</div>
-                    <div class="stat-change info" id="nft-change" style="color: #9C27B0; font-weight: bold;">👇 View Table</div>
+              </div>
+              <div class="action-item" onclick="window.open('admin-dashboard.html', '_blank')">
+                <div class="action-item-icon">📈</div>
+                <div class="action-item-label">Dashboard</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">
+                  Statistics & tables
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🔗</div>
-                    <div class="stat-label">Referrals</div>
-                    <div class="stat-value" id="referral-count">0</div>
-                    <div class="stat-change positive" id="referral-change">+0 today</div>
+              </div>
+              <div class="action-item" onclick="window.open('admin-tokenomics.html', '_blank')">
+                <div class="action-item-icon">💎</div>
+                <div class="action-item-label">Tokenomics</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">Supply & emissions</div>
+              </div>
+              <div class="action-item" onclick="window.open('blog-admin.html', '_blank')">
+                <div class="action-item-icon">📚</div>
+                <div class="action-item-label">Blog Admin</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">Manage articles</div>
+              </div>
+              <div class="action-item" onclick="window.open('admin-nft-tiers.html', '_blank')">
+                <div class="action-item-icon">🎨</div>
+                <div class="action-item-label">NFT Tiers</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">
+                  Multi-tier NFT system
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📊</div>
-                    <div class="stat-label">Active Today</div>
-                    <div class="stat-value" id="active-today">0</div>
-                    <div class="stat-change" id="active-change">Last hour: 0</div>
+              </div>
+              <div class="action-item" onclick="window.open('admin-table.html', '_blank')">
+                <div class="action-item-icon">📋</div>
+                <div class="action-item-label">Referrals & Balances</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">
+                  User referrals table
                 </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, rgba(255, 183, 3, 0.1), rgba(251, 133, 0, 0.1)); border: 2px solid rgba(255, 183, 3, 0.3);">
-                    <div class="stat-icon">💎</div>
-                    <div class="stat-label">NFT SOL Revenue</div>
-                    <div class="stat-value" id="nft-sol-revenue" style="color: #FFB703; font-size: 1.8em;">0 SOL</div>
-                    <div class="stat-change" id="nft-sol-breakdown" style="font-size: 0.85em; margin-top: 8px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span>Main (50%):</span>
-                            <span id="nft-sol-main" style="font-weight: bold;">0 SOL</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span>Liquidity (30%):</span>
-                            <span id="nft-sol-liquidity" style="font-weight: bold;">0 SOL</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Team (20%):</span>
-                            <span id="nft-sol-team" style="font-weight: bold;">0 SOL</span>
-                        </div>
-                    </div>
+              </div>
+              <div
+                class="action-item"
+                onclick="window.open('admin-auth.html', '_blank')"
+                style="background: linear-gradient(135deg, #1d3557, #2d4564)"
+              >
+                <div class="action-item-icon">🔐</div>
+                <div class="action-item-label">Auth Management</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px">
+                  Users, wallets, sessions, analytics
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NFT 5-Tier Stats (NEW!) -->
+          <div
+            class="data-table"
+            style="
+              margin-top: 30px;
+              background: linear-gradient(
+                135deg,
+                rgba(138, 201, 38, 0.05),
+                rgba(255, 215, 0, 0.05)
+              );
+            "
+          >
+            <div class="table-header" style="background: rgba(138, 201, 38, 0.1)">
+              <h3>💎 NFT 5-Tier System - Live Stats</h3>
+              <div class="table-actions">
+                <button
+                  class="refresh-btn"
+                  onclick="loadNFTTierStats()"
+                  style="background: linear-gradient(135deg, #8ac926, #ffd700)"
+                >
+                  🔄 Refresh
+                </button>
+              </div>
             </div>
 
-            <!-- Quick Access to Admin Panels -->
-            <div class="admin-actions" style="margin-top: 30px;">
-                <h3>🚀 Quick Access - Admin Panels</h3>
-                <div class="action-grid">
-                    <div class="action-item" onclick="window.open('economy-admin.html', '_blank')">
-                        <div class="action-item-icon">💰</div>
-                        <div class="action-item-label">Economy Admin</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Game economy settings</div>
-                    </div>
-                    <div class="action-item" onclick="window.open('transactions-admin.html', '_blank')">
-                        <div class="action-item-icon">📊</div>
-                        <div class="action-item-label">Transactions</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Live TAMA monitor</div>
-                    </div>
-                    <div class="action-item" onclick="window.open('treasury-monitor.html', '_blank')" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                        <div class="action-item-icon">💰</div>
-                        <div class="action-item-label">Treasury Monitor</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Project wallets & on-chain</div>
-                    </div>
-                    <div class="action-item" onclick="window.open('admin-dashboard.html', '_blank')">
-                        <div class="action-item-icon">📈</div>
-                        <div class="action-item-label">Dashboard</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Statistics & tables</div>
-                    </div>
-                    <div class="action-item" onclick="window.open('admin-tokenomics.html', '_blank')">
-                        <div class="action-item-icon">💎</div>
-                        <div class="action-item-label">Tokenomics</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Supply & emissions</div>
-                    </div>
-                    <div class="action-item" onclick="window.open('blog-admin.html', '_blank')">
-                        <div class="action-item-icon">📚</div>
-                        <div class="action-item-label">Blog Admin</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Manage articles</div>
-                    </div>
-                    <div class="action-item" onclick="window.open('admin-nft-tiers.html', '_blank')">
-                        <div class="action-item-icon">🎨</div>
-                        <div class="action-item-label">NFT Tiers</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Multi-tier NFT system</div>
-                    </div>
-                    <div class="action-item" onclick="window.open('admin-table.html', '_blank')">
-                        <div class="action-item-icon">📋</div>
-                        <div class="action-item-label">Referrals & Balances</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">User referrals table</div>
-                    </div>
-                    <div class="action-item" onclick="window.open('admin-auth.html', '_blank')" style="background: linear-gradient(135deg, #1D3557, #2D4564);">
-                        <div class="action-item-icon">🔐</div>
-                        <div class="action-item-label">Auth Management</div>
-                        <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Users, wallets, sessions, analytics</div>
-                    </div>
+            <!-- Tier Stats Grid -->
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                padding: 20px;
+              "
+            >
+              <!-- Bronze -->
+              <div
+                style="
+                  background: rgba(205, 127, 50, 0.1);
+                  border: 2px solid #cd7f32;
+                  border-radius: 15px;
+                  padding: 20px;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 40px; margin-bottom: 10px">🟫</div>
+                <h4 style="color: #cd7f32; margin-bottom: 15px">BRONZE</h4>
+                <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px">
+                  Common · TAMA Only
                 </div>
+
+                <div
+                  style="
+                    background: rgba(0, 0, 0, 0.1);
+                    padding: 10px;
+                    border-radius: 8px;
+                    margin: 10px 0;
+                  "
+                >
+                  <div style="font-size: 16px; font-weight: bold; color: #cd7f32">
+                    <span id="bronze-price">5,000</span> TAMA
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.7">Fixed Price</div>
+                </div>
+
+                <div style="margin: 15px 0">
+                  <div class="progress-bar">
+                    <div id="bronze-progress" class="progress-fill bronze" style="width: 0%"></div>
+                  </div>
+                  <div style="font-size: 11px; margin-top: 5px">
+                    Minted: <span id="bronze-minted">0</span> /
+                    <span id="bronze-max">4,500</span> (<span id="bronze-percent">0</span>%)
+                  </div>
+                </div>
+
+                <div style="font-size: 14px; font-weight: bold; color: #8ac926">×2.0 Boost</div>
+                <div style="font-size: 11px; opacity: 0.7; margin-top: 5px">
+                  Available: <span id="bronze-available">4,500</span>
+                </div>
+              </div>
+
+              <!-- Silver -->
+              <div
+                style="
+                  background: rgba(192, 192, 192, 0.1);
+                  border: 2px solid #c0c0c0;
+                  border-radius: 15px;
+                  padding: 20px;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 40px; margin-bottom: 10px">🥈</div>
+                <h4 style="color: #c0c0c0; margin-bottom: 15px">SILVER</h4>
+                <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px">
+                  Uncommon · SOL Bonding
+                </div>
+
+                <div
+                  style="
+                    background: rgba(0, 0, 0, 0.1);
+                    padding: 10px;
+                    border-radius: 8px;
+                    margin: 10px 0;
+                  "
+                >
+                  <div style="font-size: 16px; font-weight: bold; color: #c0c0c0">
+                    <span id="silver-price">1.0</span> SOL
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.7">
+                    Next: <span id="silver-next">1.006</span> SOL
+                  </div>
+                </div>
+
+                <div style="margin: 15px 0">
+                  <div class="progress-bar">
+                    <div id="silver-progress" class="progress-fill silver" style="width: 0%"></div>
+                  </div>
+                  <div style="font-size: 11px; margin-top: 5px">
+                    Minted: <span id="silver-minted">0</span> /
+                    <span id="silver-max">350</span> (<span id="silver-percent">0</span>%)
+                  </div>
+                </div>
+
+                <div style="font-size: 14px; font-weight: bold; color: #8ac926">×2.3 Boost</div>
+                <div style="font-size: 11px; opacity: 0.7; margin-top: 5px">
+                  Available: <span id="silver-available">350</span>
+                </div>
+              </div>
+
+              <!-- Gold -->
+              <div
+                style="
+                  background: rgba(255, 215, 0, 0.1);
+                  border: 2px solid #ffd700;
+                  border-radius: 15px;
+                  padding: 20px;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 40px; margin-bottom: 10px">🥇</div>
+                <h4 style="color: #ffd700; margin-bottom: 15px">GOLD</h4>
+                <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px">
+                  Rare · SOL Bonding
+                </div>
+
+                <div
+                  style="
+                    background: rgba(0, 0, 0, 0.1);
+                    padding: 10px;
+                    border-radius: 8px;
+                    margin: 10px 0;
+                  "
+                >
+                  <div style="font-size: 16px; font-weight: bold; color: #ffd700">
+                    <span id="gold-price">3.0</span> SOL
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.7">
+                    Next: <span id="gold-next">3.054</span> SOL
+                  </div>
+                </div>
+
+                <div style="margin: 15px 0">
+                  <div class="progress-bar">
+                    <div id="gold-progress" class="progress-fill gold" style="width: 0%"></div>
+                  </div>
+                  <div style="font-size: 11px; margin-top: 5px">
+                    Minted: <span id="gold-minted">0</span> / <span id="gold-max">130</span> (<span
+                      id="gold-percent"
+                      >0</span
+                    >%)
+                  </div>
+                </div>
+
+                <div style="font-size: 14px; font-weight: bold; color: #8ac926">×2.7 Boost</div>
+                <div style="font-size: 11px; opacity: 0.7; margin-top: 5px">
+                  Available: <span id="gold-available">130</span>
+                </div>
+              </div>
+
+              <!-- Platinum -->
+              <div
+                style="
+                  background: rgba(229, 228, 226, 0.1);
+                  border: 2px solid #e5e4e2;
+                  border-radius: 15px;
+                  padding: 20px;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 40px; margin-bottom: 10px">💎</div>
+                <h4 style="color: #e5e4e2; margin-bottom: 15px">PLATINUM</h4>
+                <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px">
+                  Epic · Only 18!
+                </div>
+
+                <div
+                  style="
+                    background: rgba(0, 0, 0, 0.1);
+                    padding: 10px;
+                    border-radius: 8px;
+                    margin: 10px 0;
+                  "
+                >
+                  <div style="font-size: 16px; font-weight: bold; color: #e5e4e2">
+                    <span id="platinum-price">10.0</span> SOL
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.7">
+                    Next: <span id="platinum-next">11.11</span> SOL
+                  </div>
+                </div>
+
+                <div style="margin: 15px 0">
+                  <div class="progress-bar">
+                    <div
+                      id="platinum-progress"
+                      class="progress-fill platinum"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                  <div style="font-size: 11px; margin-top: 5px">
+                    Minted: <span id="platinum-minted">0</span> /
+                    <span id="platinum-max">18</span> (<span id="platinum-percent">0</span>%)
+                  </div>
+                </div>
+
+                <div style="font-size: 14px; font-weight: bold; color: #8ac926">×3.5 Boost</div>
+                <div style="font-size: 11px; opacity: 0.7; margin-top: 5px">
+                  Available: <span id="platinum-available">18</span>
+                </div>
+              </div>
+
+              <!-- Diamond -->
+              <div
+                style="
+                  background: rgba(185, 242, 255, 0.1);
+                  border: 2px solid #b9f2ff;
+                  border-radius: 15px;
+                  padding: 20px;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 40px; margin-bottom: 10px">🔷</div>
+                <h4 style="color: #b9f2ff; margin-bottom: 15px">DIAMOND</h4>
+                <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px">
+                  Legendary · ONLY 2!
+                </div>
+
+                <div
+                  style="
+                    background: rgba(0, 0, 0, 0.1);
+                    padding: 10px;
+                    border-radius: 8px;
+                    margin: 10px 0;
+                  "
+                >
+                  <div style="font-size: 16px; font-weight: bold; color: #b9f2ff">
+                    <span id="diamond-price">50.0</span> SOL
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.7">
+                    Next: <span id="diamond-next">100.0</span> SOL
+                  </div>
+                </div>
+
+                <div style="margin: 15px 0">
+                  <div class="progress-bar">
+                    <div
+                      id="diamond-progress"
+                      class="progress-fill diamond"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                  <div style="font-size: 11px; margin-top: 5px">
+                    Minted: <span id="diamond-minted">0</span> /
+                    <span id="diamond-max">2</span> (<span id="diamond-percent">0</span>%)
+                  </div>
+                </div>
+
+                <div style="font-size: 14px; font-weight: bold; color: #8ac926">×5.0 MAX!</div>
+                <div style="font-size: 11px; opacity: 0.7; margin-top: 5px">
+                  Available: <span id="diamond-available">2</span>
+                </div>
+              </div>
             </div>
 
-            <!-- NFT 5-Tier Stats (NEW!) -->
-            <div class="data-table" style="margin-top: 30px; background: linear-gradient(135deg, rgba(138, 201, 38, 0.05), rgba(255, 215, 0, 0.05));">
-                <div class="table-header" style="background: rgba(138, 201, 38, 0.1);">
-                    <h3>💎 NFT 5-Tier System - Live Stats</h3>
-                    <div class="table-actions">
-                        <button class="refresh-btn" onclick="loadNFTTierStats()" style="background: linear-gradient(135deg, #8AC926, #FFD700);">🔄 Refresh</button>
-                    </div>
+            <!-- Total Stats -->
+            <div
+              style="
+                background: rgba(138, 201, 38, 0.1);
+                padding: 20px;
+                margin: 0 20px 20px 20px;
+                border-radius: 10px;
+                text-align: center;
+              "
+            >
+              <h4 style="margin-bottom: 15px">📊 Total Collection Stats</h4>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                  gap: 15px;
+                "
+              >
+                <div>
+                  <div style="font-size: 24px; font-weight: bold; color: #8ac926">
+                    <span id="total-minted">0</span>
+                  </div>
+                  <div style="font-size: 12px; opacity: 0.7">Total Minted</div>
                 </div>
-                
-                <!-- Tier Stats Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 20px;">
-                    <!-- Bronze -->
-                    <div style="background: rgba(205, 127, 50, 0.1); border: 2px solid #CD7F32; border-radius: 15px; padding: 20px; text-align: center;">
-                        <div style="font-size: 40px; margin-bottom: 10px;">🟫</div>
-                        <h4 style="color: #CD7F32; margin-bottom: 15px;">BRONZE</h4>
-                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Common · TAMA Only</div>
-                        
-                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                            <div style="font-size: 16px; font-weight: bold; color: #CD7F32;"><span id="bronze-price">5,000</span> TAMA</div>
-                            <div style="font-size: 10px; opacity: 0.7;">Fixed Price</div>
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <div class="progress-bar">
-                                <div id="bronze-progress" class="progress-fill bronze" style="width: 0%;"></div>
-                            </div>
-                            <div style="font-size: 11px; margin-top: 5px;">
-                                Minted: <span id="bronze-minted">0</span> / <span id="bronze-max">4,500</span>
-                                (<span id="bronze-percent">0</span>%)
-                            </div>
-                        </div>
-                        
-                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×2.0 Boost</div>
-                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="bronze-available">4,500</span></div>
-                    </div>
-
-                    <!-- Silver -->
-                    <div style="background: rgba(192, 192, 192, 0.1); border: 2px solid #C0C0C0; border-radius: 15px; padding: 20px; text-align: center;">
-                        <div style="font-size: 40px; margin-bottom: 10px;">🥈</div>
-                        <h4 style="color: #C0C0C0; margin-bottom: 15px;">SILVER</h4>
-                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Uncommon · SOL Bonding</div>
-                        
-                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                            <div style="font-size: 16px; font-weight: bold; color: #C0C0C0;"><span id="silver-price">1.0</span> SOL</div>
-                            <div style="font-size: 10px; opacity: 0.7;">Next: <span id="silver-next">1.006</span> SOL</div>
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <div class="progress-bar">
-                                <div id="silver-progress" class="progress-fill silver" style="width: 0%;"></div>
-                            </div>
-                            <div style="font-size: 11px; margin-top: 5px;">
-                                Minted: <span id="silver-minted">0</span> / <span id="silver-max">350</span>
-                                (<span id="silver-percent">0</span>%)
-                            </div>
-                        </div>
-                        
-                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×2.3 Boost</div>
-                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="silver-available">350</span></div>
-                    </div>
-
-                    <!-- Gold -->
-                    <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid #FFD700; border-radius: 15px; padding: 20px; text-align: center;">
-                        <div style="font-size: 40px; margin-bottom: 10px;">🥇</div>
-                        <h4 style="color: #FFD700; margin-bottom: 15px;">GOLD</h4>
-                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Rare · SOL Bonding</div>
-                        
-                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                            <div style="font-size: 16px; font-weight: bold; color: #FFD700;"><span id="gold-price">3.0</span> SOL</div>
-                            <div style="font-size: 10px; opacity: 0.7;">Next: <span id="gold-next">3.054</span> SOL</div>
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <div class="progress-bar">
-                                <div id="gold-progress" class="progress-fill gold" style="width: 0%;"></div>
-                            </div>
-                            <div style="font-size: 11px; margin-top: 5px;">
-                                Minted: <span id="gold-minted">0</span> / <span id="gold-max">130</span>
-                                (<span id="gold-percent">0</span>%)
-                            </div>
-                        </div>
-                        
-                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×2.7 Boost</div>
-                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="gold-available">130</span></div>
-                    </div>
-
-                    <!-- Platinum -->
-                    <div style="background: rgba(229, 228, 226, 0.1); border: 2px solid #E5E4E2; border-radius: 15px; padding: 20px; text-align: center;">
-                        <div style="font-size: 40px; margin-bottom: 10px;">💎</div>
-                        <h4 style="color: #E5E4E2; margin-bottom: 15px;">PLATINUM</h4>
-                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Epic · Only 18!</div>
-                        
-                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                            <div style="font-size: 16px; font-weight: bold; color: #E5E4E2;"><span id="platinum-price">10.0</span> SOL</div>
-                            <div style="font-size: 10px; opacity: 0.7;">Next: <span id="platinum-next">11.11</span> SOL</div>
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <div class="progress-bar">
-                                <div id="platinum-progress" class="progress-fill platinum" style="width: 0%;"></div>
-                            </div>
-                            <div style="font-size: 11px; margin-top: 5px;">
-                                Minted: <span id="platinum-minted">0</span> / <span id="platinum-max">18</span>
-                                (<span id="platinum-percent">0</span>%)
-                            </div>
-                        </div>
-                        
-                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×3.5 Boost</div>
-                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="platinum-available">18</span></div>
-                    </div>
-
-                    <!-- Diamond -->
-                    <div style="background: rgba(185, 242, 255, 0.1); border: 2px solid #B9F2FF; border-radius: 15px; padding: 20px; text-align: center;">
-                        <div style="font-size: 40px; margin-bottom: 10px;">🔷</div>
-                        <h4 style="color: #B9F2FF; margin-bottom: 15px;">DIAMOND</h4>
-                        <div style="font-size: 12px; opacity: 0.7; margin-bottom: 10px;">Legendary · ONLY 2!</div>
-                        
-                        <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
-                            <div style="font-size: 16px; font-weight: bold; color: #B9F2FF;"><span id="diamond-price">50.0</span> SOL</div>
-                            <div style="font-size: 10px; opacity: 0.7;">Next: <span id="diamond-next">100.0</span> SOL</div>
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <div class="progress-bar">
-                                <div id="diamond-progress" class="progress-fill diamond" style="width: 0%;"></div>
-                            </div>
-                            <div style="font-size: 11px; margin-top: 5px;">
-                                Minted: <span id="diamond-minted">0</span> / <span id="diamond-max">2</span>
-                                (<span id="diamond-percent">0</span>%)
-                            </div>
-                        </div>
-                        
-                        <div style="font-size: 14px; font-weight: bold; color: #8AC926;">×5.0 MAX!</div>
-                        <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">Available: <span id="diamond-available">2</span></div>
-                    </div>
+                <div>
+                  <div style="font-size: 24px; font-weight: bold; color: #ffd700">
+                    <span id="total-available">5,000</span>
+                  </div>
+                  <div style="font-size: 12px; opacity: 0.7">Available</div>
                 </div>
-
-                <!-- Total Stats -->
-                <div style="background: rgba(138, 201, 38, 0.1); padding: 20px; margin: 0 20px 20px 20px; border-radius: 10px; text-align: center;">
-                    <h4 style="margin-bottom: 15px;">📊 Total Collection Stats</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: #8AC926;"><span id="total-minted">0</span></div>
-                            <div style="font-size: 12px; opacity: 0.7;">Total Minted</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: #FFD700;"><span id="total-available">5,000</span></div>
-                            <div style="font-size: 12px; opacity: 0.7;">Available</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: #667eea;"><span id="total-revenue">$0</span></div>
-                            <div style="font-size: 12px; opacity: 0.7;">SOL Revenue</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: #10b981;"><span id="total-percent">0</span>%</div>
-                            <div style="font-size: 12px; opacity: 0.7;">Collection Progress</div>
-                        </div>
-                    </div>
+                <div>
+                  <div style="font-size: 24px; font-weight: bold; color: #667eea">
+                    <span id="total-revenue">$0</span>
+                  </div>
+                  <div style="font-size: 12px; opacity: 0.7">SOL Revenue</div>
                 </div>
+                <div>
+                  <div style="font-size: 24px; font-weight: bold; color: #10b981">
+                    <span id="total-percent">0</span>%
+                  </div>
+                  <div style="font-size: 12px; opacity: 0.7">Collection Progress</div>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <!-- NFT Holders Table (NEW!) -->
-            <div class="data-table" style="margin-top: 30px; background: linear-gradient(135deg, rgba(156, 39, 176, 0.05), rgba(233, 30, 99, 0.05));">
-                <div class="table-header" style="background: rgba(156, 39, 176, 0.1);">
-                    <h3>🎨 NFT Holders (Real On-Chain NFTs)</h3>
-                    <div class="table-actions">
-                        <span id="nft-holders-count" style="margin-right: 15px; font-weight: bold; color: #9C27B0;">0 NFTs</span>
-                        <input type="text" class="search-box" placeholder="Search by Telegram ID..." id="search-nft-holders">
-                        <button class="refresh-btn" onclick="loadNFTHolders()" style="background: linear-gradient(135deg, #9C27B0, #E91E63);">🔄 Refresh</button>
-                    </div>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Telegram ID</th>
-                            <th>Tier</th>
-                            <th>Rarity</th>
-                            <th>Multiplier</th>
-                            <th>NFT Mint Address</th>
-                            <th>Minted At</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="nft-holders-tbody">
-                        <tr>
-                            <td colspan="9" style="text-align: center; padding: 40px;">
-                                <div class="loading"></div> Loading NFT holders...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+          <!-- NFT Holders Table (NEW!) -->
+          <div
+            class="data-table"
+            style="
+              margin-top: 30px;
+              background: linear-gradient(
+                135deg,
+                rgba(156, 39, 176, 0.05),
+                rgba(233, 30, 99, 0.05)
+              );
+            "
+          >
+            <div class="table-header" style="background: rgba(156, 39, 176, 0.1)">
+              <h3>🎨 NFT Holders (Real On-Chain NFTs)</h3>
+              <div class="table-actions">
+                <span
+                  id="nft-holders-count"
+                  style="margin-right: 15px; font-weight: bold; color: #9c27b0"
+                  >0 NFTs</span
+                >
+                <input
+                  type="text"
+                  class="search-box"
+                  placeholder="Search by Telegram ID..."
+                  id="search-nft-holders"
+                />
+                <button
+                  class="refresh-btn"
+                  onclick="loadNFTHolders()"
+                  style="background: linear-gradient(135deg, #9c27b0, #e91e63)"
+                >
+                  🔄 Refresh
+                </button>
+              </div>
             </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Telegram ID</th>
+                  <th>Tier</th>
+                  <th>Rarity</th>
+                  <th>Multiplier</th>
+                  <th>NFT Mint Address</th>
+                  <th>Minted At</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="nft-holders-tbody">
+                <tr>
+                  <td colspan="9" style="text-align: center; padding: 40px">
+                    <div class="loading"></div>
+                    Loading NFT holders...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-            <!-- Top Players Table -->
-            <div class="data-table" style="margin-top: 30px;">
-                <div class="table-header">
-                    <h3>🏆 Top 10 Players (Live)</h3>
-                    <div class="table-actions">
-                        <input type="text" class="search-box" placeholder="Search players..." id="search-players">
-                    </div>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Telegram ID</th>
-                            <th>Username</th>
-                            <th>Level</th>
-                            <th>TAMA</th>
-                            <th>Last Active</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="top-players-tbody">
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 40px;">
-                                <div class="loading"></div> Loading data...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+          <!-- Top Players Table -->
+          <div class="data-table" style="margin-top: 30px">
+            <div class="table-header">
+              <h3>🏆 Top 10 Players (Live)</h3>
+              <div class="table-actions">
+                <input
+                  type="text"
+                  class="search-box"
+                  placeholder="Search players..."
+                  id="search-players"
+                />
+              </div>
             </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Telegram ID</th>
+                  <th>Username</th>
+                  <th>Level</th>
+                  <th>TAMA</th>
+                  <th>Last Active</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="top-players-tbody">
+                <tr>
+                  <td colspan="8" style="text-align: center; padding: 40px">
+                    <div class="loading"></div>
+                    Loading data...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Tab: Players -->
         <div class="tab-content" id="tab-players">
-            <div class="data-table">
-                <div class="table-header">
-                    <h3>👥 All Players</h3>
-                    <div class="table-actions">
-                        <input type="text" class="search-box" placeholder="Search by ID or username..." id="search-all-players">
-                        <button class="refresh-btn">Export CSV</button>
-                    </div>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Telegram ID</th>
-                            <th>Username</th>
-                            <th>Level</th>
-                            <th>TAMA</th>
-                            <th>Pet Type</th>
-                            <th>Created</th>
-                            <th>Last Active</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="all-players-tbody">
-                        <tr>
-                            <td colspan="9" style="text-align: center; padding: 40px;">
-                                <div class="loading"></div> Loading all players...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+          <div class="data-table">
+            <div class="table-header">
+              <h3>👥 All Players</h3>
+              <div class="table-actions">
+                <input
+                  type="text"
+                  class="search-box"
+                  placeholder="Search by ID or username..."
+                  id="search-all-players"
+                />
+                <button class="refresh-btn">Export CSV</button>
+              </div>
             </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Telegram ID</th>
+                  <th>Username</th>
+                  <th>Level</th>
+                  <th>TAMA</th>
+                  <th>Pet Type</th>
+                  <th>Created</th>
+                  <th>Last Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="all-players-tbody">
+                <tr>
+                  <td colspan="9" style="text-align: center; padding: 40px">
+                    <div class="loading"></div>
+                    Loading all players...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Tab: Analytics -->
         <div class="tab-content" id="tab-analytics">
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <h3>📈 Player Growth</h3>
-                    <canvas id="player-growth-chart" height="200"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>💰 TAMA Distribution</h3>
-                    <canvas id="tama-distribution-chart" height="200"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>⭐ Level Distribution</h3>
-                    <canvas id="level-distribution-chart" height="200"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>📊 Activity Heatmap</h3>
-                    <canvas id="activity-heatmap-chart" height="200"></canvas>
-                </div>
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3>📈 Player Growth</h3>
+              <canvas id="player-growth-chart" height="200"></canvas>
             </div>
+            <div class="chart-card">
+              <h3>💰 TAMA Distribution</h3>
+              <canvas id="tama-distribution-chart" height="200"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>⭐ Level Distribution</h3>
+              <canvas id="level-distribution-chart" height="200"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>📊 Activity Heatmap</h3>
+              <canvas id="activity-heatmap-chart" height="200"></canvas>
+            </div>
+          </div>
         </div>
 
         <!-- Tab: Database -->
         <div class="tab-content" id="tab-database">
-            <div class="admin-actions">
-                <h3>🗄️ Database Management</h3>
-                <div class="action-grid">
-                    <div class="action-item" onclick="viewTable('leaderboard')">
-                        <div class="action-item-icon">🏆</div>
-                        <div class="action-item-label">Leaderboard Table</div>
-                    </div>
-                    <div class="action-item" onclick="viewTable('referrals')">
-                        <div class="action-item-icon">🔗</div>
-                        <div class="action-item-label">Referrals Table</div>
-                    </div>
-                    <div class="action-item" onclick="backupDatabase()">
-                        <div class="action-item-icon">💾</div>
-                        <div class="action-item-label">Backup Database</div>
-                    </div>
-                    <div class="action-item" onclick="runSQL()">
-                        <div class="action-item-icon">⚡</div>
-                        <div class="action-item-label">Run SQL Query</div>
-                    </div>
-                </div>
+          <div class="admin-actions">
+            <h3>🗄️ Database Management</h3>
+            <div class="action-grid">
+              <div class="action-item" onclick="viewTable('leaderboard')">
+                <div class="action-item-icon">🏆</div>
+                <div class="action-item-label">Leaderboard Table</div>
+              </div>
+              <div class="action-item" onclick="viewTable('referrals')">
+                <div class="action-item-icon">🔗</div>
+                <div class="action-item-label">Referrals Table</div>
+              </div>
+              <div class="action-item" onclick="backupDatabase()">
+                <div class="action-item-icon">💾</div>
+                <div class="action-item-label">Backup Database</div>
+              </div>
+              <div class="action-item" onclick="runSQL()">
+                <div class="action-item-icon">⚡</div>
+                <div class="action-item-label">Run SQL Query</div>
+              </div>
             </div>
+          </div>
 
-            <!-- Database Tables -->
-            <div class="data-table">
-                <div class="table-header">
-                    <h3>🗄️ Database Tables</h3>
-                </div>
-                <div style="padding: 20px;">
-                    <p><strong>Leaderboard Table:</strong> <span id="leaderboard-count">0</span> records</p>
-                    <p><strong>Referrals Table:</strong> <span id="referrals-count">0</span> records</p>
-                    <p><strong>Database Size:</strong> <span id="db-size">Calculating...</span></p>
-                    <p><strong>Last Backup:</strong> <span id="last-backup">Never</span></p>
-                </div>
+          <!-- Database Tables -->
+          <div class="data-table">
+            <div class="table-header">
+              <h3>🗄️ Database Tables</h3>
             </div>
+            <div style="padding: 20px">
+              <p>
+                <strong>Leaderboard Table:</strong> <span id="leaderboard-count">0</span> records
+              </p>
+              <p><strong>Referrals Table:</strong> <span id="referrals-count">0</span> records</p>
+              <p><strong>Database Size:</strong> <span id="db-size">Calculating...</span></p>
+              <p><strong>Last Backup:</strong> <span id="last-backup">Never</span></p>
+            </div>
+          </div>
         </div>
 
         <!-- Tab: Admin Actions -->
         <div class="tab-content" id="tab-admin">
-            <div class="admin-actions">
-                <h3>⚙️ Admin Actions</h3>
-                <div class="action-grid">
-                    <div class="action-item" onclick="addTAMA()">
-                        <div class="action-item-icon">💰</div>
-                        <div class="action-item-label">Add TAMA</div>
-                    </div>
-                    <div class="action-item" onclick="banUser()">
-                        <div class="action-item-icon">🚫</div>
-                        <div class="action-item-label">Ban User</div>
-                    </div>
-                    <div class="action-item" onclick="sendMessage()">
-                        <div class="action-item-icon">📢</div>
-                        <div class="action-item-label">Send Message</div>
-                    </div>
-                    <div class="action-item" onclick="resetProgress()">
-                        <div class="action-item-icon">🔄</div>
-                        <div class="action-item-label">Reset Progress</div>
-                    </div>
-                    <div class="action-item" onclick="giveNFT()">
-                        <div class="action-item-icon">🎁</div>
-                        <div class="action-item-label">Give NFT</div>
-                    </div>
-                    <div class="action-item" onclick="viewLogs()">
-                        <div class="action-item-icon">📝</div>
-                        <div class="action-item-label">View Logs</div>
-                    </div>
-                </div>
+          <div class="admin-actions">
+            <h3>⚙️ Admin Actions</h3>
+            <div class="action-grid">
+              <div class="action-item" onclick="addTAMA()">
+                <div class="action-item-icon">💰</div>
+                <div class="action-item-label">Add TAMA</div>
+              </div>
+              <div class="action-item" onclick="banUser()">
+                <div class="action-item-icon">🚫</div>
+                <div class="action-item-label">Ban User</div>
+              </div>
+              <div class="action-item" onclick="sendMessage()">
+                <div class="action-item-icon">📢</div>
+                <div class="action-item-label">Send Message</div>
+              </div>
+              <div class="action-item" onclick="resetProgress()">
+                <div class="action-item-icon">🔄</div>
+                <div class="action-item-label">Reset Progress</div>
+              </div>
+              <div class="action-item" onclick="giveNFT()">
+                <div class="action-item-icon">🎁</div>
+                <div class="action-item-label">Give NFT</div>
+              </div>
+              <div class="action-item" onclick="viewLogs()">
+                <div class="action-item-icon">📝</div>
+                <div class="action-item-label">View Logs</div>
+              </div>
             </div>
+          </div>
 
-            <!-- Recent Actions Log -->
-            <div class="data-table">
-                <div class="table-header">
-                    <h3>📜 Recent Admin Actions</h3>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Admin</th>
-                            <th>Action</th>
-                            <th>Target</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-log-tbody">
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 40px;">
-                                No recent actions
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+          <!-- Recent Actions Log -->
+          <div class="data-table">
+            <div class="table-header">
+              <h3>📜 Recent Admin Actions</h3>
             </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Admin</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="admin-log-tbody">
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px">No recent actions</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Tab: Integration -->
         <div class="tab-content" id="tab-integration">
-            <div class="admin-actions">
-                <h3>🔗 Project Integration</h3>
-                <div style="padding: 20px; background: white; border-radius: 10px; margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 15px;">Connection Status</h4>
-                    <p><strong>Telegram Bot:</strong> <span class="badge success">Connected</span></p>
-                    <p><strong>Supabase Database:</strong> <span class="badge success">Connected</span></p>
-                    <p><strong>NFT Project API:</strong> <span class="badge warning">Pending</span></p>
-                    <p><strong>Solana RPC:</strong> <span class="badge warning">Pending</span></p>
-                </div>
-
-                <h4 style="margin-bottom: 15px;">🎯 Integration Actions</h4>
-                <div class="action-grid">
-                    <div class="action-item" onclick="linkNFTHolder()">
-                        <div class="action-item-icon">🔗</div>
-                        <div class="action-item-label">Link NFT Holder</div>
-                    </div>
-                    <div class="action-item" onclick="syncData()">
-                        <div class="action-item-icon">🔄</div>
-                        <div class="action-item-label">Sync All Data</div>
-                    </div>
-                    <div class="action-item" onclick="verifyNFT()">
-                        <div class="action-item-icon">✅</div>
-                        <div class="action-item-label">Verify NFT Ownership</div>
-                    </div>
-                    <div class="action-item" onclick="setupWebhook()">
-                        <div class="action-item-icon">🔔</div>
-                        <div class="action-item-label">Setup Webhooks</div>
-                    </div>
-                </div>
+          <div class="admin-actions">
+            <h3>🔗 Project Integration</h3>
+            <div style="padding: 20px; background: white; border-radius: 10px; margin-bottom: 20px">
+              <h4 style="margin-bottom: 15px">Connection Status</h4>
+              <p><strong>Telegram Bot:</strong> <span class="badge success">Connected</span></p>
+              <p>
+                <strong>Supabase Database:</strong> <span class="badge success">Connected</span>
+              </p>
+              <p><strong>NFT Project API:</strong> <span class="badge warning">Pending</span></p>
+              <p><strong>Solana RPC:</strong> <span class="badge warning">Pending</span></p>
             </div>
 
-            <!-- Connected Accounts -->
-            <div class="data-table">
-                <div class="table-header">
-                    <h3>🔗 Connected Accounts</h3>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Telegram ID</th>
-                            <th>Wallet Address</th>
-                            <th>NFT Count</th>
-                            <th>Premium Status</th>
-                            <th>Linked Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="connected-accounts-tbody">
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px;">
-                                No connected accounts yet
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <h4 style="margin-bottom: 15px">🎯 Integration Actions</h4>
+            <div class="action-grid">
+              <div class="action-item" onclick="linkNFTHolder()">
+                <div class="action-item-icon">🔗</div>
+                <div class="action-item-label">Link NFT Holder</div>
+              </div>
+              <div class="action-item" onclick="syncData()">
+                <div class="action-item-icon">🔄</div>
+                <div class="action-item-label">Sync All Data</div>
+              </div>
+              <div class="action-item" onclick="verifyNFT()">
+                <div class="action-item-icon">✅</div>
+                <div class="action-item-label">Verify NFT Ownership</div>
+              </div>
+              <div class="action-item" onclick="setupWebhook()">
+                <div class="action-item-icon">🔔</div>
+                <div class="action-item-label">Setup Webhooks</div>
+              </div>
             </div>
+          </div>
+
+          <!-- Connected Accounts -->
+          <div class="data-table">
+            <div class="table-header">
+              <h3>🔗 Connected Accounts</h3>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Telegram ID</th>
+                  <th>Wallet Address</th>
+                  <th>NFT Count</th>
+                  <th>Premium Status</th>
+                  <th>Linked Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="connected-accounts-tbody">
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 40px">
+                    No connected accounts yet
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <script src="../js/config.js"></script>
-    <script>
+      <script src="../js/config.js"></script>
+      <script>
         // Supabase Configuration - using centralized config
-        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_URL =
+          window.CONFIG?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
         const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_KEY || '';
-        const TAMA_API_BASE = window.CONFIG?.API_BASE || 'https://api.solanatamagotchi.com/api/tama';
-        
+        const TAMA_API_BASE =
+          window.CONFIG?.API_BASE || 'https://api.solanatamagotchi.com/api/tama';
+
         // Global data storage
         let leaderboardData = [];
 
         // Tab Switching
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove active class from all tabs and buttons
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked button and corresponding tab
-                btn.classList.add('active');
-                const tabId = 'tab-' + btn.dataset.tab;
-                document.getElementById(tabId).classList.add('active');
-            });
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
+
+            // Add active class to clicked button and corresponding tab
+            btn.classList.add('active');
+            const tabId = 'tab-' + btn.dataset.tab;
+            document.getElementById(tabId).classList.add('active');
+          });
         });
 
         // Project Switching
-        document.querySelectorAll('.project-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('.project-card').forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                const project = card.dataset.project;
-                loadProjectData(project);
-            });
+        document.querySelectorAll('.project-card').forEach((card) => {
+          card.addEventListener('click', () => {
+            document.querySelectorAll('.project-card').forEach((c) => c.classList.remove('active'));
+            card.classList.add('active');
+            const project = card.dataset.project;
+            loadProjectData(project);
+          });
         });
 
         // Load Data
         async function loadData() {
-            try {
-                // Fetch leaderboard data
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=tama.desc`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
+          try {
+            // Fetch leaderboard data
+            const response = await fetch(
+              `${SUPABASE_URL}/rest/v1/leaderboard?select=*&order=tama.desc`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+              }
+            );
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-
-                const players = await response.json();
-                
-                // Store data globally for editPlayer function
-                leaderboardData = players;
-                
-                // Update stats
-                updateStats(players);
-                
-                // Update tables
-                updateTopPlayersTable(players.slice(0, 10));
-                updateAllPlayersTable(players);
-                
-                // Update counts
-                document.getElementById('leaderboard-count').textContent = players.length;
-                document.getElementById('telegram-users').textContent = players.length;
-
-                // Load referrals
-                loadReferrals();
-                
-                // Load NFT SOL revenue
-                loadNFTSOLRevenue();
-                
-                // Load NFT 5-Tier Stats
-                loadNFTTierStats();
-                
-                // Load NFT Holders
-                loadNFTHolders();
-                
-                // Load Site Visits
-                loadSiteVisits();
-                
-            } catch (error) {
-                console.error('Error loading data:', error);
-                alert('Failed to load data from database. Check console for details.');
+            if (!response.ok) {
+              throw new Error('Failed to fetch data');
             }
+
+            const players = await response.json();
+
+            // Store data globally for editPlayer function
+            leaderboardData = players;
+
+            // Update stats
+            updateStats(players);
+
+            // Update tables
+            updateTopPlayersTable(players.slice(0, 10));
+            updateAllPlayersTable(players);
+
+            // Update counts
+            document.getElementById('leaderboard-count').textContent = players.length;
+            document.getElementById('telegram-users').textContent = players.length;
+
+            // Load referrals
+            loadReferrals();
+
+            // Load NFT SOL revenue
+            loadNFTSOLRevenue();
+
+            // Load NFT 5-Tier Stats
+            loadNFTTierStats();
+
+            // Load NFT Holders
+            loadNFTHolders();
+
+            // Load Site Visits
+            loadSiteVisits();
+          } catch (error) {
+            console.error('Error loading data:', error);
+            alert('Failed to load data from database. Check console for details.');
+          }
         }
-        
+
         // Load Site Visits Statistics
         async function loadSiteVisits() {
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                
-                // Get total visits
-                const totalResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?select=id`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                const totalData = await totalResponse.json();
-                const totalVisits = totalData?.length || 0;
-                
-                // Get today's visits
-                const todayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${today}&select=id`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                const todayData = await todayResponse.json();
-                const todayVisits = todayData?.length || 0;
-                
-                // Get yesterday's visits
-                const yesterdayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${yesterday}&select=id`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                const yesterdayData = await yesterdayResponse.json();
-                const yesterdayVisits = yesterdayData?.length || 0;
-                
-                // Get unique visitors (by session_id)
-                const uniqueResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?select=session_id`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                const uniqueData = await uniqueResponse.json();
-                const uniqueSessions = new Set(uniqueData?.map(v => v.session_id) || []).size;
-                
-                // Get unique visitors today
-                const uniqueTodayResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${today}&select=session_id`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                const uniqueTodayData = await uniqueTodayResponse.json();
-                const uniqueTodaySessions = new Set(uniqueTodayData?.map(v => v.session_id) || []).size;
-                
-                // Update UI
-                document.getElementById('total-visits').textContent = totalVisits.toLocaleString();
-                document.getElementById('visits-change').textContent = `+${todayVisits} today`;
-                document.getElementById('visits-change').className = 'stat-change ' + (todayVisits > yesterdayVisits ? 'positive' : (todayVisits < yesterdayVisits ? 'negative' : ''));
-                
-                document.getElementById('unique-visitors').textContent = uniqueSessions.toLocaleString();
-                document.getElementById('visitors-change').textContent = `Today: ${uniqueTodaySessions}`;
-                
-                console.log('✅ Site visits loaded:', {
-                    total: totalVisits,
-                    today: todayVisits,
-                    unique: uniqueSessions,
-                    uniqueToday: uniqueTodaySessions
-                });
-                
-            } catch (error) {
-                console.error('Error loading site visits:', error);
-                document.getElementById('total-visits').textContent = 'Error';
-                document.getElementById('unique-visitors').textContent = 'Error';
-            }
+          try {
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split('T')[0];
+
+            // Get total visits
+            const totalResponse = await fetch(`${SUPABASE_URL}/rest/v1/site_visits?select=id`, {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+              },
+            });
+            const totalData = await totalResponse.json();
+            const totalVisits = totalData?.length || 0;
+
+            // Get today's visits
+            const todayResponse = await fetch(
+              `${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${today}&select=id`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+              }
+            );
+            const todayData = await todayResponse.json();
+            const todayVisits = todayData?.length || 0;
+
+            // Get yesterday's visits
+            const yesterdayResponse = await fetch(
+              `${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${yesterday}&select=id`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+              }
+            );
+            const yesterdayData = await yesterdayResponse.json();
+            const yesterdayVisits = yesterdayData?.length || 0;
+
+            // Get unique visitors (by session_id)
+            const uniqueResponse = await fetch(
+              `${SUPABASE_URL}/rest/v1/site_visits?select=session_id`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+              }
+            );
+            const uniqueData = await uniqueResponse.json();
+            const uniqueSessions = new Set(uniqueData?.map((v) => v.session_id) || []).size;
+
+            // Get unique visitors today
+            const uniqueTodayResponse = await fetch(
+              `${SUPABASE_URL}/rest/v1/site_visits?visit_date=eq.${today}&select=session_id`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+              }
+            );
+            const uniqueTodayData = await uniqueTodayResponse.json();
+            const uniqueTodaySessions = new Set(uniqueTodayData?.map((v) => v.session_id) || [])
+              .size;
+
+            // Update UI
+            document.getElementById('total-visits').textContent = totalVisits.toLocaleString();
+            document.getElementById('visits-change').textContent = `+${todayVisits} today`;
+            document.getElementById('visits-change').className =
+              'stat-change ' +
+              (todayVisits > yesterdayVisits
+                ? 'positive'
+                : todayVisits < yesterdayVisits
+                ? 'negative'
+                : '');
+
+            document.getElementById('unique-visitors').textContent =
+              uniqueSessions.toLocaleString();
+            document.getElementById(
+              'visitors-change'
+            ).textContent = `Today: ${uniqueTodaySessions}`;
+
+            console.log('✅ Site visits loaded:', {
+              total: totalVisits,
+              today: todayVisits,
+              unique: uniqueSessions,
+              uniqueToday: uniqueTodaySessions,
+            });
+          } catch (error) {
+            console.error('Error loading site visits:', error);
+            document.getElementById('total-visits').textContent = 'Error';
+            document.getElementById('unique-visitors').textContent = 'Error';
+          }
         }
 
         function updateStats(players) {
-            const totalPlayers = players.length;
-            const totalTama = players.reduce((sum, p) => sum + (p.tama || 0), 0);
-            const avgLevel = totalPlayers > 0 ? (players.reduce((sum, p) => sum + (p.level || 0), 0) / totalPlayers).toFixed(2) : 0;
-            const maxLevel = Math.max(...players.map(p => p.level || 0));
-            
-            // Calculate active today (last 24 hours)
-            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            const activeToday = players.filter(p => {
-                if (!p.last_activity) return false;
-                const lastActive = new Date(p.last_activity);
-                return lastActive > oneDayAgo;
-            }).length;
+          const totalPlayers = players.length;
+          const totalTama = players.reduce((sum, p) => sum + (p.tama || 0), 0);
+          const avgLevel =
+            totalPlayers > 0
+              ? (players.reduce((sum, p) => sum + (p.level || 0), 0) / totalPlayers).toFixed(2)
+              : 0;
+          const maxLevel = Math.max(...players.map((p) => p.level || 0));
 
-            document.getElementById('total-players').textContent = totalPlayers;
-            document.getElementById('total-tama').textContent = totalTama.toLocaleString();
-            document.getElementById('avg-level').textContent = avgLevel;
-            document.getElementById('level-change').textContent = `Max: ${maxLevel}`;
-            document.getElementById('active-today').textContent = activeToday;
+          // Calculate active today (last 24 hours)
+          const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          const activeToday = players.filter((p) => {
+            if (!p.last_activity) return false;
+            const lastActive = new Date(p.last_activity);
+            return lastActive > oneDayAgo;
+          }).length;
+
+          document.getElementById('total-players').textContent = totalPlayers;
+          document.getElementById('total-tama').textContent = totalTama.toLocaleString();
+          document.getElementById('avg-level').textContent = avgLevel;
+          document.getElementById('level-change').textContent = `Max: ${maxLevel}`;
+          document.getElementById('active-today').textContent = activeToday;
         }
 
         function updateTopPlayersTable(players) {
-            const tbody = document.getElementById('top-players-tbody');
-            tbody.innerHTML = '';
+          const tbody = document.getElementById('top-players-tbody');
+          tbody.innerHTML = '';
 
-            players.forEach((player, index) => {
-                const row = document.createElement('tr');
-                const lastActive = player.last_activity ? new Date(player.last_activity).toLocaleString() : 'Never';
-                const username = player.telegram_username || 'N/A';
-                const status = player.last_activity && new Date(player.last_activity) > new Date(Date.now() - 24 * 60 * 60 * 1000) 
-                    ? '<span class="badge success">Active</span>' 
-                    : '<span class="badge">Inactive</span>';
+          players.forEach((player, index) => {
+            const row = document.createElement('tr');
+            const lastActive = player.last_activity
+              ? new Date(player.last_activity).toLocaleString()
+              : 'Never';
+            const username = player.telegram_username || 'N/A';
+            const status =
+              player.last_activity &&
+              new Date(player.last_activity) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+                ? '<span class="badge success">Active</span>'
+                : '<span class="badge">Inactive</span>';
 
-                row.innerHTML = `
+            row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${player.telegram_id}</td>
                     <td>${username}</td>
@@ -1480,26 +1790,34 @@
                     <td>${lastActive}</td>
                     <td>${status}</td>
                     <td>
-                        <button class="action-btn view" onclick="viewPlayer('${player.telegram_id}')">View</button>
-                        <button class="action-btn edit" onclick="editPlayer('${player.telegram_id}')">Edit</button>
+                        <button class="action-btn view" onclick="viewPlayer('${
+                          player.telegram_id
+                        }')">View</button>
+                        <button class="action-btn edit" onclick="editPlayer('${
+                          player.telegram_id
+                        }')">Edit</button>
                     </td>
                 `;
-                tbody.appendChild(row);
-            });
+            tbody.appendChild(row);
+          });
         }
 
         function updateAllPlayersTable(players) {
-            const tbody = document.getElementById('all-players-tbody');
-            tbody.innerHTML = '';
+          const tbody = document.getElementById('all-players-tbody');
+          tbody.innerHTML = '';
 
-            players.forEach((player) => {
-                const row = document.createElement('tr');
-                const created = player.created_at ? new Date(player.created_at).toLocaleDateString() : 'N/A';
-                const lastActive = player.last_activity ? new Date(player.last_activity).toLocaleString() : 'Never';
-                const username = player.telegram_username || 'N/A';
-                const petType = player.pet_type || 'N/A';
+          players.forEach((player) => {
+            const row = document.createElement('tr');
+            const created = player.created_at
+              ? new Date(player.created_at).toLocaleDateString()
+              : 'N/A';
+            const lastActive = player.last_activity
+              ? new Date(player.last_activity).toLocaleString()
+              : 'Never';
+            const username = player.telegram_username || 'N/A';
+            const petType = player.pet_type || 'N/A';
 
-                row.innerHTML = `
+            row.innerHTML = `
                     <td>${player.id}</td>
                     <td>${player.telegram_id}</td>
                     <td>${username}</td>
@@ -1509,577 +1827,642 @@
                     <td>${created}</td>
                     <td>${lastActive}</td>
                     <td>
-                        <button class="action-btn view" onclick="viewPlayer('${player.telegram_id}')">View</button>
-                        <button class="action-btn edit" onclick="editPlayer('${player.telegram_id}')">Edit</button>
-                        <button class="action-btn delete" onclick="deletePlayer('${player.telegram_id}')">Delete</button>
+                        <button class="action-btn view" onclick="viewPlayer('${
+                          player.telegram_id
+                        }')">View</button>
+                        <button class="action-btn edit" onclick="editPlayer('${
+                          player.telegram_id
+                        }')">Edit</button>
+                        <button class="action-btn delete" onclick="deletePlayer('${
+                          player.telegram_id
+                        }')">Delete</button>
                     </td>
                 `;
-                tbody.appendChild(row);
-            });
+            tbody.appendChild(row);
+          });
         }
 
         async function loadReferrals() {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/referrals?select=*`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
+          try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/referrals?select=*`, {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+              },
+            });
 
-                if (response.ok) {
-                    const referrals = await response.json();
-                    document.getElementById('referral-count').textContent = referrals.length;
-                    document.getElementById('referrals-count').textContent = referrals.length;
-                }
-            } catch (error) {
-                console.error('Error loading referrals:', error);
+            if (response.ok) {
+              const referrals = await response.json();
+              document.getElementById('referral-count').textContent = referrals.length;
+              document.getElementById('referrals-count').textContent = referrals.length;
             }
+          } catch (error) {
+            console.error('Error loading referrals:', error);
+          }
         }
 
         async function loadNFTSOLRevenue() {
-            try {
-                // Treasury wallet IDs
-                const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
-                const TREASURY_LIQUIDITY_ID = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
-                const TREASURY_TEAM_ID = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
+          try {
+            // Treasury wallet IDs
+            const TREASURY_MAIN_ID = '6rY5inYo8JmDTj91UwMKLr1MyxyAAQGjLpJhSi6dNpFM';
+            const TREASURY_LIQUIDITY_ID = 'CeeKjLEVfY15fmiVnPrGzjneN5i3UsrRW4r4XHdavGk1';
+            const TREASURY_TEAM_ID = 'Amy5EJqZWp713SaT3nieXSSZjxptVXJA1LhtpTE7Ua8';
 
-                // Fetch all treasury income transactions
-                const [mainResponse, liquidityResponse, teamResponse] = await Promise.all([
-                    fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_income_from_nft_sol&user_id=eq.${TREASURY_MAIN_ID}`, {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    }),
-                    fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_liquidity_income_from_nft_sol&user_id=eq.${TREASURY_LIQUIDITY_ID}`, {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    }),
-                    fetch(`${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_team_income_from_nft_sol&user_id=eq.${TREASURY_TEAM_ID}`, {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    })
-                ]);
-
-                if (mainResponse.ok && liquidityResponse.ok && teamResponse.ok) {
-                    const mainData = await mainResponse.json();
-                    const liquidityData = await liquidityResponse.json();
-                    const teamData = await teamResponse.json();
-
-                    // Calculate totals
-                    const mainTotal = mainData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-                    const liquidityTotal = liquidityData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-                    const teamTotal = teamData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-                    const totalRevenue = mainTotal + liquidityTotal + teamTotal;
-
-                    // Update UI
-                    document.getElementById('nft-sol-revenue').textContent = totalRevenue.toFixed(4) + ' SOL';
-                    document.getElementById('nft-sol-main').textContent = mainTotal.toFixed(4) + ' SOL';
-                    document.getElementById('nft-sol-liquidity').textContent = liquidityTotal.toFixed(4) + ' SOL';
-                    document.getElementById('nft-sol-team').textContent = teamTotal.toFixed(4) + ' SOL';
+            // Fetch all treasury income transactions
+            const [mainResponse, liquidityResponse, teamResponse] = await Promise.all([
+              fetch(
+                `${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_income_from_nft_sol&user_id=eq.${TREASURY_MAIN_ID}`,
+                {
+                  headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                  },
                 }
-            } catch (error) {
-                console.error('Error loading NFT SOL revenue:', error);
+              ),
+              fetch(
+                `${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_liquidity_income_from_nft_sol&user_id=eq.${TREASURY_LIQUIDITY_ID}`,
+                {
+                  headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                  },
+                }
+              ),
+              fetch(
+                `${SUPABASE_URL}/rest/v1/transactions?select=amount&type=eq.treasury_team_income_from_nft_sol&user_id=eq.${TREASURY_TEAM_ID}`,
+                {
+                  headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                  },
+                }
+              ),
+            ]);
+
+            if (mainResponse.ok && liquidityResponse.ok && teamResponse.ok) {
+              const mainData = await mainResponse.json();
+              const liquidityData = await liquidityResponse.json();
+              const teamData = await teamResponse.json();
+
+              // Calculate totals
+              const mainTotal = mainData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+              const liquidityTotal = liquidityData.reduce(
+                (sum, t) => sum + (parseFloat(t.amount) || 0),
+                0
+              );
+              const teamTotal = teamData.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+              const totalRevenue = mainTotal + liquidityTotal + teamTotal;
+
+              // Update UI
+              document.getElementById('nft-sol-revenue').textContent =
+                totalRevenue.toFixed(4) + ' SOL';
+              document.getElementById('nft-sol-main').textContent = mainTotal.toFixed(4) + ' SOL';
+              document.getElementById('nft-sol-liquidity').textContent =
+                liquidityTotal.toFixed(4) + ' SOL';
+              document.getElementById('nft-sol-team').textContent = teamTotal.toFixed(4) + ' SOL';
             }
+          } catch (error) {
+            console.error('Error loading NFT SOL revenue:', error);
+          }
         }
 
         // Load NFT 5-Tier Stats
         async function loadNFTTierStats() {
-            try {
-                console.log('💎 Loading NFT 5-Tier stats...');
-                
-                // Fetch bonding state directly from Supabase
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/nft_bonding_state?select=*&order=tier_name`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch NFT prices: ${response.status}`);
-                }
+          try {
+            console.log('💎 Loading NFT 5-Tier stats...');
 
-                const tiers = await response.json();
-                
-                if (!tiers || tiers.length === 0) {
-                    console.warn('⚠️ No NFT bonding state found. Table might not be initialized.');
-                    // Don't show error, just return silently
-                    return;
-                }
+            // Fetch bonding state directly from Supabase
+            const response = await fetch(
+              `${SUPABASE_URL}/rest/v1/nft_bonding_state?select=*&order=tier_name`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+              }
+            );
 
-                console.log('✅ Loaded tier stats:', tiers);
-                
-                // Filter and transform data to match expected format
-                // Filter out Bronze_SOL (we only show Bronze TAMA in UI)
-                const filteredTiers = tiers.filter(tier => {
-                    // Only show standard tiers: Bronze (TAMA), Silver, Gold, Platinum, Diamond
-                    const standardTiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
-                    // For Bronze, only show TAMA payment type (exclude Bronze_SOL)
-                    if (tier.tier_name === 'Bronze' || tier.tier_name === 'Bronze_SOL') {
-                        return tier.payment_type === 'TAMA' && tier.tier_name === 'Bronze';
-                    }
-                    return standardTiers.includes(tier.tier_name);
-                });
-                
-                const data = {
-                    success: true,
-                    tiers: filteredTiers.map(tier => {
-                        // Normalize tier name (Bronze_SOL -> Bronze)
-                        const normalizedTierName = tier.tier_name.replace('_SOL', '');
-                        const next_price = parseFloat(tier.current_price) + parseFloat(tier.increment_per_mint || 0);
-                        const available = tier.max_supply - tier.minted_count;
-                        const minted_percentage = (tier.minted_count / tier.max_supply * 100);
-                        
-                        // Calculate earning multiplier
-                        let earning_multiplier = 2.0;
-                        if (normalizedTierName === 'Bronze') earning_multiplier = 2.0;
-                        else if (normalizedTierName === 'Silver') earning_multiplier = 2.3;
-                        else if (normalizedTierName === 'Gold') earning_multiplier = 2.7;
-                        else if (normalizedTierName === 'Platinum') earning_multiplier = 3.5;
-                        else if (normalizedTierName === 'Diamond') earning_multiplier = 5.0;
-                        
-                        return {
-                            tier_name: normalizedTierName,
-                            payment_type: tier.payment_type,
-                            current_price: parseFloat(tier.current_price),
-                            next_price: next_price,
-                            minted_count: parseInt(tier.minted_count || 0),
-                            max_supply: parseInt(tier.max_supply),
-                            available: available,
-                            minted_percentage: minted_percentage,
-                            start_price: parseFloat(tier.start_price || 0),
-                            end_price: parseFloat(tier.end_price || 0),
-                            increment_per_mint: parseFloat(tier.increment_per_mint || 0),
-                            earning_multiplier: earning_multiplier,
-                            is_active: tier.is_active !== false
-                        };
-                    })
-                };
-
-                const SOL_USD_RATE = 164.07;
-                let totalMinted = 0;
-                let totalAvailable = 0;
-                let totalRevenue = 0;
-
-                // Update each tier
-                data.tiers.forEach(tier => {
-                    const tierName = tier.tier_name.toLowerCase();
-                    
-                    // Safely update elements (check if they exist)
-                    const updateElement = (id, value) => {
-                        const el = document.getElementById(id);
-                        if (el) el.textContent = value;
-                    };
-                    
-                    const updateElementStyle = (id, prop, value) => {
-                        const el = document.getElementById(id);
-                        if (el) el.style[prop] = value;
-                    };
-                    
-                    // Update minted count
-                    updateElement(`${tierName}-minted`, tier.minted_count);
-                    updateElement(`${tierName}-max`, tier.max_supply);
-                    updateElement(`${tierName}-available`, tier.available);
-                    
-                    // Update percentage
-                    const percentage = tier.minted_percentage;
-                    updateElement(`${tierName}-percent`, percentage.toFixed(1));
-                    updateElementStyle(`${tierName}-progress`, 'width', percentage + '%');
-                    
-                    // Update prices
-                    if (tier.payment_type === 'TAMA') {
-                        updateElement(`${tierName}-price`, tier.current_price.toLocaleString());
-                    } else {
-                        updateElement(`${tierName}-price`, tier.current_price.toFixed(2));
-                        const nextEl = document.getElementById(`${tierName}-next`);
-                        if (nextEl) nextEl.textContent = tier.next_price.toFixed(2);
-                        
-                        // Calculate revenue for this tier (only SOL tiers)
-                        // Simple estimate: minted_count * average_price
-                        const avgPrice = (tier.start_price + tier.current_price) / 2;
-                        const tierRevenue = tier.minted_count * avgPrice * SOL_USD_RATE;
-                        totalRevenue += tierRevenue;
-                    }
-                    
-                    // Sum totals
-                    totalMinted += tier.minted_count;
-                    totalAvailable += tier.available;
-                });
-
-                // Update total stats (safely)
-                const updateTotalElement = (id, value) => {
-                    const el = document.getElementById(id);
-                    if (el) el.textContent = value;
-                };
-                
-                updateTotalElement('total-minted', totalMinted.toLocaleString());
-                updateTotalElement('total-available', totalAvailable.toLocaleString());
-                updateTotalElement('total-revenue', '$' + Math.round(totalRevenue).toLocaleString());
-                
-                const totalPercent = (totalMinted / 5000 * 100).toFixed(1);
-                updateTotalElement('total-percent', totalPercent);
-
-                console.log(`✅ Total minted: ${totalMinted} / 5,000 (${totalPercent}%)`);
-                console.log(`✅ Total SOL revenue: $${Math.round(totalRevenue)}`);
-
-            } catch (error) {
-                console.error('❌ Error loading NFT tier stats:', error);
-                // Don't show alert - just log error (non-critical feature)
-                console.warn('⚠️ NFT tier stats not available. This is normal if nft_bonding_state table is not set up yet.');
+            if (!response.ok) {
+              throw new Error(`Failed to fetch NFT prices: ${response.status}`);
             }
+
+            const tiers = await response.json();
+
+            if (!tiers || tiers.length === 0) {
+              console.warn('⚠️ No NFT bonding state found. Table might not be initialized.');
+              // Don't show error, just return silently
+              return;
+            }
+
+            console.log('✅ Loaded tier stats:', tiers);
+
+            // Filter and transform data to match expected format
+            // Filter out Bronze_SOL (we only show Bronze TAMA in UI)
+            const filteredTiers = tiers.filter((tier) => {
+              // Only show standard tiers: Bronze (TAMA), Silver, Gold, Platinum, Diamond
+              const standardTiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+              // For Bronze, only show TAMA payment type (exclude Bronze_SOL)
+              if (tier.tier_name === 'Bronze' || tier.tier_name === 'Bronze_SOL') {
+                return tier.payment_type === 'TAMA' && tier.tier_name === 'Bronze';
+              }
+              return standardTiers.includes(tier.tier_name);
+            });
+
+            const data = {
+              success: true,
+              tiers: filteredTiers.map((tier) => {
+                // Normalize tier name (Bronze_SOL -> Bronze)
+                const normalizedTierName = tier.tier_name.replace('_SOL', '');
+                const next_price =
+                  parseFloat(tier.current_price) + parseFloat(tier.increment_per_mint || 0);
+                const available = tier.max_supply - tier.minted_count;
+                const minted_percentage = (tier.minted_count / tier.max_supply) * 100;
+
+                // Calculate earning multiplier
+                let earning_multiplier = 2.0;
+                if (normalizedTierName === 'Bronze') earning_multiplier = 2.0;
+                else if (normalizedTierName === 'Silver') earning_multiplier = 2.3;
+                else if (normalizedTierName === 'Gold') earning_multiplier = 2.7;
+                else if (normalizedTierName === 'Platinum') earning_multiplier = 3.5;
+                else if (normalizedTierName === 'Diamond') earning_multiplier = 5.0;
+
+                return {
+                  tier_name: normalizedTierName,
+                  payment_type: tier.payment_type,
+                  current_price: parseFloat(tier.current_price),
+                  next_price: next_price,
+                  minted_count: parseInt(tier.minted_count || 0),
+                  max_supply: parseInt(tier.max_supply),
+                  available: available,
+                  minted_percentage: minted_percentage,
+                  start_price: parseFloat(tier.start_price || 0),
+                  end_price: parseFloat(tier.end_price || 0),
+                  increment_per_mint: parseFloat(tier.increment_per_mint || 0),
+                  earning_multiplier: earning_multiplier,
+                  is_active: tier.is_active !== false,
+                };
+              }),
+            };
+
+            const SOL_USD_RATE = 164.07;
+            let totalMinted = 0;
+            let totalAvailable = 0;
+            let totalRevenue = 0;
+
+            // Update each tier
+            data.tiers.forEach((tier) => {
+              const tierName = tier.tier_name.toLowerCase();
+
+              // Safely update elements (check if they exist)
+              const updateElement = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+              };
+
+              const updateElementStyle = (id, prop, value) => {
+                const el = document.getElementById(id);
+                if (el) el.style[prop] = value;
+              };
+
+              // Update minted count
+              updateElement(`${tierName}-minted`, tier.minted_count);
+              updateElement(`${tierName}-max`, tier.max_supply);
+              updateElement(`${tierName}-available`, tier.available);
+
+              // Update percentage
+              const percentage = tier.minted_percentage;
+              updateElement(`${tierName}-percent`, percentage.toFixed(1));
+              updateElementStyle(`${tierName}-progress`, 'width', percentage + '%');
+
+              // Update prices
+              if (tier.payment_type === 'TAMA') {
+                updateElement(`${tierName}-price`, tier.current_price.toLocaleString());
+              } else {
+                updateElement(`${tierName}-price`, tier.current_price.toFixed(2));
+                const nextEl = document.getElementById(`${tierName}-next`);
+                if (nextEl) nextEl.textContent = tier.next_price.toFixed(2);
+
+                // Calculate revenue for this tier (only SOL tiers)
+                // Simple estimate: minted_count * average_price
+                const avgPrice = (tier.start_price + tier.current_price) / 2;
+                const tierRevenue = tier.minted_count * avgPrice * SOL_USD_RATE;
+                totalRevenue += tierRevenue;
+              }
+
+              // Sum totals
+              totalMinted += tier.minted_count;
+              totalAvailable += tier.available;
+            });
+
+            // Update total stats (safely)
+            const updateTotalElement = (id, value) => {
+              const el = document.getElementById(id);
+              if (el) el.textContent = value;
+            };
+
+            updateTotalElement('total-minted', totalMinted.toLocaleString());
+            updateTotalElement('total-available', totalAvailable.toLocaleString());
+            updateTotalElement('total-revenue', '$' + Math.round(totalRevenue).toLocaleString());
+
+            const totalPercent = ((totalMinted / 5000) * 100).toFixed(1);
+            updateTotalElement('total-percent', totalPercent);
+
+            console.log(`✅ Total minted: ${totalMinted} / 5,000 (${totalPercent}%)`);
+            console.log(`✅ Total SOL revenue: $${Math.round(totalRevenue)}`);
+          } catch (error) {
+            console.error('❌ Error loading NFT tier stats:', error);
+            // Don't show alert - just log error (non-critical feature)
+            console.warn(
+              '⚠️ NFT tier stats not available. This is normal if nft_bonding_state table is not set up yet.'
+            );
+          }
         }
 
         // Load NFT Holders from user_nfts table
         async function loadNFTHolders() {
-            try {
-                console.log('🎨 Loading NFT holders from user_nfts table...');
-                
-                // Only show active (on-chain) NFTs in admin panel
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*&is_active=eq.true&order=minted_at.desc`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
+          try {
+            console.log('🎨 Loading NFT holders from user_nfts table...');
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch NFT holders: ${response.status}`);
-                }
+            // Only show active (on-chain) NFTs in admin panel
+            const response = await fetch(
+              `${SUPABASE_URL}/rest/v1/user_nfts?select=*&is_active=eq.true&order=minted_at.desc`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
 
-                const nftHolders = await response.json();
-                console.log(`✅ Loaded ${nftHolders.length} NFT holders`);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch NFT holders: ${response.status}`);
+            }
 
-                // Update count
-                document.getElementById('nft-holders-count').textContent = `${nftHolders.length} NFTs`;
-                document.getElementById('nft-count').textContent = nftHolders.length;
-                document.getElementById('nft-holders').textContent = nftHolders.length;
-                
-                // Update table
-                const tbody = document.getElementById('nft-holders-tbody');
-                tbody.innerHTML = '';
+            const nftHolders = await response.json();
+            console.log(`✅ Loaded ${nftHolders.length} NFT holders`);
 
-                if (nftHolders.length === 0) {
-                    tbody.innerHTML = `
+            // Update count
+            document.getElementById('nft-holders-count').textContent = `${nftHolders.length} NFTs`;
+            document.getElementById('nft-count').textContent = nftHolders.length;
+            document.getElementById('nft-holders').textContent = nftHolders.length;
+
+            // Update table
+            const tbody = document.getElementById('nft-holders-tbody');
+            tbody.innerHTML = '';
+
+            if (nftHolders.length === 0) {
+              tbody.innerHTML = `
                         <tr>
                             <td colspan="9" style="text-align: center; padding: 40px; color: #666;">
                                 No NFT holders yet. Mint your first NFT! 🎨
                             </td>
                         </tr>
                     `;
-                    return;
-                }
+              return;
+            }
 
-                nftHolders.forEach((nft, index) => {
-                    const row = document.createElement('tr');
-                    
-                    // Format mint address (shortened)
-                    const shortMint = nft.nft_mint_address ? 
-                        `${nft.nft_mint_address.substring(0, 8)}...${nft.nft_mint_address.substring(nft.nft_mint_address.length - 6)}` : 
-                        'N/A';
-                    
-                    // Format date
-                    const mintedDate = nft.minted_at ? new Date(nft.minted_at).toLocaleString() : 'Unknown';
-                    
-                    // Status badge
-                    const statusBadge = nft.is_active 
-                        ? '<span class="badge success">✅ Active</span>' 
-                        : '<span class="badge">❌ Inactive</span>';
+            nftHolders.forEach((nft, index) => {
+              const row = document.createElement('tr');
 
-                    // Tier badge (with color)
-                    let tierColor = '#9C27B0'; // Default purple
-                    if (nft.tier_name === 'Bronze') tierColor = '#CD7F32';
-                    if (nft.tier_name === 'Silver') tierColor = '#C0C0C0';
-                    if (nft.tier_name === 'Gold') tierColor = '#FFD700';
-                    if (nft.tier_name === 'Platinum') tierColor = '#E5E4E2';
-                    if (nft.tier_name === 'Diamond') tierColor = '#B9F2FF';
-                    
-                    // Rarity badge (with color)
-                    let rarityColor = '#666';
-                    if (nft.rarity === 'Common') rarityColor = '#9E9E9E';
-                    if (nft.rarity === 'Uncommon') rarityColor = '#4CAF50';
-                    if (nft.rarity === 'Rare') rarityColor = '#2196F3';
-                    if (nft.rarity === 'Epic') rarityColor = '#9C27B0';
-                    if (nft.rarity === 'Legendary') rarityColor = '#FF9800';
+              // Format mint address (shortened)
+              const shortMint = nft.nft_mint_address
+                ? `${nft.nft_mint_address.substring(0, 8)}...${nft.nft_mint_address.substring(
+                    nft.nft_mint_address.length - 6
+                  )}`
+                : 'N/A';
 
-                    row.innerHTML = `
+              // Format date
+              const mintedDate = nft.minted_at
+                ? new Date(nft.minted_at).toLocaleString()
+                : 'Unknown';
+
+              // Status badge
+              const statusBadge = nft.is_active
+                ? '<span class="badge success">✅ Active</span>'
+                : '<span class="badge">❌ Inactive</span>';
+
+              // Tier badge (with color)
+              let tierColor = '#9C27B0'; // Default purple
+              if (nft.tier_name === 'Bronze') tierColor = '#CD7F32';
+              if (nft.tier_name === 'Silver') tierColor = '#C0C0C0';
+              if (nft.tier_name === 'Gold') tierColor = '#FFD700';
+              if (nft.tier_name === 'Platinum') tierColor = '#E5E4E2';
+              if (nft.tier_name === 'Diamond') tierColor = '#B9F2FF';
+
+              // Rarity badge (with color)
+              let rarityColor = '#666';
+              if (nft.rarity === 'Common') rarityColor = '#9E9E9E';
+              if (nft.rarity === 'Uncommon') rarityColor = '#4CAF50';
+              if (nft.rarity === 'Rare') rarityColor = '#2196F3';
+              if (nft.rarity === 'Epic') rarityColor = '#9C27B0';
+              if (nft.rarity === 'Legendary') rarityColor = '#FF9800';
+
+              row.innerHTML = `
                         <td style="font-weight: bold;">${index + 1}</td>
-                        <td><a href="https://t.me/${nft.telegram_id}" target="_blank" style="color: #2196F3; text-decoration: none;">${nft.telegram_id}</a></td>
-                        <td><span style="background: ${tierColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${nft.tier_name}</span></td>
-                        <td><span style="background: ${rarityColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${nft.rarity}</span></td>
-                        <td style="font-weight: bold; color: ${tierColor};">×${nft.earning_multiplier || 2.0}</td>
+                        <td><a href="https://t.me/${
+                          nft.telegram_id
+                        }" target="_blank" style="color: #2196F3; text-decoration: none;">${
+                nft.telegram_id
+              }</a></td>
+                        <td><span style="background: ${tierColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${
+                nft.tier_name
+              }</span></td>
+                        <td><span style="background: ${rarityColor}; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${
+                nft.rarity
+              }</span></td>
+                        <td style="font-weight: bold; color: ${tierColor};">×${
+                nft.earning_multiplier || 2.0
+              }</td>
                         <td>
-                            ${nft.nft_mint_address && nft.nft_mint_address.length > 30 && !nft.nft_mint_address.includes('_') ? `
-                                <a href="https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet" target="_blank" 
+                            ${
+                              nft.nft_mint_address &&
+                              nft.nft_mint_address.length > 30 &&
+                              !nft.nft_mint_address.includes('_')
+                                ? `
+                                <a href="https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet" target="_blank"
                                    style="color: #9C27B0; text-decoration: none; font-family: monospace; font-size: 12px;"
                                    title="${nft.nft_mint_address}">
                                     ${shortMint} 🔗
                                 </a>
                                 <span style="display: block; font-size: 10px; color: #4CAF50; margin-top: 2px;">✅ Real On-Chain</span>
-                            ` : `
+                            `
+                                : `
                                 <span style="color: #666; font-family: monospace; font-size: 12px;" title="${nft.nft_mint_address}">
                                     ${shortMint}
                                 </span>
                                 <span style="display: block; font-size: 10px; color: #FF9800; margin-top: 2px;">⚠️ Off-Chain Only</span>
-                            `}
+                            `
+                            }
                         </td>
                         <td style="font-size: 12px; color: #666;">${mintedDate}</td>
                         <td>${statusBadge}</td>
                         <td>
-                            <button class="action-btn view" onclick="viewNFT('${nft.nft_mint_address}')">🔍 View</button>
-                            <button class="action-btn" onclick="window.open('https://explorer.solana.com/address/${nft.nft_mint_address}?cluster=devnet', '_blank')" style="background: linear-gradient(135deg, #9C27B0, #E91E63);">⛓️ On-Chain</button>
+                            <button class="action-btn view" onclick="viewNFT('${
+                              nft.nft_mint_address
+                            }')">🔍 View</button>
+                            <button class="action-btn" onclick="window.open('https://explorer.solana.com/address/${
+                              nft.nft_mint_address
+                            }?cluster=devnet', '_blank')" style="background: linear-gradient(135deg, #9C27B0, #E91E63);">⛓️ On-Chain</button>
                         </td>
                     `;
-                    tbody.appendChild(row);
-                });
+              tbody.appendChild(row);
+            });
 
-                // Search functionality for NFT holders
-                document.getElementById('search-nft-holders')?.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const rows = document.querySelectorAll('#nft-holders-tbody tr');
-                    rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(searchTerm) ? '' : 'none';
-                    });
-                });
-
-            } catch (error) {
-                console.error('❌ Error loading NFT holders:', error);
-                document.getElementById('nft-holders-tbody').innerHTML = `
+            // Search functionality for NFT holders
+            document.getElementById('search-nft-holders')?.addEventListener('input', (e) => {
+              const searchTerm = e.target.value.toLowerCase();
+              const rows = document.querySelectorAll('#nft-holders-tbody tr');
+              rows.forEach((row) => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+              });
+            });
+          } catch (error) {
+            console.error('❌ Error loading NFT holders:', error);
+            document.getElementById('nft-holders-tbody').innerHTML = `
                     <tr>
                         <td colspan="9" style="text-align: center; padding: 40px; color: #f44336;">
                             ❌ Failed to load NFT holders. Check console for details.
                         </td>
                     </tr>
                 `;
-            }
+          }
         }
 
         function viewNFT(mintAddress) {
-            alert(`Viewing NFT: ${mintAddress}\n\nThis will show detailed NFT information including:\n- Owner\n- Metadata\n- Image\n- Attributes\n- Transaction history`);
-            // TODO: Implement NFT details modal
+          alert(
+            `Viewing NFT: ${mintAddress}\n\nThis will show detailed NFT information including:\n- Owner\n- Metadata\n- Image\n- Attributes\n- Transaction history`
+          );
+          // TODO: Implement NFT details modal
         }
 
         function scrollToNFTHolders() {
-            // Find the NFT Holders table
-            const nftTable = document.querySelector('.data-table[style*="rgba(156, 39, 176"]');
-            if (nftTable) {
-                nftTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // Add highlight effect
-                nftTable.style.boxShadow = '0 0 30px rgba(156, 39, 176, 0.5)';
-                setTimeout(() => {
-                    nftTable.style.boxShadow = '';
-                }, 2000);
-            }
+          // Find the NFT Holders table
+          const nftTable = document.querySelector('.data-table[style*="rgba(156, 39, 176"]');
+          if (nftTable) {
+            nftTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Add highlight effect
+            nftTable.style.boxShadow = '0 0 30px rgba(156, 39, 176, 0.5)';
+            setTimeout(() => {
+              nftTable.style.boxShadow = '';
+            }, 2000);
+          }
         }
 
         function refreshAllData() {
-            const refreshIcon = document.getElementById('refresh-icon');
-            refreshIcon.textContent = '⏳';
-            loadData().then(() => {
-                refreshIcon.textContent = '✅';
-                setTimeout(() => {
-                    refreshIcon.textContent = '🔄';
-                }, 2000);
-            });
+          const refreshIcon = document.getElementById('refresh-icon');
+          refreshIcon.textContent = '⏳';
+          loadData().then(() => {
+            refreshIcon.textContent = '✅';
+            setTimeout(() => {
+              refreshIcon.textContent = '🔄';
+            }, 2000);
+          });
         }
 
         function loadProjectData(project) {
-            console.log('Loading data for project:', project);
-            // Will be implemented based on selected project
+          console.log('Loading data for project:', project);
+          // Will be implemented based on selected project
         }
 
         // Search functionality
         document.getElementById('search-players')?.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#top-players-tbody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
+          const searchTerm = e.target.value.toLowerCase();
+          const rows = document.querySelectorAll('#top-players-tbody tr');
+          rows.forEach((row) => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+          });
         });
 
         document.getElementById('search-all-players')?.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#all-players-tbody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
+          const searchTerm = e.target.value.toLowerCase();
+          const rows = document.querySelectorAll('#all-players-tbody tr');
+          rows.forEach((row) => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+          });
         });
 
         // Admin Actions (placeholders)
         function viewPlayer(telegramId) {
-            alert(`Viewing player: ${telegramId}`);
+          alert(`Viewing player: ${telegramId}`);
         }
 
         async function editPlayer(telegramId) {
-            // Find player data
-            const player = leaderboardData.find(p => p.telegram_id === telegramId);
-            if (!player) {
-                alert('❌ Player not found!');
-                return;
+          // Find player data
+          const player = leaderboardData.find((p) => p.telegram_id === telegramId);
+          if (!player) {
+            alert('❌ Player not found!');
+            return;
+          }
+
+          const currentTama = player.tama || 0;
+          const newTama = prompt(
+            `Enter new TAMA amount for ${player.telegram_username || telegramId}:\n\n` +
+              `Current balance: ${currentTama.toLocaleString()} TAMA`
+          );
+
+          if (newTama === null || newTama.trim() === '') return;
+
+          const tamaAmount = parseInt(newTama);
+          if (isNaN(tamaAmount) || tamaAmount < 0) {
+            alert('❌ Invalid amount! Please enter a positive number.');
+            return;
+          }
+
+          if (
+            !confirm(
+              `⚠️ Set TAMA balance for ${player.telegram_username || telegramId}?\n\n` +
+                `${currentTama.toLocaleString()} → ${tamaAmount.toLocaleString()} TAMA\n\n` +
+                `This will update the database and log the transaction.`
+            )
+          ) {
+            return;
+          }
+
+          try {
+            const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                user_id: String(telegramId),
+                telegram_username: player.telegram_username,
+                tama: tamaAmount,
+                level: player.level || 1,
+                xp: player.xp || 0,
+                pet_name: player.pet_name || 'Gotchi',
+                pet_type: player.pet_type || 'kawai',
+                pet_data: player.pet_data,
+                skip_transaction_log: true, // Admin operation
+              }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+              alert(
+                `✅ Balance updated successfully!\n\n` +
+                  `${player.telegram_username || telegramId}\n` +
+                  `${currentTama.toLocaleString()} → ${tamaAmount.toLocaleString()} TAMA`
+              );
+
+              // Log admin transaction
+              await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
+                method: 'POST',
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                  'Content-Type': 'application/json',
+                  Prefer: 'return=minimal',
+                },
+                body: JSON.stringify({
+                  user_id: String(telegramId),
+                  username: player.telegram_username || String(telegramId),
+                  type: 'admin_balance_set',
+                  amount: tamaAmount - currentTama,
+                  balance_before: currentTama,
+                  balance_after: tamaAmount,
+                  metadata: JSON.stringify({
+                    source: 'admin_panel',
+                    admin_action: true,
+                    timestamp: new Date().toISOString(),
+                  }),
+                }),
+              });
+
+              // Refresh data
+              loadData();
+            } else {
+              alert(`❌ Error updating balance: ${result.error || 'Unknown error'}`);
             }
-            
-            const currentTama = player.tama || 0;
-            const newTama = prompt(
-                `Enter new TAMA amount for ${player.telegram_username || telegramId}:\n\n` +
-                `Current balance: ${currentTama.toLocaleString()} TAMA`
-            );
-            
-            if (newTama === null || newTama.trim() === '') return;
-            
-            const tamaAmount = parseInt(newTama);
-            if (isNaN(tamaAmount) || tamaAmount < 0) {
-                alert('❌ Invalid amount! Please enter a positive number.');
-                return;
-            }
-            
-            if (!confirm(`⚠️ Set TAMA balance for ${player.telegram_username || telegramId}?\n\n` +
-                        `${currentTama.toLocaleString()} → ${tamaAmount.toLocaleString()} TAMA\n\n` +
-                        `This will update the database and log the transaction.`)) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${TAMA_API_BASE}/leaderboard/upsert`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: String(telegramId),
-                        telegram_username: player.telegram_username,
-                        tama: tamaAmount,
-                        level: player.level || 1,
-                        xp: player.xp || 0,
-                        pet_name: player.pet_name || 'Gotchi',
-                        pet_type: player.pet_type || 'kawai',
-                        pet_data: player.pet_data,
-                        skip_transaction_log: true // Admin operation
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok && result.success) {
-                    alert(`✅ Balance updated successfully!\n\n` +
-                          `${player.telegram_username || telegramId}\n` +
-                          `${currentTama.toLocaleString()} → ${tamaAmount.toLocaleString()} TAMA`);
-                    
-                    // Log admin transaction
-                    await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
-                        method: 'POST',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({
-                            user_id: String(telegramId),
-                            username: player.telegram_username || String(telegramId),
-                            type: 'admin_balance_set',
-                            amount: tamaAmount - currentTama,
-                            balance_before: currentTama,
-                            balance_after: tamaAmount,
-                            metadata: JSON.stringify({
-                                source: 'admin_panel',
-                                admin_action: true,
-                                timestamp: new Date().toISOString()
-                            })
-                        })
-                    });
-                    
-                    // Refresh data
-                    loadData();
-                } else {
-                    alert(`❌ Error updating balance: ${result.error || 'Unknown error'}`);
-                }
-            } catch (error) {
-                console.error('Error updating TAMA:', error);
-                alert(`❌ Error updating balance: ${error.message}`);
-            }
+          } catch (error) {
+            console.error('Error updating TAMA:', error);
+            alert(`❌ Error updating balance: ${error.message}`);
+          }
         }
 
         function deletePlayer(telegramId) {
-            if (confirm(`Are you sure you want to delete player ${telegramId}?`)) {
-                alert(`Would delete player ${telegramId}`);
-                // TODO: Implement actual deletion
-            }
+          if (confirm(`Are you sure you want to delete player ${telegramId}?`)) {
+            alert(`Would delete player ${telegramId}`);
+            // TODO: Implement actual deletion
+          }
         }
 
         function viewTable(tableName) {
-            window.open(`https://supabase.com/dashboard/project/zfrazyupameidxpjihrh/editor/${tableName}`, '_blank');
+          window.open(
+            `https://supabase.com/dashboard/project/zfrazyupameidxpjihrh/editor/${tableName}`,
+            '_blank'
+          );
         }
 
         function backupDatabase() {
-            alert('Database backup feature coming soon!');
+          alert('Database backup feature coming soon!');
         }
 
         function runSQL() {
-            window.open('https://supabase.com/dashboard/project/zfrazyupameidxpjihrh/sql', '_blank');
+          window.open('https://supabase.com/dashboard/project/zfrazyupameidxpjihrh/sql', '_blank');
         }
 
         function addTAMA() {
-            const telegramId = prompt('Enter Telegram ID:');
-            if (telegramId) {
-                const amount = prompt('Enter TAMA amount to add:');
-                if (amount) {
-                    alert(`Would add ${amount} TAMA to user ${telegramId}`);
-                }
+          const telegramId = prompt('Enter Telegram ID:');
+          if (telegramId) {
+            const amount = prompt('Enter TAMA amount to add:');
+            if (amount) {
+              alert(`Would add ${amount} TAMA to user ${telegramId}`);
             }
+          }
         }
 
         function banUser() {
-            const telegramId = prompt('Enter Telegram ID to ban:');
-            if (telegramId) {
-                if (confirm(`Ban user ${telegramId}?`)) {
-                    alert(`Would ban user ${telegramId}`);
-                }
+          const telegramId = prompt('Enter Telegram ID to ban:');
+          if (telegramId) {
+            if (confirm(`Ban user ${telegramId}?`)) {
+              alert(`Would ban user ${telegramId}`);
             }
+          }
         }
 
         function sendMessage() {
-            alert('Broadcast message feature coming soon!');
+          alert('Broadcast message feature coming soon!');
         }
 
         function resetProgress() {
-            const telegramId = prompt('Enter Telegram ID to reset:');
-            if (telegramId) {
-                if (confirm(`Reset all progress for user ${telegramId}? This cannot be undone!`)) {
-                    alert(`Would reset progress for ${telegramId}`);
-                }
+          const telegramId = prompt('Enter Telegram ID to reset:');
+          if (telegramId) {
+            if (confirm(`Reset all progress for user ${telegramId}? This cannot be undone!`)) {
+              alert(`Would reset progress for ${telegramId}`);
             }
+          }
         }
 
         function giveNFT() {
-            alert('NFT distribution feature coming soon!');
+          alert('NFT distribution feature coming soon!');
         }
 
         function viewLogs() {
-            window.open('https://supabase.com/dashboard/project/zfrazyupameidxpjihrh/logs/explorer', '_blank');
+          window.open(
+            'https://supabase.com/dashboard/project/zfrazyupameidxpjihrh/logs/explorer',
+            '_blank'
+          );
         }
 
         function linkNFTHolder() {
-            alert('NFT linking feature coming soon!');
+          alert('NFT linking feature coming soon!');
         }
 
         function syncData() {
-            alert('Syncing all data...');
-            refreshAllData();
+          alert('Syncing all data...');
+          refreshAllData();
         }
 
         function verifyNFT() {
-            alert('NFT verification feature coming soon!');
+          alert('NFT verification feature coming soon!');
         }
 
         function setupWebhook() {
-            alert('Webhook setup feature coming soon!');
+          alert('Webhook setup feature coming soon!');
         }
 
         // Auto-refresh every 30 seconds
@@ -2087,12 +2470,12 @@
 
         // Initial load
         window.addEventListener('DOMContentLoaded', loadData);
-    </script>
-    </div> <!-- End of adminContent -->
+      </script>
+    </div>
+    <!-- End of adminContent -->
 
     <!-- Admin Authentication -->
     <script src="admin-password.js"></script>
     <script src="js/admin-auth.js"></script>
-</body>
+  </body>
 </html>
-

@@ -10,1114 +10,2649 @@
 
 // Supported languages with flags and native names
 const SUPPORTED_LANGUAGES = {
-    en: { flag: '🇬🇧', name: 'English', native: 'English' },
-    ru: { flag: '🇷🇺', name: 'Russian', native: 'Русский' },
-    zh: { flag: '🇨🇳', name: 'Chinese', native: '中文' },
-    es: { flag: '🇪🇸', name: 'Spanish', native: 'Español' },
-    pt: { flag: '🇧🇷', name: 'Portuguese', native: 'Português' },
-    ja: { flag: '🇯🇵', name: 'Japanese', native: '日本語' },
-    fr: { flag: '🇫🇷', name: 'French', native: 'Français' },
-    hi: { flag: '🇮🇳', name: 'Hindi', native: 'हिन्दी' },
-    ko: { flag: '🇰🇷', name: 'Korean', native: '한국어' },
-    tr: { flag: '🇹🇷', name: 'Turkish', native: 'Türkçe' },
-    de: { flag: '🇩🇪', name: 'German', native: 'Deutsch' },
-    ar: { flag: '🇸🇦', name: 'Arabic', native: 'العربية' },
-    vi: { flag: '🇻🇳', name: 'Vietnamese', native: 'Tiếng Việt' }
+  en: { flag: '🇬🇧', name: 'English', native: 'English' },
+  ru: { flag: '🇷🇺', name: 'Russian', native: 'Русский' },
+  zh: { flag: '🇨🇳', name: 'Chinese', native: '中文' },
+  es: { flag: '🇪🇸', name: 'Spanish', native: 'Español' },
+  pt: { flag: '🇧🇷', name: 'Portuguese', native: 'Português' },
+  ja: { flag: '🇯🇵', name: 'Japanese', native: '日本語' },
+  fr: { flag: '🇫🇷', name: 'French', native: 'Français' },
+  hi: { flag: '🇮🇳', name: 'Hindi', native: 'हिन्दी' },
+  ko: { flag: '🇰🇷', name: 'Korean', native: '한국어' },
+  tr: { flag: '🇹🇷', name: 'Turkish', native: 'Türkçe' },
+  de: { flag: '🇩🇪', name: 'German', native: 'Deutsch' },
+  ar: { flag: '🇸🇦', name: 'Arabic', native: 'العربية' },
+  vi: { flag: '🇻🇳', name: 'Vietnamese', native: 'Tiếng Việt' },
 };
 
 // All translations
 const TRANSLATIONS = {
-    // ========== HEADER ==========
-    'level': {
-        en: 'Level', ru: 'Уровень', zh: '等级', es: 'Nivel', pt: 'Nível',
-        ja: 'レベル', fr: 'Niveau', hi: 'स्तर', ko: '레벨', tr: 'Seviye',
-        de: 'Level', ar: 'المستوى', vi: 'Cấp độ'
-    },
-    'player': {
-        en: 'Player', ru: 'Игрок', zh: '玩家', es: 'Jugador', pt: 'Jogador',
-        ja: 'プレイヤー', fr: 'Joueur', hi: 'खिलाड़ी', ko: '플레이어', tr: 'Oyuncu',
-        de: 'Spieler', ar: 'لاعب', vi: 'Người chơi'
-    },
+  // ========== HEADER ==========
+  level: {
+    en: 'Level',
+    ru: 'Уровень',
+    zh: '等级',
+    es: 'Nivel',
+    pt: 'Nível',
+    ja: 'レベル',
+    fr: 'Niveau',
+    hi: 'स्तर',
+    ko: '레벨',
+    tr: 'Seviye',
+    de: 'Level',
+    ar: 'المستوى',
+    vi: 'Cấp độ',
+  },
+  player: {
+    en: 'Player',
+    ru: 'Игрок',
+    zh: '玩家',
+    es: 'Jugador',
+    pt: 'Jogador',
+    ja: 'プレイヤー',
+    fr: 'Joueur',
+    hi: 'खिलाड़ी',
+    ko: '플레이어',
+    tr: 'Oyuncu',
+    de: 'Spieler',
+    ar: 'لاعب',
+    vi: 'Người chơi',
+  },
 
-    // ========== STATS ==========
-    'health': {
-        en: 'Health', ru: 'Здоровье', zh: '生命', es: 'Salud', pt: 'Saúde',
-        ja: '体力', fr: 'Santé', hi: 'स्वास्थ्य', ko: '체력', tr: 'Sağlık',
-        de: 'Gesundheit', ar: 'الصحة', vi: 'Sức khỏe'
-    },
-    'food': {
-        en: 'Food', ru: 'Еда', zh: '食物', es: 'Comida', pt: 'Comida',
-        ja: '食べ物', fr: 'Nourriture', hi: 'भोजन', ko: '음식', tr: 'Yiyecek',
-        de: 'Essen', ar: 'طعام', vi: 'Thức ăn'
-    },
-    'happiness': {
-        en: 'Happiness', ru: 'Счастье', zh: '快乐', es: 'Felicidad', pt: 'Felicidade',
-        ja: '幸福', fr: 'Bonheur', hi: 'खुशी', ko: '행복', tr: 'Mutluluk',
-        de: 'Glück', ar: 'السعادة', vi: 'Hạnh phúc'
-    },
-    'energy': {
-        en: 'Energy', ru: 'Энергия', zh: '能量', es: 'Energía', pt: 'Energia',
-        ja: 'エネルギー', fr: 'Énergie', hi: 'ऊर्जा', ko: '에너지', tr: 'Enerji',
-        de: 'Energie', ar: 'طاقة', vi: 'Năng lượng'
-    },
+  // ========== STATS ==========
+  health: {
+    en: 'Health',
+    ru: 'Здоровье',
+    zh: '生命',
+    es: 'Salud',
+    pt: 'Saúde',
+    ja: '体力',
+    fr: 'Santé',
+    hi: 'स्वास्थ्य',
+    ko: '체력',
+    tr: 'Sağlık',
+    de: 'Gesundheit',
+    ar: 'الصحة',
+    vi: 'Sức khỏe',
+  },
+  food: {
+    en: 'Food',
+    ru: 'Еда',
+    zh: '食物',
+    es: 'Comida',
+    pt: 'Comida',
+    ja: '食べ物',
+    fr: 'Nourriture',
+    hi: 'भोजन',
+    ko: '음식',
+    tr: 'Yiyecek',
+    de: 'Essen',
+    ar: 'طعام',
+    vi: 'Thức ăn',
+  },
+  happiness: {
+    en: 'Happiness',
+    ru: 'Счастье',
+    zh: '快乐',
+    es: 'Felicidad',
+    pt: 'Felicidade',
+    ja: '幸福',
+    fr: 'Bonheur',
+    hi: 'खुशी',
+    ko: '행복',
+    tr: 'Mutluluk',
+    de: 'Glück',
+    ar: 'السعادة',
+    vi: 'Hạnh phúc',
+  },
+  energy: {
+    en: 'Energy',
+    ru: 'Энергия',
+    zh: '能量',
+    es: 'Energía',
+    pt: 'Energia',
+    ja: 'エネルギー',
+    fr: 'Énergie',
+    hi: 'ऊर्जा',
+    ko: '에너지',
+    tr: 'Enerji',
+    de: 'Energie',
+    ar: 'طاقة',
+    vi: 'Năng lượng',
+  },
 
-    // ========== ACTION BUTTONS ==========
-    'feed': {
-        en: 'Feed', ru: 'Кормить', zh: '喂食', es: 'Alimentar', pt: 'Alimentar',
-        ja: '餌をあげる', fr: 'Nourrir', hi: 'खिलाना', ko: '먹이주기', tr: 'Besle',
-        de: 'Füttern', ar: 'أطعم', vi: 'Cho ăn'
-    },
-    'play': {
-        en: 'Play', ru: 'Играть', zh: '玩耍', es: 'Jugar', pt: 'Brincar',
-        ja: '遊ぶ', fr: 'Jouer', hi: 'खेलना', ko: '놀기', tr: 'Oyna',
-        de: 'Spielen', ar: 'العب', vi: 'Chơi'
-    },
-    'heal': {
-        en: 'Heal', ru: 'Лечить', zh: '治疗', es: 'Curar', pt: 'Curar',
-        ja: '回復', fr: 'Soigner', hi: 'ठीक करना', ko: '치료', tr: 'İyileştir',
-        de: 'Heilen', ar: 'علاج', vi: 'Chữa trị'
-    },
-    'sleep': {
-        en: 'Sleep', ru: 'Спать', zh: '睡觉', es: 'Dormir', pt: 'Dormir',
-        ja: '寝る', fr: 'Dormir', hi: 'सोना', ko: '자기', tr: 'Uyku',
-        de: 'Schlafen', ar: 'نوم', vi: 'Ngủ'
-    },
+  // ========== ACTION BUTTONS ==========
+  feed: {
+    en: 'Feed',
+    ru: 'Кормить',
+    zh: '喂食',
+    es: 'Alimentar',
+    pt: 'Alimentar',
+    ja: '餌をあげる',
+    fr: 'Nourrir',
+    hi: 'खिलाना',
+    ko: '먹이주기',
+    tr: 'Besle',
+    de: 'Füttern',
+    ar: 'أطعم',
+    vi: 'Cho ăn',
+  },
+  play: {
+    en: 'Play',
+    ru: 'Играть',
+    zh: '玩耍',
+    es: 'Jugar',
+    pt: 'Brincar',
+    ja: '遊ぶ',
+    fr: 'Jouer',
+    hi: 'खेलना',
+    ko: '놀기',
+    tr: 'Oyna',
+    de: 'Spielen',
+    ar: 'العب',
+    vi: 'Chơi',
+  },
+  heal: {
+    en: 'Heal',
+    ru: 'Лечить',
+    zh: '治疗',
+    es: 'Curar',
+    pt: 'Curar',
+    ja: '回復',
+    fr: 'Soigner',
+    hi: 'ठीक करना',
+    ko: '치료',
+    tr: 'İyileştir',
+    de: 'Heilen',
+    ar: 'علاج',
+    vi: 'Chữa trị',
+  },
+  sleep: {
+    en: 'Sleep',
+    ru: 'Спать',
+    zh: '睡觉',
+    es: 'Dormir',
+    pt: 'Dormir',
+    ja: '寝る',
+    fr: 'Dormir',
+    hi: 'सोना',
+    ko: '자기',
+    tr: 'Uyku',
+    de: 'Schlafen',
+    ar: 'نوم',
+    vi: 'Ngủ',
+  },
 
-    // ========== MESSAGES ==========
-    'click_to_earn': {
-        en: 'Click on your pet to earn TAMA! 🐾',
-        ru: 'Кликай на питомца чтобы заработать TAMA! 🐾',
-        zh: '点击宠物赚取 TAMA! 🐾',
-        es: '¡Haz clic en tu mascota para ganar TAMA! 🐾',
-        pt: 'Clique no seu pet para ganhar TAMA! 🐾',
-        ja: 'ペットをクリックしてTAMAを稼ごう! 🐾',
-        fr: 'Clique sur ton animal pour gagner des TAMA ! 🐾',
-        hi: 'TAMA कमाने के लिए अपने पेट पर क्लिक करें! 🐾',
-        ko: '펫을 클릭하여 TAMA를 획득하세요! 🐾',
-        tr: 'TAMA kazanmak için evcil hayvanına tıkla! 🐾',
-        de: 'Klicke auf dein Haustier um TAMA zu verdienen! 🐾',
-        ar: 'انقر على حيوانك الأليف لكسب TAMA! 🐾',
-        vi: 'Nhấn vào thú cưng để kiếm TAMA! 🐾'
-    },
-    'pet_hungry': {
-        en: 'Your pet is hungry! 🍔',
-        ru: 'Твой питомец голоден! 🍔',
-        zh: '你的宠物饿了! 🍔',
-        es: '¡Tu mascota tiene hambre! 🍔',
-        pt: 'Seu pet está com fome! 🍔',
-        ja: 'ペットがお腹を空かせています! 🍔',
-        fr: 'Ton animal a faim ! 🍔',
-        hi: 'आपका पेट भूखा है! 🍔',
-        ko: '펫이 배고파요! 🍔',
-        tr: 'Evcil hayvanın aç! 🍔',
-        de: 'Dein Haustier ist hungrig! 🍔',
-        ar: 'حيوانك الأليف جائع! 🍔',
-        vi: 'Thú cưng của bạn đói! 🍔'
-    },
-    'pet_sick': {
-        en: 'Your pet is sick! 💊',
-        ru: 'Твой питомец болен! 💊',
-        zh: '你的宠物生病了! 💊',
-        es: '¡Tu mascota está enferma! 💊',
-        pt: 'Seu pet está doente! 💊',
-        ja: 'ペットが病気です! 💊',
-        fr: 'Ton animal est malade ! 💊',
-        hi: 'आपका पेट बीमार है! 💊',
-        ko: '펫이 아파요! 💊',
-        tr: 'Evcil hayvanın hasta! 💊',
-        de: 'Dein Haustier ist krank! 💊',
-        ar: 'حيوانك الأليف مريض! 💊',
-        vi: 'Thú cưng của bạn bị ốm! 💊'
-    },
-    'level_up': {
-        en: 'Level Up! 🎉',
-        ru: 'Новый уровень! 🎉',
-        zh: '升级了! 🎉',
-        es: '¡Subiste de nivel! 🎉',
-        pt: 'Subiu de nível! 🎉',
-        ja: 'レベルアップ! 🎉',
-        fr: 'Niveau supérieur ! 🎉',
-        hi: 'लेवल अप! 🎉',
-        ko: '레벨 업! 🎉',
-        tr: 'Seviye atladın! 🎉',
-        de: 'Level Up! 🎉',
-        ar: 'ارتقيت مستوى! 🎉',
-        vi: 'Lên cấp! 🎉'
-    },
-    'not_enough_tama': {
-        en: 'Not enough TAMA! 💰',
-        ru: 'Недостаточно TAMA! 💰',
-        zh: 'TAMA不足! 💰',
-        es: '¡No tienes suficiente TAMA! 💰',
-        pt: 'TAMA insuficiente! 💰',
-        ja: 'TAMAが足りません! 💰',
-        fr: 'Pas assez de TAMA ! 💰',
-        hi: 'पर्याप्त TAMA नहीं! 💰',
-        ko: 'TAMA가 부족해요! 💰',
-        tr: 'Yeterli TAMA yok! 💰',
-        de: 'Nicht genug TAMA! 💰',
-        ar: 'لا يوجد TAMA كافي! 💰',
-        vi: 'Không đủ TAMA! 💰'
-    },
+  // ========== MESSAGES ==========
+  click_to_earn: {
+    en: 'Click on your pet to earn TAMA! 🐾',
+    ru: 'Кликай на питомца чтобы заработать TAMA! 🐾',
+    zh: '点击宠物赚取 TAMA! 🐾',
+    es: '¡Haz clic en tu mascota para ganar TAMA! 🐾',
+    pt: 'Clique no seu pet para ganhar TAMA! 🐾',
+    ja: 'ペットをクリックしてTAMAを稼ごう! 🐾',
+    fr: 'Clique sur ton animal pour gagner des TAMA ! 🐾',
+    hi: 'TAMA कमाने के लिए अपने पेट पर क्लिक करें! 🐾',
+    ko: '펫을 클릭하여 TAMA를 획득하세요! 🐾',
+    tr: 'TAMA kazanmak için evcil hayvanına tıkla! 🐾',
+    de: 'Klicke auf dein Haustier um TAMA zu verdienen! 🐾',
+    ar: 'انقر على حيوانك الأليف لكسب TAMA! 🐾',
+    vi: 'Nhấn vào thú cưng để kiếm TAMA! 🐾',
+  },
+  pet_hungry: {
+    en: 'Your pet is hungry! 🍔',
+    ru: 'Твой питомец голоден! 🍔',
+    zh: '你的宠物饿了! 🍔',
+    es: '¡Tu mascota tiene hambre! 🍔',
+    pt: 'Seu pet está com fome! 🍔',
+    ja: 'ペットがお腹を空かせています! 🍔',
+    fr: 'Ton animal a faim ! 🍔',
+    hi: 'आपका पेट भूखा है! 🍔',
+    ko: '펫이 배고파요! 🍔',
+    tr: 'Evcil hayvanın aç! 🍔',
+    de: 'Dein Haustier ist hungrig! 🍔',
+    ar: 'حيوانك الأليف جائع! 🍔',
+    vi: 'Thú cưng của bạn đói! 🍔',
+  },
+  pet_sick: {
+    en: 'Your pet is sick! 💊',
+    ru: 'Твой питомец болен! 💊',
+    zh: '你的宠物生病了! 💊',
+    es: '¡Tu mascota está enferma! 💊',
+    pt: 'Seu pet está doente! 💊',
+    ja: 'ペットが病気です! 💊',
+    fr: 'Ton animal est malade ! 💊',
+    hi: 'आपका पेट बीमार है! 💊',
+    ko: '펫이 아파요! 💊',
+    tr: 'Evcil hayvanın hasta! 💊',
+    de: 'Dein Haustier ist krank! 💊',
+    ar: 'حيوانك الأليف مريض! 💊',
+    vi: 'Thú cưng của bạn bị ốm! 💊',
+  },
+  level_up: {
+    en: 'Level Up! 🎉',
+    ru: 'Новый уровень! 🎉',
+    zh: '升级了! 🎉',
+    es: '¡Subiste de nivel! 🎉',
+    pt: 'Subiu de nível! 🎉',
+    ja: 'レベルアップ! 🎉',
+    fr: 'Niveau supérieur ! 🎉',
+    hi: 'लेवल अप! 🎉',
+    ko: '레벨 업! 🎉',
+    tr: 'Seviye atladın! 🎉',
+    de: 'Level Up! 🎉',
+    ar: 'ارتقيت مستوى! 🎉',
+    vi: 'Lên cấp! 🎉',
+  },
+  not_enough_tama: {
+    en: 'Not enough TAMA! 💰',
+    ru: 'Недостаточно TAMA! 💰',
+    zh: 'TAMA不足! 💰',
+    es: '¡No tienes suficiente TAMA! 💰',
+    pt: 'TAMA insuficiente! 💰',
+    ja: 'TAMAが足りません! 💰',
+    fr: 'Pas assez de TAMA ! 💰',
+    hi: 'पर्याप्त TAMA नहीं! 💰',
+    ko: 'TAMA가 부족해요! 💰',
+    tr: 'Yeterli TAMA yok! 💰',
+    de: 'Nicht genug TAMA! 💰',
+    ar: 'لا يوجد TAMA كافي! 💰',
+    vi: 'Không đủ TAMA! 💰',
+  },
 
-    // ========== QUESTS ==========
-    'quests': {
-        en: 'Quests', ru: 'Квесты', zh: '任务', es: 'Misiones', pt: 'Missões',
-        ja: 'クエスト', fr: 'Quêtes', hi: 'क्वेस्ट', ko: '퀘스트', tr: 'Görevler',
-        de: 'Aufgaben', ar: 'المهام', vi: 'Nhiệm vụ'
-    },
-    'daily_quests': {
-        en: 'Daily Quests', ru: 'Дневные квесты', zh: '每日任务', es: 'Misiones diarias', pt: 'Missões diárias',
-        ja: 'デイリークエスト', fr: 'Quêtes quotidiennes', hi: 'दैनिक क्वेस्ट', ko: '일일 퀘스트', tr: 'Günlük görevler',
-        de: 'Tägliche Aufgaben', ar: 'المهام اليومية', vi: 'Nhiệm vụ hàng ngày'
-    },
-    'daily_clicks': {
-        en: 'Daily Clicks', ru: 'Дневные клики', zh: '每日点击', es: 'Clics diarios', pt: 'Cliques diários',
-        ja: 'デイリークリック', fr: 'Clics quotidiens', hi: 'दैनिक क्लिक', ko: '일일 클릭', tr: 'Günlük tıklama',
-        de: 'Tägliche Klicks', ar: 'النقرات اليومية', vi: 'Nhấp hàng ngày'
-    },
-    'click_master': {
-        en: 'Click Master', ru: 'Мастер кликов', zh: '点击大师', es: 'Maestro del clic', pt: 'Mestre dos cliques',
-        ja: 'クリックマスター', fr: 'Maître du clic', hi: 'क्लिक मास्टर', ko: '클릭 마스터', tr: 'Tıklama Ustası',
-        de: 'Klick-Meister', ar: 'سيد النقر', vi: 'Bậc thầy click'
-    },
-    'click_50_times': {
-        en: 'Click your pet 50 times', ru: 'Кликни на питомца 50 раз', zh: '点击宠物50次', es: 'Haz clic 50 veces', pt: 'Clique 50 vezes',
-        ja: 'ペットを50回クリック', fr: 'Clique 50 fois', hi: '50 बार क्लिक करें', ko: '50번 클릭하기', tr: '50 kez tıkla',
-        de: '50 mal klicken', ar: 'انقر 50 مرة', vi: 'Nhấp 50 lần'
-    },
-    'reach_level_5': {
-        en: 'Reach level 5', ru: 'Достигни 5 уровня', zh: '达到5级', es: 'Alcanza nivel 5', pt: 'Alcance nível 5',
-        ja: 'レベル5に到達', fr: 'Atteins niveau 5', hi: 'लेवल 5 पाएं', ko: '레벨 5 달성', tr: 'Seviye 5 ulaş',
-        de: 'Level 5 erreichen', ar: 'وصول المستوى 5', vi: 'Đạt cấp 5'
-    },
+  // ========== QUESTS ==========
+  quests: {
+    en: 'Quests',
+    ru: 'Квесты',
+    zh: '任务',
+    es: 'Misiones',
+    pt: 'Missões',
+    ja: 'クエスト',
+    fr: 'Quêtes',
+    hi: 'क्वेस्ट',
+    ko: '퀘스트',
+    tr: 'Görevler',
+    de: 'Aufgaben',
+    ar: 'المهام',
+    vi: 'Nhiệm vụ',
+  },
+  daily_quests: {
+    en: 'Daily Quests',
+    ru: 'Дневные квесты',
+    zh: '每日任务',
+    es: 'Misiones diarias',
+    pt: 'Missões diárias',
+    ja: 'デイリークエスト',
+    fr: 'Quêtes quotidiennes',
+    hi: 'दैनिक क्वेस्ट',
+    ko: '일일 퀘스트',
+    tr: 'Günlük görevler',
+    de: 'Tägliche Aufgaben',
+    ar: 'المهام اليومية',
+    vi: 'Nhiệm vụ hàng ngày',
+  },
+  daily_clicks: {
+    en: 'Daily Clicks',
+    ru: 'Дневные клики',
+    zh: '每日点击',
+    es: 'Clics diarios',
+    pt: 'Cliques diários',
+    ja: 'デイリークリック',
+    fr: 'Clics quotidiens',
+    hi: 'दैनिक क्लिक',
+    ko: '일일 클릭',
+    tr: 'Günlük tıklama',
+    de: 'Tägliche Klicks',
+    ar: 'النقرات اليومية',
+    vi: 'Nhấp hàng ngày',
+  },
+  click_master: {
+    en: 'Click Master',
+    ru: 'Мастер кликов',
+    zh: '点击大师',
+    es: 'Maestro del clic',
+    pt: 'Mestre dos cliques',
+    ja: 'クリックマスター',
+    fr: 'Maître du clic',
+    hi: 'क्लिक मास्टर',
+    ko: '클릭 마스터',
+    tr: 'Tıklama Ustası',
+    de: 'Klick-Meister',
+    ar: 'سيد النقر',
+    vi: 'Bậc thầy click',
+  },
+  click_50_times: {
+    en: 'Click your pet 50 times',
+    ru: 'Кликни на питомца 50 раз',
+    zh: '点击宠物50次',
+    es: 'Haz clic 50 veces',
+    pt: 'Clique 50 vezes',
+    ja: 'ペットを50回クリック',
+    fr: 'Clique 50 fois',
+    hi: '50 बार क्लिक करें',
+    ko: '50번 클릭하기',
+    tr: '50 kez tıkla',
+    de: '50 mal klicken',
+    ar: 'انقر 50 مرة',
+    vi: 'Nhấp 50 lần',
+  },
+  reach_level_5: {
+    en: 'Reach level 5',
+    ru: 'Достигни 5 уровня',
+    zh: '达到5级',
+    es: 'Alcanza nivel 5',
+    pt: 'Alcance nível 5',
+    ja: 'レベル5に到達',
+    fr: 'Atteins niveau 5',
+    hi: 'लेवल 5 पाएं',
+    ko: '레벨 5 달성',
+    tr: 'Seviye 5 ulaş',
+    de: 'Level 5 erreichen',
+    ar: 'وصول المستوى 5',
+    vi: 'Đạt cấp 5',
+  },
 
-    // ========== MINI GAMES ==========
-    'mini_games': {
-        en: 'Mini Games', ru: 'Мини-игры', zh: '小游戏', es: 'Minijuegos', pt: 'Mini jogos',
-        ja: 'ミニゲーム', fr: 'Mini-jeux', hi: 'मिनी गेम्स', ko: '미니게임', tr: 'Mini Oyunlar',
-        de: 'Minispiele', ar: 'ألعاب صغيرة', vi: 'Trò chơi nhỏ'
-    },
-    'slots': {
-        en: 'Lucky Slots', ru: 'Слоты', zh: '老虎机', es: 'Tragamonedas', pt: 'Caça-níqueis',
-        ja: 'スロット', fr: 'Machines à sous', hi: 'स्लॉट्स', ko: '슬롯', tr: 'Slot',
-        de: 'Spielautomat', ar: 'سلوتس', vi: 'Máy đánh bạc'
-    },
-    'wheel': {
-        en: 'Lucky Wheel', ru: 'Колесо удачи', zh: '幸运转盘', es: 'Ruleta de la suerte', pt: 'Roda da sorte',
-        ja: 'ラッキーホイール', fr: 'Roue de la chance', hi: 'लकी व्हील', ko: '행운의 휠', tr: 'Şans Çarkı',
-        de: 'Glücksrad', ar: 'عجلة الحظ', vi: 'Vòng quay may mắn'
-    },
-    'spin': {
-        en: 'SPIN!', ru: 'КРУТИТЬ!', zh: '旋转!', es: '¡GIRAR!', pt: 'GIRAR!',
-        ja: '回す!', fr: 'TOURNER!', hi: 'घुमाएं!', ko: '돌리기!', tr: 'ÇEVİR!',
-        de: 'DREHEN!', ar: 'دوّر!', vi: 'QUAY!'
-    },
-    'bet': {
-        en: 'Bet', ru: 'Ставка', zh: '下注', es: 'Apuesta', pt: 'Aposta',
-        ja: 'ベット', fr: 'Mise', hi: 'दांव', ko: '베팅', tr: 'Bahis',
-        de: 'Einsatz', ar: 'رهان', vi: 'Cược'
-    },
-    'win': {
-        en: 'Win', ru: 'Выигрыш', zh: '赢', es: 'Ganar', pt: 'Ganhar',
-        ja: '勝ち', fr: 'Gagner', hi: 'जीत', ko: '승리', tr: 'Kazan',
-        de: 'Gewinn', ar: 'فوز', vi: 'Thắng'
-    },
-    'jackpot': {
-        en: 'JACKPOT!', ru: 'ДЖЕКПОТ!', zh: '大奖!', es: '¡JACKPOT!', pt: 'JACKPOT!',
-        ja: 'ジャックポット!', fr: 'JACKPOT!', hi: 'जैकपॉट!', ko: '잭팟!', tr: 'JACKPOT!',
-        de: 'JACKPOT!', ar: 'الجائزة الكبرى!', vi: 'JACKPOT!'
-    },
-    'total_won': {
-        en: 'Total Won', ru: 'Всего выиграно', zh: '总赢', es: 'Total ganado', pt: 'Total ganho',
-        ja: '合計獲得', fr: 'Total gagné', hi: 'कुल जीत', ko: '총 획득', tr: 'Toplam Kazanç',
-        de: 'Gesamt gewonnen', ar: 'إجمالي الفوز', vi: 'Tổng thắng'
-    },
+  // ========== MINI GAMES ==========
+  mini_games: {
+    en: 'Mini Games',
+    ru: 'Мини-игры',
+    zh: '小游戏',
+    es: 'Minijuegos',
+    pt: 'Mini jogos',
+    ja: 'ミニゲーム',
+    fr: 'Mini-jeux',
+    hi: 'मिनी गेम्स',
+    ko: '미니게임',
+    tr: 'Mini Oyunlar',
+    de: 'Minispiele',
+    ar: 'ألعاب صغيرة',
+    vi: 'Trò chơi nhỏ',
+  },
+  slots: {
+    en: 'Lucky Slots',
+    ru: 'Слоты',
+    zh: '老虎机',
+    es: 'Tragamonedas',
+    pt: 'Caça-níqueis',
+    ja: 'スロット',
+    fr: 'Machines à sous',
+    hi: 'स्लॉट्स',
+    ko: '슬롯',
+    tr: 'Slot',
+    de: 'Spielautomat',
+    ar: 'سلوتس',
+    vi: 'Máy đánh bạc',
+  },
+  wheel: {
+    en: 'Lucky Wheel',
+    ru: 'Колесо удачи',
+    zh: '幸运转盘',
+    es: 'Ruleta de la suerte',
+    pt: 'Roda da sorte',
+    ja: 'ラッキーホイール',
+    fr: 'Roue de la chance',
+    hi: 'लकी व्हील',
+    ko: '행운의 휠',
+    tr: 'Şans Çarkı',
+    de: 'Glücksrad',
+    ar: 'عجلة الحظ',
+    vi: 'Vòng quay may mắn',
+  },
+  spin: {
+    en: 'SPIN!',
+    ru: 'КРУТИТЬ!',
+    zh: '旋转!',
+    es: '¡GIRAR!',
+    pt: 'GIRAR!',
+    ja: '回す!',
+    fr: 'TOURNER!',
+    hi: 'घुमाएं!',
+    ko: '돌리기!',
+    tr: 'ÇEVİR!',
+    de: 'DREHEN!',
+    ar: 'دوّر!',
+    vi: 'QUAY!',
+  },
+  bet: {
+    en: 'Bet',
+    ru: 'Ставка',
+    zh: '下注',
+    es: 'Apuesta',
+    pt: 'Aposta',
+    ja: 'ベット',
+    fr: 'Mise',
+    hi: 'दांव',
+    ko: '베팅',
+    tr: 'Bahis',
+    de: 'Einsatz',
+    ar: 'رهان',
+    vi: 'Cược',
+  },
+  win: {
+    en: 'Win',
+    ru: 'Выигрыш',
+    zh: '赢',
+    es: 'Ganar',
+    pt: 'Ganhar',
+    ja: '勝ち',
+    fr: 'Gagner',
+    hi: 'जीत',
+    ko: '승리',
+    tr: 'Kazan',
+    de: 'Gewinn',
+    ar: 'فوز',
+    vi: 'Thắng',
+  },
+  jackpot: {
+    en: 'JACKPOT!',
+    ru: 'ДЖЕКПОТ!',
+    zh: '大奖!',
+    es: '¡JACKPOT!',
+    pt: 'JACKPOT!',
+    ja: 'ジャックポット!',
+    fr: 'JACKPOT!',
+    hi: 'जैकपॉट!',
+    ko: '잭팟!',
+    tr: 'JACKPOT!',
+    de: 'JACKPOT!',
+    ar: 'الجائزة الكبرى!',
+    vi: 'JACKPOT!',
+  },
+  total_won: {
+    en: 'Total Won',
+    ru: 'Всего выиграно',
+    zh: '总赢',
+    es: 'Total ganado',
+    pt: 'Total ganho',
+    ja: '合計獲得',
+    fr: 'Total gagné',
+    hi: 'कुल जीत',
+    ko: '총 획득',
+    tr: 'Toplam Kazanç',
+    de: 'Gesamt gewonnen',
+    ar: 'إجمالي الفوز',
+    vi: 'Tổng thắng',
+  },
 
-    // ========== NAVIGATION ==========
-    'home': {
-        en: 'Home', ru: 'Главная', zh: '首页', es: 'Inicio', pt: 'Início',
-        ja: 'ホーム', fr: 'Accueil', hi: 'होम', ko: '홈', tr: 'Ana Sayfa',
-        de: 'Start', ar: 'الرئيسية', vi: 'Trang chủ'
-    },
-    'games': {
-        en: 'Games', ru: 'Игры', zh: '游戏', es: 'Juegos', pt: 'Jogos',
-        ja: 'ゲーム', fr: 'Jeux', hi: 'गेम्स', ko: '게임', tr: 'Oyunlar',
-        de: 'Spiele', ar: 'ألعاب', vi: 'Trò chơi'
-    },
-    'shop': {
-        en: 'Shop', ru: 'Магазин', zh: '商店', es: 'Tienda', pt: 'Loja',
-        ja: 'ショップ', fr: 'Boutique', hi: 'दुकान', ko: '상점', tr: 'Mağaza',
-        de: 'Shop', ar: 'متجر', vi: 'Cửa hàng'
-    },
-    'nfts': {
-        en: 'NFT', ru: 'NFT', zh: 'NFT', es: 'NFT', pt: 'NFT',
-        ja: 'NFT', fr: 'NFT', hi: 'NFT', ko: 'NFT', tr: 'NFT',
-        de: 'NFT', ar: 'NFT', vi: 'NFT'
-    },
-    'profile': {
-        en: 'Profile', ru: 'Профиль', zh: '个人资料', es: 'Perfil', pt: 'Perfil',
-        ja: 'プロフィール', fr: 'Profil', hi: 'प्रोफाइल', ko: '프로필', tr: 'Profil',
-        de: 'Profil', ar: 'الملف الشخصي', vi: 'Hồ sơ'
-    },
-    'top': {
-        en: 'Top', ru: 'Топ', zh: '排行', es: 'Top', pt: 'Top',
-        ja: 'ランキング', fr: 'Top', hi: 'टॉप', ko: '순위', tr: 'Sıralama',
-        de: 'Top', ar: 'الأفضل', vi: 'Xếp hạng'
-    },
-    'cash': {
-        en: 'Cash', ru: 'Вывод', zh: '提现', es: 'Cobrar', pt: 'Sacar',
-        ja: '出金', fr: 'Retrait', hi: 'निकासी', ko: '출금', tr: 'Çekim',
-        de: 'Auszahlen', ar: 'سحب', vi: 'Rút tiền'
-    },
-    'more': {
-        en: 'More', ru: 'Ещё', zh: '更多', es: 'Más', pt: 'Mais',
-        ja: 'その他', fr: 'Plus', hi: 'और', ko: '더보기', tr: 'Daha',
-        de: 'Mehr', ar: 'المزيد', vi: 'Thêm'
-    },
-    'help': {
-        en: 'Help', ru: 'Помощь', zh: '帮助', es: 'Ayuda', pt: 'Ajuda',
-        ja: 'ヘルプ', fr: 'Aide', hi: 'सहायता', ko: '도움말', tr: 'Yardım',
-        de: 'Hilfe', ar: 'مساعدة', vi: 'Trợ giúp'
-    },
-    'my_link': {
-        en: 'My Link', ru: 'Моя ссылка', zh: '我的链接', es: 'Mi enlace', pt: 'Meu link',
-        ja: 'リンク', fr: 'Mon lien', hi: 'मेरा लिंक', ko: '내 링크', tr: 'Bağlantım',
-        de: 'Mein Link', ar: 'رابطي', vi: 'Liên kết'
-    },
-    'experience': {
-        en: 'Experience', ru: 'Опыт', zh: '经验', es: 'Experiencia', pt: 'Experiência',
-        ja: '経験値', fr: 'Expérience', hi: 'अनुभव', ko: '경험치', tr: 'Deneyim',
-        de: 'Erfahrung', ar: 'الخبرة', vi: 'Kinh nghiệm'
-    },
+  // ========== NAVIGATION ==========
+  home: {
+    en: 'Home',
+    ru: 'Главная',
+    zh: '首页',
+    es: 'Inicio',
+    pt: 'Início',
+    ja: 'ホーム',
+    fr: 'Accueil',
+    hi: 'होम',
+    ko: '홈',
+    tr: 'Ana Sayfa',
+    de: 'Start',
+    ar: 'الرئيسية',
+    vi: 'Trang chủ',
+  },
+  games: {
+    en: 'Games',
+    ru: 'Игры',
+    zh: '游戏',
+    es: 'Juegos',
+    pt: 'Jogos',
+    ja: 'ゲーム',
+    fr: 'Jeux',
+    hi: 'गेम्स',
+    ko: '게임',
+    tr: 'Oyunlar',
+    de: 'Spiele',
+    ar: 'ألعاب',
+    vi: 'Trò chơi',
+  },
+  shop: {
+    en: 'Shop',
+    ru: 'Магазин',
+    zh: '商店',
+    es: 'Tienda',
+    pt: 'Loja',
+    ja: 'ショップ',
+    fr: 'Boutique',
+    hi: 'दुकान',
+    ko: '상점',
+    tr: 'Mağaza',
+    de: 'Shop',
+    ar: 'متجر',
+    vi: 'Cửa hàng',
+  },
+  nfts: {
+    en: 'NFT',
+    ru: 'NFT',
+    zh: 'NFT',
+    es: 'NFT',
+    pt: 'NFT',
+    ja: 'NFT',
+    fr: 'NFT',
+    hi: 'NFT',
+    ko: 'NFT',
+    tr: 'NFT',
+    de: 'NFT',
+    ar: 'NFT',
+    vi: 'NFT',
+  },
+  profile: {
+    en: 'Profile',
+    ru: 'Профиль',
+    zh: '个人资料',
+    es: 'Perfil',
+    pt: 'Perfil',
+    ja: 'プロフィール',
+    fr: 'Profil',
+    hi: 'प्रोफाइल',
+    ko: '프로필',
+    tr: 'Profil',
+    de: 'Profil',
+    ar: 'الملف الشخصي',
+    vi: 'Hồ sơ',
+  },
+  top: {
+    en: 'Top',
+    ru: 'Топ',
+    zh: '排行',
+    es: 'Top',
+    pt: 'Top',
+    ja: 'ランキング',
+    fr: 'Top',
+    hi: 'टॉप',
+    ko: '순위',
+    tr: 'Sıralama',
+    de: 'Top',
+    ar: 'الأفضل',
+    vi: 'Xếp hạng',
+  },
+  cash: {
+    en: 'Cash',
+    ru: 'Вывод',
+    zh: '提现',
+    es: 'Cobrar',
+    pt: 'Sacar',
+    ja: '出金',
+    fr: 'Retrait',
+    hi: 'निकासी',
+    ko: '출금',
+    tr: 'Çekim',
+    de: 'Auszahlen',
+    ar: 'سحب',
+    vi: 'Rút tiền',
+  },
+  more: {
+    en: 'More',
+    ru: 'Ещё',
+    zh: '更多',
+    es: 'Más',
+    pt: 'Mais',
+    ja: 'その他',
+    fr: 'Plus',
+    hi: 'और',
+    ko: '더보기',
+    tr: 'Daha',
+    de: 'Mehr',
+    ar: 'المزيد',
+    vi: 'Thêm',
+  },
+  help: {
+    en: 'Help',
+    ru: 'Помощь',
+    zh: '帮助',
+    es: 'Ayuda',
+    pt: 'Ajuda',
+    ja: 'ヘルプ',
+    fr: 'Aide',
+    hi: 'सहायता',
+    ko: '도움말',
+    tr: 'Yardım',
+    de: 'Hilfe',
+    ar: 'مساعدة',
+    vi: 'Trợ giúp',
+  },
+  my_link: {
+    en: 'My Link',
+    ru: 'Моя ссылка',
+    zh: '我的链接',
+    es: 'Mi enlace',
+    pt: 'Meu link',
+    ja: 'リンク',
+    fr: 'Mon lien',
+    hi: 'मेरा लिंक',
+    ko: '내 링크',
+    tr: 'Bağlantım',
+    de: 'Mein Link',
+    ar: 'رابطي',
+    vi: 'Liên kết',
+  },
+  experience: {
+    en: 'Experience',
+    ru: 'Опыт',
+    zh: '经验',
+    es: 'Experiencia',
+    pt: 'Experiência',
+    ja: '経験値',
+    fr: 'Expérience',
+    hi: 'अनुभव',
+    ko: '경험치',
+    tr: 'Deneyim',
+    de: 'Erfahrung',
+    ar: 'الخبرة',
+    vi: 'Kinh nghiệm',
+  },
 
-    // ========== LANGUAGE SELECTOR ==========
-    'language': {
-        en: 'Language', ru: 'Язык', zh: '语言', es: 'Idioma', pt: 'Idioma',
-        ja: '言語', fr: 'Langue', hi: 'भाषा', ko: '언어', tr: 'Dil',
-        de: 'Sprache', ar: 'اللغة', vi: 'Ngôn ngữ'
-    },
-    'select_language': {
-        en: 'Select Language', ru: 'Выберите язык', zh: '选择语言', es: 'Seleccionar idioma', pt: 'Selecionar idioma',
-        ja: '言語を選択', fr: 'Choisir la langue', hi: 'भाषा चुनें', ko: '언어 선택', tr: 'Dil Seçin',
-        de: 'Sprache wählen', ar: 'اختر اللغة', vi: 'Chọn ngôn ngữ'
-    },
+  // ========== LANGUAGE SELECTOR ==========
+  language: {
+    en: 'Language',
+    ru: 'Язык',
+    zh: '语言',
+    es: 'Idioma',
+    pt: 'Idioma',
+    ja: '言語',
+    fr: 'Langue',
+    hi: 'भाषा',
+    ko: '언어',
+    tr: 'Dil',
+    de: 'Sprache',
+    ar: 'اللغة',
+    vi: 'Ngôn ngữ',
+  },
+  select_language: {
+    en: 'Select Language',
+    ru: 'Выберите язык',
+    zh: '选择语言',
+    es: 'Seleccionar idioma',
+    pt: 'Selecionar idioma',
+    ja: '言語を選択',
+    fr: 'Choisir la langue',
+    hi: 'भाषा चुनें',
+    ko: '언어 선택',
+    tr: 'Dil Seçin',
+    de: 'Sprache wählen',
+    ar: 'اختر اللغة',
+    vi: 'Chọn ngôn ngữ',
+  },
 
-    // ========== MISC ==========
-    'loading': {
-        en: 'Loading...', ru: 'Загрузка...', zh: '加载中...', es: 'Cargando...', pt: 'Carregando...',
-        ja: '読み込み中...', fr: 'Chargement...', hi: 'लोड हो रहा है...', ko: '로딩 중...', tr: 'Yükleniyor...',
-        de: 'Laden...', ar: 'جاري التحميل...', vi: 'Đang tải...'
-    },
-    'save': {
-        en: 'Save', ru: 'Сохранить', zh: '保存', es: 'Guardar', pt: 'Salvar',
-        ja: '保存', fr: 'Enregistrer', hi: 'सहेजें', ko: '저장', tr: 'Kaydet',
-        de: 'Speichern', ar: 'حفظ', vi: 'Lưu'
-    },
-    'close': {
-        en: 'Close', ru: 'Закрыть', zh: '关闭', es: 'Cerrar', pt: 'Fechar',
-        ja: '閉じる', fr: 'Fermer', hi: 'बंद करें', ko: '닫기', tr: 'Kapat',
-        de: 'Schließen', ar: 'إغلاق', vi: 'Đóng'
-    },
-    'confirm': {
-        en: 'Confirm', ru: 'Подтвердить', zh: '确认', es: 'Confirmar', pt: 'Confirmar',
-        ja: '確認', fr: 'Confirmer', hi: 'पुष्टि करें', ko: '확인', tr: 'Onayla',
-        de: 'Bestätigen', ar: 'تأكيد', vi: 'Xác nhận'
-    },
-    'cancel': {
-        en: 'Cancel', ru: 'Отмена', zh: '取消', es: 'Cancelar', pt: 'Cancelar',
-        ja: 'キャンセル', fr: 'Annuler', hi: 'रद्द करें', ko: '취소', tr: 'İptal',
-        de: 'Abbrechen', ar: 'إلغاء', vi: 'Hủy'
-    },
-    'back': {
-        en: 'Back', ru: 'Назад', zh: '返回', es: 'Atrás', pt: 'Voltar',
-        ja: '戻る', fr: 'Retour', hi: 'वापस', ko: '뒤로', tr: 'Geri',
-        de: 'Zurück', ar: 'رجوع', vi: 'Quay lại'
-    },
-    'share': {
-        en: 'Share', ru: 'Поделиться', zh: '分享', es: 'Compartir', pt: 'Compartilhar',
-        ja: 'シェア', fr: 'Partager', hi: 'शेयर करें', ko: '공유', tr: 'Paylaş',
-        de: 'Teilen', ar: 'مشاركة', vi: 'Chia sẻ'
-    },
-    'invite_friends': {
-        en: 'Invite Friends', ru: 'Пригласить друзей', zh: '邀请朋友', es: 'Invitar amigos', pt: 'Convidar amigos',
-        ja: '友達を招待', fr: 'Inviter des amis', hi: 'दोस्तों को आमंत्रित करें', ko: '친구 초대', tr: 'Arkadaşları Davet Et',
-        de: 'Freunde einladen', ar: 'دعوة الأصدقاء', vi: 'Mời bạn bè'
-    },
+  // ========== MISC ==========
+  loading: {
+    en: 'Loading...',
+    ru: 'Загрузка...',
+    zh: '加载中...',
+    es: 'Cargando...',
+    pt: 'Carregando...',
+    ja: '読み込み中...',
+    fr: 'Chargement...',
+    hi: 'लोड हो रहा है...',
+    ko: '로딩 중...',
+    tr: 'Yükleniyor...',
+    de: 'Laden...',
+    ar: 'جاري التحميل...',
+    vi: 'Đang tải...',
+  },
+  save: {
+    en: 'Save',
+    ru: 'Сохранить',
+    zh: '保存',
+    es: 'Guardar',
+    pt: 'Salvar',
+    ja: '保存',
+    fr: 'Enregistrer',
+    hi: 'सहेजें',
+    ko: '저장',
+    tr: 'Kaydet',
+    de: 'Speichern',
+    ar: 'حفظ',
+    vi: 'Lưu',
+  },
+  close: {
+    en: 'Close',
+    ru: 'Закрыть',
+    zh: '关闭',
+    es: 'Cerrar',
+    pt: 'Fechar',
+    ja: '閉じる',
+    fr: 'Fermer',
+    hi: 'बंद करें',
+    ko: '닫기',
+    tr: 'Kapat',
+    de: 'Schließen',
+    ar: 'إغلاق',
+    vi: 'Đóng',
+  },
+  confirm: {
+    en: 'Confirm',
+    ru: 'Подтвердить',
+    zh: '确认',
+    es: 'Confirmar',
+    pt: 'Confirmar',
+    ja: '確認',
+    fr: 'Confirmer',
+    hi: 'पुष्टि करें',
+    ko: '확인',
+    tr: 'Onayla',
+    de: 'Bestätigen',
+    ar: 'تأكيد',
+    vi: 'Xác nhận',
+  },
+  cancel: {
+    en: 'Cancel',
+    ru: 'Отмена',
+    zh: '取消',
+    es: 'Cancelar',
+    pt: 'Cancelar',
+    ja: 'キャンセル',
+    fr: 'Annuler',
+    hi: 'रद्द करें',
+    ko: '취소',
+    tr: 'İptal',
+    de: 'Abbrechen',
+    ar: 'إلغاء',
+    vi: 'Hủy',
+  },
+  back: {
+    en: 'Back',
+    ru: 'Назад',
+    zh: '返回',
+    es: 'Atrás',
+    pt: 'Voltar',
+    ja: '戻る',
+    fr: 'Retour',
+    hi: 'वापस',
+    ko: '뒤로',
+    tr: 'Geri',
+    de: 'Zurück',
+    ar: 'رجوع',
+    vi: 'Quay lại',
+  },
+  share: {
+    en: 'Share',
+    ru: 'Поделиться',
+    zh: '分享',
+    es: 'Compartir',
+    pt: 'Compartilhar',
+    ja: 'シェア',
+    fr: 'Partager',
+    hi: 'शेयर करें',
+    ko: '공유',
+    tr: 'Paylaş',
+    de: 'Teilen',
+    ar: 'مشاركة',
+    vi: 'Chia sẻ',
+  },
+  invite_friends: {
+    en: 'Invite Friends',
+    ru: 'Пригласить друзей',
+    zh: '邀请朋友',
+    es: 'Invitar amigos',
+    pt: 'Convidar amigos',
+    ja: '友達を招待',
+    fr: 'Inviter des amis',
+    hi: 'दोस्तों को आमंत्रित करें',
+    ko: '친구 초대',
+    tr: 'Arkadaşları Davet Et',
+    de: 'Freunde einladen',
+    ar: 'دعوة الأصدقاء',
+    vi: 'Mời bạn bè',
+  },
 
-    // ========== GAME NAMES ==========
-    'lucky_slots': {
-        en: 'Lucky Slots', ru: 'Счастливые слоты', zh: '幸运老虎机', es: 'Tragamonedas', pt: 'Caça-níqueis',
-        ja: 'ラッキースロット', fr: 'Machines à sous', hi: 'लकी स्लॉट्स', ko: '럭키 슬롯', tr: 'Şanslı Slot',
-        de: 'Glücksslots', ar: 'سلوتس محظوظة', vi: 'Máy xèng may mắn'
-    },
-    'lucky_slots_desc': {
-        en: '🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!', ru: '🎰 Ставка: 100-2000 TAMA | Выиграй джекпот!',
-        zh: '🎰 投注: 100-2000 TAMA | 赢取奖池!', es: '🎰 Apuesta: 100-2000 TAMA | ¡Gana el Jackpot!',
-        pt: '🎰 Aposta: 100-2000 TAMA | Ganhe o Jackpot!', ja: '🎰 ベット: 100-2000 TAMA | ジャックポットを獲得!',
-        fr: '🎰 Mise: 100-2000 TAMA | Gagnez le Jackpot!', hi: '🎰 दांव: 100-2000 TAMA | जैकपॉट जीतें!',
-        ko: '🎰 베팅: 100-2000 TAMA | 잭팟 획득!', tr: '🎰 Bahis: 100-2000 TAMA | Jackpot Kazan!',
-        de: '🎰 Einsatz: 100-2000 TAMA | Gewinne den Jackpot!', ar: '🎰 رهان: 100-2000 | اربح الجائزة الكبرى!',
-        vi: '🎰 Cược: 100-2000 TAMA | Trúng Jackpot!'
-    },
-    'lucky_wheel': {
-        en: 'Lucky Wheel', ru: 'Колесо удачи', zh: '幸运转盘', es: 'Rueda de la Suerte', pt: 'Roda da Sorte',
-        ja: 'ラッキーホイール', fr: 'Roue de la Fortune', hi: 'लकी व्हील', ko: '행운의 바퀴', tr: 'Şans Çarkı',
-        de: 'Glücksrad', ar: 'عجلة الحظ', vi: 'Vòng quay may mắn'
-    },
-    'lucky_wheel_desc': {
-        en: 'Bet: 500-1000 TAMA | Win: up to 10x!', ru: 'Ставка: 500-1000 TAMA | Выигрыш: до 10x!',
-        zh: '投注: 500-1000 TAMA | 赢: 最高10倍!', es: 'Apuesta: 500-1000 TAMA | Gana: hasta 10x!',
-        pt: 'Aposta: 500-1000 TAMA | Ganhe: até 10x!', ja: 'ベット: 500-1000 TAMA | 勝利: 最大10倍!',
-        fr: 'Mise: 500-1000 TAMA | Gain: jusqu\'à 10x!', hi: 'दांव: 500-1000 TAMA | जीत: 10x तक!',
-        ko: '베팅: 500-1000 TAMA | 승리: 최대 10배!', tr: 'Bahis: 500-1000 TAMA | Kazanç: 10x\'e kadar!',
-        de: 'Einsatz: 500-1000 TAMA | Gewinn: bis zu 10x!', ar: 'رهان: 500-1000 | ربح: حتى 10x!',
-        vi: 'Cược: 500-1000 TAMA | Thắng: lên đến 10x!'
-    },
-    'super_tama_bros': {
-        en: 'SUPER TAMA BROS', ru: 'СУПЕР ТАМА БРОС', zh: '超级塔马兄弟', es: 'SUPER TAMA BROS', pt: 'SUPER TAMA BROS',
-        ja: 'スーパータマブラザーズ', fr: 'SUPER TAMA BROS', hi: 'सुपर तमा ब्रदर्स', ko: '슈퍼 타마 브로스', tr: 'SÜPER TAMA BROS',
-        de: 'SUPER TAMA BROS', ar: 'سوبر تاما بروس', vi: 'SUPER TAMA BROS'
-    },
-    'super_tama_bros_desc': {
-        en: '100 TAMA | 3 Levels | Win: up to 1000+ TAMA!', ru: '100 TAMA | 3 уровня | Выигрыш: до 1000+ TAMA!',
-        zh: '100 TAMA | 3关 | 赢: 最高1000+ TAMA!', es: '100 TAMA | 3 Niveles | Gana: hasta 1000+ TAMA!',
-        pt: '100 TAMA | 3 Níveis | Ganhe: até 1000+ TAMA!', ja: '100 TAMA | 3レベル | 勝利: 1000+ TAMAまで!',
-        fr: '100 TAMA | 3 Niveaux | Gain: jusqu\'à 1000+ TAMA!', hi: '100 TAMA | 3 लेवल | जीत: 1000+ TAMA तक!',
-        ko: '100 TAMA | 3레벨 | 승리: 1000+ TAMA까지!', tr: '100 TAMA | 3 Seviye | Kazanç: 1000+ TAMA\'ya kadar!',
-        de: '100 TAMA | 3 Level | Gewinn: bis zu 1000+ TAMA!', ar: '100 TAMA | 3 مستويات | ربح: حتى 1000+!',
-        vi: '100 TAMA | 3 Cấp | Thắng: lên đến 1000+ TAMA!'
-    },
-    'color_match': {
-        en: 'TAMA COLOR MATCH', ru: 'ТАМА ЦВЕТА', zh: '塔马颜色配对', es: 'COLORES TAMA', pt: 'CORES TAMA',
-        ja: 'タマカラーマッチ', fr: 'COULEURS TAMA', hi: 'तमा कलर मैच', ko: '타마 컬러 매치', tr: 'TAMA RENK EŞLEŞTİRME',
-        de: 'TAMA FARBSPIEL', ar: 'تاما الألوان', vi: 'TAMA GHÉP MÀU'
-    },
-    'color_match_desc': {
-        en: '50-300 TAMA | Memory Game | Win: up to 5x!', ru: '50-300 TAMA | Игра на память | Выигрыш: до 5x!',
-        zh: '50-300 TAMA | 记忆游戏 | 赢: 最高5倍!', es: '50-300 TAMA | Juego de Memoria | Gana: hasta 5x!',
-        pt: '50-300 TAMA | Jogo de Memória | Ganhe: até 5x!', ja: '50-300 TAMA | メモリーゲーム | 勝利: 最大5倍!',
-        fr: '50-300 TAMA | Jeu de Mémoire | Gain: jusqu\'à 5x!', hi: '50-300 TAMA | मेमोरी गेम | जीत: 5x तक!',
-        ko: '50-300 TAMA | 메모리 게임 | 승리: 최대 5배!', tr: '50-300 TAMA | Hafıza Oyunu | Kazanç: 5x\'e kadar!',
-        de: '50-300 TAMA | Gedächtnisspiel | Gewinn: bis zu 5x!', ar: '50-300 TAMA | لعبة الذاكرة | ربح: حتى 5x!',
-        vi: '50-300 TAMA | Trò chơi trí nhớ | Thắng: lên đến 5x!'
-    },
-    'tama_shooter': {
-        en: 'TAMA SHOOTER', ru: 'ТАМА СТРЕЛЯЛКА', zh: '塔马射击', es: 'TAMA SHOOTER', pt: 'TAMA SHOOTER',
-        ja: 'タマシューター', fr: 'TAMA SHOOTER', hi: 'तमा शूटर', ko: '타마 슈터', tr: 'TAMA SHOOTER',
-        de: 'TAMA SHOOTER', ar: 'تاما شوتر', vi: 'TAMA BẮN SÚNG'
-    },
-    'tama_shooter_desc': {
-        en: '100-500 TAMA | 10 Waves | Win: up to 3x!', ru: '100-500 TAMA | 10 волн | Выигрыш: до 3x!',
-        zh: '100-500 TAMA | 10波 | 赢: 最高3倍!', es: '100-500 TAMA | 10 Oleadas | Gana: hasta 3x!',
-        pt: '100-500 TAMA | 10 Ondas | Ganhe: até 3x!', ja: '100-500 TAMA | 10ウェーブ | 勝利: 最大3倍!',
-        fr: '100-500 TAMA | 10 Vagues | Gain: jusqu\'à 3x!', hi: '100-500 TAMA | 10 वेव | जीत: 3x तक!',
-        ko: '100-500 TAMA | 10웨이브 | 승리: 최대 3배!', tr: '100-500 TAMA | 10 Dalga | Kazanç: 3x\'e kadar!',
-        de: '100-500 TAMA | 10 Wellen | Gewinn: bis zu 3x!', ar: '100-500 TAMA | 10 موجات | ربح: حتى 3x!',
-        vi: '100-500 TAMA | 10 Wave | Thắng: lên đến 3x!'
-    },
-    'dice_roll': {
-        en: 'Dice Roll', ru: 'Кости', zh: '骰子', es: 'Dados', pt: 'Dados',
-        ja: 'サイコロ', fr: 'Dés', hi: 'पासा', ko: '주사위', tr: 'Zar',
-        de: 'Würfel', ar: 'نرد', vi: 'Xúc xắc'
-    },
-    'pet_battle': {
-        en: 'PET BATTLE ARENA', ru: 'АРЕНА ПИТОМЦЕВ', zh: '宠物竞技场', es: 'ARENA DE MASCOTAS', pt: 'ARENA DE PETS',
-        ja: 'ペットバトルアリーナ', fr: 'ARÈNE DE COMBAT', hi: 'पेट बैटल एरीना', ko: '펫 배틀 아레나', tr: 'EVCIL HAYVAN ARENASI',
-        de: 'PET KAMPFARENA', ar: 'ساحة قتال الحيوانات', vi: 'ĐẤU TRƯỜNG THÚ CƯNG'
-    },
-    'choose_pet_battle': {
-        en: 'Choose your NFT pet and battle!', ru: 'Выбери своего NFT питомца и сражайся!', zh: '选择你的NFT宠物战斗!',
-        es: '¡Elige tu mascota NFT y batalla!', pt: 'Escolha seu pet NFT e batalhe!', ja: 'NFTペットを選んでバトル!',
-        fr: 'Choisissez votre pet NFT et combattez!', hi: 'अपना NFT पेट चुनें और लड़ें!', ko: 'NFT 펫을 선택하고 싸우세요!',
-        tr: 'NFT evcil hayvanınızı seçin ve savaşın!', de: 'Wähle dein NFT-Haustier und kämpfe!',
-        ar: 'اختر حيوانك NFT وقاتل!', vi: 'Chọn thú cưng NFT và chiến đấu!'
-    },
-    'tama_tower': {
-        en: 'TAMA TOWER', ru: 'ТАМА БАШНЯ', zh: '塔马塔', es: 'TORRE TAMA', pt: 'TORRE TAMA',
-        ja: 'タマタワー', fr: 'TOUR TAMA', hi: 'तमा टावर', ko: '타마 타워', tr: 'TAMA KULESİ',
-        de: 'TAMA TURM', ar: 'برج تاما', vi: 'THÁP TAMA'
-    },
-    'tower_desc': {
-        en: 'Build a tower! Higher = more reward! But it can fall anytime!', ru: 'Строй башню! Выше = больше награда! Но может упасть!',
-        zh: '建塔! 越高=越多奖励! 但可能随时倒塌!', es: '¡Construye una torre! Más alto = más recompensa! ¡Pero puede caer!',
-        pt: 'Construa uma torre! Mais alto = mais recompensa! Mas pode cair!', ja: 'タワーを建てよう! 高い = 報酬UP! でも倒れるかも!',
-        fr: 'Construisez une tour! Plus haut = plus de récompense! Mais elle peut tomber!', hi: 'टावर बनाओ! ऊंचा = ज्यादा इनाम! लेकिन गिर सकता है!',
-        ko: '타워를 쌓으세요! 높을수록 = 더 많은 보상! 하지만 무너질 수 있어요!', tr: 'Bir kule inşa et! Yüksek = daha fazla ödül! Ama düşebilir!',
-        de: 'Bau einen Turm! Höher = mehr Belohnung! Aber er kann fallen!', ar: 'ابن برجاً! أعلى = مكافأة أكبر! لكنه قد يسقط!',
-        vi: 'Xây tháp! Cao hơn = nhiều phần thưởng hơn! Nhưng có thể đổ!'
-    },
-    'precision_click': {
-        en: 'PRECISION CLICK', ru: 'ТОЧНЫЙ КЛИК', zh: '精准点击', es: 'CLIC PRECISO', pt: 'CLIQUE PRECISO',
-        ja: 'プレシジョンクリック', fr: 'CLIC PRÉCIS', hi: 'प्रिसिशन क्लिक', ko: '정밀 클릭', tr: 'HASSAS TIKLA',
-        de: 'PRÄZISIONSKLICK', ar: 'نقرة دقيقة', vi: 'NHẤP CHÍNH XÁC'
-    },
-    'precision_desc': {
-        en: 'Click exactly when the target is in the center!', ru: 'Кликни точно когда цель в центре!', zh: '当目标在中心时精确点击!',
-        es: '¡Haz clic exactamente cuando el objetivo esté en el centro!', pt: 'Clique exatamente quando o alvo estiver no centro!',
-        ja: 'ターゲットが中央にあるときにクリック!', fr: 'Cliquez exactement quand la cible est au centre!',
-        hi: 'जब टारगेट बीच में हो तब क्लिक करें!', ko: '타겟이 중앙에 있을 때 정확히 클릭하세요!',
-        tr: 'Hedef tam ortadayken tıklayın!', de: 'Klicke genau wenn das Ziel in der Mitte ist!',
-        ar: 'انقر بالضبط عندما يكون الهدف في المنتصف!', vi: 'Nhấp chính xác khi mục tiêu ở giữa!'
-    },
-    'roulette': {
-        en: 'ROULETTE', ru: 'РУЛЕТКА', zh: '轮盘', es: 'RULETA', pt: 'ROLETA',
-        ja: 'ルーレット', fr: 'ROULETTE', hi: 'रूलेट', ko: '룰렛', tr: 'RULET',
-        de: 'ROULETTE', ar: 'روليت', vi: 'VÒNG QUAY'
-    },
-    'roulette_desc': {
-        en: 'Place your bets! Classic casino game!', ru: 'Делай ставки! Классическая казино игра!', zh: '下注! 经典赌场游戏!',
-        es: '¡Haz tus apuestas! ¡Juego de casino clásico!', pt: 'Faça suas apostas! Jogo de cassino clássico!',
-        ja: 'ベットしよう! クラシックカジノゲーム!', fr: 'Placez vos paris! Jeu de casino classique!',
-        hi: 'अपने दांव लगाओ! क्लासिक कैसीनो गेम!', ko: '베팅하세요! 클래식 카지노 게임!',
-        tr: 'Bahislerinizi koyun! Klasik kumarhane oyunu!', de: 'Platzieren Sie Ihre Wetten! Klassisches Casinospiel!',
-        ar: 'ضع رهاناتك! لعبة كازينو كلاسيكية!', vi: 'Đặt cược! Trò chơi casino cổ điển!'
-    },
-    'card_game': {
-        en: 'CARD GAME', ru: 'КАРТЫ', zh: '纸牌', es: 'CARTAS', pt: 'CARTAS',
-        ja: 'カードゲーム', fr: 'JEU DE CARTES', hi: 'कार्ड गेम', ko: '카드 게임', tr: 'KART OYUNU',
-        de: 'KARTENSPIEL', ar: 'لعبة الورق', vi: 'BÀI'
-    },
-    'card_game_desc': {
-        en: 'Play Blackjack! Beat the dealer!', ru: 'Играй в блэкджек! Обыграй дилера!', zh: '玩21点! 击败庄家!',
-        es: '¡Juega al Blackjack! ¡Gana al crupier!', pt: 'Jogue Blackjack! Vença o dealer!',
-        ja: 'ブラックジャックをプレイ! ディーラーに勝て!', fr: 'Jouez au Blackjack! Battez le croupier!',
-        hi: 'ब्लैकजैक खेलो! डीलर को हराओ!', ko: '블랙잭 플레이! 딜러를 이겨라!',
-        tr: 'Blackjack oyna! Krupiyeyi yen!', de: 'Spiele Blackjack! Schlage den Dealer!',
-        ar: 'العب بلاك جاك! اهزم الموزع!', vi: 'Chơi Blackjack! Đánh bại nhà cái!'
-    },
+  // ========== GAME NAMES ==========
+  lucky_slots: {
+    en: 'Lucky Slots',
+    ru: 'Счастливые слоты',
+    zh: '幸运老虎机',
+    es: 'Tragamonedas',
+    pt: 'Caça-níqueis',
+    ja: 'ラッキースロット',
+    fr: 'Machines à sous',
+    hi: 'लकी स्लॉट्स',
+    ko: '럭키 슬롯',
+    tr: 'Şanslı Slot',
+    de: 'Glücksslots',
+    ar: 'سلوتس محظوظة',
+    vi: 'Máy xèng may mắn',
+  },
+  lucky_slots_desc: {
+    en: '🎰 Bet: 100-2000 TAMA | Win Jackpot Pool!',
+    ru: '🎰 Ставка: 100-2000 TAMA | Выиграй джекпот!',
+    zh: '🎰 投注: 100-2000 TAMA | 赢取奖池!',
+    es: '🎰 Apuesta: 100-2000 TAMA | ¡Gana el Jackpot!',
+    pt: '🎰 Aposta: 100-2000 TAMA | Ganhe o Jackpot!',
+    ja: '🎰 ベット: 100-2000 TAMA | ジャックポットを獲得!',
+    fr: '🎰 Mise: 100-2000 TAMA | Gagnez le Jackpot!',
+    hi: '🎰 दांव: 100-2000 TAMA | जैकपॉट जीतें!',
+    ko: '🎰 베팅: 100-2000 TAMA | 잭팟 획득!',
+    tr: '🎰 Bahis: 100-2000 TAMA | Jackpot Kazan!',
+    de: '🎰 Einsatz: 100-2000 TAMA | Gewinne den Jackpot!',
+    ar: '🎰 رهان: 100-2000 | اربح الجائزة الكبرى!',
+    vi: '🎰 Cược: 100-2000 TAMA | Trúng Jackpot!',
+  },
+  lucky_wheel: {
+    en: 'Lucky Wheel',
+    ru: 'Колесо удачи',
+    zh: '幸运转盘',
+    es: 'Rueda de la Suerte',
+    pt: 'Roda da Sorte',
+    ja: 'ラッキーホイール',
+    fr: 'Roue de la Fortune',
+    hi: 'लकी व्हील',
+    ko: '행운의 바퀴',
+    tr: 'Şans Çarkı',
+    de: 'Glücksrad',
+    ar: 'عجلة الحظ',
+    vi: 'Vòng quay may mắn',
+  },
+  lucky_wheel_desc: {
+    en: 'Bet: 500-1000 TAMA | Win: up to 10x!',
+    ru: 'Ставка: 500-1000 TAMA | Выигрыш: до 10x!',
+    zh: '投注: 500-1000 TAMA | 赢: 最高10倍!',
+    es: 'Apuesta: 500-1000 TAMA | Gana: hasta 10x!',
+    pt: 'Aposta: 500-1000 TAMA | Ganhe: até 10x!',
+    ja: 'ベット: 500-1000 TAMA | 勝利: 最大10倍!',
+    fr: "Mise: 500-1000 TAMA | Gain: jusqu'à 10x!",
+    hi: 'दांव: 500-1000 TAMA | जीत: 10x तक!',
+    ko: '베팅: 500-1000 TAMA | 승리: 최대 10배!',
+    tr: "Bahis: 500-1000 TAMA | Kazanç: 10x'e kadar!",
+    de: 'Einsatz: 500-1000 TAMA | Gewinn: bis zu 10x!',
+    ar: 'رهان: 500-1000 | ربح: حتى 10x!',
+    vi: 'Cược: 500-1000 TAMA | Thắng: lên đến 10x!',
+  },
+  super_tama_bros: {
+    en: 'SUPER TAMA BROS',
+    ru: 'СУПЕР ТАМА БРОС',
+    zh: '超级塔马兄弟',
+    es: 'SUPER TAMA BROS',
+    pt: 'SUPER TAMA BROS',
+    ja: 'スーパータマブラザーズ',
+    fr: 'SUPER TAMA BROS',
+    hi: 'सुपर तमा ब्रदर्स',
+    ko: '슈퍼 타마 브로스',
+    tr: 'SÜPER TAMA BROS',
+    de: 'SUPER TAMA BROS',
+    ar: 'سوبر تاما بروس',
+    vi: 'SUPER TAMA BROS',
+  },
+  super_tama_bros_desc: {
+    en: '100 TAMA | 3 Levels | Win: up to 1000+ TAMA!',
+    ru: '100 TAMA | 3 уровня | Выигрыш: до 1000+ TAMA!',
+    zh: '100 TAMA | 3关 | 赢: 最高1000+ TAMA!',
+    es: '100 TAMA | 3 Niveles | Gana: hasta 1000+ TAMA!',
+    pt: '100 TAMA | 3 Níveis | Ganhe: até 1000+ TAMA!',
+    ja: '100 TAMA | 3レベル | 勝利: 1000+ TAMAまで!',
+    fr: "100 TAMA | 3 Niveaux | Gain: jusqu'à 1000+ TAMA!",
+    hi: '100 TAMA | 3 लेवल | जीत: 1000+ TAMA तक!',
+    ko: '100 TAMA | 3레벨 | 승리: 1000+ TAMA까지!',
+    tr: "100 TAMA | 3 Seviye | Kazanç: 1000+ TAMA'ya kadar!",
+    de: '100 TAMA | 3 Level | Gewinn: bis zu 1000+ TAMA!',
+    ar: '100 TAMA | 3 مستويات | ربح: حتى 1000+!',
+    vi: '100 TAMA | 3 Cấp | Thắng: lên đến 1000+ TAMA!',
+  },
+  color_match: {
+    en: 'TAMA COLOR MATCH',
+    ru: 'ТАМА ЦВЕТА',
+    zh: '塔马颜色配对',
+    es: 'COLORES TAMA',
+    pt: 'CORES TAMA',
+    ja: 'タマカラーマッチ',
+    fr: 'COULEURS TAMA',
+    hi: 'तमा कलर मैच',
+    ko: '타마 컬러 매치',
+    tr: 'TAMA RENK EŞLEŞTİRME',
+    de: 'TAMA FARBSPIEL',
+    ar: 'تاما الألوان',
+    vi: 'TAMA GHÉP MÀU',
+  },
+  color_match_desc: {
+    en: '50-300 TAMA | Memory Game | Win: up to 5x!',
+    ru: '50-300 TAMA | Игра на память | Выигрыш: до 5x!',
+    zh: '50-300 TAMA | 记忆游戏 | 赢: 最高5倍!',
+    es: '50-300 TAMA | Juego de Memoria | Gana: hasta 5x!',
+    pt: '50-300 TAMA | Jogo de Memória | Ganhe: até 5x!',
+    ja: '50-300 TAMA | メモリーゲーム | 勝利: 最大5倍!',
+    fr: "50-300 TAMA | Jeu de Mémoire | Gain: jusqu'à 5x!",
+    hi: '50-300 TAMA | मेमोरी गेम | जीत: 5x तक!',
+    ko: '50-300 TAMA | 메모리 게임 | 승리: 최대 5배!',
+    tr: "50-300 TAMA | Hafıza Oyunu | Kazanç: 5x'e kadar!",
+    de: '50-300 TAMA | Gedächtnisspiel | Gewinn: bis zu 5x!',
+    ar: '50-300 TAMA | لعبة الذاكرة | ربح: حتى 5x!',
+    vi: '50-300 TAMA | Trò chơi trí nhớ | Thắng: lên đến 5x!',
+  },
+  tama_shooter: {
+    en: 'TAMA SHOOTER',
+    ru: 'ТАМА СТРЕЛЯЛКА',
+    zh: '塔马射击',
+    es: 'TAMA SHOOTER',
+    pt: 'TAMA SHOOTER',
+    ja: 'タマシューター',
+    fr: 'TAMA SHOOTER',
+    hi: 'तमा शूटर',
+    ko: '타마 슈터',
+    tr: 'TAMA SHOOTER',
+    de: 'TAMA SHOOTER',
+    ar: 'تاما شوتر',
+    vi: 'TAMA BẮN SÚNG',
+  },
+  tama_shooter_desc: {
+    en: '100-500 TAMA | 10 Waves | Win: up to 3x!',
+    ru: '100-500 TAMA | 10 волн | Выигрыш: до 3x!',
+    zh: '100-500 TAMA | 10波 | 赢: 最高3倍!',
+    es: '100-500 TAMA | 10 Oleadas | Gana: hasta 3x!',
+    pt: '100-500 TAMA | 10 Ondas | Ganhe: até 3x!',
+    ja: '100-500 TAMA | 10ウェーブ | 勝利: 最大3倍!',
+    fr: "100-500 TAMA | 10 Vagues | Gain: jusqu'à 3x!",
+    hi: '100-500 TAMA | 10 वेव | जीत: 3x तक!',
+    ko: '100-500 TAMA | 10웨이브 | 승리: 최대 3배!',
+    tr: "100-500 TAMA | 10 Dalga | Kazanç: 3x'e kadar!",
+    de: '100-500 TAMA | 10 Wellen | Gewinn: bis zu 3x!',
+    ar: '100-500 TAMA | 10 موجات | ربح: حتى 3x!',
+    vi: '100-500 TAMA | 10 Wave | Thắng: lên đến 3x!',
+  },
+  dice_roll: {
+    en: 'Dice Roll',
+    ru: 'Кости',
+    zh: '骰子',
+    es: 'Dados',
+    pt: 'Dados',
+    ja: 'サイコロ',
+    fr: 'Dés',
+    hi: 'पासा',
+    ko: '주사위',
+    tr: 'Zar',
+    de: 'Würfel',
+    ar: 'نرد',
+    vi: 'Xúc xắc',
+  },
+  pet_battle: {
+    en: 'PET BATTLE ARENA',
+    ru: 'АРЕНА ПИТОМЦЕВ',
+    zh: '宠物竞技场',
+    es: 'ARENA DE MASCOTAS',
+    pt: 'ARENA DE PETS',
+    ja: 'ペットバトルアリーナ',
+    fr: 'ARÈNE DE COMBAT',
+    hi: 'पेट बैटल एरीना',
+    ko: '펫 배틀 아레나',
+    tr: 'EVCIL HAYVAN ARENASI',
+    de: 'PET KAMPFARENA',
+    ar: 'ساحة قتال الحيوانات',
+    vi: 'ĐẤU TRƯỜNG THÚ CƯNG',
+  },
+  choose_pet_battle: {
+    en: 'Choose your NFT pet and battle!',
+    ru: 'Выбери своего NFT питомца и сражайся!',
+    zh: '选择你的NFT宠物战斗!',
+    es: '¡Elige tu mascota NFT y batalla!',
+    pt: 'Escolha seu pet NFT e batalhe!',
+    ja: 'NFTペットを選んでバトル!',
+    fr: 'Choisissez votre pet NFT et combattez!',
+    hi: 'अपना NFT पेट चुनें और लड़ें!',
+    ko: 'NFT 펫을 선택하고 싸우세요!',
+    tr: 'NFT evcil hayvanınızı seçin ve savaşın!',
+    de: 'Wähle dein NFT-Haustier und kämpfe!',
+    ar: 'اختر حيوانك NFT وقاتل!',
+    vi: 'Chọn thú cưng NFT và chiến đấu!',
+  },
+  tama_tower: {
+    en: 'TAMA TOWER',
+    ru: 'ТАМА БАШНЯ',
+    zh: '塔马塔',
+    es: 'TORRE TAMA',
+    pt: 'TORRE TAMA',
+    ja: 'タマタワー',
+    fr: 'TOUR TAMA',
+    hi: 'तमा टावर',
+    ko: '타마 타워',
+    tr: 'TAMA KULESİ',
+    de: 'TAMA TURM',
+    ar: 'برج تاما',
+    vi: 'THÁP TAMA',
+  },
+  tower_desc: {
+    en: 'Build a tower! Higher = more reward! But it can fall anytime!',
+    ru: 'Строй башню! Выше = больше награда! Но может упасть!',
+    zh: '建塔! 越高=越多奖励! 但可能随时倒塌!',
+    es: '¡Construye una torre! Más alto = más recompensa! ¡Pero puede caer!',
+    pt: 'Construa uma torre! Mais alto = mais recompensa! Mas pode cair!',
+    ja: 'タワーを建てよう! 高い = 報酬UP! でも倒れるかも!',
+    fr: 'Construisez une tour! Plus haut = plus de récompense! Mais elle peut tomber!',
+    hi: 'टावर बनाओ! ऊंचा = ज्यादा इनाम! लेकिन गिर सकता है!',
+    ko: '타워를 쌓으세요! 높을수록 = 더 많은 보상! 하지만 무너질 수 있어요!',
+    tr: 'Bir kule inşa et! Yüksek = daha fazla ödül! Ama düşebilir!',
+    de: 'Bau einen Turm! Höher = mehr Belohnung! Aber er kann fallen!',
+    ar: 'ابن برجاً! أعلى = مكافأة أكبر! لكنه قد يسقط!',
+    vi: 'Xây tháp! Cao hơn = nhiều phần thưởng hơn! Nhưng có thể đổ!',
+  },
+  precision_click: {
+    en: 'PRECISION CLICK',
+    ru: 'ТОЧНЫЙ КЛИК',
+    zh: '精准点击',
+    es: 'CLIC PRECISO',
+    pt: 'CLIQUE PRECISO',
+    ja: 'プレシジョンクリック',
+    fr: 'CLIC PRÉCIS',
+    hi: 'प्रिसिशन क्लिक',
+    ko: '정밀 클릭',
+    tr: 'HASSAS TIKLA',
+    de: 'PRÄZISIONSKLICK',
+    ar: 'نقرة دقيقة',
+    vi: 'NHẤP CHÍNH XÁC',
+  },
+  precision_desc: {
+    en: 'Click exactly when the target is in the center!',
+    ru: 'Кликни точно когда цель в центре!',
+    zh: '当目标在中心时精确点击!',
+    es: '¡Haz clic exactamente cuando el objetivo esté en el centro!',
+    pt: 'Clique exatamente quando o alvo estiver no centro!',
+    ja: 'ターゲットが中央にあるときにクリック!',
+    fr: 'Cliquez exactement quand la cible est au centre!',
+    hi: 'जब टारगेट बीच में हो तब क्लिक करें!',
+    ko: '타겟이 중앙에 있을 때 정확히 클릭하세요!',
+    tr: 'Hedef tam ortadayken tıklayın!',
+    de: 'Klicke genau wenn das Ziel in der Mitte ist!',
+    ar: 'انقر بالضبط عندما يكون الهدف في المنتصف!',
+    vi: 'Nhấp chính xác khi mục tiêu ở giữa!',
+  },
+  roulette: {
+    en: 'ROULETTE',
+    ru: 'РУЛЕТКА',
+    zh: '轮盘',
+    es: 'RULETA',
+    pt: 'ROLETA',
+    ja: 'ルーレット',
+    fr: 'ROULETTE',
+    hi: 'रूलेट',
+    ko: '룰렛',
+    tr: 'RULET',
+    de: 'ROULETTE',
+    ar: 'روليت',
+    vi: 'VÒNG QUAY',
+  },
+  roulette_desc: {
+    en: 'Place your bets! Classic casino game!',
+    ru: 'Делай ставки! Классическая казино игра!',
+    zh: '下注! 经典赌场游戏!',
+    es: '¡Haz tus apuestas! ¡Juego de casino clásico!',
+    pt: 'Faça suas apostas! Jogo de cassino clássico!',
+    ja: 'ベットしよう! クラシックカジノゲーム!',
+    fr: 'Placez vos paris! Jeu de casino classique!',
+    hi: 'अपने दांव लगाओ! क्लासिक कैसीनो गेम!',
+    ko: '베팅하세요! 클래식 카지노 게임!',
+    tr: 'Bahislerinizi koyun! Klasik kumarhane oyunu!',
+    de: 'Platzieren Sie Ihre Wetten! Klassisches Casinospiel!',
+    ar: 'ضع رهاناتك! لعبة كازينو كلاسيكية!',
+    vi: 'Đặt cược! Trò chơi casino cổ điển!',
+  },
+  card_game: {
+    en: 'CARD GAME',
+    ru: 'КАРТЫ',
+    zh: '纸牌',
+    es: 'CARTAS',
+    pt: 'CARTAS',
+    ja: 'カードゲーム',
+    fr: 'JEU DE CARTES',
+    hi: 'कार्ड गेम',
+    ko: '카드 게임',
+    tr: 'KART OYUNU',
+    de: 'KARTENSPIEL',
+    ar: 'لعبة الورق',
+    vi: 'BÀI',
+  },
+  card_game_desc: {
+    en: 'Play Blackjack! Beat the dealer!',
+    ru: 'Играй в блэкджек! Обыграй дилера!',
+    zh: '玩21点! 击败庄家!',
+    es: '¡Juega al Blackjack! ¡Gana al crupier!',
+    pt: 'Jogue Blackjack! Vença o dealer!',
+    ja: 'ブラックジャックをプレイ! ディーラーに勝て!',
+    fr: 'Jouez au Blackjack! Battez le croupier!',
+    hi: 'ब्लैकजैक खेलो! डीलर को हराओ!',
+    ko: '블랙잭 플레이! 딜러를 이겨라!',
+    tr: 'Blackjack oyna! Krupiyeyi yen!',
+    de: 'Spiele Blackjack! Schlage den Dealer!',
+    ar: 'العب بلاك جاك! اهزم الموزع!',
+    vi: 'Chơi Blackjack! Đánh bại nhà cái!',
+  },
 
-    // ========== GAME BUTTONS ==========
-    'start': {
-        en: 'START!', ru: 'СТАРТ!', zh: '开始!', es: '¡INICIO!', pt: 'INICIAR!',
-        ja: 'スタート!', fr: 'DÉMARRER!', hi: 'शुरू!', ko: '시작!', tr: 'BAŞLA!',
-        de: 'START!', ar: 'ابدأ!', vi: 'BẮT ĐẦU!'
-    },
-    'roll': {
-        en: 'ROLL!', ru: 'БРОСИТЬ!', zh: '掷!', es: '¡TIRAR!', pt: 'ROLAR!',
-        ja: 'ロール!', fr: 'LANCER!', hi: 'रोल!', ko: '굴려!', tr: 'AT!',
-        de: 'WÜRFELN!', ar: 'ارمِ!', vi: 'LĂN!'
-    },
-    'start_battle': {
-        en: 'START BATTLE!', ru: 'НАЧАТЬ БОЙ!', zh: '开始战斗!', es: '¡INICIAR BATALLA!', pt: 'INICIAR BATALHA!',
-        ja: 'バトル開始!', fr: 'COMMENCER LE COMBAT!', hi: 'युद्ध शुरू!', ko: '전투 시작!', tr: 'SAVAŞI BAŞLAT!',
-        de: 'KAMPF STARTEN!', ar: 'ابدأ المعركة!', vi: 'BẮT ĐẦU CHIẾN ĐẤU!'
-    },
-    'add_block': {
-        en: 'ADD BLOCK', ru: 'ДОБАВИТЬ БЛОК', zh: '添加方块', es: 'AÑADIR BLOQUE', pt: 'ADICIONAR BLOCO',
-        ja: 'ブロック追加', fr: 'AJOUTER UN BLOC', hi: 'ब्लॉक जोड़ें', ko: '블록 추가', tr: 'BLOK EKLE',
-        de: 'BLOCK HINZUFÜGEN', ar: 'إضافة كتلة', vi: 'THÊM KHỐI'
-    },
-    'cash_out': {
-        en: 'CASH OUT', ru: 'ЗАБРАТЬ', zh: '提现', es: 'RETIRAR', pt: 'SACAR',
-        ja: 'キャッシュアウト', fr: 'ENCAISSER', hi: 'कैश आउट', ko: '캐시아웃', tr: 'PARA ÇEK',
-        de: 'AUSZAHLEN', ar: 'سحب النقود', vi: 'RÚT TIỀN'
-    },
-    'start_building': {
-        en: 'START BUILDING!', ru: 'НАЧАТЬ СТРОИТЬ!', zh: '开始建造!', es: '¡EMPEZAR A CONSTRUIR!', pt: 'COMEÇAR A CONSTRUIR!',
-        ja: '建設開始!', fr: 'COMMENCER À CONSTRUIRE!', hi: 'बिल्डिंग शुरू!', ko: '건설 시작!', tr: 'İNŞAATA BAŞLA!',
-        de: 'MIT DEM BAU BEGINNEN!', ar: 'ابدأ البناء!', vi: 'BẮT ĐẦU XÂY!'
-    },
-    'deal_cards': {
-        en: 'DEAL CARDS!', ru: 'РАЗДАТЬ КАРТЫ!', zh: '发牌!', es: '¡REPARTIR CARTAS!', pt: 'DISTRIBUIR CARTAS!',
-        ja: 'カード配布!', fr: 'DISTRIBUER LES CARTES!', hi: 'कार्ड बांटो!', ko: '카드 돌려!', tr: 'KART DAĞIT!',
-        de: 'KARTEN GEBEN!', ar: 'وزع الورق!', vi: 'CHIA BÀI!'
-    },
-    'hit': {
-        en: 'HIT', ru: 'ЕЩЁ', zh: '要牌', es: 'PEDIR', pt: 'PEDIR',
-        ja: 'ヒット', fr: 'TIRER', hi: 'हिट', ko: '히트', tr: 'ÇEK',
-        de: 'KARTE', ar: 'اسحب', vi: 'BỐC'
-    },
-    'stand': {
-        en: 'STAND', ru: 'СТОП', zh: '停牌', es: 'PLANTARSE', pt: 'PARAR',
-        ja: 'スタンド', fr: 'RESTER', hi: 'स्टैंड', ko: '스탠드', tr: 'KAL',
-        de: 'HALTEN', ar: 'توقف', vi: 'DỪNG'
-    },
-    'perfect': {
-        en: 'Perfect', ru: 'Идеально', zh: '完美', es: 'Perfecto', pt: 'Perfeito',
-        ja: 'パーフェクト', fr: 'Parfait', hi: 'परफेक्ट', ko: '퍼펙트', tr: 'Mükemmel',
-        de: 'Perfekt', ar: 'مثالي', vi: 'Hoàn hảo'
-    },
-    'wins': {
-        en: 'Wins', ru: 'Победы', zh: '胜利', es: 'Victorias', pt: 'Vitórias',
-        ja: '勝利', fr: 'Victoires', hi: 'जीत', ko: '승리', tr: 'Kazanılan',
-        de: 'Siege', ar: 'انتصارات', vi: 'Thắng'
-    },
-    'losses': {
-        en: 'Losses', ru: 'Поражения', zh: '失败', es: 'Derrotas', pt: 'Derrotas',
-        ja: '敗北', fr: 'Défaites', hi: 'हार', ko: '패배', tr: 'Kaybedilen',
-        de: 'Niederlagen', ar: 'خسائر', vi: 'Thua'
-    },
-    'game_over': {
-        en: 'GAME OVER', ru: 'ИГРА ОКОНЧЕНА', zh: '游戏结束', es: 'JUEGO TERMINADO', pt: 'FIM DE JOGO',
-        ja: 'ゲームオーバー', fr: 'JEU TERMINÉ', hi: 'गेम ओवर', ko: '게임 오버', tr: 'OYUN BİTTİ',
-        de: 'SPIEL VORBEI', ar: 'انتهت اللعبة', vi: 'KẾT THÚC'
-    },
-    'play_again': {
-        en: '🔄 PLAY AGAIN', ru: '🔄 ИГРАТЬ СНОВА', zh: '🔄 再玩一次', es: '🔄 JUGAR DE NUEVO', pt: '🔄 JOGAR NOVAMENTE',
-        ja: '🔄 もう一度プレイ', fr: '🔄 REJOUER', hi: '🔄 फिर से खेलें', ko: '🔄 다시 플레이', tr: '🔄 TEKRAR OYNA',
-        de: '🔄 NOCHMAL SPIELEN', ar: '🔄 العب مرة أخرى', vi: '🔄 CHƠI LẠI'
-    },
-    'select_bet': {
-        en: 'Select Bet:', ru: 'Выберите ставку:', zh: '选择投注:', es: 'Selecciona apuesta:', pt: 'Selecione aposta:',
-        ja: 'ベットを選択:', fr: 'Choisissez la mise:', hi: 'दांव चुनें:', ko: '베팅 선택:', tr: 'Bahis seçin:',
-        de: 'Einsatz wählen:', ar: 'اختر الرهان:', vi: 'Chọn cược:'
-    },
-    'choose_bet': {
-        en: 'Choose your bet:', ru: 'Выберите ставку:', zh: '选择您的投注:', es: 'Elige tu apuesta:', pt: 'Escolha sua aposta:',
-        ja: 'ベットを選択:', fr: 'Choisissez votre mise:', hi: 'अपना दांव चुनें:', ko: '베팅을 선택하세요:', tr: 'Bahsinizi seçin:',
-        de: 'Wählen Sie Ihren Einsatz:', ar: 'اختر رهانك:', vi: 'Chọn cược của bạn:'
-    },
-    'enter_amount': {
-        en: 'Or enter custom amount:', ru: 'Или введите сумму:', zh: '或输入自定义金额:', es: 'O ingresa cantidad:', pt: 'Ou digite o valor:',
-        ja: 'または金額を入力:', fr: 'Ou entrez un montant:', hi: 'या राशि दर्ज करें:', ko: '또는 금액 입력:', tr: 'Veya miktar girin:',
-        de: 'Oder Betrag eingeben:', ar: 'أو أدخل المبلغ:', vi: 'Hoặc nhập số tiền:'
-    },
-    'enter_amount_placeholder': {
-        en: 'Enter amount...', ru: 'Введите сумму...', zh: '输入金额...', es: 'Ingresa cantidad...', pt: 'Digite o valor...',
-        ja: '金額を入力...', fr: 'Entrez le montant...', hi: 'राशि दर्ज करें...', ko: '금액 입력...', tr: 'Miktar girin...',
-        de: 'Betrag eingeben...', ar: 'أدخل المبلغ...', vi: 'Nhập số tiền...'
-    },
-    'max_bet_hint': {
-        en: 'Max: 50% of balance', ru: 'Макс: 50% от баланса', zh: '最大: 余额的50%', es: 'Máx: 50% del saldo', pt: 'Máx: 50% do saldo',
-        ja: '最大: 残高の50%', fr: 'Max: 50% du solde', hi: 'अधिकतम: शेष का 50%', ko: '최대: 잔액의 50%', tr: 'Maks: Bakiyenin %50\'si',
-        de: 'Max: 50% des Guthabens', ar: 'الحد الأقصى: 50% من الرصيد', vi: 'Tối đa: 50% số dư'
-    },
-    'score': {
-        en: 'Score', ru: 'Счет', zh: '分数', es: 'Puntuación', pt: 'Pontuação',
-        ja: 'スコア', fr: 'Score', hi: 'स्कोर', ko: '점수', tr: 'Skor',
-        de: 'Punkte', ar: 'النقاط', vi: 'Điểm'
-    },
-    'level': {
-        en: 'Level', ru: 'Уровень', zh: '等级', es: 'Nivel', pt: 'Nível',
-        ja: 'レベル', fr: 'Niveau', hi: 'स्तर', ko: '레벨', tr: 'Seviye',
-        de: 'Level', ar: 'المستوى', vi: 'Cấp độ'
-    },
-    'wave': {
-        en: 'Wave', ru: 'Волна', zh: '波', es: 'Oleada', pt: 'Onda',
-        ja: 'ウェーブ', fr: 'Vague', hi: 'वेव', ko: '웨이브', tr: 'Dalga',
-        de: 'Welle', ar: 'موجة', vi: 'Wave'
-    },
-    'lives': {
-        en: 'Lives', ru: 'Жизни', zh: '生命', es: 'Vidas', pt: 'Vidas',
-        ja: 'ライフ', fr: 'Vies', hi: 'जीवन', ko: '생명', tr: 'Canlar',
-        de: 'Leben', ar: 'حياة', vi: 'Mạng'
-    },
-    'enemies': {
-        en: 'Enemies', ru: 'Враги', zh: '敌人', es: 'Enemigos', pt: 'Inimigos',
-        ja: '敵', fr: 'Ennemis', hi: 'दुश्मन', ko: '적', tr: 'Düşmanlar',
-        de: 'Feinde', ar: 'أعداء', vi: 'Kẻ thù'
-    },
-    'start_game': {
-        en: '🚀 START GAME', ru: '🚀 НАЧАТЬ ИГРУ', zh: '🚀 开始游戏', es: '🚀 INICIAR JUEGO', pt: '🚀 INICIAR JOGO',
-        ja: '🚀 ゲーム開始', fr: '🚀 COMMENCER', hi: '🚀 गेम शुरू करें', ko: '🚀 게임 시작', tr: '🚀 OYUNA BAŞLA',
-        de: '🚀 SPIEL STARTEN', ar: '🚀 ابدأ اللعبة', vi: '🚀 BẮT ĐẦU'
-    },
-    'win_up_to': {
-        en: 'Win up to', ru: 'Выиграй до', zh: '赢取最高', es: 'Gana hasta', pt: 'Ganhe até',
-        ja: '最大勝利', fr: 'Gagnez jusqu\'à', hi: 'तक जीतें', ko: '최대 획득', tr: 'Kazanç',
-        de: 'Gewinne bis zu', ar: 'اربح حتى', vi: 'Thắng lên đến'
-    },
-    'spin_and_win': {
-        en: 'Spin and win up to 10x!', ru: 'Крути и выигрывай до 10x!', zh: '旋转并赢取最高10倍!', es: '¡Gira y gana hasta 10x!', pt: 'Gire e ganhe até 10x!',
-        ja: '回して最大10倍を獲得!', fr: 'Tournez et gagnez jusqu\'à 10x!', hi: 'घुमाएं और 10x तक जीतें!', ko: '돌려서 최대 10배 획득!', tr: 'Çevir ve 10x\'e kadar kazan!',
-        de: 'Drehen und bis zu 10x gewinnen!', ar: 'أدر واربح حتى 10x!', vi: 'Quay và thắng lên đến 10x!'
-    },
-    'progressive_jackpot': {
-        en: '🎰 PROGRESSIVE JACKPOT 🎰', ru: '🎰 ПРОГРЕССИВНЫЙ ДЖЕКПОТ 🎰', zh: '🎰 累积大奖 🎰', es: '🎰 JACKPOT PROGRESIVO 🎰', pt: '🎰 JACKPOT PROGRESSIVO 🎰',
-        ja: '🎰 プログレッシブジャックポット 🎰', fr: '🎰 JACKPOT PROGRESSIF 🎰', hi: '🎰 प्रोग्रेसिव जैकपॉट 🎰', ko: '🎰 프로그레시브 잭팟 🎰', tr: '🎰 PROGRESIF JACKPOT 🎰',
-        de: '🎰 PROGRESSIVER JACKPOT 🎰', ar: '🎰 الجائزة الكبرى التراكمية 🎰', vi: '🎰 JACKPOT TÍCH LŨY 🎰'
-    },
-    'jackpot_grows': {
-        en: '5% of each bet grows the pool!', ru: '5% от каждой ставки увеличивает джекпот!', zh: '每次投注的5%增加奖池!', es: '¡5% de cada apuesta aumenta el bote!', pt: '5% de cada aposta aumenta o prêmio!',
-        ja: '各ベットの5%がプールを増やします!', fr: '5% de chaque mise augmente le jackpot!', hi: 'प्रत्येक दांव का 5% पूल बढ़ाता है!', ko: '각 베팅의 5%가 잭팟을 증가시킵니다!', tr: 'Her bahsin %5\'i havuzu büyütür!',
-        de: '5% jeder Wette erhöht den Jackpot!', ar: '5% من كل رهان يزيد الجائزة!', vi: '5% mỗi cược tăng jackpot!'
-    },
-    'connect_wallet': {
-        en: '🔗 Connect Wallet', ru: '🔗 Подключить кошелек', zh: '🔗 连接钱包', es: '🔗 Conectar Cartera', pt: '🔗 Conectar Carteira',
-        ja: '🔗 ウォレットを接続', fr: '🔗 Connecter le Portefeuille', hi: '🔗 वॉलेट कनेक्ट करें', ko: '🔗 지갑 연결', tr: '🔗 Cüzdan Bağla',
-        de: '🔗 Wallet verbinden', ar: '🔗 ربط المحفظة', vi: '🔗 Kết nối ví'
-    },
-    'connected_wallet': {
-        en: '🔗 Connected Wallet', ru: '🔗 Подключенный кошелек', zh: '🔗 已连接钱包', es: '🔗 Cartera Conectada', pt: '🔗 Carteira Conectada',
-        ja: '🔗 接続済みウォレット', fr: '🔗 Portefeuille Connecté', hi: '🔗 कनेक्टेड वॉलेट', ko: '🔗 연결된 지갑', tr: '🔗 Bağlı Cüzdan',
-        de: '🔗 Wallet verbunden', ar: '🔗 محفظة متصلة', vi: '🔗 Ví đã kết nối'
-    },
-    'disconnect': {
-        en: 'Disconnect', ru: 'Отключить', zh: '断开连接', es: 'Desconectar', pt: 'Desconectar',
-        ja: '切断', fr: 'Déconnecter', hi: 'डिस्कनेक्ट', ko: '연결 해제', tr: 'Bağlantıyı Kes',
-        de: 'Trennen', ar: 'قطع الاتصال', vi: 'Ngắt kết nối'
-    },
+  // ========== GAME BUTTONS ==========
+  start: {
+    en: 'START!',
+    ru: 'СТАРТ!',
+    zh: '开始!',
+    es: '¡INICIO!',
+    pt: 'INICIAR!',
+    ja: 'スタート!',
+    fr: 'DÉMARRER!',
+    hi: 'शुरू!',
+    ko: '시작!',
+    tr: 'BAŞLA!',
+    de: 'START!',
+    ar: 'ابدأ!',
+    vi: 'BẮT ĐẦU!',
+  },
+  roll: {
+    en: 'ROLL!',
+    ru: 'БРОСИТЬ!',
+    zh: '掷!',
+    es: '¡TIRAR!',
+    pt: 'ROLAR!',
+    ja: 'ロール!',
+    fr: 'LANCER!',
+    hi: 'रोल!',
+    ko: '굴려!',
+    tr: 'AT!',
+    de: 'WÜRFELN!',
+    ar: 'ارمِ!',
+    vi: 'LĂN!',
+  },
+  start_battle: {
+    en: 'START BATTLE!',
+    ru: 'НАЧАТЬ БОЙ!',
+    zh: '开始战斗!',
+    es: '¡INICIAR BATALLA!',
+    pt: 'INICIAR BATALHA!',
+    ja: 'バトル開始!',
+    fr: 'COMMENCER LE COMBAT!',
+    hi: 'युद्ध शुरू!',
+    ko: '전투 시작!',
+    tr: 'SAVAŞI BAŞLAT!',
+    de: 'KAMPF STARTEN!',
+    ar: 'ابدأ المعركة!',
+    vi: 'BẮT ĐẦU CHIẾN ĐẤU!',
+  },
+  add_block: {
+    en: 'ADD BLOCK',
+    ru: 'ДОБАВИТЬ БЛОК',
+    zh: '添加方块',
+    es: 'AÑADIR BLOQUE',
+    pt: 'ADICIONAR BLOCO',
+    ja: 'ブロック追加',
+    fr: 'AJOUTER UN BLOC',
+    hi: 'ब्लॉक जोड़ें',
+    ko: '블록 추가',
+    tr: 'BLOK EKLE',
+    de: 'BLOCK HINZUFÜGEN',
+    ar: 'إضافة كتلة',
+    vi: 'THÊM KHỐI',
+  },
+  cash_out: {
+    en: 'CASH OUT',
+    ru: 'ЗАБРАТЬ',
+    zh: '提现',
+    es: 'RETIRAR',
+    pt: 'SACAR',
+    ja: 'キャッシュアウト',
+    fr: 'ENCAISSER',
+    hi: 'कैश आउट',
+    ko: '캐시아웃',
+    tr: 'PARA ÇEK',
+    de: 'AUSZAHLEN',
+    ar: 'سحب النقود',
+    vi: 'RÚT TIỀN',
+  },
+  start_building: {
+    en: 'START BUILDING!',
+    ru: 'НАЧАТЬ СТРОИТЬ!',
+    zh: '开始建造!',
+    es: '¡EMPEZAR A CONSTRUIR!',
+    pt: 'COMEÇAR A CONSTRUIR!',
+    ja: '建設開始!',
+    fr: 'COMMENCER À CONSTRUIRE!',
+    hi: 'बिल्डिंग शुरू!',
+    ko: '건설 시작!',
+    tr: 'İNŞAATA BAŞLA!',
+    de: 'MIT DEM BAU BEGINNEN!',
+    ar: 'ابدأ البناء!',
+    vi: 'BẮT ĐẦU XÂY!',
+  },
+  deal_cards: {
+    en: 'DEAL CARDS!',
+    ru: 'РАЗДАТЬ КАРТЫ!',
+    zh: '发牌!',
+    es: '¡REPARTIR CARTAS!',
+    pt: 'DISTRIBUIR CARTAS!',
+    ja: 'カード配布!',
+    fr: 'DISTRIBUER LES CARTES!',
+    hi: 'कार्ड बांटो!',
+    ko: '카드 돌려!',
+    tr: 'KART DAĞIT!',
+    de: 'KARTEN GEBEN!',
+    ar: 'وزع الورق!',
+    vi: 'CHIA BÀI!',
+  },
+  hit: {
+    en: 'HIT',
+    ru: 'ЕЩЁ',
+    zh: '要牌',
+    es: 'PEDIR',
+    pt: 'PEDIR',
+    ja: 'ヒット',
+    fr: 'TIRER',
+    hi: 'हिट',
+    ko: '히트',
+    tr: 'ÇEK',
+    de: 'KARTE',
+    ar: 'اسحب',
+    vi: 'BỐC',
+  },
+  stand: {
+    en: 'STAND',
+    ru: 'СТОП',
+    zh: '停牌',
+    es: 'PLANTARSE',
+    pt: 'PARAR',
+    ja: 'スタンド',
+    fr: 'RESTER',
+    hi: 'स्टैंड',
+    ko: '스탠드',
+    tr: 'KAL',
+    de: 'HALTEN',
+    ar: 'توقف',
+    vi: 'DỪNG',
+  },
+  perfect: {
+    en: 'Perfect',
+    ru: 'Идеально',
+    zh: '完美',
+    es: 'Perfecto',
+    pt: 'Perfeito',
+    ja: 'パーフェクト',
+    fr: 'Parfait',
+    hi: 'परफेक्ट',
+    ko: '퍼펙트',
+    tr: 'Mükemmel',
+    de: 'Perfekt',
+    ar: 'مثالي',
+    vi: 'Hoàn hảo',
+  },
+  wins: {
+    en: 'Wins',
+    ru: 'Победы',
+    zh: '胜利',
+    es: 'Victorias',
+    pt: 'Vitórias',
+    ja: '勝利',
+    fr: 'Victoires',
+    hi: 'जीत',
+    ko: '승리',
+    tr: 'Kazanılan',
+    de: 'Siege',
+    ar: 'انتصارات',
+    vi: 'Thắng',
+  },
+  losses: {
+    en: 'Losses',
+    ru: 'Поражения',
+    zh: '失败',
+    es: 'Derrotas',
+    pt: 'Derrotas',
+    ja: '敗北',
+    fr: 'Défaites',
+    hi: 'हार',
+    ko: '패배',
+    tr: 'Kaybedilen',
+    de: 'Niederlagen',
+    ar: 'خسائر',
+    vi: 'Thua',
+  },
+  game_over: {
+    en: 'GAME OVER',
+    ru: 'ИГРА ОКОНЧЕНА',
+    zh: '游戏结束',
+    es: 'JUEGO TERMINADO',
+    pt: 'FIM DE JOGO',
+    ja: 'ゲームオーバー',
+    fr: 'JEU TERMINÉ',
+    hi: 'गेम ओवर',
+    ko: '게임 오버',
+    tr: 'OYUN BİTTİ',
+    de: 'SPIEL VORBEI',
+    ar: 'انتهت اللعبة',
+    vi: 'KẾT THÚC',
+  },
+  play_again: {
+    en: '🔄 PLAY AGAIN',
+    ru: '🔄 ИГРАТЬ СНОВА',
+    zh: '🔄 再玩一次',
+    es: '🔄 JUGAR DE NUEVO',
+    pt: '🔄 JOGAR NOVAMENTE',
+    ja: '🔄 もう一度プレイ',
+    fr: '🔄 REJOUER',
+    hi: '🔄 फिर से खेलें',
+    ko: '🔄 다시 플레이',
+    tr: '🔄 TEKRAR OYNA',
+    de: '🔄 NOCHMAL SPIELEN',
+    ar: '🔄 العب مرة أخرى',
+    vi: '🔄 CHƠI LẠI',
+  },
+  select_bet: {
+    en: 'Select Bet:',
+    ru: 'Выберите ставку:',
+    zh: '选择投注:',
+    es: 'Selecciona apuesta:',
+    pt: 'Selecione aposta:',
+    ja: 'ベットを選択:',
+    fr: 'Choisissez la mise:',
+    hi: 'दांव चुनें:',
+    ko: '베팅 선택:',
+    tr: 'Bahis seçin:',
+    de: 'Einsatz wählen:',
+    ar: 'اختر الرهان:',
+    vi: 'Chọn cược:',
+  },
+  choose_bet: {
+    en: 'Choose your bet:',
+    ru: 'Выберите ставку:',
+    zh: '选择您的投注:',
+    es: 'Elige tu apuesta:',
+    pt: 'Escolha sua aposta:',
+    ja: 'ベットを選択:',
+    fr: 'Choisissez votre mise:',
+    hi: 'अपना दांव चुनें:',
+    ko: '베팅을 선택하세요:',
+    tr: 'Bahsinizi seçin:',
+    de: 'Wählen Sie Ihren Einsatz:',
+    ar: 'اختر رهانك:',
+    vi: 'Chọn cược của bạn:',
+  },
+  enter_amount: {
+    en: 'Or enter custom amount:',
+    ru: 'Или введите сумму:',
+    zh: '或输入自定义金额:',
+    es: 'O ingresa cantidad:',
+    pt: 'Ou digite o valor:',
+    ja: 'または金額を入力:',
+    fr: 'Ou entrez un montant:',
+    hi: 'या राशि दर्ज करें:',
+    ko: '또는 금액 입력:',
+    tr: 'Veya miktar girin:',
+    de: 'Oder Betrag eingeben:',
+    ar: 'أو أدخل المبلغ:',
+    vi: 'Hoặc nhập số tiền:',
+  },
+  enter_amount_placeholder: {
+    en: 'Enter amount...',
+    ru: 'Введите сумму...',
+    zh: '输入金额...',
+    es: 'Ingresa cantidad...',
+    pt: 'Digite o valor...',
+    ja: '金額を入力...',
+    fr: 'Entrez le montant...',
+    hi: 'राशि दर्ज करें...',
+    ko: '금액 입력...',
+    tr: 'Miktar girin...',
+    de: 'Betrag eingeben...',
+    ar: 'أدخل المبلغ...',
+    vi: 'Nhập số tiền...',
+  },
+  max_bet_hint: {
+    en: 'Max: 50% of balance',
+    ru: 'Макс: 50% от баланса',
+    zh: '最大: 余额的50%',
+    es: 'Máx: 50% del saldo',
+    pt: 'Máx: 50% do saldo',
+    ja: '最大: 残高の50%',
+    fr: 'Max: 50% du solde',
+    hi: 'अधिकतम: शेष का 50%',
+    ko: '최대: 잔액의 50%',
+    tr: "Maks: Bakiyenin %50'si",
+    de: 'Max: 50% des Guthabens',
+    ar: 'الحد الأقصى: 50% من الرصيد',
+    vi: 'Tối đa: 50% số dư',
+  },
+  score: {
+    en: 'Score',
+    ru: 'Счет',
+    zh: '分数',
+    es: 'Puntuación',
+    pt: 'Pontuação',
+    ja: 'スコア',
+    fr: 'Score',
+    hi: 'स्कोर',
+    ko: '점수',
+    tr: 'Skor',
+    de: 'Punkte',
+    ar: 'النقاط',
+    vi: 'Điểm',
+  },
+  level: {
+    en: 'Level',
+    ru: 'Уровень',
+    zh: '等级',
+    es: 'Nivel',
+    pt: 'Nível',
+    ja: 'レベル',
+    fr: 'Niveau',
+    hi: 'स्तर',
+    ko: '레벨',
+    tr: 'Seviye',
+    de: 'Level',
+    ar: 'المستوى',
+    vi: 'Cấp độ',
+  },
+  wave: {
+    en: 'Wave',
+    ru: 'Волна',
+    zh: '波',
+    es: 'Oleada',
+    pt: 'Onda',
+    ja: 'ウェーブ',
+    fr: 'Vague',
+    hi: 'वेव',
+    ko: '웨이브',
+    tr: 'Dalga',
+    de: 'Welle',
+    ar: 'موجة',
+    vi: 'Wave',
+  },
+  lives: {
+    en: 'Lives',
+    ru: 'Жизни',
+    zh: '生命',
+    es: 'Vidas',
+    pt: 'Vidas',
+    ja: 'ライフ',
+    fr: 'Vies',
+    hi: 'जीवन',
+    ko: '생명',
+    tr: 'Canlar',
+    de: 'Leben',
+    ar: 'حياة',
+    vi: 'Mạng',
+  },
+  enemies: {
+    en: 'Enemies',
+    ru: 'Враги',
+    zh: '敌人',
+    es: 'Enemigos',
+    pt: 'Inimigos',
+    ja: '敵',
+    fr: 'Ennemis',
+    hi: 'दुश्मन',
+    ko: '적',
+    tr: 'Düşmanlar',
+    de: 'Feinde',
+    ar: 'أعداء',
+    vi: 'Kẻ thù',
+  },
+  start_game: {
+    en: '🚀 START GAME',
+    ru: '🚀 НАЧАТЬ ИГРУ',
+    zh: '🚀 开始游戏',
+    es: '🚀 INICIAR JUEGO',
+    pt: '🚀 INICIAR JOGO',
+    ja: '🚀 ゲーム開始',
+    fr: '🚀 COMMENCER',
+    hi: '🚀 गेम शुरू करें',
+    ko: '🚀 게임 시작',
+    tr: '🚀 OYUNA BAŞLA',
+    de: '🚀 SPIEL STARTEN',
+    ar: '🚀 ابدأ اللعبة',
+    vi: '🚀 BẮT ĐẦU',
+  },
+  win_up_to: {
+    en: 'Win up to',
+    ru: 'Выиграй до',
+    zh: '赢取最高',
+    es: 'Gana hasta',
+    pt: 'Ganhe até',
+    ja: '最大勝利',
+    fr: "Gagnez jusqu'à",
+    hi: 'तक जीतें',
+    ko: '최대 획득',
+    tr: 'Kazanç',
+    de: 'Gewinne bis zu',
+    ar: 'اربح حتى',
+    vi: 'Thắng lên đến',
+  },
+  spin_and_win: {
+    en: 'Spin and win up to 10x!',
+    ru: 'Крути и выигрывай до 10x!',
+    zh: '旋转并赢取最高10倍!',
+    es: '¡Gira y gana hasta 10x!',
+    pt: 'Gire e ganhe até 10x!',
+    ja: '回して最大10倍を獲得!',
+    fr: "Tournez et gagnez jusqu'à 10x!",
+    hi: 'घुमाएं और 10x तक जीतें!',
+    ko: '돌려서 최대 10배 획득!',
+    tr: "Çevir ve 10x'e kadar kazan!",
+    de: 'Drehen und bis zu 10x gewinnen!',
+    ar: 'أدر واربح حتى 10x!',
+    vi: 'Quay và thắng lên đến 10x!',
+  },
+  progressive_jackpot: {
+    en: '🎰 PROGRESSIVE JACKPOT 🎰',
+    ru: '🎰 ПРОГРЕССИВНЫЙ ДЖЕКПОТ 🎰',
+    zh: '🎰 累积大奖 🎰',
+    es: '🎰 JACKPOT PROGRESIVO 🎰',
+    pt: '🎰 JACKPOT PROGRESSIVO 🎰',
+    ja: '🎰 プログレッシブジャックポット 🎰',
+    fr: '🎰 JACKPOT PROGRESSIF 🎰',
+    hi: '🎰 प्रोग्रेसिव जैकपॉट 🎰',
+    ko: '🎰 프로그레시브 잭팟 🎰',
+    tr: '🎰 PROGRESIF JACKPOT 🎰',
+    de: '🎰 PROGRESSIVER JACKPOT 🎰',
+    ar: '🎰 الجائزة الكبرى التراكمية 🎰',
+    vi: '🎰 JACKPOT TÍCH LŨY 🎰',
+  },
+  jackpot_grows: {
+    en: '5% of each bet grows the pool!',
+    ru: '5% от каждой ставки увеличивает джекпот!',
+    zh: '每次投注的5%增加奖池!',
+    es: '¡5% de cada apuesta aumenta el bote!',
+    pt: '5% de cada aposta aumenta o prêmio!',
+    ja: '各ベットの5%がプールを増やします!',
+    fr: '5% de chaque mise augmente le jackpot!',
+    hi: 'प्रत्येक दांव का 5% पूल बढ़ाता है!',
+    ko: '각 베팅의 5%가 잭팟을 증가시킵니다!',
+    tr: "Her bahsin %5'i havuzu büyütür!",
+    de: '5% jeder Wette erhöht den Jackpot!',
+    ar: '5% من كل رهان يزيد الجائزة!',
+    vi: '5% mỗi cược tăng jackpot!',
+  },
+  connect_wallet: {
+    en: '🔗 Connect Wallet',
+    ru: '🔗 Подключить кошелек',
+    zh: '🔗 连接钱包',
+    es: '🔗 Conectar Cartera',
+    pt: '🔗 Conectar Carteira',
+    ja: '🔗 ウォレットを接続',
+    fr: '🔗 Connecter le Portefeuille',
+    hi: '🔗 वॉलेट कनेक्ट करें',
+    ko: '🔗 지갑 연결',
+    tr: '🔗 Cüzdan Bağla',
+    de: '🔗 Wallet verbinden',
+    ar: '🔗 ربط المحفظة',
+    vi: '🔗 Kết nối ví',
+  },
+  connected_wallet: {
+    en: '🔗 Connected Wallet',
+    ru: '🔗 Подключенный кошелек',
+    zh: '🔗 已连接钱包',
+    es: '🔗 Cartera Conectada',
+    pt: '🔗 Carteira Conectada',
+    ja: '🔗 接続済みウォレット',
+    fr: '🔗 Portefeuille Connecté',
+    hi: '🔗 कनेक्टेड वॉलेट',
+    ko: '🔗 연결된 지갑',
+    tr: '🔗 Bağlı Cüzdan',
+    de: '🔗 Wallet verbunden',
+    ar: '🔗 محفظة متصلة',
+    vi: '🔗 Ví đã kết nối',
+  },
+  disconnect: {
+    en: 'Disconnect',
+    ru: 'Отключить',
+    zh: '断开连接',
+    es: 'Desconectar',
+    pt: 'Desconectar',
+    ja: '切断',
+    fr: 'Déconnecter',
+    hi: 'डिस्कनेक्ट',
+    ko: '연결 해제',
+    tr: 'Bağlantıyı Kes',
+    de: 'Trennen',
+    ar: 'قطع الاتصال',
+    vi: 'Ngắt kết nối',
+  },
 
-    // ========== MODALS ==========
-    'top_players': {
-        en: 'Top Players', ru: 'Топ игроков', zh: '顶级玩家', es: 'Mejores Jugadores', pt: 'Melhores Jogadores',
-        ja: 'トッププレイヤー', fr: 'Meilleurs Joueurs', hi: 'टॉप प्लेयर्स', ko: '최고 플레이어', tr: 'En İyi Oyuncular',
-        de: 'Top Spieler', ar: 'أفضل اللاعبين', vi: 'Người chơi hàng đầu'
-    },
-    'change_name': {
-        en: 'Change Your Name', ru: 'Изменить имя', zh: '更改名字', es: 'Cambiar Nombre', pt: 'Alterar Nome',
-        ja: '名前を変更', fr: 'Changer de Nom', hi: 'नाम बदलें', ko: '이름 변경', tr: 'Adını Değiştir',
-        de: 'Namen ändern', ar: 'غير اسمك', vi: 'Đổi tên'
-    },
-    'choose_display_name': {
-        en: 'Choose your display name:', ru: 'Выберите отображаемое имя:', zh: '选择您的显示名称:', es: 'Elige tu nombre:',
-        pt: 'Escolha seu nome de exibição:', ja: '表示名を選択:', fr: 'Choisissez votre nom:', hi: 'अपना नाम चुनें:',
-        ko: '표시 이름을 선택하세요:', tr: 'Görünen adınızı seçin:', de: 'Wählen Sie Ihren Anzeigenamen:',
-        ar: 'اختر اسم العرض الخاص بك:', vi: 'Chọn tên hiển thị của bạn:'
-    },
-    'enter_name': {
-        en: 'Enter your name', ru: 'Введите имя', zh: '输入名字', es: 'Ingresa tu nombre', pt: 'Digite seu nome',
-        ja: '名前を入力', fr: 'Entrez votre nom', hi: 'अपना नाम दर्ज करें', ko: '이름을 입력하세요', tr: 'Adınızı girin',
-        de: 'Namen eingeben', ar: 'أدخل اسمك', vi: 'Nhập tên của bạn'
-    },
-    'help_guide': {
-        en: 'Help & Guide', ru: 'Помощь и гайд', zh: '帮助和指南', es: 'Ayuda y Guía', pt: 'Ajuda e Guia',
-        ja: 'ヘルプ＆ガイド', fr: 'Aide & Guide', hi: 'सहायता और गाइड', ko: '도움말 및 가이드', tr: 'Yardım ve Rehber',
-        de: 'Hilfe & Anleitung', ar: 'المساعدة والدليل', vi: 'Trợ giúp & Hướng dẫn'
-    },
-    'quick_start': {
-        en: 'Quick Start', ru: 'Быстрый старт', zh: '快速开始', es: 'Inicio Rápido', pt: 'Início Rápido',
-        ja: 'クイックスタート', fr: 'Démarrage Rapide', hi: 'क्विक स्टार्ट', ko: '빠른 시작', tr: 'Hızlı Başlangıç',
-        de: 'Schnellstart', ar: 'بداية سريعة', vi: 'Bắt đầu nhanh'
-    },
-    'how_to_earn': {
-        en: 'How to Earn', ru: 'Как заработать', zh: '如何赚取', es: 'Cómo Ganar', pt: 'Como Ganhar',
-        ja: '稼ぎ方', fr: 'Comment Gagner', hi: 'कैसे कमाएं', ko: '수익 방법', tr: 'Nasıl Kazanılır',
-        de: 'Wie man verdient', ar: 'كيف تكسب', vi: 'Cách kiếm tiền'
-    },
-    'shop_guide': {
-        en: 'Shop Guide', ru: 'Гайд по магазину', zh: '商店指南', es: 'Guía de Tienda', pt: 'Guia da Loja',
-        ja: 'ショップガイド', fr: 'Guide Boutique', hi: 'शॉप गाइड', ko: '상점 가이드', tr: 'Mağaza Rehberi',
-        de: 'Shop-Anleitung', ar: 'دليل المتجر', vi: 'Hướng dẫn cửa hàng'
-    },
-    'faq': {
-        en: 'FAQ', ru: 'ЧаВо', zh: '常见问题', es: 'Preguntas', pt: 'Perguntas', ja: 'よくある質問',
-        fr: 'FAQ', hi: 'अक्सर पूछे जाने वाले प्रश्न', ko: '자주 묻는 질문', tr: 'SSS',
-        de: 'FAQ', ar: 'الأسئلة الشائعة', vi: 'Câu hỏi thường gặp'
-    },
-    'level': {
-        en: 'Level', ru: 'Уровень', zh: '等级', es: 'Nivel', pt: 'Nível',
-        ja: 'レベル', fr: 'Niveau', hi: 'लेवल', ko: '레벨', tr: 'Seviye',
-        de: 'Level', ar: 'المستوى', vi: 'Cấp'
-    },
-    'rank': {
-        en: 'Rank', ru: 'Ранг', zh: '排名', es: 'Rango', pt: 'Ranking',
-        ja: 'ランク', fr: 'Rang', hi: 'रैंक', ko: '순위', tr: 'Sıralama',
-        de: 'Rang', ar: 'الترتيب', vi: 'Hạng'
-    },
+  // ========== MODALS ==========
+  top_players: {
+    en: 'Top Players',
+    ru: 'Топ игроков',
+    zh: '顶级玩家',
+    es: 'Mejores Jugadores',
+    pt: 'Melhores Jogadores',
+    ja: 'トッププレイヤー',
+    fr: 'Meilleurs Joueurs',
+    hi: 'टॉप प्लेयर्स',
+    ko: '최고 플레이어',
+    tr: 'En İyi Oyuncular',
+    de: 'Top Spieler',
+    ar: 'أفضل اللاعبين',
+    vi: 'Người chơi hàng đầu',
+  },
+  change_name: {
+    en: 'Change Your Name',
+    ru: 'Изменить имя',
+    zh: '更改名字',
+    es: 'Cambiar Nombre',
+    pt: 'Alterar Nome',
+    ja: '名前を変更',
+    fr: 'Changer de Nom',
+    hi: 'नाम बदलें',
+    ko: '이름 변경',
+    tr: 'Adını Değiştir',
+    de: 'Namen ändern',
+    ar: 'غير اسمك',
+    vi: 'Đổi tên',
+  },
+  choose_display_name: {
+    en: 'Choose your display name:',
+    ru: 'Выберите отображаемое имя:',
+    zh: '选择您的显示名称:',
+    es: 'Elige tu nombre:',
+    pt: 'Escolha seu nome de exibição:',
+    ja: '表示名を選択:',
+    fr: 'Choisissez votre nom:',
+    hi: 'अपना नाम चुनें:',
+    ko: '표시 이름을 선택하세요:',
+    tr: 'Görünen adınızı seçin:',
+    de: 'Wählen Sie Ihren Anzeigenamen:',
+    ar: 'اختر اسم العرض الخاص بك:',
+    vi: 'Chọn tên hiển thị của bạn:',
+  },
+  enter_name: {
+    en: 'Enter your name',
+    ru: 'Введите имя',
+    zh: '输入名字',
+    es: 'Ingresa tu nombre',
+    pt: 'Digite seu nome',
+    ja: '名前を入力',
+    fr: 'Entrez votre nom',
+    hi: 'अपना नाम दर्ज करें',
+    ko: '이름을 입력하세요',
+    tr: 'Adınızı girin',
+    de: 'Namen eingeben',
+    ar: 'أدخل اسمك',
+    vi: 'Nhập tên của bạn',
+  },
+  help_guide: {
+    en: 'Help & Guide',
+    ru: 'Помощь и гайд',
+    zh: '帮助和指南',
+    es: 'Ayuda y Guía',
+    pt: 'Ajuda e Guia',
+    ja: 'ヘルプ＆ガイド',
+    fr: 'Aide & Guide',
+    hi: 'सहायता और गाइड',
+    ko: '도움말 및 가이드',
+    tr: 'Yardım ve Rehber',
+    de: 'Hilfe & Anleitung',
+    ar: 'المساعدة والدليل',
+    vi: 'Trợ giúp & Hướng dẫn',
+  },
+  quick_start: {
+    en: 'Quick Start',
+    ru: 'Быстрый старт',
+    zh: '快速开始',
+    es: 'Inicio Rápido',
+    pt: 'Início Rápido',
+    ja: 'クイックスタート',
+    fr: 'Démarrage Rapide',
+    hi: 'क्विक स्टार्ट',
+    ko: '빠른 시작',
+    tr: 'Hızlı Başlangıç',
+    de: 'Schnellstart',
+    ar: 'بداية سريعة',
+    vi: 'Bắt đầu nhanh',
+  },
+  how_to_earn: {
+    en: 'How to Earn',
+    ru: 'Как заработать',
+    zh: '如何赚取',
+    es: 'Cómo Ganar',
+    pt: 'Como Ganhar',
+    ja: '稼ぎ方',
+    fr: 'Comment Gagner',
+    hi: 'कैसे कमाएं',
+    ko: '수익 방법',
+    tr: 'Nasıl Kazanılır',
+    de: 'Wie man verdient',
+    ar: 'كيف تكسب',
+    vi: 'Cách kiếm tiền',
+  },
+  shop_guide: {
+    en: 'Shop Guide',
+    ru: 'Гайд по магазину',
+    zh: '商店指南',
+    es: 'Guía de Tienda',
+    pt: 'Guia da Loja',
+    ja: 'ショップガイド',
+    fr: 'Guide Boutique',
+    hi: 'शॉप गाइड',
+    ko: '상점 가이드',
+    tr: 'Mağaza Rehberi',
+    de: 'Shop-Anleitung',
+    ar: 'دليل المتجر',
+    vi: 'Hướng dẫn cửa hàng',
+  },
+  faq: {
+    en: 'FAQ',
+    ru: 'ЧаВо',
+    zh: '常见问题',
+    es: 'Preguntas',
+    pt: 'Perguntas',
+    ja: 'よくある質問',
+    fr: 'FAQ',
+    hi: 'अक्सर पूछे जाने वाले प्रश्न',
+    ko: '자주 묻는 질문',
+    tr: 'SSS',
+    de: 'FAQ',
+    ar: 'الأسئلة الشائعة',
+    vi: 'Câu hỏi thường gặp',
+  },
+  level: {
+    en: 'Level',
+    ru: 'Уровень',
+    zh: '等级',
+    es: 'Nivel',
+    pt: 'Nível',
+    ja: 'レベル',
+    fr: 'Niveau',
+    hi: 'लेवल',
+    ko: '레벨',
+    tr: 'Seviye',
+    de: 'Level',
+    ar: 'المستوى',
+    vi: 'Cấp',
+  },
+  rank: {
+    en: 'Rank',
+    ru: 'Ранг',
+    zh: '排名',
+    es: 'Rango',
+    pt: 'Ranking',
+    ja: 'ランク',
+    fr: 'Rang',
+    hi: 'रैंक',
+    ko: '순위',
+    tr: 'Sıralama',
+    de: 'Rang',
+    ar: 'الترتيب',
+    vi: 'Hạng',
+  },
 
-    // ========== WITHDRAW MODAL ==========
-    'withdraw_tama': {
-        en: 'Withdraw TAMA', ru: 'Вывод TAMA', zh: '提取TAMA', es: 'Retirar TAMA', pt: 'Sacar TAMA',
-        ja: 'TAMA出金', fr: 'Retirer TAMA', hi: 'TAMA निकालें', ko: 'TAMA 출금', tr: 'TAMA Çek',
-        de: 'TAMA abheben', ar: 'سحب TAMA', vi: 'Rút TAMA'
-    },
-    'your_balance': {
-        en: 'Your Balance', ru: 'Ваш баланс', zh: '您的余额', es: 'Tu Saldo', pt: 'Seu Saldo',
-        ja: '残高', fr: 'Votre Solde', hi: 'आपका बैलेंस', ko: '잔액', tr: 'Bakiyeniz',
-        de: 'Ihr Guthaben', ar: 'رصيدك', vi: 'Số dư của bạn'
-    },
-    'wallet_address': {
-        en: 'Wallet Address', ru: 'Адрес кошелька', zh: '钱包地址', es: 'Dirección de Cartera', pt: 'Endereço da Carteira',
-        ja: 'ウォレットアドレス', fr: 'Adresse du Portefeuille', hi: 'वॉलेट एड्रेस', ko: '지갑 주소', tr: 'Cüzdan Adresi',
-        de: 'Wallet-Adresse', ar: 'عنوان المحفظة', vi: 'Địa chỉ ví'
-    },
-    'saved_wallets': {
-        en: 'Saved Wallets', ru: 'Сохраненные кошельки', zh: '已保存的钱包', es: 'Carteras Guardadas', pt: 'Carteiras Salvas',
-        ja: '保存済みウォレット', fr: 'Portefeuilles Enregistrés', hi: 'सहेजे गए वॉलेट', ko: '저장된 지갑', tr: 'Kayıtlı Cüzdanlar',
-        de: 'Gespeicherte Wallets', ar: 'المحافظ المحفوظة', vi: 'Ví đã lưu'
-    },
-    'use_selected': {
-        en: 'Use Selected', ru: 'Использовать', zh: '使用选中', es: 'Usar Seleccionado', pt: 'Usar Selecionado',
-        ja: '選択を使用', fr: 'Utiliser Sélectionné', hi: 'चयनित का उपयोग करें', ko: '선택 사용', tr: 'Seçileni Kullan',
-        de: 'Ausgewählte verwenden', ar: 'استخدام المحدد', vi: 'Sử dụng đã chọn'
-    },
-    'delete': {
-        en: 'Delete', ru: 'Удалить', zh: '删除', es: 'Eliminar', pt: 'Excluir',
-        ja: '削除', fr: 'Supprimer', hi: 'हटाएं', ko: '삭제', tr: 'Sil',
-        de: 'Löschen', ar: 'حذف', vi: 'Xóa'
-    },
-    'connect_phantom': {
-        en: 'Connect Phantom Wallet', ru: 'Подключить Phantom', zh: '连接Phantom钱包', es: 'Conectar Phantom', pt: 'Conectar Phantom',
-        ja: 'Phantomを接続', fr: 'Connecter Phantom', hi: 'Phantom कनेक्ट करें', ko: 'Phantom 연결', tr: 'Phantom Bağla',
-        de: 'Phantom verbinden', ar: 'ربط Phantom', vi: 'Kết nối Phantom'
-    },
-    'connected': {
-        en: 'Connected', ru: 'Подключено', zh: '已连接', es: 'Conectado', pt: 'Conectado',
-        ja: '接続済み', fr: 'Connecté', hi: 'कनेक्टेड', ko: '연결됨', tr: 'Bağlı',
-        de: 'Verbunden', ar: 'متصل', vi: 'Đã kết nối'
-    },
-    'disconnect': {
-        en: 'Disconnect', ru: 'Отключить', zh: '断开连接', es: 'Desconectar', pt: 'Desconectar',
-        ja: '切断', fr: 'Déconnecter', hi: 'डिस्कनेक्ट', ko: '연결 해제', tr: 'Bağlantıyı Kes',
-        de: 'Trennen', ar: 'قطع الاتصال', vi: 'Ngắt kết nối'
-    },
-    'or_enter_manually': {
-        en: 'Or enter wallet address manually:', ru: 'Или введите адрес вручную:', zh: '或手动输入钱包地址:',
-        es: 'O ingresa la dirección manualmente:', pt: 'Ou digite o endereço manualmente:', ja: 'または手動で入力:',
-        fr: 'Ou entrez l\'adresse manuellement:', hi: 'या मैन्युअल रूप से दर्ज करें:', ko: '또는 수동으로 입력:',
-        tr: 'Veya manuel olarak girin:', de: 'Oder manuell eingeben:', ar: 'أو أدخل العنوان يدوياً:', vi: 'Hoặc nhập thủ công:'
-    },
-    'withdrawal_amount': {
-        en: 'Withdrawal Amount', ru: 'Сумма вывода', zh: '提现金额', es: 'Monto de Retiro', pt: 'Valor do Saque',
-        ja: '出金額', fr: 'Montant du Retrait', hi: 'निकासी राशि', ko: '출금 금액', tr: 'Çekim Miktarı',
-        de: 'Auszahlungsbetrag', ar: 'مبلغ السحب', vi: 'Số tiền rút'
-    },
-    'amount': {
-        en: 'Amount', ru: 'Сумма', zh: '金额', es: 'Monto', pt: 'Valor',
-        ja: '金額', fr: 'Montant', hi: 'राशि', ko: '금액', tr: 'Miktar',
-        de: 'Betrag', ar: 'المبلغ', vi: 'Số tiền'
-    },
-    'fee': {
-        en: 'Fee', ru: 'Комиссия', zh: '手续费', es: 'Comisión', pt: 'Taxa',
-        ja: '手数料', fr: 'Frais', hi: 'शुल्क', ko: '수수료', tr: 'Ücret',
-        de: 'Gebühr', ar: 'رسوم', vi: 'Phí'
-    },
-    'you_will_receive': {
-        en: 'You will receive', ru: 'Вы получите', zh: '您将收到', es: 'Recibirás', pt: 'Você receberá',
-        ja: '受取額', fr: 'Vous recevrez', hi: 'आपको मिलेगा', ko: '받을 금액', tr: 'Alacağınız',
-        de: 'Sie erhalten', ar: 'ستحصل على', vi: 'Bạn sẽ nhận'
-    },
-    'confirm_withdrawal': {
-        en: 'Confirm Withdrawal', ru: 'Подтвердить вывод', zh: '确认提现', es: 'Confirmar Retiro', pt: 'Confirmar Saque',
-        ja: '出金を確認', fr: 'Confirmer le Retrait', hi: 'निकासी की पुष्टि करें', ko: '출금 확인', tr: 'Çekimi Onayla',
-        de: 'Auszahlung bestätigen', ar: 'تأكيد السحب', vi: 'Xác nhận rút tiền'
-    },
-    'open_in_browser': {
-        en: 'Open in Browser', ru: 'Открыть в браузере', zh: '在浏览器中打开', es: 'Abrir en Navegador', pt: 'Abrir no Navegador',
-        ja: 'ブラウザで開く', fr: 'Ouvrir dans le Navigateur', hi: 'ब्राउज़र में खोलें', ko: '브라우저에서 열기', tr: 'Tarayıcıda Aç',
-        de: 'Im Browser öffnen', ar: 'فتح في المتصفح', vi: 'Mở trong trình duyệt'
-    },
-    'processing_withdrawal': {
-        en: 'Processing withdrawal...', ru: 'Обработка вывода...', zh: '正在处理提现...', es: 'Procesando retiro...', pt: 'Processando saque...',
-        ja: '出金処理中...', fr: 'Traitement du retrait...', hi: 'निकासी प्रोसेस हो रही है...', ko: '출금 처리 중...', tr: 'Çekim işleniyor...',
-        de: 'Auszahlung wird verarbeitet...', ar: 'جاري معالجة السحب...', vi: 'Đang xử lý rút tiền...'
-    },
-    'validating_request': {
-        en: 'Validating request...', ru: 'Проверка запроса...', zh: '验证请求中...', es: 'Validando solicitud...', pt: 'Validando solicitação...',
-        ja: 'リクエスト検証中...', fr: 'Validation de la demande...', hi: 'अनुरोध सत्यापित हो रहा है...', ko: '요청 검증 중...', tr: 'İstek doğrulanıyor...',
-        de: 'Anfrage wird validiert...', ar: 'جاري التحقق من الطلب...', vi: 'Đang xác thực yêu cầu...'
-    },
-    'processing_transaction': {
-        en: 'Processing transaction...', ru: 'Обработка транзакции...', zh: '处理交易中...', es: 'Procesando transacción...', pt: 'Processando transação...',
-        ja: 'トランザクション処理中...', fr: 'Traitement de la transaction...', hi: 'लेनदेन प्रोसेस हो रहा है...', ko: '트랜잭션 처리 중...', tr: 'İşlem yapılıyor...',
-        de: 'Transaktion wird verarbeitet...', ar: 'جاري معالجة المعاملة...', vi: 'Đang xử lý giao dịch...'
-    },
-    'confirming_blockchain': {
-        en: 'Confirming on blockchain...', ru: 'Подтверждение в блокчейне...', zh: '在区块链上确认...', es: 'Confirmando en blockchain...', pt: 'Confirmando na blockchain...',
-        ja: 'ブロックチェーンで確認中...', fr: 'Confirmation sur la blockchain...', hi: 'ब्लॉकचेन पर पुष्टि हो रही है...', ko: '블록체인에서 확인 중...', tr: 'Blockchain\'de onaylanıyor...',
-        de: 'Bestätigung auf Blockchain...', ar: 'جاري التأكيد على البلوكتشين...', vi: 'Đang xác nhận trên blockchain...'
-    },
-    'withdrawal_history': {
-        en: 'Withdrawal History', ru: 'История выводов', zh: '提现历史', es: 'Historial de Retiros', pt: 'Histórico de Saques',
-        ja: '出金履歴', fr: 'Historique des Retraits', hi: 'निकासी इतिहास', ko: '출금 내역', tr: 'Çekim Geçmişi',
-        de: 'Auszahlungsverlauf', ar: 'سجل السحوبات', vi: 'Lịch sử rút tiền'
-    },
+  // ========== LEGAL CONSENT ==========
+  legal_title: {
+    en: '⚠️ Important: Please Read',
+    ru: '⚠️ Важно: Прочтите пожалуйста',
+    zh: '⚠️ 重要: 请阅读',
+    es: '⚠️ Importante: Por favor lea',
+    pt: '⚠️ Importante: Por favor leia',
+    ja: '⚠️ 重要: お読みください',
+    fr: '⚠️ Important: Veuillez lire',
+    hi: '⚠️ महत्वपूर्ण: कृपया पढ़ें',
+    ko: '⚠️ 중요: 읽어주세요',
+    tr: '⚠️ Önemli: Lütfen Okuyun',
+    de: '⚠️ Wichtig: Bitte lesen',
+    ar: '⚠️ هام: يرجى القراءة',
+    vi: '⚠️ Quan trọng: Vui lòng đọc',
+  },
+  legal_subtitle: {
+    en: 'Before you continue, please review our legal documents',
+    ru: 'Прежде чем продолжить, ознакомьтесь с юридическими документами',
+    zh: '在继续之前，请查看我们的法律文件',
+    es: 'Antes de continuar, revise nuestros documentos legales',
+    pt: 'Antes de continuar, revise nossos documentos legais',
+    ja: '続行する前に、法的文書を確認してください',
+    fr: 'Avant de continuer, veuillez consulter nos documents juridiques',
+    hi: 'जारी रखने से पहले, कृपया हमारे कानूनी दस्तावेजों की समीक्षा करें',
+    ko: '계속하기 전에 법적 문서를 검토하십시오',
+    tr: 'Devam etmeden önce lütfen yasal belgelerimizi inceleyin',
+    de: 'Bevor Sie fortfahren, überprüfen Sie bitte unsere rechtlichen Dokumente',
+    ar: 'قبل المتابعة ، يرجى مراجعة وثائقنا القانونية',
+    vi: 'Trước khi tiếp tục, vui lòng xem lại các tài liệu pháp lý của chúng tôi',
+  },
+  legal_warning_title: {
+    en: '🚨 THIS IS A GAME - NOT AN INVESTMENT OPPORTUNITY.',
+    ru: '🚨 ЭТО ИГРА - НЕ ИНВЕСТИЦИОННАЯ ВОЗМОЖНОСТЬ.',
+    zh: '🚨 这是一个游戏 - 不是投资机会。',
+    es: '🚨 ESTO ES UN JUEGO - NO UNA OPORTUNIDAD DE INVERSIÓN.',
+    pt: '🚨 ISTO É UM JOGO - NÃO UMA OPORTUNIDADE DE INVESTIMENTO.',
+    ja: '🚨 これはゲームです - 投資機会ではありません。',
+    fr: "🚨 CECI EST UN JEU - PAS UNE OPPORTUNITÉ D'INVESTISSEMENT.",
+    hi: '🚨 यह एक खेल है - निवेश का अवसर नहीं।',
+    ko: '🚨 이것은 게임입니다 - 투자 기회가 아닙니다.',
+    tr: '🚨 BU BİR OYUNDUR - YATIRIM FIRSATI DEĞİLDİR.',
+    de: '🚨 DIES IST EIN SPIEL - KEINE INVESTITIONSMÖGLICHKEIT.',
+    ar: '🚨 هذه لعبة - وليست فرصة استثمارية.',
+    vi: '🚨 ĐÂY LÀ TRÒ CHƠI - KHÔNG PHẢI CƠ HỘI ĐẦU TƯ.',
+  },
+  legal_warning_text: {
+    en: 'TAMA tokens are for in-game use only. You may lose all value. Only participate with funds you can afford to lose.',
+    ru: 'Токены TAMA предназначены только для игры. Вы можете потерять всю стоимость. Участвуйте только теми средствами, которые можете позволить себе потерять.',
+    zh: 'TAMA代币仅供游戏使用。您可能会失去所有价值。仅使用您能够承受损失的资金参与。',
+    es: 'Los tokens TAMA son solo para uso en el juego. Puedes perder todo el valor. Participa solo con fondos que puedas permitirte perder.',
+    pt: 'Os tokens TAMA são apenas para uso no jogo. Você pode perder todo o valor. Participe apenas com fundos que você pode perder.',
+    ja: 'TAMAトークンはゲーム内でのみ使用できます。すべての価値を失う可能性があります。失っても構わない資金でのみ参加してください。',
+    fr: "Les jetons TAMA sont uniquement destinés à un usage dans le jeu. Vous pouvez perdre toute valeur. Ne participez qu'avec des fonds que vous pouvez vous permettre de perdre.",
+    hi: 'TAMA टोकन केवल खेल में उपयोग के लिए हैं। आप अपना पूरा मूल्य खो सकते हैं। केवल उन निधियों के साथ भाग लें जिन्हें आप खोने का जोखिम उठा सकते हैं।',
+    ko: 'TAMA 토큰은 게임 내에서만 사용됩니다. 모든 가치를 잃을 수 있습니다. 잃어도 되는 자금으로만 참여하십시오.',
+    tr: 'TAMA jetonları yalnızca oyun içi kullanım içindir. Tüm değerini kaybedebilirsiniz. Yalnızca kaybetmeyi göze alabileceğiniz fonlarla katılın.',
+    de: 'TAMA-Token sind nur für den Spielgebrauch bestimmt. Sie können den gesamten Wert verlieren. Nehmen Sie nur mit Geldern teil, deren Verlust Sie sich leisten können.',
+    ar: 'رموز TAMA مخصصة للاستخدام داخل اللعبة فقط. قد تفقد كل القيمة. شارك فقط بالأموال التي يمكنك تحمل خسارتها.',
+    vi: 'Token TAMA chỉ sử dụng trong trò chơi. Bạn có thể mất tất cả giá trị. Chỉ tham gia với số tiền bạn có thể chấp nhận mất.',
+  },
+  legal_agree_to: {
+    en: 'By continuing, you agree to:',
+    ru: 'Продолжая, вы соглашаетесь с:',
+    zh: '继续即表示您同意:',
+    es: 'Al continuar, aceptas:',
+    pt: 'Ao continuar, você concorda com:',
+    ja: '続行すると、以下に同意したことになります:',
+    fr: 'En continuant, vous acceptez:',
+    hi: 'जारी रखकर, आप सहमत हैं:',
+    ko: '계속하면 다음 사항에 동의하게 됩니다:',
+    tr: 'Devam ederek şunları kabul edersiniz:',
+    de: 'Indem Sie fortfahren, stimmen Sie zu:',
+    ar: 'من خلال الاستمرار ، فإنك توافق على:',
+    vi: 'Bằng cách tiếp tục, bạn đồng ý với:',
+  },
+  legal_terms: {
+    en: '⚖️ Terms of Service',
+    ru: '⚖️ Условия использования',
+    zh: '⚖️ 服务条款',
+    es: '⚖️ Términos de Servicio',
+    pt: '⚖️ Termos de Serviço',
+    ja: '⚖️ 利用規約',
+    fr: "⚖️ Conditions d'utilisation",
+    hi: '⚖️ सेवा की शर्तें',
+    ko: '⚖️ 이용 약관',
+    tr: '⚖️ Hizmet Şartları',
+    de: '⚖️ Nutzungsbedingungen',
+    ar: '⚖️ شروط الخدمة',
+    vi: '⚖️ Điều khoản dịch vụ',
+  },
+  legal_privacy: {
+    en: '🔒 Privacy Policy',
+    ru: '🔒 Политика конфиденциальности',
+    zh: '🔒 隐私政策',
+    es: '🔒 Política de Privacidad',
+    pt: '🔒 Política de Privacidade',
+    ja: '🔒 プライバシーポリシー',
+    fr: '🔒 Politique de Confidentialité',
+    hi: '🔒 गोपनीयता नीति',
+    ko: '🔒 개인정보 처리방침',
+    tr: '🔒 Gizlilik Politikası',
+    de: '🔒 Datenschutzrichtlinie',
+    ar: '🔒 سياسة الخصوصية',
+    vi: '🔒 Chính sách bảo mật',
+  },
+  legal_risk: {
+    en: '⚠️ Risk Warning',
+    ru: '⚠️ Предупреждение о рисках',
+    zh: '⚠️ 风险警告',
+    es: '⚠️ Advertencia de Riesgo',
+    pt: '⚠️ Aviso de Risco',
+    ja: '⚠️ リスク警告',
+    fr: '⚠️ Avertissement sur les Risques',
+    hi: '⚠️ जोखिम चेतावनी',
+    ko: '⚠️ 위험 경고',
+    tr: '⚠️ Risk Uyarısı',
+    de: '⚠️ Risikowarnung',
+    ar: '⚠️ تحذير المخاطر',
+    vi: '⚠️ Cảnh báo rủi ro',
+  },
+  legal_checkbox_text: {
+    en: 'I have read and agree to the Terms, Privacy Policy, and Risk Warning',
+    ru: 'Я прочитал и согласен с Условиями, Политикой конфиденциальности и Предупреждением о рисках',
+    zh: '我已阅读并同意条款、隐私政策和风险警告',
+    es: 'He leído y acepto los Términos, la Política de Privacidad y la Advertencia de Riesgo',
+    pt: 'Li e concordo com os Termos, Política de Privacidade e Aviso de Risco',
+    ja: '利用規約、プライバシーポリシー、リスク警告を読み、同意します',
+    fr: "J'ai lu et j'accepte les Conditions, la Politique de Confidentialité et l'Avertissement sur les Risques",
+    hi: 'मैंने शर्तें, गोपनीयता नीति और जोखिम चेतावनी पढ़ी हैं और उनसे सहमत हूँ',
+    ko: '이용 약관, 개인정보 처리방침 및 위험 경고를 읽었으며 이에 동의합니다',
+    tr: 'Şartları, Gizlilik Politikasını ve Risk Uyarısını okudum ve kabul ediyorum',
+    de: 'Ich habe die Bedingungen, die Datenschutzrichtlinie und die Risikowarnung gelesen und stimme ihnen zu',
+    ar: 'لقد قرأت ووافقت على الشروط وسياسة الخصوصية وتحذير المخاطر',
+    vi: 'Tôi đã đọc và đồng ý với Điều khoản, Chính sách bảo mật và Cảnh báo rủi ro',
+  },
+  legal_decline: {
+    en: 'Decline',
+    ru: 'Отклонить',
+    zh: '拒绝',
+    es: 'Rechazar',
+    pt: 'Recusar',
+    ja: '拒否',
+    fr: 'Refuser',
+    hi: 'अस्वीकार करें',
+    ko: '거부',
+    tr: 'Reddet',
+    de: 'Ablehnen',
+    ar: 'رفض',
+    vi: 'Từ chối',
+  },
+  legal_agree_continue: {
+    en: 'I Agree & Continue',
+    ru: 'Согласен и Продолжить',
+    zh: '同意并继续',
+    es: 'Acepto y Continuar',
+    pt: 'Concordo e Continuar',
+    ja: '同意して続行',
+    fr: "J'accepte et Continue",
+    hi: 'सहमत और जारी रखें',
+    ko: '동의하고 계속',
+    tr: 'Kabul Et ve Devam Et',
+    de: 'Ich stimme zu & Weiter',
+    ar: 'أوافق ومتابعة',
+    vi: 'Tôi đồng ý và Tiếp tục',
+  },
+  legal_age_confirm: {
+    en: 'You must be 18+ years old to use this service.',
+    ru: 'Вам должно быть 18+ лет для использования сервиса.',
+    zh: '您必须年满18岁才能使用此服务。',
+    es: 'Debes tener 18+ años para usar este servicio.',
+    pt: 'Você deve ter 18+ anos para usar este serviço.',
+    ja: '本サービスを利用するには18歳以上である必要があります。',
+    fr: 'Vous devez avoir 18+ ans pour utiliser ce service.',
+    hi: 'इस सेवा का उपयोग करने के लिए आपकी आयु 18+ वर्ष होनी चाहिए।',
+    ko: '이 서비스를 이용하려면 18세 이상이어야 합니다.',
+    tr: 'Bu hizmeti kullanmak için 18+ yaşında olmalısınız.',
+    de: 'Sie müssen 18+ Jahre alt sein, um diesen Dienst nutzen zu können.',
+    ar: 'يجب أن يكون عمرك 18+ عامًا لاستخدام هذه الخدمة.',
+    vi: 'Bạn phải đủ 18+ tuổi để sử dụng dịch vụ này.',
+  },
 
-    // ========== NFT MODAL ==========
-    'nft_collection': {
-        en: 'NFT Collection', ru: 'Коллекция NFT', zh: 'NFT收藏', es: 'Colección NFT', pt: 'Coleção NFT',
-        ja: 'NFTコレクション', fr: 'Collection NFT', hi: 'NFT संग्रह', ko: 'NFT 컬렉션', tr: 'NFT Koleksiyonu',
-        de: 'NFT-Sammlung', ar: 'مجموعة NFT', vi: 'Bộ sưu tập NFT'
-    },
-    'my_nft_collection': {
-        en: 'My NFT Collection', ru: 'Моя коллекция NFT', zh: '我的NFT收藏', es: 'Mi Colección NFT', pt: 'Minha Coleção NFT',
-        ja: 'マイNFTコレクション', fr: 'Ma Collection NFT', hi: 'मेरा NFT संग्रह', ko: '내 NFT 컬렉션', tr: 'NFT Koleksiyonum',
-        de: 'Meine NFT-Sammlung', ar: 'مجموعتي NFT', vi: 'Bộ sưu tập NFT của tôi'
-    },
-    'mint_new_nft': {
-        en: 'Mint New NFT Pet', ru: 'Создать нового NFT питомца', zh: '铸造新NFT宠物', es: 'Crear Nueva Mascota NFT', pt: 'Criar Novo Pet NFT',
-        ja: '新しいNFTペットを作成', fr: 'Créer un Nouveau Pet NFT', hi: 'नया NFT पेट बनाएं', ko: '새 NFT 펫 발행', tr: 'Yeni NFT Pet Oluştur',
-        de: 'Neues NFT-Haustier erstellen', ar: 'إنشاء حيوان NFT جديد', vi: 'Tạo thú cưng NFT mới'
-    },
-    'mint_with_tama': {
-        en: 'Mint with TAMA', ru: 'Создать за TAMA', zh: '用TAMA铸造', es: 'Crear con TAMA', pt: 'Criar com TAMA',
-        ja: 'TAMAで作成', fr: 'Créer avec TAMA', hi: 'TAMA से बनाएं', ko: 'TAMA로 발행', tr: 'TAMA ile Oluştur',
-        de: 'Mit TAMA erstellen', ar: 'إنشاء بـ TAMA', vi: 'Tạo bằng TAMA'
-    },
-    'mint_with_sol': {
-        en: 'Mint with SOL', ru: 'Создать за SOL', zh: '用SOL铸造', es: 'Crear con SOL', pt: 'Criar com SOL',
-        ja: 'SOLで作成', fr: 'Créer avec SOL', hi: 'SOL से बनाएं', ko: 'SOL로 발행', tr: 'SOL ile Oluştur',
-        de: 'Mit SOL erstellen', ar: 'إنشاء بـ SOL', vi: 'Tạo bằng SOL'
-    },
-    'connect_wallet': {
-        en: 'Connect Wallet', ru: 'Подключить кошелек', zh: '连接钱包', es: 'Conectar Cartera', pt: 'Conectar Carteira',
-        ja: 'ウォレットを接続', fr: 'Connecter le Portefeuille', hi: 'वॉलेट कनेक्ट करें', ko: '지갑 연결', tr: 'Cüzdan Bağla',
-        de: 'Wallet verbinden', ar: 'ربط المحفظة', vi: 'Kết nối ví'
-    },
-    'wallet_connected': {
-        en: 'Wallet Connected', ru: 'Кошелек подключен', zh: '钱包已连接', es: 'Cartera Conectada', pt: 'Carteira Conectada',
-        ja: 'ウォレット接続済み', fr: 'Portefeuille Connecté', hi: 'वॉलेट कनेक्टेड', ko: '지갑 연결됨', tr: 'Cüzdan Bağlandı',
-        de: 'Wallet verbunden', ar: 'تم ربط المحفظة', vi: 'Đã kết nối ví'
-    },
-    'disconnect_wallet': {
-        en: 'Disconnect Wallet', ru: 'Отключить кошелек', zh: '断开钱包', es: 'Desconectar Cartera', pt: 'Desconectar Carteira',
-        ja: 'ウォレットを切断', fr: 'Déconnecter le Portefeuille', hi: 'वॉलेट डिस्कनेक्ट करें', ko: '지갑 연결 해제', tr: 'Cüzdan Bağlantısını Kes',
-        de: 'Wallet trennen', ar: 'قطع ربط المحفظة', vi: 'Ngắt kết nối ví'
-    },
-    'connect_wallet_title': {
-        en: 'Connect Wallet', ru: 'Подключить кошелек', zh: '连接钱包', es: 'Conectar Cartera', pt: 'Conectar Carteira',
-        ja: 'ウォレットを接続', fr: 'Connecter le Portefeuille', hi: 'वॉलेट कनेक्ट करें', ko: '지갑 연결', tr: 'Cüzdan Bağla',
-        de: 'Wallet verbinden', ar: 'ربط المحفظة', vi: 'Kết nối ví'
-    },
-    'connect_wallet_desc': {
-        en: 'Connect your Phantom or Solflare wallet to start playing and save your progress',
-        ru: 'Подключите кошелек Phantom или Solflare чтобы начать играть и сохранять прогресс',
-        zh: '连接您的Phantom或Solflare钱包以开始游戏并保存进度',
-        es: 'Conecta tu cartera Phantom o Solflare para comenzar a jugar y guardar tu progreso',
-        pt: 'Conecte sua carteira Phantom ou Solflare para começar a jogar e salvar seu progresso',
-        ja: 'PhantomまたはSolflareウォレットを接続してゲームを開始し、進行状況を保存します',
-        fr: 'Connectez votre portefeuille Phantom ou Solflare pour commencer à jouer et sauvegarder votre progression',
-        hi: 'खेलना शुरू करने और अपनी प्रगति सहेजने के लिए अपना Phantom या Solflare वॉलेट कनेक्ट करें',
-        ko: 'Phantom 또는 Solflare 지갑을 연결하여 게임을 시작하고 진행 상황을 저장하세요',
-        tr: 'Oynamaya başlamak ve ilerlemenizi kaydetmek için Phantom veya Solflare cüzdanınızı bağlayın',
-        de: 'Verbinden Sie Ihre Phantom- oder Solflare-Wallet, um zu spielen und Ihren Fortschritt zu speichern',
-        ar: 'قم بربط محفظة Phantom أو Solflare للبدء في اللعب وحفظ تقدمك',
-        vi: 'Kết nối ví Phantom hoặc Solflare của bạn để bắt đầu chơi và lưu tiến trình'
-    },
-    'game_data_saved': {
-        en: 'Your game data will be securely saved on the blockchain',
-        ru: 'Ваши игровые данные будут безопасно сохранены в блокчейне',
-        zh: '您的游戏数据将安全地保存在区块链上',
-        es: 'Tus datos del juego se guardarán de forma segura en la blockchain',
-        pt: 'Seus dados do jogo serão salvos com segurança na blockchain',
-        ja: 'ゲームデータはブロックチェーンに安全に保存されます',
-        fr: 'Vos données de jeu seront sauvegardées en toute sécurité sur la blockchain',
-        hi: 'आपका गेम डेटा ब्लॉकचेन पर सुरक्षित रूप से सहेजा जाएगा',
-        ko: '게임 데이터가 블록체인에 안전하게 저장됩니다',
-        tr: 'Oyun verileriniz blockchain\'de güvenli bir şekilde kaydedilecek',
-        de: 'Ihre Spieldaten werden sicher auf der Blockchain gespeichert',
-        ar: 'سيتم حفظ بيانات اللعبة الخاصة بك بأمان على البلوك تشين',
-        vi: 'Dữ liệu trò chơi của bạn sẽ được lưu an toàn trên blockchain'
-    },
-    'download_phantom': {
-        en: 'Don\'t have a wallet? Download Phantom',
-        ru: 'Нет кошелька? Скачайте Phantom',
-        zh: '没有钱包？下载Phantom',
-        es: '¿No tienes cartera? Descarga Phantom',
-        pt: 'Não tem carteira? Baixe o Phantom',
-        ja: 'ウォレットをお持ちでないですか？Phantomをダウンロード',
-        fr: 'Vous n\'avez pas de portefeuille ? Téléchargez Phantom',
-        hi: 'वॉलेट नहीं है? Phantom डाउनलोड करें',
-        ko: '지갑이 없으신가요? Phantom 다운로드',
-        tr: 'Cüzdanınız yok mu? Phantom\'ı indirin',
-        de: 'Keine Wallet? Phantom herunterladen',
-        ar: 'ليس لديك محفظة؟ قم بتنزيل Phantom',
-        vi: 'Chưa có ví? Tải xuống Phantom'
-    },
-    'connect_phantom_nft': {
-        en: 'Connect Phantom to mint on-chain NFTs',
-        ru: 'Подключите Phantom для создания NFT в блокчейне',
-        zh: '连接Phantom以铸造链上NFT',
-        es: 'Conecta Phantom para crear NFTs en cadena',
-        pt: 'Conecte o Phantom para criar NFTs na cadeia',
-        ja: 'チェーン上NFTを作成するにはPhantomを接続',
-        fr: 'Connectez Phantom pour créer des NFT sur la chaîne',
-        hi: 'चेन पर NFT बनाने के लिए Phantom कनेक्ट करें',
-        ko: '체인상 NFT를 발행하려면 Phantom 연결',
-        tr: 'Zincir üzerinde NFT oluşturmak için Phantom\'ı bağlayın',
-        de: 'Phantom verbinden, um On-Chain-NFTs zu erstellen',
-        ar: 'قم بربط Phantom لإنشاء NFTs على السلسلة',
-        vi: 'Kết nối Phantom để tạo NFT trên chuỗi'
-    },
-    'select_saved_wallet': {
-        en: 'Saved Wallets:',
-        ru: 'Сохраненные кошельки:',
-        zh: '已保存的钱包:',
-        es: 'Carteras Guardadas:',
-        pt: 'Carteiras Salvas:',
-        ja: '保存されたウォレット:',
-        fr: 'Portefeuilles Enregistrés:',
-        hi: 'सहेजे गए वॉलेट:',
-        ko: '저장된 지갑:',
-        tr: 'Kayıtlı Cüzdanlar:',
-        de: 'Gespeicherte Wallets:',
-        ar: 'المحافظ المحفوظة:',
-        vi: 'Ví đã lưu:'
-    },
-    'open_browser_tip': {
-        en: 'You can also open in browser for full Phantom support',
-        ru: 'Вы также можете открыть в браузере для полной поддержки Phantom',
-        zh: '您也可以在浏览器中打开以获得完整的Phantom支持',
-        es: 'También puedes abrir en el navegador para soporte completo de Phantom',
-        pt: 'Você também pode abrir no navegador para suporte completo do Phantom',
-        ja: '完全なPhantomサポートのためにブラウザで開くこともできます',
-        fr: 'Vous pouvez également ouvrir dans le navigateur pour un support Phantom complet',
-        hi: 'पूर्ण Phantom समर्थन के लिए आप ब्राउज़र में भी खोल सकते हैं',
-        ko: '전체 Phantom 지원을 위해 브라우저에서 열 수도 있습니다',
-        tr: 'Tam Phantom desteği için tarayıcıda da açabilirsiniz',
-        de: 'Sie können auch im Browser öffnen für vollständige Phantom-Unterstützung',
-        ar: 'يمكنك أيضًا فتحه في المتصفح للحصول على دعم Phantom الكامل',
-        vi: 'Bạn cũng có thể mở trong trình duyệt để có hỗ trợ Phantom đầy đủ'
-    },
-    'enter_wallet_address': {
-        en: 'Enter wallet address...',
-        ru: 'Введите адрес кошелька...',
-        zh: '输入钱包地址...',
-        es: 'Ingresa la dirección de la cartera...',
-        pt: 'Digite o endereço da carteira...',
-        ja: 'ウォレットアドレスを入力...',
-        fr: 'Entrez l\'adresse du portefeuille...',
-        hi: 'वॉलेट पता दर्ज करें...',
-        ko: '지갑 주소 입력...',
-        tr: 'Cüzdan adresini girin...',
-        de: 'Wallet-Adresse eingeben...',
-        ar: 'أدخل عنوان المحفظة...',
-        vi: 'Nhập địa chỉ ví...'
-    },
+  // ========== WITHDRAW MODAL ==========
+  withdraw_tama: {
+    en: 'Withdraw TAMA',
+    ru: 'Вывод TAMA',
+    zh: '提取TAMA',
+    es: 'Retirar TAMA',
+    pt: 'Sacar TAMA',
+    ja: 'TAMA出金',
+    fr: 'Retirer TAMA',
+    hi: 'TAMA निकालें',
+    ko: 'TAMA 출금',
+    tr: 'TAMA Çek',
+    de: 'TAMA abheben',
+    ar: 'سحب TAMA',
+    vi: 'Rút TAMA',
+  },
+  your_balance: {
+    en: 'Your Balance',
+    ru: 'Ваш баланс',
+    zh: '您的余额',
+    es: 'Tu Saldo',
+    pt: 'Seu Saldo',
+    ja: '残高',
+    fr: 'Votre Solde',
+    hi: 'आपका बैलेंस',
+    ko: '잔액',
+    tr: 'Bakiyeniz',
+    de: 'Ihr Guthaben',
+    ar: 'رصيدك',
+    vi: 'Số dư của bạn',
+  },
+  wallet_address: {
+    en: 'Wallet Address',
+    ru: 'Адрес кошелька',
+    zh: '钱包地址',
+    es: 'Dirección de Cartera',
+    pt: 'Endereço da Carteira',
+    ja: 'ウォレットアドレス',
+    fr: 'Adresse du Portefeuille',
+    hi: 'वॉलेट एड्रेस',
+    ko: '지갑 주소',
+    tr: 'Cüzdan Adresi',
+    de: 'Wallet-Adresse',
+    ar: 'عنوان المحفظة',
+    vi: 'Địa chỉ ví',
+  },
+  saved_wallets: {
+    en: 'Saved Wallets',
+    ru: 'Сохраненные кошельки',
+    zh: '已保存的钱包',
+    es: 'Carteras Guardadas',
+    pt: 'Carteiras Salvas',
+    ja: '保存済みウォレット',
+    fr: 'Portefeuilles Enregistrés',
+    hi: 'सहेजे गए वॉलेट',
+    ko: '저장된 지갑',
+    tr: 'Kayıtlı Cüzdanlar',
+    de: 'Gespeicherte Wallets',
+    ar: 'المحافظ المحفوظة',
+    vi: 'Ví đã lưu',
+  },
+  use_selected: {
+    en: 'Use Selected',
+    ru: 'Использовать',
+    zh: '使用选中',
+    es: 'Usar Seleccionado',
+    pt: 'Usar Selecionado',
+    ja: '選択を使用',
+    fr: 'Utiliser Sélectionné',
+    hi: 'चयनित का उपयोग करें',
+    ko: '선택 사용',
+    tr: 'Seçileni Kullan',
+    de: 'Ausgewählte verwenden',
+    ar: 'استخدام المحدد',
+    vi: 'Sử dụng đã chọn',
+  },
+  delete: {
+    en: 'Delete',
+    ru: 'Удалить',
+    zh: '删除',
+    es: 'Eliminar',
+    pt: 'Excluir',
+    ja: '削除',
+    fr: 'Supprimer',
+    hi: 'हटाएं',
+    ko: '삭제',
+    tr: 'Sil',
+    de: 'Löschen',
+    ar: 'حذف',
+    vi: 'Xóa',
+  },
+  connect_phantom: {
+    en: 'Connect Phantom Wallet',
+    ru: 'Подключить Phantom',
+    zh: '连接Phantom钱包',
+    es: 'Conectar Phantom',
+    pt: 'Conectar Phantom',
+    ja: 'Phantomを接続',
+    fr: 'Connecter Phantom',
+    hi: 'Phantom कनेक्ट करें',
+    ko: 'Phantom 연결',
+    tr: 'Phantom Bağla',
+    de: 'Phantom verbinden',
+    ar: 'ربط Phantom',
+    vi: 'Kết nối Phantom',
+  },
+  connected: {
+    en: 'Connected',
+    ru: 'Подключено',
+    zh: '已连接',
+    es: 'Conectado',
+    pt: 'Conectado',
+    ja: '接続済み',
+    fr: 'Connecté',
+    hi: 'कनेक्टेड',
+    ko: '연결됨',
+    tr: 'Bağlı',
+    de: 'Verbunden',
+    ar: 'متصل',
+    vi: 'Đã kết nối',
+  },
+  disconnect: {
+    en: 'Disconnect',
+    ru: 'Отключить',
+    zh: '断开连接',
+    es: 'Desconectar',
+    pt: 'Desconectar',
+    ja: '切断',
+    fr: 'Déconnecter',
+    hi: 'डिस्कनेक्ट',
+    ko: '연결 해제',
+    tr: 'Bağlantıyı Kes',
+    de: 'Trennen',
+    ar: 'قطع الاتصال',
+    vi: 'Ngắt kết nối',
+  },
+  or_enter_manually: {
+    en: 'Or enter wallet address manually:',
+    ru: 'Или введите адрес вручную:',
+    zh: '或手动输入钱包地址:',
+    es: 'O ingresa la dirección manualmente:',
+    pt: 'Ou digite o endereço manualmente:',
+    ja: 'または手動で入力:',
+    fr: "Ou entrez l'adresse manuellement:",
+    hi: 'या मैन्युअल रूप से दर्ज करें:',
+    ko: '또는 수동으로 입력:',
+    tr: 'Veya manuel olarak girin:',
+    de: 'Oder manuell eingeben:',
+    ar: 'أو أدخل العنوان يدوياً:',
+    vi: 'Hoặc nhập thủ công:',
+  },
+  withdrawal_amount: {
+    en: 'Withdrawal Amount',
+    ru: 'Сумма вывода',
+    zh: '提现金额',
+    es: 'Monto de Retiro',
+    pt: 'Valor do Saque',
+    ja: '出金額',
+    fr: 'Montant du Retrait',
+    hi: 'निकासी राशि',
+    ko: '출금 금액',
+    tr: 'Çekim Miktarı',
+    de: 'Auszahlungsbetrag',
+    ar: 'مبلغ السحب',
+    vi: 'Số tiền rút',
+  },
+  amount: {
+    en: 'Amount',
+    ru: 'Сумма',
+    zh: '金额',
+    es: 'Monto',
+    pt: 'Valor',
+    ja: '金額',
+    fr: 'Montant',
+    hi: 'राशि',
+    ko: '금액',
+    tr: 'Miktar',
+    de: 'Betrag',
+    ar: 'المبلغ',
+    vi: 'Số tiền',
+  },
+  fee: {
+    en: 'Fee',
+    ru: 'Комиссия',
+    zh: '手续费',
+    es: 'Comisión',
+    pt: 'Taxa',
+    ja: '手数料',
+    fr: 'Frais',
+    hi: 'शुल्क',
+    ko: '수수료',
+    tr: 'Ücret',
+    de: 'Gebühr',
+    ar: 'رسوم',
+    vi: 'Phí',
+  },
+  you_will_receive: {
+    en: 'You will receive',
+    ru: 'Вы получите',
+    zh: '您将收到',
+    es: 'Recibirás',
+    pt: 'Você receberá',
+    ja: '受取額',
+    fr: 'Vous recevrez',
+    hi: 'आपको मिलेगा',
+    ko: '받을 금액',
+    tr: 'Alacağınız',
+    de: 'Sie erhalten',
+    ar: 'ستحصل على',
+    vi: 'Bạn sẽ nhận',
+  },
+  confirm_withdrawal: {
+    en: 'Confirm Withdrawal',
+    ru: 'Подтвердить вывод',
+    zh: '确认提现',
+    es: 'Confirmar Retiro',
+    pt: 'Confirmar Saque',
+    ja: '出金を確認',
+    fr: 'Confirmer le Retrait',
+    hi: 'निकासी की पुष्टि करें',
+    ko: '출금 확인',
+    tr: 'Çekimi Onayla',
+    de: 'Auszahlung bestätigen',
+    ar: 'تأكيد السحب',
+    vi: 'Xác nhận rút tiền',
+  },
+  open_in_browser: {
+    en: 'Open in Browser',
+    ru: 'Открыть в браузере',
+    zh: '在浏览器中打开',
+    es: 'Abrir en Navegador',
+    pt: 'Abrir no Navegador',
+    ja: 'ブラウザで開く',
+    fr: 'Ouvrir dans le Navigateur',
+    hi: 'ब्राउज़र में खोलें',
+    ko: '브라우저에서 열기',
+    tr: 'Tarayıcıda Aç',
+    de: 'Im Browser öffnen',
+    ar: 'فتح في المتصفح',
+    vi: 'Mở trong trình duyệt',
+  },
+  processing_withdrawal: {
+    en: 'Processing withdrawal...',
+    ru: 'Обработка вывода...',
+    zh: '正在处理提现...',
+    es: 'Procesando retiro...',
+    pt: 'Processando saque...',
+    ja: '出金処理中...',
+    fr: 'Traitement du retrait...',
+    hi: 'निकासी प्रोसेस हो रही है...',
+    ko: '출금 처리 중...',
+    tr: 'Çekim işleniyor...',
+    de: 'Auszahlung wird verarbeitet...',
+    ar: 'جاري معالجة السحب...',
+    vi: 'Đang xử lý rút tiền...',
+  },
+  validating_request: {
+    en: 'Validating request...',
+    ru: 'Проверка запроса...',
+    zh: '验证请求中...',
+    es: 'Validando solicitud...',
+    pt: 'Validando solicitação...',
+    ja: 'リクエスト検証中...',
+    fr: 'Validation de la demande...',
+    hi: 'अनुरोध सत्यापित हो रहा है...',
+    ko: '요청 검증 중...',
+    tr: 'İstek doğrulanıyor...',
+    de: 'Anfrage wird validiert...',
+    ar: 'جاري التحقق من الطلب...',
+    vi: 'Đang xác thực yêu cầu...',
+  },
+  processing_transaction: {
+    en: 'Processing transaction...',
+    ru: 'Обработка транзакции...',
+    zh: '处理交易中...',
+    es: 'Procesando transacción...',
+    pt: 'Processando transação...',
+    ja: 'トランザクション処理中...',
+    fr: 'Traitement de la transaction...',
+    hi: 'लेनदेन प्रोसेस हो रहा है...',
+    ko: '트랜잭션 처리 중...',
+    tr: 'İşlem yapılıyor...',
+    de: 'Transaktion wird verarbeitet...',
+    ar: 'جاري معالجة المعاملة...',
+    vi: 'Đang xử lý giao dịch...',
+  },
+  confirming_blockchain: {
+    en: 'Confirming on blockchain...',
+    ru: 'Подтверждение в блокчейне...',
+    zh: '在区块链上确认...',
+    es: 'Confirmando en blockchain...',
+    pt: 'Confirmando na blockchain...',
+    ja: 'ブロックチェーンで確認中...',
+    fr: 'Confirmation sur la blockchain...',
+    hi: 'ब्लॉकचेन पर पुष्टि हो रही है...',
+    ko: '블록체인에서 확인 중...',
+    tr: "Blockchain'de onaylanıyor...",
+    de: 'Bestätigung auf Blockchain...',
+    ar: 'جاري التأكيد على البلوكتشين...',
+    vi: 'Đang xác nhận trên blockchain...',
+  },
+  withdrawal_history: {
+    en: 'Withdrawal History',
+    ru: 'История выводов',
+    zh: '提现历史',
+    es: 'Historial de Retiros',
+    pt: 'Histórico de Saques',
+    ja: '出金履歴',
+    fr: 'Historique des Retraits',
+    hi: 'निकासी इतिहास',
+    ko: '출금 내역',
+    tr: 'Çekim Geçmişi',
+    de: 'Auszahlungsverlauf',
+    ar: 'سجل السحوبات',
+    vi: 'Lịch sử rút tiền',
+  },
 
-    // ========== MINT PAGE ==========
-    'mint_your_nft_pet': {
-        en: '🎨 MINT YOUR NFT PET',
-        ru: '🎨 СОЗДАТЬ NFT ПИТОМЦА',
-        zh: '🎨 铸造您的NFT宠物',
-        es: '🎨 CREAR TU MASCOTA NFT',
-        pt: '🎨 CRIAR SEU PET NFT',
-        ja: '🎨 NFTペットを作成',
-        fr: '🎨 CRÉER VOTRE PET NFT',
-        hi: '🎨 अपना NFT पेट बनाएं',
-        ko: '🎨 NFT 펫 발행',
-        tr: '🎨 NFT PET OLUŞTUR',
-        de: '🎨 NFT-HAUSTIER ERSTELLEN',
-        ar: '🎨 إنشاء حيوان NFT',
-        vi: '🎨 TẠO THÚ CƯNG NFT'
-    },
-    'mint_subtitle': {
-        en: '5 TIERS | BONDING CURVE | FIXED BOOSTS',
-        ru: '5 УРОВНЕЙ | КРИВАЯ СВЯЗИ | ФИКСИРОВАННЫЕ БУСТЫ',
-        zh: '5个等级 | 绑定曲线 | 固定加成',
-        es: '5 NIVELES | CURVA DE VINCULACIÓN | BOOSTS FIJOS',
-        pt: '5 NÍVEIS | CURVA DE VINCULAÇÃO | BOOSTS FIXOS',
-        ja: '5ティア | ボンディングカーブ | 固定ブースト',
-        fr: '5 NIVEAUX | COURBE DE LIEN | BOOSTS FIXES',
-        hi: '5 स्तर | बॉन्डिंग कर्व | फिक्स्ड बूस्ट',
-        ko: '5단계 | 본딩 커브 | 고정 부스트',
-        tr: '5 SEVİYE | BAĞLAMA EĞRİSİ | SABİT BOOSTLAR',
-        de: '5 STUFEN | BINDUNGSKURVE | FESTE BOOSTS',
-        ar: '5 مستويات | منحنى الربط | معززات ثابتة',
-        vi: '5 CẤP | ĐƯỜNG CONG LIÊN KẾT | TĂNG CƯỜNG CỐ ĐỊNH'
-    },
-    'get_test_sol': {
-        en: '🚰 Get Test SOL',
-        ru: '🚰 Получить тестовый SOL',
-        zh: '🚰 获取测试SOL',
-        es: '🚰 Obtener SOL de Prueba',
-        pt: '🚰 Obter SOL de Teste',
-        ja: '🚰 テストSOLを取得',
-        fr: '🚰 Obtenir du SOL de Test',
-        hi: '🚰 टेस्ट SOL प्राप्त करें',
-        ko: '🚰 테스트 SOL 받기',
-        tr: '🚰 Test SOL Al',
-        de: '🚰 Test-SOL erhalten',
-        ar: '🚰 احصل على SOL للاختبار',
-        vi: '🚰 Nhận SOL thử nghiệm'
-    },
-    'my_nfts': {
-        en: '🖼️ MY NFTs',
-        ru: '🖼️ МОИ NFT',
-        zh: '🖼️ 我的NFT',
-        es: '🖼️ MIS NFTs',
-        pt: '🖼️ MEUS NFTs',
-        ja: '🖼️ 私のNFT',
-        fr: '🖼️ MES NFTs',
-        hi: '🖼️ मेरे NFT',
-        ko: '🖼️ 내 NFT',
-        tr: '🖼️ NFT\'LERİM',
-        de: '🖼️ MEINE NFTs',
-        ar: '🖼️ NFT الخاصة بي',
-        vi: '🖼️ NFT CỦA TÔI'
-    },
-    'why_mint_nft': {
-        en: '💎 WHY MINT NFT?',
-        ru: '💎 ЗАЧЕМ СОЗДАВАТЬ NFT?',
-        zh: '💎 为什么要铸造NFT?',
-        es: '💎 ¿POR QUÉ CREAR NFT?',
-        pt: '💎 POR QUE CRIAR NFT?',
-        ja: '💎 なぜNFTを作成するのか?',
-        fr: '💎 POURQUOI CRÉER UN NFT?',
-        hi: '💎 NFT क्यों बनाएं?',
-        ko: '💎 NFT를 왜 발행하나요?',
-        tr: '💎 NFT NEDEN OLUŞTURULUR?',
-        de: '💎 WARUM NFT ERSTELLEN?',
-        ar: '💎 لماذا إنشاء NFT?',
-        vi: '💎 TẠI SAO TẠO NFT?'
-    },
-    'passive_income': {
-        en: 'PASSIVE INCOME',
-        ru: 'ПАССИВНЫЙ ДОХОД',
-        zh: '被动收入',
-        es: 'INGRESO PASIVO',
-        pt: 'RENDA PASSIVA',
-        ja: 'パッシブインカム',
-        fr: 'REVENU PASSIF',
-        hi: 'निष्क्रिय आय',
-        ko: '수동 소득',
-        tr: 'PASİF GELİR',
-        de: 'PASSIVES EINKOMMEN',
-        ar: 'دخل سلبي',
-        vi: 'THU NHẬP THỤ ĐỘNG'
-    },
-    'earning_boost': {
-        en: 'EARNING BOOST',
-        ru: 'УВЕЛИЧЕНИЕ ЗАРАБОТКА',
-        zh: '收益加成',
-        es: 'AUMENTO DE GANANCIAS',
-        pt: 'AUMENTO DE GANHOS',
-        ja: '収益ブースト',
-        fr: 'AUGMENTATION DES GAINS',
-        hi: 'कमाई बूस्ट',
-        ko: '수익 부스트',
-        tr: 'KAZANÇ ARTIŞI',
-        de: 'VERDIENST-BOOST',
-        ar: 'زيادة الأرباح',
-        vi: 'TĂNG THU NHẬP'
-    },
-    'price_growth': {
-        en: 'PRICE GROWTH',
-        ru: 'РОСТ ЦЕНЫ',
-        zh: '价格上涨',
-        es: 'CRECIMIENTO DE PRECIO',
-        pt: 'CRESCIMENTO DE PREÇO',
-        ja: '価格上昇',
-        fr: 'CROISSANCE DU PRIX',
-        hi: 'मूल्य वृद्धि',
-        ko: '가격 상승',
-        tr: 'FİYAT ARTIŞI',
-        de: 'PREISWACHSTUM',
-        ar: 'نمو السعر',
-        vi: 'TĂNG GIÁ'
-    },
-    'real_on_chain': {
-        en: 'REAL ON-CHAIN',
-        ru: 'НАСТОЯЩИЙ В БЛОКЧЕЙНЕ',
-        zh: '真实链上',
-        es: 'REAL EN CADENA',
-        pt: 'REAL NA CADEIA',
-        ja: 'リアルオンチェーン',
-        fr: 'RÉEL SUR LA CHAÎNE',
-        hi: 'वास्तविक ऑन-चेन',
-        ko: '실제 온체인',
-        tr: 'GERÇEK ZİNCİR ÜZERİ',
-        de: 'ECHT ON-CHAIN',
-        ar: 'حقيقي على السلسلة',
-        vi: 'THỰC TRÊN CHUỖI'
-    },
-    'loading': {
-        en: 'Loading...',
-        ru: 'Загрузка...',
-        zh: '加载中...',
-        es: 'Cargando...',
-        pt: 'Carregando...',
-        ja: '読み込み中...',
-        fr: 'Chargement...',
-        hi: 'लोड हो रहा है...',
-        ko: '로딩 중...',
-        tr: 'Yükleniyor...',
-        de: 'Lädt...',
-        ar: 'جاري التحميل...',
-        vi: 'Đang tải...'
-    }
+  // ========== NFT MODAL ==========
+  nft_collection: {
+    en: 'NFT Collection',
+    ru: 'Коллекция NFT',
+    zh: 'NFT收藏',
+    es: 'Colección NFT',
+    pt: 'Coleção NFT',
+    ja: 'NFTコレクション',
+    fr: 'Collection NFT',
+    hi: 'NFT संग्रह',
+    ko: 'NFT 컬렉션',
+    tr: 'NFT Koleksiyonu',
+    de: 'NFT-Sammlung',
+    ar: 'مجموعة NFT',
+    vi: 'Bộ sưu tập NFT',
+  },
+  my_nft_collection: {
+    en: 'My NFT Collection',
+    ru: 'Моя коллекция NFT',
+    zh: '我的NFT收藏',
+    es: 'Mi Colección NFT',
+    pt: 'Minha Coleção NFT',
+    ja: 'マイNFTコレクション',
+    fr: 'Ma Collection NFT',
+    hi: 'मेरा NFT संग्रह',
+    ko: '내 NFT 컬렉션',
+    tr: 'NFT Koleksiyonum',
+    de: 'Meine NFT-Sammlung',
+    ar: 'مجموعتي NFT',
+    vi: 'Bộ sưu tập NFT của tôi',
+  },
+  mint_new_nft: {
+    en: 'Mint New NFT Pet',
+    ru: 'Создать нового NFT питомца',
+    zh: '铸造新NFT宠物',
+    es: 'Crear Nueva Mascota NFT',
+    pt: 'Criar Novo Pet NFT',
+    ja: '新しいNFTペットを作成',
+    fr: 'Créer un Nouveau Pet NFT',
+    hi: 'नया NFT पेट बनाएं',
+    ko: '새 NFT 펫 발행',
+    tr: 'Yeni NFT Pet Oluştur',
+    de: 'Neues NFT-Haustier erstellen',
+    ar: 'إنشاء حيوان NFT جديد',
+    vi: 'Tạo thú cưng NFT mới',
+  },
+  mint_with_tama: {
+    en: 'Mint with TAMA',
+    ru: 'Создать за TAMA',
+    zh: '用TAMA铸造',
+    es: 'Crear con TAMA',
+    pt: 'Criar com TAMA',
+    ja: 'TAMAで作成',
+    fr: 'Créer avec TAMA',
+    hi: 'TAMA से बनाएं',
+    ko: 'TAMA로 발행',
+    tr: 'TAMA ile Oluştur',
+    de: 'Mit TAMA erstellen',
+    ar: 'إنشاء بـ TAMA',
+    vi: 'Tạo bằng TAMA',
+  },
+  mint_with_sol: {
+    en: 'Mint with SOL',
+    ru: 'Создать за SOL',
+    zh: '用SOL铸造',
+    es: 'Crear con SOL',
+    pt: 'Criar com SOL',
+    ja: 'SOLで作成',
+    fr: 'Créer avec SOL',
+    hi: 'SOL से बनाएं',
+    ko: 'SOL로 발행',
+    tr: 'SOL ile Oluştur',
+    de: 'Mit SOL erstellen',
+    ar: 'إنشاء بـ SOL',
+    vi: 'Tạo bằng SOL',
+  },
+  connect_wallet: {
+    en: 'Connect Wallet',
+    ru: 'Подключить кошелек',
+    zh: '连接钱包',
+    es: 'Conectar Cartera',
+    pt: 'Conectar Carteira',
+    ja: 'ウォレットを接続',
+    fr: 'Connecter le Portefeuille',
+    hi: 'वॉलेट कनेक्ट करें',
+    ko: '지갑 연결',
+    tr: 'Cüzdan Bağla',
+    de: 'Wallet verbinden',
+    ar: 'ربط المحفظة',
+    vi: 'Kết nối ví',
+  },
+  wallet_connected: {
+    en: 'Wallet Connected',
+    ru: 'Кошелек подключен',
+    zh: '钱包已连接',
+    es: 'Cartera Conectada',
+    pt: 'Carteira Conectada',
+    ja: 'ウォレット接続済み',
+    fr: 'Portefeuille Connecté',
+    hi: 'वॉलेट कनेक्टेड',
+    ko: '지갑 연결됨',
+    tr: 'Cüzdan Bağlandı',
+    de: 'Wallet verbunden',
+    ar: 'تم ربط المحفظة',
+    vi: 'Đã kết nối ví',
+  },
+  disconnect_wallet: {
+    en: 'Disconnect Wallet',
+    ru: 'Отключить кошелек',
+    zh: '断开钱包',
+    es: 'Desconectar Cartera',
+    pt: 'Desconectar Carteira',
+    ja: 'ウォレットを切断',
+    fr: 'Déconnecter le Portefeuille',
+    hi: 'वॉलेट डिस्कनेक्ट करें',
+    ko: '지갑 연결 해제',
+    tr: 'Cüzdan Bağlantısını Kes',
+    de: 'Wallet trennen',
+    ar: 'قطع ربط المحفظة',
+    vi: 'Ngắt kết nối ví',
+  },
+  connect_wallet_title: {
+    en: 'Connect Wallet',
+    ru: 'Подключить кошелек',
+    zh: '连接钱包',
+    es: 'Conectar Cartera',
+    pt: 'Conectar Carteira',
+    ja: 'ウォレットを接続',
+    fr: 'Connecter le Portefeuille',
+    hi: 'वॉलेट कनेक्ट करें',
+    ko: '지갑 연결',
+    tr: 'Cüzdan Bağla',
+    de: 'Wallet verbinden',
+    ar: 'ربط المحفظة',
+    vi: 'Kết nối ví',
+  },
+  connect_wallet_desc: {
+    en: 'Connect your Phantom or Solflare wallet to start playing and save your progress',
+    ru: 'Подключите кошелек Phantom или Solflare чтобы начать играть и сохранять прогресс',
+    zh: '连接您的Phantom或Solflare钱包以开始游戏并保存进度',
+    es: 'Conecta tu cartera Phantom o Solflare para comenzar a jugar y guardar tu progreso',
+    pt: 'Conecte sua carteira Phantom ou Solflare para começar a jogar e salvar seu progresso',
+    ja: 'PhantomまたはSolflareウォレットを接続してゲームを開始し、進行状況を保存します',
+    fr: 'Connectez votre portefeuille Phantom ou Solflare pour commencer à jouer et sauvegarder votre progression',
+    hi: 'खेलना शुरू करने और अपनी प्रगति सहेजने के लिए अपना Phantom या Solflare वॉलेट कनेक्ट करें',
+    ko: 'Phantom 또는 Solflare 지갑을 연결하여 게임을 시작하고 진행 상황을 저장하세요',
+    tr: 'Oynamaya başlamak ve ilerlemenizi kaydetmek için Phantom veya Solflare cüzdanınızı bağlayın',
+    de: 'Verbinden Sie Ihre Phantom- oder Solflare-Wallet, um zu spielen und Ihren Fortschritt zu speichern',
+    ar: 'قم بربط محفظة Phantom أو Solflare للبدء في اللعب وحفظ تقدمك',
+    vi: 'Kết nối ví Phantom hoặc Solflare của bạn để bắt đầu chơi và lưu tiến trình',
+  },
+  game_data_saved: {
+    en: 'Your game data will be securely saved on the blockchain',
+    ru: 'Ваши игровые данные будут безопасно сохранены в блокчейне',
+    zh: '您的游戏数据将安全地保存在区块链上',
+    es: 'Tus datos del juego se guardarán de forma segura en la blockchain',
+    pt: 'Seus dados do jogo serão salvos com segurança na blockchain',
+    ja: 'ゲームデータはブロックチェーンに安全に保存されます',
+    fr: 'Vos données de jeu seront sauvegardées en toute sécurité sur la blockchain',
+    hi: 'आपका गेम डेटा ब्लॉकचेन पर सुरक्षित रूप से सहेजा जाएगा',
+    ko: '게임 데이터가 블록체인에 안전하게 저장됩니다',
+    tr: "Oyun verileriniz blockchain'de güvenli bir şekilde kaydedilecek",
+    de: 'Ihre Spieldaten werden sicher auf der Blockchain gespeichert',
+    ar: 'سيتم حفظ بيانات اللعبة الخاصة بك بأمان على البلوك تشين',
+    vi: 'Dữ liệu trò chơi của bạn sẽ được lưu an toàn trên blockchain',
+  },
+  download_phantom: {
+    en: "Don't have a wallet? Download Phantom",
+    ru: 'Нет кошелька? Скачайте Phantom',
+    zh: '没有钱包？下载Phantom',
+    es: '¿No tienes cartera? Descarga Phantom',
+    pt: 'Não tem carteira? Baixe o Phantom',
+    ja: 'ウォレットをお持ちでないですか？Phantomをダウンロード',
+    fr: "Vous n'avez pas de portefeuille ? Téléchargez Phantom",
+    hi: 'वॉलेट नहीं है? Phantom डाउनलोड करें',
+    ko: '지갑이 없으신가요? Phantom 다운로드',
+    tr: "Cüzdanınız yok mu? Phantom'ı indirin",
+    de: 'Keine Wallet? Phantom herunterladen',
+    ar: 'ليس لديك محفظة؟ قم بتنزيل Phantom',
+    vi: 'Chưa có ví? Tải xuống Phantom',
+  },
+  connect_phantom_nft: {
+    en: 'Connect Phantom to mint on-chain NFTs',
+    ru: 'Подключите Phantom для создания NFT в блокчейне',
+    zh: '连接Phantom以铸造链上NFT',
+    es: 'Conecta Phantom para crear NFTs en cadena',
+    pt: 'Conecte o Phantom para criar NFTs na cadeia',
+    ja: 'チェーン上NFTを作成するにはPhantomを接続',
+    fr: 'Connectez Phantom pour créer des NFT sur la chaîne',
+    hi: 'चेन पर NFT बनाने के लिए Phantom कनेक्ट करें',
+    ko: '체인상 NFT를 발행하려면 Phantom 연결',
+    tr: "Zincir üzerinde NFT oluşturmak için Phantom'ı bağlayın",
+    de: 'Phantom verbinden, um On-Chain-NFTs zu erstellen',
+    ar: 'قم بربط Phantom لإنشاء NFTs على السلسلة',
+    vi: 'Kết nối Phantom để tạo NFT trên chuỗi',
+  },
+  select_saved_wallet: {
+    en: 'Saved Wallets:',
+    ru: 'Сохраненные кошельки:',
+    zh: '已保存的钱包:',
+    es: 'Carteras Guardadas:',
+    pt: 'Carteiras Salvas:',
+    ja: '保存されたウォレット:',
+    fr: 'Portefeuilles Enregistrés:',
+    hi: 'सहेजे गए वॉलेट:',
+    ko: '저장된 지갑:',
+    tr: 'Kayıtlı Cüzdanlar:',
+    de: 'Gespeicherte Wallets:',
+    ar: 'المحافظ المحفوظة:',
+    vi: 'Ví đã lưu:',
+  },
+  open_browser_tip: {
+    en: 'You can also open in browser for full Phantom support',
+    ru: 'Вы также можете открыть в браузере для полной поддержки Phantom',
+    zh: '您也可以在浏览器中打开以获得完整的Phantom支持',
+    es: 'También puedes abrir en el navegador para soporte completo de Phantom',
+    pt: 'Você também pode abrir no navegador para suporte completo do Phantom',
+    ja: '完全なPhantomサポートのためにブラウザで開くこともできます',
+    fr: 'Vous pouvez également ouvrir dans le navigateur pour un support Phantom complet',
+    hi: 'पूर्ण Phantom समर्थन के लिए आप ब्राउज़र में भी खोल सकते हैं',
+    ko: '전체 Phantom 지원을 위해 브라우저에서 열 수도 있습니다',
+    tr: 'Tam Phantom desteği için tarayıcıda da açabilirsiniz',
+    de: 'Sie können auch im Browser öffnen für vollständige Phantom-Unterstützung',
+    ar: 'يمكنك أيضًا فتحه في المتصفح للحصول على دعم Phantom الكامل',
+    vi: 'Bạn cũng có thể mở trong trình duyệt để có hỗ trợ Phantom đầy đủ',
+  },
+  enter_wallet_address: {
+    en: 'Enter wallet address...',
+    ru: 'Введите адрес кошелька...',
+    zh: '输入钱包地址...',
+    es: 'Ingresa la dirección de la cartera...',
+    pt: 'Digite o endereço da carteira...',
+    ja: 'ウォレットアドレスを入力...',
+    fr: "Entrez l'adresse du portefeuille...",
+    hi: 'वॉलेट पता दर्ज करें...',
+    ko: '지갑 주소 입력...',
+    tr: 'Cüzdan adresini girin...',
+    de: 'Wallet-Adresse eingeben...',
+    ar: 'أدخل عنوان المحفظة...',
+    vi: 'Nhập địa chỉ ví...',
+  },
+
+  // ========== MINT PAGE ==========
+  mint_your_nft_pet: {
+    en: '🎨 MINT YOUR NFT PET',
+    ru: '🎨 СОЗДАТЬ NFT ПИТОМЦА',
+    zh: '🎨 铸造您的NFT宠物',
+    es: '🎨 CREAR TU MASCOTA NFT',
+    pt: '🎨 CRIAR SEU PET NFT',
+    ja: '🎨 NFTペットを作成',
+    fr: '🎨 CRÉER VOTRE PET NFT',
+    hi: '🎨 अपना NFT पेट बनाएं',
+    ko: '🎨 NFT 펫 발행',
+    tr: '🎨 NFT PET OLUŞTUR',
+    de: '🎨 NFT-HAUSTIER ERSTELLEN',
+    ar: '🎨 إنشاء حيوان NFT',
+    vi: '🎨 TẠO THÚ CƯNG NFT',
+  },
+  mint_subtitle: {
+    en: '5 TIERS | BONDING CURVE | FIXED BOOSTS',
+    ru: '5 УРОВНЕЙ | КРИВАЯ СВЯЗИ | ФИКСИРОВАННЫЕ БУСТЫ',
+    zh: '5个等级 | 绑定曲线 | 固定加成',
+    es: '5 NIVELES | CURVA DE VINCULACIÓN | BOOSTS FIJOS',
+    pt: '5 NÍVEIS | CURVA DE VINCULAÇÃO | BOOSTS FIXOS',
+    ja: '5ティア | ボンディングカーブ | 固定ブースト',
+    fr: '5 NIVEAUX | COURBE DE LIEN | BOOSTS FIXES',
+    hi: '5 स्तर | बॉन्डिंग कर्व | फिक्स्ड बूस्ट',
+    ko: '5단계 | 본딩 커브 | 고정 부스트',
+    tr: '5 SEVİYE | BAĞLAMA EĞRİSİ | SABİT BOOSTLAR',
+    de: '5 STUFEN | BINDUNGSKURVE | FESTE BOOSTS',
+    ar: '5 مستويات | منحنى الربط | معززات ثابتة',
+    vi: '5 CẤP | ĐƯỜNG CONG LIÊN KẾT | TĂNG CƯỜNG CỐ ĐỊNH',
+  },
+  get_test_sol: {
+    en: '🚰 Get Test SOL',
+    ru: '🚰 Получить тестовый SOL',
+    zh: '🚰 获取测试SOL',
+    es: '🚰 Obtener SOL de Prueba',
+    pt: '🚰 Obter SOL de Teste',
+    ja: '🚰 テストSOLを取得',
+    fr: '🚰 Obtenir du SOL de Test',
+    hi: '🚰 टेस्ट SOL प्राप्त करें',
+    ko: '🚰 테스트 SOL 받기',
+    tr: '🚰 Test SOL Al',
+    de: '🚰 Test-SOL erhalten',
+    ar: '🚰 احصل على SOL للاختبار',
+    vi: '🚰 Nhận SOL thử nghiệm',
+  },
+  my_nfts: {
+    en: '🖼️ MY NFTs',
+    ru: '🖼️ МОИ NFT',
+    zh: '🖼️ 我的NFT',
+    es: '🖼️ MIS NFTs',
+    pt: '🖼️ MEUS NFTs',
+    ja: '🖼️ 私のNFT',
+    fr: '🖼️ MES NFTs',
+    hi: '🖼️ मेरे NFT',
+    ko: '🖼️ 내 NFT',
+    tr: "🖼️ NFT'LERİM",
+    de: '🖼️ MEINE NFTs',
+    ar: '🖼️ NFT الخاصة بي',
+    vi: '🖼️ NFT CỦA TÔI',
+  },
+  why_mint_nft: {
+    en: '💎 WHY MINT NFT?',
+    ru: '💎 ЗАЧЕМ СОЗДАВАТЬ NFT?',
+    zh: '💎 为什么要铸造NFT?',
+    es: '💎 ¿POR QUÉ CREAR NFT?',
+    pt: '💎 POR QUE CRIAR NFT?',
+    ja: '💎 なぜNFTを作成するのか?',
+    fr: '💎 POURQUOI CRÉER UN NFT?',
+    hi: '💎 NFT क्यों बनाएं?',
+    ko: '💎 NFT를 왜 발행하나요?',
+    tr: '💎 NFT NEDEN OLUŞTURULUR?',
+    de: '💎 WARUM NFT ERSTELLEN?',
+    ar: '💎 لماذا إنشاء NFT?',
+    vi: '💎 TẠI SAO TẠO NFT?',
+  },
+  passive_income: {
+    en: 'PASSIVE INCOME',
+    ru: 'ПАССИВНЫЙ ДОХОД',
+    zh: '被动收入',
+    es: 'INGRESO PASIVO',
+    pt: 'RENDA PASSIVA',
+    ja: 'パッシブインカム',
+    fr: 'REVENU PASSIF',
+    hi: 'निष्क्रिय आय',
+    ko: '수동 소득',
+    tr: 'PASİF GELİR',
+    de: 'PASSIVES EINKOMMEN',
+    ar: 'دخل سلبي',
+    vi: 'THU NHẬP THỤ ĐỘNG',
+  },
+  earning_boost: {
+    en: 'EARNING BOOST',
+    ru: 'УВЕЛИЧЕНИЕ ЗАРАБОТКА',
+    zh: '收益加成',
+    es: 'AUMENTO DE GANANCIAS',
+    pt: 'AUMENTO DE GANHOS',
+    ja: '収益ブースト',
+    fr: 'AUGMENTATION DES GAINS',
+    hi: 'कमाई बूस्ट',
+    ko: '수익 부스트',
+    tr: 'KAZANÇ ARTIŞI',
+    de: 'VERDIENST-BOOST',
+    ar: 'زيادة الأرباح',
+    vi: 'TĂNG THU NHẬP',
+  },
+  price_growth: {
+    en: 'PRICE GROWTH',
+    ru: 'РОСТ ЦЕНЫ',
+    zh: '价格上涨',
+    es: 'CRECIMIENTO DE PRECIO',
+    pt: 'CRESCIMENTO DE PREÇO',
+    ja: '価格上昇',
+    fr: 'CROISSANCE DU PRIX',
+    hi: 'मूल्य वृद्धि',
+    ko: '가격 상승',
+    tr: 'FİYAT ARTIŞI',
+    de: 'PREISWACHSTUM',
+    ar: 'نمو السعر',
+    vi: 'TĂNG GIÁ',
+  },
+  real_on_chain: {
+    en: 'REAL ON-CHAIN',
+    ru: 'НАСТОЯЩИЙ В БЛОКЧЕЙНЕ',
+    zh: '真实链上',
+    es: 'REAL EN CADENA',
+    pt: 'REAL NA CADEIA',
+    ja: 'リアルオンチェーン',
+    fr: 'RÉEL SUR LA CHAÎNE',
+    hi: 'वास्तविक ऑन-चेन',
+    ko: '실제 온체인',
+    tr: 'GERÇEK ZİNCİR ÜZERİ',
+    de: 'ECHT ON-CHAIN',
+    ar: 'حقيقي على السلسلة',
+    vi: 'THỰC TRÊN CHUỖI',
+  },
+  loading: {
+    en: 'Loading...',
+    ru: 'Загрузка...',
+    zh: '加载中...',
+    es: 'Cargando...',
+    pt: 'Carregando...',
+    ja: '読み込み中...',
+    fr: 'Chargement...',
+    hi: 'लोड हो रहा है...',
+    ko: '로딩 중...',
+    tr: 'Yükleniyor...',
+    de: 'Lädt...',
+    ar: 'جاري التحميل...',
+    vi: 'Đang tải...',
+  },
 };
 
 // Current language (default: English)
@@ -1130,20 +2665,20 @@ let currentLanguage = 'en';
  * @returns {string} Translated string
  */
 function t(key, params = {}) {
-    const translation = TRANSLATIONS[key];
-    if (!translation) {
-        console.warn(`[i18n] Missing translation key: ${key}`);
-        return key;
-    }
+  const translation = TRANSLATIONS[key];
+  if (!translation) {
+    console.warn(`[i18n] Missing translation key: ${key}`);
+    return key;
+  }
 
-    let text = translation[currentLanguage] || translation['en'] || key;
+  let text = translation[currentLanguage] || translation['en'] || key;
 
-    // Simple parameter interpolation: {param} -> value
-    Object.keys(params).forEach(param => {
-        text = text.replace(new RegExp(`{${param}}`, 'g'), params[param]);
-    });
+  // Simple parameter interpolation: {param} -> value
+  Object.keys(params).forEach((param) => {
+    text = text.replace(new RegExp(`{${param}}`, 'g'), params[param]);
+  });
 
-    return text;
+  return text;
 }
 
 /**
@@ -1151,20 +2686,22 @@ function t(key, params = {}) {
  * @param {string} langCode - Language code (e.g., 'en', 'ru', 'zh')
  */
 function setLanguage(langCode) {
-    if (SUPPORTED_LANGUAGES[langCode]) {
-        currentLanguage = langCode;
-        localStorage.setItem('gameLanguage', langCode);
+  if (SUPPORTED_LANGUAGES[langCode]) {
+    currentLanguage = langCode;
+    localStorage.setItem('gameLanguage', langCode);
 
-        // Update all elements with data-i18n attribute
-        updatePageTranslations();
+    // Update all elements with data-i18n attribute
+    updatePageTranslations();
 
-        // Dispatch event for custom handlers
-        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: langCode } }));
+    // Dispatch event for custom handlers
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: langCode } }));
 
-        console.log(`[i18n] Language changed to: ${langCode} (${SUPPORTED_LANGUAGES[langCode].native})`);
-    } else {
-        console.warn(`[i18n] Unsupported language: ${langCode}`);
-    }
+    console.log(
+      `[i18n] Language changed to: ${langCode} (${SUPPORTED_LANGUAGES[langCode].native})`
+    );
+  } else {
+    console.warn(`[i18n] Unsupported language: ${langCode}`);
+  }
 }
 
 /**
@@ -1172,93 +2709,93 @@ function setLanguage(langCode) {
  * @returns {string} Current language code
  */
 function getCurrentLanguage() {
-    return currentLanguage;
+  return currentLanguage;
 }
 
 /**
  * Update all page translations
  */
 function updatePageTranslations() {
-    // Update elements with data-i18n attribute
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        el.textContent = t(key);
-    });
+  // Update elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
 
-    // Update elements with data-i18n-placeholder attribute
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-i18n-placeholder');
-        el.placeholder = t(key);
-    });
+  // Update elements with data-i18n-placeholder attribute
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.placeholder = t(key);
+  });
 
-    // Update elements with data-i18n-title attribute
-    document.querySelectorAll('[data-i18n-title]').forEach(el => {
-        const key = el.getAttribute('data-i18n-title');
-        el.title = t(key);
-    });
+  // Update elements with data-i18n-title attribute
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-title');
+    el.title = t(key);
+  });
 }
 
 /**
  * Initialize i18n system
  */
 function initI18n() {
-    // Try to get language from various sources
-    let lang = 'en';
+  // Try to get language from various sources
+  let lang = 'en';
 
-    // 1. ✅ ПРИОРИТЕТ #1: URL параметр (самый высокий приоритет)
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlLang = urlParams.get('lang');
-    if (urlLang && SUPPORTED_LANGUAGES[urlLang]) {
-        lang = urlLang;
-        // Сохранить в localStorage для будущих визитов
-        localStorage.setItem('gameLanguage', urlLang);
-        console.log(`[i18n] Language set from URL parameter: ${urlLang}`);
+  // 1. ✅ ПРИОРИТЕТ #1: URL параметр (самый высокий приоритет)
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  if (urlLang && SUPPORTED_LANGUAGES[urlLang]) {
+    lang = urlLang;
+    // Сохранить в localStorage для будущих визитов
+    localStorage.setItem('gameLanguage', urlLang);
+    console.log(`[i18n] Language set from URL parameter: ${urlLang}`);
+  }
+  // 2. Check localStorage
+  else {
+    const savedLang = localStorage.getItem('gameLanguage');
+    if (savedLang && SUPPORTED_LANGUAGES[savedLang]) {
+      lang = savedLang;
     }
-    // 2. Check localStorage
+    // 3. Check Telegram WebApp
+    else if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
+      const tgLang = window.Telegram.WebApp.initDataUnsafe.user.language_code;
+      if (SUPPORTED_LANGUAGES[tgLang]) {
+        lang = tgLang;
+      }
+    }
+    // 4. Check browser language
     else {
-        const savedLang = localStorage.getItem('gameLanguage');
-        if (savedLang && SUPPORTED_LANGUAGES[savedLang]) {
-            lang = savedLang;
-        }
-        // 3. Check Telegram WebApp
-        else if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
-            const tgLang = window.Telegram.WebApp.initDataUnsafe.user.language_code;
-            if (SUPPORTED_LANGUAGES[tgLang]) {
-                lang = tgLang;
-            }
-        }
-        // 4. Check browser language
-        else {
-            const browserLang = navigator.language?.split('-')[0];
-            if (SUPPORTED_LANGUAGES[browserLang]) {
-                lang = browserLang;
-            }
-        }
+      const browserLang = navigator.language?.split('-')[0];
+      if (SUPPORTED_LANGUAGES[browserLang]) {
+        lang = browserLang;
+      }
     }
+  }
 
-    currentLanguage = lang;
-    console.log(`[i18n] Initialized with language: ${lang}`);
+  currentLanguage = lang;
+  console.log(`[i18n] Initialized with language: ${lang}`);
 
-    // Update page on DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', updatePageTranslations);
-    } else {
-        updatePageTranslations();
-    }
+  // Update page on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updatePageTranslations);
+  } else {
+    updatePageTranslations();
+  }
 }
 
 /**
  * Create and show language selector modal
  */
 function showLanguageSelector() {
-    // Remove existing modal if any
-    const existingModal = document.getElementById('language-selector-modal');
-    if (existingModal) existingModal.remove();
+  // Remove existing modal if any
+  const existingModal = document.getElementById('language-selector-modal');
+  if (existingModal) existingModal.remove();
 
-    // Create modal
-    const modal = document.createElement('div');
-    modal.id = 'language-selector-modal';
-    modal.innerHTML = `
+  // Create modal
+  const modal = document.createElement('div');
+  modal.id = 'language-selector-modal';
+  modal.innerHTML = `
         <div class="lang-modal-overlay" onclick="hideLanguageSelector()"></div>
         <div class="lang-modal-content">
             <div class="lang-modal-header">
@@ -1266,22 +2803,26 @@ function showLanguageSelector() {
                 <button class="lang-modal-close" onclick="hideLanguageSelector()">✕</button>
             </div>
             <div class="lang-modal-grid">
-                ${Object.entries(SUPPORTED_LANGUAGES).map(([code, lang]) => `
+                ${Object.entries(SUPPORTED_LANGUAGES)
+                  .map(
+                    ([code, lang]) => `
                     <button class="lang-btn ${code === currentLanguage ? 'active' : ''}"
                             onclick="selectLanguage('${code}')">
                         <span class="lang-flag">${lang.flag}</span>
                         <span class="lang-name">${lang.native}</span>
                     </button>
-                `).join('')}
+                `
+                  )
+                  .join('')}
             </div>
         </div>
     `;
 
-    // Add styles if not already added
-    if (!document.getElementById('lang-selector-styles')) {
-        const styles = document.createElement('style');
-        styles.id = 'lang-selector-styles';
-        styles.textContent = `
+  // Add styles if not already added
+  if (!document.getElementById('lang-selector-styles')) {
+    const styles = document.createElement('style');
+    styles.id = 'lang-selector-styles';
+    styles.textContent = `
             #language-selector-modal {
                 position: fixed;
                 top: 0;
@@ -1411,45 +2952,45 @@ function showLanguageSelector() {
                 }
             }
         `;
-        document.head.appendChild(styles);
-    }
+    document.head.appendChild(styles);
+  }
 
-    document.body.appendChild(modal);
+  document.body.appendChild(modal);
 }
 
 /**
  * Hide language selector modal
  */
 function hideLanguageSelector() {
-    const modal = document.getElementById('language-selector-modal');
-    if (modal) {
-        modal.style.animation = 'fadeIn 0.2s ease reverse';
-        setTimeout(() => modal.remove(), 200);
-    }
+  const modal = document.getElementById('language-selector-modal');
+  if (modal) {
+    modal.style.animation = 'fadeIn 0.2s ease reverse';
+    setTimeout(() => modal.remove(), 200);
+  }
 }
 
 /**
  * Select language and close modal
  */
 function selectLanguage(langCode) {
-    setLanguage(langCode);
-    hideLanguageSelector();
+  setLanguage(langCode);
+  hideLanguageSelector();
 
-    // Show confirmation toast
-    showToast(`${SUPPORTED_LANGUAGES[langCode].flag} ${SUPPORTED_LANGUAGES[langCode].native}`);
+  // Show confirmation toast
+  showToast(`${SUPPORTED_LANGUAGES[langCode].flag} ${SUPPORTED_LANGUAGES[langCode].native}`);
 }
 
 /**
  * Show toast notification
  */
 function showToast(message, duration = 2000) {
-    const existingToast = document.querySelector('.i18n-toast');
-    if (existingToast) existingToast.remove();
+  const existingToast = document.querySelector('.i18n-toast');
+  if (existingToast) existingToast.remove();
 
-    const toast = document.createElement('div');
-    toast.className = 'i18n-toast';
-    toast.textContent = message;
-    toast.style.cssText = `
+  const toast = document.createElement('div');
+  toast.className = 'i18n-toast';
+  toast.textContent = message;
+  toast.style.cssText = `
         position: fixed;
         bottom: 100px;
         left: 50%;
@@ -1464,24 +3005,24 @@ function showToast(message, duration = 2000) {
         box-shadow: 0 5px 20px rgba(138, 43, 226, 0.4);
     `;
 
-    if (!document.getElementById('toast-animation-style')) {
-        const style = document.createElement('style');
-        style.id = 'toast-animation-style';
-        style.textContent = `
+  if (!document.getElementById('toast-animation-style')) {
+    const style = document.createElement('style');
+    style.id = 'toast-animation-style';
+    style.textContent = `
             @keyframes toastIn {
                 from { transform: translateX(-50%) translateY(20px); opacity: 0; }
                 to { transform: translateX(-50%) translateY(0); opacity: 1; }
             }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    document.body.appendChild(toast);
+  document.body.appendChild(toast);
 
-    setTimeout(() => {
-        toast.style.animation = 'toastIn 0.3s ease reverse';
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
+  setTimeout(() => {
+    toast.style.animation = 'toastIn 0.3s ease reverse';
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
 }
 
 /**
@@ -1489,17 +3030,17 @@ function showToast(message, duration = 2000) {
  * @returns {HTMLElement} Language button element
  */
 function createLanguageButton() {
-    const btn = document.createElement('button');
-    btn.className = 'lang-switch-btn';
-    btn.innerHTML = `${SUPPORTED_LANGUAGES[currentLanguage].flag}`;
-    btn.title = t('language');
-    btn.onclick = showLanguageSelector;
+  const btn = document.createElement('button');
+  btn.className = 'lang-switch-btn';
+  btn.innerHTML = `${SUPPORTED_LANGUAGES[currentLanguage].flag}`;
+  btn.title = t('language');
+  btn.onclick = showLanguageSelector;
 
-    // Add button styles if not exists
-    if (!document.getElementById('lang-btn-styles')) {
-        const style = document.createElement('style');
-        style.id = 'lang-btn-styles';
-        style.textContent = `
+  // Add button styles if not exists
+  if (!document.getElementById('lang-btn-styles')) {
+    const style = document.createElement('style');
+    style.id = 'lang-btn-styles';
+    style.textContent = `
             .lang-switch-btn {
                 background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(75, 0, 130, 0.3));
                 border: 2px solid rgba(138, 43, 226, 0.5);
@@ -1519,15 +3060,15 @@ function createLanguageButton() {
                 transform: scale(0.95);
             }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    // Update flag when language changes
-    window.addEventListener('languageChanged', (e) => {
-        btn.innerHTML = `${SUPPORTED_LANGUAGES[e.detail.language].flag}`;
-    });
+  // Update flag when language changes
+  window.addEventListener('languageChanged', (e) => {
+    btn.innerHTML = `${SUPPORTED_LANGUAGES[e.detail.language].flag}`;
+  });
 
-    return btn;
+  return btn;
 }
 
 // Initialize on load
@@ -1535,12 +3076,12 @@ initI18n();
 
 // Export for use in other scripts
 window.i18n = {
-    t,
-    setLanguage,
-    getCurrentLanguage,
-    showLanguageSelector,
-    hideLanguageSelector,
-    createLanguageButton,
-    SUPPORTED_LANGUAGES,
-    TRANSLATIONS
+  t,
+  setLanguage,
+  getCurrentLanguage,
+  showLanguageSelector,
+  hideLanguageSelector,
+  createLanguageButton,
+  SUPPORTED_LANGUAGES,
+  TRANSLATIONS,
 };

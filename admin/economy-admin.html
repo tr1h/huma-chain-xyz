@@ -1,877 +1,964 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Economy Admin Panel - Solana Tamagotchi</title>
     <!-- Admin Password (for production) -->
-    <meta name="admin-password-hash" content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3">
+    <meta
+      name="admin-password-hash"
+      content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3"
+    />
     <style>
-        /* Logo Styles 🎨 */
-        .game-logo {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 10000;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
+      /* Logo Styles 🎨 */
+      .game-logo {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 10000;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
 
-        .game-logo:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
+      .game-logo:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+
+      .game-logo img {
+        height: 70px;
+        width: auto;
+        display: block;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 5px;
+      }
+
+      @media (max-width: 768px) {
+        .game-logo {
+          top: 10px;
+          left: 10px;
         }
 
         .game-logo img {
-            height: 70px;
-            width: auto;
-            display: block;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 5px;
+          height: 50px;
         }
+      }
 
-        @media (max-width: 768px) {
-            .game-logo {
-                top: 10px;
-                left: 10px;
-            }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-            .game-logo img {
-                height: 50px;
-            }
-        }
+      /* Admin Login Screen */
+      #adminLoginScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+      }
 
-        /* Admin Login Screen */
-        #adminLoginScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
+      .login-container h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 28px;
+      }
 
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
+      #adminPasswordInput {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+      }
 
-        .login-container h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
+      #adminPasswordInput:focus {
+        outline: none;
+        border-color: #667eea;
+      }
 
-        #adminPasswordInput {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
+      .login-btn {
+        width: 100%;
+        padding: 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+      }
 
-        #adminPasswordInput:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+      .login-btn:hover {
+        background: #5568d3;
+      }
 
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
+      #adminLoginError {
+        color: red;
+        margin-top: 15px;
+        min-height: 20px;
+        font-size: 14px;
+      }
 
-        .login-btn:hover {
-            background: #5568d3;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
 
-        #adminLoginError {
-            color: red;
-            margin-top: 15px;
-            min-height: 20px;
-            font-size: 14px;
-        }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+      .header {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+      .back-btn {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        background: #667eea;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            position: relative;
-        }
-        
-        .back-btn {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .back-btn:hover {
-            background: #5568d3;
-            transform: translateX(5px);
-        }
+      .back-btn:hover {
+        background: #5568d3;
+        transform: translateX(5px);
+      }
 
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
+      h1 {
+        color: #667eea;
+        margin-bottom: 10px;
+      }
 
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-        }
+      .subtitle {
+        color: #666;
+        font-size: 14px;
+      }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+      }
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
 
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 20px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
+      .card h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 20px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+      }
 
-        .setting {
-            margin-bottom: 20px;
-        }
+      .setting {
+        margin-bottom: 20px;
+      }
 
-        .setting label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
+      .setting label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+      }
 
-        .setting input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
+      .setting input {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
 
-        .setting input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+      .setting input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
 
-        .setting .value-display {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
+      .setting .value-display {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin-left: 10px;
+      }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
 
-        button {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+      button {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
 
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
+      .btn-primary {
+        background: #667eea;
+        color: white;
+      }
 
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
+      .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
 
-        .btn-secondary {
-            background: #48bb78;
-            color: white;
-        }
+      .btn-secondary {
+        background: #48bb78;
+        color: white;
+      }
 
-        .btn-secondary:hover {
-            background: #38a169;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
-        }
+      .btn-secondary:hover {
+        background: #38a169;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+      }
 
-        .btn-danger {
-            background: #f56565;
-            color: white;
-        }
+      .btn-danger {
+        background: #f56565;
+        color: white;
+      }
 
-        .btn-danger:hover {
-            background: #e53e3e;
-        }
+      .btn-danger:hover {
+        background: #e53e3e;
+      }
 
-        .simulator {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
+      .simulator {
+        background: #f7fafc;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+      }
 
-        .simulator h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
+      .simulator h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+      }
 
-        .sim-result {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 15px;
-        }
+      .sim-result {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 15px;
+      }
 
-        .sim-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
+      .sim-item {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
 
-        .sim-item .label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-        }
+      .sim-item .label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 5px;
+      }
 
-        .sim-item .value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-        }
+      .sim-item .value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+      }
 
-        .presets {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+      .presets {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
 
-        .preset-btn {
-            flex: 1;
-            padding: 10px;
-            background: #edf2f7;
-            border: 2px solid #cbd5e0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+      .preset-btn {
+        flex: 1;
+        padding: 10px;
+        background: #edf2f7;
+        border: 2px solid #cbd5e0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
 
-        .preset-btn:hover {
-            background: #e2e8f0;
-            border-color: #667eea;
-        }
+      .preset-btn:hover {
+        background: #e2e8f0;
+        border-color: #667eea;
+      }
 
-        .preset-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
+      .preset-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
 
-        .status {
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
-        }
+      .status {
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        display: none;
+      }
 
-        .status.success {
-            background: #c6f6d5;
-            color: #22543d;
-            display: block;
-        }
+      .status.success {
+        background: #c6f6d5;
+        color: #22543d;
+        display: block;
+      }
 
-        .status.error {
-            background: #fed7d7;
-            color: #742a2a;
-            display: block;
-        }
+      .status.error {
+        background: #fed7d7;
+        color: #742a2a;
+        display: block;
+      }
 
-        .status.warning {
-            background: #feebc8;
-            color: #7c2d12;
-            display: block;
-        }
-        
-        /* Logo Styles 🎨 */
+      .status.warning {
+        background: #feebc8;
+        color: #7c2d12;
+        display: block;
+      }
+
+      /* Logo Styles 🎨 */
+      .game-logo {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 10000;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      .game-logo:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+
+      .game-logo img {
+        height: 70px;
+        width: auto;
+        display: block;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 5px;
+      }
+
+      @media (max-width: 768px) {
         .game-logo {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 10000;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+          top: 10px;
+          left: 10px;
         }
-        
-        .game-logo:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
-        
+
         .game-logo img {
-            height: 70px;
-            width: auto;
-            display: block;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 5px;
+          height: 50px;
         }
-        
-        @media (max-width: 768px) {
-            .game-logo {
-                top: 10px;
-                left: 10px;
-            }
-            
-            .game-logo img {
-                height: 50px;
-            }
-        }
+      }
     </style>
-    <script src="js/admin-env.js"></script>
-</head>
-<body>
+    <script src="../js/admin-env.js"></script>
+  </head>
+  <body>
     <!-- Logo 🎨 -->
-    <a href="index.html" class="game-logo" title="Back to Home">
-        <img src="logo.png" alt="Solana Tamagotchi">
+    <a href="../index.html" class="game-logo" title="Back to Home">
+      <img src="../logo.png" alt="Solana Tamagotchi" />
     </a>
-    
+
     <!-- Admin Login Screen -->
     <div id="adminLoginScreen">
-        <div class="login-container">
-            <h2>🔐 Admin Access</h2>
-            <input type="password" id="adminPasswordInput" placeholder="Enter password">
-            <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
-            <div id="adminLoginError"></div>
-        </div>
+      <div class="login-container">
+        <h2>🔐 Admin Access</h2>
+        <input type="password" id="adminPasswordInput" placeholder="Enter password" />
+        <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
+        <div id="adminLoginError"></div>
+      </div>
     </div>
 
     <!-- Main Content (hidden until authenticated) -->
-    <div id="adminContent" style="display: none;">
-    <!-- Logo 🎨 -->
-    <a href="index.html" class="game-logo" title="Back to Home">
-        <img src="logo.png" alt="Solana Tamagotchi">
-    </a>
+    <div id="adminContent" style="display: none">
+      <!-- Logo 🎨 -->
+      <a href="../index.html" class="game-logo" title="Back to Home">
+        <img src="../logo.png" alt="Solana Tamagotchi" />
+      </a>
 
-    <div class="container">
+      <div class="container">
         <div class="header">
-            <a href="super-admin.html" class="back-btn">⬅️ Back</a>
-            <h1>💰 Economy Admin Panel</h1>
-            <p class="subtitle">Adjust game economy parameters in real-time</p>
+          <a href="super-admin.html" class="back-btn">⬅️ Back</a>
+          <h1>💰 Economy Admin Panel</h1>
+          <p class="subtitle">Adjust game economy parameters in real-time</p>
         </div>
 
         <div class="presets">
-            <button class="preset-btn" onclick="loadPreset('current')">📊 Current</button>
-            <button class="preset-btn active" onclick="loadPreset('balanced')">⚖️ Balanced</button>
-            <button class="preset-btn" onclick="loadPreset('generous')">💎 Generous</button>
-            <button class="preset-btn" onclick="loadPreset('strict')">🔒 Strict</button>
+          <button class="preset-btn" onclick="loadPreset('current')">📊 Current</button>
+          <button class="preset-btn active" onclick="loadPreset('balanced')">⚖️ Balanced</button>
+          <button class="preset-btn" onclick="loadPreset('generous')">💎 Generous</button>
+          <button class="preset-btn" onclick="loadPreset('strict')">🔒 Strict</button>
         </div>
 
         <div class="grid">
-            <!-- Rewards Settings -->
-            <div class="card">
-                <h2>🎁 Reward Settings</h2>
-                
-                <div class="setting">
-                    <label>
-                        Base Click Reward
-                        <span class="value-display" id="base-reward-display">1.0</span>
-                    </label>
-                    <input type="range" id="base-reward" min="0.1" max="20" step="0.1" value="1.0" oninput="updateDisplay()">
-                </div>
+          <!-- Rewards Settings -->
+          <div class="card">
+            <h2>🎁 Reward Settings</h2>
 
-                <div class="setting">
-                    <label>
-                        Minimum Reward
-                        <span class="value-display" id="min-reward-display">0.5</span>
-                    </label>
-                    <input type="range" id="min-reward" min="0.1" max="2" step="0.1" value="0.5" oninput="updateDisplay()">
-                </div>
-
-                <div class="setting">
-                    <label>
-                        Max Combo Bonus
-                        <span class="value-display" id="max-combo-display">10</span>
-                    </label>
-                    <input type="range" id="max-combo" min="1" max="30" step="1" value="10" oninput="updateDisplay()">
-                </div>
+            <div class="setting">
+              <label>
+                Base Click Reward
+                <span class="value-display" id="base-reward-display">1.0</span>
+              </label>
+              <input
+                type="range"
+                id="base-reward"
+                min="0.1"
+                max="20"
+                step="0.1"
+                value="1.0"
+                oninput="updateDisplay()"
+              />
             </div>
 
-            <!-- Combo Settings -->
-            <div class="card">
-                <h2>🔥 Combo Settings</h2>
-                
-                <div class="setting">
-                    <label>
-                        Combo Window (seconds)
-                        <span class="value-display" id="combo-window-display">2.5</span>
-                    </label>
-                    <input type="range" id="combo-window" min="1" max="5" step="0.1" value="2.5" oninput="updateDisplay()">
-                </div>
-
-                <div class="setting">
-                    <label>
-                        Combo Cooldown (seconds)
-                        <span class="value-display" id="combo-cooldown-display">0.8</span>
-                    </label>
-                    <input type="range" id="combo-cooldown" min="0.3" max="2" step="0.1" value="0.8" oninput="updateDisplay()">
-                </div>
-
-                <div class="setting">
-                    <label>
-                        Combo Bonus Divider
-                        <span class="value-display" id="combo-divider-display">5</span>
-                    </label>
-                    <input type="range" id="combo-divider" min="1" max="20" step="1" value="5" oninput="updateDisplay()">
-                </div>
+            <div class="setting">
+              <label>
+                Minimum Reward
+                <span class="value-display" id="min-reward-display">0.5</span>
+              </label>
+              <input
+                type="range"
+                id="min-reward"
+                min="0.1"
+                max="2"
+                step="0.1"
+                value="0.5"
+                oninput="updateDisplay()"
+              />
             </div>
 
-            <!-- Penalty Settings -->
-            <div class="card">
-                <h2>⚠️ Spam Penalty</h2>
-                
-                <div class="setting">
-                    <label>
-                        Spam Penalty (%)
-                        <span class="value-display" id="spam-penalty-display">50%</span>
-                    </label>
-                    <input type="range" id="spam-penalty" min="0" max="90" step="5" value="50" oninput="updateDisplay()">
-                </div>
+            <div class="setting">
+              <label>
+                Max Combo Bonus
+                <span class="value-display" id="max-combo-display">10</span>
+              </label>
+              <input
+                type="range"
+                id="max-combo"
+                min="1"
+                max="30"
+                step="1"
+                value="10"
+                oninput="updateDisplay()"
+              />
+            </div>
+          </div>
 
+          <!-- Combo Settings -->
+          <div class="card">
+            <h2>🔥 Combo Settings</h2>
+
+            <div class="setting">
+              <label>
+                Combo Window (seconds)
+                <span class="value-display" id="combo-window-display">2.5</span>
+              </label>
+              <input
+                type="range"
+                id="combo-window"
+                min="1"
+                max="5"
+                step="0.1"
+                value="2.5"
+                oninput="updateDisplay()"
+              />
             </div>
 
-            <!-- Stat Degradation Settings -->
-            <div class="card">
-                <h2>📉 Stat Degradation per Click</h2>
-                
-                <div class="setting">
-                    <label>
-                        HP Loss per Click
-                        <span class="value-display" id="hp-loss-display">0.1</span>
-                    </label>
-                    <input type="range" id="hp-loss" min="0" max="1" step="0.05" value="0.1" oninput="updateDisplay()">
-                </div>
-
-                <div class="setting">
-                    <label>
-                        Food Loss per Click
-                        <span class="value-display" id="food-loss-display">0.05</span>
-                    </label>
-                    <input type="range" id="food-loss" min="0" max="1" step="0.05" value="0.05" oninput="updateDisplay()">
-                </div>
-
-                <div class="setting">
-                    <label>
-                        Happy Loss per Click
-                        <span class="value-display" id="happy-loss-display">0.05</span>
-                    </label>
-                    <input type="range" id="happy-loss" min="0" max="1" step="0.05" value="0.05" oninput="updateDisplay()">
-                </div>
-
-                <div class="simulator">
-                    <h3>🧪 Reward Simulator</h3>
-                    <div class="sim-result">
-                        <div class="sim-item">
-                            <div class="label">Normal Click</div>
-                            <div class="value" id="sim-normal">1.0</div>
-                        </div>
-                        <div class="sim-item">
-                            <div class="label">Spam Click</div>
-                            <div class="value" id="sim-spam">0.5</div>
-                        </div>
-                        <div class="sim-item">
-                            <div class="label">Combo x10</div>
-                            <div class="value" id="sim-combo10">3.0</div>
-                        </div>
-                        <div class="sim-item">
-                            <div class="label">Combo x50</div>
-                            <div class="value" id="sim-combo50">11.0</div>
-                        </div>
-                        <div class="sim-item">
-                            <div class="label">TAMA/Hour</div>
-                            <div class="value" id="sim-hour">5,000</div>
-                        </div>
-                        <div class="sim-item">
-                            <div class="label">Level/Hour</div>
-                            <div class="value" id="sim-level">50</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="setting">
+              <label>
+                Combo Cooldown (seconds)
+                <span class="value-display" id="combo-cooldown-display">0.8</span>
+              </label>
+              <input
+                type="range"
+                id="combo-cooldown"
+                min="0.3"
+                max="2"
+                step="0.1"
+                value="0.8"
+                oninput="updateDisplay()"
+              />
             </div>
+
+            <div class="setting">
+              <label>
+                Combo Bonus Divider
+                <span class="value-display" id="combo-divider-display">5</span>
+              </label>
+              <input
+                type="range"
+                id="combo-divider"
+                min="1"
+                max="20"
+                step="1"
+                value="5"
+                oninput="updateDisplay()"
+              />
+            </div>
+          </div>
+
+          <!-- Penalty Settings -->
+          <div class="card">
+            <h2>⚠️ Spam Penalty</h2>
+
+            <div class="setting">
+              <label>
+                Spam Penalty (%)
+                <span class="value-display" id="spam-penalty-display">50%</span>
+              </label>
+              <input
+                type="range"
+                id="spam-penalty"
+                min="0"
+                max="90"
+                step="5"
+                value="50"
+                oninput="updateDisplay()"
+              />
+            </div>
+          </div>
+
+          <!-- Stat Degradation Settings -->
+          <div class="card">
+            <h2>📉 Stat Degradation per Click</h2>
+
+            <div class="setting">
+              <label>
+                HP Loss per Click
+                <span class="value-display" id="hp-loss-display">0.1</span>
+              </label>
+              <input
+                type="range"
+                id="hp-loss"
+                min="0"
+                max="1"
+                step="0.05"
+                value="0.1"
+                oninput="updateDisplay()"
+              />
+            </div>
+
+            <div class="setting">
+              <label>
+                Food Loss per Click
+                <span class="value-display" id="food-loss-display">0.05</span>
+              </label>
+              <input
+                type="range"
+                id="food-loss"
+                min="0"
+                max="1"
+                step="0.05"
+                value="0.05"
+                oninput="updateDisplay()"
+              />
+            </div>
+
+            <div class="setting">
+              <label>
+                Happy Loss per Click
+                <span class="value-display" id="happy-loss-display">0.05</span>
+              </label>
+              <input
+                type="range"
+                id="happy-loss"
+                min="0"
+                max="1"
+                step="0.05"
+                value="0.05"
+                oninput="updateDisplay()"
+              />
+            </div>
+
+            <div class="simulator">
+              <h3>🧪 Reward Simulator</h3>
+              <div class="sim-result">
+                <div class="sim-item">
+                  <div class="label">Normal Click</div>
+                  <div class="value" id="sim-normal">1.0</div>
+                </div>
+                <div class="sim-item">
+                  <div class="label">Spam Click</div>
+                  <div class="value" id="sim-spam">0.5</div>
+                </div>
+                <div class="sim-item">
+                  <div class="label">Combo x10</div>
+                  <div class="value" id="sim-combo10">3.0</div>
+                </div>
+                <div class="sim-item">
+                  <div class="label">Combo x50</div>
+                  <div class="value" id="sim-combo50">11.0</div>
+                </div>
+                <div class="sim-item">
+                  <div class="label">TAMA/Hour</div>
+                  <div class="value" id="sim-hour">5,000</div>
+                </div>
+                <div class="sim-item">
+                  <div class="label">Level/Hour</div>
+                  <div class="value" id="sim-level">50</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="card">
-            <h2>💾 Actions</h2>
-            <div class="button-group">
-                <button class="btn-primary" onclick="applySettings()">✅ Apply Settings</button>
-                <button class="btn-secondary" onclick="exportConfig()">📥 Export Config</button>
-                <button class="btn-danger" onclick="resetToDefault()">🔄 Reset to Default</button>
-            </div>
-            <div id="status" class="status"></div>
+          <h2>💾 Actions</h2>
+          <div class="button-group">
+            <button class="btn-primary" onclick="applySettings()">✅ Apply Settings</button>
+            <button class="btn-secondary" onclick="exportConfig()">📥 Export Config</button>
+            <button class="btn-danger" onclick="resetToDefault()">🔄 Reset to Default</button>
+          </div>
+          <div id="status" class="status"></div>
         </div>
-    </div>
+      </div>
 
-    <script src="js/admin-env.js"></script>
-    <script>
+      <script src="../js/admin-env.js"></script>
+      <script>
         // API Configuration from AdminEnv or default
-        const TAMA_API_BASE = (window.AdminEnv?.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama').replace(/\/$/, '');
+        const TAMA_API_BASE = (
+          window.AdminEnv?.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama'
+        ).replace(/\/$/, '');
 
         const presets = {
-            current: {
-                baseReward: 0.1,
-                minReward: 0.1,
-                maxCombo: 5,
-                comboWindow: 2.0,
-                comboCooldown: 1.0,
-                comboDivider: 10,
-                spamPenalty: 70,
-                hpLoss: 0.3,
-                foodLoss: 0.2,
-                happyLoss: 0.15
-            },
-            balanced: {
-                baseReward: 1.0,
-                minReward: 0.5,
-                maxCombo: 10,
-                comboWindow: 2.5,
-                comboCooldown: 0.8,
-                comboDivider: 5,
-                spamPenalty: 50,
-                hpLoss: 0.3,
-                foodLoss: 0.2,
-                happyLoss: 0.15
-            },
-            generous: {
-                baseReward: 2.0,
-                minReward: 1.0,
-                maxCombo: 20,
-                comboWindow: 3.0,
-                comboCooldown: 0.6,
-                comboDivider: 3,
-                spamPenalty: 40,
-                hpLoss: 0.1,
-                foodLoss: 0.05,
-                happyLoss: 0.05
-            },
-            strict: {
-                baseReward: 0.8,
-                minReward: 0.3,
-                maxCombo: 8,
-                comboWindow: 2.0,
-                comboCooldown: 1.0,
-                comboDivider: 8,
-                spamPenalty: 60,
-                hpLoss: 0.5,
-                foodLoss: 0.3,
-                happyLoss: 0.2
-            }
+          current: {
+            baseReward: 0.1,
+            minReward: 0.1,
+            maxCombo: 5,
+            comboWindow: 2.0,
+            comboCooldown: 1.0,
+            comboDivider: 10,
+            spamPenalty: 70,
+            hpLoss: 0.3,
+            foodLoss: 0.2,
+            happyLoss: 0.15,
+          },
+          balanced: {
+            baseReward: 1.0,
+            minReward: 0.5,
+            maxCombo: 10,
+            comboWindow: 2.5,
+            comboCooldown: 0.8,
+            comboDivider: 5,
+            spamPenalty: 50,
+            hpLoss: 0.3,
+            foodLoss: 0.2,
+            happyLoss: 0.15,
+          },
+          generous: {
+            baseReward: 2.0,
+            minReward: 1.0,
+            maxCombo: 20,
+            comboWindow: 3.0,
+            comboCooldown: 0.6,
+            comboDivider: 3,
+            spamPenalty: 40,
+            hpLoss: 0.1,
+            foodLoss: 0.05,
+            happyLoss: 0.05,
+          },
+          strict: {
+            baseReward: 0.8,
+            minReward: 0.3,
+            maxCombo: 8,
+            comboWindow: 2.0,
+            comboCooldown: 1.0,
+            comboDivider: 8,
+            spamPenalty: 60,
+            hpLoss: 0.5,
+            foodLoss: 0.3,
+            happyLoss: 0.2,
+          },
         };
 
         function loadPreset(preset) {
-            const config = presets[preset];
-            document.getElementById('base-reward').value = config.baseReward;
-            document.getElementById('min-reward').value = config.minReward;
-            document.getElementById('max-combo').value = config.maxCombo;
-            document.getElementById('combo-window').value = config.comboWindow;
-            document.getElementById('combo-cooldown').value = config.comboCooldown;
-            document.getElementById('combo-divider').value = config.comboDivider;
-            document.getElementById('spam-penalty').value = config.spamPenalty;
-            document.getElementById('hp-loss').value = config.hpLoss;
-            document.getElementById('food-loss').value = config.foodLoss;
-            document.getElementById('happy-loss').value = config.happyLoss;
-            
-            // Update active button
-            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            updateDisplay();
+          const config = presets[preset];
+          document.getElementById('base-reward').value = config.baseReward;
+          document.getElementById('min-reward').value = config.minReward;
+          document.getElementById('max-combo').value = config.maxCombo;
+          document.getElementById('combo-window').value = config.comboWindow;
+          document.getElementById('combo-cooldown').value = config.comboCooldown;
+          document.getElementById('combo-divider').value = config.comboDivider;
+          document.getElementById('spam-penalty').value = config.spamPenalty;
+          document.getElementById('hp-loss').value = config.hpLoss;
+          document.getElementById('food-loss').value = config.foodLoss;
+          document.getElementById('happy-loss').value = config.happyLoss;
+
+          // Update active button
+          document.querySelectorAll('.preset-btn').forEach((btn) => btn.classList.remove('active'));
+          event.target.classList.add('active');
+
+          updateDisplay();
         }
 
         function updateDisplay() {
-            const baseReward = parseFloat(document.getElementById('base-reward').value);
-            const minReward = parseFloat(document.getElementById('min-reward').value);
-            const maxCombo = parseInt(document.getElementById('max-combo').value);
-            const comboWindow = parseFloat(document.getElementById('combo-window').value);
-            const comboCooldown = parseFloat(document.getElementById('combo-cooldown').value);
-            const comboDivider = parseInt(document.getElementById('combo-divider').value);
-            const spamPenalty = parseInt(document.getElementById('spam-penalty').value);
-            const hpLoss = parseFloat(document.getElementById('hp-loss').value);
-            const foodLoss = parseFloat(document.getElementById('food-loss').value);
-            const happyLoss = parseFloat(document.getElementById('happy-loss').value);
+          const baseReward = parseFloat(document.getElementById('base-reward').value);
+          const minReward = parseFloat(document.getElementById('min-reward').value);
+          const maxCombo = parseInt(document.getElementById('max-combo').value);
+          const comboWindow = parseFloat(document.getElementById('combo-window').value);
+          const comboCooldown = parseFloat(document.getElementById('combo-cooldown').value);
+          const comboDivider = parseInt(document.getElementById('combo-divider').value);
+          const spamPenalty = parseInt(document.getElementById('spam-penalty').value);
+          const hpLoss = parseFloat(document.getElementById('hp-loss').value);
+          const foodLoss = parseFloat(document.getElementById('food-loss').value);
+          const happyLoss = parseFloat(document.getElementById('happy-loss').value);
 
-            // Update displays
-            document.getElementById('base-reward-display').textContent = baseReward.toFixed(1);
-            document.getElementById('min-reward-display').textContent = minReward.toFixed(1);
-            document.getElementById('max-combo-display').textContent = maxCombo;
-            document.getElementById('combo-window-display').textContent = comboWindow.toFixed(1);
-            document.getElementById('combo-cooldown-display').textContent = comboCooldown.toFixed(1);
-            document.getElementById('combo-divider-display').textContent = comboDivider;
-            document.getElementById('spam-penalty-display').textContent = spamPenalty + '%';
-            document.getElementById('hp-loss-display').textContent = hpLoss.toFixed(2);
-            document.getElementById('food-loss-display').textContent = foodLoss.toFixed(2);
-            document.getElementById('happy-loss-display').textContent = happyLoss.toFixed(2);
+          // Update displays
+          document.getElementById('base-reward-display').textContent = baseReward.toFixed(1);
+          document.getElementById('min-reward-display').textContent = minReward.toFixed(1);
+          document.getElementById('max-combo-display').textContent = maxCombo;
+          document.getElementById('combo-window-display').textContent = comboWindow.toFixed(1);
+          document.getElementById('combo-cooldown-display').textContent = comboCooldown.toFixed(1);
+          document.getElementById('combo-divider-display').textContent = comboDivider;
+          document.getElementById('spam-penalty-display').textContent = spamPenalty + '%';
+          document.getElementById('hp-loss-display').textContent = hpLoss.toFixed(2);
+          document.getElementById('food-loss-display').textContent = foodLoss.toFixed(2);
+          document.getElementById('happy-loss-display').textContent = happyLoss.toFixed(2);
 
-            // Calculate simulator values
-            const normalClick = baseReward;
-            const spamClick = Math.max(minReward, baseReward * (1 - spamPenalty / 100));
-            const combo10 = baseReward + Math.min(Math.floor(10 / comboDivider), maxCombo);
-            const combo50 = baseReward + Math.min(Math.floor(50 / comboDivider), maxCombo);
-            
-            // Calculate TAMA per hour (assuming 1.2 clicks/sec with average combo)
-            const clicksPerSecond = 1.2;
-            const avgComboBonus = Math.min(Math.floor(20 / comboDivider), maxCombo) / 2;
-            const tamaPerHour = Math.floor((baseReward + avgComboBonus) * clicksPerSecond * 3600);
-            const levelPerHour = Math.floor(tamaPerHour / 100);
+          // Calculate simulator values
+          const normalClick = baseReward;
+          const spamClick = Math.max(minReward, baseReward * (1 - spamPenalty / 100));
+          const combo10 = baseReward + Math.min(Math.floor(10 / comboDivider), maxCombo);
+          const combo50 = baseReward + Math.min(Math.floor(50 / comboDivider), maxCombo);
 
-            document.getElementById('sim-normal').textContent = normalClick.toFixed(1);
-            document.getElementById('sim-spam').textContent = spamClick.toFixed(1);
-            document.getElementById('sim-combo10').textContent = combo10.toFixed(1);
-            document.getElementById('sim-combo50').textContent = combo50.toFixed(1);
-            document.getElementById('sim-hour').textContent = tamaPerHour.toLocaleString();
-            document.getElementById('sim-level').textContent = levelPerHour;
+          // Calculate TAMA per hour (assuming 1.2 clicks/sec with average combo)
+          const clicksPerSecond = 1.2;
+          const avgComboBonus = Math.min(Math.floor(20 / comboDivider), maxCombo) / 2;
+          const tamaPerHour = Math.floor((baseReward + avgComboBonus) * clicksPerSecond * 3600);
+          const levelPerHour = Math.floor(tamaPerHour / 100);
+
+          document.getElementById('sim-normal').textContent = normalClick.toFixed(1);
+          document.getElementById('sim-spam').textContent = spamClick.toFixed(1);
+          document.getElementById('sim-combo10').textContent = combo10.toFixed(1);
+          document.getElementById('sim-combo50').textContent = combo50.toFixed(1);
+          document.getElementById('sim-hour').textContent = tamaPerHour.toLocaleString();
+          document.getElementById('sim-level').textContent = levelPerHour;
         }
 
         async function applySettings() {
-            console.log('💾 Applying economy settings...');
-            
-            const baseReward = parseFloat(document.getElementById('base-reward').value);
-            const minReward = parseFloat(document.getElementById('min-reward').value);
-            const maxCombo = parseInt(document.getElementById('max-combo').value);
-            const comboWindow = parseFloat(document.getElementById('combo-window').value) * 1000;
-            const comboCooldown = parseFloat(document.getElementById('combo-cooldown').value) * 1000;
-            const comboDivider = parseInt(document.getElementById('combo-divider').value);
-            const spamPenalty = 1 - (parseInt(document.getElementById('spam-penalty').value) / 100);
-            const hpLoss = parseFloat(document.getElementById('hp-loss').value);
-            const foodLoss = parseFloat(document.getElementById('food-loss').value);
-            const happyLoss = parseFloat(document.getElementById('happy-loss').value);
+          console.log('💾 Applying economy settings...');
 
-            const config = {
-                BASE_CLICK_REWARD: baseReward,
-                MIN_REWARD: minReward,
-                MAX_COMBO_BONUS: maxCombo,
-                COMBO_WINDOW: comboWindow,
-                COMBO_COOLDOWN: comboCooldown,
-                COMBO_BONUS_DIVIDER: comboDivider,
-                SPAM_PENALTY: spamPenalty,
-                HP_PER_CLICK: hpLoss,
-                FOOD_PER_CLICK: foodLoss,
-                HAPPY_PER_CLICK: happyLoss
-            };
+          const baseReward = parseFloat(document.getElementById('base-reward').value);
+          const minReward = parseFloat(document.getElementById('min-reward').value);
+          const maxCombo = parseInt(document.getElementById('max-combo').value);
+          const comboWindow = parseFloat(document.getElementById('combo-window').value) * 1000;
+          const comboCooldown = parseFloat(document.getElementById('combo-cooldown').value) * 1000;
+          const comboDivider = parseInt(document.getElementById('combo-divider').value);
+          const spamPenalty = 1 - parseInt(document.getElementById('spam-penalty').value) / 100;
+          const hpLoss = parseFloat(document.getElementById('hp-loss').value);
+          const foodLoss = parseFloat(document.getElementById('food-loss').value);
+          const happyLoss = parseFloat(document.getElementById('happy-loss').value);
 
-            console.log('📤 Sending config to API:', config);
-            showStatus('⏳ Saving settings...', 'warning');
+          const config = {
+            BASE_CLICK_REWARD: baseReward,
+            MIN_REWARD: minReward,
+            MAX_COMBO_BONUS: maxCombo,
+            COMBO_WINDOW: comboWindow,
+            COMBO_COOLDOWN: comboCooldown,
+            COMBO_BONUS_DIVIDER: comboDivider,
+            SPAM_PENALTY: spamPenalty,
+            HP_PER_CLICK: hpLoss,
+            FOOD_PER_CLICK: foodLoss,
+            HAPPY_PER_CLICK: happyLoss,
+          };
 
-            try {
-                // Save via backend API
-                const upsertResp = await fetch(`${TAMA_API_BASE}/economy/apply`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ config_name: 'custom', settings: config })
-                });
-                
-                console.log('📡 API Response status:', upsertResp.status, upsertResp.statusText);
-                
-                if (!upsertResp.ok) {
-                    const errorText = await upsertResp.text();
-                    console.error('❌ API Error:', upsertResp.status, errorText);
-                    throw new Error(`API error (${upsertResp.status}): ${errorText.substring(0, 200)}`);
-                }
-                
-                const upsertResult = await upsertResp.json();
-                console.log('✅ API Response:', upsertResult);
-                
-                if (upsertResult.error) {
-                    throw new Error(upsertResult.error);
-                }
+          console.log('📤 Sending config to API:', config);
+          showStatus('⏳ Saving settings...', 'warning');
 
-                // Save to localStorage as backup
-                localStorage.setItem('economyConfig', JSON.stringify(config));
-                
-                // Broadcast to game tabs (auto-apply!)
-                try {
-                    const channel = new BroadcastChannel('economy-updates');
-                    channel.postMessage({ type: 'config-update', config: config });
-                    channel.close();
-                    console.log('📢 Broadcasted config update to game tabs');
-                } catch (e) {
-                    console.log('⚠️ BroadcastChannel not available');
-                }
+          try {
+            // Save via backend API
+            const upsertResp = await fetch(`${TAMA_API_BASE}/economy/apply`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ config_name: 'custom', settings: config }),
+            });
 
-                showStatus('✅ Settings saved to database and applied! Changes active for all players.', 'success');
-            } catch (error) {
-                console.error('❌ Error saving to database:', error);
-                showStatus('❌ Error saving to database: ' + error.message, 'error');
+            console.log('📡 API Response status:', upsertResp.status, upsertResp.statusText);
+
+            if (!upsertResp.ok) {
+              const errorText = await upsertResp.text();
+              console.error('❌ API Error:', upsertResp.status, errorText);
+              throw new Error(`API error (${upsertResp.status}): ${errorText.substring(0, 200)}`);
             }
+
+            const upsertResult = await upsertResp.json();
+            console.log('✅ API Response:', upsertResult);
+
+            if (upsertResult.error) {
+              throw new Error(upsertResult.error);
+            }
+
+            // Save to localStorage as backup
+            localStorage.setItem('economyConfig', JSON.stringify(config));
+
+            // Broadcast to game tabs (auto-apply!)
+            try {
+              const channel = new BroadcastChannel('economy-updates');
+              channel.postMessage({ type: 'config-update', config: config });
+              channel.close();
+              console.log('📢 Broadcasted config update to game tabs');
+            } catch (e) {
+              console.log('⚠️ BroadcastChannel not available');
+            }
+
+            showStatus(
+              '✅ Settings saved to database and applied! Changes active for all players.',
+              'success'
+            );
+          } catch (error) {
+            console.error('❌ Error saving to database:', error);
+            showStatus('❌ Error saving to database: ' + error.message, 'error');
+          }
         }
 
         function exportConfig() {
-            const config = {
-                BASE_CLICK_REWARD: parseFloat(document.getElementById('base-reward').value),
-                MIN_REWARD: parseFloat(document.getElementById('min-reward').value),
-                MAX_COMBO_BONUS: parseInt(document.getElementById('max-combo').value),
-                COMBO_WINDOW: parseFloat(document.getElementById('combo-window').value) * 1000,
-                COMBO_COOLDOWN: parseFloat(document.getElementById('combo-cooldown').value) * 1000,
-                COMBO_BONUS_DIVIDER: parseInt(document.getElementById('combo-divider').value),
-                SPAM_PENALTY: 1 - (parseInt(document.getElementById('spam-penalty').value) / 100)
-            };
+          const config = {
+            BASE_CLICK_REWARD: parseFloat(document.getElementById('base-reward').value),
+            MIN_REWARD: parseFloat(document.getElementById('min-reward').value),
+            MAX_COMBO_BONUS: parseInt(document.getElementById('max-combo').value),
+            COMBO_WINDOW: parseFloat(document.getElementById('combo-window').value) * 1000,
+            COMBO_COOLDOWN: parseFloat(document.getElementById('combo-cooldown').value) * 1000,
+            COMBO_BONUS_DIVIDER: parseInt(document.getElementById('combo-divider').value),
+            SPAM_PENALTY: 1 - parseInt(document.getElementById('spam-penalty').value) / 100,
+          };
 
-            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'economy-config.json';
-            a.click();
-            
-            showStatus('📥 Config exported!', 'success');
+          const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'economy-config.json';
+          a.click();
+
+          showStatus('📥 Config exported!', 'success');
         }
 
         function resetToDefault() {
-            loadPreset('balanced');
-            showStatus('🔄 Reset to balanced settings', 'success');
+          loadPreset('balanced');
+          showStatus('🔄 Reset to balanced settings', 'success');
         }
 
         function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = 'status ' + type;
-            setTimeout(() => {
-                status.style.display = 'none';
-            }, 3000);
+          const status = document.getElementById('status');
+          status.textContent = message;
+          status.className = 'status ' + type;
+          setTimeout(() => {
+            status.style.display = 'none';
+          }, 3000);
         }
 
         // Load config from database
         async function loadFromDatabase() {
-            console.log('🔄 Loading economy config from API:', TAMA_API_BASE);
-            
-            try {
-                const resp = await fetch(`${TAMA_API_BASE}/economy/active`);
-                
-                console.log('📡 API Response status:', resp.status, resp.statusText);
-                
-                if (!resp.ok) {
-                    const errorText = await resp.text();
-                    console.error('❌ Failed to load economy config:', resp.status, errorText);
-                    showStatus(`⚠️ API Error (${resp.status}): ${errorText.substring(0, 100)}`, 'error');
-                    return;
-                }
-                
-                const json = await resp.json();
-                console.log('📦 API Response data:', json);
-                
-                const data = (json?.data && json.data[0]) || null;
+          console.log('🔄 Loading economy config from API:', TAMA_API_BASE);
 
-                if (data) {
-                    console.log('✅ Found active config:', data.config_name, data);
-                    
-                    // Load values into form
-                    document.getElementById('base-reward').value = data.base_click_reward;
-                    document.getElementById('min-reward').value = data.min_reward;
-                    document.getElementById('max-combo').value = data.max_combo_bonus;
-                    document.getElementById('combo-window').value = data.combo_window / 1000;
-                    document.getElementById('combo-cooldown').value = data.combo_cooldown / 1000;
-                    document.getElementById('combo-divider').value = data.combo_bonus_divider;
-                    document.getElementById('spam-penalty').value = (1 - data.spam_penalty) * 100;
-                    document.getElementById('hp-loss').value = data.hp_per_click || 0.1;
-                    document.getElementById('food-loss').value = data.food_per_click || 0.05;
-                    document.getElementById('happy-loss').value = data.happy_per_click || 0.05;
+          try {
+            const resp = await fetch(`${TAMA_API_BASE}/economy/active`);
 
-                    updateDisplay();
-                    showStatus('✅ Loaded config from database: ' + data.config_name, 'success');
-                } else {
-                    console.warn('⚠️ No active config found in database');
-                    showStatus('⚠️ No active config found. Using default values.', 'warning');
-                }
-            } catch (error) {
-                console.error('❌ Error loading from database:', error);
-                showStatus('❌ Error: ' + error.message, 'error');
+            console.log('📡 API Response status:', resp.status, resp.statusText);
+
+            if (!resp.ok) {
+              const errorText = await resp.text();
+              console.error('❌ Failed to load economy config:', resp.status, errorText);
+              showStatus(`⚠️ API Error (${resp.status}): ${errorText.substring(0, 100)}`, 'error');
+              return;
             }
+
+            const json = await resp.json();
+            console.log('📦 API Response data:', json);
+
+            const data = (json?.data && json.data[0]) || null;
+
+            if (data) {
+              console.log('✅ Found active config:', data.config_name, data);
+
+              // Load values into form
+              document.getElementById('base-reward').value = data.base_click_reward;
+              document.getElementById('min-reward').value = data.min_reward;
+              document.getElementById('max-combo').value = data.max_combo_bonus;
+              document.getElementById('combo-window').value = data.combo_window / 1000;
+              document.getElementById('combo-cooldown').value = data.combo_cooldown / 1000;
+              document.getElementById('combo-divider').value = data.combo_bonus_divider;
+              document.getElementById('spam-penalty').value = (1 - data.spam_penalty) * 100;
+              document.getElementById('hp-loss').value = data.hp_per_click || 0.1;
+              document.getElementById('food-loss').value = data.food_per_click || 0.05;
+              document.getElementById('happy-loss').value = data.happy_per_click || 0.05;
+
+              updateDisplay();
+              showStatus('✅ Loaded config from database: ' + data.config_name, 'success');
+            } else {
+              console.warn('⚠️ No active config found in database');
+              showStatus('⚠️ No active config found. Using default values.', 'warning');
+            }
+          } catch (error) {
+            console.error('❌ Error loading from database:', error);
+            showStatus('❌ Error: ' + error.message, 'error');
+          }
         }
 
         // Initialize
         console.log('🚀 Economy Admin Panel initialized');
         console.log('🔗 API Base URL:', TAMA_API_BASE);
-        
+
         updateDisplay();
         loadFromDatabase();
-    </script>
-    </div> <!-- End of adminContent -->
+      </script>
+    </div>
+    <!-- End of adminContent -->
 
     <!-- Admin Authentication -->
     <script src="admin-password.js"></script>
     <script src="js/admin-auth.js"></script>
-</body>
+  </body>
 </html>
-

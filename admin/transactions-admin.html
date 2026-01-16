@@ -1,667 +1,723 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>📊 Transactions Admin Panel - Live</title>
     <!-- Admin Password (for production) -->
-    <meta name="admin-password-hash" content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3">
+    <meta
+      name="admin-password-hash"
+      content="86303a8eab5693506714a32875b556fd84daf2209f184459642af6e153da3ff3"
+    />
     <style>
-        /* Logo Styles 🎨 */
-        .game-logo {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 10000;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
+      /* Logo Styles 🎨 */
+      .game-logo {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 10000;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
 
-        .game-logo:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
+      .game-logo:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+
+      .game-logo img {
+        height: 70px;
+        width: auto;
+        display: block;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 5px;
+      }
+
+      @media (max-width: 768px) {
+        .game-logo {
+          top: 10px;
+          left: 10px;
         }
 
         .game-logo img {
-            height: 70px;
-            width: auto;
-            display: block;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .game-logo {
-                top: 10px;
-                left: 10px;
-            }
-
-            .game-logo img {
-                height: 50px;
-            }
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Admin Login Screen */
-        #adminLoginScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .login-container h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-
-        #adminPasswordInput {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
-
-        #adminPasswordInput:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        .login-btn:hover {
-            background: #5568d3;
-        }
-
-        #adminLoginError {
-            color: red;
-            margin-top: 15px;
-            min-height: 20px;
-            font-size: 14px;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            color: #fff;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(45, 55, 72, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        
-        .back-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateX(-5px);
-        }
-
-        h1 {
-            font-size: 32px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(16, 185, 129, 0.2);
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: 2px solid #10b981;
-        }
-
-        .live-dot {
-            width: 12px;
-            height: 12px;
-            background: #10b981;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .filters {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter-group label {
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .filter-group input,
-        .filter-group select {
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.15);
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .filter-group input::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-
-        .transactions-table {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: rgba(0,0,0,0.3);
-        }
-
-        th {
-            padding: 15px;
-            text-align: left;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-size: 13px;
-        }
-
-        tr {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        tr:hover {
-            background: rgba(255,255,255,0.1);
-            transform: scale(1.01);
-        }
-
-        .type-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .type-earn {
-            background: #10b981;
-            color: #fff;
-        }
-
-        .type-spend {
-            background: #ef4444;
-            color: #fff;
-        }
-        
-        .type-burn {
-            background: #ff6b35;
-            color: #fff;
-        }
-        
-        .type-treasury {
-            background: #8b5cf6;
-            color: #fff;
-        }
-        
-        .type-p2e {
-            background: #3b82f6;
-            color: #fff;
-        }
-        
-        .type-sol {
-            background: #f59e0b;
-            color: #fff;
-        }
-        
-        .type-treasury-sol {
-            background: #a855f7;
-            color: #fff;
-        }
-
-        .type-level {
-            background: #f59e0b;
-            color: #fff;
-        }
-
-        .type-quest {
-            background: #8b5cf6;
-            color: #fff;
-        }
-
-        .type-referral {
-            background: #06b6d4;
-            color: #fff;
-        }
-
-        .type-nft-tama {
-            background: #ec4899;
-            color: #fff;
-        }
-
-        .type-nft-sol {
-            background: #f59e0b;
-            color: #fff;
-        }
-
-        .amount-positive {
-            color: #10b981;
-            font-weight: bold;
-        }
-
-        .amount-negative {
-            color: #ef4444;
-            font-weight: bold;
-        }
-        
-        .amount-burn {
-            color: #ff6b35;
-            font-weight: bold;
-        }
-
-        .amountOLD-negative {
-            color: #ef4444;
-            font-weight: bold;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-size: 18px;
-        }
-
-        .export-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-            transition: all 0.2s;
-        }
-
-        .export-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
-        }
-
-        /* User Detail Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            border: 2px solid rgba(255,255,255,0.1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-header h2 {
-            font-size: 24px;
-        }
-
-        .close-btn {
-            background: #ef4444;
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .close-btn:hover {
-            background: #dc2626;
-            transform: rotate(90deg);
-        }
-
-        .user-info {
-            display: grid;
-            gap: 15px;
-        }
-
-        .info-card {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .info-label {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-bottom: 5px;
-        }
-
-        .info-value {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .balance-highlight {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .balance-highlight .label {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-
-        .balance-highlight .value {
-            font-size: 36px;
-            font-weight: bold;
-        }
-
-        .transaction-list {
-            margin-top: 20px;
-        }
-
-        .transaction-item {
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .update-time {
-            text-align: center;
-            font-size: 12px;
-            opacity: 0.7;
-            margin-top: 10px;
-        }
+          height: 50px;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Admin Login Screen */
+      #adminLoginScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      }
+
+      .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+      }
+
+      .login-container h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 28px;
+      }
+
+      #adminPasswordInput {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+      }
+
+      #adminPasswordInput:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+      }
+
+      .login-btn:hover {
+        background: #5568d3;
+      }
+
+      #adminLoginError {
+        color: red;
+        margin-top: 15px;
+        min-height: 20px;
+        font-size: 14px;
+      }
+
+      body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        color: #fff;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: rgba(45, 55, 72, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .back-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(-5px);
+      }
+
+      h1 {
+        font-size: 32px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .live-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(16, 185, 129, 0.2);
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 2px solid #10b981;
+      }
+
+      .live-dot {
+        width: 12px;
+        height: 12px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.2);
+        }
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-label {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 10px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .filters {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .filter-group label {
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+
+      .filter-group input,
+      .filter-group select {
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        font-size: 14px;
+      }
+
+      .filter-group input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .transactions-table {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        overflow: hidden;
+        margin-top: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      th {
+        padding: 15px;
+        text-align: left;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      td {
+        padding: 12px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 13px;
+      }
+
+      tr {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.01);
+      }
+
+      .type-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      .type-earn {
+        background: #10b981;
+        color: #fff;
+      }
+
+      .type-spend {
+        background: #ef4444;
+        color: #fff;
+      }
+
+      .type-burn {
+        background: #ff6b35;
+        color: #fff;
+      }
+
+      .type-treasury {
+        background: #8b5cf6;
+        color: #fff;
+      }
+
+      .type-p2e {
+        background: #3b82f6;
+        color: #fff;
+      }
+
+      .type-sol {
+        background: #f59e0b;
+        color: #fff;
+      }
+
+      .type-treasury-sol {
+        background: #a855f7;
+        color: #fff;
+      }
+
+      .type-level {
+        background: #f59e0b;
+        color: #fff;
+      }
+
+      .type-quest {
+        background: #8b5cf6;
+        color: #fff;
+      }
+
+      .type-referral {
+        background: #06b6d4;
+        color: #fff;
+      }
+
+      .type-nft-tama {
+        background: #ec4899;
+        color: #fff;
+      }
+
+      .type-nft-sol {
+        background: #f59e0b;
+        color: #fff;
+      }
+
+      .amount-positive {
+        color: #10b981;
+        font-weight: bold;
+      }
+
+      .amount-negative {
+        color: #ef4444;
+        font-weight: bold;
+      }
+
+      .amount-burn {
+        color: #ff6b35;
+        font-weight: bold;
+      }
+
+      .amountOLD-negative {
+        color: #ef4444;
+        font-weight: bold;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        font-size: 18px;
+      }
+
+      .export-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        transition: all 0.2s;
+      }
+
+      .export-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+      }
+
+      /* User Detail Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .modal-header h2 {
+        font-size: 24px;
+      }
+
+      .close-btn {
+        background: #ef4444;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .close-btn:hover {
+        background: #dc2626;
+        transform: rotate(90deg);
+      }
+
+      .user-info {
+        display: grid;
+        gap: 15px;
+      }
+
+      .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+      }
+
+      .info-label {
+        font-size: 12px;
+        opacity: 0.7;
+        margin-bottom: 5px;
+      }
+
+      .info-value {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .balance-highlight {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #fff;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .balance-highlight .label {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 10px;
+      }
+
+      .balance-highlight .value {
+        font-size: 36px;
+        font-weight: bold;
+      }
+
+      .transaction-list {
+        margin-top: 20px;
+      }
+
+      .transaction-item {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .update-time {
+        text-align: center;
+        font-size: 12px;
+        opacity: 0.7;
+        margin-top: 10px;
+      }
     </style>
     <script src="js/admin-env.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Admin Login Screen -->
     <div id="adminLoginScreen">
-        <div class="login-container">
-            <h2>🔐 Admin Access</h2>
-            <input type="password" id="adminPasswordInput" placeholder="Enter password">
-            <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
-            <div id="adminLoginError"></div>
-        </div>
+      <div class="login-container">
+        <h2>🔐 Admin Access</h2>
+        <input type="password" id="adminPasswordInput" placeholder="Enter password" />
+        <button class="login-btn" onclick="adminAuth.checkPassword()">Login</button>
+        <div id="adminLoginError"></div>
+      </div>
     </div>
 
     <!-- Main Content (hidden until authenticated) -->
-    <div id="adminContent" style="display: none;">
-    <!-- Logo 🎨 -->
-    <a href="index.html" class="game-logo" title="Back to Home">
-        <img src="logo.png" alt="Solana Tamagotchi">
-    </a>
+    <div id="adminContent" style="display: none">
+      <!-- Logo 🎨 -->
+      <a href="../index.html" class="game-logo" title="Back to Home">
+        <img src="../logo.png" alt="Solana Tamagotchi" />
+      </a>
 
-    <div class="container">
+      <div class="container">
         <div class="header">
-            <a href="super-admin.html" class="back-btn">⬅️ Back</a>
-            <h1>📊 TAMA Transactions - Live Monitor</h1>
-            <div class="live-indicator">
-                <div class="live-dot"></div>
-                <span>Live Updates</span>
-            </div>
+          <a href="super-admin.html" class="back-btn">⬅️ Back</a>
+          <h1>📊 TAMA Transactions - Live Monitor</h1>
+          <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span>Live Updates</span>
+          </div>
         </div>
 
         <div class="stats">
-            <div class="stat-card">
-                <div class="stat-label">Total Transactions</div>
-                <div class="stat-value" id="total-transactions">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Earned</div>
-                <div class="stat-value" id="total-earned">0 TAMA</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Spent</div>
-                <div class="stat-value" id="total-spent">0 TAMA</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">NFT Mints</div>
-                <div class="stat-value" id="nft-mints">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Net Flow</div>
-                <div class="stat-value" id="net-flow">0 TAMA</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Active Users</div>
-                <div class="stat-value" id="active-users">0</div>
-            </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Transactions</div>
+            <div class="stat-value" id="total-transactions">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Earned</div>
+            <div class="stat-value" id="total-earned">0 TAMA</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-value" id="total-spent">0 TAMA</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">NFT Mints</div>
+            <div class="stat-value" id="nft-mints">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Net Flow</div>
+            <div class="stat-value" id="net-flow">0 TAMA</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Users</div>
+            <div class="stat-value" id="active-users">0</div>
+          </div>
         </div>
 
         <div class="filters">
-            <div class="filter-group">
-                <label>User ID / Username</label>
-                <input type="text" id="filter-user" placeholder="Filter by user">
-            </div>
-            <div class="filter-group">
-                <label>Type</label>
-                <select id="filter-type">
-                    <option value="">All Types</option>
-                    <option value="earn">Earn</option>
-                    <option value="spend">Spend</option>
-                    <option value="nft">NFT Mint</option>
-                    <option value="level_up">Level Up</option>
-                    <option value="quest">Quest</option>
-                    <option value="referral">Referral</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Date From</label>
-                <input type="date" id="filter-date-from">
-            </div>
-            <div class="filter-group">
-                <label>Date To</label>
-                <input type="date" id="filter-date-to">
-            </div>
+          <div class="filter-group">
+            <label>User ID / Username</label>
+            <input type="text" id="filter-user" placeholder="Filter by user" />
+          </div>
+          <div class="filter-group">
+            <label>Type</label>
+            <select id="filter-type">
+              <option value="">All Types</option>
+              <option value="earn">Earn</option>
+              <option value="spend">Spend</option>
+              <option value="nft">NFT Mint</option>
+              <option value="level_up">Level Up</option>
+              <option value="quest">Quest</option>
+              <option value="referral">Referral</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Date From</label>
+            <input type="date" id="filter-date-from" />
+          </div>
+          <div class="filter-group">
+            <label>Date To</label>
+            <input type="date" id="filter-date-to" />
+          </div>
         </div>
 
         <button class="export-btn" onclick="exportToCSV()">📥 Export to CSV</button>
 
         <div class="transactions-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>User</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Balance</th>
-                        <th>Details</th>
-                        <th>Explorer</th>
-                    </tr>
-                </thead>
-                <tbody id="transactions-body">
-                    <tr>
-                        <td colspan="7" class="loading">⏳ Loading transactions...</td>
-                    </tr>
-                </tbody>
-            </table>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Balance</th>
+                <th>Details</th>
+                <th>Explorer</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-body">
+              <tr>
+                <td colspan="7" class="loading">⏳ Loading transactions...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <!-- Pagination -->
-        <div class="pagination" id="pagination" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px;">
-            <button onclick="changePage(-1)" style="padding: 10px 20px; background: #667eea; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 16px;">← Previous</button>
-            <div id="page-info" style="font-size: 18px; font-weight: bold;">Page 1</div>
-            <button onclick="changePage(1)" style="padding: 10px 20px; background: #667eea; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 16px;">Next →</button>
+        <div
+          class="pagination"
+          id="pagination"
+          style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+          "
+        >
+          <button
+            onclick="changePage(-1)"
+            style="
+              padding: 10px 20px;
+              background: #667eea;
+              border: none;
+              border-radius: 8px;
+              color: white;
+              cursor: pointer;
+              font-size: 16px;
+            "
+          >
+            ← Previous
+          </button>
+          <div id="page-info" style="font-size: 18px; font-weight: bold">Page 1</div>
+          <button
+            onclick="changePage(1)"
+            style="
+              padding: 10px 20px;
+              background: #667eea;
+              border: none;
+              border-radius: 8px;
+              color: white;
+              cursor: pointer;
+              font-size: 16px;
+            "
+          >
+            Next →
+          </button>
         </div>
 
         <div class="update-time" id="update-time">Last updated: Never</div>
-    </div>
+      </div>
 
-    <!-- User Detail Modal -->
-    <div class="modal" id="user-modal">
+      <!-- User Detail Modal -->
+      <div class="modal" id="user-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>👤 User Details</h2>
-                <button class="close-btn" onclick="closeModal()">✕</button>
-            </div>
-            <div id="user-details-content">
-                <div class="loading">Loading user data...</div>
-            </div>
+          <div class="modal-header">
+            <h2>👤 User Details</h2>
+            <button class="close-btn" onclick="closeModal()">✕</button>
+          </div>
+          <div id="user-details-content">
+            <div class="loading">Loading user data...</div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <script src="../js/config.js"></script>
-    <script>
-        const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || window.AdminEnv?.SUPABASE_URL || 'https://zfrazyupameidxpjihrh.supabase.co';
-        const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_KEY || window.AdminEnv?.SUPABASE_KEY || '';
-        const TAMA_API_BASE = window.CONFIG?.API_BASE || window.AdminEnv?.TAMA_API_BASE || 'https://api.solanatamagotchi.com/api/tama';
-        
+      <script src="../js/config.js"></script>
+      <script>
+        const SUPABASE_URL =
+          window.CONFIG?.SUPABASE_URL ||
+          window.AdminEnv?.SUPABASE_URL ||
+          'https://zfrazyupameidxpjihrh.supabase.co';
+        const SUPABASE_ANON_KEY =
+          window.CONFIG?.SUPABASE_KEY || window.AdminEnv?.SUPABASE_KEY || '';
+        const TAMA_API_BASE =
+          window.CONFIG?.API_BASE ||
+          window.AdminEnv?.TAMA_API_BASE ||
+          'https://api.solanatamagotchi.com/api/tama';
+
         console.log('✅ Admin Environment loaded:', { supabase: SUPABASE_URL, api: TAMA_API_BASE });
 
         let allTransactions = [];
@@ -673,369 +729,415 @@
         let lastTransactionTime = null; // For live updates
 
         async function loadTransactionsCount() {
-            try {
-                // Get total count from API (first request to get count)
-                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=1&offset=0&order=created_at.desc`);
-                if (response.ok) {
-                    const payload = await response.json();
-                    // Try to get count from Content-Range header or estimate
-                    const contentRange = response.headers.get('Content-Range');
-                    if (contentRange) {
-                        // Format: "0-99/1000" -> extract 1000
-                        const match = contentRange.match(/\/(\d+)/);
-                        if (match) {
-                            totalCount = parseInt(match[1]);
-                            return totalCount;
-                        }
-                    }
-                    // If no header, estimate based on first page
-                    if (payload && payload.data && payload.data.length > 0) {
-                        // Estimate: if we got full page, there might be more
-                        // We'll update this when we load actual data
-                    }
+          try {
+            // Get total count from API (first request to get count)
+            const response = await fetch(
+              `${TAMA_API_BASE}/transactions/list?limit=1&offset=0&order=created_at.desc`
+            );
+            if (response.ok) {
+              const payload = await response.json();
+              // Try to get count from Content-Range header or estimate
+              const contentRange = response.headers.get('Content-Range');
+              if (contentRange) {
+                // Format: "0-99/1000" -> extract 1000
+                const match = contentRange.match(/\/(\d+)/);
+                if (match) {
+                  totalCount = parseInt(match[1]);
+                  return totalCount;
                 }
-            } catch (error) {
-                console.warn('⚠️ Could not get total count:', error);
+              }
+              // If no header, estimate based on first page
+              if (payload && payload.data && payload.data.length > 0) {
+                // Estimate: if we got full page, there might be more
+                // We'll update this when we load actual data
+              }
             }
-            return totalCount;
+          } catch (error) {
+            console.warn('⚠️ Could not get total count:', error);
+          }
+          return totalCount;
         }
 
         async function loadTransactions(updateOnly = false) {
-            try {
-                // Load current page from API
-                const offset = (currentPage - 1) * PAGE_SIZE;
-                const response = await fetch(`${TAMA_API_BASE}/transactions/list?limit=${PAGE_SIZE}&offset=${offset}&order=created_at.desc`);
+          try {
+            // Load current page from API
+            const offset = (currentPage - 1) * PAGE_SIZE;
+            const response = await fetch(
+              `${TAMA_API_BASE}/transactions/list?limit=${PAGE_SIZE}&offset=${offset}&order=created_at.desc`
+            );
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status}`);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch: ${response.status}`);
+            }
+
+            const payload = await response.json();
+            if (payload && payload.data) {
+              // Ensure data is an array
+              const newTransactions = Array.isArray(payload.data) ? payload.data : [];
+
+              // For live updates: check if we have new transactions
+              if (updateOnly && lastTransactionTime && newTransactions.length > 0) {
+                const latestTime = new Date(newTransactions[0].created_at);
+                if (latestTime > lastTransactionTime) {
+                  // New transactions! Reload first page
+                  console.log('🆕 New transactions detected! Reloading...');
+                  currentPage = 1;
+                  return loadTransactions(false);
                 }
+                return; // No new transactions
+              }
 
-                const payload = await response.json();
-                if (payload && payload.data) {
-                    // Ensure data is an array
-                    const newTransactions = Array.isArray(payload.data) ? payload.data : [];
-                    
-                    // For live updates: check if we have new transactions
-                    if (updateOnly && lastTransactionTime && newTransactions.length > 0) {
-                        const latestTime = new Date(newTransactions[0].created_at);
-                        if (latestTime > lastTransactionTime) {
-                            // New transactions! Reload first page
-                            console.log('🆕 New transactions detected! Reloading...');
-                            currentPage = 1;
-                            return loadTransactions(false);
-                        }
-                        return; // No new transactions
-                    }
-                    
-                    allTransactions = newTransactions;
-                    
-                    // Update last transaction time for live updates
-                    if (allTransactions.length > 0) {
-                        lastTransactionTime = new Date(allTransactions[0].created_at);
-                    }
-                    
-                    // Use count from API if available, otherwise estimate
-                    if (payload.count !== undefined) {
-                        totalCount = payload.count;
-                    } else {
-                        // Estimate total count if we got full page
-                        if (allTransactions.length === PAGE_SIZE) {
-                            totalCount = Math.max(totalCount, currentPage * PAGE_SIZE + 1);
-                        } else {
-                            totalCount = Math.max(totalCount, (currentPage - 1) * PAGE_SIZE + allTransactions.length);
-                        }
-                    }
+              allTransactions = newTransactions;
+
+              // Update last transaction time for live updates
+              if (allTransactions.length > 0) {
+                lastTransactionTime = new Date(allTransactions[0].created_at);
+              }
+
+              // Use count from API if available, otherwise estimate
+              if (payload.count !== undefined) {
+                totalCount = payload.count;
+              } else {
+                // Estimate total count if we got full page
+                if (allTransactions.length === PAGE_SIZE) {
+                  totalCount = Math.max(totalCount, currentPage * PAGE_SIZE + 1);
                 } else {
-                    allTransactions = [];
-                    if (payload && payload.count !== undefined) {
-                        totalCount = payload.count;
-                    }
+                  totalCount = Math.max(
+                    totalCount,
+                    (currentPage - 1) * PAGE_SIZE + allTransactions.length
+                  );
                 }
-                console.log(`✅ Loaded page ${currentPage}: ${allTransactions.length} TAMA transactions (Total: ~${totalCount})`);
-                
-                // Load users data (only on full load, not on updates)
-                if (!updateOnly) {
-                    await loadUsersData();
-                    
-                    // Load and merge NFT mints
-                    const nftMints = await loadNFTMints();
-                    if (nftMints && nftMints.length > 0) {
-                        console.log(`✅ Merging ${nftMints.length} NFT mints with TAMA transactions`);
-                        allTransactions = [...allTransactions, ...nftMints];
-                        // Sort by date descending
-                        allTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                    }
-                }
-                
-                updateStats();
-                renderTransactions(allTransactions);
-                updateLastUpdateTime();
-            } catch (error) {
-                console.error('❌ Error loading transactions:', error);
-                if (!updateOnly) {
-                    document.getElementById('transactions-body').innerHTML = `
+              }
+            } else {
+              allTransactions = [];
+              if (payload && payload.count !== undefined) {
+                totalCount = payload.count;
+              }
+            }
+            console.log(
+              `✅ Loaded page ${currentPage}: ${allTransactions.length} TAMA transactions (Total: ~${totalCount})`
+            );
+
+            // Load users data (only on full load, not on updates)
+            if (!updateOnly) {
+              await loadUsersData();
+
+              // Load and merge NFT mints
+              const nftMints = await loadNFTMints();
+              if (nftMints && nftMints.length > 0) {
+                console.log(`✅ Merging ${nftMints.length} NFT mints with TAMA transactions`);
+                allTransactions = [...allTransactions, ...nftMints];
+                // Sort by date descending
+                allTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+              }
+            }
+
+            updateStats();
+            renderTransactions(allTransactions);
+            updateLastUpdateTime();
+          } catch (error) {
+            console.error('❌ Error loading transactions:', error);
+            if (!updateOnly) {
+              document.getElementById('transactions-body').innerHTML = `
                         <tr>
                             <td colspan="6" class="loading">❌ Error: ${error.message}</td>
                         </tr>
                     `;
-                }
             }
+          }
         }
 
         async function loadUsersData() {
-            try {
-                const response = await fetch(`${TAMA_API_BASE}/leaderboard/list`);
+          try {
+            const response = await fetch(`${TAMA_API_BASE}/leaderboard/list`);
 
-                if (response.ok) {
-                    const res = await response.json();
-                    const users = res?.data || [];
-                    allUsers = {};
-                    users.forEach(user => {
-                        allUsers[user.telegram_id] = user;
-                    });
-                    console.log('✅ Loaded users:', Object.keys(allUsers).length);
-                }
-            } catch (error) {
-                console.error('⚠️ Error loading users:', error);
+            if (response.ok) {
+              const res = await response.json();
+              const users = res?.data || [];
+              allUsers = {};
+              users.forEach((user) => {
+                allUsers[user.telegram_id] = user;
+              });
+              console.log('✅ Loaded users:', Object.keys(allUsers).length);
             }
+          } catch (error) {
+            console.error('⚠️ Error loading users:', error);
+          }
         }
 
         async function loadNFTMints() {
-            try {
-                // Load NFT mints directly from user_nfts table
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/user_nfts?select=*&order=minted_at.desc&limit=1000`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
+          try {
+            // Load NFT mints directly from user_nfts table
+            const response = await fetch(
+              `${SUPABASE_URL}/rest/v1/user_nfts?select=*&order=minted_at.desc&limit=1000`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+              }
+            );
 
-                if (response.ok) {
-                    const nftMints = await response.json();
-                    console.log('✅ Loaded NFT mints:', nftMints.length);
-                    
-                    // Convert NFT mints to transaction format
-                    return nftMints.map(nft => {
-                        const paymentType = nft.payment_type || (nft.purchase_price_tama > 0 ? 'TAMA' : 'SOL');
-                        const amount = paymentType === 'TAMA' ? nft.purchase_price_tama : nft.price_paid_sol;
-                        
-                        return {
-                            created_at: nft.minted_at,
-                            user_id: String(nft.telegram_id),
-                            username: allUsers[nft.telegram_id]?.telegram_username || '',
-                            type: `nft_mint_${paymentType.toLowerCase()}`,
-                            amount: -(amount || 0), // ✅ NEGATIVE: NFT mint is a SPEND (user pays TAMA/SOL)
-                            balance_after: 0, // Not applicable for NFT mints
-                            balance_before: 0,
-                            metadata: {
-                                tier_name: nft.tier_name,
-                                rarity: nft.rarity,
-                                earning_multiplier: nft.earning_multiplier,
-                                nft_mint_address: nft.nft_mint_address,
-                                payment_type: paymentType,
-                                price_sol: nft.price_paid_sol,
-                                price_usd: nft.price_paid_usd,
-                                nft_id: nft.id
-                            }
-                        };
-                    });
-                }
-            } catch (error) {
-                console.error('⚠️ Error loading NFT mints:', error);
+            if (response.ok) {
+              const nftMints = await response.json();
+              console.log('✅ Loaded NFT mints:', nftMints.length);
+
+              // Convert NFT mints to transaction format
+              return nftMints.map((nft) => {
+                const paymentType =
+                  nft.payment_type || (nft.purchase_price_tama > 0 ? 'TAMA' : 'SOL');
+                const amount =
+                  paymentType === 'TAMA' ? nft.purchase_price_tama : nft.price_paid_sol;
+
+                return {
+                  created_at: nft.minted_at,
+                  user_id: String(nft.telegram_id),
+                  username: allUsers[nft.telegram_id]?.telegram_username || '',
+                  type: `nft_mint_${paymentType.toLowerCase()}`,
+                  amount: -(amount || 0), // ✅ NEGATIVE: NFT mint is a SPEND (user pays TAMA/SOL)
+                  balance_after: 0, // Not applicable for NFT mints
+                  balance_before: 0,
+                  metadata: {
+                    tier_name: nft.tier_name,
+                    rarity: nft.rarity,
+                    earning_multiplier: nft.earning_multiplier,
+                    nft_mint_address: nft.nft_mint_address,
+                    payment_type: paymentType,
+                    price_sol: nft.price_paid_sol,
+                    price_usd: nft.price_paid_usd,
+                    nft_id: nft.id,
+                  },
+                };
+              });
             }
-            return [];
+          } catch (error) {
+            console.error('⚠️ Error loading NFT mints:', error);
+          }
+          return [];
         }
 
         function updateStats() {
-            // Ensure allTransactions is always an array
-            if (!Array.isArray(allTransactions)) {
-                console.warn('⚠️ allTransactions is not an array, resetting to []');
-                allTransactions = [];
-            }
-            
-            // ✅ CORRECTED LOGIC: Calculate by sign of amount, not by type
-            let totalEarned = 0;
-            let totalSpent = 0;
-            let nftMintCount = 0;
-            let burnCount = 0;
-            
-            allTransactions.forEach(t => {
-                const amount = t.amount || 0;
-                
-                // Count NFT mints
-                if (t.type.includes('nft_mint')) {
-                    nftMintCount++;
-                }
-                
-                // Count burns separately
-                if (t.type.includes('burn')) {
-                    burnCount++;
-                }
-                
-                // ✅ EARN: Positive amounts (user gained TAMA)
-                if (amount > 0) {
-                    totalEarned += amount;
-                }
-                // ✅ SPEND: Negative amounts (user lost TAMA)
-                else if (amount < 0) {
-                    totalSpent += Math.abs(amount); // Convert to positive for display
-                }
-            });
-            
-            const uniqueUsers = new Set(allTransactions.map(t => t.user_id)).size;
-            const netFlow = totalEarned - totalSpent;
+          // Ensure allTransactions is always an array
+          if (!Array.isArray(allTransactions)) {
+            console.warn('⚠️ allTransactions is not an array, resetting to []');
+            allTransactions = [];
+          }
 
-            // Show total count from database, not just current page
-            document.getElementById('total-transactions').textContent = totalCount.toLocaleString();
-            document.getElementById('total-earned').textContent = Math.round(totalEarned).toLocaleString() + ' TAMA';
-            document.getElementById('total-spent').textContent = Math.round(totalSpent).toLocaleString() + ' TAMA';
-            document.getElementById('nft-mints').textContent = nftMintCount.toLocaleString();
-            document.getElementById('net-flow').textContent = Math.round(netFlow).toLocaleString() + ' TAMA';
-            document.getElementById('active-users').textContent = uniqueUsers;
-            
-            // 📊 Console stats for debugging
-            console.log('📊 STATS UPDATE:', {
-                totalTransactions: totalCount,
-                totalEarned: Math.round(totalEarned),
-                totalSpent: Math.round(totalSpent),
-                nftMints: nftMintCount,
-                burns: burnCount,
-                netFlow: Math.round(netFlow),
-                activeUsers: uniqueUsers
-            });
-            
-            // Update pagination info
-            updatePaginationInfo();
+          // ✅ CORRECTED LOGIC: Calculate by sign of amount, not by type
+          let totalEarned = 0;
+          let totalSpent = 0;
+          let nftMintCount = 0;
+          let burnCount = 0;
+
+          allTransactions.forEach((t) => {
+            const amount = t.amount || 0;
+
+            // Count NFT mints
+            if (t.type.includes('nft_mint')) {
+              nftMintCount++;
+            }
+
+            // Count burns separately
+            if (t.type.includes('burn')) {
+              burnCount++;
+            }
+
+            // ✅ EARN: Positive amounts (user gained TAMA)
+            if (amount > 0) {
+              totalEarned += amount;
+            }
+            // ✅ SPEND: Negative amounts (user lost TAMA)
+            else if (amount < 0) {
+              totalSpent += Math.abs(amount); // Convert to positive for display
+            }
+          });
+
+          const uniqueUsers = new Set(allTransactions.map((t) => t.user_id)).size;
+          const netFlow = totalEarned - totalSpent;
+
+          // Show total count from database, not just current page
+          document.getElementById('total-transactions').textContent = totalCount.toLocaleString();
+          document.getElementById('total-earned').textContent =
+            Math.round(totalEarned).toLocaleString() + ' TAMA';
+          document.getElementById('total-spent').textContent =
+            Math.round(totalSpent).toLocaleString() + ' TAMA';
+          document.getElementById('nft-mints').textContent = nftMintCount.toLocaleString();
+          document.getElementById('net-flow').textContent =
+            Math.round(netFlow).toLocaleString() + ' TAMA';
+          document.getElementById('active-users').textContent = uniqueUsers;
+
+          // 📊 Console stats for debugging
+          console.log('📊 STATS UPDATE:', {
+            totalTransactions: totalCount,
+            totalEarned: Math.round(totalEarned),
+            totalSpent: Math.round(totalSpent),
+            nftMints: nftMintCount,
+            burns: burnCount,
+            netFlow: Math.round(netFlow),
+            activeUsers: uniqueUsers,
+          });
+
+          // Update pagination info
+          updatePaginationInfo();
         }
 
         function renderTransactions(transactions) {
-            const tbody = document.getElementById('transactions-body');
-            
-            if (transactions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="loading">No transactions found</td></tr>';
-                return;
-            }
+          const tbody = document.getElementById('transactions-body');
 
-            tbody.innerHTML = transactions.map(t => {
-                const date = new Date(t.created_at).toLocaleString();
-                const amount = t.amount || 0;
-                
-                // ✅ CORRECTED: Determine by SIGN, not by type
-                const isBurn = t.type.includes('burn');
-                const isSOL = t.type.includes('_sol') || (t.metadata && typeof t.metadata === 'string' && t.metadata.includes('"payment_method":"SOL"'));
-                
-                // Type badge color
-                const typeClass = t.type.startsWith('earn') ? 'type-earn' : 
-                                 t.type === 'nft_mint_tama' ? 'type-nft-tama' :
-                                 t.type === 'nft_mint_sol' ? 'type-nft-sol' :
-                                 t.type === 'nft_mint' ? 'type-spend' :
-                                 t.type === 'nft_mint_onchain' ? 'type-spend' :
-                                 t.type.startsWith('burn') ? 'type-burn' :
-                                 t.type === 'treasury_income_from_nft' ? 'type-treasury' :
-                                 t.type === 'treasury_income_from_nft_sol' ? 'type-treasury-sol' :
-                                 t.type === 'treasury_liquidity_income_from_nft_sol' ? 'type-treasury-sol' :
-                                 t.type === 'treasury_team_income_from_nft_sol' ? 'type-treasury-sol' :
-                                 t.type === 'treasury_income_from_nft_onchain' ? 'type-treasury' :
-                                 t.type === 'p2e_pool_refund_from_nft' ? 'type-p2e' :
-                                 t.type === 'p2e_pool_refund_from_nft_onchain' ? 'type-p2e' :
-                                 t.type.startsWith('spend') ? 'type-spend' :
-                                 t.type === 'level_up' ? 'type-level' :
-                                 t.type === 'quest_complete' ? 'type-quest' :
-                                 t.type === 'referral_bonus' ? 'type-referral' :
-                                 t.type === 'achievement_bonus' ? 'type-earn' : 'type-earn';
-                
-                // ✅ Amount color & prefix BY SIGN
-                let amountClass, amountPrefix, displayAmount;
-                if (isBurn) {
-                    amountClass = 'amount-burn';
-                    amountPrefix = '🔥 ';
-                    displayAmount = Math.abs(amount);
-                } else if (amount > 0) {
-                    amountClass = 'amount-positive';
-                    amountPrefix = '+';
-                    displayAmount = amount;
-                } else {
-                    amountClass = 'amount-negative';
-                    amountPrefix = '-';
-                    displayAmount = Math.abs(amount);
+          if (transactions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="loading">No transactions found</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = transactions
+            .map((t) => {
+              const date = new Date(t.created_at).toLocaleString();
+              const amount = t.amount || 0;
+
+              // ✅ CORRECTED: Determine by SIGN, not by type
+              const isBurn = t.type.includes('burn');
+              const isSOL =
+                t.type.includes('_sol') ||
+                (t.metadata &&
+                  typeof t.metadata === 'string' &&
+                  t.metadata.includes('"payment_method":"SOL"'));
+
+              // Type badge color
+              const typeClass = t.type.startsWith('earn')
+                ? 'type-earn'
+                : t.type === 'nft_mint_tama'
+                ? 'type-nft-tama'
+                : t.type === 'nft_mint_sol'
+                ? 'type-nft-sol'
+                : t.type === 'nft_mint'
+                ? 'type-spend'
+                : t.type === 'nft_mint_onchain'
+                ? 'type-spend'
+                : t.type.startsWith('burn')
+                ? 'type-burn'
+                : t.type === 'treasury_income_from_nft'
+                ? 'type-treasury'
+                : t.type === 'treasury_income_from_nft_sol'
+                ? 'type-treasury-sol'
+                : t.type === 'treasury_liquidity_income_from_nft_sol'
+                ? 'type-treasury-sol'
+                : t.type === 'treasury_team_income_from_nft_sol'
+                ? 'type-treasury-sol'
+                : t.type === 'treasury_income_from_nft_onchain'
+                ? 'type-treasury'
+                : t.type === 'p2e_pool_refund_from_nft'
+                ? 'type-p2e'
+                : t.type === 'p2e_pool_refund_from_nft_onchain'
+                ? 'type-p2e'
+                : t.type.startsWith('spend')
+                ? 'type-spend'
+                : t.type === 'level_up'
+                ? 'type-level'
+                : t.type === 'quest_complete'
+                ? 'type-quest'
+                : t.type === 'referral_bonus'
+                ? 'type-referral'
+                : t.type === 'achievement_bonus'
+                ? 'type-earn'
+                : 'type-earn';
+
+              // ✅ Amount color & prefix BY SIGN
+              let amountClass, amountPrefix, displayAmount;
+              if (isBurn) {
+                amountClass = 'amount-burn';
+                amountPrefix = '🔥 ';
+                displayAmount = Math.abs(amount);
+              } else if (amount > 0) {
+                amountClass = 'amount-positive';
+                amountPrefix = '+';
+                displayAmount = amount;
+              } else {
+                amountClass = 'amount-negative';
+                amountPrefix = '-';
+                displayAmount = Math.abs(amount);
+              }
+
+              const currency = isSOL ? ' SOL' : ' TAMA';
+
+              // Format metadata: NFT mints show tier, rarity, boost
+              let metadata = '';
+              if (t.type.includes('nft_mint') && t.metadata && typeof t.metadata === 'object') {
+                metadata = `${t.metadata.tier_name || ''} ${t.metadata.rarity || ''} (${
+                  t.metadata.earning_multiplier || 1
+                }x)`;
+              } else {
+                metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
+              }
+              const username = t.username || t.user_id;
+
+              // Explorer link (from metadata) - using Solscan
+              let explorerLink = '-';
+              let signature = null;
+
+              if (t.metadata && typeof t.metadata === 'object') {
+                signature = t.metadata.onchain_signature || t.metadata.transaction_signature;
+              } else if (typeof t.metadata === 'string') {
+                // Try to parse JSON string
+                try {
+                  const parsed = JSON.parse(t.metadata);
+                  signature = parsed.onchain_signature || parsed.transaction_signature;
+                } catch (e) {
+                  // Invalid JSON, keep null
                 }
-                
-                const currency = isSOL ? ' SOL' : ' TAMA';
-                
-                // Format metadata: NFT mints show tier, rarity, boost
-                let metadata = '';
-                if (t.type.includes('nft_mint') && t.metadata && typeof t.metadata === 'object') {
-                    metadata = `${t.metadata.tier_name || ''} ${t.metadata.rarity || ''} (${t.metadata.earning_multiplier || 1}x)`;
-                } else {
-                    metadata = t.metadata ? JSON.stringify(t.metadata).substring(0, 50) + '...' : '';
-                }
-                const username = t.username || t.user_id;
-                
-                // Explorer link (from metadata) - using Solscan
-                let explorerLink = '-';
-                let signature = null;
-                
-                if (t.metadata && typeof t.metadata === 'object') {
-                    signature = t.metadata.onchain_signature || t.metadata.transaction_signature;
-                } else if (typeof t.metadata === 'string') {
-                    // Try to parse JSON string
-                    try {
-                        const parsed = JSON.parse(t.metadata);
-                        signature = parsed.onchain_signature || parsed.transaction_signature;
-                    } catch (e) {
-                        // Invalid JSON, keep null
-                    }
-                }
-                
-                if (signature) {
-                    explorerLink = `<a href="https://solscan.io/tx/${signature}?cluster=devnet" 
+              }
+
+              if (signature) {
+                explorerLink = `<a href="https://solscan.io/tx/${signature}?cluster=devnet"
                                       target="_blank" class="explorer-link" onclick="event.stopPropagation();">View 🔗</a>`;
-                }
-                
-                return `
+              }
+
+              return `
                     <tr onclick="showUserDetails('${t.user_id}')">
                         <td>${date}</td>
                         <td><strong>${username}</strong></td>
                         <td><span class="type-badge ${typeClass}">${t.type}</span></td>
-                        <td class="${amountClass}">${amountPrefix}${Math.round(displayAmount * 100) / 100}${currency}</td>
+                        <td class="${amountClass}">${amountPrefix}${
+                Math.round(displayAmount * 100) / 100
+              }${currency}</td>
                         <td>${Math.round(t.balance_after || 0).toLocaleString()}</td>
                         <td style="font-size: 11px; opacity: 0.7;">${metadata}</td>
                         <td>${explorerLink}</td>
                     </tr>
                 `;
-            }).join('');
+            })
+            .join('');
         }
 
         async function showUserDetails(userId) {
-            const modal = document.getElementById('user-modal');
-            const content = document.getElementById('user-details-content');
-            
-            modal.classList.add('show');
-            content.innerHTML = '<div class="loading">⏳ Loading user data...</div>';
+          const modal = document.getElementById('user-modal');
+          const content = document.getElementById('user-details-content');
 
-            try {
-                // Get user from leaderboard
-                const user = allUsers[userId];
-                
-                // Get user transactions (ensure allTransactions is array)
-                const userTransactions = Array.isArray(allTransactions) 
-                    ? allTransactions.filter(t => t.user_id === userId)
-                    : [];
-                
-                // ✅ CORRECTED: Calculate by SIGN, not by type
-                let totalEarned = 0;
-                let totalSpent = 0;
-                
-                userTransactions.forEach(t => {
-                    const amount = t.amount || 0;
-                    if (amount > 0) {
-                        totalEarned += amount;
-                    } else if (amount < 0) {
-                        totalSpent += Math.abs(amount);
-                    }
-                });
+          modal.classList.add('show');
+          content.innerHTML = '<div class="loading">⏳ Loading user data...</div>';
 
-                content.innerHTML = `
+          try {
+            // Get user from leaderboard
+            const user = allUsers[userId];
+
+            // Get user transactions (ensure allTransactions is array)
+            const userTransactions = Array.isArray(allTransactions)
+              ? allTransactions.filter((t) => t.user_id === userId)
+              : [];
+
+            // ✅ CORRECTED: Calculate by SIGN, not by type
+            let totalEarned = 0;
+            let totalSpent = 0;
+
+            userTransactions.forEach((t) => {
+              const amount = t.amount || 0;
+              if (amount > 0) {
+                totalEarned += amount;
+              } else if (amount < 0) {
+                totalSpent += Math.abs(amount);
+              }
+            });
+
+            content.innerHTML = `
                     <div class="user-info">
                         <div class="info-card">
                             <div class="info-label">User ID</div>
@@ -1057,17 +1159,23 @@
 
                     <div class="balance-highlight">
                         <div class="label">💰 Current Balance (Live)</div>
-                        <div class="value">${Math.round(user?.tama || 0).toLocaleString()} TAMA</div>
+                        <div class="value">${Math.round(
+                          user?.tama || 0
+                        ).toLocaleString()} TAMA</div>
                     </div>
 
                     <div class="user-info">
                         <div class="info-card">
                             <div class="info-label">Total Earned</div>
-                            <div class="info-value" style="color: #10b981;">+${Math.round(totalEarned).toLocaleString()} TAMA</div>
+                            <div class="info-value" style="color: #10b981;">+${Math.round(
+                              totalEarned
+                            ).toLocaleString()} TAMA</div>
                         </div>
                         <div class="info-card">
                             <div class="info-label">Total Spent</div>
-                            <div class="info-value" style="color: #ef4444;">-${Math.round(totalSpent).toLocaleString()} TAMA</div>
+                            <div class="info-value" style="color: #ef4444;">-${Math.round(
+                              totalSpent
+                            ).toLocaleString()} TAMA</div>
                         </div>
                         <div class="info-card">
                             <div class="info-label">Total Transactions</div>
@@ -1075,151 +1183,180 @@
                         </div>
                         <div class="info-card">
                             <div class="info-label">Last Activity</div>
-                            <div class="info-value">${user?.last_activity ? new Date(user.last_activity).toLocaleString() : 'Never'}</div>
+                            <div class="info-value">${
+                              user?.last_activity
+                                ? new Date(user.last_activity).toLocaleString()
+                                : 'Never'
+                            }</div>
                         </div>
                     </div>
 
                     <div class="transaction-list">
                         <h3 style="margin-bottom: 15px;">📜 Recent Transactions (Last 10)</h3>
-                        ${userTransactions.slice(0, 10).map(t => {
+                        ${userTransactions
+                          .slice(0, 10)
+                          .map((t) => {
                             const amount = t.amount || 0;
                             // ✅ CORRECTED: Color by SIGN, not by type
                             const isBurn = t.type.includes('burn');
-                            const color = isBurn ? '#ff6b35' : (amount > 0 ? '#10b981' : '#ef4444');
-                            const prefix = isBurn ? '🔥 ' : (amount > 0 ? '+' : '-');
+                            const color = isBurn ? '#ff6b35' : amount > 0 ? '#10b981' : '#ef4444';
+                            const prefix = isBurn ? '🔥 ' : amount > 0 ? '+' : '-';
                             const displayAmount = Math.abs(amount);
                             return `
                                 <div class="transaction-item">
                                     <div>
                                         <div style="font-weight: bold;">${t.type}</div>
-                                        <div style="font-size: 11px; opacity: 0.7;">${new Date(t.created_at).toLocaleString()}</div>
+                                        <div style="font-size: 11px; opacity: 0.7;">${new Date(
+                                          t.created_at
+                                        ).toLocaleString()}</div>
                                     </div>
                                     <div style="font-size: 18px; font-weight: bold; color: ${color};">
                                         ${prefix}${Math.round(displayAmount * 100) / 100}
                                     </div>
                                 </div>
                             `;
-                        }).join('')}
+                          })
+                          .join('')}
                     </div>
                 `;
-            } catch (error) {
-                content.innerHTML = `<div class="loading">❌ Error loading user data: ${error.message}</div>`;
-            }
+          } catch (error) {
+            content.innerHTML = `<div class="loading">❌ Error loading user data: ${error.message}</div>`;
+          }
         }
 
         function closeModal() {
-            document.getElementById('user-modal').classList.remove('show');
+          document.getElementById('user-modal').classList.remove('show');
         }
 
         function filterTransactions() {
-            // Ensure allTransactions is always an array
-            if (!Array.isArray(allTransactions)) {
-                console.warn('⚠️ allTransactions is not an array, resetting to []');
-                allTransactions = [];
+          // Ensure allTransactions is always an array
+          if (!Array.isArray(allTransactions)) {
+            console.warn('⚠️ allTransactions is not an array, resetting to []');
+            allTransactions = [];
+          }
+
+          const userFilter = document.getElementById('filter-user').value.toLowerCase();
+          const typeFilter = document.getElementById('filter-type').value;
+          const dateFrom = document.getElementById('filter-date-from').value;
+          const dateTo = document.getElementById('filter-date-to').value;
+
+          let filtered = allTransactions.filter((t) => {
+            if (
+              userFilter &&
+              !t.user_id.toLowerCase().includes(userFilter) &&
+              !(t.username || '').toLowerCase().includes(userFilter)
+            ) {
+              return false;
             }
-            
-            const userFilter = document.getElementById('filter-user').value.toLowerCase();
-            const typeFilter = document.getElementById('filter-type').value;
-            const dateFrom = document.getElementById('filter-date-from').value;
-            const dateTo = document.getElementById('filter-date-to').value;
+            // Handle NFT filter separately
+            if (typeFilter === 'nft' && !t.type.includes('nft_mint')) {
+              return false;
+            } else if (typeFilter && typeFilter !== 'nft' && !t.type.includes(typeFilter)) {
+              return false;
+            }
+            if (dateFrom && new Date(t.created_at) < new Date(dateFrom)) {
+              return false;
+            }
+            if (dateTo && new Date(t.created_at) > new Date(dateTo + 'T23:59:59')) {
+              return false;
+            }
+            return true;
+          });
 
-            let filtered = allTransactions.filter(t => {
-                if (userFilter && !t.user_id.toLowerCase().includes(userFilter) && !(t.username || '').toLowerCase().includes(userFilter)) {
-                    return false;
-                }
-                // Handle NFT filter separately
-                if (typeFilter === 'nft' && !t.type.includes('nft_mint')) {
-                    return false;
-                } else if (typeFilter && typeFilter !== 'nft' && !t.type.includes(typeFilter)) {
-                    return false;
-                }
-                if (dateFrom && new Date(t.created_at) < new Date(dateFrom)) {
-                    return false;
-                }
-                if (dateTo && new Date(t.created_at) > new Date(dateTo + 'T23:59:59')) {
-                    return false;
-                }
-                return true;
-            });
-
-            renderTransactions(filtered);
+          renderTransactions(filtered);
         }
 
         function exportToCSV() {
-            const csv = [
-                ['Date', 'User ID', 'Username', 'Type', 'Amount', 'Balance Before', 'Balance After', 'Metadata'],
-                ...allTransactions.map(t => [
-                    new Date(t.created_at).toISOString(),
-                    t.user_id,
-                    t.username || '',
-                    t.type,
-                    t.amount,
-                    t.balance_before || '',
-                    t.balance_after || '',
-                    JSON.stringify(t.metadata || {})
-                ])
-            ].map(row => row.join(',')).join('\n');
+          const csv = [
+            [
+              'Date',
+              'User ID',
+              'Username',
+              'Type',
+              'Amount',
+              'Balance Before',
+              'Balance After',
+              'Metadata',
+            ],
+            ...allTransactions.map((t) => [
+              new Date(t.created_at).toISOString(),
+              t.user_id,
+              t.username || '',
+              t.type,
+              t.amount,
+              t.balance_before || '',
+              t.balance_after || '',
+              JSON.stringify(t.metadata || {}),
+            ]),
+          ]
+            .map((row) => row.join(','))
+            .join('\n');
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+          a.click();
         }
 
         function updateLastUpdateTime() {
-            document.getElementById('update-time').textContent = `Last updated: ${new Date().toLocaleString()}`;
+          document.getElementById(
+            'update-time'
+          ).textContent = `Last updated: ${new Date().toLocaleString()}`;
         }
 
         function startAutoUpdate() {
-            // Update every 5 seconds (only check for new transactions on page 1)
-            autoUpdateInterval = setInterval(() => {
-                if (currentPage === 1) {
-                    console.log('🔄 Checking for new transactions...');
-                    loadTransactions(true); // updateOnly = true
-                }
-            }, 5000);
+          // Update every 5 seconds (only check for new transactions on page 1)
+          autoUpdateInterval = setInterval(() => {
+            if (currentPage === 1) {
+              console.log('🔄 Checking for new transactions...');
+              loadTransactions(true); // updateOnly = true
+            }
+          }, 5000);
         }
 
         function stopAutoUpdate() {
-            if (autoUpdateInterval) {
-                clearInterval(autoUpdateInterval);
-            }
+          if (autoUpdateInterval) {
+            clearInterval(autoUpdateInterval);
+          }
         }
 
         function changePage(direction) {
-            const totalPages = Math.ceil(totalCount / PAGE_SIZE);
-            currentPage += direction;
-            
-            if (currentPage < 1) currentPage = 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-            
-            loadTransactions();
+          const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+          currentPage += direction;
+
+          if (currentPage < 1) currentPage = 1;
+          if (currentPage > totalPages) currentPage = totalPages;
+
+          loadTransactions();
         }
 
         function updatePaginationInfo() {
-            const totalPages = totalCount > 0 ? Math.ceil(totalCount / PAGE_SIZE) : 1;
-            const start = (currentPage - 1) * PAGE_SIZE + 1;
-            const end = Math.min(currentPage * PAGE_SIZE, totalCount);
-            
-            // Update button states
-            const prevBtn = document.querySelector('button[onclick="changePage(-1)"]');
-            const nextBtn = document.querySelector('button[onclick="changePage(1)"]');
-            
-            if (prevBtn) {
-                prevBtn.disabled = currentPage <= 1;
-                prevBtn.style.opacity = currentPage <= 1 ? '0.5' : '1';
-            }
-            if (nextBtn) {
-                nextBtn.disabled = currentPage >= totalPages || allTransactions.length < PAGE_SIZE;
-                nextBtn.style.opacity = (currentPage >= totalPages || allTransactions.length < PAGE_SIZE) ? '0.5' : '1';
-            }
-            
-            document.getElementById('page-info').innerHTML = `
+          const totalPages = totalCount > 0 ? Math.ceil(totalCount / PAGE_SIZE) : 1;
+          const start = (currentPage - 1) * PAGE_SIZE + 1;
+          const end = Math.min(currentPage * PAGE_SIZE, totalCount);
+
+          // Update button states
+          const prevBtn = document.querySelector('button[onclick="changePage(-1)"]');
+          const nextBtn = document.querySelector('button[onclick="changePage(1)"]');
+
+          if (prevBtn) {
+            prevBtn.disabled = currentPage <= 1;
+            prevBtn.style.opacity = currentPage <= 1 ? '0.5' : '1';
+          }
+          if (nextBtn) {
+            nextBtn.disabled = currentPage >= totalPages || allTransactions.length < PAGE_SIZE;
+            nextBtn.style.opacity =
+              currentPage >= totalPages || allTransactions.length < PAGE_SIZE ? '0.5' : '1';
+          }
+
+          document.getElementById('page-info').innerHTML = `
                 Page ${currentPage} of ${totalPages > 0 ? totalPages : '?'}<br>
                 <span style="font-size: 14px; opacity: 0.8;">
-                    Showing ${start.toLocaleString()} - ${end.toLocaleString()} ${totalCount > 0 ? 'of ~' + totalCount.toLocaleString() : ''}
+                    Showing ${start.toLocaleString()} - ${end.toLocaleString()} ${
+            totalCount > 0 ? 'of ~' + totalCount.toLocaleString() : ''
+          }
                 </span>
             `;
         }
@@ -1232,30 +1369,31 @@
 
         // Close modal on background click
         document.getElementById('user-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'user-modal') {
-                closeModal();
-            }
+          if (e.target.id === 'user-modal') {
+            closeModal();
+          }
         });
 
         // Load on page load
         loadTransactionsCount().then(() => {
-            loadTransactions();
-            startAutoUpdate();
+          loadTransactions();
+          startAutoUpdate();
         });
 
         // Stop auto-update when page is hidden
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                stopAutoUpdate();
-            } else {
-                startAutoUpdate();
-            }
+          if (document.hidden) {
+            stopAutoUpdate();
+          } else {
+            startAutoUpdate();
+          }
         });
-    </script>
-    </div> <!-- End of adminContent -->
+      </script>
+    </div>
+    <!-- End of adminContent -->
 
     <!-- Admin Authentication -->
     <script src="admin-password.js"></script>
     <script src="js/admin-auth.js"></script>
-</body>
+  </body>
 </html>

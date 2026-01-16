@@ -1494,7 +1494,7 @@
             }
         }
 
-        // Spin the slots
+        // Spin the slots - 🛡️ SECURITY FIX: Now uses SERVER-generated results!
         async function spin() {
             // CRITICAL: Check spinning flag FIRST and set it IMMEDIATELY
             if (isSpinning) {
@@ -1522,57 +1522,43 @@
 
             hideResult();
 
-            // Update balance in backend (deduct bet) - API will return updated balance
-            const betResponse = await updateBalance(-currentBet, []);
+            // 🛡️ SECURITY: Send bet to server - server will generate result!
+            // Server now generates symbols and calculates win amount
+            const spinResponse = await spinOnServer(currentBet);
 
             // If API call failed, restore state and reload balance
-            if (!betResponse || betResponse.error) {
-                console.error('❌ Failed to deduct bet, restoring state:', betResponse?.error);
+            if (!spinResponse || spinResponse.error) {
+                console.error('❌ Failed to spin, restoring state:', spinResponse?.error);
                 isSpinning = false;
                 document.getElementById('spin-btn').disabled = false;
-                showResult('❌ Error: Could not process bet. Please try again.', false);
+                showResult('❌ Error: Could not process spin. Please try again.', false);
                 await loadUserData(); // Reload balance from server
                 return;
             }
 
-            // Check if balance is valid after bet deduction
-            if (betResponse.balance !== undefined && betResponse.balance < 0) {
-                console.error('❌ Invalid balance after bet:', betResponse.balance);
-                isSpinning = false;
-                document.getElementById('spin-btn').disabled = false;
-                showResult('❌ Error: Invalid balance. Please reload the page.', false);
-                await loadUserData(); // Reload balance from server
-                return;
-            }
+            // 🛡️ Get SERVER-GENERATED symbols (not client-generated!)
+            const result = spinResponse.symbols || ['🍒', '🍒', '🍒'];
+            const isWin = spinResponse.is_win || false;
+            let winAmount = spinResponse.win || 0;
+            const isJackpot = isWin && result[0] === '🎰' && result[1] === '🎰' && result[2] === '🎰';
+
+            console.log('🎰 Server result:', result, 'Win:', winAmount, 'Jackpot:', isJackpot);
 
             // Play spin sound
             sounds.spin();
 
-            // Determine result FIRST (before animation)
-            const result = getSpinResult();
-
-            // Spin animation (will show result symbols one by one)
+            // Spin animation (will show result symbols from SERVER)
             await playSpinAnimation(result);
 
-            // Check win
-            const isWin = result[0] === result[1] && result[1] === result[2];
-            let winAmount = 0;
-            const isJackpot = isWin && result[0] === '🎰';
-
             if (isWin) {
-                const multiplier = MULTIPLIERS[result[0]];
-                winAmount = currentBet * multiplier;
+                const multiplier = MULTIPLIERS[result[0]] || 2;
 
-                // Update balance in backend with symbols (for jackpot detection)
-                const apiResponse = await updateBalance(winAmount, result);
-
-                // Balance is already updated by updateBalance() from API response
-                // Add win to total won
+                // Add win to total won (balance already updated from API response)
                 totalWon += winAmount;
 
                 // If jackpot was won, API already added it to balance
-                if (isJackpot && apiResponse && apiResponse.jackpot && apiResponse.jackpot.jackpot_win > 0) {
-                    const jackpotWin = apiResponse.jackpot.jackpot_win;
+                if (isJackpot && spinResponse.jackpot && spinResponse.jackpot.jackpot_win > 0) {
+                    const jackpotWin = spinResponse.jackpot.jackpot_win;
                     winAmount += jackpotWin;
                     totalWon += jackpotWin;
                 }
@@ -1743,41 +1729,11 @@
             });
         }
 
-        // Get spin result (generate symbols, but don't display yet)
-        function getSpinResult() {
-            // Weighted random selection (optimized for better jackpot chances)
-            const weights = {
-                '🍒': 28,  // 28% chance
-                '🍋': 24,  // 24% chance
-                '🍊': 19,  // 19% chance
-                '💎': 12,  // 12% chance
-                '⭐': 9,   // 9% chance
-                '👑': 5,   // 5% chance
-                '🎰': 3    // 3% chance (JACKPOT!) - increased from 1% for ~monthly jackpots
-            };
+        // 🛡️ SECURITY FIX: getSpinResult() and weightedRandom() were REMOVED!
+        // Symbol generation now happens ONLY on the server (see tama_supabase.php)
+        // This prevents client manipulation of slot results.
+        // The spin() function now calls spinOnServer() which returns server-generated symbols.
 
-            const result = [];
-            for (let i = 0; i < 3; i++) {
-                const symbol = weightedRandom(weights);
-                result.push(symbol);
-                // DON'T set textContent here - it will be set when reel stops
-            }
-
-            return result;
-        }
-
-        // Weighted random
-        function weightedRandom(weights) {
-            const total = Object.values(weights).reduce((a, b) => a + b, 0);
-            let random = Math.random() * total;
-
-            for (const [symbol, weight] of Object.entries(weights)) {
-                random -= weight;
-                if (random <= 0) return symbol;
-            }
-
-            return '🍒'; // Fallback
-        }
 
         // Load jackpot pool
         async function loadJackpotPool() {
@@ -1801,7 +1757,72 @@
             }
         }
 
-        // Update balance in backend
+        // 🛡️ SECURITY: New secure function - send bet to server, receive server-generated result
+        async function spinOnServer(betAmount) {
+            // Ensure userId is set
+            if (!userId) {
+                userId = getUserId();
+            }
+
+            if (!userId || userId === '123456789') {
+                console.warn('⚠️ Cannot spin: invalid user ID');
+                return null;
+            }
+
+            try {
+                console.log(`🎰 Sending spin request to server: bet=${betAmount} for user ${userId}`);
+
+                // 🔐 SECURITY: Get Telegram WebApp initData for authentication
+                const initData = window.Telegram?.WebApp?.initData || '';
+
+                const requestBody = {
+                    telegram_id: String(userId),
+                    bet: betAmount,
+                    // 🛡️ NOTE: We do NOT send symbols - server generates them!
+                    init_data: initData // 🔐 Authentication data
+                };
+
+                // Add wallet_address if wallet user
+                if (userId.startsWith('wallet_') && walletAddress) {
+                    requestBody.wallet_address = walletAddress;
+                }
+
+                const response = await fetch(`${API_BASE}/slots/spin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('🎰 Server response:', data);
+
+                    // Update balance from server response
+                    if (data.balance !== undefined) {
+                        balance = data.balance;
+                        document.getElementById('balance').textContent = formatNumber(balance);
+                        updateCustomBetInfo();
+                    }
+
+                    // Update jackpot pool
+                    if (data.jackpot) {
+                        jackpotPool = data.jackpot.current_pool || 0;
+                        document.getElementById('jackpot-pool').textContent = formatNumber(jackpotPool) + ' TAMA';
+                    }
+
+                    return data;
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('❌ Server spin failed:', response.status, errorData);
+                    return { error: errorData.error || `Server returned ${response.status}` };
+                }
+            } catch (error) {
+                console.error('❌ Error calling spin API:', error);
+                return { error: error.message };
+            }
+        }
+
+        // Update balance in backend (used by other games, not slots now)
         async function updateBalance(amount, symbols = []) {
             // Ensure userId is set
             if (!userId) {
@@ -1872,44 +1893,14 @@
                 } else {
                     const errorData = await response.json().catch(() => ({}));
                     console.error('Failed to update balance via API:', response.status, errorData);
-
-                    // Fallback: update via Supabase directly
-                    try {
-                        console.log('📡 Fallback: updating balance via Supabase (API returned', response.status, ')');
-                        const { data: leaderboardData } = await supabase
-                            .from('leaderboard')
-                            .select('tama')
-                            .eq('telegram_id', String(userId))
-                            .maybeSingle();
-
-                        if (leaderboardData) {
-                            const currentBalance = leaderboardData.tama || 0;
-                            const newBalance = currentBalance + amount;
-
-                            await supabase
-                                .from('leaderboard')
-                                .update({ tama: newBalance })
-                                .eq('telegram_id', String(userId));
-
-                            balance = newBalance;
-                            document.getElementById('balance').textContent = formatNumber(balance);
-
-                            // Log transaction
-                            await supabase.from('transactions').insert({
-                                telegram_id: String(userId),
-                                amount: amount,
-                                type: amount > 0 ? 'slots_win' : 'slots_spin',
-                                balance_before: currentBalance,
-                                balance_after: newBalance,
-                                metadata: JSON.stringify({ source: 'slots.html', fallback: true })
-                            });
-                        }
-                    } catch (e) {
-                        console.error('Failed to update balance via Supabase:', e);
-                    }
+                    // 🛡️ SECURITY FIX: Removed direct Supabase fallback!
+                    // Client should NOT be able to write directly to database
+                    // If API fails, just return the error - don't bypass security
+                    return { error: errorData.error || `API returned ${response.status}` };
                 }
             } catch (error) {
                 console.error('Failed to update balance:', error);
+                return { error: error.message };
             }
         }
 
